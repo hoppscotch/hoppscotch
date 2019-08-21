@@ -1,0 +1,185 @@
+:root {
+  --bg-color: #121212;
+  --fg-color: #fff;
+  --ac-color: #F8E81C;
+}
+
+* {
+  box-sizing: border-box;
+  outline: 0;
+  border: 0;
+  font-family: 'Poppins', 'Roboto', 'Noto', sans-serif;
+}
+
+::selection {
+  background-color: var(--ac-color);
+  color: var(--bg-color);
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+a {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+body {
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--fg-color);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  animation: fadein .2s;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+header,
+footer {
+  display: flex;
+  padding: 16px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  color: var(--ac-color);
+}
+
+main {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+button {
+  margin: 4px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background-color: var(--ac-color);
+  color: var(--bg-color);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+fieldset {
+  margin: 16px 0;
+  border: 1px solid var(--fg-color);
+  border-radius: 4px;
+}
+
+legend {
+  color: #57b5f9;
+  font-weight: 700;
+}
+
+fieldset textarea {
+  resize: vertical;
+}
+
+fieldset > section,
+fieldset > table {
+  margin: .6em 0;
+}
+
+fieldset > table {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-style: collaped;
+}
+
+fieldset table td input {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+fieldset.request {
+  border-color: #57b5f9;
+}
+
+fieldset.request legend {
+  color: #57b5f9;
+}
+
+fieldset.authentication {
+  border-color: #57b5f9;
+}
+
+fieldset.authentication legend {
+  color: #57b5f9;
+}
+
+fieldset.response {
+  border-color: #C198FB;
+}
+
+fieldset.response legend {
+  color: #C198FB;
+}
+
+select,
+input,
+option,
+textarea {
+  background-color: #000;
+  border-radius: 4px;
+  font-size: 18px;
+  padding: 8px 16px;
+  color: var(--fg-color);
+  margin: 4px;
+  font-family: monospace;
+  font-weight: 700;
+  width: calc(100% - 8px);
+}
+
+label {
+  padding: 4px;
+}
+
+ul,
+ol {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+}
+
+ul li,
+ol li {
+  display: inline-flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+@media (max-width: 720px) {
+
+  ul,
+  ol {
+    flex-direction: column;
+  }
+
+  ul li,
+  ol li {
+    display: flex;
+  }

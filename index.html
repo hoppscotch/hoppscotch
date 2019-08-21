@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
+  <title>Postwoman - API request builder</title>
+  <meta name="description" content="API request builder">
+  <link rel="icon" href="favicon.ico">
+  <meta itemprop="name" content="Postwoman">
+  <meta itemprop="description" content="API request builder">
+  <meta itemprop="image" content="icons/icon-192x192.png">
+  <!-- See https://goo.gl/OOhYW5 -->
+  <link rel="manifest" href="manifest.json">
+  <!-- See https://goo.gl/qRE0vM -->
+  <meta name="theme-color" content="#121212">
+  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Postwoman">
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Postwoman">
+  <!-- Homescreen icons -->
+  <link rel="apple-touch-icon" href="icons/icon-48x48.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#121212">
+  <meta name="msapplication-tap-highlight" content="no">
+  <!-- OpenGraph -->
+  <meta property="og:site_name" content="Postwoman">
+  <meta property="og:url" content="https://Postwoman.ml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Postwoman">
+  <meta property="og:description" content="API request builder">
+  <meta property="og:image" content="icons/icon-144x144.png">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@liyasthomas">
+  <meta name="twitter:creator" content="@liyasthomas">
+  <meta name="twitter:url" content="https://Postwoman.ml">
+  <meta name="twitter:title" content="Postwoman">
+  <meta name="twitter:description" content="API request builder">
+  <meta name="twitter:image" content="icons/icon-144x144.png">
+  <!-- Web Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:500,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }).catch(function(err) {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+
+  </script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js'></script>
+</head>
+
+<body>
+  <main id="app">
+    <header>
+      <div>
+        <a href="/">
+          <h1 class="logo">Postwoman</h1>
+        </a>
+        <h3>API request builder</h3>
+      </div>
+    </header>
+    <fieldset class="request">
+      <legend>Request</legend>
+      <ul>
+        <li>
+          <label for="method">Method</label>
+          <select v-model="method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+            <option>OPTIONS</option>
+          </select>
+        </li>
+        <li>
+          <label for="url">URL</label>
+          <input v-model="url">
+        </li>
+        <li>
+          <label for="path">Path</label>
+          <input v-model="path">
+        </li>
+        <li>
+          <label for="action">Action</label>
+          <button name="action" @click="sendRequest">Send</button>
+        </li>
+      </ul>
+    </fieldset>
+    <fieldset class="authentication">
+      <legend>Authentication</legend>
+      <ul>
+        <li>
+          <label for="auth">Authentication Type</label>
+          <select v-model="auth">
+            <option>None</option>
+            <option>Basic</option>
+          </select>
+        </li>
+      </ul>
+      <ul v-if="auth === 'Basic'">
+        <li>
+          <label for="http_basic_user">User</label>
+          <input v-model="httpUser">
+        </li>
+        <li>
+          <label for="http_basic_passwd">Password</label>
+          <input v-model="httpPassword" type="password">
+        </li>
+      </ul>
+    </fieldset>
+    <fieldset class="3">
+      <legend>Parameters</legend>
+      <ol v-for="(param, index) in params">
+        <li>
+          <label :for="'param'+index">Key {{index + 1}}</label>
+          <input :name="'param'+index" v-model="param.key">
+        </li>
+        <li>
+          <label :for="'value'+index">Value {{index + 1}}</label>
+          <input :name="'value'+index" v-model="param.value">
+        </li>
+        <li>
+          <label for="param">Action</label>
+          <button name="param" @click="removeRequestParam(index)">Remove</button>
+        </li>
+      </ol>
+      <ul>
+        <li>
+          <label for="add">Action</label>
+          <button name="add" @click="addRequestParam">Add</button>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <label for="request">Parameter List</label>
+          <textarea name="request" rows="1" readonly>{{queryString || '(add atleast one parameter)'}}</textarea>
+        </li>
+      </ul>
+    </fieldset>
+    <fieldset class="4" v-if="method === 'POST' || method === 'PUT'">
+      <legend>Request Body</legend>
+      <ol v-for="(param, index) in bodyParams">
+        <li>
+          <label :for="'bparam'+index">Key {{index + 1}}</label>
+          <input :name="'bparam'+index" v-model="param.key">
+        </li>
+        <li>
+          <label :for="'bvalue'+index">Value {{index + 1}}</label>
+          <input :name="'bvalue'+index" v-model="param.value">
+        </li>
+        <li>
+          <label for="request">Action</label>
+          <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
+        </li>
+      </ol>
+      <ul>
+        <li>
+          <label>Content Type</label>
+          <select v-model="contentType">
+            <option>application/json</option>
+            <option>www-form/urlencoded</option>
+          </select>
+        </li>
+        <li>
+          <label for="addrequest">Action</label>
+          <button name="addrequest" @click="addRequestBodyParam">Add</button>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <label for="request">Parameter List</label>
+          <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add atleast one parameter)'}}</textarea>
+        </li>
+      </ul>
+    </fieldset>
+    <fieldset class="5 response" id="response" ref="response">
+      <legend>Response</legend>
+      <ul>
+        <li>
+          <label for="status">Status</label>
+          <input name="status" type="text" readonly :value="response.status || 'waiting for request'">
+        </li>
+      </ul>
+      <ul v-for="(value, key) in response.headers">
+        <li>
+          <label for="value">{{key}}</label>
+          <input name="value" :value="value" readonly>
+        </li>
+      </ul>
+      <textarea rows="10" readonly>{{response.body}}</textarea>
+    </fieldset>
+    <footer>
+      <a href="https://github.com/liyasthomas/postwoman"><img src="icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
+      <button id="installPWA" onclick="installPWA()">
+        PWA
+      </button>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+  <script>
+    let pwaInstalled = localStorage.getItem('pwaInstalled') == 'yes'
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      localStorage.setItem('pwaInstalled', 'yes')
+      pwaInstalled = true
+    }
+    if (window.navigator.standalone === true) {
+      localStorage.setItem('pwaInstalled', 'yes')
+      pwaInstalled = true
+    }
+    if (pwaInstalled) {
+      document.getElementById('installPWA').style.display = 'none'
+    } else {
+      document.getElementById('installPWA').style.display = 'block'
+    }
+    let deferredPrompt = null
+    window.addEventListener('beforeinstallprompt', (e) => {
+      deferredPrompt = e
+    })
+    async function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt()
+        deferredPrompt.userChoice.then(({
+          outcome
+        }) => {
+          if (outcome === 'accepted') {
+            console.log('Your PWA has been installed')
+          } else {
+            console.log('User chose to not install your PWA')
+          }
+          deferredPrompt = null
+        })
+      }
+    }
+    window.addEventListener('appinstalled', (evt) => {
+      localStorage.setItem('pwaInstalled', 'yes')
+      pwaInstalled = true
+      document.getElementById('installPWA').style.display = 'none'
+    })
+
+  </script>
+</body>
+
+</html>

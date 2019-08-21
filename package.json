@@ -1,0 +1,16 @@
+{
+	"name": "Banner",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/liyasthomas/banner.git"
+	},
+	"description": "A simple and clean banner generator",
+	"author": "liyasthomas",
+	"version": "0.1.9",
+	"devDependencies": {
+		"jshint": "^2.10.2"
+	},
+	"scripts": {
+		"test": "jshint travis.js"
+	}
+}

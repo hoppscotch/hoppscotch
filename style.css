@@ -92,6 +92,7 @@ fieldset {
 legend {
   color: #57b5f9;
   font-weight: 700;
+  cursor: pointer;
 }
 
 fieldset textarea {
@@ -138,19 +139,23 @@ fieldset.response legend {
   color: #C198FB;
 }
 
+.hidden .collapsible {
+  display: none;
+}
+
 select,
 input,
 option,
 textarea {
-  background-color: #000;
-  border-radius: 4px;
-  font-size: 18px;
-  padding: 8px 16px;
-  color: var(--fg-color);
   margin: 4px;
-  font-family: monospace;
-  font-weight: 700;
+  padding: 8px 16px;
   width: calc(100% - 8px);
+  border-radius: 4px;
+  background-color: #000;
+  color: var(--fg-color);
+  font-weight: 700;
+  font-size: 18px;
+  font-family: monospace;
 }
 
 label {
@@ -159,10 +164,10 @@ label {
 
 ul,
 ol {
+  display: flex;
   margin: 8px 0 0;
   padding: 0;
   list-style-type: none;
-  display: flex;
 }
 
 ul li,
@@ -183,3 +188,4 @@ ol li {
   ol li {
     display: flex;
   }
+}

@@ -65,6 +65,12 @@ const app = new Vue({
     }
   },
   methods: {
+    collapse({
+      target
+    }) {
+      const el = target.parentNode.className
+      document.getElementsByClassName(el)[0].classList.toggle('hidden')
+    },
     sendRequest() {
       this.$refs.response.scrollIntoView({
         behavior: 'smooth'

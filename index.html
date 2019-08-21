@@ -124,7 +124,7 @@
         </li>
       </ul>
     </fieldset>
-    <fieldset class="3">
+    <fieldset class="parameters">
       <legend>Parameters</legend>
       <ol v-for="(param, index) in params">
         <li>
@@ -153,7 +153,7 @@
         </li>
       </ul>
     </fieldset>
-    <fieldset class="4" v-if="method === 'POST' || method === 'PUT'">
+    <fieldset class="reqbody" v-if="method === 'POST' || method === 'PUT'">
       <legend>Request Body</legend>
       <ol v-for="(param, index) in bodyParams">
         <li>
@@ -203,7 +203,7 @@
           <input name="value" :value="value" readonly>
         </li>
       </ul>
-      <textarea rows="10" readonly>{{response.body}}</textarea>
+      <textarea rows="5" readonly>{{response.body}}</textarea>
     </fieldset>
     <footer>
       <a href="https://github.com/liyasthomas/postwoman"><img src="icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>

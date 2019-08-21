@@ -85,7 +85,7 @@ button {
 
 fieldset {
   margin: 16px 0;
-  border: 1px solid var(--fg-color);
+  border: 2px solid var(--fg-color);
   border-radius: 4px;
 }
 
@@ -98,22 +98,6 @@ fieldset textarea {
   resize: vertical;
 }
 
-fieldset > section,
-fieldset > table {
-  margin: .6em 0;
-}
-
-fieldset > table {
-  width: 100%;
-  border: 1px solid #ddd;
-  border-style: collaped;
-}
-
-fieldset table td input {
-  box-sizing: border-box;
-  width: 100%;
-}
-
 fieldset.request {
   border-color: #57b5f9;
 }
@@ -123,11 +107,27 @@ fieldset.request legend {
 }
 
 fieldset.authentication {
-  border-color: #57b5f9;
+  border-color: #50E3C2;
 }
 
 fieldset.authentication legend {
-  color: #57b5f9;
+  color: #50E3C2;
+}
+
+fieldset.parameters {
+  border-color: #B8E986;
+}
+
+fieldset.parameters legend {
+  color: #B8E986;
+}
+
+fieldset.reqbody {
+  border-color: #4A90E2;
+}
+
+fieldset.reqbody legend {
+  color: #4A90E2;
 }
 
 fieldset.response {

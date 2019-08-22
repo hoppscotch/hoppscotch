@@ -7,22 +7,22 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
   <h1>Liyas Thomas</h1>
   <sub>Built with ❤︎ by
   <a href="https://github.com/liyasthomas">liyasthomas</a> and
-  <a href="https://github.com/liyasthomas/banner/graphs/contributors">contributors</a>
+  <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
 	</sub>
 </div>
 
 ---
 
-[![Build Status](https://travis-ci.org/liyasthomas/banner.svg?branch=master)](https://travis-ci.org/liyasthomas/banner) [![GitHub release](https://img.shields.io/github/release/liyasthomas/banner/all.svg)](https://github.com/liyasthomas/banner/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/banner.svg)](https://github.com/liyasthomas/banner/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/banner.svg)](https://github.com/liyasthomas/banner/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/banner/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://liyas-thomas.firebaseapp.com) [![Donate](https://img.shields.io/badge/$-donate-ff69b4.svg)](https://www.paypal.me/liyascthomas)
+[![Build Status](https://travis-ci.org/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.org/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://liyas-thomas.firebaseapp.com) [![Donate](https://img.shields.io/badge/$-donate-ff69b4.svg)](https://www.paypal.me/liyascthomas)
 
-# <img src="icons/icon-48x48.png" alt="banner" width="32"> Banner
+# <img src="icons/icon-48x48.png" alt="postwoman" width="32"> Postwoman
 
-### 🚩 A simple and clean banner generator by [Liyas Thomas](https://github.com/liyasthomas)
+### 👽 API request builder by [Liyas Thomas](https://github.com/liyasthomas)
 
 <div align="center">
   <br>
-  <img src="icons/screely.png" alt="banner" width="100%">
-  <img src="icons/screely2.png" alt="banner" width="100%">
+  <img src="icons/screely.png" alt="postwoman" width="100%">
+  <img src="icons/screely2.png" alt="postwoman" width="100%">
   <br>
 </div>
 
@@ -30,25 +30,23 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 :heart: **Lightweight and minimal**: Crafted with minimalistic UI design
 
-:electric_plug: **Real-time demo**: WYSIWYG (what you see is what you get) banner editor 
+:electric_plug: **Real-time demo**: Send requests and get response right away! 
 
-:zap: **Make it your own**: Customize everything!
+:robot: **VIBGYOR**: Neon combination of colors for background and foreground
 
-:robot: **AI**: Generate combination colors for background and foreground
-
-:sparkles: **Choose custom colors**: Randomize or choose your own colors
-
-:rocket: **Save**: Download generated banner to disk
+:sparkles: **PWA**: Install as a PWA on your device
 
 ---
 
 ## Demo
 
-[https://liyasthomas.github.io/banner](https://liyasthomas.github.io/banner)
+[https://liyasthomas.github.io/postwoman](https://liyasthomas.github.io/postwoman)
 
-1. Give a heading
-2. Customize everything!
-3. Download banner
+1. Specify your request method
+2. Type in your API URL
+3. Add API path
+4. Send request
+5. Get response!
 
 You're done!
 
@@ -71,13 +69,13 @@ Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT]
 
 ## Continuous Integration
 
-We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.org/liyasthomas/banner).
+We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.org/liyasthomas/postwoman).
 
 ---
 
 ## Versioning
 
-This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/banner/releases).
+This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
 ---
 
@@ -101,7 +99,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 ### Thanks
 * [Dribbble](https://dribbble.com)
 
-See the list of [contributors](https://github.com/liyasthomas/banner/graphs/contributors) who participated in this project.
+See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
 
 ---
 

@@ -1,12 +1,12 @@
 {
-	"name": "Banner",
+	"name": "Postwoman",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/liyasthomas/banner.git"
+		"url": "https://github.com/liyasthomas/postwoman.git"
 	},
-	"description": "A simple and clean banner generator",
+	"description": "API request builder",
 	"author": "liyasthomas",
-	"version": "0.1.9",
+	"version": "0.1.0",
 	"devDependencies": {
 		"jshint": "^2.10.2"
 	},

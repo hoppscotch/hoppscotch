@@ -26,7 +26,9 @@ const app = new Vue({
       headers: '',
       body: ''
     },
-    history: []
+
+    // Load history from local storage
+    history: window.localStorage.getItem("history") ? JSON.parse(window.localStorage.getItem("history")) : []
   },
   computed: {
     rawRequestBody() {
@@ -68,6 +70,9 @@ const app = new Vue({
   methods: {
     deleteHistory(entry) {
       this.history.splice(this.history.indexOf(entry), 1)
+      
+      // Update the history
+      window.localStorage.setItem("history", JSON.stringify(this.history))
     },
     useHistory({
       method,
@@ -93,6 +98,10 @@ const app = new Vue({
         url: this.url,
         path: this.path
       })
+      
+      // Persist history in Local Storage
+      window.localStorage.setItem("history", JSON.stringify(this.history))
+      
       if (this.$refs.response.classList.contains('hidden')) {
         this.$refs.response.classList.toggle('hidden')
       }

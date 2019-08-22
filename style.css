@@ -2,6 +2,7 @@
   --bg-color: #121212;
   --fg-color: #fff;
   --ac-color: #51FF0D;
+  --err-color: #FF0000;
 }
 
 * {
@@ -162,6 +163,15 @@ textarea {
   font-weight: 700;
   font-size: 18px;
   font-family: monospace;
+}
+
+.error {
+  border: 1px solid var(--err-color);
+}
+
+.disabled {
+  background-color: #3C3C3C;
+  color: #B3B3B3;
 }
 
 label {

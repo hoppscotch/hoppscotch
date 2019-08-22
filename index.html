@@ -91,7 +91,7 @@
           </li>
           <li>
             <label for="url">URL</label>
-            <input v-model="url">
+            <input type="url" v-bind:class="{ error: urlNotValid }" v-model="url">
           </li>
           <li>
             <label for="path">Path</label>
@@ -99,7 +99,7 @@
           </li>
           <li>
             <label for="action">&nbsp;</label>
-            <button name="action" @click="sendRequest">Send</button>
+            <button v-bind:class="{ disabled: urlNotValid }" name="action" @click="sendRequest">Send</button>
           </li>
         </ul>
       </div>

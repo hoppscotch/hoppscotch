@@ -107,9 +107,9 @@
     <fieldset class="history hidden">
       <legend v-on:click="collapse">History ↕</legend>
       <div class="collapsible">
-        <ul v-for="(entry, index) in history">
+        <ul v-for="entry in history">
           <li>
-            <label for="time">Entry {{index + 1}}</label>
+            <label for="time">Time</label>
             <input name="time" type="text" readonly :value="entry.time">
           </li>
           <li>

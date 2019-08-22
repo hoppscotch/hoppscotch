@@ -29,11 +29,9 @@ const app = new Vue({
     history: window.localStorage.getItem("history") ? JSON.parse(window.localStorage.getItem("history")) : []
   },
   computed: {
-
     urlNotValid() {
       return !(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g.test(this.url))
     },
-
     rawRequestBody() {
       const {
         bodyParams
@@ -91,14 +89,11 @@ const app = new Vue({
       document.getElementsByClassName(el)[0].classList.toggle('hidden')
     },
     sendRequest() {
-
       if (this.urlNotValid) {
         alert("Please check the formatting of the URL")
         return
       }
-
       const n = new Date().toLocaleTimeString()
-      
       // Latest requests should be placed on top
       this.history = [{
         time: n,
@@ -106,7 +101,6 @@ const app = new Vue({
         url: this.url,
         path: this.path
       }, ...this.history]
-      
       window.localStorage.setItem("history", JSON.stringify(this.history))
       if (this.$refs.response.classList.contains('hidden')) {
         this.$refs.response.classList.toggle('hidden')

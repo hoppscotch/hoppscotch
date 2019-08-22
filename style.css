@@ -1,8 +1,8 @@
 :root {
   --bg-color: #121212;
-  --fg-color: #fff;
+  --fg-color: #FFF;
   --ac-color: #51FF0D;
-  --err-color: #FF0000;
+  --err-color: #D0021B;
 }
 
 * {
@@ -166,12 +166,12 @@ textarea {
 }
 
 .error {
-  border: 1px solid var(--err-color);
+  background-color: var(--err-color);
 }
 
 .disabled {
-  background-color: #3C3C3C;
-  color: #B3B3B3;
+  background-color: #393939;
+  color: #b2b2b2;
 }
 
 label {

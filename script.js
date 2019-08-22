@@ -136,6 +136,10 @@ const app = new Vue({
           this.response.body = xhr.responseText
         }
       }
+      xhr.onerror = e => {
+        this.response.status = '0'
+        this.response.body = 'Error ;('
+      }
     },
     addRequestParam() {
       this.params.push({

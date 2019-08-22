@@ -75,7 +75,8 @@ const app = new Vue({
       this.$refs.response.scrollIntoView({
         behavior: 'smooth'
       })
-      this.response.status = 'Loading...'
+      this.response.status = 'Fetching...'
+      this.response.body = 'Loading...'
       const xhr = new XMLHttpRequest()
       const user = this.auth === 'Basic' ? this.httpUser : null
       const pswd = this.auth === 'Basic' ? this.httpPassword : null

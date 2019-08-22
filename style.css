@@ -34,11 +34,9 @@ a {
 }
 
 body {
-  padding: 0;
   background-color: var(--bg-color);
   color: var(--fg-color);
   font-weight: 500;
-  font-size: 16px;
   line-height: 1.5;
   animation: fadein .2s;
   -webkit-tap-highlight-color: transparent;
@@ -108,19 +106,19 @@ fieldset.request legend {
 }
 
 fieldset.authentication {
-  border-color: #50E3C2;
-}
-
-fieldset.authentication legend {
-  color: #50E3C2;
-}
-
-fieldset.parameters {
   border-color: #B8E986;
 }
 
-fieldset.parameters legend {
+fieldset.authentication legend {
   color: #B8E986;
+}
+
+fieldset.parameters {
+  border-color: #50E3C2;
+}
+
+fieldset.parameters legend {
+  color: #50E3C2;
 }
 
 fieldset.reqbody {

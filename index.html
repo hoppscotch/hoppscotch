@@ -76,7 +76,7 @@
       </div>
     </header>
     <fieldset class="request">
-      <legend v-on:click="collapse">Request ⇵</legend>
+      <legend v-on:click="collapse">Request ⭥</legend>
       <div class="collapsible">
         <ul>
           <li>
@@ -98,14 +98,54 @@
             <input v-model="path">
           </li>
           <li>
-            <label for="action">Action</label>
+            <label for="action">&nbsp;</label>
             <button name="action" @click="sendRequest">Send</button>
           </li>
         </ul>
       </div>
     </fieldset>
-    <fieldset class="authentication">
-      <legend v-on:click="collapse">Authentication ⇵</legend>
+    <fieldset class="reqbody" v-if="method === 'POST' || method === 'PUT'">
+      <legend v-on:click="collapse">Request Body ⭥</legend>
+      <div class="collapsible">
+        <ul>
+          <li>
+            <label>Content Type</label>
+            <select v-model="contentType">
+              <option>application/json</option>
+              <option>www-form/urlencoded</option>
+            </select>
+          </li>
+        </ul>
+        <ol v-for="(param, index) in bodyParams">
+          <li>
+            <label :for="'bparam'+index">Key {{index + 1}}</label>
+            <input :name="'bparam'+index" v-model="param.key">
+          </li>
+          <li>
+            <label :for="'bvalue'+index">Value {{index + 1}}</label>
+            <input :name="'bvalue'+index" v-model="param.value">
+          </li>
+          <li>
+            <label for="request">&nbsp;</label>
+            <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
+          </li>
+        </ol>
+        <ul>
+          <li>
+            <label for="addrequest">Action</label>
+            <button name="addrequest" @click="addRequestBodyParam">Add</button>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="request">Parameter List</label>
+            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add atleast one parameter)'}}</textarea>
+          </li>
+        </ul>
+      </div>
+    </fieldset>
+    <fieldset class="authentication hidden">
+      <legend v-on:click="collapse">Authentication ⭥</legend>
       <div class="collapsible">
         <ul>
           <li>
@@ -128,8 +168,8 @@
         </ul>
       </div>
     </fieldset>
-    <fieldset class="parameters">
-      <legend v-on:click="collapse">Parameters ⇵</legend>
+    <fieldset class="parameters hidden">
+      <legend v-on:click="collapse">Parameters ⭥</legend>
       <div class="collapsible">
         <ol v-for="(param, index) in params">
           <li>
@@ -141,7 +181,7 @@
             <input :name="'value'+index" v-model="param.value">
           </li>
           <li>
-            <label for="param">Action</label>
+            <label for="param">&nbsp;</label>
             <button name="param" @click="removeRequestParam(index)">Remove</button>
           </li>
         </ol>
@@ -159,51 +199,13 @@
         </ul>
       </div>
     </fieldset>
-    <fieldset class="reqbody" v-if="method === 'POST' || method === 'PUT'">
-      <legend v-on:click="collapse">Request Body ⇵</legend>
-      <div class="collapsible">
-        <ol v-for="(param, index) in bodyParams">
-          <li>
-            <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :name="'bparam'+index" v-model="param.key">
-          </li>
-          <li>
-            <label :for="'bvalue'+index">Value {{index + 1}}</label>
-            <input :name="'bvalue'+index" v-model="param.value">
-          </li>
-          <li>
-            <label for="request">Action</label>
-            <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
-          </li>
-        </ol>
-        <ul>
-          <li>
-            <label>Content Type</label>
-            <select v-model="contentType">
-              <option>application/json</option>
-              <option>www-form/urlencoded</option>
-            </select>
-          </li>
-          <li>
-            <label for="addrequest">Action</label>
-            <button name="addrequest" @click="addRequestBodyParam">Add</button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <label for="request">Parameter List</label>
-            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add atleast one parameter)'}}</textarea>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
     <fieldset class="response" id="response" ref="response">
-      <legend v-on:click="collapse">Response ⇵</legend>
+      <legend v-on:click="collapse">Response ⭥</legend>
       <div class="collapsible">
         <ul>
           <li>
-            <label for="status">Status</label>
-            <input name="status" type="text" readonly :value="response.status || 'waiting for request'">
+            <label for="status">status</label>
+            <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'">
           </li>
         </ul>
         <ul v-for="(value, key) in response.headers">
@@ -212,13 +214,18 @@
             <input name="value" :value="value" readonly>
           </li>
         </ul>
-        <textarea rows="5" readonly>{{response.body}}</textarea>
+        <ul>
+          <li>
+            <label for="body">response</label>
+            <textarea name="body" rows="6" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+          </li>
+        </ul>
       </div>
     </fieldset>
     <footer>
       <a href="https://github.com/liyasthomas/postwoman"><img src="icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
       <button id="installPWA" onclick="installPWA()">
-        PWA
+        Install PWA
       </button>
     </footer>
   </main>

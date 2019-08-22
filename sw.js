@@ -35,9 +35,8 @@ workbox.routing.registerRoute(
 	})
 );
 workbox.precaching.precacheAndRoute([
-    '/index.css',
-    '/index.js',
-    '/manage.js',
+    '/style.css',
+    '/script.js',
 	{
 		url: '/index.html',
 		revision: '383676'

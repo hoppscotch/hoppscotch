@@ -85,8 +85,7 @@ const app = new Vue({
       document.getElementsByClassName(el)[0].classList.toggle('hidden')
     },
     sendRequest() {
-      const d = new Date()
-      const n = d.toLocaleTimeString()
+      const n = new Date().toLocaleTimeString()
       this.history.push({
         time: n,
         method: this.method,

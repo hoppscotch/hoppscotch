@@ -76,7 +76,7 @@
       </div>
     </header>
     <fieldset class="request">
-      <legend v-on:click="collapse">Request ⭥</legend>
+      <legend v-on:click="collapse">Request ↕</legend>
       <div class="collapsible">
         <ul>
           <li>
@@ -105,7 +105,7 @@
       </div>
     </fieldset>
     <fieldset class="history hidden">
-      <legend v-on:click="collapse">History ⭥</legend>
+      <legend v-on:click="collapse">History ↕</legend>
       <div class="collapsible">
         <ul v-for="(entry, index) in history">
           <li>
@@ -136,7 +136,7 @@
       </div>
     </fieldset>
     <fieldset class="reqbody" v-if="method === 'POST' || method === 'PUT'">
-      <legend v-on:click="collapse">Request Body ⭥</legend>
+      <legend v-on:click="collapse">Request Body ↕</legend>
       <div class="collapsible">
         <ul>
           <li>
@@ -176,7 +176,7 @@
       </div>
     </fieldset>
     <fieldset class="authentication hidden">
-      <legend v-on:click="collapse">Authentication ⭥</legend>
+      <legend v-on:click="collapse">Authentication ↕</legend>
       <div class="collapsible">
         <ul>
           <li>
@@ -200,7 +200,7 @@
       </div>
     </fieldset>
     <fieldset class="parameters hidden">
-      <legend v-on:click="collapse">Parameters ⭥</legend>
+      <legend v-on:click="collapse">Parameters ↕</legend>
       <div class="collapsible">
         <ol v-for="(param, index) in params">
           <li>
@@ -231,7 +231,7 @@
       </div>
     </fieldset>
     <fieldset class="response" id="response" ref="response">
-      <legend v-on:click="collapse">Response ⭥</legend>
+      <legend v-on:click="collapse">Response ↕</legend>
       <div class="collapsible">
         <ul>
           <li>

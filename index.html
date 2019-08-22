@@ -107,10 +107,10 @@
     <fieldset class="history hidden">
       <legend v-on:click="collapse">History ⭥</legend>
       <div class="collapsible">
-        <ul v-for="entry in history">
+        <ul v-for="(entry, index) in history">
           <li>
-            <label for="use">{{entry.time}}</label>
-            <button name="use" @click="useHistory(entry)">Use</button>
+            <label for="time">Entry {{index + 1}}</label>
+            <input name="time" type="text" readonly :value="entry.time">
           </li>
           <li>
             <label for="name">Method</label>
@@ -127,6 +127,10 @@
           <li>
             <label for="delete">&nbsp;</label>
             <button name="delete" @click="deleteHistory(entry)">Delete</button>
+          </li>
+          <li>
+            <label for="use">&nbsp;</label>
+            <button name="use" @click="useHistory(entry)">Use</button>
           </li>
         </ul>
       </div>

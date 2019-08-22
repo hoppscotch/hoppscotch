@@ -26,11 +26,17 @@ const app = new Vue({
       headers: '',
       body: ''
     },
-    history: window.localStorage.getItem("history") ? JSON.parse(window.localStorage.getItem("history")) : []
+    history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : []
   },
   computed: {
     urlNotValid() {
-      return !(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g.test(this.url))
+      const pattern = new RegExp('^(https?:\\/\\/)?' +
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+        '((\\d{1,3}\\.){3}\\d{1,3}))' +
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+        '(\\?[;&a-z\\d%_.~+=-]*)?' +
+        '(\\#[-a-z\\d_]*)?$', 'i')
+      return !pattern.test(this.url)
     },
     rawRequestBody() {
       const {
@@ -71,7 +77,7 @@ const app = new Vue({
   methods: {
     deleteHistory(entry) {
       this.history.splice(this.history.indexOf(entry), 1)
-      window.localStorage.setItem("history", JSON.stringify(this.history))
+      window.localStorage.setItem('history', JSON.stringify(this.history))
     },
     useHistory({
       method,
@@ -90,18 +96,17 @@ const app = new Vue({
     },
     sendRequest() {
       if (this.urlNotValid) {
-        alert("Please check the formatting of the URL")
+        alert('Please check the formatting of the URL')
         return
       }
       const n = new Date().toLocaleTimeString()
-      // Latest requests should be placed on top
       this.history = [{
         time: n,
         method: this.method,
         url: this.url,
         path: this.path
       }, ...this.history]
-      window.localStorage.setItem("history", JSON.stringify(this.history))
+      window.localStorage.setItem('history', JSON.stringify(this.history))
       if (this.$refs.response.classList.contains('hidden')) {
         this.$refs.response.classList.toggle('hidden')
       }

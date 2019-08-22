@@ -2,7 +2,7 @@
   --bg-color: #121212;
   --fg-color: #FFF;
   --ac-color: #51FF0D;
-  --err-color: #D0021B;
+  --err-color: #393939;
 }
 
 * {
@@ -170,7 +170,7 @@ textarea {
 }
 
 .disabled {
-  background-color: #393939;
+  background-color: var(--err-color);
   color: #b2b2b2;
 }
 

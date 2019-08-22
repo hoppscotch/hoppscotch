@@ -8,9 +8,11 @@
 	"author": "liyasthomas",
 	"version": "0.1.0",
 	"devDependencies": {
+		"http-server": "^0.11.1",
 		"jshint": "^2.10.2"
 	},
 	"scripts": {
+		"start": "http-server",
 		"test": "jshint travis.js"
 	}
 }

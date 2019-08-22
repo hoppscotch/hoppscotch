@@ -254,13 +254,21 @@
       </div>
     </fieldset>
     <footer>
-      <a href="https://github.com/liyasthomas/postwoman"><img src="icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
+      <a href="https://github.com/liyasthomas/postwoman">
+        <img src="icons/github.svg" alt="" style="margin-right: 16px">GitHub
+      </a>
+      <dark-mode-toggle
+          appearance="switch"
+          dark="Dark"
+          light="Light"
+      ></dark-mode-toggle>
       <button id="installPWA" onclick="installPWA()">
         Install PWA
       </button>
     </footer>
   </main>
   <script src="script.js"></script>
+  <script type="module" src="https://unpkg.com/dark-mode-toggle"></script>
   <script>
     let pwaInstalled = localStorage.getItem('pwaInstalled') == 'yes'
     if (window.matchMedia('(display-mode: standalone)').matches) {

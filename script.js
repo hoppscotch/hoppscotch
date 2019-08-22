@@ -162,4 +162,21 @@ const app = new Vue({
       this.bodyParams.splice(index, 1)
     }
   }
-})
+});
+
+(function() {
+  // https://github.com/GoogleChromeLabs/dark-mode-toggle
+  const toggle = document.querySelector('dark-mode-toggle');
+  const body = document.body;
+
+  // Initialize the toggle based on `prefers-color-scheme`, defaulting to 'dark'.
+  toggle.mode = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  // Set or remove the `light` class the first time.
+  toggle.mode === 'light' ? body.classList.add('light') : body.classList.remove('light');
+
+  // Listen for toggle changes (which includes `prefers-color-scheme` changes)
+  // and toggle the `light` class accordingly.
+  toggle.addEventListener('colorschemechange', () => {
+    body.classList.toggle('light', toggle.mode === 'light');
+  });
+})();

@@ -5,6 +5,13 @@
   --err-color: #393939;
 }
 
+body.light {
+  --bg-color: #F5F5F5;
+  --fg-color: #121212;
+  --ac-color: #2E7D32;
+  --err-color: #E0E0E0;
+}
+
 * {
   box-sizing: border-box;
   outline: 0;
@@ -44,6 +51,7 @@ body {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+  transition: background-color 300ms ease-in, color 300ms ease-in;
 }
 
 h1,
@@ -158,7 +166,7 @@ textarea {
   padding: 8px 16px;
   width: calc(100% - 8px);
   border-radius: 4px;
-  background-color: #000;
+  background-color: var(--bg-color);
   color: var(--fg-color);
   font-weight: 700;
   font-size: 18px;
@@ -204,4 +212,9 @@ ol li {
   ol li {
     display: flex;
   }
+}
+
+dark-mode-toggle {
+  --dark-mode-toggle-dark-icon: url("moon.png");
+  --dark-mode-toggle-light-icon: url("sun.png");
 }

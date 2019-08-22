@@ -73,7 +73,6 @@ const app = new Vue({
     },
     sendRequest() {
       // Expand the Response section incase it is hidden
-      console.log(this.$refs.response.classList)
       if (this.$refs.response.classList.contains('hidden')) {
         this.$refs.response.classList.toggle('hidden')
       }

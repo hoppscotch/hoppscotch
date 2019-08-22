@@ -72,6 +72,12 @@ const app = new Vue({
       document.getElementsByClassName(el)[0].classList.toggle('hidden')
     },
     sendRequest() {
+      // Expand the Response section incase it is hidden
+      console.log(this.$refs.response.classList)
+      if (this.$refs.response.classList.contains('hidden')) {
+        this.$refs.response.classList.toggle('hidden')
+      }
+
       this.$refs.response.scrollIntoView({
         behavior: 'smooth'
       })

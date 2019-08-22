@@ -12,7 +12,7 @@
 		"jshint": "^2.10.2"
 	},
 	"scripts": {
-		"start": "http-server",
+		"start": "http-server -c-1",
 		"test": "jshint travis.js"
 	}
 }

@@ -25,7 +25,8 @@ const app = new Vue({
       status: '',
       headers: '',
       body: ''
-    }
+    },
+    history: []
   },
   computed: {
     rawRequestBody() {
@@ -65,6 +66,18 @@ const app = new Vue({
     }
   },
   methods: {
+    deleteHistory(entry) {
+      this.history.splice(this.history.indexOf(entry), 1)
+    },
+    useHistory({
+      method,
+      url,
+      path
+    }) {
+      this.method = method
+      this.url = url
+      this.path = path
+    },
     collapse({
       target
     }) {
@@ -72,6 +85,14 @@ const app = new Vue({
       document.getElementsByClassName(el)[0].classList.toggle('hidden')
     },
     sendRequest() {
+      const d = new Date()
+      const n = d.toLocaleTimeString()
+      this.history.push({
+        time: n,
+        method: this.method,
+        url: this.url,
+        path: this.path
+      })
       this.$refs.response.scrollIntoView({
         behavior: 'smooth'
       })

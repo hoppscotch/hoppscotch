@@ -88,7 +88,7 @@ fieldset {
 }
 
 legend {
-  color: #57b5f9;
+  color: var(--fg-color);
   font-weight: 700;
   cursor: pointer;
 }
@@ -103,6 +103,14 @@ fieldset.request {
 
 fieldset.request legend {
   color: #57b5f9;
+}
+
+fieldset.history {
+  border-color: #9B9B9B;
+}
+
+fieldset.history legend {
+  color: #9B9B9B;
 }
 
 fieldset.authentication {

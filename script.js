@@ -93,6 +93,9 @@ const app = new Vue({
         url: this.url,
         path: this.path
       })
+      if (this.$refs.response.classList.contains('hidden')) {
+        this.$refs.response.classList.toggle('hidden')
+      }
       this.$refs.response.scrollIntoView({
         behavior: 'smooth'
       })

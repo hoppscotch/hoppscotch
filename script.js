@@ -87,12 +87,15 @@ const app = new Vue({
     },
     sendRequest() {
       const n = new Date().toLocaleTimeString()
-      this.history.push({
+      
+      // Latest requests should be placed on top
+      this.history = [{
         time: n,
         method: this.method,
         url: this.url,
         path: this.path
-      })
+      }, ...this.history]
+      
       window.localStorage.setItem("history", JSON.stringify(this.history))
       if (this.$refs.response.classList.contains('hidden')) {
         this.$refs.response.classList.toggle('hidden')

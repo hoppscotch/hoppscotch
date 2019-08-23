@@ -153,6 +153,7 @@
             <select v-model="auth">
               <option>None</option>
               <option>Basic</option>
+              <option>Bearer Token</option>
             </select>
           </li>
         </ul>
@@ -164,6 +165,12 @@
           <li>
             <label for="http_basic_passwd">Password</label>
             <input v-model="httpPassword" type="password">
+          </li>
+        </ul>
+        <ul v-if="auth === 'Bearer Token'">
+          <li>
+            <label for="bearer_token">Token</label>
+            <input v-model="bearerToken">
           </li>
         </ul>
       </div>

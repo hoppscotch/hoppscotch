@@ -18,6 +18,7 @@ const app = new Vue({
     path: '/api',
     httpUser: '',
     httpPassword: '',
+    bearerToken: '',
     params: [],
     bodyParams: [],
     contentType: 'application/json',
@@ -133,6 +134,9 @@ const app = new Vue({
       const user = this.auth === 'Basic' ? this.httpUser : null
       const pswd = this.auth === 'Basic' ? this.httpPassword : null
       xhr.open(this.method, this.url + this.path + this.queryString, true, user, pswd)
+      if (this.auth === 'Bearer Token') {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
+      }
       if (this.method === 'POST' || this.method === 'PUT') {
         const requestBody = this.rawRequestBody
         xhr.setRequestHeader('Content-Length', requestBody.length)

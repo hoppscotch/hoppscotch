@@ -1,0 +1,2 @@
+- name: GitHub Action for Renovate
+  uses: Djiit/action-renovate@v1.0.0-alpha

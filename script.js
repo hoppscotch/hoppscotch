@@ -13,9 +13,9 @@ const app = new Vue({
   el: '#app',
   data: {
     method: 'GET',
-    url: 'https://yesno.wtf',
+    url: 'https://reqres.in',
     auth: 'None',
-    path: '/api',
+    path: '/api/users',
     httpUser: '',
     httpPassword: '',
     bearerToken: '',
@@ -151,8 +151,8 @@ const app = new Vue({
         }
       }
       xhr.onerror = e => {
-        this.response.status = '0'
-        this.response.body = 'Error ;('
+        this.response.status = xhr.status
+        this.response.body = xhr.statusText
       }
     },
     addRequestParam() {

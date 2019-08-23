@@ -29,6 +29,11 @@ const app = new Vue({
     history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : []
   },
   computed: {
+
+    noHistoryToClear() {
+      return this.history.length === 0;
+    },
+
     urlNotValid() {
       const pattern = new RegExp('^(https?:\\/\\/)?' +
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +

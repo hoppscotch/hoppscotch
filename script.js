@@ -29,11 +29,9 @@ const app = new Vue({
     history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : []
   },
   computed: {
-
     noHistoryToClear() {
       return this.history.length === 0;
     },
-
     urlNotValid() {
       const pattern = new RegExp('^(https?:\\/\\/)?' +
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
@@ -84,12 +82,10 @@ const app = new Vue({
       this.history.splice(this.history.indexOf(entry), 1)
       window.localStorage.setItem('history', JSON.stringify(this.history))
     },
-
     clearHistory() {
       this.history = []
       window.localStorage.setItem('history', JSON.stringify(this.history))
     },
-
     useHistory({
       method,
       url,

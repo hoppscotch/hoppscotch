@@ -91,11 +91,11 @@
           </li>
           <li>
             <label for="url">URL</label>
-            <input type="url" v-bind:class="{ error: urlNotValid }" v-model="url">
+            <input type="url" v-bind:class="{ error: urlNotValid }" v-model="url" v-on:keyup.enter="sendRequest">
           </li>
           <li>
             <label for="path">Path</label>
-            <input v-model="path">
+            <input v-model="path" v-on:keyup.enter="sendRequest">
           </li>
           <li>
             <label for="action">&nbsp;</label>

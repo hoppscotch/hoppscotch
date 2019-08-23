@@ -5,16 +5,24 @@
   --err-color: #393939;
 }
 
+::selection {
+  background-color: var(--ac-color);
+  color: var(--bg-color);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #4a4a4a;
+}
+
 * {
   box-sizing: border-box;
   outline: 0;
   border: 0;
   font-family: 'Poppins', 'Roboto', 'Noto', sans-serif;
-}
-
-::selection {
-  background-color: var(--ac-color);
-  color: var(--bg-color);
 }
 
 @keyframes fadein {

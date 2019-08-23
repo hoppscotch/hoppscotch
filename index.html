@@ -224,7 +224,8 @@
         <ul>
           <li>
             <label for="body">response</label>
-            <textarea name="body" rows="10" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+            <button onclick="copyText()">Copy text</button>
+            <textarea name="body" rows="10" id="resInput" readonly>{{response.body || '(waiting to send request)'}}</textarea>
           </li>
         </ul>
       </div>
@@ -312,7 +313,15 @@
       pwaInstalled = true
       document.getElementById('installPWA').style.display = 'none'
     })
-
+  function copyText() {
+  var textCp = document.getElementById("resInput");
+  textCp.select();
+  textCp.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  console.log(textCp.value)
+ /*  var tooltip = document.getElementById("myTooltip");
+  tooltip.innerHTML = "Copied: " + copyText.value; */
+}
   </script>
 </body>
 

@@ -34,7 +34,7 @@
 			"type": "image/png"
 		}
 	],
-	"start_url": "https://liyasthomas.github.io/postwoman",
+	"start_url": "/",
 	"display": "standalone",
 	"theme_color": "#121212",
 	"background_color": "#121212"

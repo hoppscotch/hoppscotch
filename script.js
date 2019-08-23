@@ -79,6 +79,12 @@ const app = new Vue({
       this.history.splice(this.history.indexOf(entry), 1)
       window.localStorage.setItem('history', JSON.stringify(this.history))
     },
+
+    clearHistory() {
+      this.history = []
+      window.localStorage.setItem('history', JSON.stringify(this.history))
+    },
+
     useHistory({
       method,
       url,

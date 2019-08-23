@@ -174,6 +174,12 @@ const app = new Vue({
     },
     removeRequestBodyParam(index) {
       this.bodyParams.splice(index, 1)
+    },
+    copyResponse() {
+      var copyText = document.getElementById("response-details");
+      copyText.select();
+      document.execCommand("copy");
+
     }
   }
 })

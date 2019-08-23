@@ -98,6 +98,9 @@ const app = new Vue({
       this.method = method
       this.url = url
       this.path = path
+      this.$refs.request.scrollIntoView({
+        behavior: 'smooth'
+      })
     },
     collapse({
       target

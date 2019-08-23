@@ -75,7 +75,7 @@
         <h3>API request builder</h3>
       </div>
     </header>
-    <fieldset class="request">
+    <fieldset class="request" ref="request">
       <legend v-on:click="collapse">Request ↕</legend>
       <div class="collapsible">
         <ul>
@@ -91,49 +91,15 @@
           </li>
           <li>
             <label for="url">URL</label>
-            <input type="url" v-bind:class="{ error: urlNotValid }" v-model="url">
+            <input type="url" v-bind:class="{ error: urlNotValid }" v-model="url" v-on:keyup.enter="sendRequest">
           </li>
           <li>
             <label for="path">Path</label>
-            <input v-model="path">
+            <input v-model="path" v-on:keyup.enter="sendRequest">
           </li>
           <li>
             <label for="action">&nbsp;</label>
             <button v-bind:class="{ disabled: urlNotValid }" name="action" @click="sendRequest">Send</button>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
-    <fieldset class="history hidden">
-      <legend v-on:click="collapse">History ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li><button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button></li>
-        </ul>
-        <ul v-for="entry in history">
-          <li>
-            <label for="time">Time</label>
-            <input name="time" type="text" readonly :value="entry.time">
-          </li>
-          <li>
-            <label for="name">Method</label>
-            <input name="name" type="text" readonly :value="entry.method">
-          </li>
-          <li>
-            <label for="name">URL</label>
-            <input name="name" type="text" readonly :value="entry.url">
-          </li>
-          <li>
-            <label for="name">Path</label>
-            <input name="name" type="text" readonly :value="entry.path">
-          </li>
-          <li>
-            <label for="delete">&nbsp;</label>
-            <button name="delete" @click="deleteHistory(entry)">Delete</button>
-          </li>
-          <li>
-            <label for="use">&nbsp;</label>
-            <button name="use" @click="useHistory(entry)">Use</button>
           </li>
         </ul>
       </div>
@@ -252,6 +218,42 @@
           <li>
             <label for="body">response</label>
             <textarea name="body" rows="6" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+          </li>
+        </ul>
+      </div>
+    </fieldset>
+    <fieldset class="history">
+      <legend v-on:click="collapse">History ↕</legend>
+      <div class="collapsible">
+        <ul>
+          <li>
+            <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
+          </li>
+        </ul>
+        <ul v-for="entry in history">
+          <li>
+            <label for="time">Time</label>
+            <input name="time" type="text" readonly :value="entry.time">
+          </li>
+          <li>
+            <label for="name">Method</label>
+            <input name="name" type="text" readonly :value="entry.method">
+          </li>
+          <li>
+            <label for="name">URL</label>
+            <input name="name" type="text" readonly :value="entry.url">
+          </li>
+          <li>
+            <label for="name">Path</label>
+            <input name="name" type="text" readonly :value="entry.path">
+          </li>
+          <li>
+            <label for="delete">&nbsp;</label>
+            <button name="delete" @click="deleteHistory(entry)">Delete</button>
+          </li>
+          <li>
+            <label for="use">&nbsp;</label>
+            <button name="use" @click="useHistory(entry)">Use</button>
           </li>
         </ul>
       </div>

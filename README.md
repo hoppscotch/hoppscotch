@@ -103,7 +103,8 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * [Liyas Thomas](https://github.com/liyasthomas)
 
 ### Contributors
-* [Liyas Thomas](https://github.com/liyasthomas)
+* [Andrew Bastin](https://github.com/AndrewBastin)
+* [Abraham Williams](https://github.com/abraham)
 
 ### Thanks
 * [Dribbble](https://dribbble.com)

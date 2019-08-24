@@ -162,40 +162,44 @@
           <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
         </li>
       </ul>
-      <ul v-for="entry in history">
-        <li>
-          <label for="time">Time</label>
-          <input name="time" type="text" readonly :value="entry.time">
-        </li>
-        <li class="method-list-item">
-          <label for="method">Method</label>
-          <input name="method" type="text" readonly
+      <virtual-list class="virtual-list" :size="88" :remain="Math.min(5, history.length)">
+          <ul v-for="entry in history" :key="entry.millis">
+            <li>
+              <label for="time">Time</label>
+              <input name="time" type="text" readonly :value="entry.time">
+            </li>
+            <liclass="method-list-item">
+              <label for="method">Method</label>
+              <input name="method" type="text" readonly
                  :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
           <span class="entry-status-code">{{entry.status}}</span>
-        </li>
-        <li>
-          <label for="url">URL</label>
-          <input name="url" type="text" readonly :value="entry.url">
-        </li>
-        <li>
-          <label for="path">Path</label>
-          <input name="path" type="text" readonly :value="entry.path">
-        </li>
-        <li>
-          <label for="delete">&nbsp;</label>
-          <button name="delete" @click="deleteHistory(entry)">Delete</button>
-        </li>
-        <li>
-          <label for="use">&nbsp;</label>
-          <button name="use" @click="useHistory(entry)">Use</button>
-        </li>
-      </ul>
+            </li>
+            <li>
+              <label for="url">URL</label>
+              <input name="url" type="text" readonly :value="entry.url">
+            </li>
+            <li>
+              <label for="path">Path</label>
+              <input name="path" type="text" readonly :value="entry.path">
+            </li>
+            <li>
+              <label for="delete">&nbsp;</label>
+              <button name="delete" @click="deleteHistory(entry)">Delete</button>
+            </li>
+            <li>
+              <label for="use">&nbsp;</label>
+              <button name="use" @click="useHistory(entry)">Use</button>
+            </li>
+        </ul>
+        </virtual-list>
     </pw-section>
 
   </div>
 </template>
 
 <script>
+	  import VirtualList from 'vue-virtual-scroll-list'
+
       const statusCategories = [
         {name: 'informational', statusCodeRegex: new RegExp(/[1][0-9]+/), className: 'info-response'},
         {name: 'successful', statusCodeRegex: new RegExp(/[2][0-9]+/), className: 'success-response'},
@@ -223,7 +227,8 @@
 
       export default {
       components: {
-      'pw-section': section
+      'pw-section': section,
+	      VirtualList
     },
 
       data () {
@@ -326,6 +331,19 @@
           sendRequest() {
               if (this.$refs.response.$el.classList.contains('hidden')) {
                   this.$refs.response.$el.classList.toggle('hidden')
+              }
+            let now = new Date();
+            const n = now.toLocaleTimeString()
+              this.history = [{
+                  millis: now.getTime(),
+                  time: n,
+                  method: this.method,
+                  url: this.url,
+                  path: this.path
+              }, ...this.history]
+              window.localStorage.setItem('history', JSON.stringify(this.history))
+              if (this.$refs.response.classList.contains('hidden')) {
+                  this.$refs.response.classList.toggle('hidden')
               }
               this.$refs.response.$el.scrollIntoView({
                   behavior: 'smooth'

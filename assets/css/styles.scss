@@ -1,7 +1,7 @@
 :root {
   --bg-color: #121212;
-  --fg-color: #FFF;
-  --ac-color: #51FF0D;
+  --fg-color: #fff;
+  --ac-color: #51ff0d;
   --err-color: #393939;
 }
 
@@ -22,7 +22,7 @@
   box-sizing: border-box;
   outline: 0;
   border: 0;
-  font-family: 'Poppins', 'Roboto', 'Noto', sans-serif;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 @keyframes fadein {
@@ -47,7 +47,7 @@ body {
   color: var(--fg-color);
   font-weight: 500;
   line-height: 1.5;
-  animation: fadein .2s;
+  animation: fadein 0.2s;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -110,7 +110,8 @@ legend {
   cursor: pointer;
 }
 
-fieldset textarea, fieldset pre {
+fieldset textarea,
+fieldset pre {
   resize: vertical;
 }
 
@@ -123,43 +124,43 @@ fieldset.request legend {
 }
 
 fieldset.history {
-  border-color: #9B9B9B;
+  border-color: #9b9b9b;
 }
 
 fieldset.history legend {
-  color: #9B9B9B;
+  color: #9b9b9b;
 }
 
 fieldset.authentication {
-  border-color: #B8E986;
+  border-color: #b8e986;
 }
 
 fieldset.authentication legend {
-  color: #B8E986;
+  color: #b8e986;
 }
 
 fieldset.parameters {
-  border-color: #50E3C2;
+  border-color: #50e3c2;
 }
 
 fieldset.parameters legend {
-  color: #50E3C2;
+  color: #50e3c2;
 }
 
 fieldset.reqbody {
-  border-color: #4A90E2;
+  border-color: #4a90e2;
 }
 
 fieldset.reqbody legend {
-  color: #4A90E2;
+  color: #4a90e2;
 }
 
 fieldset.response {
-  border-color: #C198FB;
+  border-color: #c198fb;
 }
 
 fieldset.response legend {
-  color: #C198FB;
+  color: #c198fb;
 }
 
 .hidden .collapsible {
@@ -211,7 +212,6 @@ ol li {
 }
 
 @media (max-width: 720px) {
-
   ul,
   ol {
     flex-direction: column;
@@ -225,4 +225,24 @@ ol li {
 
 #installPWA {
   display: none;
+}
+
+.info-response {
+  background-color: #ffeb3b;
+}
+
+.success-response {
+  background-color: #66BB6A;
+}
+
+.redir-response {
+  background-color: #ff5722;
+}
+
+.cl-error-response {
+  background-color: #ef5350;
+}
+
+.sv-error-response {
+  background-color: #b71c1c;
 }

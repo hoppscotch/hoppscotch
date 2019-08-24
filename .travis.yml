@@ -8,9 +8,8 @@
 #    **DO NOT TURN ON 'Display value in build log'!!!!**
 #
 # 2. Push the code to the repository.
-# 3. Profit!
-
-
+# 3. Set the GitHub Pages source in the GitHub repository settings to the
+#    gh-pages branch.
 
 language: node_js
 node_js:

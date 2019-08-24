@@ -1,21 +1,18 @@
 {
-  "name": "postwoman",
-  "version": "1.0.0",
-  "description": "Lightweight API request builder by Liyas Thomas",
-  "author": "liyasthomas",
-  "private": true,
-  "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate"
-  },
-  "dependencies": {
-    "nuxt": "^2.0.0",
-    "@nuxtjs/pwa": "^3.0.0-0"
-  },
-  "devDependencies": {
-    "node-sass": "^4.12.0",
-    "sass-loader": "^7.3.1"
-  }
+	"name": "Postwoman",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/liyasthomas/postwoman.git"
+	},
+	"description": "API request builder",
+	"author": "liyasthomas",
+	"version": "0.1.0",
+	"devDependencies": {
+		"http-server": "^0.11.1",
+		"jshint": "^2.10.2"
+	},
+	"scripts": {
+		"start": "http-server -c-1",
+		"test": "jshint travis.js"
+	}
 }

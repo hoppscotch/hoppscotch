@@ -1,11 +1,11 @@
+
+
+
+
+
+
+
 language: node_js
-node_js:
- - "node"
-notifications:
-  webhooks: https://www.travisbuddy.com
-env:
-- MY_VAR=EverythignIsAwesome
-- NODE_ENV=TESTlanguage: node_js
 node_js:
   - "8"
 

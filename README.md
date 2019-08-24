@@ -2,27 +2,27 @@
 When I wrote this, only God and I understood what I was doing. Now, only God knows.
 ```
 <div align="center">
-    <a href="https://liyas-thomas.firebaseapp.com"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Liyas Thomas" width="200"></a>
-    <br>
-    <h1>Liyas Thomas</h1>
-    <sub>Built with ❤︎ by
-      <a href="https://github.com/liyasthomas">liyasthomas</a> and
-      <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
-    </sub>
+  <a href="https://liyas-thomas.firebaseapp.com"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Liyas Thomas" width="200"></a>
+  <br>
+  <h1>Liyas Thomas</h1>
+  <sub>Built with ❤︎ by
+  <a href="https://github.com/liyasthomas">liyasthomas</a> and
+  <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
+	</sub>
 </div>
 
 ---
 
 [![Build Status](https://travis-ci.org/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.org/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://liyas-thomas.firebaseapp.com) [![Donate](https://img.shields.io/badge/$-donate-ff69b4.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas)
 
-# <img src="static/icon.png" alt="postwoman" width="32"> Postwoman
+# <img src="icons/icon-48x48.png" alt="postwoman" width="32"> Postwoman
 
 ### 👽 API request builder by [Liyas Thomas](https://github.com/liyasthomas)
 
 <div align="center">
   <br>
-  <img src="static/screely.png" alt="postwoman" width="100%">
-  <img src="static/screely2.png" alt="postwoman" width="100%">
+  <img src="icons/screely.png" alt="postwoman" width="100%">
+  <img src="icons/screely2.png" alt="postwoman" width="100%">
   <br>
 </div>
 
@@ -58,25 +58,15 @@ You're done!
 * HTML - For the web framework
 * CSS - For styling components
 * JavaScript - For magic!
-* [Vue](https://vuejs.org/) - To add to the JavaScript magic!
-* [Nuxt](https://nuxtjs.org/) - To add to the Vue magic! <!-- (Nuxt helps create the PWA and single page application.) -->
 
 ---
 
 ## Developing
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
-1. Start the development server with `npm run dev`.
-1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## Releasing
-1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
-1. Build the release files with `npm run build`.
-1. Find the built project in `./dist`.
+1. Install dependencies by running `npm install` within the `postwoman` directory.
+1. Start the development server with `npm start`.
+1. Open development site by going to [http://localhost:8080](http://localhost:8080) in your browser.
 
 ---
 

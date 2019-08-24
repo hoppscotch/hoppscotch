@@ -70,15 +70,13 @@ footer {
   justify-content: space-between;
 }
 
-body.sticky-footer footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
 .logo {
   color: var(--ac-color);
+}
+
+main {
+  margin: 0 auto;
+  max-width: 1200px;
 }
 
 button {
@@ -214,8 +212,4 @@ ol li {
   ol li {
     display: flex;
   }
-}
-
-#installPWA {
-  display: none;
 }

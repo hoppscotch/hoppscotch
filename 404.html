@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no">
+  <title>Postwoman - API request builder</title>
+  <meta name="description" content="The Postwoman API request builder helps you create your requests faster, saving you precious time on your development.">
+  <link rel="icon" href="favicon.ico">
+  <meta itemprop="name" content="Postwoman - API request builder">
+  <meta itemprop="description" content="The Postwoman API request builder helps you create your requests faster, saving you precious time on your development.">
+  <meta itemprop="image" content="icons/icon-192x192.png">
+  <!-- See https://goo.gl/OOhYW5 -->
+  <link rel="manifest" href="manifest.json">
+  <!-- See https://goo.gl/qRE0vM -->
+  <meta name="theme-color" content="#121212">
+  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Postwoman - API request builder">
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Postwoman - API request builder">
+  <!-- Homescreen icons -->
+  <link rel="apple-touch-icon" href="icons/icon-48x48.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#121212">
+  <meta name="msapplication-tap-highlight" content="no">
+  <!-- OpenGraph -->
+  <meta property="og:site_name" content="Postwoman - API request builder">
+  <meta property="og:url" content="https://liyasthomas.github.io/postwoman">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Postwoman - API request builder">
+  <meta property="og:description" content="API request builder">
+  <meta property="og:image" content="icons/icon-144x144.png">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@liyasthomas">
+  <meta name="twitter:creator" content="@liyasthomas">
+  <meta name="twitter:url" content="https://liyasthomas.github.io/postwoman">
+  <meta name="twitter:title" content="Postwoman - API request builder">
+  <meta name="twitter:description" content="API request builder">
+  <meta name="twitter:image" content="icons/icon-144x144.png">
+  <!-- Web Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:500,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }).catch(function(err) {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+
+  </script>
+</head>
+
+<body>
+  <main id="app">
+    <header>
+      <div>
+        <a href="index.html">
+          <h1 class="logo"><img src="icons/logo.svg" alt="" style="height: 24px; margin-right: 16px">Postwoman</h1>
+        </a>
+        <h3>API request builder</h3>
+      </div>
+    </header>
+    <h1>404 - Page not found</h1>
+    <p><a href="index.html"><button>Go Home</button></a></p>
+    <footer>
+      <a href="https://github.com/liyasthomas/postwoman" target="_blank"><img src="icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
+      <button id="installPWA" onclick="installPWA()">
+        Install PWA
+      </button>
+    </footer>
+  </main>
+</body>
+
+</html>

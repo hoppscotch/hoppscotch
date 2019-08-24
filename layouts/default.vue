@@ -3,7 +3,7 @@
     <header>
       <div class="slide-in">
         <nuxt-link to="/">
-          <h1 class="logo"><img src="~static/icons/logo.svg" alt="" style="height: 24px; margin-right: 16px">Postwoman</h1>
+          <h1 class="logo"><logo alt="" style="height: 24px; margin-right: 16px"/>Postwoman</h1>
         </nuxt-link>
         <h3>Lightweight API request builder</h3>
       </div>
@@ -23,7 +23,10 @@
     <nuxt id="main" />
 
     <footer>
-      <a href="https://github.com/liyasthomas/postwoman" target="_blank"><img src="~static/icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
+      <div>
+        <a href="https://github.com/liyasthomas/postwoman" target="_blank"><img src="~static/icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
+      </div>
+
       <button id="installPWA" @click.prevent="showInstallPrompt()">
         Install PWA
       </button>
@@ -62,12 +65,12 @@
       display: inline-block;
       position: relative;
       padding: 8px 16px;
-      fill: white;
-      color: white;
+      fill: var(--fg-color);
+      color: var(--fg-color);
 
       &.nuxt-link-exact-active {
-        color: black;
-        fill: black;
+        color: var(--act-color);
+        fill: var(--act-color);
         &:before { width: 100%; height: 100% }
       }
 
@@ -98,8 +101,13 @@
 
 <script>
   import intializePwa from '../assets/js/pwa';
+  import logo from "../components/logo";
 
   export default {
+    components: {
+      logo
+    },
+
     data () {
       return {
         // Once the PWA code is initialized, this holds a method
@@ -107,6 +115,22 @@
         // prompt.
         showInstallPrompt: null
       }
+    },
+
+    beforeMount () {
+      // Load theme settings
+      (() => {
+        // Apply theme from settings.
+        document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || '';
+
+        // Load theme color data from settings, or use default color.
+        let color = this.$store.state.postwoman.settings.THEME_COLOR || '#51FF0D';
+        let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
+        if(vibrant == null) vibrant = true;
+
+        document.documentElement.style.setProperty('--ac-color', color);
+        document.documentElement.style.setProperty('--act-color', vibrant ? '#121212' : '#fff');
+      })();
     },
 
     mounted () {

@@ -54,7 +54,9 @@
     },
 
     mounted () {
-      this.showInstallPrompt = intializePwa();
+      (async () => {
+        this.showInstallPrompt = await intializePwa();
+      })();
     }
   }
 </script>

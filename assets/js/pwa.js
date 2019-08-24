@@ -1,4 +1,4 @@
-export default (() => {
+export default () => {
   //*** Determine whether or not the PWA has been installed. ***//
 
   // Step 1: Check local storage
@@ -23,7 +23,7 @@ export default (() => {
 
     // Show the install button if the prompt appeared.
     if (!pwaInstalled) {
-      document.getElementById('installPWA').style.display = 'block';
+      document.querySelector('#installPWA').style.display = 'block';
     }
   });
 
@@ -33,6 +33,9 @@ export default (() => {
     pwaInstalled = true;
     document.getElementById('installPWA').style.display = 'none';
   });
+
+  // When the app is uninstalled, add the prompts back
+
 
   return async () => {
     if (deferredPrompt) {
@@ -48,4 +51,4 @@ export default (() => {
     }
   };
 
-});
+};

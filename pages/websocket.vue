@@ -5,10 +5,10 @@
       <ul>
         <li>
           <label for="url">URL</label>
-          <input type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="toggleConnection">
+          <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="toggleConnection">
         </li>
         <li class="no-grow">
-          <label for="action">&nbsp;</label>
+          <label>&nbsp;</label>
           <button class="action" :class="{ disabled: !urlValid }" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
         </li>
       </ul>
@@ -17,8 +17,8 @@
     <pw-section class="purple" label="Communication" id="response" ref="response">
       <ul>
         <li>
-          <label for="body">Log</label>
-          <div name="body" class="body" readonly>
+          <label for="log">Log</label>
+          <div id="log" name="log" class="log" readonly>
               <span v-if="communication.log">
                 <span v-for="logEntry in communication.log" :style="{ color: logEntry.color }">{{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
               </span>
@@ -29,16 +29,17 @@
 
       <ul>
         <li>
-          <label for="status">Message</label>
-          <input name="status" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="sendMessage">
+          <label for="message">Message</label>
+          <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="sendMessage">
         </li>
 
         <li class="no-grow">
-          <label for="send">&nbsp;</label>
+          <label>&nbsp;</label>
           <button class="action" name="send" :class="{ disabled: !connectionState }" @click="sendMessage">Send</button>
         </li>
       </ul>
     </pw-section>
+
   </div>
 </template>
 
@@ -50,7 +51,7 @@
     width: 150px;
   }
 
-  div.body {
+  div.log {
     margin: 4px;
     padding: 8px 16px;
     width: calc(100% - 8px);

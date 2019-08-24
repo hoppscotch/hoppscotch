@@ -65,6 +65,7 @@ footer {
   justify-content: space-between;
 }
 
+
 @media(max-width: $responsiveWidth){
   header {
     display: block;
@@ -76,6 +77,7 @@ footer {
     }
   }
 }
+
 
 nav {
   a:not(:last-of-type) {

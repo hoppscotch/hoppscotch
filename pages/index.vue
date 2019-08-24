@@ -157,12 +157,12 @@
     </fieldset>
     <fieldset class="history">
       <legend v-on:click="collapse">History ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li>
-            <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
-          </li>
-        </ul>
+      <ul>
+        <li>
+          <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
+        </li>
+      </ul>
+      <div class="collapsible" :style="{'max-height': (Math.min(5, history.length) * 88) + 'px'}">
         <ul v-for="entry in history">
           <li>
             <label for="time">Time</label>

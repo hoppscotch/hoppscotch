@@ -70,6 +70,12 @@ footer {
   justify-content: space-between;
 }
 
+nav {
+  a:not(:last-of-type) {
+    margin-right: 15px;
+  }
+}
+
 body.sticky-footer footer {
   position: fixed;
   bottom: 0;
@@ -104,7 +110,7 @@ legend {
   cursor: pointer;
 }
 
-fieldset textarea {
+fieldset textarea, fieldset pre {
   resize: vertical;
 }
 
@@ -163,7 +169,8 @@ fieldset.response legend {
 select,
 input,
 option,
-textarea {
+textarea,
+pre {
   margin: 4px;
   padding: 8px 16px;
   width: calc(100% - 8px);

@@ -1,34 +1,44 @@
-
-
-
-
-
-
+# == INSTRUCTIONS FOR SETTING UP TRAVIS (and GitHub Pages) ==
+#
+# 1. Find this repository in your Travis-CI dashboard.
+#    open settings and add an environment variable called
+#    GITHUB_ACCESS_TOKEN and set it to your personal access token.addons:
+#    See: https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line
+#
+#    **DO NOT TURN ON 'Display value in build log'!!!!**
+#
+# 2. Push the code to the repository.
+# 3. Set the GitHub Pages source in the GitHub repository settings to the
+#    gh-pages branch.
 
 language: node_js
 node_js:
-  - "8"
+ - "12"
+
+env:
+ - DEPLOY_ENV=GH_PAGES
 
 cache:
-  directories:
-    - "node_modules"
+ directories:
+  - "node_modules"
 
 branches:
-  only:
-  - master
+ only:
+  - "master"
 
 install:
-  - npm install
-  - npm run generate
+ - "npm install"
+ - "npm run generate"
 
-script:
-  - echo "Skipping tests"
+notifications:
+  webhooks: https://www.travisbuddy.com
 
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_ACCESS_TOKEN  # Set in travis-ci.org dashboard, marked secure https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
-  target-branch: gh-pages
-  local-dir: dist
-  on:
-    branch: master
+ provider: pages
+ skip_cleanup: true
+ # Refer to: https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
+ github_token: $GITHUB_ACCESS_TOKEN
+ target-branch: gh-pages
+ local_dir: dist
+ on:
+  branch: master

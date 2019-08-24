@@ -5,4 +5,30 @@ notifications:
   webhooks: https://www.travisbuddy.com
 env:
 - MY_VAR=EverythignIsAwesome
-- NODE_ENV=TEST
+- NODE_ENV=TESTlanguage: node_js
+node_js:
+  - "8"
+
+cache:
+  directories:
+    - "node_modules"
+
+branches:
+  only:
+  - master
+
+install:
+  - npm install
+  - npm run generate
+
+script:
+  - echo "Skipping tests"
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_ACCESS_TOKEN  # Set in travis-ci.org dashboard, marked secure https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
+  target-branch: gh-pages
+  local-dir: dist
+  on:
+    branch: master

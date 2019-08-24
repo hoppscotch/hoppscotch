@@ -1,3 +1,4 @@
+
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 const meta = {
@@ -5,6 +6,18 @@ const meta = {
   shortDescription: "Lightweight API request builder",
   description: "The Postwoman API request builder helps you create your requests faster, saving you precious time on your development."
 };
+
+// Sets the base path for the router.
+// Important for deploying to GitHub pages.
+
+// -- Travis includes the author in the repo slug,
+//    so if there's a /, we need to get everything after it.
+let repoName = process.env.TRAVIS_REPO_SLUG.split('/').pop() || '';
+const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
+  router: {
+    base: `/${repoName}/`
+  }
+} : {};
 
 export default {
   mode: 'spa',
@@ -134,5 +147,10 @@ export default {
   */
   generate: {
     fallback: true
-  }
+  },
+
+  /*
+   ** Router configuration
+   */
+  ...routerBase
 }

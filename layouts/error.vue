@@ -4,7 +4,7 @@
     <h2>{{ error.message }}</h2>
     <br>
     <p><nuxt-link to="/"><button>Go Home</button></nuxt-link></p>
-    <p><a href="/">Reload</a></p>
+    <p><a :href="base">Reload</a></p>
   </div>
 </template>
 
@@ -22,8 +22,17 @@
 </style>
 
 <script>
+  import { routerBase } from '../nuxt.config';
+
   export default {
       props: ['error'],
+
+      data () {
+        return {
+          base: routerBase.router.base
+        }
+      },
+
       head () {
           return {
               bodyAttrs: {

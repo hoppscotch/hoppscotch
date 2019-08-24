@@ -1,7 +1,7 @@
 
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
-const meta = {
+export const meta = {
   name: "Postwoman",
   shortDescription: "Lightweight API request builder",
   description: "The Postwoman API request builder helps you create your requests faster, saving you precious time on your development."
@@ -12,12 +12,16 @@ const meta = {
 
 // -- Travis includes the author in the repo slug,
 //    so if there's a /, we need to get everything after it.
-let repoName = process.env.TRAVIS_REPO_SLUG.split('/').pop() || '';
-const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
+let repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
+export const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
     base: `/${repoName}/`
   }
-} : {};
+} : {
+  router: {
+    base: '/'
+  }
+};
 
 export default {
   mode: 'spa',
@@ -34,7 +38,7 @@ export default {
       { name: 'X-UA-Compatible', content: "IE=edge, chrome=1" },
       { itemprop: "name", content: `${meta.name} \u2022 ${meta.shortDescription}` },
       { itemprop: "description", content: meta.description },
-      { itemprop: "image", content: "icons/icon-192x192.png" },
+      { itemprop: "image", content: `${routerBase.router.base}icons/icon-192x192.png` },
 
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       { name: 'application-name', content: meta.name },
@@ -45,7 +49,7 @@ export default {
       { name: 'apple-mobile-web-app-title', content: meta.name },
 
       // Windows phone tile icon
-      { name: 'msapplication-TileImage', content: 'icons/icon-144x144.png' },
+      { name: 'msapplication-TileImage', content: `${routerBase.router.base}icons/icon-144x144.png` },
       { name: 'msapplication-TileColor', content: '#121212' },
       { name: 'msapplication-tap-highlight', content: 'no' },
 
@@ -55,7 +59,7 @@ export default {
       { property: 'og:type', content: 'website' },
       { property: 'og:title', content: `${meta.name} \u2022 ${meta.shortDescription}` },
       { property: 'og:description', content: meta.description },
-      { property: 'og:image', content: `${routerBase.router.base}/icons/icon-144x144.png` },
+      { property: 'og:image', content: `${routerBase.router.base}icons/icon-144x144.png` },
 
       // Twitter
       { name: 'twitter:card', content: "summary" },
@@ -64,18 +68,18 @@ export default {
       { name: 'twitter:url', content: "https://liyasthomas.github.io/postwoman" },
       { name: 'twitter:title', content: meta.name },
       { name: 'twitter:description', content: meta.shortDescription },
-      { name: 'twitter:image', content: `${routerBase.router.base}/icons/icon-144x144.png` },
+      { name: 'twitter:image', content: `${routerBase.router.base}icons/icon-144x144.png` },
 
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
 
       // Home-screen icons (iOS)
-      { rel: 'apple-touch-icon', href: `${routerBase.router.base}/icons/icon-48x48.png` },
-      { rel: 'apple-touch-icon', sizes: '72x72', href: `${routerBase.router.base}/icons/icon-72x72.png` },
-      { rel: 'apple-touch-icon', sizes: '96x96', href: `${routerBase.router.base}/icons/icon-96x96.png` },
-      { rel: 'apple-touch-icon', sizes: '144x144', href: `${routerBase.router.base}/icons/icon-144x144.png` },
-      { rel: 'apple-touch-icon', sizes: '192x192', href: `${routerBase.router.base}/icons/icon-192x192.png` },
+      { rel: 'apple-touch-icon', href: `${routerBase.router.base}icons/icon-48x48.png` },
+      { rel: 'apple-touch-icon', sizes: '72x72', href: `${routerBase.router.base}icons/icon-72x72.png` },
+      { rel: 'apple-touch-icon', sizes: '96x96', href: `${routerBase.router.base}icons/icon-96x96.png` },
+      { rel: 'apple-touch-icon', sizes: '144x144', href: `${routerBase.router.base}icons/icon-144x144.png` },
+      { rel: 'apple-touch-icon', sizes: '192x192', href: `${routerBase.router.base}icons/icon-192x192.png` },
     ]
   },
   /*
@@ -119,7 +123,7 @@ export default {
 
           for(let size of sizes){
             icons.push({
-              "src": `${routerBase.router.base}/icons/icon-${size}x${size}.png`,
+              "src": `${routerBase.router.base}icons/icon-${size}x${size}.png`,
               "type": "image/png",
               "sizes": `${size}x${size}`
             });

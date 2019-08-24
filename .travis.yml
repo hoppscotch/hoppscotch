@@ -17,8 +17,6 @@ node_js:
  - "12"
 
 env:
- - MY_VAR=EverythignIsAwesome
- - NODE_ENV=TEST
  - DEPLOY_ENV=GH_PAGES
 
 cache:

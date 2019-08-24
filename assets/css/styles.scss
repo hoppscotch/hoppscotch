@@ -5,6 +5,8 @@
   --err-color: #393939;
 }
 
+$responsiveWidth: 720px;
+
 ::selection {
   background-color: var(--ac-color);
   color: var(--bg-color);
@@ -68,6 +70,18 @@ footer {
   width: 100%;
   align-items: center;
   justify-content: space-between;
+}
+
+@media(max-width: $responsiveWidth){
+  header {
+    display: block;
+    text-align: center;
+
+    nav {
+      display: inline-flex;
+      margin-top: 20px;
+    }
+  }
 }
 
 nav {
@@ -210,7 +224,7 @@ ol li {
   flex-grow: 1;
 }
 
-@media (max-width: 720px) {
+@media (max-width: $responsiveWidth) {
 
   ul,
   ol {

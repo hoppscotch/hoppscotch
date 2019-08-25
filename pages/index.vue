@@ -15,7 +15,7 @@
         </li>
         <li>
           <label for="url">URL</label>
-          <input id="url" type="url" v-bind:class="{ error: urlNotValid }" v-model="url" v-on:keyup.enter="sendRequest">
+          <input id="url" type="url" v-bind:class="{ error: !isValidURL }" v-model="url" v-on:keyup.enter="sendRequest">
         </li>
         <li>
           <label for="path">Path</label>
@@ -23,7 +23,7 @@
         </li>
         <li>
           <label for="action">&nbsp;</label>
-          <button id="action" v-bind:class="{ disabled: urlNotValid }" name="action" @click="sendRequest">Send</button>
+          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL">Send</button>
         </li>
       </ul>
     </pw-section>
@@ -235,14 +235,13 @@
           noHistoryToClear() {
               return this.history.length === 0;
           },
-          urlNotValid() {
-              const pattern = new RegExp('^(https?:\\/\\/)?' +
-                  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-                  '((\\d{1,3}\\.){3}\\d{1,3}))' +
-                  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-                  '(\\?[;&a-z\\d%_.~+=-]*)?' +
-                  '(\\#[-a-z\\d_]*)?$', 'i');
-              return !pattern.test(this.url)
+          isValidURL() {
+            const protocol = '^(https?:\\/\\/)?';
+
+            const validIP = new RegExp(protocol + "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+            const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
+
+            return validIP.test(this.url) || validHostname.test(this.url);
           },
           rawRequestBody() {
               const {
@@ -302,8 +301,8 @@
               })
           },
           sendRequest() {
-              if (this.urlNotValid) {
-                  alert('Please check the formatting of the URL')
+              if (!this.isValidURL()) {
+                  alert('Please check the formatting of the URL');
                   return
               }
               const n = new Date().toLocaleTimeString()

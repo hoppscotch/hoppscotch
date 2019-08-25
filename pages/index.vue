@@ -36,8 +36,10 @@
             <option>application/json</option>
             <option>www-form/urlencoded</option>
           </select>
-<!--          <label for="rawinput">Raw input</label>-->
-          <span><input v-model="rawInput" type="checkbox" id="rawinput">Raw Input</span>
+          <span>
+            <input v-model="rawInput" style="cursor: pointer;" type="checkbox" id="rawInput">
+            <label for="rawInput" style="cursor: pointer;">Raw Input</label>
+          </span>
         </li>
       </ul>
       <div v-if="!rawInput">
@@ -252,7 +254,6 @@
             return validIP.test(this.url) || validHostname.test(this.url);
           },
           rawRequestBody() {
-            debugger;
               const {
                   bodyParams
               } = this
@@ -338,7 +339,6 @@
                   xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
               }
               if (this.method === 'POST' || this.method === 'PUT') {
-                debugger;
                   const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
                   xhr.setRequestHeader('Content-Length', requestBody.length)
                   xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
@@ -382,8 +382,7 @@
           },
           formatRawParams(event) {
             if ((event.which !== 13 && event.which !== 9)) {
-              console.log('not not returning');
-              return
+              return;
             }
 
             const textBody = event.target.value;
@@ -391,8 +390,17 @@
             const textAfterCursor = textBody.substring(event.target.selectionEnd);
 
             if (event.which === 13) {
-              const lastLine = textBody.split('\n').slice(-1)[0];
+              event.preventDefault();
+              const oldSelectionStart = event.target.selectionStart;
+              const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
               const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
+              event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
+              setTimeout(() => event.target.selectionStart = event.target.selectionEnd =  oldSelectionStart + rightPadding.length + 1, 1);
+              return;
+
+              // const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
+              // const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
+              event.target.value =  textBeforeCursor + '\n' + rightPadding + textAfterCursor
               setTimeout(() => event.target.value =  textBeforeCursor + '\n' + rightPadding + textAfterCursor, 1);
             }
             else if (event.which === 9) {

@@ -86,10 +86,12 @@ export default {
   ** Customize the progress-bar color
   */
   loading: { color: '#88FB4F' },
+
   /*
   ** Global CSS
   */
   css: [
+    '@/assets/css/themes.scss',
     '@/assets/css/fonts.scss',
     '@/assets/css/styles.scss'
   ],
@@ -97,6 +99,7 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    { src: '~/plugins/vuex-persist' }
   ],
   /*
   ** Nuxt.js dev-modules

@@ -1,13 +1,8 @@
-:root {
-  --bg-color: #121212;
-  --fg-color: #fff;
-  --ac-color: #51ff0d;
-  --err-color: #393939;
-}
+$responsiveWidth: 720px;
 
 ::selection {
   background-color: var(--ac-color);
-  color: var(--bg-color);
+  color: var(--act-color);
 }
 
 ::-webkit-scrollbar {
@@ -70,6 +65,20 @@ footer {
   justify-content: space-between;
 }
 
+
+@media(max-width: $responsiveWidth){
+  header {
+    display: block;
+    text-align: center;
+
+    nav {
+      display: inline-flex;
+      margin-top: 20px;
+    }
+  }
+}
+
+
 nav {
   a:not(:last-of-type) {
     margin-right: 15px;
@@ -92,7 +101,7 @@ button {
   padding: 8px 16px;
   border-radius: 4px;
   background-color: var(--ac-color);
-  color: var(--bg-color);
+  color: var(--act-color);
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
@@ -115,55 +124,55 @@ fieldset pre {
   resize: vertical;
 }
 
-fieldset.request {
+fieldset.blue {
   border-color: #57b5f9;
 }
 
-fieldset.request legend {
+fieldset.blue legend {
   color: #57b5f9;
 }
 
-fieldset.history {
-  border-color: #9b9b9b;
+fieldset.gray {
+  border-color: #9B9B9B;
 }
 
-fieldset.history legend {
-  color: #9b9b9b;
+fieldset.gray legend {
+  color: #9B9B9B;
 }
 
-fieldset.authentication {
-  border-color: #b8e986;
+fieldset.green {
+  border-color: #B8E986;
 }
 
-fieldset.authentication legend {
-  color: #b8e986;
+fieldset.green legend {
+  color: #B8E986;
 }
 
-fieldset.parameters {
-  border-color: #50e3c2;
+fieldset.cyan {
+  border-color: #50E3C2;
 }
 
-fieldset.parameters legend {
-  color: #50e3c2;
+fieldset.cyan legend {
+  color: #50E3C2;
 }
 
-fieldset.reqbody {
-  border-color: #4a90e2;
+fieldset.blue-dark {
+  border-color: #4A90E2;
 }
 
-fieldset.reqbody legend {
-  color: #4a90e2;
+fieldset.blue-dark legend {
+  color: #4A90E2;
 }
 
-fieldset.response {
-  border-color: #c198fb;
+fieldset.purple {
+  border-color: #C198FB;
 }
 
-fieldset.response legend {
-  color: #c198fb;
+fieldset.purple legend {
+  color: #C198FB;
 }
 
-.hidden .collapsible {
+.collapsible.hidden {
   display: none;
 }
 
@@ -176,11 +185,26 @@ pre {
   padding: 8px 16px;
   width: calc(100% - 8px);
   border-radius: 4px;
-  background-color: #000;
+  background-color: var(--bg-dark-color);
   color: var(--fg-color);
   font-weight: 700;
   font-size: 18px;
   font-family: monospace;
+}
+
+// Force the same height, for dropdowns and regular input boxes.
+select,
+input,
+option {
+  height: 38px;
+}
+
+input[type="checkbox"] {
+  width: initial;
+
+  &, & + label {
+    vertical-align: middle;
+  }
 }
 
 .error {
@@ -211,7 +235,7 @@ ol li {
   flex-grow: 1;
 }
 
-@media (max-width: 720px) {
+@media (max-width: $responsiveWidth) {
   ul,
   ol {
     flex-direction: column;

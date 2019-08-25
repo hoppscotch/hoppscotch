@@ -384,7 +384,6 @@
             if ((event.which !== 13 && event.which !== 9)) {
               return;
             }
-
             const textBody = event.target.value;
             const textBeforeCursor = textBody.substring(0, event.target.selectionStart);
             const textAfterCursor = textBody.substring(event.target.selectionEnd);
@@ -396,17 +395,10 @@
               const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
               event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
               setTimeout(() => event.target.selectionStart = event.target.selectionEnd =  oldSelectionStart + rightPadding.length + 1, 1);
-              return;
-
-              // const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
-              // const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
-              event.target.value =  textBeforeCursor + '\n' + rightPadding + textAfterCursor
-              setTimeout(() => event.target.value =  textBeforeCursor + '\n' + rightPadding + textAfterCursor, 1);
             }
             else if (event.which === 9) {
               event.preventDefault();
               const oldSelectionStart = event.target.selectionStart;
-              const oldSelectionEnd = event.target.selectionEnd;
               event.target.value = textBeforeCursor + '\xa0\xa0' + textAfterCursor;
               event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
               return false;

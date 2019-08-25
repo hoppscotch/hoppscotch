@@ -1,5 +1,5 @@
 <template>
-    <fieldset :class="{ 'no-colored-frames': noFrameColors }">
+    <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': noFrameColors }">
         <legend @click.prevent="collapse">{{ label }} ↕</legend>
         <div class="collapsible" :class="{ hidden: collapsed }">
             <slot />

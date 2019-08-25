@@ -270,3 +270,16 @@ ol li {
 .sv-error-response {
   background-color: #b71c1c;
 }
+
+fieldset#history {
+  .method-list-item {
+    position: relative;
+
+    span {
+      position: absolute;
+      top: 32px;
+      right: 8px;
+      color: #E0E0E0;
+    }
+  }
+}

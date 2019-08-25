@@ -36,34 +36,40 @@
             <option>application/json</option>
             <option>www-form/urlencoded</option>
           </select>
+<!--          <label for="rawinput">Raw input</label>-->
+          <span><input v-model="rawInput" type="checkbox" id="rawinput">Raw Input</span>
         </li>
       </ul>
-      <ol v-for="(param, index) in bodyParams">
-        <li>
-          <label :for="'bparam'+index">Key {{index + 1}}</label>
-          <input :name="'bparam'+index" v-model="param.key">
-        </li>
-        <li>
-          <label :for="'bvalue'+index">Value {{index + 1}}</label>
-          <input :name="'bvalue'+index" v-model="param.value">
-        </li>
-        <li>
-          <label for="request">&nbsp;</label>
-          <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
-        </li>
-      </ol>
-      <ul>
-        <li>
-          <label for="addrequest">Action</label>
-          <button name="addrequest" @click="addRequestBodyParam">Add</button>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="request">Parameter List</label>
-          <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
-        </li>
-      </ul>
+      <div v-if="!rawInput">
+        <ol v-for="(param, index) in bodyParams">
+          <li>
+            <label :for="'bparam'+index">Key {{index + 1}}</label>
+            <input :name="'bparam'+index" v-model="param.key">
+          </li>
+          <li>
+            <label :for="'bvalue'+index">Value {{index + 1}}</label>
+            <input :name="'bvalue'+index" v-model="param.value">
+          </li>
+          <li>
+            <label for="request">&nbsp;</label>
+            <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
+          </li>
+        </ol>
+        <ul>
+          <li>
+            <label for="addrequest">Action</label>
+            <button name="addrequest" @click="addRequestBodyParam">Add</button>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="request">Parameter List</label>
+            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
+          </li>
+        </ul>
+      </div><div v-else>
+        <textarea v-model="rawParams" style="font-family: monospace;" rows="16"></textarea>
+      </div>
     </pw-section>
 
     <pw-section class="green" label="Authentication" collapsed>
@@ -213,6 +219,8 @@
               bearerToken: '',
               params: [],
               bodyParams: [],
+              rawParams: '',
+              rawInput: false,
               contentType: 'application/json',
               response: {
                   status: '',
@@ -244,6 +252,7 @@
             return validIP.test(this.url) || validHostname.test(this.url);
           },
           rawRequestBody() {
+            debugger;
               const {
                   bodyParams
               } = this
@@ -329,7 +338,8 @@
                   xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
               }
               if (this.method === 'POST' || this.method === 'PUT') {
-                  const requestBody = this.rawRequestBody
+                debugger;
+                  const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
                   xhr.setRequestHeader('Content-Length', requestBody.length)
                   xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
                   xhr.send(requestBody)

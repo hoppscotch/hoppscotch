@@ -408,7 +408,6 @@
               const oldSelectionStart = event.target.selectionStart;
               const oldSelectionEnd = event.target.selectionEnd;
               event.target.value = textBeforeCursor + '\xa0\xa0' + textAfterCursor;
-              debugger;
               event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
               return false;
             }

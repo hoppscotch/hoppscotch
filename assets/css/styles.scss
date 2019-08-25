@@ -17,7 +17,7 @@ $responsiveWidth: 720px;
   box-sizing: border-box;
   outline: 0;
   border: 0;
-  font-family: 'Poppins', 'Roboto', 'Noto', sans-serif;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 @keyframes fadein {
@@ -42,7 +42,7 @@ body {
   color: var(--fg-color);
   font-weight: 500;
   line-height: 1.5;
-  animation: fadein .2s;
+  animation: fadein 0.2s;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -119,7 +119,8 @@ legend {
   cursor: pointer;
 }
 
-fieldset textarea, fieldset pre {
+fieldset textarea,
+fieldset pre {
   resize: vertical;
 }
 
@@ -131,6 +132,7 @@ fieldset.blue legend {
   color: #57b5f9;
 }
 
+<<<<<<< HEAD
 fieldset.gray {
   border-color: #9B9B9B;
 }
@@ -235,7 +237,6 @@ ol li {
 }
 
 @media (max-width: $responsiveWidth) {
-
   ul,
   ol {
     flex-direction: column;
@@ -249,4 +250,24 @@ ol li {
 
 #installPWA {
   display: none;
+}
+
+.info-response {
+  background-color: #ffeb3b;
+}
+
+.success-response {
+  background-color: #66BB6A;
+}
+
+.redir-response {
+  background-color: #ff5722;
+}
+
+.cl-error-response {
+  background-color: #ef5350;
+}
+
+.sv-error-response {
+  background-color: #b71c1c;
 }

@@ -128,7 +128,7 @@
       <ul>
         <li>
           <label for="status">status</label>
-          <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'">
+          <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'" :class="statusCategory ? statusCategory.className : ''">
         </li>
       </ul>
       <ul v-for="(value, key) in response.headers">
@@ -223,6 +223,15 @@
           }
       },
       computed: {
+          statusCategory(){
+            return [
+              {name: 'informational', statusCodeRegex: new RegExp(/[1][0-9]+/), className: 'info-response'},
+              {name: 'successful', statusCodeRegex: new RegExp(/[2][0-9]+/), className: 'success-response'},
+              {name: 'redirection', statusCodeRegex: new RegExp(/[3][0-9]+/), className: 'redir-response'},
+              {name: 'client error', statusCodeRegex: new RegExp(/[4][0-9]+/), className: 'cl-error-response'},
+              {name: 'server error', statusCodeRegex: new RegExp(/[5][0-9]+/), className: 'sv-error-response'},
+            ].find(status => status.statusCodeRegex.test(this.response.status));
+          },
           noHistoryToClear() {
               return this.history.length === 0;
           },

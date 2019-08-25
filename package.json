@@ -11,8 +11,9 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxtjs/pwa": "^3.0.0-0",
     "nuxt": "^2.0.0",
-    "@nuxtjs/pwa": "^3.0.0-0"
+    "vuex-persist": "^2.0.1"
   },
   "devDependencies": {
     "node-sass": "^4.12.0",

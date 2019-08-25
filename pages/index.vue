@@ -1,196 +1,183 @@
 <template>
   <div class="page">
 
-    <fieldset class="request" ref="request">
-      <legend v-on:click="collapse">Request ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li>
-            <label for="method">Method</label>
-            <select v-model="method">
-              <option>GET</option>
-              <option>POST</option>
-              <option>PUT</option>
-              <option>DELETE</option>
-              <option>OPTIONS</option>
-            </select>
-          </li>
-          <li>
-            <label for="url">URL</label>
-            <input type="url" v-bind:class="{ error: urlNotValid }" v-model="url" v-on:keyup.enter="sendRequest">
-          </li>
-          <li>
-            <label for="path">Path</label>
-            <input v-model="path" v-on:keyup.enter="sendRequest">
-          </li>
-          <li>
-            <label for="action">&nbsp;</label>
-            <button v-bind:class="{ disabled: urlNotValid }" name="action" @click="sendRequest">Send</button>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
-    <fieldset class="reqbody" v-if="method === 'POST' || method === 'PUT'">
-      <legend v-on:click="collapse">Request Body ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li>
-            <label>Content Type</label>
-            <select v-model="contentType">
-              <option>application/json</option>
-              <option>www-form/urlencoded</option>
-            </select>
-          </li>
-        </ul>
-        <ol v-for="(param, index) in bodyParams">
-          <li>
-            <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :name="'bparam'+index" v-model="param.key">
-          </li>
-          <li>
-            <label :for="'bvalue'+index">Value {{index + 1}}</label>
-            <input :name="'bvalue'+index" v-model="param.value">
-          </li>
-          <li>
-            <label for="request">&nbsp;</label>
-            <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
-          </li>
-        </ol>
-        <ul>
-          <li>
-            <label for="addrequest">Action</label>
-            <button name="addrequest" @click="addRequestBodyParam">Add</button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <label for="request">Parameter List</label>
-            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
-    <fieldset class="authentication hidden">
-      <legend v-on:click="collapse">Authentication ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li>
-            <label for="auth">Authentication Type</label>
-            <select v-model="auth">
-              <option>None</option>
-              <option>Basic</option>
-              <option>Bearer Token</option>
-            </select>
-          </li>
-        </ul>
-        <ul v-if="auth === 'Basic'">
-          <li>
-            <label for="http_basic_user">User</label>
-            <input v-model="httpUser">
-          </li>
-          <li>
-            <label for="http_basic_passwd">Password</label>
-            <input v-model="httpPassword" type="password">
-          </li>
-        </ul>
-        <ul v-if="auth === 'Bearer Token'">
-          <li>
-            <label for="bearer_token">Token</label>
-            <input v-model="bearerToken">
-          </li>
-        </ul>
-      </div>
-    </fieldset>
-    <fieldset class="parameters hidden">
-      <legend v-on:click="collapse">Parameters ↕</legend>
-      <div class="collapsible">
-        <ol v-for="(param, index) in params">
-          <li>
-            <label :for="'param'+index">Key {{index + 1}}</label>
-            <input :name="'param'+index" v-model="param.key">
-          </li>
-          <li>
-            <label :for="'value'+index">Value {{index + 1}}</label>
-            <input :name="'value'+index" v-model="param.value">
-          </li>
-          <li>
-            <label for="param">&nbsp;</label>
-            <button name="param" @click="removeRequestParam(index)">Remove</button>
-          </li>
-        </ol>
-        <ul>
-          <li>
-            <label for="add">Action</label>
-            <button name="add" @click="addRequestParam">Add</button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <label for="request">Parameter List</label>
-            <textarea name="request" rows="1" readonly>{{queryString || '(add at least one parameter)'}}</textarea>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
-    <fieldset class="response" id="response" ref="response">
-      <legend v-on:click="collapse">Response ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li>
-            <label for="status">status</label>
-            <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'">
-          </li>
-        </ul>
-        <ul v-for="(value, key) in response.headers">
-          <li>
-            <label for="value">{{key}}</label>
-            <input name="value" :value="value" readonly>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <label for="body">response</label>
-            <textarea name="body" rows="10" readonly>{{response.body || '(waiting to send request)'}}</textarea>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
-    <fieldset class="history">
-      <legend v-on:click="collapse">History ↕</legend>
-      <div class="collapsible">
-        <ul>
-          <li>
-            <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
-          </li>
-        </ul>
-        <ul v-for="entry in history">
-          <li>
-            <label for="time">Time</label>
-            <input name="time" type="text" readonly :value="entry.time">
-          </li>
-          <li>
-            <label for="name">Method</label>
-            <input name="name" type="text" readonly :value="entry.method">
-          </li>
-          <li>
-            <label for="name">URL</label>
-            <input name="name" type="text" readonly :value="entry.url">
-          </li>
-          <li>
-            <label for="name">Path</label>
-            <input name="name" type="text" readonly :value="entry.path">
-          </li>
-          <li>
-            <label for="delete">&nbsp;</label>
-            <button name="delete" @click="deleteHistory(entry)">Delete</button>
-          </li>
-          <li>
-            <label for="use">&nbsp;</label>
-            <button name="use" @click="useHistory(entry)">Use</button>
-          </li>
-        </ul>
-      </div>
-    </fieldset>
+    <pw-section class="blue" label="Request" ref="request">
+      <ul>
+        <li>
+          <label for="method">Method</label>
+          <select id="method" v-model="method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+            <option>OPTIONS</option>
+          </select>
+        </li>
+        <li>
+          <label for="url">URL</label>
+          <input id="url" type="url" v-bind:class="{ error: !isValidURL }" v-model="url" v-on:keyup.enter="sendRequest">
+        </li>
+        <li>
+          <label for="path">Path</label>
+          <input id="path" v-model="path" v-on:keyup.enter="sendRequest">
+        </li>
+        <li>
+          <label for="action">&nbsp;</label>
+          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL">Send</button>
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT'">
+      <ul>
+        <li>
+          <label>Content Type</label>
+          <select v-model="contentType">
+            <option>application/json</option>
+            <option>www-form/urlencoded</option>
+          </select>
+        </li>
+      </ul>
+      <ol v-for="(param, index) in bodyParams">
+        <li>
+          <label :for="'bparam'+index">Key {{index + 1}}</label>
+          <input :name="'bparam'+index" v-model="param.key">
+        </li>
+        <li>
+          <label :for="'bvalue'+index">Value {{index + 1}}</label>
+          <input :name="'bvalue'+index" v-model="param.value">
+        </li>
+        <li>
+          <label for="request">&nbsp;</label>
+          <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
+        </li>
+      </ol>
+      <ul>
+        <li>
+          <label for="addrequest">Action</label>
+          <button name="addrequest" @click="addRequestBodyParam">Add</button>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <label for="request">Parameter List</label>
+          <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="green" label="Authentication" collapsed>
+      <ul>
+        <li>
+          <label for="auth">Authentication Type</label>
+          <select v-model="auth">
+            <option>None</option>
+            <option>Basic</option>
+            <option>Bearer Token</option>
+          </select>
+        </li>
+      </ul>
+      <ul v-if="auth === 'Basic'">
+        <li>
+          <label for="http_basic_user">User</label>
+          <input v-model="httpUser">
+        </li>
+        <li>
+          <label for="http_basic_passwd">Password</label>
+          <input v-model="httpPassword" type="password">
+        </li>
+      </ul>
+      <ul v-if="auth === 'Bearer Token'">
+        <li>
+          <label for="bearer_token">Token</label>
+          <input v-model="bearerToken">
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="cyan" label="Parameters" collapsed>
+      <ol v-for="(param, index) in params">
+        <li>
+          <label :for="'param'+index">Key {{index + 1}}</label>
+          <input :name="'param'+index" v-model="param.key">
+        </li>
+        <li>
+          <label :for="'value'+index">Value {{index + 1}}</label>
+          <input :name="'value'+index" v-model="param.value">
+        </li>
+        <li>
+          <label for="param">&nbsp;</label>
+          <button name="param" @click="removeRequestParam(index)">Remove</button>
+        </li>
+      </ol>
+      <ul>
+        <li>
+          <label for="add">Action</label>
+          <button name="add" @click="addRequestParam">Add</button>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <label for="request">Parameter List</label>
+          <textarea name="request" rows="1" readonly>{{queryString || '(add at least one parameter)'}}</textarea>
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="purple" label="Response" id="response" ref="response">
+      <ul>
+        <li>
+          <label for="status">status</label>
+          <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'" :class="statusCategory ? statusCategory.className : ''">
+        </li>
+      </ul>
+      <ul v-for="(value, key) in response.headers">
+        <li>
+          <label for="value">{{key}}</label>
+          <input name="value" :value="value" readonly>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <label for="body">response</label>
+          <textarea name="body" rows="10" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="gray" label="History">
+      <ul>
+        <li>
+          <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
+        </li>
+      </ul>
+      <ul v-for="entry in history">
+        <li>
+          <label for="time">Time</label>
+          <input name="time" type="text" readonly :value="entry.time">
+        </li>
+        <li>
+          <label for="name">Method</label>
+          <input name="name" type="text" readonly :value="entry.method">
+        </li>
+        <li>
+          <label for="name">URL</label>
+          <input name="name" type="text" readonly :value="entry.url">
+        </li>
+        <li>
+          <label for="name">Path</label>
+          <input name="name" type="text" readonly :value="entry.path">
+        </li>
+        <li>
+          <label for="delete">&nbsp;</label>
+          <button name="delete" @click="deleteHistory(entry)">Delete</button>
+        </li>
+        <li>
+          <label for="use">&nbsp;</label>
+          <button name="use" @click="useHistory(entry)">Use</button>
+        </li>
+      </ul>
+    </pw-section>
 
   </div>
 </template>
@@ -208,7 +195,13 @@
       return headerMap
   };
 
+  import section from "../components/section";
+
   export default {
+    components: {
+      'pw-section': section
+    },
+
       data () {
           return {
               method: 'GET',
@@ -230,17 +223,25 @@
           }
       },
       computed: {
+          statusCategory(){
+            return [
+              {name: 'informational', statusCodeRegex: new RegExp(/[1][0-9]+/), className: 'info-response'},
+              {name: 'successful', statusCodeRegex: new RegExp(/[2][0-9]+/), className: 'success-response'},
+              {name: 'redirection', statusCodeRegex: new RegExp(/[3][0-9]+/), className: 'redir-response'},
+              {name: 'client error', statusCodeRegex: new RegExp(/[4][0-9]+/), className: 'cl-error-response'},
+              {name: 'server error', statusCodeRegex: new RegExp(/[5][0-9]+/), className: 'sv-error-response'},
+            ].find(status => status.statusCodeRegex.test(this.response.status));
+          },
           noHistoryToClear() {
               return this.history.length === 0;
           },
-          urlNotValid() {
-              const pattern = new RegExp('^(https?:\\/\\/)?' +
-                  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-                  '((\\d{1,3}\\.){3}\\d{1,3}))' +
-                  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-                  '(\\?[;&a-z\\d%_.~+=-]*)?' +
-                  '(\\#[-a-z\\d_]*)?$', 'i');
-              return !pattern.test(this.url)
+          isValidURL() {
+            const protocol = '^(https?:\\/\\/)?';
+
+            const validIP = new RegExp(protocol + "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+            const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
+
+            return validIP.test(this.url) || validHostname.test(this.url);
           },
           rawRequestBody() {
               const {
@@ -295,19 +296,13 @@
               this.method = method
               this.url = url
               this.path = path
-              this.$refs.request.scrollIntoView({
+              this.$refs.request.$el.scrollIntoView({
                   behavior: 'smooth'
               })
           },
-          collapse({
-                       target
-                   }) {
-              const el = target.parentNode.className
-              document.getElementsByClassName(el)[0].classList.toggle('hidden')
-          },
           sendRequest() {
-              if (this.urlNotValid) {
-                  alert('Please check the formatting of the URL')
+              if (!this.isValidURL) {
+                  alert('Please check the formatting of the URL');
                   return
               }
               const n = new Date().toLocaleTimeString()
@@ -318,10 +313,10 @@
                   path: this.path
               }, ...this.history]
               window.localStorage.setItem('history', JSON.stringify(this.history))
-              if (this.$refs.response.classList.contains('hidden')) {
-                  this.$refs.response.classList.toggle('hidden')
+              if (this.$refs.response.$el.classList.contains('hidden')) {
+                  this.$refs.response.$el.classList.toggle('hidden')
               }
-              this.$refs.response.scrollIntoView({
+              this.$refs.response.$el.scrollIntoView({
                   behavior: 'smooth'
               })
               this.response.status = 'Fetching...'

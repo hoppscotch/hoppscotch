@@ -301,7 +301,7 @@
               })
           },
           sendRequest() {
-              if (!this.isValidURL()) {
+              if (!this.isValidURL) {
                   alert('Please check the formatting of the URL');
                   return
               }

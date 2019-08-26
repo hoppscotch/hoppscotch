@@ -234,6 +234,16 @@ ol li {
   flex-direction: column;
   flex-grow: 1;
 }
+.flex-wrap{
+  display: flex;
+  justify-content: space-between;
+}
+.btn-copy{
+    padding: 6px 14px;
+    font-size: 11px;
+    margin-right: 15px;
+
+}
 
 @media (max-width: $responsiveWidth) {
   ul,

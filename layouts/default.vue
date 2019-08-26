@@ -5,7 +5,7 @@
         <nuxt-link to="/">
           <h1 class="logo"><logo alt="" style="height: 24px; margin-right: 16px"/>Postwoman</h1>
         </nuxt-link>
-        <h3>Lightweight API request builder</h3>
+        <h3>API request builder</h3>
       </div>
 
       <nav>

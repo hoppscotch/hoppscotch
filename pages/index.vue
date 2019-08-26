@@ -146,7 +146,7 @@
         </li>
       </ul>
       <ul>
-        <li> 
+        <li>
         <div class="flex-wrap">
           <label for="body">response</label>
           <button v-if="response.body" name="action" class="btn-copy" @click="copyResponse">Copy Response</button>
@@ -324,7 +324,6 @@
               })
           },
           sendRequest() {
-              window.localStorage.setItem('history', JSON.stringify(this.history))
               if (this.$refs.response.$el.classList.contains('hidden')) {
                   this.$refs.response.$el.classList.toggle('hidden')
               }
@@ -369,6 +368,7 @@
                   url: this.url,
                   path: this.path
                 }, ...this.history]
+                window.localStorage.setItem('history', JSON.stringify(this.history))
               }
               xhr.onerror = e => {
                   this.response.status = xhr.status

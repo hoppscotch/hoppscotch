@@ -36,34 +36,42 @@
             <option>application/json</option>
             <option>www-form/urlencoded</option>
           </select>
+          <span>
+            <input v-model="rawInput" style="cursor: pointer;" type="checkbox" id="rawInput">
+            <label for="rawInput" style="cursor: pointer;">Raw Input</label>
+          </span>
         </li>
       </ul>
-      <ol v-for="(param, index) in bodyParams">
-        <li>
-          <label :for="'bparam'+index">Key {{index + 1}}</label>
-          <input :name="'bparam'+index" v-model="param.key">
-        </li>
-        <li>
-          <label :for="'bvalue'+index">Value {{index + 1}}</label>
-          <input :name="'bvalue'+index" v-model="param.value">
-        </li>
-        <li>
-          <label for="request">&nbsp;</label>
-          <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
-        </li>
-      </ol>
-      <ul>
-        <li>
-          <label for="addrequest">Action</label>
-          <button name="addrequest" @click="addRequestBodyParam">Add</button>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="request">Parameter List</label>
-          <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
-        </li>
-      </ul>
+      <div v-if="!rawInput">
+        <ol v-for="(param, index) in bodyParams">
+          <li>
+            <label :for="'bparam'+index">Key {{index + 1}}</label>
+            <input :name="'bparam'+index" v-model="param.key">
+          </li>
+          <li>
+            <label :for="'bvalue'+index">Value {{index + 1}}</label>
+            <input :name="'bvalue'+index" v-model="param.value">
+          </li>
+          <li>
+            <label for="request">&nbsp;</label>
+            <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
+          </li>
+        </ol>
+        <ul>
+          <li>
+            <label for="addrequest">Action</label>
+            <button name="addrequest" @click="addRequestBodyParam">Add</button>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="request">Parameter List</label>
+            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
+          </li>
+        </ul>
+      </div><div v-else>
+        <textarea v-model="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
+      </div>
     </pw-section>
 
     <pw-section class="green" label="Authentication" collapsed>
@@ -216,6 +224,8 @@
               bearerToken: '',
               params: [],
               bodyParams: [],
+              rawParams: '',
+              rawInput: false,
               contentType: 'application/json',
               response: {
                   status: '',
@@ -332,7 +342,7 @@
                   xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
               }
               if (this.method === 'POST' || this.method === 'PUT') {
-                  const requestBody = this.rawRequestBody
+                  const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
                   xhr.setRequestHeader('Content-Length', requestBody.length)
                   xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
                   xhr.send(requestBody)
@@ -373,11 +383,35 @@
           removeRequestBodyParam(index) {
               this.bodyParams.splice(index, 1)
           },
-          copyResponse() {
+          formatRawParams(event) {
+            if ((event.which !== 13 && event.which !== 9)) {
+              return;
+            }
+            const textBody = event.target.value;
+            const textBeforeCursor = textBody.substring(0, event.target.selectionStart);
+            const textAfterCursor = textBody.substring(event.target.selectionEnd);
+
+            if (event.which === 13) {
+              event.preventDefault();
+              const oldSelectionStart = event.target.selectionStart;
+              const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
+              const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
+              event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
+              setTimeout(() => event.target.selectionStart = event.target.selectionEnd =  oldSelectionStart + rightPadding.length + 1, 1);
+            }
+            else if (event.which === 9) {
+              event.preventDefault();
+              const oldSelectionStart = event.target.selectionStart;
+              event.target.value = textBeforeCursor + '\xa0\xa0' + textAfterCursor;
+              event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
+              return false;
+            }
+
+          },
+           copyResponse() {
             var copyText = document.getElementById("response-details");
             copyText.select();
             document.execCommand("copy");
-          }
       }
   }
 </script>

@@ -113,8 +113,13 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * [Liyas Thomas](https://github.com/liyasthomas)
 
 ### Contributors
+* [NBTX](https://github.com/NBTX)
 * [Andrew Bastin](https://github.com/AndrewBastin)
+* [Nick Palenchar](https://github.com/nickpalenchar)
 * [Abraham Williams](https://github.com/abraham)
+* [Nicholas La Roux](https://github.com/larouxn)
+* [RifqiAlAbqary](https://github.com/reefqi037)
+* [izerozlu](https://github.com/izerozlu)
 
 ### Thanks
 * [Dribbble](https://dribbble.com)

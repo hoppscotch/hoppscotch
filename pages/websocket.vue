@@ -7,9 +7,9 @@
           <label for="url">URL</label>
           <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="toggleConnection">
         </li>
-        <li class="no-grow">
+        <li>
           <label>&nbsp;</label>
-          <button class="action" :class="{ disabled: !urlValid }" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
+          <button :class="{ disabled: !urlValid }" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
         </li>
       </ul>
     </pw-section>
@@ -18,7 +18,7 @@
       <ul>
         <li>
           <label for="log">Log</label>
-          <div id="log" name="log" class="log" readonly>
+          <div id="log" name="log" class="log">
               <span v-if="communication.log">
                 <span v-for="logEntry in communication.log" :style="{ color: logEntry.color }">{{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
               </span>
@@ -33,9 +33,9 @@
           <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="sendMessage">
         </li>
 
-        <li class="no-grow">
+        <li>
           <label>&nbsp;</label>
-          <button class="action" name="send" :class="{ disabled: !connectionState }" @click="sendMessage">Send</button>
+          <button name="send" :class="{ disabled: !connectionState }" @click="sendMessage">Send</button>
         </li>
       </ul>
     </pw-section>
@@ -44,13 +44,6 @@
 </template>
 
 <style lang="scss">
-  .no-grow { flex-grow: 0; }
-  .action {
-    padding-left: 30px;
-    padding-right: 30px;
-    width: 150px;
-  }
-
   div.log {
     margin: 4px;
     padding: 8px 16px;
@@ -58,7 +51,7 @@
     border-radius: 4px;
     background-color: var(--bg-dark-color);
     color: var(--fg-color);
-    height: 300px;
+    height: 256px;
     overflow: auto;
 
     &, span {

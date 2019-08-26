@@ -35,10 +35,10 @@ notifications:
 
 deploy:
  provider: pages
- skip_cleanup: true
+ skip-cleanup: true
  # Refer to: https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
- github_token: $GITHUB_ACCESS_TOKEN
+ github-token: $GITHUB_ACCESS_TOKEN
  target-branch: gh-pages
- local_dir: dist
+ local-dir: dist
  on:
   branch: master

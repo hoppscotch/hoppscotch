@@ -234,6 +234,16 @@ ol li {
   flex-direction: column;
   flex-grow: 1;
 }
+.flex-wrap{
+  display: flex;
+  justify-content: space-between;
+}
+.btn-copy{
+    padding: 6px 14px;
+    font-size: 11px;
+    margin-right: 15px;
+
+}
 
 @media (max-width: $responsiveWidth) {
   ul,
@@ -252,21 +262,34 @@ ol li {
 }
 
 .info-response {
-  background-color: #ffeb3b;
+  background-color: #FFEB3B;
 }
 
 .success-response {
-  background-color: #66BB6A;
+  background-color: #4BB543;
 }
 
 .redir-response {
-  background-color: #ff5722;
+  background-color: #FF5722;
 }
 
 .cl-error-response {
-  background-color: #ef5350;
+  background-color: #A63232;
 }
 
 .sv-error-response {
-  background-color: #b71c1c;
+  background-color: #B71C1C;
+}
+
+fieldset#history {
+  .method-list-item {
+    position: relative;
+
+    span {
+      position: absolute;
+      top: 44px;
+      right: 20px;
+      font-family: monospace, monospace;
+    }
+  }
 }

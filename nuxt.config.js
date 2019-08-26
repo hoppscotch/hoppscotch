@@ -3,7 +3,7 @@
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const meta = {
   name: "Postwoman",
-  shortDescription: "Lightweight API request builder",
+  shortDescription: "API request builder",
   description: "The Postwoman API request builder helps you create your requests faster, saving you precious time on your development."
 };
 
@@ -34,6 +34,7 @@ export default {
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no, minimal-ui' },
       { hid: 'description', name: 'description', content: meta.description || '' },
+      { name: 'keywords', content: 'postwoman, api, request, testing, tool, rest, websocket'},
 
       { name: 'X-UA-Compatible', content: "IE=edge, chrome=1" },
       { itemprop: "name", content: `${meta.name} \u2022 ${meta.shortDescription}` },

@@ -36,34 +36,42 @@
             <option>application/json</option>
             <option>www-form/urlencoded</option>
           </select>
+          <span>
+            <input v-model="rawInput" style="cursor: pointer;" type="checkbox" id="rawInput">
+            <label for="rawInput" style="cursor: pointer;">Raw Input</label>
+          </span>
         </li>
       </ul>
-      <ol v-for="(param, index) in bodyParams">
-        <li>
-          <label :for="'bparam'+index">Key {{index + 1}}</label>
-          <input :name="'bparam'+index" v-model="param.key">
-        </li>
-        <li>
-          <label :for="'bvalue'+index">Value {{index + 1}}</label>
-          <input :name="'bvalue'+index" v-model="param.value">
-        </li>
-        <li>
-          <label for="request">&nbsp;</label>
-          <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
-        </li>
-      </ol>
-      <ul>
-        <li>
-          <label for="addrequest">Action</label>
-          <button name="addrequest" @click="addRequestBodyParam">Add</button>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="request">Parameter List</label>
-          <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
-        </li>
-      </ul>
+      <div v-if="!rawInput">
+        <ol v-for="(param, index) in bodyParams">
+          <li>
+            <label :for="'bparam'+index">Key {{index + 1}}</label>
+            <input :name="'bparam'+index" v-model="param.key">
+          </li>
+          <li>
+            <label :for="'bvalue'+index">Value {{index + 1}}</label>
+            <input :name="'bvalue'+index" v-model="param.value">
+          </li>
+          <li>
+            <label for="request">&nbsp;</label>
+            <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
+          </li>
+        </ol>
+        <ul>
+          <li>
+            <label for="addrequest">Action</label>
+            <button name="addrequest" @click="addRequestBodyParam">Add</button>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="request">Parameter List</label>
+            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
+          </li>
+        </ul>
+      </div><div v-else>
+        <textarea v-model="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
+      </div>
     </pw-section>
 
     <pw-section class="green" label="Authentication" collapsed>
@@ -138,9 +146,12 @@
         </li>
       </ul>
       <ul>
-        <li>
+        <li> 
+        <div class="flex-wrap">
           <label for="body">response</label>
-          <textarea name="body" rows="10" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+          <button v-if="response.body" name="action" class="btn-copy" @click="copyResponse">Copy Response</button>
+         </div>
+          <textarea name="body" rows="10" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
         </li>
       </ul>
     </pw-section>
@@ -156,17 +167,19 @@
           <label for="time">Time</label>
           <input name="time" type="text" readonly :value="entry.time">
         </li>
-        <li>
-          <label for="name">Method</label>
-          <input name="name" type="text" readonly :value="entry.method">
+        <li class="method-list-item">
+          <label for="method">Method</label>
+          <input name="method" type="text" readonly
+                 :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
+          <span class="entry-status-code">{{entry.status}}</span>
         </li>
         <li>
-          <label for="name">URL</label>
-          <input name="name" type="text" readonly :value="entry.url">
+          <label for="url">URL</label>
+          <input name="url" type="text" readonly :value="entry.url">
         </li>
         <li>
-          <label for="name">Path</label>
-          <input name="name" type="text" readonly :value="entry.path">
+          <label for="path">Path</label>
+          <input name="path" type="text" readonly :value="entry.path">
         </li>
         <li>
           <label for="delete">&nbsp;</label>
@@ -183,22 +196,33 @@
 </template>
 
 <script>
-  const parseHeaders = xhr => {
-      const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
-      const headerMap = {};
-      headers.forEach(line => {
-          const parts = line.split(': ');
-          const header = parts.shift().toLowerCase();
-          const value = parts.join(': ');
-          headerMap[header] = value
-      });
-      return headerMap
-  };
+      const statusCategories = [
+        {name: 'informational', statusCodeRegex: new RegExp(/[1][0-9]+/), className: 'info-response'},
+        {name: 'successful', statusCodeRegex: new RegExp(/[2][0-9]+/), className: 'success-response'},
+        {name: 'redirection', statusCodeRegex: new RegExp(/[3][0-9]+/), className: 'redir-response'},
+        {name: 'client error', statusCodeRegex: new RegExp(/[4][0-9]+/), className: 'cl-error-response'},
+        {name: 'server error', statusCodeRegex: new RegExp(/[5][0-9]+/), className: 'sv-error-response'},
+      ];
 
-  import section from "../components/section";
 
-  export default {
-    components: {
+      const parseHeaders = xhr => {
+          const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
+          const headerMap = {};
+          headers.forEach(line => {
+              const parts = line.split(': ');
+              const header = parts.shift().toLowerCase();
+              const value = parts.join(': ');
+              headerMap[header] = value
+          });
+          return headerMap
+      };
+
+      const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
+
+      import section from "../components/section";
+
+      export default {
+      components: {
       'pw-section': section
     },
 
@@ -213,6 +237,8 @@
               bearerToken: '',
               params: [],
               bodyParams: [],
+              rawParams: '',
+              rawInput: false,
               contentType: 'application/json',
               response: {
                   status: '',
@@ -224,13 +250,7 @@
       },
       computed: {
           statusCategory(){
-            return [
-              {name: 'informational', statusCodeRegex: new RegExp(/[1][0-9]+/), className: 'info-response'},
-              {name: 'successful', statusCodeRegex: new RegExp(/[2][0-9]+/), className: 'success-response'},
-              {name: 'redirection', statusCodeRegex: new RegExp(/[3][0-9]+/), className: 'redir-response'},
-              {name: 'client error', statusCodeRegex: new RegExp(/[4][0-9]+/), className: 'cl-error-response'},
-              {name: 'server error', statusCodeRegex: new RegExp(/[5][0-9]+/), className: 'sv-error-response'},
-            ].find(status => status.statusCodeRegex.test(this.response.status));
+            return findStatusGroup(this.response.status);
           },
           noHistoryToClear() {
               return this.history.length === 0;
@@ -280,6 +300,9 @@
           }
       },
       methods: {
+          findEntryStatus(entry){
+            return findStatusGroup(entry.status);
+          },
           deleteHistory(entry) {
               this.history.splice(this.history.indexOf(entry), 1)
               window.localStorage.setItem('history', JSON.stringify(this.history))
@@ -301,17 +324,6 @@
               })
           },
           sendRequest() {
-              if (!this.isValidURL) {
-                  alert('Please check the formatting of the URL');
-                  return
-              }
-              const n = new Date().toLocaleTimeString()
-              this.history = [{
-                  time: n,
-                  method: this.method,
-                  url: this.url,
-                  path: this.path
-              }, ...this.history]
               window.localStorage.setItem('history', JSON.stringify(this.history))
               if (this.$refs.response.$el.classList.contains('hidden')) {
                   this.$refs.response.$el.classList.toggle('hidden')
@@ -329,7 +341,7 @@
                   xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
               }
               if (this.method === 'POST' || this.method === 'PUT') {
-                  const requestBody = this.rawRequestBody
+                  const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
                   xhr.setRequestHeader('Content-Length', requestBody.length)
                   xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
                   xhr.send(requestBody)
@@ -337,13 +349,26 @@
                   xhr.send()
               }
               xhr.onload = e => {
-                  this.response.status = xhr.status
-                  const headers = this.response.headers = parseHeaders(xhr)
-                  if ((headers['content-type'] || '').startsWith('application/json')) {
-                      this.response.body = JSON.stringify(JSON.parse(xhr.responseText), null, 2)
-                  } else {
-                      this.response.body = xhr.responseText
-                  }
+                this.response.status = xhr.status
+                const headers = this.response.headers = parseHeaders(xhr)
+                if ((headers['content-type'] || '').startsWith('application/json')) {
+                  this.response.body = JSON.stringify(JSON.parse(xhr.responseText), null, 2)
+                } else {
+                  this.response.body = xhr.responseText
+                }
+
+                if (!this.isValidURL) {
+                  alert('Please check the formatting of the URL');
+                  return
+                }
+                const n = new Date().toLocaleTimeString()
+                this.history = [{
+                  status: xhr.status,
+                  time: n,
+                  method: this.method,
+                  url: this.url,
+                  path: this.path
+                }, ...this.history]
               }
               xhr.onerror = e => {
                   this.response.status = xhr.status
@@ -369,6 +394,36 @@
           },
           removeRequestBodyParam(index) {
               this.bodyParams.splice(index, 1)
+          },
+          formatRawParams(event) {
+            if ((event.which !== 13 && event.which !== 9)) {
+              return;
+            }
+            const textBody = event.target.value;
+            const textBeforeCursor = textBody.substring(0, event.target.selectionStart);
+            const textAfterCursor = textBody.substring(event.target.selectionEnd);
+
+            if (event.which === 13) {
+              event.preventDefault();
+              const oldSelectionStart = event.target.selectionStart;
+              const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
+              const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
+              event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
+              setTimeout(() => event.target.selectionStart = event.target.selectionEnd =  oldSelectionStart + rightPadding.length + 1, 1);
+            }
+            else if (event.which === 9) {
+              event.preventDefault();
+              const oldSelectionStart = event.target.selectionStart;
+              event.target.value = textBeforeCursor + '\xa0\xa0' + textAfterCursor;
+              event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
+              return false;
+            }
+
+          },
+           copyResponse() {
+            var copyText = document.getElementById("response-details");
+            copyText.select();
+            document.execCommand("copy");
           }
       }
   }

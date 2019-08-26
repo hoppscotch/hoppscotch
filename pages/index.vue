@@ -138,9 +138,12 @@
         </li>
       </ul>
       <ul>
-        <li>
+        <li> 
+        <div class="flex-wrap">
           <label for="body">response</label>
-          <textarea name="body" rows="10" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+          <button v-if="response.body" name="action" class="btn-copy" @click="copyResponse">Copy Response</button>
+         </div>
+          <textarea name="body" rows="10" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
         </li>
       </ul>
     </pw-section>

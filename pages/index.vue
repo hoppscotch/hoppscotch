@@ -412,6 +412,7 @@
             var copyText = document.getElementById("response-details");
             copyText.select();
             document.execCommand("copy");
+          }
       }
   }
 </script>

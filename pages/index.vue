@@ -34,7 +34,6 @@
           <label>Content Type</label>
           <select v-model="contentType">
             <option>application/json</option>
-            <option>application/graphql</option>
             <option>www-form/urlencoded</option>
           </select>
           <span>

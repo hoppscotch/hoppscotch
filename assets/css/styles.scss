@@ -20,16 +20,6 @@ $responsiveWidth: 720px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
 a {
   display: inline-flex;
   color: inherit;
@@ -42,7 +32,6 @@ body {
   color: var(--fg-color);
   font-weight: 500;
   line-height: 1.5;
-  animation: fadein 0.2s;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -56,6 +45,10 @@ h3 {
   font-weight: 700;
 }
 
+h3.title {
+  margin: 4px;
+}
+
 header,
 footer {
   display: flex;
@@ -65,8 +58,7 @@ footer {
   justify-content: space-between;
 }
 
-
-@media(max-width: $responsiveWidth){
+@media(max-width: $responsiveWidth) {
   header {
     display: block;
     text-align: center;
@@ -78,7 +70,6 @@ footer {
   }
 }
 
-
 nav {
   a:not(:last-of-type) {
     margin-right: 15px;
@@ -87,9 +78,9 @@ nav {
 
 body.sticky-footer footer {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
 }
 
 .logo {
@@ -172,6 +163,14 @@ fieldset.purple legend {
   color: #C198FB;
 }
 
+fieldset.orange {
+  border-color: #F5A623;
+}
+
+fieldset.orange legend {
+  color: #F5A623;
+}
+
 .collapsible.hidden {
   display: none;
 }
@@ -202,7 +201,8 @@ option {
 input[type="checkbox"] {
   width: initial;
 
-  &, & + label {
+  &,
+  & + label {
     vertical-align: middle;
   }
 }
@@ -234,18 +234,15 @@ ol li {
   flex-direction: column;
   flex-grow: 1;
 }
-.flex-wrap{
+
+.flex-wrap {
   display: flex;
   justify-content: space-between;
-}
-.btn-copy{
-    padding: 6px 14px;
-    font-size: 11px;
-    margin-right: 15px;
-
+  align-items: center;
 }
 
 @media (max-width: $responsiveWidth) {
+
   ul,
   ol {
     flex-direction: column;

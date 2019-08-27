@@ -12,10 +12,11 @@
         display: inline-block;
         vertical-align: middle;
 
-        padding: 8px 15px;
-        margin: 5px;
+        padding: 8px 16px;
+        margin: 4px;
         background-color: rgba(93, 93, 93, 0.2);
         border-radius: 4px;
+        cursor: pointer;
 
         &.active {
             background-color: rgba(93, 93, 93, 0.3);
@@ -24,10 +25,10 @@
         .preview {
             vertical-align: middle;
             display: inline-block;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 100%;
-            margin-right: 10px;
+            margin-right: 8px;
 
             position: relative;
             .activeTick {

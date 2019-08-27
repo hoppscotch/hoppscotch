@@ -1,6 +1,5 @@
 <template>
   <div class="page">
-
     <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
@@ -27,7 +26,6 @@
         </li>
       </ul>
     </pw-section>
-
     <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT'">
       <ul>
         <li>
@@ -74,7 +72,6 @@
         <textarea v-model="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
       </div>
     </pw-section>
-
     <pw-section class="green" label="Authentication" collapsed>
       <ul>
         <li>
@@ -103,7 +100,6 @@
         </li>
       </ul>
     </pw-section>
-
     <pw-section class="orange" label="Headers" collapsed>
       <ol v-for="(header, index) in headers">
         <li>
@@ -132,7 +128,6 @@
         </li>
       </ul>
     </pw-section>
-
     <pw-section class="cyan" label="Parameters" collapsed>
       <ol v-for="(param, index) in params">
         <li>
@@ -161,7 +156,6 @@
         </li>
       </ul>
     </pw-section>
-
     <pw-section class="purple" label="Response" id="response" ref="response">
       <ul>
         <li>
@@ -185,7 +179,6 @@
         </li>
       </ul>
     </pw-section>
-
     <pw-section class="gray" label="History">
       <ul>
         <li>
@@ -199,8 +192,7 @@
         </li>
         <li class="method-list-item">
           <label for="method">Method</label>
-          <input name="method" type="text" readonly
-                 :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
+          <input name="method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
           <span class="entry-status-code">{{entry.status}}</span>
         </li>
         <li>
@@ -221,267 +213,273 @@
         </li>
       </ul>
     </pw-section>
-
   </div>
 </template>
-
 <script>
-      const statusCategories = [
-        {name: 'informational', statusCodeRegex: new RegExp(/[1][0-9]+/), className: 'info-response'},
-        {name: 'successful', statusCodeRegex: new RegExp(/[2][0-9]+/), className: 'success-response'},
-        {name: 'redirection', statusCodeRegex: new RegExp(/[3][0-9]+/), className: 'redir-response'},
-        {name: 'client error', statusCodeRegex: new RegExp(/[4][0-9]+/), className: 'cl-error-response'},
-        {name: 'server error', statusCodeRegex: new RegExp(/[5][0-9]+/), className: 'sv-error-response'},
-      ];
-
-
-      const parseHeaders = xhr => {
-          const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
-          const headerMap = {};
-          headers.forEach(line => {
-              const parts = line.split(': ');
-              const header = parts.shift().toLowerCase();
-              const value = parts.join(': ');
-              headerMap[header] = value
-          });
-          return headerMap
-      };
-
-      const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
-
-      import section from "../components/section";
-
-      export default {
-      components: {
+  const statusCategories = [{
+      name: 'informational',
+      statusCodeRegex: new RegExp(/[1][0-9]+/),
+      className: 'info-response'
+    },
+    {
+      name: 'successful',
+      statusCodeRegex: new RegExp(/[2][0-9]+/),
+      className: 'success-response'
+    },
+    {
+      name: 'redirection',
+      statusCodeRegex: new RegExp(/[3][0-9]+/),
+      className: 'redir-response'
+    },
+    {
+      name: 'client error',
+      statusCodeRegex: new RegExp(/[4][0-9]+/),
+      className: 'cl-error-response'
+    },
+    {
+      name: 'server error',
+      statusCodeRegex: new RegExp(/[5][0-9]+/),
+      className: 'sv-error-response'
+    },
+  ];
+  const parseHeaders = xhr => {
+    const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
+    const headerMap = {};
+    headers.forEach(line => {
+      const parts = line.split(': ');
+      const header = parts.shift().toLowerCase();
+      const value = parts.join(': ');
+      headerMap[header] = value
+    });
+    return headerMap
+  };
+  const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
+  import section from "../components/section";
+  export default {
+    components: {
       'pw-section': section
     },
-
-      data () {
-          return {
-              method: 'GET',
-              url: 'https://reqres.in',
-              auth: 'None',
-              path: '/api/users',
-              httpUser: '',
-              httpPassword: '',
-              bearerToken: '',
-              headers: [],
-              params: [],
-              bodyParams: [],
-              rawParams: '',
-              rawInput: false,
-              contentType: 'application/json',
-              response: {
-                  status: '',
-                  headers: '',
-                  body: ''
-              },
-              history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : []
-          }
+    data() {
+      return {
+        method: 'GET',
+        url: 'https://reqres.in',
+        auth: 'None',
+        path: '/api/users',
+        httpUser: '',
+        httpPassword: '',
+        bearerToken: '',
+        headers: [],
+        params: [],
+        bodyParams: [],
+        rawParams: '',
+        rawInput: false,
+        contentType: 'application/json',
+        response: {
+          status: '',
+          headers: '',
+          body: ''
+        },
+        history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : []
+      }
+    },
+    computed: {
+      statusCategory() {
+        return findStatusGroup(this.response.status);
       },
-      computed: {
-          statusCategory(){
-            return findStatusGroup(this.response.status);
-          },
-          noHistoryToClear() {
-              return this.history.length === 0;
-          },
-          isValidURL() {
-            const protocol = '^(https?:\\/\\/)?';
-
-            const validIP = new RegExp(protocol + "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
-            const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
-
-            return validIP.test(this.url) || validHostname.test(this.url);
-          },
-          rawRequestBody() {
-              const {
-                  bodyParams
-              } = this
-              if (this.contentType === 'application/json') {
-                  try {
-                      const obj = JSON.parse(`{${bodyParams.filter(({ key }) => !!key).map(({ key, value }) => `
+      noHistoryToClear() {
+        return this.history.length === 0;
+      },
+      isValidURL() {
+        const protocol = '^(https?:\\/\\/)?';
+        const validIP = new RegExp(protocol + "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+        const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
+        return validIP.test(this.url) || validHostname.test(this.url);
+      },
+      rawRequestBody() {
+        const {
+          bodyParams
+        } = this
+        if (this.contentType === 'application/json') {
+          try {
+            const obj = JSON.parse(`{${bodyParams.filter(({ key }) => !!key).map(({ key, value }) => `
               "${key}": "${value}"
               `).join()}}`)
-                      return JSON.stringify(obj)
-                  } catch (ex) {
-                      return 'invalid'
-                  }
-              } else {
-                  return bodyParams
-                      .filter(({
-                                   key
-                               }) => !!key)
-                      .map(({
-                                key,
-                                value
-                            }) => `${key}=${encodeURIComponent(value)}`).join('&')
-              }
-          },
-          headerString() {
-              const result = this.headers
-                  .filter(({
-                               key
-                           }) => !!key)
-                  .map(({
-                            key,
-                            value
-                        }) => `${key}: ${value}`).join(',\n')
-              return result == '' ? '' : `${result}`
-          },
-          queryString() {
-              const result = this.params
-                  .filter(({
-                               key
-                           }) => !!key)
-                  .map(({
-                            key,
-                            value
-                        }) => `${key}=${encodeURIComponent(value)}`).join('&')
-              return result == '' ? '' : `?${result}`
+            return JSON.stringify(obj)
+          } catch (ex) {
+            return 'invalid'
           }
+        } else {
+          return bodyParams
+            .filter(({
+              key
+            }) => !!key)
+            .map(({
+              key,
+              value
+            }) => `${key}=${encodeURIComponent(value)}`).join('&')
+        }
       },
-      methods: {
-          findEntryStatus(entry){
-            return findStatusGroup(entry.status);
-          },
-          deleteHistory(entry) {
-              this.history.splice(this.history.indexOf(entry), 1)
-              window.localStorage.setItem('history', JSON.stringify(this.history))
-          },
-          clearHistory() {
-              this.history = []
-              window.localStorage.setItem('history', JSON.stringify(this.history))
-          },
-          useHistory({
-                         method,
-                         url,
-                         path
-                     }) {
-              this.method = method
-              this.url = url
-              this.path = path
-              this.$refs.request.$el.scrollIntoView({
-                  behavior: 'smooth'
-              })
-          },
-          sendRequest() {
-              if (this.$refs.response.$el.classList.contains('hidden')) {
-                  this.$refs.response.$el.classList.toggle('hidden')
-              }
-              this.$refs.response.$el.scrollIntoView({
-                  behavior: 'smooth'
-              })
-              this.response.status = 'Fetching...'
-              this.response.body = 'Loading...'
-              const xhr = new XMLHttpRequest()
-              const user = this.auth === 'Basic' ? this.httpUser : null
-              const pswd = this.auth === 'Basic' ? this.httpPassword : null
-              xhr.open(this.method, this.url + this.path + this.queryString, true, user, pswd)
-              if (this.auth === 'Bearer Token') {
-                  xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
-              }
-              if (this.headers) {
-                  this.headers.forEach(function (element) {
-                      xhr.setRequestHeader(element.key, element.value)
-                  })
-              }
-              if (this.method === 'POST' || this.method === 'PUT') {
-                  const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
-                  xhr.setRequestHeader('Content-Length', requestBody.length)
-                  xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
-                  xhr.send(requestBody)
-              } else {
-                  xhr.send()
-              }
-              xhr.onload = e => {
-                this.response.status = xhr.status
-                const headers = this.response.headers = parseHeaders(xhr)
-                if ((headers['content-type'] || '').startsWith('application/json')) {
-                  this.response.body = JSON.stringify(JSON.parse(xhr.responseText), null, 2)
-                } else {
-                  this.response.body = xhr.responseText
-                }
-
-                if (!this.isValidURL) {
-                  alert('Please check the formatting of the URL');
-                  return
-                }
-                const n = new Date().toLocaleTimeString()
-                this.history = [{
-                  status: xhr.status,
-                  time: n,
-                  method: this.method,
-                  url: this.url,
-                  path: this.path
-                }, ...this.history]
-                window.localStorage.setItem('history', JSON.stringify(this.history))
-              }
-              xhr.onerror = e => {
-                  this.response.status = xhr.status
-                  this.response.body = xhr.statusText
-              }
-          },
-          addRequestHeader() {
-              this.headers.push({
-                  key: '',
-                  value: ''
-              })
-              return false
-          },
-          removeRequestHeader(index) {
-              this.headers.splice(index, 1)
-          },
-          addRequestParam() {
-              this.params.push({
-                  key: '',
-                  value: ''
-              })
-              return false
-          },
-          removeRequestParam(index) {
-              this.params.splice(index, 1)
-          },
-          addRequestBodyParam() {
-              this.bodyParams.push({
-                  key: '',
-                  value: ''
-              })
-              return false
-          },
-          removeRequestBodyParam(index) {
-              this.bodyParams.splice(index, 1)
-          },
-          formatRawParams(event) {
-            if ((event.which !== 13 && event.which !== 9)) {
-              return;
-            }
-            const textBody = event.target.value;
-            const textBeforeCursor = textBody.substring(0, event.target.selectionStart);
-            const textAfterCursor = textBody.substring(event.target.selectionEnd);
-
-            if (event.which === 13) {
-              event.preventDefault();
-              const oldSelectionStart = event.target.selectionStart;
-              const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
-              const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
-              event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
-              setTimeout(() => event.target.selectionStart = event.target.selectionEnd =  oldSelectionStart + rightPadding.length + 1, 1);
-            }
-            else if (event.which === 9) {
-              event.preventDefault();
-              const oldSelectionStart = event.target.selectionStart;
-              event.target.value = textBeforeCursor + '\xa0\xa0' + textAfterCursor;
-              event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
-              return false;
-            }
-
-          },
-           copyResponse() {
-            var copyText = document.getElementById("response-details");
-            copyText.select();
-            document.execCommand("copy");
-          }
+      headerString() {
+        const result = this.headers
+          .filter(({
+            key
+          }) => !!key)
+          .map(({
+            key,
+            value
+          }) => `${key}: ${value}`).join(',\n')
+        return result == '' ? '' : `${result}`
+      },
+      queryString() {
+        const result = this.params
+          .filter(({
+            key
+          }) => !!key)
+          .map(({
+            key,
+            value
+          }) => `${key}=${encodeURIComponent(value)}`).join('&')
+        return result == '' ? '' : `?${result}`
       }
+    },
+    methods: {
+      findEntryStatus(entry) {
+        return findStatusGroup(entry.status);
+      },
+      deleteHistory(entry) {
+        this.history.splice(this.history.indexOf(entry), 1)
+        window.localStorage.setItem('history', JSON.stringify(this.history))
+      },
+      clearHistory() {
+        this.history = []
+        window.localStorage.setItem('history', JSON.stringify(this.history))
+      },
+      useHistory({
+        method,
+        url,
+        path
+      }) {
+        this.method = method
+        this.url = url
+        this.path = path
+        this.$refs.request.$el.scrollIntoView({
+          behavior: 'smooth'
+        })
+      },
+      sendRequest() {
+        if (this.$refs.response.$el.classList.contains('hidden')) {
+          this.$refs.response.$el.classList.toggle('hidden')
+        }
+        this.$refs.response.$el.scrollIntoView({
+          behavior: 'smooth'
+        })
+        this.response.status = 'Fetching...'
+        this.response.body = 'Loading...'
+        const xhr = new XMLHttpRequest()
+        const user = this.auth === 'Basic' ? this.httpUser : null
+        const pswd = this.auth === 'Basic' ? this.httpPassword : null
+        xhr.open(this.method, this.url + this.path + this.queryString, true, user, pswd)
+        if (this.auth === 'Bearer Token') {
+          xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
+        }
+        if (this.headers) {
+          this.headers.forEach(function(element) {
+            xhr.setRequestHeader(element.key, element.value)
+          })
+        }
+        if (this.method === 'POST' || this.method === 'PUT') {
+          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+          xhr.setRequestHeader('Content-Length', requestBody.length)
+          xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
+          xhr.send(requestBody)
+        } else {
+          xhr.send()
+        }
+        xhr.onload = e => {
+          this.response.status = xhr.status
+          const headers = this.response.headers = parseHeaders(xhr)
+          if ((headers['content-type'] || '').startsWith('application/json')) {
+            this.response.body = JSON.stringify(JSON.parse(xhr.responseText), null, 2)
+          } else {
+            this.response.body = xhr.responseText
+          }
+          if (!this.isValidURL) {
+            alert('Please check the formatting of the URL');
+            return
+          }
+          const n = new Date().toLocaleTimeString()
+          this.history = [{
+            status: xhr.status,
+            time: n,
+            method: this.method,
+            url: this.url,
+            path: this.path
+          }, ...this.history]
+          window.localStorage.setItem('history', JSON.stringify(this.history))
+        }
+        xhr.onerror = e => {
+          this.response.status = xhr.status
+          this.response.body = xhr.statusText
+        }
+      },
+      addRequestHeader() {
+        this.headers.push({
+          key: '',
+          value: ''
+        })
+        return false
+      },
+      removeRequestHeader(index) {
+        this.headers.splice(index, 1)
+      },
+      addRequestParam() {
+        this.params.push({
+          key: '',
+          value: ''
+        })
+        return false
+      },
+      removeRequestParam(index) {
+        this.params.splice(index, 1)
+      },
+      addRequestBodyParam() {
+        this.bodyParams.push({
+          key: '',
+          value: ''
+        })
+        return false
+      },
+      removeRequestBodyParam(index) {
+        this.bodyParams.splice(index, 1)
+      },
+      formatRawParams(event) {
+        if ((event.which !== 13 && event.which !== 9)) {
+          return;
+        }
+        const textBody = event.target.value;
+        const textBeforeCursor = textBody.substring(0, event.target.selectionStart);
+        const textAfterCursor = textBody.substring(event.target.selectionEnd);
+        if (event.which === 13) {
+          event.preventDefault();
+          const oldSelectionStart = event.target.selectionStart;
+          const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
+          const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
+          event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
+          setTimeout(() => event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + rightPadding.length + 1, 1);
+        } else if (event.which === 9) {
+          event.preventDefault();
+          const oldSelectionStart = event.target.selectionStart;
+          event.target.value = textBeforeCursor + '\xa0\xa0' + textAfterCursor;
+          event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
+          return false;
+        }
+      },
+      copyResponse() {
+        var copyText = document.getElementById("response-details");
+        copyText.select();
+        document.execCommand("copy");
+      }
+    }
   }
+
 </script>

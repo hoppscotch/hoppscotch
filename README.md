@@ -74,7 +74,7 @@ _Customized themes are also synced with local session storage_
 
 :mailbox: **Parameters**: Use request parameters to set varying parts in simulated requests
 
-:mailbox: **Request Body**: Used to send and receive data via the REST API
+:page_with_curl: **Request Body**: Used to send and receive data via the REST API
 
 **Options:**
  - Set content Type

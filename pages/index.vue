@@ -103,7 +103,36 @@
       </ul>
     </pw-section>
 
-    <pw-section class="cyan" label="Parameters" collapsed>
+    <pw-section class="cyan" label="Headers" collapsed>
+      <ol v-for="(header, index) in headers">
+        <li>
+          <label :for="'header'+index">Key {{index + 1}}</label>
+          <input :name="'header'+index" v-model="header.key">
+        </li>
+        <li>
+          <label :for="'value'+index">Value {{index + 1}}</label>
+          <input :name="'value'+index" v-model="header.value">
+        </li>
+        <li>
+          <label for="header">&nbsp;</label>
+          <button name="header" @click="removeRequestHeader(index)">Remove</button>
+        </li>
+      </ol>
+      <ul>
+        <li>
+          <label for="add">Action</label>
+          <button name="add" @click="addRequestHeader">Add</button>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <label for="request">Header List</label>
+          <textarea name="request" rows="1" readonly>{{headerString || '(add at least one header)'}}</textarea>
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="purple" label="Parameters" collapsed>
       <ol v-for="(param, index) in params">
         <li>
           <label :for="'param'+index">Key {{index + 1}}</label>
@@ -132,7 +161,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="purple" label="Response" id="response" ref="response">
+    <pw-section class="orange" label="Response" id="response" ref="response">
       <ul>
         <li>
           <label for="status">status</label>
@@ -235,6 +264,7 @@
               httpUser: '',
               httpPassword: '',
               bearerToken: '',
+              headers: [],
               params: [],
               bodyParams: [],
               rawParams: '',
@@ -286,6 +316,17 @@
                                 value
                             }) => `${key}=${encodeURIComponent(value)}`).join('&')
               }
+          },
+          headerString() {
+              const result = this.headers
+                  .filter(({
+                               key
+                           }) => !!key)
+                  .map(({
+                            key,
+                            value
+                        }) => `${key}: ${value}`).join(',\n')
+              return result == '' ? '' : `${result}`
           },
           queryString() {
               const result = this.params
@@ -339,6 +380,11 @@
               if (this.auth === 'Bearer Token') {
                   xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
               }
+              if (this.headers) {
+                  this.headers.forEach(function (element) {
+                      xhr.setRequestHeader(element.key, element.value)
+                  })
+              }
               if (this.method === 'POST' || this.method === 'PUT') {
                   const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
                   xhr.setRequestHeader('Content-Length', requestBody.length)
@@ -374,6 +420,16 @@
                   this.response.status = xhr.status
                   this.response.body = xhr.statusText
               }
+          },
+          addRequestHeader() {
+              this.headers.push({
+                  key: '',
+                  value: ''
+              })
+              return false
+          },
+          removeRequestHeader(index) {
+              this.headers.splice(index, 1)
           },
           addRequestParam() {
               this.params.push({

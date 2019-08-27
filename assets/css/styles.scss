@@ -65,8 +65,7 @@ footer {
   justify-content: space-between;
 }
 
-
-@media(max-width: $responsiveWidth){
+@media(max-width: $responsiveWidth) {
   header {
     display: block;
     text-align: center;
@@ -77,7 +76,6 @@ footer {
     }
   }
 }
-
 
 nav {
   a:not(:last-of-type) {
@@ -173,11 +171,11 @@ fieldset.purple legend {
 }
 
 fieldset.orange {
-  border-color: #FF9800;
+  border-color: #F5A623;
 }
 
 fieldset.orange legend {
-  color: #FF9800;
+  color: #F5A623;
 }
 
 .collapsible.hidden {
@@ -210,7 +208,8 @@ option {
 input[type="checkbox"] {
   width: initial;
 
-  &, & + label {
+  &,
+  & + label {
     vertical-align: middle;
   }
 }
@@ -242,18 +241,15 @@ ol li {
   flex-direction: column;
   flex-grow: 1;
 }
-.flex-wrap{
+
+.flex-wrap {
   display: flex;
   justify-content: space-between;
-}
-.btn-copy{
-    padding: 6px 14px;
-    font-size: 11px;
-    margin-right: 15px;
-
+  align-items: center;
 }
 
 @media (max-width: $responsiveWidth) {
+
   ul,
   ol {
     flex-direction: column;

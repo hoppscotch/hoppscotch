@@ -69,7 +69,8 @@
             <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
           </li>
         </ul>
-      </div><div v-else>
+      </div>
+      <div v-else>
         <textarea v-model="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
       </div>
     </pw-section>
@@ -103,7 +104,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="cyan" label="Headers" collapsed>
+    <pw-section class="orange" label="Headers" collapsed>
       <ol v-for="(header, index) in headers">
         <li>
           <label :for="'header'+index">Key {{index + 1}}</label>
@@ -132,7 +133,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="purple" label="Parameters" collapsed>
+    <pw-section class="cyan" label="Parameters" collapsed>
       <ol v-for="(param, index) in params">
         <li>
           <label :for="'param'+index">Key {{index + 1}}</label>
@@ -161,7 +162,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="orange" label="Response" id="response" ref="response">
+    <pw-section class="purple" label="Response" id="response" ref="response">
       <ul>
         <li>
           <label for="status">status</label>
@@ -176,11 +177,11 @@
       </ul>
       <ul>
         <li>
-        <div class="flex-wrap">
-          <label for="body">response</label>
-          <button v-if="response.body" name="action" class="btn-copy" @click="copyResponse">Copy Response</button>
-         </div>
-          <textarea name="body" rows="10" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+          <div class="flex-wrap">
+            <label for="body">response</label>
+            <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
+          </div>
+          <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
         </li>
       </ul>
     </pw-section>

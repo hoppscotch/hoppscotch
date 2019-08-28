@@ -59,7 +59,7 @@ _Customized themes are also synced with local session storage_
 **Features:**
  - Instant loading with Service Workers
  - Offline support
- - Low RAM/memory and CUP usage
+ - Low RAM/memory and CPU usage
 
 :electric_plug: **Web Socket**: Establish full-duplex communication channels over a single TCP connection
 

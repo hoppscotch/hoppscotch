@@ -24,7 +24,16 @@ export const SETTINGS_KEYS = [
      * to emphasise the different sections.
      * This setting allows that to be turned off.
      */
-    "DISABLE_FRAME_COLORS"
+    "DISABLE_FRAME_COLORS",
+
+    /**
+     * Whether or not requests should be proxied.
+     */
+    "PROXY_ENABLED",
+
+
+    "PROXY_URL",
+    "PROXY_AUTH"
 ];
 
 export const state = () => ({

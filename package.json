@@ -13,6 +13,7 @@
   "dependencies": {
     "@nuxtjs/pwa": "^3.0.0-0",
     "nuxt": "^2.0.0",
+    "prismjs": "^1.17.1",
     "vuex-persist": "^2.0.1"
   },
   "devDependencies": {

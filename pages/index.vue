@@ -191,62 +191,68 @@
           <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
         </li>
       </ul>
-      <ul v-for="entry in history">
-        <li>
-          <label for="time">Time</label>
-          <input name="time" type="text" readonly :value="entry.time">
-        </li>
-        <li class="method-list-item">
-          <label for="method">Method</label>
-          <input name="method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
-          <span class="entry-status-code">{{entry.status}}</span>
-        </li>
-        <li>
-          <label for="url">URL</label>
-          <input name="url" type="text" readonly :value="entry.url">
-        </li>
-        <li>
-          <label for="path">Path</label>
-          <input name="path" type="text" readonly :value="entry.path">
-        </li>
-        <li>
-          <label for="delete" class="hide-on-small-screen">&nbsp;</label>
-          <button name="delete" @click="deleteHistory(entry)">Delete</button>
-        </li>
-        <li>
-          <label for="use" class="hide-on-small-screen">&nbsp;</label>
-          <button name="use" @click="useHistory(entry)">Use</button>
-        </li>
-      </ul>
+      <virtual-list class="virtual-list" :size="88" :remain="Math.min(5, history.length)">
+        <ul v-for="entry in history" :key="entry.millis" class="entry">
+          <li>
+            <label for="time">Time</label>
+            <input name="time" type="text" readonly :value="entry.time">
+          </li>
+          <li class="method-list-item">
+            <label for="method">Method</label>
+            <input name="method" type="text" readonly
+                   :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
+            <span class="entry-status-code">{{entry.status}}</span>
+          </li>
+          <li>
+            <label for="url">URL</label>
+            <input name="url" type="text" readonly :value="entry.url">
+          </li>
+          <li>
+            <label for="path">Path</label>
+            <input name="path" type="text" readonly :value="entry.path">
+          </li>
+          <li>
+            <label for="delete"class="hide-on-small-screen">&nbsp;</label>
+            <button name="delete" @click="deleteHistory(entry)">Delete</button>
+          </li>
+          <li>
+            <label for="use"class="hide-on-small-screen">&nbsp;</label>
+            <button name="use" @click="useHistory(entry)">Use</button>
+          </li>
+        </ul>
+      </virtual-list>
     </pw-section>
   </div>
 </template>
 <script>
+  import VirtualList from 'vue-virtual-scroll-list'
+  import section from "../components/section";
+
   const statusCategories = [{
-      name: 'informational',
+    name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
       className: 'info-response'
     },
     {
-      name: 'successful',
+    name: 'successful',
       statusCodeRegex: new RegExp(/[2][0-9]+/),
       className: 'success-response'
     },
     {
-      name: 'redirection',
+    name: 'redirection',
       statusCodeRegex: new RegExp(/[3][0-9]+/),
       className: 'redir-response'
     },
     {
-      name: 'client error',
+    name: 'client error',
       statusCodeRegex: new RegExp(/[4][0-9]+/),
       className: 'cl-error-response'
     },
     {
-      name: 'server error',
+    name: 'server error',
       statusCodeRegex: new RegExp(/[5][0-9]+/),
       className: 'sv-error-response'
-    },
+  },
     {
       // this object is a catch-all for when no other objects match and should always be last
       name: 'unknown',
@@ -255,32 +261,33 @@
     }
   ];
   const parseHeaders = xhr => {
-    const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
-    const headerMap = {};
-    headers.forEach(line => {
-      const parts = line.split(': ');
-      const header = parts.shift().toLowerCase();
-      const value = parts.join(': ');
-      headerMap[header] = value
-    });
-    return headerMap
+      const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
+      const headerMap = {};
+      headers.forEach(line => {
+          const parts = line.split(': ');
+          const header = parts.shift().toLowerCase();
+          const value = parts.join(': ');
+          headerMap[header] = value
+      });
+      return headerMap
+
   };
   const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
-  import section from "../components/section";
+
   export default {
-    components: {
-      'pw-section': section
+      components: {
+      'pw-section': section,
+      VirtualList
     },
-    data() {
-      return {
-        method: 'GET',
-        url: 'https://reqres.in',
-        auth: 'None',
-        path: '/api/users',
-        httpUser: '',
-        httpPassword: '',
-        bearerToken: '',
-        headers: [],
+      data () {
+          return {
+              method: 'GET',
+              url: 'https://reqres.in',
+              auth: 'None',
+              path: '/api/users',
+              httpUser: '',
+              httpPassword: '',
+              bearerToken: '',headers: [],
         params: [],
         bodyParams: [],
         rawParams: '',
@@ -352,7 +359,7 @@
             key,
             value
           }) => `${key}=${encodeURIComponent(value)}`).join('&')
-        return result == '' ? '' : `?${result}`
+        return result === '' ? '' : `?${result}`
       },
       responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
@@ -360,85 +367,85 @@
     },
     methods: {
       findEntryStatus(entry) {
-        return findStatusGroup(entry.status);
-      },
-      deleteHistory(entry) {
-        this.history.splice(this.history.indexOf(entry), 1)
-        window.localStorage.setItem('history', JSON.stringify(this.history))
-      },
-      clearHistory() {
-        this.history = []
-        window.localStorage.setItem('history', JSON.stringify(this.history))
-      },
-      useHistory({
-        method,
-        url,
-        path
-      }) {
-        this.method = method
-        this.url = url
-        this.path = path
-        this.$refs.request.$el.scrollIntoView({
-          behavior: 'smooth'
-        })
-      },
-      sendRequest() {
+        let foundStatusGroup = findStatusGroup(entry.status);
+            return foundStatusGroup || {className: ''};
+          },
+          deleteHistory(entry) {
+              this.history.splice(this.history.indexOf(entry), 1)
+              window.localStorage.setItem('history', JSON.stringify(this.history))
+          },
+          clearHistory() {
+              this.history = []
+              window.localStorage.setItem('history', JSON.stringify(this.history))
+          },
+          useHistory({
+                         method,
+                         url,
+                         path
+                     }) {
+              this.method = method
+              this.url = url
+              this.path = path
+              this.$refs.request.$el.scrollIntoView({
+                  behavior: 'smooth'
+              })
+          },
+          sendRequest() {
         if (!this.isValidURL) {
           alert('Please check the formatting of the URL');
           return
-        }
-        if (this.$refs.response.$el.classList.contains('hidden')) {
-          this.$refs.response.$el.classList.toggle('hidden')
-        }
-        this.$refs.response.$el.scrollIntoView({
-          behavior: 'smooth'
-        });
+        }    if (this.$refs.response.$el.classList.contains('hidden')) {
+              this.$refs.response.$el.classList.toggle('hidden')
+            }
+            this.$refs.response.$el.scrollIntoView({
+              behavior: 'smooth'
+            });
         this.previewEnabled = false;
-        this.response.status = 'Fetching...';
-        this.response.body = 'Loading...';
-        const xhr = new XMLHttpRequest();
-        const user = this.auth === 'Basic' ? this.httpUser : null;
-        const password = this.auth === 'Basic' ? this.httpPassword : null;
-        xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
-        if (this.auth === 'Bearer Token') xhr.setRequestHeader(
-          'Authorization',
-          'Bearer ' + this.bearerToken
-        );
-        if (this.headers) {
+            this.response.status = 'Fetching...';
+            this.response.body = 'Loading...';
+            const xhr = new XMLHttpRequest();
+            const user = this.auth === 'Basic' ? this.httpUser : null;
+            const password = this.auth === 'Basic' ? this.httpPassword : null;
+            xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
+            if (this.auth === 'Bearer Token')
+              xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken
+            );
+            if (this.headers) {
           this.headers.forEach(function(element) {
             xhr.setRequestHeader(element.key, element.value)
           })
         }
         if (this.method === 'POST' || this.method === 'PUT') {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
-          xhr.setRequestHeader('Content-Length', requestBody.length);
-          xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`);
-          xhr.send(requestBody);
-        } else {
-          xhr.send();
-        }
-        xhr.onload = e => {
-          this.response.status = xhr.status;
-          const headers = this.response.headers = parseHeaders(xhr);
+              const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+              xhr.setRequestHeader('Content-Length', requestBody.length);
+              xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`);
+              xhr.send(requestBody);
+            } else {
+              xhr.send();
+            }
+            xhr.onload = e => {
+              this.response.status = xhr.status;
+              const headers = this.response.headers = parseHeaders(xhr);
           this.response.body = xhr.responseText;
-          if ((headers['content-type'] || '').startsWith('application/json')) {
-            this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
-          }
-          const n = new Date().toLocaleTimeString();
-          this.history = [{
-            status: xhr.status,
-            time: n,
-            method: this.method,
-            url: this.url,
-            path: this.path
-          }, ...this.history];
-          window.localStorage.setItem('history', JSON.stringify(this.history));
-        };
-        xhr.onerror = e => {
-          this.response.status = xhr.status;
-          this.response.body = xhr.statusText;
-        }
-      },
+              if ((headers['content-type'] || '').startsWith('application/json')) {
+                this.response.body = JSON.stringify(JSON.parse(
+                this.response.body ), null, 2);
+              }
+              const n = new Date().toLocaleTimeString();
+              this.history = [{
+                status: xhr.status,
+                time: n,
+                method: this.method,
+                url: this.url,
+                path: this.path
+              }, ...this.history];
+              window.localStorage.setItem('history', JSON.stringify(this.history));
+            };
+            xhr.onerror = e => {
+              this.response.status = xhr.status;
+              this.response.body = xhr.statusText;
+            }
+          },
       addRequestHeader() {
         this.headers.push({
           key: '',

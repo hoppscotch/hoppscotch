@@ -13,6 +13,7 @@
   "dependencies": {
     "@nuxtjs/pwa": "^3.0.0-0",
     "nuxt": "^2.0.0",
+    "vue-virtual-scroll-list": "^1.4.2",
     "vuex-persist": "^2.0.1"
   },
   "devDependencies": {

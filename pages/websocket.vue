@@ -18,7 +18,7 @@
           <label for="log">Log</label>
           <div id="log" name="log" class="log">
             <span v-if="communication.log">
-              <span v-for="logEntry in communication.log" :style="{ color: logEntry.color }">{{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+              <span v-for="logEntry in communication.log" :style="{ color: logEntry.color }">@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
             </span>
             <span v-else>(Waiting for connection...)</span>
           </div>
@@ -113,7 +113,8 @@
             this.communication.log = [{
               payload: `Connected to ${this.url}.`,
               source: 'info',
-              color: 'lime'
+              color: 'lime',
+              ts: (new Date()).toLocaleTimeString()
             }];
           };
           this.socket.onerror = (event) => {
@@ -124,13 +125,15 @@
             this.communication.log.push({
               payload: `Disconnected from ${this.url}.`,
               source: 'info',
-              color: 'red'
+              color: 'red',
+              ts: (new Date()).toLocaleTimeString()
             });
           };
           this.socket.onmessage = (event) => {
             this.communication.log.push({
               payload: event.data,
-              source: 'server'
+              source: 'server',
+              ts: (new Date()).toLocaleTimeString()
             });
           }
         } catch (ex) {
@@ -146,12 +149,14 @@
         this.communication.log.push({
           payload: `An error has occurred.`,
           source: 'info',
-          color: 'red'
+          color: 'red',
+          ts: (new Date()).toLocaleTimeString()
         });
         if (error != null) this.communication.log.push({
           payload: error,
           source: 'info',
-          color: 'red'
+          color: 'red',
+          ts: (new Date()).toLocaleTimeString()
         });
       },
       sendMessage() {
@@ -159,7 +164,8 @@
         this.socket.send(message);
         this.communication.log.push({
           payload: message,
-          source: 'client'
+          source: 'client',
+          ts: (new Date()).toLocaleTimeString()
         });
         this.communication.input = "";
       },
@@ -172,15 +178,21 @@
       getSourcePrefix(source) {
         const sourceEmojis = {
           // Source used for info messages.
-          'info': 'ℹ️ [INFO]:\t',
+          'info': '\tℹ️ [INFO]:\t',
           // Source used for client to server messages.
-          'client': '👽 [SENT]:\t',
+          'client': '\t👽 [SENT]:\t',
           // Source used for server to client messages.
-          'server': '📥 [RECEIVED]:\t'
+          'server': '\t📥 [RECEIVED]:\t'
         };
         if (Object.keys(sourceEmojis).includes(source)) return sourceEmojis[source];
         return '';
       }
+    },
+    updated: function () {
+      this.$nextTick(function () {
+        var divLog = document.getElementById("log")
+        divLog.scrollBy(0, divLog.scrollHeight + 100)
+      })
     }
   }
 

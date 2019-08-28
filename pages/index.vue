@@ -472,6 +472,7 @@
         xhr.onerror = e => {
           this.response.status = xhr.status;
           this.response.body = xhr.statusText;
+          this.responseHtml = `<textarea rows=10 readonly>${this.response.body}</textarea>`;
         }
 
         this.responseHtml = '<textarea rows=10 readonly>Loading...</textarea>';

@@ -166,8 +166,7 @@ fieldset.orange legend {
 select,
 input,
 option,
-textarea,
-pre {
+textarea {
   margin: 4px;
   padding: 8px 16px;
   border-radius: 4px;
@@ -176,6 +175,16 @@ pre {
   color: var(--fg-color);
   font-weight: 700;
   font-size: 18px;
+  font-family: monospace;
+}
+
+pre {
+  margin: 4px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  width: calc(100% - 8px);
+  background-color: var(--bg-dark-color);
+  color: var(--fg-color);
   font-family: monospace;
 }
 
@@ -278,6 +287,10 @@ ol li {
 
 #installPWA {
   display: none;
+}
+
+.token {
+  background-color: transparent !important;
 }
 
 .info-response {

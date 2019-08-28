@@ -176,7 +176,7 @@
             <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
           </div>
           <div id="response-details-wrapper">
-            <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+            <div name="body" rows="16" id="response-details" v-html="responseHtml"></div>
             <iframe src="about:blank" class="covers-response" ref="previewFrame" :class="{hidden: !previewEnabled}"></iframe>
           </div>
           <div v-if="response.body && responseType === 'text/html'" class="align-right">
@@ -222,6 +222,15 @@
   </div>
 </template>
 <script>
+
+  import Prism from 'prismjs';
+  require('prismjs/components/prism-json');
+  require('prismjs/components/prism-markup');
+  require('prismjs/components/prism-css');
+  require('prismjs/components/prism-javascript');
+
+  require('prismjs/themes/prism.css');
+
   const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
@@ -286,6 +295,7 @@
         rawParams: '',
         rawInput: false,
         contentType: 'application/json',
+        responseHtml: '<textarea rows=10 readonly>(waiting to send request)</textarea>',
         response: {
           status: '',
           headers: '',
@@ -423,7 +433,30 @@
           this.response.body = xhr.responseText;
           if ((headers['content-type'] || '').startsWith('application/json')) {
             this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
+          } 
+          
+          // Syntax highlighter config stuff
+          if ((headers['content-type'] || '').startsWith('application/json')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.json, 'json')}</code></pre>`;
+          } else if ((headers['content-type'] || '').startsWith('text/html')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.markup, 'html')}</code></pre>`
+          } else if ((headers['content-type'] || '').startsWith('style/css')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.css, 'css')}</code></pre>`;
+          } else if ((headers['content-type'] || '').startsWith('text/xml')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.markup, 'xml')}</code></pre>`;
+          } else if ((headers['content-type'] || '').startsWith('application/xml')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.markup, 'xml')}</code></pre>`;
+          } else if ((headers['content-type'] || '').startsWith('image/svg+xml')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.markup, 'svg')}</code></pre>`;
+          } else if ((headers['content-type'] || '').startsWith('application/js')) {
+            this.responseHtml = `<pre><code>${Prism.highlight(this.response.body, Prism.languages.javascript, 'javascript')}</code></pre>`;
+          } else {
+            // XSS prevention hack
+            let dummy = document.createElement('pre');
+            dummy.textContent = this.response.body;
+            this.responseHtml = `<textarea rows=10 readonly>${dummy.innerHTML}</textarea>`;
           }
+
           const n = new Date().toLocaleTimeString();
           this.history = [{
             status: xhr.status,
@@ -432,12 +465,16 @@
             url: this.url,
             path: this.path
           }, ...this.history];
+          this.contentType = headers['content-type'];
           window.localStorage.setItem('history', JSON.stringify(this.history));
+        
         };
         xhr.onerror = e => {
           this.response.status = xhr.status;
           this.response.body = xhr.statusText;
         }
+
+        this.responseHtml = '<textarea rows=10 readonly>Loading...</textarea>';
       },
       addRequestHeader() {
         this.headers.push({

@@ -187,11 +187,32 @@ option {
 }
 
 input[type="checkbox"] {
-  width: initial;
+  display: none;
 
   &,
   & + label {
     vertical-align: middle;
+    cursor: pointer;
+
+    &:before {
+      content: "\2714";
+      border: 2px solid var(--fg-color);
+      border-radius: 4px;
+      display: inline-flex;
+      height: 16px;
+      width: 16px;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 8px 8px 0;
+      color: transparent;
+      transition: .2s;
+    }
+  }
+
+  &:checked + label:before {
+    background-color: var(--ac-color);
+    border-color: var(--ac-color);
+    color: var(--act-color);
   }
 }
 

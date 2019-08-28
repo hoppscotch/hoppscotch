@@ -19,10 +19,13 @@
               <swatch :color="entry.color" :name="entry.name" :class="{ vibrant: entry.vibrant }" :active="settings.THEME_COLOR === entry.color.toUpperCase()" />
             </span>
           </div>
-          <p>
-            <input id="disableFrameColors" type="checkbox" :checked="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
-            <label for="disableFrameColors">Enable multi-colored frames</label>
-          </p>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <h3 class="title">Frames</h3>
+          <input id="disableFrameColors" type="checkbox" :checked="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
+          <label for="disableFrameColors">Enable multi-color</label>
         </li>
       </ul>
     </pw-section>

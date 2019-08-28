@@ -191,7 +191,7 @@
           <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
         </li>
       </ul>
-      <virtual-list class="virtual-list" :size="88" :remain="Math.min(5, history.length)">
+      <virtual-list class="virtual-list" :size="89" :remain="Math.min(5, history.length)">
         <ul v-for="entry in history" :key="entry.millis" class="entry">
           <li>
             <label for="time">Time</label>

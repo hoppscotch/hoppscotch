@@ -32,6 +32,7 @@
           <label>Content Type</label>
           <select v-model="contentType">
             <option>application/json</option>
+            <option>application/hal+json</option>
             <option>www-form/urlencoded</option>
           </select>
           <span>
@@ -319,7 +320,7 @@
         const {
           bodyParams
         } = this
-        if (this.contentType === 'application/json') {
+        if (this.contentType === 'application/json' || this.contentType === 'application/hal+json') {
           try {
             const obj = JSON.parse(`{${bodyParams.filter(({ key }) => !!key).map(({ key, value }) => `
               "${key}": "${value}"
@@ -427,7 +428,7 @@
               this.response.status = xhr.status;
               const headers = this.response.headers = parseHeaders(xhr);
           this.response.body = xhr.responseText;
-              if ((headers['content-type'] || '').startsWith('application/json')) {
+              if ((headers['content-type'] || '').includes('json')) {
                 this.response.body = JSON.stringify(JSON.parse(
                 this.response.body ), null, 2);
               }

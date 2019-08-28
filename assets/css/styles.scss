@@ -171,7 +171,7 @@ fieldset.orange legend {
   color: #F5A623;
 }
 
-.collapsible.hidden {
+.hidden {
   display: none;
 }
 
@@ -288,5 +288,31 @@ fieldset#history {
       right: 20px;
       font-family: monospace, monospace;
     }
+  }
+}
+
+.align-left { text-align: left; }
+.align-right { text-align: right; }
+
+#response-details-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  margin: 4px;
+
+  #response-details {
+    margin: 0;
+  }
+
+  .covers-response {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+
+    height: 100%;
+    width: 100%;
   }
 }

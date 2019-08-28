@@ -122,7 +122,7 @@
         // prompt.
         showInstallPrompt: null,
         logoStyle() {
-          return "margin-right: 16px;" + (this.$store.state.postwoman.settings.THEME_CLASS ? " filter: invert(100%); -webkit-filter: invert(100%);" : '')
+          return "margin-right: 16px;" + (this.$store.state.postwoman.settings.THEME_CLASS.includes('light') ? " filter: invert(100%); -webkit-filter: invert(100%);" : '')
         }
       }
     },

@@ -192,7 +192,7 @@
         </li>
       </ul>
       <virtual-list class="virtual-list" :size="88" :remain="Math.min(5, history.length)">
-        <ul v-for="entry in history" :key="entry.millis">
+        <ul v-for="entry in history" :key="entry.millis" class="entry">
           <li>
             <label for="time">Time</label>
             <input name="time" type="text" readonly :value="entry.time">

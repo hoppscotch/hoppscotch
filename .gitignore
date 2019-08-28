@@ -88,6 +88,3 @@ sw.*
 
 # Vim swap files
 *.swp
-
-# Visual Studio
-.vs/

@@ -175,7 +175,15 @@
             <label for="body">response</label>
             <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
           </div>
-          <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+
+          <div id="response-details-wrapper">
+            <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+            <iframe src="about:blank" class="covers-response" ref="previewFrame" :class="{hidden: !previewEnabled}"></iframe>
+          </div>
+
+          <div v-if="response.body && responseType === 'text/html'" class="align-right">
+            <button @click.prevent="togglePreview">{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</button>
+          </div>
         </li>
       </ul>
     </pw-section>
@@ -279,7 +287,8 @@
           headers: '',
           body: ''
         },
-        history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : []
+        history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : [],
+        previewEnabled: false
       }
     },
     computed: {
@@ -340,6 +349,10 @@
             value
           }) => `${key}=${encodeURIComponent(value)}`).join('&')
         return result == '' ? '' : `?${result}`
+      },
+
+      responseType () {
+        return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
       }
     },
     methods: {
@@ -367,66 +380,78 @@
         })
       },
       sendRequest() {
+        if (!this.isValidURL) {
+          alert('Please check the formatting of the URL');
+          return
+        }
+
         if (this.$refs.response.$el.classList.contains('hidden')) {
           this.$refs.response.$el.classList.toggle('hidden')
         }
+
         this.$refs.response.$el.scrollIntoView({
           behavior: 'smooth'
-        })
-        this.response.status = 'Fetching...'
-        this.response.body = 'Loading...'
-        const xhr = new XMLHttpRequest()
-        const user = this.auth === 'Basic' ? this.httpUser : null
-        const pswd = this.auth === 'Basic' ? this.httpPassword : null
-        xhr.open(this.method, this.url + this.path + this.queryString, true, user, pswd)
-        if (this.auth === 'Bearer Token') {
-          xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
-        }
+        });
+
+        this.response.status = 'Fetching...';
+        this.response.body = 'Loading...';
+
+        const xhr = new XMLHttpRequest();
+        const user = this.auth === 'Basic' ? this.httpUser : null;
+        const password = this.auth === 'Basic' ? this.httpPassword : null;
+        xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
+
+        if (this.auth === 'Bearer Token') xhr.setRequestHeader(
+                'Authorization',
+                'Bearer ' + this.bearerToken
+        );
+
         if (this.headers) {
           this.headers.forEach(function(element) {
             xhr.setRequestHeader(element.key, element.value)
           })
         }
+
         if (this.method === 'POST' || this.method === 'PUT') {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
-          xhr.setRequestHeader('Content-Length', requestBody.length)
-          xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`)
-          xhr.send(requestBody)
+          xhr.setRequestHeader('Content-Length', requestBody.length);
+          xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`);
+          xhr.send(requestBody);
         } else {
-          xhr.send()
+          xhr.send();
         }
+
         xhr.onload = e => {
-          this.response.status = xhr.status
-          const headers = this.response.headers = parseHeaders(xhr)
+          this.response.status = xhr.status;
+          const headers = this.response.headers = parseHeaders(xhr);
+
+          this.response.body = xhr.responseText;
           if ((headers['content-type'] || '').startsWith('application/json')) {
-            this.response.body = JSON.stringify(JSON.parse(xhr.responseText), null, 2)
-          } else {
-            this.response.body = xhr.responseText
+            this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
           }
-          if (!this.isValidURL) {
-            alert('Please check the formatting of the URL');
-            return
-          }
-          const n = new Date().toLocaleTimeString()
+
+          const n = new Date().toLocaleTimeString();
           this.history = [{
             status: xhr.status,
             time: n,
             method: this.method,
             url: this.url,
             path: this.path
-          }, ...this.history]
-          window.localStorage.setItem('history', JSON.stringify(this.history))
-        }
+          }, ...this.history];
+          window.localStorage.setItem('history', JSON.stringify(this.history));
+        };
+
         xhr.onerror = e => {
-          this.response.status = xhr.status
-          this.response.body = xhr.statusText
+          this.response.status = xhr.status;
+          this.response.body = xhr.statusText;
         }
       },
       addRequestHeader() {
         this.headers.push({
           key: '',
           value: ''
-        })
+        });
+
         return false
       },
       removeRequestHeader(index) {
@@ -474,12 +499,34 @@
           return false;
         }
       },
+
       copyResponse() {
         var copyText = document.getElementById("response-details");
         copyText.select();
         document.execCommand("copy");
+      },
+
+      togglePreview () {
+        this.previewEnabled = !this.previewEnabled;
+
+        if(this.previewEnabled) {
+          // If you want to add 'preview' support for other response types,
+          // just add them here.
+          if(this.responseType === "text/html"){
+            // If the preview already has that URL loaded, let's not bother re-loading it all.
+            if(this.$refs.previewFrame.getAttribute('data-previewing-url') === this.url)
+              return;
+
+            // Use DOMParser to parse document HTML.
+            const previewDocument = new DOMParser().parseFromString(this.response.body, this.responseType);
+            // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
+            previewDocument.head.innerHTML = `<base href="${this.url}">` + previewDocument.head.innerHTML;
+            // Finally, set the iframe source to the resulting HTML.
+            this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML;
+            this.$refs.previewFrame.setAttribute('data-previewing-url', this.url);
+          }
+        }
       }
     }
   }
-
 </script>

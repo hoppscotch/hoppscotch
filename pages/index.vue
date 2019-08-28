@@ -241,6 +241,13 @@
       statusCodeRegex: new RegExp(/[5][0-9]+/),
       className: 'sv-error-response'
     },
+    {
+      // this object is a catch-all for when no other objects match and should always be last
+      name: 'unknown',
+      statusCodeRegex: new RegExp(/.*/),
+      className: 'missing-data-response'
+    }
+
   ];
   const parseHeaders = xhr => {
     const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);

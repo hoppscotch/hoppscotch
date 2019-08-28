@@ -22,7 +22,7 @@
     <nuxt id="main" />
     <footer>
       <div>
-        <a href="https://github.com/liyasthomas/postwoman" target="_blank"><img src="~static/icons/github.svg" alt="" style="margin-right: 16px">GitHub</a>
+        <a href="https://github.com/liyasthomas/postwoman" target="_blank"><img src="~static/icons/github.svg" alt="" :style="logoStyle()">GitHub</a>
       </div>
       <button id="installPWA" @click.prevent="showInstallPrompt()">
         Install PWA
@@ -120,7 +120,10 @@
         // Once the PWA code is initialized, this holds a method
         // that can be called to show the user the installation
         // prompt.
-        showInstallPrompt: null
+        showInstallPrompt: null,
+        logoStyle() {
+          return "margin-right: 16px;" + (this.$store.state.postwoman.settings.THEME_CLASS ? " filter: invert(100%); -webkit-filter: invert(100%);" : '')
+        }
       }
     },
     beforeMount() {

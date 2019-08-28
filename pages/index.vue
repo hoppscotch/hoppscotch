@@ -21,7 +21,7 @@
           <input id="path" v-model="path" v-on:keyup.enter="sendRequest">
         </li>
         <li>
-          <label for="action">&nbsp;</label>
+          <label for="action" class="hide-on-small-screen">&nbsp;</label>
           <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL">Send</button>
         </li>
       </ul>
@@ -51,7 +51,7 @@
             <input :name="'bvalue'+index" v-model="param.value">
           </li>
           <li>
-            <label for="request">&nbsp;</label>
+            <label for="request" class="hide-on-small-screen">&nbsp;</label>
             <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
           </li>
         </ol>
@@ -111,7 +111,7 @@
           <input :name="'value'+index" v-model="header.value">
         </li>
         <li>
-          <label for="header">&nbsp;</label>
+          <label for="header" class="hide-on-small-screen">&nbsp;</label>
           <button name="header" @click="removeRequestHeader(index)">Remove</button>
         </li>
       </ol>
@@ -139,7 +139,7 @@
           <input :name="'value'+index" v-model="param.value">
         </li>
         <li>
-          <label for="param">&nbsp;</label>
+          <label for="param" class="hide-on-small-screen">&nbsp;</label>
           <button name="param" @click="removeRequestParam(index)">Remove</button>
         </li>
       </ol>
@@ -175,12 +175,10 @@
             <label for="body">response</label>
             <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
           </div>
-
           <div id="response-details-wrapper">
             <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
             <iframe src="about:blank" class="covers-response" ref="previewFrame" :class="{hidden: !previewEnabled}"></iframe>
           </div>
-
           <div v-if="response.body && responseType === 'text/html'" class="align-right">
             <button @click.prevent="togglePreview">{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</button>
           </div>
@@ -212,11 +210,11 @@
           <input name="path" type="text" readonly :value="entry.path">
         </li>
         <li>
-          <label for="delete">&nbsp;</label>
+          <label for="delete" class="hide-on-small-screen">&nbsp;</label>
           <button name="delete" @click="deleteHistory(entry)">Delete</button>
         </li>
         <li>
-          <label for="use">&nbsp;</label>
+          <label for="use" class="hide-on-small-screen">&nbsp;</label>
           <button name="use" @click="useHistory(entry)">Use</button>
         </li>
       </ul>
@@ -255,7 +253,6 @@
       statusCodeRegex: new RegExp(/.*/),
       className: 'missing-data-response'
     }
-
   ];
   const parseHeaders = xhr => {
     const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
@@ -357,8 +354,7 @@
           }) => `${key}=${encodeURIComponent(value)}`).join('&')
         return result == '' ? '' : `?${result}`
       },
-
-      responseType () {
+      responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
       }
     },
@@ -391,35 +387,28 @@
           alert('Please check the formatting of the URL');
           return
         }
-
         if (this.$refs.response.$el.classList.contains('hidden')) {
           this.$refs.response.$el.classList.toggle('hidden')
         }
-
         this.$refs.response.$el.scrollIntoView({
           behavior: 'smooth'
         });
-
         this.previewEnabled = false;
         this.response.status = 'Fetching...';
         this.response.body = 'Loading...';
-
         const xhr = new XMLHttpRequest();
         const user = this.auth === 'Basic' ? this.httpUser : null;
         const password = this.auth === 'Basic' ? this.httpPassword : null;
         xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
-
         if (this.auth === 'Bearer Token') xhr.setRequestHeader(
-                'Authorization',
-                'Bearer ' + this.bearerToken
+          'Authorization',
+          'Bearer ' + this.bearerToken
         );
-
         if (this.headers) {
           this.headers.forEach(function(element) {
             xhr.setRequestHeader(element.key, element.value)
           })
         }
-
         if (this.method === 'POST' || this.method === 'PUT') {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
           xhr.setRequestHeader('Content-Length', requestBody.length);
@@ -428,16 +417,13 @@
         } else {
           xhr.send();
         }
-
         xhr.onload = e => {
           this.response.status = xhr.status;
           const headers = this.response.headers = parseHeaders(xhr);
-
           this.response.body = xhr.responseText;
           if ((headers['content-type'] || '').startsWith('application/json')) {
             this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
           }
-
           const n = new Date().toLocaleTimeString();
           this.history = [{
             status: xhr.status,
@@ -448,7 +434,6 @@
           }, ...this.history];
           window.localStorage.setItem('history', JSON.stringify(this.history));
         };
-
         xhr.onerror = e => {
           this.response.status = xhr.status;
           this.response.body = xhr.statusText;
@@ -459,7 +444,6 @@
           key: '',
           value: ''
         });
-
         return false
       },
       removeRequestHeader(index) {
@@ -507,24 +491,20 @@
           return false;
         }
       },
-
       copyResponse() {
         var copyText = document.getElementById("response-details");
         copyText.select();
         document.execCommand("copy");
       },
-
-      togglePreview () {
+      togglePreview() {
         this.previewEnabled = !this.previewEnabled;
-
-        if(this.previewEnabled) {
+        if (this.previewEnabled) {
           // If you want to add 'preview' support for other response types,
           // just add them here.
-          if(this.responseType === "text/html"){
+          if (this.responseType === "text/html") {
             // If the preview already has that URL loaded, let's not bother re-loading it all.
-            if(this.$refs.previewFrame.getAttribute('data-previewing-url') === this.url)
+            if (this.$refs.previewFrame.getAttribute('data-previewing-url') === this.url)
               return;
-
             // Use DOMParser to parse document HTML.
             const previewDocument = new DOMParser().parseFromString(this.response.body, this.responseType);
             // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
@@ -537,4 +517,5 @@
       }
     }
   }
+
 </script>

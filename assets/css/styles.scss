@@ -58,18 +58,6 @@ footer {
   justify-content: space-between;
 }
 
-@media(max-width: $responsiveWidth) {
-  header {
-    display: block;
-    text-align: center;
-
-    nav {
-      display: inline-flex;
-      margin-top: 20px;
-    }
-  }
-}
-
 nav {
   a:not(:last-of-type) {
     margin-right: 15px;
@@ -182,8 +170,8 @@ textarea,
 pre {
   margin: 4px;
   padding: 8px 16px;
-  width: calc(100% - 8px);
   border-radius: 4px;
+  width: calc(100% - 8px);
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
   font-weight: 700;
@@ -195,7 +183,7 @@ pre {
 select,
 input,
 option {
-  height: 38px;
+  height: 41px;
 }
 
 input[type="checkbox"] {
@@ -242,6 +230,15 @@ ol li {
 }
 
 @media (max-width: $responsiveWidth) {
+  header {
+    display: block;
+    text-align: center;
+
+    nav {
+      display: inline-flex;
+      margin-top: 20px;
+    }
+  }
 
   ul,
   ol {
@@ -251,6 +248,10 @@ ol li {
   ul li,
   ol li {
     display: flex;
+  }
+
+  .hide-on-small-screen {
+    display: none;
   }
 }
 
@@ -295,14 +296,23 @@ fieldset#history {
   }
 }
 
-.align-left { text-align: left; }
-.align-right { text-align: right; }
+.align-left {
+  text-align: left;
+}
+
+.align-right {
+  text-align: right;
+}
 
 #response-details-wrapper {
   position: relative;
   overflow: hidden;
   border-radius: 4px;
   margin: 4px;
+
+  textarea {
+    width: 100%;
+  }
 
   #response-details {
     margin: 0;
@@ -315,7 +325,6 @@ fieldset#history {
     right: 0;
     bottom: 0;
     background-color: white;
-
     height: 100%;
     width: 100%;
   }

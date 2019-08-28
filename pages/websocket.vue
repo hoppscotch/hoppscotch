@@ -7,7 +7,7 @@
           <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="toggleConnection">
         </li>
         <li>
-          <label>&nbsp;</label>
+          <label for="action" class="hide-on-small-screen">&nbsp;</label>
           <button :class="{ disabled: !urlValid }" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
         </li>
       </ul>
@@ -30,7 +30,7 @@
           <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="sendMessage">
         </li>
         <li>
-          <label>&nbsp;</label>
+          <label for="send" class="hide-on-small-screen">&nbsp;</label>
           <button name="send" :class="{ disabled: !connectionState }" @click="sendMessage">Send</button>
         </li>
       </ul>

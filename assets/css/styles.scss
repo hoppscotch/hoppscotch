@@ -304,6 +304,10 @@ ol li {
   background-color: #676767;
 }
 
+.virtual-list::-webkit-scrollbar {
+  width: 0;
+}
+
 fieldset#history {
   .method-list-item {
     position: relative;

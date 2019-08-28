@@ -37,11 +37,11 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 :zap: **Real-time**: Send requests and get/copy responses right away!
 
 **Methods:**
- - GET - Retrieve information about the REST API resource
- - POST - Create a REST API resource
- - PUT - Update a REST API resource
- - DELETE - Delete a REST API resource or related component
- - OPTIONS - Describe the communication options for the target resource.
+ - `GET` - Retrieve information about the REST API resource
+ - `POST` - Create a REST API resource
+ - `PUT` - Update a REST API resource
+ - `DELETE` - Delete a REST API resource or related component
+ - `OPTIONS` - Describe the communication options for the target resource.
 
 _History entries are synced with local session storage_
 
@@ -86,7 +86,7 @@ _Customized themes are also synced with local session storage_
 
 _HTML responses have "Preview HTML" feature_
 
-:: **History**: Request entries are synced with local session storage to reuse with a single click
+:alarm_clock: **History**: Request entries are synced with local session storage to reuse with a single click
 
 **Fields**
  - Timestamp

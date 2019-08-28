@@ -531,8 +531,15 @@
       },
       copyResponse() {
         var copyText = document.getElementById("response-details");
-        copyText.select();
+        let content = copyText.innerText;
+        const listener = (e) => {
+          e.clipboardData.setData("text/html", content);
+          e.clipboardData.setData("text/plain", content);
+          e.preventDefault();
+        };
+        document.addEventListener("copy", listener);
         document.execCommand("copy");
+        document.removeEventListener("copy", listener);
       },
       togglePreview() {
         this.previewEnabled = !this.previewEnabled;

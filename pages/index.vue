@@ -393,6 +393,7 @@
           behavior: 'smooth'
         });
 
+        this.previewEnabled = false;
         this.response.status = 'Fetching...';
         this.response.body = 'Loading...';
 

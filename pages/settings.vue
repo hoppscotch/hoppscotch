@@ -24,13 +24,14 @@
       <ul>
         <li>
           <h3 class="title">Frames</h3>
-          <input id="disableFrameColors" type="checkbox" :checked="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
-          <label for="disableFrameColors">Enable multi-color</label>
+          <pw-toggle :on="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
+              Multi-color {{ settings.DISABLE_FRAME_COLORS ? "disabled" : "enabled" }}
+          </pw-toggle>
         </li>
       </ul>
     </pw-section>
 
-      <pw-section class="blue" label="Proxy">
+      <!--<pw-section class="blue" label="Proxy">
           <ul>
               <li>
                   <p>
@@ -52,12 +53,13 @@
                   <input id="key" type="password" v-model="url">
               </li>
           </ul>
-      </pw-section>
+      </pw-section>-->
   </div>
 </template>
 <script>
   import section from "../components/section";
   import swatch from "../components/settings/swatch";
+  import toggle from "../components/toggle";
 
   export default {
     data() {
@@ -123,6 +125,7 @@
     },
     components: {
       'pw-section': section,
+      'pw-toggle': toggle,
       'swatch': swatch
     },
     methods: {

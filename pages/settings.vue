@@ -102,6 +102,13 @@
       applyTheme(name) {
         this.applySetting('THEME_CLASS', name);
         document.documentElement.className = name;
+        let imgGitHub = document.getElementById("imgGitHub");
+        imgGitHub.style['filter'] = "";
+        imgGitHub.style['webkit-filter'] = "invert(100%)";
+        if (name.includes("light")){
+            imgGitHub.style['filter'] = "invert(100%)";
+            imgGitHub.style['webkit-filter'] = "invert(100%)";
+        }
       },
       setActiveColor(color, vibrant) {
         // By default, the color is vibrant.

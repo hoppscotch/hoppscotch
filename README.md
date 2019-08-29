@@ -38,10 +38,12 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 **Methods:**
  - `GET` - Retrieve information about the REST API resource
+ - `HEAD` - Asks for a response identical to that of a GET request, but without the response body.
  - `POST` - Create a REST API resource
  - `PUT` - Update a REST API resource
  - `DELETE` - Delete a REST API resource or related component
- - `OPTIONS` - Describe the communication options for the target resource.
+ - `OPTIONS` - Describe the communication options for the target resource
+ - `PATCH` - Applies partial modifications to a REST API resource
 
 _History entries are synced with local session storage_
 

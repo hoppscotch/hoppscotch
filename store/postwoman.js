@@ -31,9 +31,14 @@ export const SETTINGS_KEYS = [
      */
     "PROXY_ENABLED",
 
-
+    /**
+     * The URL of the proxy to connect to for requests.
+     */
     "PROXY_URL",
-    "PROXY_AUTH"
+    /**
+     * The security key of the proxy.
+     */
+    "PROXY_KEY"
 ];
 
 export const state = () => ({
@@ -52,7 +57,7 @@ export const mutations = {
         // Add your settings key to the SETTINGS_KEYS array at the
         // top of the file.
         // This is to ensure that application settings remain documented.
-        if(!SETTINGS_KEYS.includes(key)) throw new Error("The settings key does not include the key " + key);
+        if(!SETTINGS_KEYS.includes(key)) throw new Error("The settings structure does not include the key " + key);
 
         state.settings[key] = value;
     }

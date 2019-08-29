@@ -31,29 +31,26 @@
       </ul>
     </pw-section>
 
-      <!--<pw-section class="blue" label="Proxy">
-          <ul>
-              <li>
-                  <p>
-                      <input :checked="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')"
-                             id="enableProxy"
-                             type="checkbox">
-                      <label for="enableProxy">Enable proxy</label>
-                  </p>
-              </li>
-          </ul>
+    <pw-section class="blue" label="Proxy">
+      <ul>
+        <li>
+          <pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
+            Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}
+          </pw-toggle>
+        </li>
+      </ul>
 
-          <ul>
-              <li>
-                  <label for="url">URL</label>
-                  <input id="url" type="url" v-model="url">
-              </li>
-              <li>
-                  <label for="key">Key</label>
-                  <input id="key" type="password" v-model="url">
-              </li>
-          </ul>
-      </pw-section>-->
+      <ul>
+        <li>
+          <label for="url">URL</label>
+          <input id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
+        </li>
+        <li>
+          <label for="key">Key</label>
+          <input id="key" type="password" v-model="settings.PROXY_KEY" :disabled="!settings.PROXY_ENABLED" @change="applySetting('PROXY_KEY', $event)">
+        </li>
+      </ul>
+    </pw-section>
   </div>
 </template>
 <script>
@@ -62,6 +59,12 @@
   import toggle from "../components/toggle";
 
   export default {
+    components: {
+        'pw-section': section,
+        'pw-toggle': toggle,
+        'swatch': swatch
+    },
+
     data() {
       return {
         // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
@@ -113,21 +116,30 @@
             "vibrant": false
           },
         ],
+
         settings: {
           THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || '',
           THEME_COLOR: '',
           THEME_COLOR_VIBRANT: true,
 
+          DISABLE_FRAME_COLORS: this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false,
           PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-          DISABLE_FRAME_COLORS: this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false
+          PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || '',
+          PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ''
         }
       }
     },
-    components: {
-      'pw-section': section,
-      'pw-toggle': toggle,
-      'swatch': swatch
+
+    watch: {
+        proxySettings: {
+            deep: true,
+            handler (value) {
+              this.applySetting('PROXY_URL', value.url);
+              this.applySetting('PROXY_KEY', value.key);
+            }
+        }
     },
+
     methods: {
       applyTheme(name) {
         this.applySetting('THEME_CLASS', name);
@@ -164,6 +176,15 @@
     },
     beforeMount() {
       this.settings.THEME_COLOR = this.getActiveColor();
+    },
+
+    computed: {
+      proxySettings () {
+          return {
+              url: this.settings.PROXY_URL,
+              key: this.settings.PROXY_KEY
+          }
+      }
     }
   }
 

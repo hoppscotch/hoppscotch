@@ -84,6 +84,11 @@ button {
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
+
+  &[disabled], &.disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
 }
 
 fieldset {
@@ -220,7 +225,7 @@ input[type="checkbox"] {
   background-color: var(--err-color);
 }
 
-.disabled {
+.disabled, input[disabled] {
   background-color: var(--err-color);
   color: #b2b2b2;
 }

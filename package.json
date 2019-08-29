@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "@nuxtjs/pwa": "^3.0.0-0",
+    "highlight.js": "^9.15.10",
     "nuxt": "^2.0.0",
+    "tiptap": "^1.25.0",
+    "tiptap-extensions": "^1.27.0",
     "vue-virtual-scroll-list": "^1.4.2",
     "vuex-persist": "^2.0.1"
   },

@@ -6,10 +6,12 @@
           <label for="method">Method</label>
           <select id="method" v-model="method">
             <option>GET</option>
+            <option>HEAD</option>
             <option>POST</option>
             <option>PUT</option>
             <option>DELETE</option>
             <option>OPTIONS</option>
+            <option>PATCH</option>
           </select>
         </li>
         <li>
@@ -21,12 +23,12 @@
           <input id="path" v-model="path" v-on:keyup.enter="sendRequest">
         </li>
         <li>
-          <label for="action">&nbsp;</label>
+          <label for="action" class="hide-on-small-screen">&nbsp;</label>
           <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL">Send</button>
         </li>
       </ul>
     </pw-section>
-    <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT'">
+    <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
         <li>
           <label>Content Type</label>
@@ -51,7 +53,7 @@
             <input :name="'bvalue'+index" v-model="param.value">
           </li>
           <li>
-            <label for="request">&nbsp;</label>
+            <label for="request" class="hide-on-small-screen">&nbsp;</label>
             <button name="request" @click="removeRequestBodyParam(index)">Remove</button>
           </li>
         </ol>
@@ -111,7 +113,7 @@
           <input :name="'value'+index" v-model="header.value">
         </li>
         <li>
-          <label for="header">&nbsp;</label>
+          <label for="header" class="hide-on-small-screen">&nbsp;</label>
           <button name="header" @click="removeRequestHeader(index)">Remove</button>
         </li>
       </ol>
@@ -139,7 +141,7 @@
           <input :name="'value'+index" v-model="param.value">
         </li>
         <li>
-          <label for="param">&nbsp;</label>
+          <label for="param" class="hide-on-small-screen">&nbsp;</label>
           <button name="param" @click="removeRequestParam(index)">Remove</button>
         </li>
       </ol>
@@ -175,12 +177,10 @@
             <label for="body">response</label>
             <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
           </div>
-
           <div id="response-details-wrapper">
             <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
             <iframe src="about:blank" class="covers-response" ref="previewFrame" :class="{hidden: !previewEnabled}"></iframe>
           </div>
-
           <div v-if="response.body && responseType === 'text/html'" class="align-right">
             <button @click.prevent="togglePreview">{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</button>
           </div>
@@ -193,37 +193,42 @@
           <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
         </li>
       </ul>
-      <ul v-for="entry in history">
-        <li>
-          <label for="time">Time</label>
-          <input name="time" type="text" readonly :value="entry.time">
-        </li>
-        <li class="method-list-item">
-          <label for="method">Method</label>
-          <input name="method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
-          <span class="entry-status-code">{{entry.status}}</span>
-        </li>
-        <li>
-          <label for="url">URL</label>
-          <input name="url" type="text" readonly :value="entry.url">
-        </li>
-        <li>
-          <label for="path">Path</label>
-          <input name="path" type="text" readonly :value="entry.path">
-        </li>
-        <li>
-          <label for="delete">&nbsp;</label>
-          <button name="delete" @click="deleteHistory(entry)">Delete</button>
-        </li>
-        <li>
-          <label for="use">&nbsp;</label>
-          <button name="use" @click="useHistory(entry)">Use</button>
-        </li>
-      </ul>
+      <virtual-list class="virtual-list" :size="89" :remain="Math.min(5, history.length)">
+        <ul v-for="entry in history" :key="entry.millis" class="entry">
+          <li>
+            <label for="time">Time</label>
+            <input name="time" type="text" readonly :value="entry.time" :title="entry.date">
+          </li>
+          <li class="method-list-item">
+            <label for="method">Method</label>
+            <input name="method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
+            <span class="entry-status-code">{{entry.status}}</span>
+          </li>
+          <li>
+            <label for="url">URL</label>
+            <input name="url" type="text" readonly :value="entry.url">
+          </li>
+          <li>
+            <label for="path">Path</label>
+            <input name="path" type="text" readonly :value="entry.path">
+          </li>
+          <li>
+            <label for="delete" class="hide-on-small-screen">&nbsp;</label>
+            <button name="delete" @click="deleteHistory(entry)">Delete</button>
+          </li>
+          <li>
+            <label for="use" class="hide-on-small-screen">&nbsp;</label>
+            <button name="use" @click="useHistory(entry)">Use</button>
+          </li>
+        </ul>
+      </virtual-list>
     </pw-section>
   </div>
 </template>
 <script>
+  import VirtualList from 'vue-virtual-scroll-list'
+  import section from "../components/section";
+
   const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
@@ -249,6 +254,12 @@
       statusCodeRegex: new RegExp(/[5][0-9]+/),
       className: 'sv-error-response'
     },
+    {
+      // this object is a catch-all for when no other objects match and should always be last
+      name: 'unknown',
+      statusCodeRegex: new RegExp(/.*/),
+      className: 'missing-data-response'
+    }
   ];
   const parseHeaders = xhr => {
     const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
@@ -260,12 +271,14 @@
       headerMap[header] = value
     });
     return headerMap
+
   };
   const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
-  import section from "../components/section";
+
   export default {
     components: {
-      'pw-section': section
+      'pw-section': section,
+      VirtualList
     },
     data() {
       return {
@@ -348,16 +361,18 @@
             key,
             value
           }) => `${key}=${encodeURIComponent(value)}`).join('&')
-        return result == '' ? '' : `?${result}`
+        return result === '' ? '' : `?${result}`
       },
-
-      responseType () {
+      responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
       }
     },
     methods: {
       findEntryStatus(entry) {
-        return findStatusGroup(entry.status);
+        let foundStatusGroup = findStatusGroup(entry.status);
+        return foundStatusGroup || {
+          className: ''
+        };
       },
       deleteHistory(entry) {
         this.history.splice(this.history.indexOf(entry), 1)
@@ -384,36 +399,27 @@
           alert('Please check the formatting of the URL');
           return
         }
-
         if (this.$refs.response.$el.classList.contains('hidden')) {
           this.$refs.response.$el.classList.toggle('hidden')
         }
-
         this.$refs.response.$el.scrollIntoView({
           behavior: 'smooth'
         });
-
         this.previewEnabled = false;
         this.response.status = 'Fetching...';
         this.response.body = 'Loading...';
-
         const xhr = new XMLHttpRequest();
         const user = this.auth === 'Basic' ? this.httpUser : null;
         const password = this.auth === 'Basic' ? this.httpPassword : null;
         xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
-
-        if (this.auth === 'Bearer Token') xhr.setRequestHeader(
-                'Authorization',
-                'Bearer ' + this.bearerToken
-        );
-
+        if (this.auth === 'Bearer Token')
+          xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
         if (this.headers) {
           this.headers.forEach(function(element) {
             xhr.setRequestHeader(element.key, element.value)
           })
         }
-
-        if (this.method === 'POST' || this.method === 'PUT') {
+        if (this.method === 'POST' || this.method === 'PUT' || this.method === 'PATCH') {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
           xhr.setRequestHeader('Content-Length', requestBody.length);
           xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`);
@@ -421,27 +427,27 @@
         } else {
           xhr.send();
         }
-
         xhr.onload = e => {
           this.response.status = xhr.status;
           const headers = this.response.headers = parseHeaders(xhr);
-
           this.response.body = xhr.responseText;
-          if ((headers['content-type'] || '').startsWith('application/json')) {
-            this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
+          if (this.method != 'HEAD') {
+            if ((headers['content-type'] || '').startsWith('application/json')) {
+              this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
+            }
           }
-
-          const n = new Date().toLocaleTimeString();
+          const d = new Date().toLocaleDateString();
+          const t = new Date().toLocaleTimeString();
           this.history = [{
             status: xhr.status,
-            time: n,
+            date: d,
+            time: t,
             method: this.method,
             url: this.url,
             path: this.path
           }, ...this.history];
           window.localStorage.setItem('history', JSON.stringify(this.history));
         };
-
         xhr.onerror = e => {
           this.response.status = xhr.status;
           this.response.body = xhr.statusText;
@@ -452,7 +458,6 @@
           key: '',
           value: ''
         });
-
         return false
       },
       removeRequestHeader(index) {
@@ -500,24 +505,20 @@
           return false;
         }
       },
-
       copyResponse() {
         var copyText = document.getElementById("response-details");
         copyText.select();
         document.execCommand("copy");
       },
-
-      togglePreview () {
+      togglePreview() {
         this.previewEnabled = !this.previewEnabled;
-
-        if(this.previewEnabled) {
+        if (this.previewEnabled) {
           // If you want to add 'preview' support for other response types,
           // just add them here.
-          if(this.responseType === "text/html"){
+          if (this.responseType === "text/html") {
             // If the preview already has that URL loaded, let's not bother re-loading it all.
-            if(this.$refs.previewFrame.getAttribute('data-previewing-url') === this.url)
+            if (this.$refs.previewFrame.getAttribute('data-previewing-url') === this.url)
               return;
-
             // Use DOMParser to parse document HTML.
             const previewDocument = new DOMParser().parseFromString(this.response.body, this.responseType);
             // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
@@ -530,4 +531,5 @@
       }
     }
   }
+
 </script>

@@ -19,10 +19,13 @@
               <swatch :active="settings.THEME_COLOR === entry.color.toUpperCase()" :class="{ vibrant: entry.vibrant }" :color="entry.color" :name="entry.name" />
             </span>
           </div>
-          <p>
-            <input :checked="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')" id="disableFrameColors" type="checkbox">
-            <label for="disableFrameColors">Enable multi-colored frames</label>
-          </p>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <h3 class="title">Frames</h3>
+          <input id="disableFrameColors" type="checkbox" :checked="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
+          <label for="disableFrameColors">Enable multi-color</label>
         </li>
       </ul>
     </pw-section>
@@ -126,6 +129,13 @@
       applyTheme(name) {
         this.applySetting('THEME_CLASS', name);
         document.documentElement.className = name;
+        let imgGitHub = document.getElementById("imgGitHub");
+        imgGitHub.style['filter'] = "";
+        imgGitHub.style['webkit-filter'] = "invert(100%)";
+        if (name.includes("light")){
+            imgGitHub.style['filter'] = "invert(100%)";
+            imgGitHub.style['webkit-filter'] = "invert(100%)";
+        }
       },
       setActiveColor(color, vibrant) {
         // By default, the color is vibrant.

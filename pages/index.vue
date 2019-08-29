@@ -197,7 +197,7 @@
         <ul v-for="entry in history" :key="entry.millis" class="entry">
           <li>
             <label for="time">Time</label>
-            <input name="time" type="text" readonly :value="entry.time">
+            <input name="time" type="text" readonly :value="entry.time" :title="entry.date">
           </li>
           <li class="method-list-item">
             <label for="method">Method</label>
@@ -436,10 +436,12 @@
               this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
             }
           }
-          const n = new Date().toLocaleTimeString();
+          const d = new Date().toLocaleDateString();
+          const t = new Date().toLocaleTimeString();
           this.history = [{
             status: xhr.status,
-            time: n,
+            date: d,
+            time: t,
             method: this.method,
             url: this.url,
             path: this.path

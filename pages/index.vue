@@ -533,9 +533,10 @@
       },
       observeRequestButton() {
         const requestElement = this.$refs.request.$el;
+        const sendButton = this.$refs.sendButton;
         const observer = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
-            this.$refs.sendButton.classList.toggle('show');
+           sendButton.className = entry.isIntersecting ? '' : 'show';
           });
         }, { threshold: 1 });
 

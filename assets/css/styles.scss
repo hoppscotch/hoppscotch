@@ -359,3 +359,21 @@ fieldset#history {
     width: 100%;
   }
 }
+
+#action {
+  #hidden-message {
+    display: none;
+  }
+
+  &.show {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    right: 16px;
+
+    #hidden-message {
+      display: block;
+      margin-left: 4px;
+    }
+  }
+}

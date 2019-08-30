@@ -567,7 +567,15 @@
             this.$refs.previewFrame.setAttribute('data-previewing-url', this.url);
           }
         }
+      },
+      setRouteQueries(queries) {
+        for (const key in queries) {
+          if (this[key]) this[key] = queries[key];
+        }
       }
+    },
+    created() {
+      if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
     }
   }
 

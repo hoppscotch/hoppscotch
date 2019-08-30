@@ -5,9 +5,14 @@
   "author": "liyasthomas",
   "private": true,
   "scripts": {
+		"predev": "node build.js --dev",
     "dev": "nuxt",
+
+		"prebuild": "node build.js",
     "build": "nuxt build",
     "start": "nuxt start",
+
+		"pregenerate": "node build.js",
     "generate": "nuxt generate"
   },
   "dependencies": {

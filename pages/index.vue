@@ -66,12 +66,12 @@
         <ul>
           <li>
             <label for="request">Parameter List</label>
-            <textarea name="request" rows="1" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
+            <textarea name="request" rows="1" v-textarea-auto-height="rawRequestBody" readonly>{{rawRequestBody || '(add at least one parameter)'}}</textarea>
           </li>
         </ul>
       </div>
       <div v-else>
-        <textarea v-model="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
+        <textarea v-model="rawParams" v-textarea-auto-height="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
       </div>
     </pw-section>
     <pw-section class="green" label="Authentication" collapsed>
@@ -126,7 +126,7 @@
       <ul>
         <li>
           <label for="request">Header List</label>
-          <textarea name="request" rows="1" readonly>{{headerString || '(add at least one header)'}}</textarea>
+          <textarea v-textarea-auto-height="headerString" name="request" rows="1" readonly ref="requestTextarea">{{headerString || '(add at least one header)'}}</textarea>
         </li>
       </ul>
     </pw-section>
@@ -154,7 +154,7 @@
       <ul>
         <li>
           <label for="request">Parameter List</label>
-          <textarea name="request" rows="1" readonly>{{queryString || '(add at least one parameter)'}}</textarea>
+          <textarea name="request" v-textarea-auto-height="queryString" rows="1" readonly>{{queryString || '(add at least one parameter)'}}</textarea>
         </li>
       </ul>
     </pw-section>
@@ -194,6 +194,7 @@
 <script>
 		import history from "../components/history";
 		import section from "../components/section";
+		import textareaAutoHeight from "../directives/textareaAutoHeight";
 
 		const statusCategories = [{
       name: 'informational',
@@ -242,6 +243,9 @@
   export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
 
   export default {
+  		directives: {
+  				textareaAutoHeight
+    },
     components: {
       'pw-section': section,
       history

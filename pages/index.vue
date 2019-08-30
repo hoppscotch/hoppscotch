@@ -416,7 +416,18 @@
                 this.response.headers = error.response.headers;
                 this.response.status = error.response.status;
                 this.response.body = error.response.data;
-                return;
+
+		            // Addition of an entry to the history component.
+		            const entry = {
+				            status: this.response.status,
+				            date: new Date().toLocaleDateString(),
+				            time: new Date().toLocaleTimeString(),
+				            method: this.method,
+				            url: this.url,
+				            path: this.path
+		            };
+		            this.$refs.historyComponent.addEntry(entry);
+		            return;
             }
 
             this.response.status = error.message;

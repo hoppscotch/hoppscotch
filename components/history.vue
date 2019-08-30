@@ -74,6 +74,7 @@
 						},
 						addEntry(entry) {
 								this.history.push(entry);
+								updateOnLocalStorage('history', this.history);
 						}
 				}
 		}

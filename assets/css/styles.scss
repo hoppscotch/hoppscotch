@@ -51,11 +51,13 @@ h3.title {
 
 header,
 footer {
+ & > div {
   display: flex;
   padding: 16px;
   width: 100%;
   align-items: center;
   justify-content: space-between;
+ }
 }
 
 nav {
@@ -328,6 +330,10 @@ fieldset#history {
 
 .align-left {
   text-align: left;
+}
+
+.align-center {
+ text-align: center;
 }
 
 .align-right {

@@ -24,7 +24,7 @@
         </li>
         <li>
           <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL" ref="sendButton">Send <span id="hidden-message">Again</span></button>
+          <button id="action"  class="show" name="action" @click="sendRequest" :disabled="!isValidURL" ref="sendButton">Send <span id="hidden-message">Again</span></button>
         </li>
       </ul>
     </pw-section>
@@ -533,10 +533,10 @@
       },
       observeRequestButton() {
         const requestElement = this.$refs.request.$el;
-        const sendButton = this.$refs.sendButton;
+        const sendButtonElement = this.$refs.sendButton;
         const observer = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
-           sendButton.className = entry.isIntersecting ? '' : 'show';
+           sendButtonElement.classList.toggle('show');
           });
         }, { threshold: 1 });
 

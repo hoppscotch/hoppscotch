@@ -24,7 +24,7 @@
         </li>
         <li>
           <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL">Send</button>
+          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL" ref="sendButton">Send <span id="hidden-message">Again</span></button>
         </li>
       </ul>
     </pw-section>
@@ -192,10 +192,10 @@
 </template>
 
 <script>
-  import history from "../components/history";
-  import section from "../components/section";
+		import history from "../components/history";
+		import section from "../components/section";
 
-  const statusCategories = [{
+		const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
       className: 'info-response'
@@ -530,10 +530,30 @@
         for (const key in queries) {
           if (this[key]) this[key] = queries[key];
         }
+      },
+      observeRequestButton: function () {
+		      let isTheInitialIntersection = true;
+		      const sendButtonElement = this.$refs.sendButton;
+		      const requestElement = this.$refs.request.$el;
+		      const observer = new IntersectionObserver((entries, observer) => {
+				      entries.forEach(entry => {
+						      if (entry.isIntersecting) {
+								      if (!isTheInitialIntersection) {
+										      sendButtonElement.classList.toggle('show');
+								      } else {
+										      isTheInitialIntersection = false;
+								      }
+						      }
+				      });
+		      }, {threshold: 1});
+		      observer.observe(requestElement);
       }
     },
     created() {
       if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
+    },
+    mounted() {
+        this.observeRequestButton();
     }
   }
 

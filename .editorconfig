@@ -3,7 +3,7 @@
 root = true
 
 [*]
-indent_size = 2
+indent_size = 1
 indent_style = space
 charset = utf-8
 end_of_line = lf

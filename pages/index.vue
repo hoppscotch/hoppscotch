@@ -187,15 +187,15 @@
         </li>
       </ul>
     </pw-section>
-    <history @useHistory="handleUseHistory" ref="historyComponent"/>
+    <history @useHistory="handleUseHistory" ref="historyComponent" />
   </div>
 </template>
 
 <script>
-		import history from "../components/history";
-		import section from "../components/section";
+  import history from "../components/history";
+  import section from "../components/section";
 
-		const statusCategories = [{
+  const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
       className: 'info-response'
@@ -243,8 +243,8 @@
 
   export default {
     components: {
-		    'pw-section': section,
-		    history
+      'pw-section': section,
+      history
     },
     data() {
       return {
@@ -279,7 +279,9 @@
         const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
         return validIP.test(this.url) || validHostname.test(this.url);
       },
-      hasRequestBody () { return['POST', 'PUT', 'PATCH'].includes(this.method); },
+      hasRequestBody() {
+        return ['POST', 'PUT', 'PATCH'].includes(this.method);
+      },
       rawRequestBody() {
         const {
           bodyParams
@@ -331,11 +333,17 @@
       }
     },
     methods: {
-      handleUseHistory({method,url,path}) {
+      handleUseHistory({
+        method,
+        url,
+        path
+      }) {
         this.method = method;
         this.url = url;
         this.path = path;
-        this.$refs.request.$el.scrollIntoView({behavior: 'smooth'});
+        this.$refs.request.$el.scrollIntoView({
+          behavior: 'smooth'
+        });
       },
       async sendRequest() {
         if (!this.isValidURL) {
@@ -358,8 +366,8 @@
         this.response.body = 'Loading...';
 
         const auth = this.auth === 'Basic' ? {
-            username: this.httpUser,
-            password: this.httpPassword
+          username: this.httpUser,
+          password: this.httpPassword
         } : null;
 
         let headers = {};
@@ -370,68 +378,75 @@
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
 
           Object.assign(headers, {
-              'Content-Length': requestBody.length,
-              'Content-Type': `${this.contentType}; charset=utf-8`
+            'Content-Length': requestBody.length,
+            'Content-Type': `${this.contentType}; charset=utf-8`
           });
         }
 
         // If the request uses a token for auth, we want to make sure it's sent here.
-        if(this.auth === 'Bearer Token') headers['Authorization'] = `Bearer ${this.bearerToken}`;
+        if (this.auth === 'Bearer Token') headers['Authorization'] = `Bearer ${this.bearerToken}`;
 
         headers = Object.assign(
-            // Clone the app headers object first, we don't want to
-            // mutate it with the request headers added by default.
-            Object.assign({}, this.headers),
+          // Clone the app headers object first, we don't want to
+          // mutate it with the request headers added by default.
+          Object.assign({}, this.headers),
 
-            // We make our temporary headers object the source so
-            // that you can override the added headers if you
-            // specify them.
-            headers
+          // We make our temporary headers object the source so
+          // that you can override the added headers if you
+          // specify them.
+          headers
         );
 
         try {
           const payload = await this.$axios({
-              method: this.method,
-              url: this.url + this.path + this.queryString,
-              auth,
-              headers
+            method: this.method,
+            url: this.url + this.path + this.queryString,
+            auth,
+            headers
           });
 
           (() => {
-              const status = this.response.status = payload.status;
-              const headers = this.response.headers = payload.headers;
+            const status = this.response.status = payload.status;
+            const headers = this.response.headers = payload.headers;
 
-              // We don't need to bother parsing JSON, axios already handles it for us!
-              const body = this.response.body = payload.data;
+            // We don't need to bother parsing JSON, axios already handles it for us!
+            const body = this.response.body = payload.data;
 
-              const date = new Date().toLocaleDateString();
-              const time = new Date().toLocaleTimeString();
+            const date = new Date().toLocaleDateString();
+            const time = new Date().toLocaleTimeString();
 
-              // Addition of an entry to the history component.
-		          const entry = {status, date, time, method: this.method, url: this.url, path: this.path};
-		          this.$refs.historyComponent.addEntry(entry);
+            // Addition of an entry to the history component.
+            const entry = {
+              status,
+              date,
+              time,
+              method: this.method,
+              url: this.url,
+              path: this.path
+            };
+            this.$refs.historyComponent.addEntry(entry);
           })();
-        } catch(error) {
-            if(error.response){
-                this.response.headers = error.response.headers;
-                this.response.status = error.response.status;
-                this.response.body = error.response.data;
+        } catch (error) {
+          if (error.response) {
+            this.response.headers = error.response.headers;
+            this.response.status = error.response.status;
+            this.response.body = error.response.data;
 
-		            // Addition of an entry to the history component.
-		            const entry = {
-				            status: this.response.status,
-				            date: new Date().toLocaleDateString(),
-				            time: new Date().toLocaleTimeString(),
-				            method: this.method,
-				            url: this.url,
-				            path: this.path
-		            };
-		            this.$refs.historyComponent.addEntry(entry);
-		            return;
-            }
+            // Addition of an entry to the history component.
+            const entry = {
+              status: this.response.status,
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              method: this.method,
+              url: this.url,
+              path: this.path
+            };
+            this.$refs.historyComponent.addEntry(entry);
+            return;
+          }
 
-            this.response.status = error.message;
-            this.response.body = "See JavaScript console (F12) for details.";
+          this.response.status = error.message;
+          this.response.body = "See JavaScript console (F12) for details.";
         }
       },
 

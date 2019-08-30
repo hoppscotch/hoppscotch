@@ -3,7 +3,8 @@
     <label class="toggle" :class="{on: on}" ref="toggle">
       <span class="handle"></span>
     </label>
-    <label class="caption"><slot /></label>
+    <label class="caption">
+      <slot /></label>
   </div>
 </template>
 
@@ -14,7 +15,7 @@
   $inactiveColor: var(--fg-color);
 
   $inactiveHandleColor: $inactiveColor;
-  $activeHandleColor: var(--fg-color);
+  $activeHandleColor: var(--act-color);
 
   $width: 50px;
   $height: 20px;
@@ -27,7 +28,7 @@
   }
 
   label.caption {
-    margin-left: 5px;
+    margin-left: 4px;
     vertical-align: middle;
   }
 
@@ -62,7 +63,7 @@
       pointer-events: none;
       transition: $transition;
 
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     }
 
     &.on {
@@ -75,24 +76,26 @@
       }
     }
   }
+
 </style>
 
 <script>
   export default {
 
-      props: {
-          'on': {
-              type: Boolean,
-              default: false
-          }
-      },
-
-      methods: {
-          toggle () {
-              this.$refs.toggle.classList.toggle("on");
-              this.$emit('change', this.$refs.toggle.classList.contains("on"));
-          }
+    props: {
+      'on': {
+        type: Boolean,
+        default: false
       }
+    },
+
+    methods: {
+      toggle() {
+        this.$refs.toggle.classList.toggle("on");
+        this.$emit('change', this.$refs.toggle.classList.contains("on"));
+      }
+    }
 
   }
+
 </script>

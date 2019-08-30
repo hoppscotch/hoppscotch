@@ -6,7 +6,7 @@
         <input id="filter-history-input" type="text" :disabled="history.length === 0 || isClearingHistory" v-model="filterText">
       </li>
     </ul>
-    <virtual-list class="virtual-list" :size="89" :remain="Math.min(5, filteredHistory.length)">
+    <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="89" :remain="Math.min(5, filteredHistory.length)">
       <ul v-for="entry in filteredHistory" :key="entry.millis" class="entry">
         <li>
           <label :for="'time#' + entry.millis">Time</label>
@@ -67,12 +67,11 @@
   </pw-section>
 </template>
 <script>
-  import VirtualList from 'vue-virtual-scroll-list'
-  import section from "./section";
-  import {
-    findStatusGroup
-  } from "../pages/index";
-  const updateOnLocalStorage = (propertyName, property) => window.localStorage.setItem(propertyName, JSON.stringify(property));
+		import VirtualList from 'vue-virtual-scroll-list'
+		import section from "./section";
+		import {findStatusGroup} from "../pages/index";
+
+		const updateOnLocalStorage = (propertyName, property) => window.localStorage.setItem(propertyName, JSON.stringify(property));
   export default {
     components: {
       'pw-section': section,
@@ -140,6 +139,12 @@
   .virtual-list {
     [readonly] {
       cursor: default;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .virtual-list.filled {
+      min-height: 430px;
     }
   }
 

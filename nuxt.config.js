@@ -2,9 +2,9 @@
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const meta = {
-  name: "Postwoman",
-  shortDescription: "API request builder",
-  description: "The Postwoman API request builder helps you create your requests faster, saving you precious time on your development."
+  name: 'Postwoman',
+  shortDescription: 'API request builder',
+  description: 'The Postwoman API request builder helps you create your requests faster, saving you precious time on your development.'
 };
 
 // Sets the base path for the router.
@@ -12,7 +12,7 @@ export const meta = {
 
 // -- Travis includes the author in the repo slug,
 //    so if there's a /, we need to get everything after it.
-let repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
+const repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
 export const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
     base: `/${repoName}/`
@@ -34,12 +34,12 @@ export default {
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no, minimal-ui' },
       { hid: 'description', name: 'description', content: meta.description || '' },
-      { name: 'keywords', content: 'postwoman, api, request, testing, tool, rest, websocket'},
+      { name: 'keywords', content: 'postwoman, api, request, testing, tool, rest, websocket' },
 
-      { name: 'X-UA-Compatible', content: "IE=edge, chrome=1" },
-      { itemprop: "name", content: `${meta.name} \u2022 ${meta.shortDescription}` },
-      { itemprop: "description", content: meta.description },
-      { itemprop: "image", content: `${routerBase.router.base}icons/icon-192x192.png` },
+      { name: 'X-UA-Compatible', content: 'IE=edge, chrome=1' },
+      { itemprop: 'name', content: `${meta.name} \u2022 ${meta.shortDescription}` },
+      { itemprop: 'description', content: meta.description },
+      { itemprop: 'image', content: `${routerBase.router.base}icons/icon-192x192.png` },
 
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       { name: 'application-name', content: meta.name },
@@ -63,13 +63,13 @@ export default {
       { property: 'og:image', content: `${routerBase.router.base}icons/icon-144x144.png` },
 
       // Twitter
-      { name: 'twitter:card', content: "summary" },
-      { name: 'twitter:site', content: "@liyasthomas" },
-      { name: 'twitter:creator', content: "@liyasthomas" },
-      { name: 'twitter:url', content: "https://liyasthomas.github.io/postwoman" },
+      { name: 'twitter:card', content: 'summary' },
+      { name: 'twitter:site', content: '@liyasthomas' },
+      { name: 'twitter:creator', content: '@liyasthomas' },
+      { name: 'twitter:url', content: 'https://liyasthomas.github.io/postwoman' },
       { name: 'twitter:title', content: meta.name },
       { name: 'twitter:description', content: meta.shortDescription },
-      { name: 'twitter:image', content: `${routerBase.router.base}icons/icon-144x144.png` },
+      { name: 'twitter:image', content: `${routerBase.router.base}icons/icon-144x144.png` }
 
     ],
     link: [
@@ -80,7 +80,7 @@ export default {
       { rel: 'apple-touch-icon', sizes: '72x72', href: `${routerBase.router.base}icons/icon-72x72.png` },
       { rel: 'apple-touch-icon', sizes: '96x96', href: `${routerBase.router.base}icons/icon-96x96.png` },
       { rel: 'apple-touch-icon', sizes: '144x144', href: `${routerBase.router.base}icons/icon-144x144.png` },
-      { rel: 'apple-touch-icon', sizes: '192x192', href: `${routerBase.router.base}icons/icon-192x192.png` },
+      { rel: 'apple-touch-icon', sizes: '192x192', href: `${routerBase.router.base}icons/icon-192x192.png` }
     ]
   },
   /*
@@ -118,18 +118,18 @@ export default {
         short_name: meta.name,
         description: meta.shortDescription,
 
-        display: "standalone",
-        theme_color: "#121212",
-        background_color: "#121212",
+        display: 'standalone',
+        theme_color: '#121212',
+        background_color: '#121212',
 
         icons: ((sizes) => {
-          let icons = [];
+          const icons = [];
 
-          for(let size of sizes){
+          for (const size of sizes) {
             icons.push({
-              "src": `${routerBase.router.base}icons/icon-${size}x${size}.png`,
-              "type": "image/png",
-              "sizes": `${size}x${size}`
+              src: `${routerBase.router.base}icons/icon-${size}x${size}.png`,
+              type: 'image/png',
+              sizes: `${size}x${size}`
             });
           }
 
@@ -163,4 +163,4 @@ export default {
    ** Router configuration
    */
   ...routerBase
-}
+};

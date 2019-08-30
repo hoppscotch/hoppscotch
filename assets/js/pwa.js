@@ -1,5 +1,5 @@
 export default () => {
-  //*** Determine whether or not the PWA has been installed. ***//
+  //* ** Determine whether or not the PWA has been installed. ***//
 
   // Step 1: Check local storage
   let pwaInstalled = localStorage.getItem('pwaInstalled') === 'yes';
@@ -16,7 +16,7 @@ export default () => {
     pwaInstalled = true;
   }
 
-  //*** If the PWA has not been installed, show the install PWA prompt.. ***//
+  //* ** If the PWA has not been installed, show the install PWA prompt.. ***//
   let deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', (event) => {
     deferredPrompt = event;
@@ -36,19 +36,17 @@ export default () => {
 
   // When the app is uninstalled, add the prompts back
 
-
   return async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      let outcome = await deferredPrompt.userChoice;
+      const outcome = await deferredPrompt.userChoice;
 
       if (outcome === 'accepted') {
-        console.log('Postwoman was installed successfully.')
+        console.log('Postwoman was installed successfully.');
       } else {
-        console.log('Postwoman could not be installed. (Installation rejected by user.)')
+        console.log('Postwoman could not be installed. (Installation rejected by user.)');
       }
       deferredPrompt = null;
     }
   };
-
 };

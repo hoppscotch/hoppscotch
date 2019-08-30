@@ -123,13 +123,14 @@ You're done!
 * JavaScript - For magic!
 * [Vue](https://vuejs.org/) - To add to the JavaScript magic!
 * [Nuxt](https://nuxtjs.org/) - To add to the Vue magic! <!-- (Nuxt helps create the PWA and single page application.) -->
-
+* [semistandard](https://github.com/standard/semistandard)
 ---
 
 ## Developing
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
+1. Ensure lint `npm run lint`
 1. Start the development server with `npm run dev`.
 1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 

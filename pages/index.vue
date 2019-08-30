@@ -531,22 +531,15 @@
           if (this[key]) this[key] = queries[key];
         }
       },
-      observeRequestButton: function () {
-		      let isTheInitialIntersection = true;
-		      const sendButtonElement = this.$refs.sendButton;
-		      const requestElement = this.$refs.request.$el;
-		      const observer = new IntersectionObserver((entries, observer) => {
-				      entries.forEach(entry => {
-						      if (entry.isIntersecting) {
-								      if (!isTheInitialIntersection) {
-										      sendButtonElement.classList.toggle('show');
-								      } else {
-										      isTheInitialIntersection = false;
-								      }
-						      }
-				      });
-		      }, {threshold: 1});
-		      observer.observe(requestElement);
+      observeRequestButton() {
+        const requestElement = this.$refs.request.$el;
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            this.$refs.sendButton.classList.toggle('show');
+          });
+        }, { threshold: 1 });
+
+        observer.observe(requestElement);
       }
     },
     created() {

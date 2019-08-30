@@ -378,8 +378,9 @@
 
         // If the request has a request body, we want to ensure Content-Length and
         // Content-Type are sent.
+        let requestBody;
         if (this.hasRequestBody) {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+          requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
 
           Object.assign(headers, {
             'Content-Length': requestBody.length,
@@ -406,7 +407,8 @@
             method: this.method,
             url: this.url + this.path + this.queryString,
             auth,
-            headers
+            headers,
+            data: requestBody
           });
 
           (() => {

@@ -76,68 +76,68 @@
 </template>
 
 <script>
-		import VirtualList from 'vue-virtual-scroll-list'
-		import section from "./section";
-		import {findStatusGroup} from "../pages/index";
+import VirtualList from 'vue-virtual-scroll-list';
+import section from './section';
+import { findStatusGroup } from '../pages/index';
 
-		const updateOnLocalStorage = (propertyName, property) => window.localStorage.setItem(propertyName, JSON.stringify(property));
+const updateOnLocalStorage = (propertyName, property) => window.localStorage.setItem(propertyName, JSON.stringify(property));
 
-		export default {
-				components: {'pw-section': section, VirtualList},
-				data() {
-						const localStorageHistory = JSON.parse(window.localStorage.getItem('history'));
-						return {
-								history: localStorageHistory || [],
-								filterText: '',
-								showFilter: false,
-								isClearingHistory: false
-						}
-				},
-				computed: {
-						filteredHistory() {
-								return this.history.filter(entry => {
-										const filterText = this.filterText.toLowerCase();
-										return Object.keys(entry).some(key => {
-												let value = entry[key];
-												value = typeof value !== 'string' ? value.toString() : value;
-												return value.toLowerCase().includes(filterText);
-										});
-								});
-						}
-				},
-				methods: {
-						clearHistory() {
-								this.history = [];
-								this.filterText = '';
-								this.disableHistoryClearing();
-								updateOnLocalStorage('history', this.history);
-						},
-						useHistory(entry) {
-								this.$emit('useHistory', entry);
-						},
-						findEntryStatus(entry) {
-								const foundStatusGroup = findStatusGroup(entry.status);
-								return foundStatusGroup || {className: ''};
-						},
-						deleteHistory(entry) {
-								this.history.splice(this.history.indexOf(entry), 1);
-								if (this.history.length === 0) {
-										this.filterText = '';
-								}
-								updateOnLocalStorage('history', this.history);
-						},
-						addEntry(entry) {
-								this.history.push(entry);
-								updateOnLocalStorage('history', this.history);
-						},
-						enableHistoryClearing() {
-								this.isClearingHistory = true;
-						},
-						disableHistoryClearing() {
-								this.isClearingHistory = false;
-						}
-				}
-		}
+export default {
+  components: { 'pw-section': section, VirtualList },
+  data () {
+    const localStorageHistory = JSON.parse(window.localStorage.getItem('history'));
+    return {
+      history: localStorageHistory || [],
+      filterText: '',
+      showFilter: false,
+      isClearingHistory: false
+    };
+  },
+  computed: {
+    filteredHistory () {
+      return this.history.filter(entry => {
+        const filterText = this.filterText.toLowerCase();
+        return Object.keys(entry).some(key => {
+          let value = entry[key];
+          value = typeof value !== 'string' ? value.toString() : value;
+          return value.toLowerCase().includes(filterText);
+        });
+      });
+    }
+  },
+  methods: {
+    clearHistory () {
+      this.history = [];
+      this.filterText = '';
+      this.disableHistoryClearing();
+      updateOnLocalStorage('history', this.history);
+    },
+    useHistory (entry) {
+      this.$emit('useHistory', entry);
+    },
+    findEntryStatus (entry) {
+      const foundStatusGroup = findStatusGroup(entry.status);
+      return foundStatusGroup || { className: '' };
+    },
+    deleteHistory (entry) {
+      this.history.splice(this.history.indexOf(entry), 1);
+      if (this.history.length === 0) {
+        this.filterText = '';
+      }
+      updateOnLocalStorage('history', this.history);
+    },
+    addEntry (entry) {
+      this.history.push(entry);
+      updateOnLocalStorage('history', this.history);
+    },
+    enableHistoryClearing () {
+      this.isClearingHistory = true;
+    },
+    disableHistoryClearing () {
+      this.isClearingHistory = false;
+    }
+  }
+};
 </script>
 
 <style scoped lang="scss">

@@ -22,21 +22,21 @@
 </style>
 
 <script>
-  export default {
-      props: ['error'],
+export default {
+  props: ['error'],
 
-      methods: {
-        reloadApplication () {
-          this.$router.push('/', () => window.location.reload());
-        }
-      },
+  methods: {
+    reloadApplication () {
+      this.$router.push('/', () => window.location.reload());
+    }
+  },
 
-      head () {
-          return {
-              bodyAttrs: {
-                  class: 'sticky-footer'
-              }
-          }
+  head () {
+    return {
+      bodyAttrs: {
+        class: 'sticky-footer'
       }
+    };
   }
+};
 </script>

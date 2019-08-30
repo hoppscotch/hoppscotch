@@ -9,7 +9,7 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint": "./node_modules/.bin/eslint --fix ."
+    "lint": "./node_modules/eslint/bin/eslint.js --fix --ext .vue,.js,.html . || true"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.6.0",

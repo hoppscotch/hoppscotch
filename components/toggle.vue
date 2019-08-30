@@ -78,21 +78,21 @@
 </style>
 
 <script>
-  export default {
+export default {
 
-      props: {
-          'on': {
-              type: Boolean,
-              default: false
-          }
-      },
+  props: {
+    on: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-      methods: {
-          toggle () {
-              this.$refs.toggle.classList.toggle("on");
-              this.$emit('change', this.$refs.toggle.classList.contains("on"));
-          }
-      }
-
+  methods: {
+    toggle () {
+      this.$refs.toggle.classList.toggle('on');
+      this.$emit('change', this.$refs.toggle.classList.contains('on'));
+    }
   }
+
+};
 </script>

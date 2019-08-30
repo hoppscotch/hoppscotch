@@ -109,43 +109,43 @@
 
 </style>
 <script>
-  import intializePwa from '../assets/js/pwa';
-  import logo from "../components/logo";
-  export default {
-    components: {
-      logo
-    },
-    data() {
-      return {
-        // Once the PWA code is initialized, this holds a method
-        // that can be called to show the user the installation
-        // prompt.
-        showInstallPrompt: null,
-        logoStyle() {
-          return "margin-right: 16px;" + (((this.$store.state.postwoman.settings.THEME_CLASS || '').includes("light")) ? " filter: invert(100%); -webkit-filter: invert(100%);" : '')
-         }
+import intializePwa from '../assets/js/pwa';
+import logo from '../components/logo';
+export default {
+  components: {
+    logo
+  },
+  data () {
+    return {
+      // Once the PWA code is initialized, this holds a method
+      // that can be called to show the user the installation
+      // prompt.
+      showInstallPrompt: null,
+      logoStyle () {
+        return 'margin-right: 16px;' + (((this.$store.state.postwoman.settings.THEME_CLASS || '').includes('light')) ? ' filter: invert(100%); -webkit-filter: invert(100%);' : '');
       }
-    },
-    beforeMount() {
-      // Load theme settings
-      (() => {
-        // Apply theme from settings.
-        document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || '';
-        // Load theme color data from settings, or use default color.
-        let color = this.$store.state.postwoman.settings.THEME_COLOR || '#51FF0D';
-        let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
-        if (vibrant == null) vibrant = true;
-        document.documentElement.style.setProperty('--ac-color', color);
-        document.documentElement.style.setProperty('--act-color', vibrant ? '#121212' : '#fff');
-      })();
-    },
-    mounted() {
-      // Initializes the PWA code - checks if the app is installed,
-      // etc.
-      (async () => {
-        this.showInstallPrompt = await intializePwa();
-      })();
-    }
+    };
+  },
+  beforeMount () {
+    // Load theme settings
+    (() => {
+      // Apply theme from settings.
+      document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || '';
+      // Load theme color data from settings, or use default color.
+      const color = this.$store.state.postwoman.settings.THEME_COLOR || '#51FF0D';
+      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
+      if (vibrant === null) vibrant = true;
+      document.documentElement.style.setProperty('--ac-color', color);
+      document.documentElement.style.setProperty('--act-color', vibrant ? '#121212' : '#fff');
+    })();
+  },
+  mounted () {
+    // Initializes the PWA code - checks if the app is installed,
+    // etc.
+    (async () => {
+      this.showInstallPrompt = await intializePwa();
+    })();
   }
+};
 
 </script>

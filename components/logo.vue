@@ -19,11 +19,11 @@
 </style>
 
 <script>
-    export default {
-        props: {
-            'color': {
-                type: String
-            }
-        }
+export default {
+  props: {
+    color: {
+      type: String
     }
+  }
+};
 </script>

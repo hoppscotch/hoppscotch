@@ -49,20 +49,20 @@
 </style>
 
 <script>
-    export default {
-        props: {
-            'color': {
-                type: String,
-                required: true
-            },
-            'name': {
-                type: String
-            },
+export default {
+  props: {
+    color: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String
+    },
 
-            'active': {
-                type: Boolean,
-                default: false
-            }
-        }
+    active: {
+      type: Boolean,
+      default: false
     }
+  }
+};
 </script>

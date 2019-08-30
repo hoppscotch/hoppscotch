@@ -18,30 +18,30 @@
 </style>
 
 <script>
-    export default {
+export default {
 
-        computed: {
-            noFrameColors () {
-                return this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false;
-            }
-        },
-
-        props: {
-            "label": {
-                type: String,
-                default: "Section"
-            },
-            "collapsed": {
-                type: Boolean
-            }
-        },
-
-        methods: {
-            collapse({ target }) {
-                const parent = target.parentNode;
-                parent.querySelector(".collapsible").classList.toggle('hidden');
-            },
-        }
-
+  computed: {
+    noFrameColors () {
+      return this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false;
     }
+  },
+
+  props: {
+    label: {
+      type: String,
+      default: 'Section'
+    },
+    collapsed: {
+      type: Boolean
+    }
+  },
+
+  methods: {
+    collapse ({ target }) {
+      const parent = target.parentNode;
+      parent.querySelector('.collapsible').classList.toggle('hidden');
+    }
+  }
+
+};
 </script>

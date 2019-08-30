@@ -16,15 +16,15 @@
         </li>
         <li>
           <label for="url">URL</label>
-          <input id="url" type="url" v-bind:class="{ error: !isValidURL }" v-model="url" v-on:keyup.enter="sendRequest">
+          <input id="url" type="url" :class="{ error: !isValidURL }" v-model="url" @keyup.enter="isValidURL ? sendRequest() : null">
         </li>
         <li>
           <label for="path">Path</label>
-          <input id="path" v-model="path" v-on:keyup.enter="sendRequest">
+          <input id="path" v-model="path" @keyup.enter="isValidURL ? sendRequest() : null">
         </li>
         <li>
           <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL">Send</button>
+          <button id="action" name="action" @click="sendRequest" :disabled="!isValidURL" ref="sendButton">Send <span id="hidden-message">Again</span></button>
         </li>
       </ul>
     </pw-section>
@@ -187,49 +187,15 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="gray" label="History">
-      <ul>
-        <li>
-          <button v-bind:class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
-        </li>
-      </ul>
-      <virtual-list class="virtual-list" :size="89" :remain="Math.min(5, history.length)">
-        <ul v-for="entry in history" :key="entry.millis" class="entry">
-          <li>
-            <label for="time">Time</label>
-            <input name="time" type="text" readonly :value="entry.time" :title="entry.date">
-          </li>
-          <li class="method-list-item">
-            <label for="method">Method</label>
-            <input name="method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
-            <span class="entry-status-code">{{entry.status}}</span>
-          </li>
-          <li>
-            <label for="url">URL</label>
-            <input name="url" type="text" readonly :value="entry.url">
-          </li>
-          <li>
-            <label for="path">Path</label>
-            <input name="path" type="text" readonly :value="entry.path">
-          </li>
-          <li>
-            <label for="delete" class="hide-on-small-screen">&nbsp;</label>
-            <button name="delete" @click="deleteHistory(entry)">Delete</button>
-          </li>
-          <li>
-            <label for="use" class="hide-on-small-screen">&nbsp;</label>
-            <button name="use" @click="useHistory(entry)">Use</button>
-          </li>
-        </ul>
-      </virtual-list>
-    </pw-section>
+    <history @useHistory="handleUseHistory" ref="historyComponent" />
   </div>
 </template>
-<script>
-  import VirtualList from 'vue-virtual-scroll-list'
-  import section from "../components/section";
 
-  const statusCategories = [{
+<script>
+		import history from "../components/history";
+		import section from "../components/section";
+
+		const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
       className: 'info-response'
@@ -273,12 +239,12 @@
     return headerMap
 
   };
-  const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
+  export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
 
   export default {
     components: {
       'pw-section': section,
-      VirtualList
+      history
     },
     data() {
       return {
@@ -300,7 +266,6 @@
           headers: '',
           body: ''
         },
-        history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : [],
         previewEnabled: false
       }
     },
@@ -308,14 +273,14 @@
       statusCategory() {
         return findStatusGroup(this.response.status);
       },
-      noHistoryToClear() {
-        return this.history.length === 0;
-      },
       isValidURL() {
         const protocol = '^(https?:\\/\\/)?';
         const validIP = new RegExp(protocol + "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
         const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
         return validIP.test(this.url) || validHostname.test(this.url);
+      },
+      hasRequestBody() {
+        return ['POST', 'PUT', 'PATCH'].includes(this.method);
       },
       rawRequestBody() {
         const {
@@ -368,37 +333,28 @@
       }
     },
     methods: {
-      findEntryStatus(entry) {
-        let foundStatusGroup = findStatusGroup(entry.status);
-        return foundStatusGroup || {
-          className: ''
-        };
-      },
-      deleteHistory(entry) {
-        this.history.splice(this.history.indexOf(entry), 1)
-        window.localStorage.setItem('history', JSON.stringify(this.history))
-      },
-      clearHistory() {
-        this.history = []
-        window.localStorage.setItem('history', JSON.stringify(this.history))
-      },
-      useHistory({
+      handleUseHistory({
         method,
         url,
         path
       }) {
-        this.method = method
-        this.url = url
-        this.path = path
+        this.method = method;
+        this.url = url;
+        this.path = path;
         this.$refs.request.$el.scrollIntoView({
           behavior: 'smooth'
-        })
+        });
       },
-      sendRequest() {
+      async sendRequest() {
         if (!this.isValidURL) {
-          alert('Please check the formatting of the URL');
-          return
+          alert('Please check the formatting of the URL.');
+          return;
         }
+
+        // Start showing the loading bar as soon as possible.
+        // The nuxt axios module will hide it when the request is made.
+        this.$nuxt.$loading.start();
+
         if (this.$refs.response.$el.classList.contains('hidden')) {
           this.$refs.response.$el.classList.toggle('hidden')
         }
@@ -408,51 +364,92 @@
         this.previewEnabled = false;
         this.response.status = 'Fetching...';
         this.response.body = 'Loading...';
-        const xhr = new XMLHttpRequest();
-        const user = this.auth === 'Basic' ? this.httpUser : null;
-        const password = this.auth === 'Basic' ? this.httpPassword : null;
-        xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
-        if (this.auth === 'Bearer Token')
-          xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
-        if (this.headers) {
-          this.headers.forEach(function(element) {
-            xhr.setRequestHeader(element.key, element.value)
-          })
-        }
-        if (this.method === 'POST' || this.method === 'PUT' || this.method === 'PATCH') {
+
+        const auth = this.auth === 'Basic' ? {
+          username: this.httpUser,
+          password: this.httpPassword
+        } : null;
+
+        let headers = {};
+
+        // If the request has a request body, we want to ensure Content-Length and
+        // Content-Type are sent.
+        if (this.hasRequestBody) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
-          xhr.setRequestHeader('Content-Length', requestBody.length);
-          xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`);
-          xhr.send(requestBody);
-        } else {
-          xhr.send();
+
+          Object.assign(headers, {
+            'Content-Length': requestBody.length,
+            'Content-Type': `${this.contentType}; charset=utf-8`
+          });
         }
-        xhr.onload = e => {
-          this.response.status = xhr.status;
-          const headers = this.response.headers = parseHeaders(xhr);
-          this.response.body = xhr.responseText;
-          if (this.method != 'HEAD') {
-            if ((headers['content-type'] || '').startsWith('application/json')) {
-              this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
-            }
-          }
-          const d = new Date().toLocaleDateString();
-          const t = new Date().toLocaleTimeString();
-          this.history = [{
-            status: xhr.status,
-            date: d,
-            time: t,
+
+        // If the request uses a token for auth, we want to make sure it's sent here.
+        if (this.auth === 'Bearer Token') headers['Authorization'] = `Bearer ${this.bearerToken}`;
+
+        headers = Object.assign(
+          // Clone the app headers object first, we don't want to
+          // mutate it with the request headers added by default.
+          Object.assign({}, this.headers),
+
+          // We make our temporary headers object the source so
+          // that you can override the added headers if you
+          // specify them.
+          headers
+        );
+
+        try {
+          const payload = await this.$axios({
             method: this.method,
-            url: this.url,
-            path: this.path
-          }, ...this.history];
-          window.localStorage.setItem('history', JSON.stringify(this.history));
-        };
-        xhr.onerror = e => {
-          this.response.status = xhr.status;
-          this.response.body = xhr.statusText;
+            url: this.url + this.path + this.queryString,
+            auth,
+            headers
+          });
+
+          (() => {
+            const status = this.response.status = payload.status;
+            const headers = this.response.headers = payload.headers;
+
+            // We don't need to bother parsing JSON, axios already handles it for us!
+            const body = this.response.body = payload.data;
+
+            const date = new Date().toLocaleDateString();
+            const time = new Date().toLocaleTimeString();
+
+            // Addition of an entry to the history component.
+            const entry = {
+              status,
+              date,
+              time,
+              method: this.method,
+              url: this.url,
+              path: this.path
+            };
+            this.$refs.historyComponent.addEntry(entry);
+          })();
+        } catch (error) {
+          if (error.response) {
+            this.response.headers = error.response.headers;
+            this.response.status = error.response.status;
+            this.response.body = error.response.data;
+
+            // Addition of an entry to the history component.
+            const entry = {
+              status: this.response.status,
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              method: this.method,
+              url: this.url,
+              path: this.path
+            };
+            this.$refs.historyComponent.addEntry(entry);
+            return;
+          }
+
+          this.response.status = error.message;
+          this.response.body = "See JavaScript console (F12) for details.";
         }
       },
+
       addRequestHeader() {
         this.headers.push({
           key: '',
@@ -528,7 +525,35 @@
             this.$refs.previewFrame.setAttribute('data-previewing-url', this.url);
           }
         }
+      },
+      setRouteQueries(queries) {
+        for (const key in queries) {
+          if (this[key]) this[key] = queries[key];
+        }
+      },
+      observeRequestButton: function () {
+		      let isTheInitialIntersection = true;
+		      const sendButtonElement = this.$refs.sendButton;
+		      const requestElement = this.$refs.request.$el;
+		      const observer = new IntersectionObserver((entries, observer) => {
+				      entries.forEach(entry => {
+						      if (entry.isIntersecting) {
+								      if (!isTheInitialIntersection) {
+										      sendButtonElement.classList.toggle('show');
+								      } else {
+										      isTheInitialIntersection = false;
+								      }
+						      }
+				      });
+		      }, {threshold: 1});
+		      observer.observe(requestElement);
       }
+    },
+    created() {
+      if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
+    },
+    mounted() {
+        this.observeRequestButton();
     }
   }
 

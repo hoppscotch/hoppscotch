@@ -4,11 +4,11 @@
       <ul>
         <li>
           <label for="url">URL</label>
-          <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="toggleConnection">
+          <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="urlValid ? toggleConnection() : null">
         </li>
         <li>
           <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button :class="{ disabled: !urlValid }" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
+          <button :disabled="!urlValid" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
         </li>
       </ul>
     </pw-section>
@@ -27,11 +27,11 @@
       <ul>
         <li>
           <label for="message">Message</label>
-          <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="sendMessage">
+          <input id="message" name="message" type="text" v-model="communication.input" :disabled="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
         </li>
         <li>
           <label for="send" class="hide-on-small-screen">&nbsp;</label>
-          <button name="send" :class="{ disabled: !connectionState }" @click="sendMessage">Send</button>
+          <button name="send" :disabled="!connectionState" @click="sendMessage">Send</button>
         </li>
       </ul>
     </pw-section>

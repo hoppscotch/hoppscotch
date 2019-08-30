@@ -31,6 +31,11 @@
       </ul>
     </pw-section>
 
+    <!--
+    PROXY SETTINGS
+    --------------
+    This feature is currently not finished.
+
     <pw-section class="blue" label="Proxy">
       <ul>
         <li>
@@ -51,6 +56,7 @@
         </li>
       </ul>
     </pw-section>
+    -->
   </div>
 </template>
 <script>

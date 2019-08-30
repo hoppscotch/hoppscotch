@@ -16,11 +16,11 @@
         </li>
         <li>
           <label for="url">URL</label>
-          <input id="url" type="url" v-bind:class="{ error: !isValidURL }" v-model="url" v-on:keyup.enter="sendRequest">
+          <input id="url" type="url" :class="{ error: !isValidURL }" v-model="url" @keyup.enter="isValidURL ? sendRequest() : null">
         </li>
         <li>
           <label for="path">Path</label>
-          <input id="path" v-model="path" v-on:keyup.enter="sendRequest">
+          <input id="path" v-model="path" @keyup.enter="isValidURL ? sendRequest() : null">
         </li>
         <li>
           <label for="action" class="hide-on-small-screen">&nbsp;</label>
@@ -261,6 +261,7 @@
       className: 'missing-data-response'
     }
   ];
+
   const parseHeaders = xhr => {
     const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
     const headerMap = {};
@@ -317,6 +318,7 @@
         const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
         return validIP.test(this.url) || validHostname.test(this.url);
       },
+      hasRequestBody () { return['POST', 'PUT', 'PATCH'].includes(this.method); },
       rawRequestBody() {
         const {
           bodyParams
@@ -394,11 +396,17 @@
           behavior: 'smooth'
         })
       },
-      sendRequest() {
+
+      async sendRequest() {
         if (!this.isValidURL) {
-          alert('Please check the formatting of the URL');
-          return
+          alert('Please check the formatting of the URL.');
+          return;
         }
+
+        // Start showing the loading bar as soon as possible.
+        // The nuxt axios module will hide it when the request is made.
+        this.$nuxt.$loading.start();
+
         if (this.$refs.response.$el.classList.contains('hidden')) {
           this.$refs.response.$el.classList.toggle('hidden')
         }
@@ -408,51 +416,82 @@
         this.previewEnabled = false;
         this.response.status = 'Fetching...';
         this.response.body = 'Loading...';
-        const xhr = new XMLHttpRequest();
-        const user = this.auth === 'Basic' ? this.httpUser : null;
-        const password = this.auth === 'Basic' ? this.httpPassword : null;
-        xhr.open(this.method, this.url + this.path + this.queryString, true, user, password);
-        if (this.auth === 'Bearer Token')
-          xhr.setRequestHeader('Authorization', 'Bearer ' + this.bearerToken);
-        if (this.headers) {
-          this.headers.forEach(function(element) {
-            xhr.setRequestHeader(element.key, element.value)
-          })
-        }
-        if (this.method === 'POST' || this.method === 'PUT' || this.method === 'PATCH') {
+
+        const auth = this.auth === 'Basic' ? {
+            username: this.httpUser,
+            password: this.httpPassword
+        } : null;
+
+        let headers = {};
+
+        // If the request has a request body, we want to ensure Content-Length and
+        // Content-Type are sent.
+        if (this.hasRequestBody) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
-          xhr.setRequestHeader('Content-Length', requestBody.length);
-          xhr.setRequestHeader('Content-Type', `${this.contentType}; charset=utf-8`);
-          xhr.send(requestBody);
-        } else {
-          xhr.send();
+
+          Object.assign(headers, {
+              'Content-Length': requestBody.length,
+              'Content-Type': `${this.contentType}; charset=utf-8`
+          });
         }
-        xhr.onload = e => {
-          this.response.status = xhr.status;
-          const headers = this.response.headers = parseHeaders(xhr);
-          this.response.body = xhr.responseText;
-          if (this.method != 'HEAD') {
-            if ((headers['content-type'] || '').startsWith('application/json')) {
-              this.response.body = JSON.stringify(JSON.parse(this.response.body), null, 2);
+
+        // If the request uses a token for auth, we want to make sure it's sent here.
+        if(this.auth === 'Bearer Token') headers['Authorization'] = `Bearer ${this.bearerToken}`;
+
+        headers = Object.assign(
+            // Clone the app headers object first, we don't want to
+            // mutate it with the request headers added by default.
+            Object.assign({}, this.headers),
+
+            // We make our temporary headers object the source so
+            // that you can override the added headers if you
+            // specify them.
+            headers
+        );
+
+        try {
+          const payload = await this.$axios({
+              method: this.method,
+              url: this.url + this.path + this.queryString,
+              auth,
+              headers
+          });
+
+          (() => {
+              const status = this.response.status = payload.status;
+              const headers = this.response.headers = payload.headers;
+
+              // We don't need to bother parsing JSON, axios already handles it for us!
+              const body = this.response.body = payload.data;
+
+              const date = new Date().toLocaleDateString();
+              const time = new Date().toLocaleTimeString();
+
+              this.history.push({
+                  status,
+                  date,
+                  time,
+
+                  method: this.method,
+                  url: this.url,
+                  path: this.path
+              });
+
+              window.localStorage.setItem('history', JSON.stringify(this.history));
+          })();
+        } catch(error) {
+            if(error.response){
+                this.response.headers = error.response.headers;
+                this.response.status = error.response.status;
+                this.response.body = error.response.data;
+                return;
             }
-          }
-          const d = new Date().toLocaleDateString();
-          const t = new Date().toLocaleTimeString();
-          this.history = [{
-            status: xhr.status,
-            date: d,
-            time: t,
-            method: this.method,
-            url: this.url,
-            path: this.path
-          }, ...this.history];
-          window.localStorage.setItem('history', JSON.stringify(this.history));
-        };
-        xhr.onerror = e => {
-          this.response.status = xhr.status;
-          this.response.body = xhr.statusText;
+
+            this.response.status = error.message;
+            this.response.body = "See JavaScript console (F12) for details.";
         }
       },
+
       addRequestHeader() {
         this.headers.push({
           key: '',

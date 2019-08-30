@@ -86,7 +86,7 @@ export default {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#88FB4F' },
+  loading: { color: 'var(--ac-color)' },
 
   /*
   ** Global CSS
@@ -136,7 +136,9 @@ export default {
           return icons;
         })([48, 72, 96, 144, 192, 512])
       }
-    }]
+    }],
+
+    ['@nuxtjs/axios']
   ],
 
   /*

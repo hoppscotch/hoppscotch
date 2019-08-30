@@ -532,9 +532,24 @@
           }
         }
       },
+      setRouteQuerieState () {
+        const flat = key => this[key] !== '' ? `${key}=${this[key]}&` : ''
+        const deep = key => {
+          const haveItems = [...this[key]].length
+          if(haveItems && this[key]['value'] !== '') {
+            return `${key}=${JSON.stringify(this[key])}&`
+          }
+          else return ''
+        } 
+        let flats = [ 'method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken','contentType'].map(item => flat(item))
+        let deeps = ['headers', 'params', 'bodyParams'].map(item => deep(item))
+        this.$router.replace('/?'+ flats.concat(deeps).join('').slice(0,-1))
+      },
       setRouteQueries(queries) {
+        if(typeof(queries) !== 'object') throw new Error('Route query parameters must be a Object')
         for (const key in queries) {
-          if (this[key]) this[key] = queries[key];
+          if(key === 'headers' || key === 'params' || key ==='bodyParams') this[key] = JSON.parse(queries[key])
+          else if (typeof(this[key]) === 'string') this[key] = queries[key];
         }
       },
       observeRequestButton() {
@@ -549,11 +564,26 @@
         observer.observe(requestElement);
       }
     },
-    created() {
-      if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
-    },
     mounted() {
         this.observeRequestButton();
+    },
+    created() {
+      if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
+      this.$watch(vm => [
+          vm.method,
+          vm.url,
+          vm.auth,
+          vm.path,
+          vm.httpUser,
+          vm.httpPassword,
+          vm.bearerToken,
+          vm.headers,
+          vm.params,
+          vm.bodyParams,
+          vm.contentType
+        ], val => {
+        this.setRouteQuerieState()
+      })
     }
   }
 

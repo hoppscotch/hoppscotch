@@ -20,16 +20,6 @@ $responsiveWidth: 720px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
 a {
   display: inline-flex;
   color: inherit;
@@ -42,7 +32,6 @@ body {
   color: var(--fg-color);
   font-weight: 500;
   line-height: 1.5;
-  animation: fadein 0.2s;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -56,6 +45,10 @@ h3 {
   font-weight: 700;
 }
 
+h3.title {
+  margin: 4px;
+}
+
 header,
 footer {
   display: flex;
@@ -65,20 +58,6 @@ footer {
   justify-content: space-between;
 }
 
-
-@media(max-width: $responsiveWidth){
-  header {
-    display: block;
-    text-align: center;
-
-    nav {
-      display: inline-flex;
-      margin-top: 20px;
-    }
-  }
-}
-
-
 nav {
   a:not(:last-of-type) {
     margin-right: 15px;
@@ -87,9 +66,9 @@ nav {
 
 body.sticky-footer footer {
   position: fixed;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
 }
 
 .logo {
@@ -105,6 +84,11 @@ button {
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
+
+  &[disabled], &.disabled {
+    opacity: 0.7;
+    cursor: default;
+  }
 }
 
 fieldset {
@@ -172,7 +156,15 @@ fieldset.purple legend {
   color: #C198FB;
 }
 
-.collapsible.hidden {
+fieldset.orange {
+  border-color: #F5A623;
+}
+
+fieldset.orange legend {
+  color: #F5A623;
+}
+
+.hidden {
   display: none;
 }
 
@@ -183,8 +175,8 @@ textarea,
 pre {
   margin: 4px;
   padding: 8px 16px;
-  width: calc(100% - 8px);
   border-radius: 4px;
+  width: calc(100% - 8px);
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
   font-weight: 700;
@@ -196,14 +188,36 @@ pre {
 select,
 input,
 option {
-  height: 38px;
+  height: 41px;
 }
 
 input[type="checkbox"] {
-  width: initial;
+  display: none;
 
-  &, & + label {
+  &,
+  & + label {
     vertical-align: middle;
+    cursor: pointer;
+
+    &:before {
+      content: "\2714";
+      border: 2px solid var(--fg-color);
+      border-radius: 4px;
+      display: inline-flex;
+      height: 16px;
+      width: 16px;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 8px 8px 0;
+      color: transparent;
+      transition: .2s;
+    }
+  }
+
+  &:checked + label:before {
+    background-color: var(--ac-color);
+    border-color: var(--ac-color);
+    color: var(--act-color);
   }
 }
 
@@ -211,7 +225,7 @@ input[type="checkbox"] {
   background-color: var(--err-color);
 }
 
-.disabled {
+.disabled, input[disabled] {
   background-color: var(--err-color);
   color: #b2b2b2;
 }
@@ -234,18 +248,24 @@ ol li {
   flex-direction: column;
   flex-grow: 1;
 }
-.flex-wrap{
+
+.flex-wrap {
   display: flex;
   justify-content: space-between;
-}
-.btn-copy{
-    padding: 6px 14px;
-    font-size: 11px;
-    margin-right: 15px;
-
+  align-items: center;
 }
 
 @media (max-width: $responsiveWidth) {
+  header {
+    display: block;
+    text-align: center;
+
+    nav {
+      display: inline-flex;
+      margin-top: 20px;
+    }
+  }
+
   ul,
   ol {
     flex-direction: column;
@@ -254,6 +274,10 @@ ol li {
   ul li,
   ol li {
     display: flex;
+  }
+
+  .hide-on-small-screen {
+    display: none;
   }
 }
 
@@ -281,6 +305,14 @@ ol li {
   background-color: #B71C1C;
 }
 
+.missing-data-response {
+  background-color: #676767;
+}
+
+.virtual-list::-webkit-scrollbar {
+  width: 0;
+}
+
 fieldset#history {
   .method-list-item {
     position: relative;
@@ -291,5 +323,39 @@ fieldset#history {
       right: 20px;
       font-family: monospace, monospace;
     }
+  }
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-right {
+  text-align: right;
+}
+
+#response-details-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  margin: 4px;
+
+  textarea {
+    width: 100%;
+  }
+
+  #response-details {
+    margin: 0;
+  }
+
+  .covers-response {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    height: 100%;
+    width: 100%;
   }
 }

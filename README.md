@@ -17,7 +17,9 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 # <img src="static/icon.png" alt="postwoman" width="32"> Postwoman
 
-### 👽 API request builder by [Liyas Thomas](https://github.com/liyasthomas)
+### API request builder
+
+**Start here: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md)_**
 
 <div align="center">
   <br>
@@ -28,13 +30,74 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 ### Features :sparkles:
 
-:heart: **Lightweight and minimal**: Crafted with minimalistic UI design
+:heart: **Lightweight**: Crafted with minimalistic UI design
 
-:electric_plug: **Real-time demo**: Send requests and get response right away!
+ - Faster, lighter, cleaner, minimal & responsive
 
-:robot: **VIBGYOR**: Neon combination of colors for background and foreground
+:zap: **Real-time**: Send requests and get/copy responses right away!
 
-:sparkles: **PWA**: Install as a PWA on your device
+**Methods:**
+ - `GET` - Retrieve information about the REST API resource
+ - `HEAD` - Asks for a response identical to that of a GET request, but without the response body.
+ - `POST` - Create a REST API resource
+ - `PUT` - Update a REST API resource
+ - `DELETE` - Delete a REST API resource or related component
+ - `OPTIONS` - Describe the communication options for the target resource
+ - `PATCH` - Applies partial modifications to a REST API resource
+
+_History entries are synced with local session storage_
+
+:rainbow: **VIBGYOR**: Neon combination background, foreground & accent colors - because customization === freedom :sparkles:
+
+**Customizations:**
+ - Dark and Light background themes
+ - Choose accent color
+ - Toggle multi-colored frames
+
+_Customized themes are also synced with local session storage_
+
+:fire: **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device
+
+**Features:**
+ - Instant loading with Service Workers
+ - Offline support
+ - Low RAM/memory and CPU usage
+
+:electric_plug: **Web Socket**: Establish full-duplex communication channels over a single TCP connection
+
+ -  Send and receive data
+
+:closed_lock_with_key: **Authentication**: Allows to identity the end user
+
+**Types:**
+ - None
+ - Basic authentication using username and password
+ - Token based authentication
+
+:loudspeaker: **Headers**: Describes the format the body of your request is being sent as
+
+:mailbox: **Parameters**: Use request parameters to set varying parts in simulated requests
+
+:page_with_curl: **Request Body**: Used to send and receive data via the REST API
+
+**Options:**
+ - Set content Type
+ - Toggle between RAW input and parameter list
+
+:wave: **Responses**: Contains the status line, headers and the message/response body
+
+_HTML responses have "Preview HTML" feature_
+
+:alarm_clock: **History**: Request entries are synced with local session storage to reuse with a single click
+
+**Fields**
+ - Timestamp
+ - Method
+ - Status code
+ - URL
+ - Path
+
+_History entries can be deleted one-by-one or all together_
 
 ---
 
@@ -111,6 +174,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 ### Testing and Debugging
 * [Liyas Thomas](https://github.com/liyasthomas)
+* ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
 ### Contributors
 * [NBTX](https://github.com/NBTX)

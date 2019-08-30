@@ -187,49 +187,15 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="gray" label="History">
-      <ul>
-        <li>
-          <button :class="{ disabled: noHistoryToClear }" v-on:click="clearHistory">Clear History</button>
-        </li>
-      </ul>
-      <virtual-list class="virtual-list" :size="89" :remain="Math.min(5, history.length)">
-        <ul v-for="entry in history" :key="entry.millis" class="entry">
-          <li>
-            <label for="time">Time</label>
-            <input name="time" type="text" readonly :value="entry.time" :title="entry.date">
-          </li>
-          <li class="method-list-item">
-            <label for="method">Method</label>
-            <input name="method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
-            <span class="entry-status-code">{{entry.status}}</span>
-          </li>
-          <li>
-            <label for="url">URL</label>
-            <input name="url" type="text" readonly :value="entry.url">
-          </li>
-          <li>
-            <label for="path">Path</label>
-            <input name="path" type="text" readonly :value="entry.path">
-          </li>
-          <li>
-            <label for="delete" class="hide-on-small-screen">&nbsp;</label>
-            <button name="delete" @click="deleteHistory(entry)">Delete</button>
-          </li>
-          <li>
-            <label for="use" class="hide-on-small-screen">&nbsp;</label>
-            <button name="use" @click="useHistory(entry)">Use</button>
-          </li>
-        </ul>
-      </virtual-list>
-    </pw-section>
+    <history @useHistory="handleUseHistory" ref="historyComponent"/>
   </div>
 </template>
-<script>
-  import VirtualList from 'vue-virtual-scroll-list'
-  import section from "../components/section";
 
-  const statusCategories = [{
+<script>
+		import history from "../components/history";
+		import section from "../components/section";
+
+		const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
       className: 'info-response'
@@ -261,7 +227,6 @@
       className: 'missing-data-response'
     }
   ];
-
   const parseHeaders = xhr => {
     const headers = xhr.getAllResponseHeaders().trim().split(/[\r\n]+/);
     const headerMap = {};
@@ -274,12 +239,12 @@
     return headerMap
 
   };
-  const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
+  export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
 
   export default {
     components: {
-      'pw-section': section,
-      VirtualList
+		    'pw-section': section,
+		    history
     },
     data() {
       return {
@@ -301,16 +266,12 @@
           headers: '',
           body: ''
         },
-        history: window.localStorage.getItem('history') ? JSON.parse(window.localStorage.getItem('history')) : [],
         previewEnabled: false
       }
     },
     computed: {
       statusCategory() {
         return findStatusGroup(this.response.status);
-      },
-      noHistoryToClear() {
-        return this.history.length === 0;
       },
       isValidURL() {
         const protocol = '^(https?:\\/\\/)?';
@@ -370,33 +331,12 @@
       }
     },
     methods: {
-      findEntryStatus(entry) {
-        let foundStatusGroup = findStatusGroup(entry.status);
-        return foundStatusGroup || {
-          className: ''
-        };
+      handleUseHistory({method,url,path}) {
+        this.method = method;
+        this.url = url;
+        this.path = path;
+        this.$refs.request.$el.scrollIntoView({behavior: 'smooth'});
       },
-      deleteHistory(entry) {
-        this.history.splice(this.history.indexOf(entry), 1)
-        window.localStorage.setItem('history', JSON.stringify(this.history))
-      },
-      clearHistory() {
-        this.history = []
-        window.localStorage.setItem('history', JSON.stringify(this.history))
-      },
-      useHistory({
-        method,
-        url,
-        path
-      }) {
-        this.method = method
-        this.url = url
-        this.path = path
-        this.$refs.request.$el.scrollIntoView({
-          behavior: 'smooth'
-        })
-      },
-
       async sendRequest() {
         if (!this.isValidURL) {
           alert('Please check the formatting of the URL.');
@@ -467,17 +407,9 @@
               const date = new Date().toLocaleDateString();
               const time = new Date().toLocaleTimeString();
 
-              this.history.push({
-                  status,
-                  date,
-                  time,
-
-                  method: this.method,
-                  url: this.url,
-                  path: this.path
-              });
-
-              window.localStorage.setItem('history', JSON.stringify(this.history));
+              // Addition of an entry to the history component.
+		          const entry = {status, date, time, method: this.method, url: this.url, path: this.path};
+		          this.$refs.historyComponent.addEntry(entry);
           })();
         } catch(error) {
             if(error.response){

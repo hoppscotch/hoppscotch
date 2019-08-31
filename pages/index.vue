@@ -412,7 +412,7 @@
                     requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
 
                     Object.assign(headers, {
-                        'Content-Length': requestBody.length,
+                        //'Content-Length': requestBody.length,
                         'Content-Type': `${this.contentType}; charset=utf-8`
                     });
                 }
@@ -437,7 +437,7 @@
                         url: this.url + this.path + this.queryString,
                         auth,
                         headers,
-                        data: requestBody
+                        data: requestBody.toString()
                     });
 
                     (() => {

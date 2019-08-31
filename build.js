@@ -17,17 +17,23 @@ try {
 
 		let version = {};
 		// Get the current version name as the tag from Git.
-		version.name = runCommand('git', ['tag']);
+		version.name = (process.env.TRAVIS_TAG || runCommand('git', ['tag']));
 
 		// FALLBACK: If version.name was unset, let's grab it from GitHub.
 		if(!version.name){
-			version.name = (await axios.get("https://api.github.com/repos/liyasthomas/postwoman/releases")).data[0]['tag_name'];
+			version.name = (
+				await axios.get("https://api.github.com/repos/liyasthomas/postwoman/releases")
+					// If we can't get it from GitHub, we'll resort to getting it from package.json
+					.catch(
+						(ex) => ({ data: [{ 'tag_name': require('./package.json').version }] })
+					)
+			).data[0]['tag_name'];
 		}
 
 		// Get the current version hash as the short hash from Git.
 		version.hash = runCommand('git', ['rev-parse', '--short', 'HEAD']);
 		// Get the 'variant' name as the branch, if it's not master.
-		version.variant = (process.env.TRAVIS_BRANCH || runCommand('git', ['branch']).split("* ")[1].split(" ")[0] + (IS_DEV_MODE ? " - (DEV MODE)" : ""));
+		version.variant = (process.env.TRAVIS_BRANCH || runCommand('git', ['branch']).split("* ")[1].split(" ")[0] + (IS_DEV_MODE ? " - DEV MODE" : ""));
 		if(version.variant === "" || version.variant === "master") delete version.variant;
 
 		// Write version data into a file

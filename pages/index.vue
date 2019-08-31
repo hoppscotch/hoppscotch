@@ -243,7 +243,8 @@
   export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
 
   export default {
-  		directives: {
+    middleware: 'parsedefaulturl', // calls middleware before loading the page
+    directives: {
   				textareaAutoHeight
     },
     components: {

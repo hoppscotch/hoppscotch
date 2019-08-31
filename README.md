@@ -184,6 +184,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * [Nicholas La Roux](https://github.com/larouxn)
 * [RifqiAlAbqary](https://github.com/reefqi037)
 * [izerozlu](https://github.com/izerozlu)
+* [Nilesh Patel](https://github.com/NileshSP)
 
 ### Thanks
 * [Dribbble](https://dribbble.com)

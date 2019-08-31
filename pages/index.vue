@@ -532,7 +532,7 @@
           }
         }
       },
-      setRouteQuerieState () {
+      setRouteQueryState () {
         const flat = key => this[key] !== '' ? `${key}=${this[key]}&` : ''
         const deep = key => {
           const haveItems = [...this[key]].length
@@ -582,7 +582,7 @@
           vm.bodyParams,
           vm.contentType
         ], val => {
-        this.setRouteQuerieState()
+        this.setRouteQueryState()
       })
     }
   }

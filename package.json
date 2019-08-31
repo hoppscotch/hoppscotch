@@ -19,7 +19,7 @@
     "nuxt": "^2.9.2",
     "vue-virtual-scroll-list": "^1.4.2",
     "vuejs-auto-complete": "^0.9.0",
-    "vuex-persist": "^2.0.1"
+    "vuex-persist": "^2.1.0"
   },
   "devDependencies": {
     "node-sass": "^4.12.0",

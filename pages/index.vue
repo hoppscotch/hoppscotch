@@ -275,14 +275,14 @@
                 },
                 previewEnabled: false,
 
-								/**
-								 * These are content types that can be automatically
-								 * serialized by postwoman.
-								 */
-								knownContentTypes: [
-								    'application/json',
-										'application/x-www-form-urlencoded'
-								],
+                /**
+                 * These are content types that can be automatically
+                 * serialized by postwoman.
+                 */
+                knownContentTypes: [
+                    'application/json',
+                    'application/x-www-form-urlencoded'
+                ],
 
                 /**
                  * These are a list of Content Types known to Postwoman.
@@ -298,8 +298,8 @@
             }
         },
         watch: {
-            contentType (val) {
-							this.rawInput = !this.knownContentTypes.includes(val);
+            contentType(val) {
+                this.rawInput = !this.knownContentTypes.includes(val);
             }
         },
         computed: {
@@ -321,7 +321,7 @@
                 } = this
                 if (this.contentType === 'application/json') {
                     try {
-                        const obj = JSON.parse(`{${bodyParams.filter(({ key }) => !!key).map(({ key, value }) => `
+                        const obj = JSON.parse(`{${bodyParams.filter(({key}) => !!key).map(({key, value}) => `
               "${key}": "${value}"
               `).join()}}`)
                         return JSON.stringify(obj)
@@ -561,9 +561,23 @@
                     }
                 }
             },
+            setRouteQueryState() {
+                const flat = key => this[key] !== '' ? `${key}=${this[key]}&` : ''
+                const deep = key => {
+                    const haveItems = [...this[key]].length
+                    if (haveItems && this[key]['value'] !== '') {
+                        return `${key}=${JSON.stringify(this[key])}&`
+                    } else return ''
+                }
+                let flats = ['method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken', 'contentType'].map(item => flat(item))
+                let deeps = ['headers', 'params', 'bodyParams'].map(item => deep(item))
+                this.$router.replace('/?' + flats.concat(deeps).join('').slice(0, -1))
+            },
             setRouteQueries(queries) {
+                if (typeof (queries) !== 'object') throw new Error('Route query parameters must be a Object')
                 for (const key in queries) {
-                    if (this[key]) this[key] = queries[key];
+                    if (key === 'headers' || key === 'params' || key === 'bodyParams') this[key] = JSON.parse(queries[key])
+                    else if (typeof (this[key]) === 'string') this[key] = queries[key];
                 }
             },
             observeRequestButton() {
@@ -573,16 +587,32 @@
                     entries.forEach(entry => {
                         sendButtonElement.classList.toggle('show');
                     });
-                }, { threshold: 1 });
+                }, {threshold: 1});
 
                 observer.observe(requestElement);
             }
         },
-        created() {
-            if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
-        },
         mounted() {
             this.observeRequestButton();
+        },
+        created() {
+            if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
+            this.$watch(vm => [
+                vm.method,
+                vm.url,
+                vm.auth,
+                vm.path,
+                vm.httpUser,
+                vm.httpPassword,
+                vm.bearerToken,
+                vm.headers,
+                vm.params,
+                vm.bodyParams,
+                vm.contentType
+            ], val => {
+                this.setRouteQueryState()
+            })
+
         }
     }
 

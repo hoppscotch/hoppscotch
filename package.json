@@ -20,7 +20,7 @@
     "@nuxtjs/pwa": "^3.0.0-0",
     "nuxt": "^2.9.2",
     "vue-virtual-scroll-list": "^1.4.2",
-    "vuex-persist": "^2.0.1"
+    "vuex-persist": "^2.1.0"
   },
   "devDependencies": {
     "node-sass": "^4.12.0",

@@ -126,6 +126,7 @@
         updateOnLocalStorage('history', this.history);
       },
       enableHistoryClearing() {
+				if (!this.history || !this.history.length) return;
         this.isClearingHistory = true;
       },
       disableHistoryClearing() {

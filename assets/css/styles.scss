@@ -88,18 +88,12 @@ button {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
-  &[disabled], &.disabled {
-    opacity: 0.7;
-    cursor: default;
+  &:not([disabled]):hover,
+  &:not(.disabled):focus {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 2px var(--ac-color);
+    color: var(--ac-color);
   }
-
-	// Only show hover and focus if the button is *not*
-	// disabled.
-	&:not([disabled]):hover, &:not(.disabled):focus {
-		background-color: transparent;
-		box-shadow: inset 0 0 0 2px var(--ac-color);
-		color: var(--ac-color);
-	}
 }
 
 fieldset {
@@ -195,7 +189,6 @@ pre {
   font-family: monospace;
 }
 
-// Force the same height, for dropdowns and regular input boxes.
 select,
 input,
 option {
@@ -232,15 +225,12 @@ input[type="checkbox"] {
   }
 }
 
-.error {
-  background-color: var(--err-color);
-}
-
+.error,
 .disabled,
-input[disabled],
-button[disabled] {
+[disabled] {
   background-color: var(--err-color);
   color: #b2b2b2;
+  cursor: default;
 }
 
 label {
@@ -320,7 +310,7 @@ ol li {
 }
 
 .missing-data-response {
-  background-color: #676767;
+  background-color: var(--err-color);
 }
 
 .virtual-list::-webkit-scrollbar {

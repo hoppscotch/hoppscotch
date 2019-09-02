@@ -78,6 +78,9 @@ body.sticky-footer footer {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 4px;
   padding: 8px 16px;
   border-radius: 4px;
@@ -87,6 +90,16 @@ button {
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+
+  &.icon {
+    background-color: var(--bg-color);
+    color: var(--ac-color);
+    fill: var(--ac-color);
+    
+    span {
+      margin-left: 8px;
+    }
+  }
 
   &:not([disabled]):hover,
   &:not(.disabled):focus {
@@ -231,6 +244,11 @@ input[type="checkbox"] {
   background-color: var(--err-color);
   color: #b2b2b2;
   cursor: default;
+
+  &.icon {
+    color: #b2b2b2;
+    fill: #b2b2b2;
+  }
 }
 
 label {
@@ -258,6 +276,10 @@ ol li {
   align-items: center;
 }
 
+.show-on-small-screen {
+  display: flex;
+}
+
 @media (max-width: $responsiveWidth) {
   header div {
     display: flex;
@@ -282,6 +304,10 @@ ol li {
 
   .hide-on-small-screen {
     display: none;
+  }
+
+  .show-on-small-screen {
+    display: inline-flex;
   }
 }
 

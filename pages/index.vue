@@ -23,6 +23,13 @@
           <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" v-model="path">
         </li>
         <li>
+          <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
+          <button class="icon" @click="copyRequest" name="copyRequest" :disabled="!isValidURL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z"/></svg>
+            <span>Share URL</span>
+          </button>
+        </li>
+        <li>
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
             Send <span id="hidden-message">Again</span>
@@ -92,8 +99,10 @@
           <div class="flex-wrap">
             <label for="body">response</label>
             <div>
-              <button class="block" @click="copyRequest" name="copyRequest" v-if="isValidURL">Copy Request URL</button>
-              <button @click="copyResponse" name="copyResponse" v-if="response.body">Copy Response</button>
+              <button class="icon" @click="copyResponse" name="copyResponse" v-if="response.body">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z"/></svg>
+                <span>Copy</span>
+              </button>
             </div>
           </div>
           <div id="response-details-wrapper">

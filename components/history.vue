@@ -149,7 +149,7 @@
 
   @media (max-width: 720px) {
     .virtual-list.filled {
-      min-height: 430px;
+      min-height: 380px;
     }
   }
 

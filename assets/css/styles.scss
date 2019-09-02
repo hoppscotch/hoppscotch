@@ -103,7 +103,7 @@ button {
 
   &:not([disabled]):hover,
   &:not(.disabled):focus {
-    background-color: transparent;
+    background-color: var(--bg-color);
     box-shadow: inset 0 0 0 2px var(--ac-color);
     color: var(--ac-color);
   }

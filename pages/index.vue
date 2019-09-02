@@ -25,7 +25,8 @@
         <li>
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
-            Send <span id="hidden-message">Again</span></button>
+            Send <span id="hidden-message">Again</span>
+          </button>
         </li>
       </ul>
     </pw-section>
@@ -34,7 +35,6 @@
         <li>
           <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
           </autocomplete>
-
           <span>
             <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
               Raw input {{ rawInput ? "enabled" : "disabled" }}
@@ -91,7 +91,10 @@
         <li>
           <div class="flex-wrap">
             <label for="body">response</label>
-            <button @click="copyResponse" name="action" v-if="response.body">Copy Response</button>
+            <div>
+              <button class="block" @click="copyRequest" name="copyRequest" v-if="isValidURL">Copy Request URL</button>
+              <button @click="copyResponse" name="copyResponse" v-if="response.body">Copy Response</button>
+            </div>
           </div>
           <div id="response-details-wrapper">
             <textarea id="response-details" name="body" readonly rows="16">{{response.body || '(waiting to send request)'}}</textarea>
@@ -102,7 +105,6 @@
           </div>
         </li>
       </ul>
-      <br>
     </pw-section>
     <pw-section class="green" collapsed label="Authentication">
       <ul>
@@ -539,6 +541,14 @@
           event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + 2;
           return false;
         }
+      },
+      copyRequest() {
+        var dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
       },
       copyResponse() {
         var copyText = document.getElementById("response-details");

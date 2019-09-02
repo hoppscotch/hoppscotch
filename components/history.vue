@@ -7,33 +7,33 @@
       </li>
     </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="89" :remain="Math.min(5, filteredHistory.length)">
-      <ul v-for="entry in filteredHistory" :key="entry.time" class="entry">
+      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
-          <label :for="'time#' + entry.time">Time</label>
-          <input :id="'time#' + entry.time" type="text" readonly :value="entry.time" :title="entry.date">
+          <label :for="'time#'+index">Time</label>
+          <input :id="'time#'+index" type="text" readonly :value="entry.time" :title="entry.date">
         </li>
         <li class="method-list-item">
-          <label :for="'time#' + entry.time">Method</label>
-          <input :id="'method#' + entry.time" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
+          <label :for="'time#'+index">Method</label>
+          <input :id="'method#'+index" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
           <span class="entry-status-code">{{entry.status}}</span>
         </li>
         <li>
-          <label :for="'url#' + entry.time">URL</label>
-          <input :id="'url#' + entry.time" type="text" readonly :value="entry.url">
+          <label :for="'url#'+index">URL</label>
+          <input :id="'url#'+index" type="text" readonly :value="entry.url">
         </li>
         <li>
-          <label :for="'path#' + entry.time">Path</label>
-          <input :id="'path#' + entry.time" type="text" readonly :value="entry.path">
+          <label :for="'path#'+index">Path</label>
+          <input :id="'path#'+index" type="text" readonly :value="entry.path">
         </li>
         <li>
-          <label :for="'delete-button#' + entry.time" class="hide-on-small-screen">&nbsp;</label>
-          <button :id="'delete-button#' + entry.time" :disabled="isClearingHistory" @click="deleteHistory(entry)">
+          <label :for="'delete-button#'+index" class="hide-on-small-screen">&nbsp;</label>
+          <button :id="'delete-button#'+index" :disabled="isClearingHistory" @click="deleteHistory(entry)">
             Delete
           </button>
         </li>
         <li>
-          <label :for="'use-button#' + entry.time" class="hide-on-small-screen">&nbsp;</label>
-          <button :id="'use-button#' + entry.time" :disabled="isClearingHistory" @click="useHistory(entry)">
+          <label :for="'use-button#'+index" class="hide-on-small-screen">&nbsp;</label>
+          <button :id="'use-button#'+index" :disabled="isClearingHistory" @click="useHistory(entry)">
             Use
           </button>
         </li>

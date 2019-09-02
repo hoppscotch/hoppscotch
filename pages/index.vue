@@ -24,7 +24,7 @@
         </li>
         <li>
           <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button id="action"  class="show" name="action" @click="sendRequest" :disabled="!isValidURL" ref="sendButton">Send <span id="hidden-message">Again</span></button>
+          <button id="action" class="show" name="action" @click="sendRequest" :disabled="!isValidURL" ref="sendButton">Send <span id="hidden-message">Again</span></button>
         </li>
       </ul>
     </pw-section>
@@ -73,6 +73,35 @@
       <div v-else>
         <textarea v-model="rawParams" v-textarea-auto-height="rawParams" style="font-family: monospace;" rows="16" @keydown="formatRawParams"></textarea>
       </div>
+    </pw-section>
+    <pw-section class="purple" label="Response" id="response" ref="response">
+      <ul>
+        <li>
+          <label for="status">status</label>
+          <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'" :class="statusCategory ? statusCategory.className : ''">
+        </li>
+      </ul>
+      <ul v-for="(value, key) in response.headers">
+        <li>
+          <label for="value">{{key}}</label>
+          <input name="value" :value="value" readonly>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <label for="body">response</label>
+            <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
+          </div>
+          <div id="response-details-wrapper">
+            <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
+            <iframe src="about:blank" class="covers-response" ref="previewFrame" :class="{hidden: !previewEnabled}"></iframe>
+          </div>
+          <div v-if="response.body && responseType === 'text/html'" class="align-right">
+            <button @click.prevent="togglePreview">{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</button>
+          </div>
+        </li>
+      </ul>
     </pw-section>
     <pw-section class="green" label="Authentication" collapsed>
       <ul>
@@ -158,45 +187,14 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="purple" label="Response" id="response" ref="response">
-      <ul>
-        <li>
-          <label for="status">status</label>
-          <input name="status" type="text" readonly :value="response.status || '(waiting to send request)'" :class="statusCategory ? statusCategory.className : ''">
-        </li>
-      </ul>
-      <ul v-for="(value, key) in response.headers">
-        <li>
-          <label for="value">{{key}}</label>
-          <input name="value" :value="value" readonly>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <div class="flex-wrap">
-            <label for="body">response</label>
-            <button v-if="response.body" name="action" @click="copyResponse">Copy Response</button>
-          </div>
-          <div id="response-details-wrapper">
-            <textarea name="body" rows="16" id="response-details" readonly>{{response.body || '(waiting to send request)'}}</textarea>
-            <iframe src="about:blank" class="covers-response" ref="previewFrame" :class="{hidden: !previewEnabled}"></iframe>
-          </div>
-          <div v-if="response.body && responseType === 'text/html'" class="align-right">
-            <button @click.prevent="togglePreview">{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</button>
-          </div>
-        </li>
-      </ul>
-    </pw-section>
     <history @useHistory="handleUseHistory" ref="historyComponent" />
   </div>
 </template>
-
 <script>
-		import history from "../components/history";
-		import section from "../components/section";
-		import textareaAutoHeight from "../directives/textareaAutoHeight";
-
-		const statusCategories = [{
+  import history from "../components/history";
+  import section from "../components/section";
+  import textareaAutoHeight from "../directives/textareaAutoHeight";
+  const statusCategories = [{
       name: 'informational',
       statusCodeRegex: new RegExp(/[1][0-9]+/),
       className: 'info-response'
@@ -238,14 +236,12 @@
       headerMap[header] = value
     });
     return headerMap
-
   };
   export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
-
   export default {
     middleware: 'parsedefaulturl', // calls middleware before loading the page
     directives: {
-  				textareaAutoHeight
+      textareaAutoHeight
     },
     components: {
       'pw-section': section,
@@ -355,54 +351,44 @@
           alert('Please check the formatting of the URL.');
           return;
         }
-
         // Start showing the loading bar as soon as possible.
         // The nuxt axios module will hide it when the request is made.
         this.$nuxt.$loading.start();
-
         if (this.$refs.response.$el.classList.contains('hidden')) {
           this.$refs.response.$el.classList.toggle('hidden')
         }
-        this.$refs.response.$el.scrollIntoView({
+        this.$refs.request.$el.scrollIntoView({
           behavior: 'smooth'
         });
         this.previewEnabled = false;
         this.response.status = 'Fetching...';
         this.response.body = 'Loading...';
-
         const auth = this.auth === 'Basic' ? {
           username: this.httpUser,
           password: this.httpPassword
         } : null;
-
         let headers = {};
-
         // If the request has a request body, we want to ensure Content-Length and
         // Content-Type are sent.
         let requestBody;
         if (this.hasRequestBody) {
           requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
-
           Object.assign(headers, {
             'Content-Length': requestBody.length,
             'Content-Type': `${this.contentType}; charset=utf-8`
           });
         }
-
         // If the request uses a token for auth, we want to make sure it's sent here.
         if (this.auth === 'Bearer Token') headers['Authorization'] = `Bearer ${this.bearerToken}`;
-
         headers = Object.assign(
           // Clone the app headers object first, we don't want to
           // mutate it with the request headers added by default.
           Object.assign({}, this.headers),
-
           // We make our temporary headers object the source so
           // that you can override the added headers if you
           // specify them.
           headers
         );
-
         try {
           const payload = await this.$axios({
             method: this.method,
@@ -411,17 +397,13 @@
             headers,
             data: requestBody
           });
-
           (() => {
             const status = this.response.status = payload.status;
             const headers = this.response.headers = payload.headers;
-
             // We don't need to bother parsing JSON, axios already handles it for us!
             const body = this.response.body = payload.data;
-
             const date = new Date().toLocaleDateString();
             const time = new Date().toLocaleTimeString();
-
             // Addition of an entry to the history component.
             const entry = {
               status,
@@ -438,7 +420,6 @@
             this.response.headers = error.response.headers;
             this.response.status = error.response.status;
             this.response.body = error.response.data;
-
             // Addition of an entry to the history component.
             const entry = {
               status: this.response.status,
@@ -451,12 +432,10 @@
             this.$refs.historyComponent.addEntry(entry);
             return;
           }
-
           this.response.status = error.message;
           this.response.body = "See JavaScript console (F12) for details.";
         }
       },
-
       addRequestHeader() {
         this.headers.push({
           key: '',
@@ -533,23 +512,22 @@
           }
         }
       },
-      setRouteQueryState () {
+      setRouteQueryState() {
         const flat = key => this[key] !== '' ? `${key}=${this[key]}&` : ''
         const deep = key => {
           const haveItems = [...this[key]].length
-          if(haveItems && this[key]['value'] !== '') {
+          if (haveItems && this[key]['value'] !== '') {
             return `${key}=${JSON.stringify(this[key])}&`
-          }
-          else return ''
-        } 
-        let flats = [ 'method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken','contentType'].map(item => flat(item))
+          } else return ''
+        }
+        let flats = ['method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken', 'contentType'].map(item => flat(item))
         let deeps = ['headers', 'params', 'bodyParams'].map(item => deep(item))
-        this.$router.replace('/?'+ flats.concat(deeps).join('').slice(0,-1))
+        this.$router.replace('/?' + flats.concat(deeps).join('').slice(0, -1))
       },
       setRouteQueries(queries) {
-        if(typeof(queries) !== 'object') throw new Error('Route query parameters must be a Object')
+        if (typeof(queries) !== 'object') throw new Error('Route query parameters must be a Object')
         for (const key in queries) {
-          if(key === 'headers' || key === 'params' || key ==='bodyParams') this[key] = JSON.parse(queries[key])
+          if (key === 'headers' || key === 'params' || key === 'bodyParams') this[key] = JSON.parse(queries[key])
           else if (typeof(this[key]) === 'string') this[key] = queries[key];
         }
       },
@@ -558,31 +536,32 @@
         const sendButtonElement = this.$refs.sendButton;
         const observer = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
-           sendButtonElement.classList.toggle('show');
+            sendButtonElement.classList.toggle('show');
           });
-        }, { threshold: 1 });
-
+        }, {
+          threshold: 1
+        });
         observer.observe(requestElement);
       }
     },
     mounted() {
-        this.observeRequestButton();
+      this.observeRequestButton();
     },
     created() {
       if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
       this.$watch(vm => [
-          vm.method,
-          vm.url,
-          vm.auth,
-          vm.path,
-          vm.httpUser,
-          vm.httpPassword,
-          vm.bearerToken,
-          vm.headers,
-          vm.params,
-          vm.bodyParams,
-          vm.contentType
-        ], val => {
+        vm.method,
+        vm.url,
+        vm.auth,
+        vm.path,
+        vm.httpUser,
+        vm.httpPassword,
+        vm.bearerToken,
+        vm.headers,
+        vm.params,
+        vm.bodyParams,
+        vm.contentType
+      ], val => {
         this.setRouteQueryState()
       })
     }

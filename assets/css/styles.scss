@@ -86,11 +86,19 @@ button {
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
+  transition: all .2s;
 
   &[disabled],
   &.disabled {
     opacity: 0.7;
     cursor: default;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: var(--act-color);
+    box-shadow: inset 0 0 0 2px var(--ac-color);
+    color: var(--ac-color);
   }
 }
 

@@ -177,14 +177,14 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
 ### Contributors
-* [NBTX](https://github.com/NBTX)
+* [John Harker](https://github.com/NBTX)
 * [Andrew Bastin](https://github.com/AndrewBastin)
 * [Nick Palenchar](https://github.com/nickpalenchar)
 * [Abraham Williams](https://github.com/abraham)
 * [Nicholas La Roux](https://github.com/larouxn)
 * [RifqiAlAbqary](https://github.com/reefqi037)
 * [izerozlu](https://github.com/izerozlu)
-* [Nilesh Patel](https://github.com/NileshSP)
+* [Thomas Yuba](https://github.com/yubathom)
 
 ### Thanks
 * [Dribbble](https://dribbble.com)

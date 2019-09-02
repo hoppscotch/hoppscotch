@@ -51,13 +51,13 @@ h3.title {
 
 header,
 footer {
- & > div {
-  display: flex;
-  padding: 16px;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
- }
+  & > div {
+    display: flex;
+    padding: 16px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 nav {
@@ -87,7 +87,8 @@ button {
   font-size: 16px;
   cursor: pointer;
 
-  &[disabled], &.disabled {
+  &[disabled],
+  &.disabled {
     opacity: 0.7;
     cursor: default;
   }
@@ -227,7 +228,8 @@ input[type="checkbox"] {
   background-color: var(--err-color);
 }
 
-.disabled, input[disabled] {
+.disabled,
+input[disabled] {
   background-color: var(--err-color);
   color: #b2b2b2;
 }
@@ -258,9 +260,10 @@ ol li {
 }
 
 @media (max-width: $responsiveWidth) {
-  header {
-    display: block;
+  header div {
+    display: flex;
     text-align: center;
+    flex-direction: column;
 
     nav {
       display: inline-flex;
@@ -333,7 +336,7 @@ fieldset#history {
 }
 
 .align-center {
- text-align: center;
+  text-align: center;
 }
 
 .align-right {

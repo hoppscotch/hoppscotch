@@ -46,7 +46,7 @@
     </ul>
     <ul>
       <li v-if="!isClearingHistory">
-        <button id="clear-history-button" :class="{ disabled: history.length === 0 }" @click="enableHistoryClearing">
+        <button id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">
           Clear History
         </button>
       </li>

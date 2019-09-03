@@ -32,12 +32,31 @@
           </button>
         </li>
         <li>
+          <label for="code">&nbsp;</label>
+          <button id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">Copy Code</button>
+        </li>
+        <li>
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
             Send <span id="hidden-message">Again</span>
           </button>
         </li>
       </ul>
+    </pw-section>
+    <pw-section class="blue-dark" label="Request Code" ref="requestCode" v-if="!isHidden">
+      <ul>
+        <li>
+          <label>Request Type</label>
+          <select v-model="requestType">
+            <option>JavaScript XHR</option>
+            <option>Fetch</option>
+            <option>cURL</option>
+          </select>
+        </li>
+      </ul>
+      <div>
+        <textarea style="font-family: monospace;" rows="16" >{{requestCode}}</textarea>
+      </div>
     </pw-section>
     <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
@@ -287,6 +306,8 @@
         rawParams: '',
         rawInput: false,
         contentType: 'application/json',
+        requestType: 'JavaScript XHR',
+        isHidden: true,
         response: {
           status: '',
           headers: '',
@@ -382,6 +403,89 @@
       },
       responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
+      },
+      requestCode() {
+        if (this.requestType == 'JavaScript XHR') {
+          var requestString = []
+          requestString.push('const xhr = new XMLHttpRequest()');
+          const user = this.auth === 'Basic' ? this.httpUser : null
+          const pswd = this.auth === 'Basic' ? this.httpPassword : null
+          requestString.push('xhr.open(' + this.method + ', ' + this.url + this.path + this.queryString + ', true, ' + user + ', ' + pswd + ')');
+          if (this.auth === 'Bearer Token') {
+            requestString.push("xhr.setRequestHeader('Authorization', 'Bearer ' + " + this.bearerToken + ")");
+          }
+          if (this.headers) {
+            this.headers.forEach(function(element) {
+              requestString.push('xhr.setRequestHeader(' + element.key + ', ' + element.value + ')');
+            })
+          }
+          if (this.method === 'POST' || this.method === 'PUT') {
+            const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+            requestString.push("xhr.setRequestHeader('Content-Length', " + requestBody.length + ")")
+            requestString.push("xhr.setRequestHeader('Content-Type', `" + this.contentType + "; charset=utf-8`)")
+            requestString.push("xhr.send(" + requestBody + ")")
+          } else {
+            requestString.push('xhr.send()')
+          }
+          return requestString.join('\n');
+        } else if (this.requestType == 'Fetch') {
+          var requestString = [];
+          var headers = [];
+          requestString.push('fetch(' + this.url + this.path + this.queryString + ', {\n')
+          requestString.push('  method: "' + this.method + '",\n')
+          if (this.auth === 'Basic') {
+            var basic = this.httpUser + ':' + this.httpPassword;
+            headers.push('    "Authorization": "Basic ' + window.btoa(unescape(encodeURIComponent(basic))) + ',\n')
+          } else if (this.auth === 'Bearer Token') {
+            headers.push('    "Authorization": "Bearer Token ' + this.bearerToken + ',\n')
+          }
+          if (this.method === 'POST' || this.method === 'PUT') {
+            const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+            requestString.push('  body: ' + requestBody + ',\n')
+            headers.push('    "Content-Length": ' + requestBody.length + ',\n')
+            headers.push('    "Content-Type": "' + this.contentType + '; charset=utf-8",\n')
+          }
+          if (this.headers) {
+            this.headers.forEach(function(element) {
+              headers.push('    "' + element.key + '": "' + element.value + '",\n');
+            })
+          }
+          headers = headers.join('').slice(0, -3);
+          requestString.push('  headers: {\n' + headers +'\n  },\n')
+          requestString.push('  credentials: "same-origin"\n')
+          requestString.push(')}).then(function(response) {\n')
+          requestString.push('  response.status\n')
+          requestString.push('  response.statusText\n')
+          requestString.push('  response.headers\n')
+          requestString.push('  response.url\n\n')
+          requestString.push('  return response.text()\n')
+          requestString.push(')}, function(error) {\n')
+          requestString.push('  error.message\n')
+          requestString.push(')}')
+          return requestString.join('');
+        } else if (this.requestType == 'cURL') {
+          var requestString = [];
+          requestString.push('curl -X ' + this.method + ' \\\n')
+          requestString.push("  '" + this.url + this.path + this.queryString + "' \\\n")
+          if (this.auth === 'Basic') {
+            var basic = this.httpUser + ':' + this.httpPassword;
+            requestString.push("  -H 'Authorization: Basic " + window.btoa(unescape(encodeURIComponent(basic))) + "' \\\n")
+          } else if (this.auth === 'Bearer Token') {
+            requestString.push("  -H 'Authorization: Bearer Token " + this.bearerToken + "' \\\n")
+          }
+          if (this.headers) {
+            this.headers.forEach(function(element) {
+              requestString.push("  -H '" + element.key + ": " + element.value + "' \\\n");
+            })
+          }
+          if (this.method === 'POST' || this.method === 'PUT') {
+            const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+            requestString.push("  -H 'Content-Length: " + requestBody.length + "' \\\n")
+            requestString.push("  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n")
+            requestString.push("  -d '" + requestBody + "' \\\n")
+          }
+          return requestString.join('').slice(0, -4);
+        }
       }
     },
     methods: {

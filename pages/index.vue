@@ -24,8 +24,10 @@
         </li>
         <li>
           <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
-          <button class="icon" @click="copyRequest" name="copyRequest" :disabled="!isValidURL">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z"/></svg>
+          <button class="icon" @click="copyRequest" name="copyRequest" ref="copyRequest" :disabled="!isValidURL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+            </svg>
             <span>Share URL</span>
           </button>
         </li>
@@ -99,14 +101,16 @@
           <div class="flex-wrap">
             <label for="body">response</label>
             <div>
-              <button class="icon" @click="copyResponse" name="copyResponse" v-if="response.body">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z"/></svg>
+              <button class="icon" @click="copyResponse" name="copyResponse" ref="copyResponse" v-if="response.body">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+                </svg>
                 <span>Copy</span>
               </button>
             </div>
           </div>
           <div id="response-details-wrapper">
-            <textarea id="response-details" name="body" readonly rows="16">{{response.body || '(waiting to send request)'}}</textarea>
+            <textarea ref="responseBody" name="body" readonly rows="16">{{response.body || '(waiting to send request)'}}</textarea>
             <iframe :class="{hidden: !previewEnabled}" class="covers-response" ref="previewFrame" src="about:blank"></iframe>
           </div>
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
@@ -268,7 +272,8 @@
     },
     data() {
       return {
-
+        copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" /></svg>',
+        copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"/></svg>',
         method: 'GET',
         url: 'https://reqres.in',
         auth: 'None',
@@ -552,17 +557,20 @@
         }
       },
       copyRequest() {
+        this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
         var dummy = document.createElement('input');
         document.body.appendChild(dummy);
         dummy.value = window.location.href;
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
+        setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Share URL</span>', 1500)
       },
       copyResponse() {
-        var copyText = document.getElementById("response-details");
-        copyText.select();
+        this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';
+        this.$refs.responseBody.select();
         document.execCommand("copy");
+        setTimeout(() => this.$refs.copyResponse.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
       },
       togglePreview() {
         this.previewEnabled = !this.previewEnabled;
@@ -593,8 +601,8 @@
         }
         let flats = ['method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken', 'contentType'].map(item => flat(item))
         let deeps = ['headers', 'params'].map(item => deep(item))
-        let bodyParams = this.rawInput ? [flat('rawParams')] : [deep('bodyParams')]; 
-        
+        let bodyParams = this.rawInput ? [flat('rawParams')] : [deep('bodyParams')];
+
         this.$router.replace('/?' + flats.concat(deeps, bodyParams).join('').slice(0, -1))
       },
       setRouteQueries(queries) {
@@ -604,8 +612,7 @@
           if (key === 'rawParams') {
             this.rawInput = true
             this.rawParams = queries['rawParams']
-          }
-          else if (typeof(this[key]) === 'string') this[key] = queries[key]
+          } else if (typeof(this[key]) === 'string') this[key] = queries[key]
         }
       },
       observeRequestButton() {

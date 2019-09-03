@@ -95,7 +95,7 @@ button {
     background-color: var(--bg-color);
     color: var(--ac-color);
     fill: var(--ac-color);
-    
+
     span {
       margin-left: 8px;
     }
@@ -375,11 +375,8 @@ fieldset#history {
   margin: 4px;
 
   textarea {
-    width: 100%;
-  }
-
-  #response-details {
     margin: 0;
+    width: 100%;
   }
 
   .covers-response {

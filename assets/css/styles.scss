@@ -51,22 +51,12 @@ h3.title {
 
 header,
 footer {
-  display: flex;
-  padding: 16px;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-}
-
-@media(max-width: $responsiveWidth) {
-  header {
-    display: block;
-    text-align: center;
-
-    nav {
-      display: inline-flex;
-      margin-top: 20px;
-    }
+  & > div {
+    display: flex;
+    padding: 16px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
   }
 }
 
@@ -88,6 +78,9 @@ body.sticky-footer footer {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 4px;
   padding: 8px 16px;
   border-radius: 4px;
@@ -96,6 +89,24 @@ button {
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &.icon {
+    background-color: var(--bg-color);
+    color: var(--ac-color);
+    fill: var(--ac-color);
+
+    span {
+      margin-left: 8px;
+    }
+  }
+
+  &:not([disabled]):hover,
+  &:not(.disabled):focus {
+    background-color: var(--bg-color);
+    box-shadow: inset 0 0 0 2px var(--ac-color);
+    color: var(--ac-color);
+  }
 }
 
 fieldset {
@@ -171,7 +182,7 @@ fieldset.orange legend {
   color: #F5A623;
 }
 
-.collapsible.hidden {
+.hidden {
   display: none;
 }
 
@@ -182,8 +193,8 @@ textarea,
 pre {
   margin: 4px;
   padding: 8px 16px;
-  width: calc(100% - 8px);
   border-radius: 4px;
+  width: calc(100% - 8px);
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
   font-weight: 700;
@@ -191,29 +202,53 @@ pre {
   font-family: monospace;
 }
 
-// Force the same height, for dropdowns and regular input boxes.
 select,
 input,
 option {
-  height: 38px;
+  height: 41px;
 }
 
 input[type="checkbox"] {
-  width: initial;
+  display: none;
 
   &,
   & + label {
     vertical-align: middle;
+    cursor: pointer;
+
+    &:before {
+      content: "\2714";
+      border: 2px solid var(--fg-color);
+      border-radius: 4px;
+      display: inline-flex;
+      height: 16px;
+      width: 16px;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 8px 8px 0;
+      color: transparent;
+      transition: .2s;
+    }
+  }
+
+  &:checked + label:before {
+    background-color: var(--ac-color);
+    border-color: var(--ac-color);
+    color: var(--act-color);
   }
 }
 
-.error {
-  background-color: var(--err-color);
-}
-
-.disabled {
+.error,
+.disabled,
+[disabled] {
   background-color: var(--err-color);
   color: #b2b2b2;
+  cursor: default;
+
+  &.icon {
+    color: #b2b2b2;
+    fill: #b2b2b2;
+  }
 }
 
 label {
@@ -241,7 +276,21 @@ ol li {
   align-items: center;
 }
 
+.show-on-small-screen {
+  display: flex;
+}
+
 @media (max-width: $responsiveWidth) {
+  header div {
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+
+    nav {
+      display: inline-flex;
+      margin-top: 20px;
+    }
+  }
 
   ul,
   ol {
@@ -251,6 +300,14 @@ ol li {
   ul li,
   ol li {
     display: flex;
+  }
+
+  .hide-on-small-screen {
+    display: none;
+  }
+
+  .show-on-small-screen {
+    display: inline-flex;
   }
 }
 
@@ -278,6 +335,14 @@ ol li {
   background-color: #B71C1C;
 }
 
+.missing-data-response {
+  background-color: var(--err-color);
+}
+
+.virtual-list::-webkit-scrollbar {
+  width: 0;
+}
+
 fieldset#history {
   .method-list-item {
     position: relative;
@@ -287,6 +352,60 @@ fieldset#history {
       top: 44px;
       right: 20px;
       font-family: monospace, monospace;
+    }
+  }
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-right {
+  text-align: right;
+}
+
+#response-details-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  margin: 4px;
+
+  textarea {
+    margin: 0;
+    width: 100%;
+  }
+
+  .covers-response {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+#action {
+  #hidden-message {
+    display: none;
+  }
+
+  &.show {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+
+    #hidden-message {
+      display: block;
+      margin-left: 4px;
     }
   }
 }

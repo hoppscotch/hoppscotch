@@ -63,6 +63,15 @@ _Customized themes are also synced with local session storage_
  - Offline support
  - Low RAM/memory and CPU usage
 
+:rocket: **Request**: Retrieve data from a URL without having to do a full page refresh
+
+ - Choose `method`
+ - Enter `URL`
+ - Enter `Path`
+ - Copy public "Share URL"
+ - Generate request code for JavaScript XHR, Fetch, cURL
+ - Copy generated request code to clipboard
+
 :electric_plug: **Web Socket**: Establish full-duplex communication channels over a single TCP connection
 
  -  Send and receive data
@@ -85,6 +94,9 @@ _Customized themes are also synced with local session storage_
  - Toggle between RAW input and parameter list
 
 :wave: **Responses**: Contains the status line, headers and the message/response body
+
+ - Copy response to clipboard
+ - View preview for HTML responses
 
 _HTML responses have "Preview HTML" feature_
 

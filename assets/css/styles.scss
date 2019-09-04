@@ -212,12 +212,19 @@ pre {
   font-weight: 700;
   font-size: 18px;
   font-family: monospace;
+  transition: all 0.2s ease-in-out;
 }
 
 select,
 input,
 option {
   height: 41px;
+
+  &:not([readonly]):hover,
+  &:not([readonly]):focus {
+    background-color: var(--bg-color);
+    box-shadow: inset 0 0 0 2px var(--ac-color);
+  }
 }
 
 input[type="checkbox"] {

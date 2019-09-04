@@ -24,9 +24,11 @@
       <ul>
         <li>
           <h3 class="title">Frames</h3>
-          <pw-toggle :on="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
-            Multi-color {{ settings.DISABLE_FRAME_COLORS ? "disabled" : "enabled" }}
-          </pw-toggle>
+          <span>
+            <pw-toggle :on="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
+              Multi-color {{ settings.DISABLE_FRAME_COLORS ? "disabled" : "enabled" }}
+            </pw-toggle>
+          </span>
         </li>
       </ul>
     </pw-section>

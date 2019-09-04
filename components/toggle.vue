@@ -25,11 +25,13 @@
 
   div {
     display: inline-block;
+    cursor: pointer;
   }
 
   label.caption {
     margin-left: 4px;
     vertical-align: middle;
+    cursor: pointer;
   }
 
   label.toggle {
@@ -46,6 +48,7 @@
     box-sizing: initial;
     padding: 0;
     margin: 10px 5px;
+    cursor: pointer;
 
     .handle {
       position: absolute;
@@ -62,8 +65,6 @@
 
       pointer-events: none;
       transition: $transition;
-
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     }
 
     &.on {

@@ -27,7 +27,7 @@
       <ul>
         <li>
           <label for="message">Message</label>
-          <input id="message" name="message" type="text" v-model="communication.input" :disabled="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
+          <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
         </li>
         <li>
           <label for="send" class="hide-on-small-screen">&nbsp;</label>

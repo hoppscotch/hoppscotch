@@ -10,8 +10,8 @@
   --bg-dark-color: #44475a;
   // Background color
   --bg-color: #282a36;
-	// Auto-complete color
-	--atc-color: #3C4556;
+  // Auto-complete color
+  --atc-color: #3C4556;
   // Text color
   --fg-color: #f8f8f2;
 
@@ -25,19 +25,19 @@
 }
 
 :root.light {
-  --bg-dark-color: #ffffff;
+  --bg-dark-color: #e1e4eb;
   // Background color
-  --bg-color: #F6F8FA;
-	// Auto-complete color
-	--atc-color: #F1F1F1;
+  --bg-color: #ebeef5;
+  // Auto-complete color
+  --atc-color: #e1e4eb;
   // Text color
-  --fg-color: #121212;
+  --fg-color: #5d5d5f;
 
   // Error color
-  --err-color: invert(#393939, 1);
+  --err-color: invert(#3C4556, 1);
 
   // Active color
-  --ac-color: #50fa7b;
+  --ac-color: #57b5f9;
   // Active text color
-  --act-color: #121212;
+  --act-color: #ebeef5;
 }

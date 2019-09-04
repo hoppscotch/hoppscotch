@@ -12,7 +12,7 @@ export const meta = {
 let repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
 export const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
-    base: `/${repoName}/`
+    base: `/`
   }
 } : {
   router: {

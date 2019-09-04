@@ -84,9 +84,7 @@
       source: {
         type: Array,
         required: true
-      },
-
-      value: {}
+      }
     },
 
     watch: {
@@ -98,7 +96,6 @@
     data() {
       return {
         value: "",
-
         selectionStart: 0,
         suggestionsOffsetLeft: 0,
         currentSuggestionIndex: -1,

@@ -10,7 +10,11 @@ $responsiveWidth: 720px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #4a4a4a;
+  background-color: rgba(0, 0, 0, .3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, .5);
 }
 
 * {

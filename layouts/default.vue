@@ -158,7 +158,7 @@
         // Apply theme from settings.
         document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || '';
         // Load theme color data from settings, or use default color.
-        let color = this.$store.state.postwoman.settings.THEME_COLOR || '#51FF0D';
+        let color = this.$store.state.postwoman.settings.THEME_COLOR || '#50fa7b';
         let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
         if (vibrant == null) vibrant = true;
         document.documentElement.style.setProperty('--ac-color', color);

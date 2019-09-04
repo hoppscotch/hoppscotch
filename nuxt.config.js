@@ -12,7 +12,7 @@ export const meta = {
 let repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
 export const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
-    base: `/`
+    base: `/${repoName}/`
   }
 } : {
   router: {
@@ -24,9 +24,6 @@ export default {
   /*
    ** Headers of the page
    */
-  router: {
-    base: '/'
-  },
   head: {
     title: `${meta.name} \u2022 ${meta.shortDescription}`,
     meta: [

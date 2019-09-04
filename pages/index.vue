@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Request" ref="request">
+    <pw-section class="cyan" label="Request" ref="request">
       <ul>
         <li>
           <label for="method">Method</label>
@@ -48,7 +48,7 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="blue-dark" label="Request Code" ref="requestCode" v-if="!isHidden">
+    <pw-section class="blue" label="Request Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>
@@ -76,7 +76,7 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
+    <pw-section class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
         <li>
           <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
@@ -212,7 +212,7 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="cyan" collapsed label="Parameters">
+    <pw-section class="pink" collapsed label="Parameters">
       <ol v-for="(param, index) in params">
         <li>
           <label :for="'param'+index">Key {{index + 1}}</label>

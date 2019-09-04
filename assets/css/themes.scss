@@ -7,21 +7,21 @@
 
 // Dark is the default theme variant.
 :root {
-  --bg-dark-color: #000000;
+  --bg-dark-color: #44475a;
   // Background color
-  --bg-color: #121212;
+  --bg-color: #282a36;
 	// Auto-complete color
-	--atc-color: #212121;
+	--atc-color: #3C4556;
   // Text color
-  --fg-color: #FFF;
+  --fg-color: #f8f8f2;
 
   // Error color
-  --err-color: #393939;
+  --err-color: #3C4556;
 
   // Active color
-  --ac-color: #51FF0D;
+  --ac-color: #50fa7b;
   // Active text color
-  --act-color: #121212;
+  --act-color: #282a36;
 }
 
 :root.light {

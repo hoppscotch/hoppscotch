@@ -1,6 +1,6 @@
 <template>
 	<div class="page">
-		<pw-section class="blue" label="Theme">
+		<pw-section class="cyan" label="Theme">
 			<ul>
 				<li>
 					<h3 class="title">Background</h3>
@@ -77,12 +77,12 @@
                 //        You should copy the existing light theme as a template and then just
                 //        set the relevant values.
                 themes: [{
-                    "color": "#121212",
+                    "color": "#282a36",
                     "name": "Dark (Default)",
                     "class": ""
                 },
                     {
-                        "color": "#DFDFDF",
+                        "color": "#F6F8FA",
                         "name": "Light",
                         "vibrant": true,
                         "class": "light"
@@ -92,34 +92,44 @@
                 colors: [
                     // If the color is vibrant, black is used as the active foreground color.
                     {
-                        "color": "#51ff0d",
-                        "name": "Lime (Default)",
+                        "color": "#50fa7b",
+                        "name": "Green (Default)",
                         "vibrant": true
                     },
                     {
-                        "color": "#FFC107",
+                        "color": "#f1fa8c",
                         "name": "Yellow",
                         "vibrant": true
                     },
                     {
-                        "color": "#E91E63",
+                        "color": "#ff79c6",
                         "name": "Pink",
-                        "vibrant": false
+                        "vibrant": true
                     },
                     {
-                        "color": "#e74c3c",
+                        "color": "#ff5555",
                         "name": "Red",
                         "vibrant": false
                     },
                     {
-                        "color": "#9b59b6",
+                        "color": "#bd93f9",
                         "name": "Purple",
-                        "vibrant": false
+                        "vibrant": true
                     },
                     {
-                        "color": "#2980b9",
+                        "color": "#ffb86c",
+                        "name": "Orange",
+                        "vibrant": true
+                    },
+                    {
+                        "color": "#8be9fd",
+                        "name": "Cyan",
+                        "vibrant": true
+                    },
+                    {
+                        "color": "#57b5f9",
                         "name": "Blue",
-                        "vibrant": false
+                        "vibrant": true
                     },
                 ],
 
@@ -162,7 +172,7 @@
                 // By default, the color is vibrant.
                 if (vibrant == null) vibrant = true;
                 document.documentElement.style.setProperty('--ac-color', color);
-                document.documentElement.style.setProperty('--act-color', vibrant ? '#121212' : '#fff');
+                document.documentElement.style.setProperty('--act-color', vibrant ? '#282a36' : '#f8f8f2');
                 this.applySetting('THEME_COLOR', color.toUpperCase());
                 this.applySetting('THEME_COLOR_VIBRANT', vibrant);
             },

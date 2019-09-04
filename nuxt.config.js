@@ -51,7 +51,7 @@ export default {
 
       // Windows phone tile icon
       { name: 'msapplication-TileImage', content: `${routerBase.router.base}icons/icon-144x144.png` },
-      { name: 'msapplication-TileColor', content: '#121212' },
+      { name: 'msapplication-TileColor', content: '#282a36' },
       { name: 'msapplication-tap-highlight', content: 'no' },
 
       // OpenGraph
@@ -119,8 +119,8 @@ export default {
         description: meta.shortDescription,
 
         display: "standalone",
-        theme_color: "#121212",
-        background_color: "#121212",
+        theme_color: "#282a36",
+        background_color: "#282a36",
 
         icons: ((sizes) => {
           let icons = [];

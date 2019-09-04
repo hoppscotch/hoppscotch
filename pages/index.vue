@@ -24,7 +24,7 @@
         </li>
         <li>
           <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
-          <button class="icon" @click="copyRequest" name="copyRequest" ref="copyRequest" :disabled="!isValidURL">
+          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
               <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
             </svg>
@@ -33,7 +33,12 @@
         </li>
         <li>
           <label for="code">&nbsp;</label>
-          <button id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">Copy Code</button>
+          <button class="icon" id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path d="M24 10.935v2.131l-8 3.947v-2.23l5.64-2.783-5.64-2.79v-2.223l8 3.948zm-16 3.848l-5.64-2.783 5.64-2.79v-2.223l-8 3.948v2.131l8 3.947v-2.23zm7.047-10.783h-2.078l-4.011 16h2.073l4.016-16z" />
+            </svg>
+            <span>Generate Code</span>
+          </button>
         </li>
         <li>
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
@@ -46,17 +51,30 @@
     <pw-section class="blue-dark" label="Request Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
-          <label>Request Type</label>
-          <select v-model="requestType">
+          <label for="requestType">Request Type</label>
+          <select name="requestType" v-model="requestType">
             <option>JavaScript XHR</option>
             <option>Fetch</option>
             <option>cURL</option>
           </select>
         </li>
       </ul>
-      <div>
-        <textarea style="font-family: monospace;" rows="16" >{{requestCode}}</textarea>
-      </div>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <label for="generatedCode">Generated Code</label>
+            <div>
+              <button class="icon" @click="copyRequestCode" name="copyRequestCode" ref="copyRequestCode">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+          <textarea ref="generatedCode" name="generatedCode" style="font-family: monospace;" rows="16">{{requestCode}}</textarea>
+        </li>
+      </ul>
     </pw-section>
     <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
@@ -669,6 +687,12 @@
         document.execCommand('copy');
         document.body.removeChild(dummy);
         setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Share URL</span>', 1500)
+      },
+      copyRequestCode() {
+        this.$refs.copyRequestCode.innerHTML = this.copiedButton + '<span>Copied</span>';
+        this.$refs.generatedCode.select();
+        document.execCommand("copy");
+        setTimeout(() => this.$refs.copyRequestCode.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
       },
       copyResponse() {
         this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';

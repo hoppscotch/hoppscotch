@@ -95,7 +95,7 @@
 
     data() {
       return {
-        value: "",
+        value: "application/json",
         selectionStart: 0,
         suggestionsOffsetLeft: 0,
         currentSuggestionIndex: -1,

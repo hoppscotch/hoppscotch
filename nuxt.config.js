@@ -24,6 +24,9 @@ export default {
   /*
    ** Headers of the page
    */
+  router: {
+    base: '/'
+  },
   head: {
     title: `${meta.name} \u2022 ${meta.shortDescription}`,
     meta: [

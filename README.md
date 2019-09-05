@@ -115,7 +115,7 @@ _History entries can be deleted one-by-one or all together_
 
 ## Demo
 
-[https://liyasthomas.github.io/postwoman](https://liyasthomas.github.io/postwoman)
+[https://postwoman.io](https://postwoman.io)
 
 1. Specify your request method
 2. Type in your API URL

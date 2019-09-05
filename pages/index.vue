@@ -693,9 +693,10 @@
         if (navigator.share) {
           let title = document.title;
           let time = new Date().toLocaleTimeString();
+          let date = new Date().toLocaleDateString();
           navigator.share({
             title: title,
-            text: time,
+            text: `at ${time} on ${date}`,
             url: window.location.href
           }).then(() => {
             // console.log('Thanks for sharing!');

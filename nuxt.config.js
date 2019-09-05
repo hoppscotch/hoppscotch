@@ -149,7 +149,7 @@ export default {
       {
         rel: 'icon',
         type: 'image/x-icon',
-        href: '/favicon.ico'
+        href: `${routerBase.router.base}favicon.ico`
       },
       // Home-screen icons (iOS)
       {

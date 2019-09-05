@@ -35,8 +35,11 @@
 
       <!-- Bottom section of footer: version/author information -->
       <p class="align-center">
-        <span v-if="version.name">{{ version.name }}
-          <span v-if="version.hash">- {{ version.hash }}</span>
+        <span v-if="version.name">
+					<a v-bind:href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name">{{version.name }}</a>
+          <span v-if="version.hash">
+						- <a v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash">{{ version.hash }}</a>
+					</span>
           <span v-if="version.variant"> ({{ version.variant }})</span>
           &#x2022; </span>by <a href="https://liyasthomas.web.app" target="_blank">Liyas Thomas 🦄</a>
       </p>

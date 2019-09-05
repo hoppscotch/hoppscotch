@@ -690,14 +690,24 @@
         }
       },
       copyRequest() {
-        this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
-        var dummy = document.createElement('input');
-        document.body.appendChild(dummy);
-        dummy.value = window.location.href;
-        dummy.select();
-        document.execCommand('copy');
-        document.body.removeChild(dummy);
-        setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Share URL</span>', 1500)
+        if (navigator.share) {
+          navigator.share({
+            title: document.title,
+            url: window.location.href
+          }).then(() => {
+            // console.log('Thanks for sharing!');
+          })
+          .catch(console.error);
+        } else {
+          this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
+          var dummy = document.createElement('input');
+          document.body.appendChild(dummy);
+          dummy.value = window.location.href;
+          dummy.select();
+          document.execCommand('copy');
+          document.body.removeChild(dummy);
+          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Share URL</span>', 1500)
+        }
       },
       copyRequestCode() {
         this.$refs.copyRequestCode.innerHTML = this.copiedButton + '<span>Copied</span>';

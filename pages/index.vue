@@ -691,11 +691,10 @@
       },
       copyRequest() {
         if (navigator.share) {
-          let title = document.title;
           let time = new Date().toLocaleTimeString();
           let date = new Date().toLocaleDateString();
           navigator.share({
-            title: title,
+            title: 'Postwoman • API request builder',
             text: `at ${time} on ${date}`,
             url: window.location.href
           }).then(() => {

@@ -95,11 +95,11 @@
         <ol v-for="(param, index) in bodyParams">
           <li>
             <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :name="'bparam'+index" v-model="param.key">
+            <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState">
           </li>
           <li>
             <label :for="'bvalue'+index">Value {{index + 1}}</label>
-            <input :name="'bvalue'+index" v-model="param.value">
+            <input :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
           </li>
           <li>
             <label class="hide-on-small-screen" for="request">&nbsp;</label>
@@ -199,11 +199,11 @@
       <ol v-for="(header, index) in headers">
         <li>
           <label :for="'header'+index">Key {{index + 1}}</label>
-          <input :name="'header'+index" v-model="header.key">
+          <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState">
         </li>
         <li>
           <label :for="'value'+index">Value {{index + 1}}</label>
-          <input :name="'value'+index" v-model="header.value">
+          <input :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
         </li>
         <li>
           <label class="hide-on-small-screen" for="header">&nbsp;</label>
@@ -369,6 +369,10 @@
     watch: {
       contentType(val) {
         this.rawInput = !this.knownContentTypes.includes(val);
+      },
+      rawInput (status) {
+        if (status && this.rawParams === '') this.rawParams = '{}'
+        else this.setRouteQueryState()
       }
     },
     computed: {

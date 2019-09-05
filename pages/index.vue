@@ -694,8 +694,7 @@
           let time = new Date().toLocaleTimeString();
           let date = new Date().toLocaleDateString();
           navigator.share({
-            title: 'Postwoman • API request builder',
-            text: `at ${time} on ${date}`,
+            text: `Postwoman • API request builder at ${time} on ${date}`,
             url: window.location.href
           }).then(() => {
             // console.log('Thanks for sharing!');

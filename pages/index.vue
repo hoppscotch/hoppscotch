@@ -691,8 +691,11 @@
       },
       copyRequest() {
         if (navigator.share) {
+          let title = document.title;
+          let time = new Date().toLocaleTimeString();
           navigator.share({
-            title: document.title,
+            title: title,
+            text: time,
             url: window.location.href
           }).then(() => {
             // console.log('Thanks for sharing!');

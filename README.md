@@ -23,8 +23,8 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 <div align="center">
   <br>
-  <img src="static/screely.png" alt="postwoman" width="100%">
-  <img src="static/screely2.png" alt="postwoman" width="100%">
+  <img src="static/screenshot.gif" alt="postwoman" width="100%">
+  <img src="static/screenshot2.png" alt="postwoman" width="100%">
   <br>
 </div>
 

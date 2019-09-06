@@ -1,6 +1,19 @@
 <template>
   <div class="page">
     <pw-section class="blue" label="Request" ref="request">
+      <button id="show-modal" @click="showModal = true">IMPORT</button>
+      <import-modal v-if="showModal" @close="showModal = false">
+        <div slot="header">
+          <h2>Import</h2>
+        </div>
+        <div slot="body">
+          <textarea id="import-text" style="height:20rem">
+          </textarea>
+        </div>
+        <div slot="footer">
+          <button class="modal-default-button" @click="handleImport">OK</button>
+        </div>
+      </import-modal>
       <ul>
         <li>
           <label for="method">Method</label>
@@ -199,6 +212,8 @@
   import section from "../components/section";
   import textareaAutoHeight from "../directives/textareaAutoHeight";
   import toggle from "../components/toggle";
+  import import_modal from "../components/modal";
+  import parseCurlCommand from '../assets/js/curlparser.js';
 
   const statusCategories = [{
       name: 'informational',
@@ -254,12 +269,13 @@
     components: {
       'pw-section': section,
       'pw-toggle': toggle,
+      'import-modal': import_modal,
       history,
-      autocomplete
+      autocomplete,
     },
     data() {
       return {
-
+        showModal: false,
         method: 'GET',
         url: 'https://reqres.in',
         auth: 'None',
@@ -605,6 +621,32 @@
         });
 
         observer.observe(requestElement);
+      },
+      handleImport () {
+        console.log("handleimport");
+        let textarea = document.getElementById("import-text")
+        let text = textarea.value;
+        console.log(text);
+        try {
+         let parsedCurl = parseCurlCommand(text);
+         console.log(parsedCurl); 
+         this.url=parsedCurl.url.replace(/\"/g,"").replace(/\'/g,"");
+         this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
+         this.path = "";
+         this.headers
+         this.showModal = false;
+         this.headers = [];
+          for (const key of Object.keys(parsedCurl.headers)) {
+              this.headers.push({
+                key: key,
+                value: parsedCurl.headers[key]
+              })
+          }
+          this.method = parsedCurl.method.toUpperCase();
+        } catch (error) {
+          console.log(error)
+          this.showModal = false;
+        }
       }
     },
     mounted() {

@@ -4,7 +4,7 @@
       <button id="show-modal" @click="showModal = true">IMPORT</button>
       <import-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
-          <h2>Import</h2>
+          <h2>IMPORT CURL</h2>
         </div>
         <div slot="body">
           <textarea id="import-text" style="height:20rem">
@@ -626,7 +626,6 @@
         console.log("handleimport");
         let textarea = document.getElementById("import-text")
         let text = textarea.value;
-        console.log(text);
         try {
          let parsedCurl = parseCurlCommand(text);
          console.log(parsedCurl); 
@@ -644,7 +643,6 @@
           }
           this.method = parsedCurl.method.toUpperCase();
         } catch (error) {
-          console.log(error)
           this.showModal = false;
         }
       }

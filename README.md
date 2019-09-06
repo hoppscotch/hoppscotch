@@ -1,5 +1,4 @@
 ```
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 When I wrote this, only God and I understood what I was doing. Now, only God knows.
 ```
 <div align="center">
@@ -118,6 +117,8 @@ _History entries can be deleted one-by-one or all together_
 
 [https://postwoman.io](https://postwoman.io)
 
+## Usage
+
 1. Specify your request method
 2. Type in your API URL
 3. Add API path
@@ -190,14 +191,16 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
 ### Contributors
-* [John Harker](https://github.com/NBTX)
-* [Andrew Bastin](https://github.com/AndrewBastin)
-* [Nick Palenchar](https://github.com/nickpalenchar)
-* [Abraham Williams](https://github.com/abraham)
-* [Nicholas La Roux](https://github.com/larouxn)
-* [RifqiAlAbqary](https://github.com/reefqi037)
-* [izerozlu](https://github.com/izerozlu)
-* [Thomas Yuba](https://github.com/yubathom)
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/NBTX"><img src="https://avatars3.githubusercontent.com/u/43181178?v=4" width="100px;" alt="John Harker"/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=NBTX" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ### Thanks
 * [Dribbble](https://dribbble.com)
@@ -217,19 +220,3 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 * Hat tip to anyone who's code was used
 * Inspirations:
 	* [Dribbble](https://dribbble.com)
-
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/NBTX"><img src="https://avatars3.githubusercontent.com/u/43181178?v=4" width="100px;" alt="John Harker"/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=NBTX" title="Code">💻</a></td>
-  </tr>
-</table>
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!

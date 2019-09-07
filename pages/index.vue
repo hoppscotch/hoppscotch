@@ -1,10 +1,10 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Request" ref="request">
+    <pw-section class="blue" label="Import" ref="import">
       <button id="show-modal" @click="showModal = true">IMPORT</button>
       <import-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
-          <h2>IMPORT CURL</h2>
+          <h2>Import cURL</h2>
         </div>
         <div slot="body">
           <textarea id="import-text" style="height:20rem">
@@ -14,6 +14,8 @@
           <button class="modal-default-button" @click="handleImport">OK</button>
         </div>
       </import-modal>
+    </pw-section>
+    <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
           <label for="method">Method</label>

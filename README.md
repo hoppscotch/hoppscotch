@@ -23,8 +23,8 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 <div align="center">
   <br>
-  <img src="static/screely.png" alt="postwoman" width="100%">
-  <img src="static/screely2.png" alt="postwoman" width="100%">
+  <img src="static/screenshot.gif" alt="postwoman" width="100%">
+  <img src="static/screenshot2.png" alt="postwoman" width="100%">
   <br>
 </div>
 
@@ -63,6 +63,15 @@ _Customized themes are also synced with local session storage_
  - Offline support
  - Low RAM/memory and CPU usage
 
+:rocket: **Request**: Retrieve data from a URL without having to do a full page refresh
+
+ - Choose `method`
+ - Enter `URL`
+ - Enter `Path`
+ - Copy public "Share URL"
+ - Generate request code for JavaScript XHR, Fetch, cURL
+ - Copy generated request code to clipboard
+
 :electric_plug: **Web Socket**: Establish full-duplex communication channels over a single TCP connection
 
  -  Send and receive data
@@ -86,6 +95,9 @@ _Customized themes are also synced with local session storage_
 
 :wave: **Responses**: Contains the status line, headers and the message/response body
 
+ - Copy response to clipboard
+ - View preview for HTML responses
+
 _HTML responses have "Preview HTML" feature_
 
 :alarm_clock: **History**: Request entries are synced with local session storage to reuse with a single click
@@ -103,7 +115,9 @@ _History entries can be deleted one-by-one or all together_
 
 ## Demo
 
-[https://liyasthomas.github.io/postwoman](https://liyasthomas.github.io/postwoman)
+[https://postwoman.io](https://postwoman.io)
+
+## Usage
 
 1. Specify your request method
 2. Type in your API URL
@@ -177,19 +191,26 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
 ### Contributors
-* [John Harker](https://github.com/NBTX)
-* [Andrew Bastin](https://github.com/AndrewBastin)
-* [Nick Palenchar](https://github.com/nickpalenchar)
-* [Abraham Williams](https://github.com/abraham)
-* [Nicholas La Roux](https://github.com/larouxn)
-* [RifqiAlAbqary](https://github.com/reefqi037)
-* [izerozlu](https://github.com/izerozlu)
-* [Thomas Yuba](https://github.com/yubathom)
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/NBTX"><img src="https://github.com/NBTX.png?size=100" width="100px;" alt="John Harker"/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=NBTX" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/izerozlu"><img src="https://github.com/izerozlu.png?size=100" width="100px;" alt="izerozlu"/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=izerozlu" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/AndrewBastin"><img src="https://github.com/AndrewBastin.png?size=100" width="100px;" alt="Andrew Bastin"/><br /><sub><b>Andrew Bastin</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=AndrewBastin" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/nickpalenchar"><img src="https://github.com/nickpalenchar.png?size=100" width="100px;" alt="Nick Palenchar"/><br /><sub><b>Nick Palenchar</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nickpalenchar" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/yubathom"><img src="https://github.com/yubathom.png?size=100" width="100px;" alt="Thomas Yuba"/><br /><sub><b>Thomas Yuba</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=yubathom" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/larouxn"><img src="https://github.com/larouxn.png?size=100" width="100px;" alt="Nicholas La Roux"/><br /><sub><b>Nicholas La Roux</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=larouxn" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
 
 ### Thanks
 * [Dribbble](https://dribbble.com)
-
-See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
 
 ---
 

@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Request" ref="request">
+    <pw-section class="cyan" label="Request" ref="request">
       <ul>
         <li>
           <label for="url">URL</label>
@@ -27,7 +27,7 @@
       <ul>
         <li>
           <label for="message">Message</label>
-          <input id="message" name="message" type="text" v-model="communication.input" :disabled="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
+          <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
         </li>
         <li>
           <label for="send" class="hide-on-small-screen">&nbsp;</label>
@@ -104,7 +104,7 @@
         this.communication.log = [{
           payload: `Connecting to ${this.url}...`,
           source: 'info',
-          color: 'lime'
+          color: 'var(--ac-color)'
         }];
         try {
           this.socket = new WebSocket(this.url);
@@ -113,7 +113,7 @@
             this.communication.log = [{
               payload: `Connected to ${this.url}.`,
               source: 'info',
-              color: 'lime',
+              color: 'var(--ac-color)',
               ts: (new Date()).toLocaleTimeString()
             }];
           };
@@ -125,7 +125,7 @@
             this.communication.log.push({
               payload: `Disconnected from ${this.url}.`,
               source: 'info',
-              color: 'red',
+              color: '#ff5555',
               ts: (new Date()).toLocaleTimeString()
             });
           };

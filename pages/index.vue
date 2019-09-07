@@ -38,6 +38,27 @@
           <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" v-model="path">
         </li>
         <li>
+          <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
+          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+            </svg>
+            <span>Share URL</span>
+          </button>
+        </li>
+        <li>
+          <label class="hide-on-small-screen" for="code">&nbsp;</label>
+          <button class="icon" id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="isHidden">
+              <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="!isHidden">
+              <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+            </svg>
+            <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
+          </button>
+        </li>
+        <li>
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
             Send <span id="hidden-message">Again</span>
@@ -45,7 +66,35 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="blue-dark" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
+    <pw-section class="blue" label="Request Code" ref="requestCode" v-if="!isHidden">
+      <ul>
+        <li>
+          <label for="requestType">Request Type</label>
+          <select name="requestType" v-model="requestType">
+            <option>JavaScript XHR</option>
+            <option>Fetch</option>
+            <option>cURL</option>
+          </select>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <label for="generatedCode">Generated Code</label>
+            <div>
+              <button class="icon" @click="copyRequestCode" name="copyRequestCode" ref="copyRequestCode">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+          <textarea ref="generatedCode" name="generatedCode" style="font-family: monospace;" rows="16">{{requestCode}}</textarea>
+        </li>
+      </ul>
+    </pw-section>
+    <pw-section class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
         <li>
           <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
@@ -61,11 +110,11 @@
         <ol v-for="(param, index) in bodyParams">
           <li>
             <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :name="'bparam'+index" v-model="param.key">
+            <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState">
           </li>
           <li>
             <label :for="'bvalue'+index">Value {{index + 1}}</label>
-            <input :name="'bvalue'+index" v-model="param.value">
+            <input :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
           </li>
           <li>
             <label class="hide-on-small-screen" for="request">&nbsp;</label>
@@ -107,16 +156,28 @@
           <div class="flex-wrap">
             <label for="body">response</label>
             <div>
-              <button class="block" @click="copyRequest" name="copyRequest" v-if="isValidURL">Copy Request URL</button>
-              <button @click="copyResponse" name="copyResponse" v-if="response.body">Copy Response</button>
+              <button class="icon" @click="copyResponse" name="copyResponse" ref="copyResponse" v-if="response.body">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+                </svg>
+                <span>Copy</span>
+              </button>
             </div>
           </div>
           <div id="response-details-wrapper">
-            <textarea id="response-details" name="body" readonly rows="16">{{response.body || '(waiting to send request)'}}</textarea>
+            <textarea ref="responseBody" name="body" readonly rows="16">{{response.body || '(waiting to send request)'}}</textarea>
             <iframe :class="{hidden: !previewEnabled}" class="covers-response" ref="previewFrame" src="about:blank"></iframe>
           </div>
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
-            <button @click.prevent="togglePreview">{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</button>
+            <button class="icon" @click.prevent="togglePreview">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="!previewEnabled">
+                <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="previewEnabled">
+                <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+              </svg>
+              <span>{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</span>
+            </button>
           </div>
         </li>
       </ul>
@@ -153,11 +214,11 @@
       <ol v-for="(header, index) in headers">
         <li>
           <label :for="'header'+index">Key {{index + 1}}</label>
-          <input :name="'header'+index" v-model="header.key">
+          <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState">
         </li>
         <li>
           <label :for="'value'+index">Value {{index + 1}}</label>
-          <input :name="'value'+index" v-model="header.value">
+          <input :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
         </li>
         <li>
           <label class="hide-on-small-screen" for="header">&nbsp;</label>
@@ -177,7 +238,7 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="cyan" collapsed label="Parameters">
+    <pw-section class="pink" collapsed label="Parameters">
       <ol v-for="(param, index) in params">
         <li>
           <label :for="'param'+index">Key {{index + 1}}</label>
@@ -278,6 +339,8 @@
     data() {
       return {
         showModal: false,
+        copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" /></svg>',
+        copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"/></svg>',
         method: 'GET',
         url: 'https://reqres.in',
         auth: 'None',
@@ -291,6 +354,8 @@
         rawParams: '',
         rawInput: false,
         contentType: 'application/json',
+        requestType: 'JavaScript XHR',
+        isHidden: true,
         response: {
           status: '',
           headers: '',
@@ -323,6 +388,10 @@
     watch: {
       contentType(val) {
         this.rawInput = !this.knownContentTypes.includes(val);
+      },
+      rawInput (status) {
+        if (status && this.rawParams === '') this.rawParams = '{}'
+        else this.setRouteQueryState()
       }
     },
     computed: {
@@ -386,6 +455,89 @@
       },
       responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
+      },
+      requestCode() {
+        if (this.requestType == 'JavaScript XHR') {
+          var requestString = []
+          requestString.push('const xhr = new XMLHttpRequest()');
+          const user = this.auth === 'Basic' ? this.httpUser : null
+          const pswd = this.auth === 'Basic' ? this.httpPassword : null
+          requestString.push('xhr.open(' + this.method + ', ' + this.url + this.path + this.queryString + ', true, ' + user + ', ' + pswd + ')');
+          if (this.auth === 'Bearer Token') {
+            requestString.push("xhr.setRequestHeader('Authorization', 'Bearer ' + " + this.bearerToken + ")");
+          }
+          if (this.headers) {
+            this.headers.forEach(function(element) {
+              requestString.push('xhr.setRequestHeader(' + element.key + ', ' + element.value + ')');
+            })
+          }
+          if (this.method === 'POST' || this.method === 'PUT') {
+            const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+            requestString.push("xhr.setRequestHeader('Content-Length', " + requestBody.length + ")")
+            requestString.push("xhr.setRequestHeader('Content-Type', `" + this.contentType + "; charset=utf-8`)")
+            requestString.push("xhr.send(" + requestBody + ")")
+          } else {
+            requestString.push('xhr.send()')
+          }
+          return requestString.join('\n');
+        } else if (this.requestType == 'Fetch') {
+          var requestString = [];
+          var headers = [];
+          requestString.push('fetch(' + this.url + this.path + this.queryString + ', {\n')
+          requestString.push('  method: "' + this.method + '",\n')
+          if (this.auth === 'Basic') {
+            var basic = this.httpUser + ':' + this.httpPassword;
+            headers.push('    "Authorization": "Basic ' + window.btoa(unescape(encodeURIComponent(basic))) + ',\n')
+          } else if (this.auth === 'Bearer Token') {
+            headers.push('    "Authorization": "Bearer Token ' + this.bearerToken + ',\n')
+          }
+          if (this.method === 'POST' || this.method === 'PUT') {
+            const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+            requestString.push('  body: ' + requestBody + ',\n')
+            headers.push('    "Content-Length": ' + requestBody.length + ',\n')
+            headers.push('    "Content-Type": "' + this.contentType + '; charset=utf-8",\n')
+          }
+          if (this.headers) {
+            this.headers.forEach(function(element) {
+              headers.push('    "' + element.key + '": "' + element.value + '",\n');
+            })
+          }
+          headers = headers.join('').slice(0, -3);
+          requestString.push('  headers: {\n' + headers + '\n  },\n')
+          requestString.push('  credentials: "same-origin"\n')
+          requestString.push(')}).then(function(response) {\n')
+          requestString.push('  response.status\n')
+          requestString.push('  response.statusText\n')
+          requestString.push('  response.headers\n')
+          requestString.push('  response.url\n\n')
+          requestString.push('  return response.text()\n')
+          requestString.push(')}, function(error) {\n')
+          requestString.push('  error.message\n')
+          requestString.push(')}')
+          return requestString.join('');
+        } else if (this.requestType == 'cURL') {
+          var requestString = [];
+          requestString.push('curl -X ' + this.method + ' \\\n')
+          requestString.push("  '" + this.url + this.path + this.queryString + "' \\\n")
+          if (this.auth === 'Basic') {
+            var basic = this.httpUser + ':' + this.httpPassword;
+            requestString.push("  -H 'Authorization: Basic " + window.btoa(unescape(encodeURIComponent(basic))) + "' \\\n")
+          } else if (this.auth === 'Bearer Token') {
+            requestString.push("  -H 'Authorization: Bearer Token " + this.bearerToken + "' \\\n")
+          }
+          if (this.headers) {
+            this.headers.forEach(function(element) {
+              requestString.push("  -H '" + element.key + ": " + element.value + "' \\\n");
+            })
+          }
+          if (this.method === 'POST' || this.method === 'PUT') {
+            const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+            requestString.push("  -H 'Content-Length: " + requestBody.length + "' \\\n")
+            requestString.push("  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n")
+            requestString.push("  -d '" + requestBody + "' \\\n")
+          }
+          return requestString.join('').slice(0, -4);
+        }
       }
     },
     methods: {
@@ -561,17 +713,38 @@
         }
       },
       copyRequest() {
-        var dummy = document.createElement('input');
-        document.body.appendChild(dummy);
-        dummy.value = window.location.href;
-        dummy.select();
-        document.execCommand('copy');
-        document.body.removeChild(dummy);
+        if (navigator.share) {
+          let time = new Date().toLocaleTimeString();
+          let date = new Date().toLocaleDateString();
+          navigator.share({
+            text: `Postwoman • API request builder at ${time} on ${date}`,
+            url: window.location.href
+          }).then(() => {
+            // console.log('Thanks for sharing!');
+          })
+          .catch(console.error);
+        } else {
+          this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
+          var dummy = document.createElement('input');
+          document.body.appendChild(dummy);
+          dummy.value = window.location.href;
+          dummy.select();
+          document.execCommand('copy');
+          document.body.removeChild(dummy);
+          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Share URL</span>', 1500)
+        }
+      },
+      copyRequestCode() {
+        this.$refs.copyRequestCode.innerHTML = this.copiedButton + '<span>Copied</span>';
+        this.$refs.generatedCode.select();
+        document.execCommand("copy");
+        setTimeout(() => this.$refs.copyRequestCode.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
       },
       copyResponse() {
-        var copyText = document.getElementById("response-details");
-        copyText.select();
+        this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';
+        this.$refs.responseBody.select();
         document.execCommand("copy");
+        setTimeout(() => this.$refs.copyResponse.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
       },
       togglePreview() {
         this.previewEnabled = !this.previewEnabled;
@@ -601,14 +774,19 @@
           } else return ''
         }
         let flats = ['method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken', 'contentType'].map(item => flat(item))
-        let deeps = ['headers', 'params', 'bodyParams'].map(item => deep(item))
-        this.$router.replace('/?' + flats.concat(deeps).join('').slice(0, -1))
+        let deeps = ['headers', 'params'].map(item => deep(item))
+        let bodyParams = this.rawInput ? [flat('rawParams')] : [deep('bodyParams')];
+
+        this.$router.replace('/?' + flats.concat(deeps, bodyParams).join('').slice(0, -1))
       },
       setRouteQueries(queries) {
         if (typeof(queries) !== 'object') throw new Error('Route query parameters must be a Object')
         for (const key in queries) {
           if (key === 'headers' || key === 'params' || key === 'bodyParams') this[key] = JSON.parse(queries[key])
-          else if (typeof(this[key]) === 'string') this[key] = queries[key];
+          if (key === 'rawParams') {
+            this.rawInput = true
+            this.rawParams = queries['rawParams']
+          } else if (typeof(this[key]) === 'string') this[key] = queries[key]
         }
       },
       observeRequestButton() {
@@ -665,11 +843,11 @@
         vm.headers,
         vm.params,
         vm.bodyParams,
-        vm.contentType
+        vm.contentType,
+        vm.rawParams
       ], val => {
         this.setRouteQueryState()
       })
-
     }
   }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <pw-section class="blue" label="Import" ref="import">
-      <button id="show-modal" @click="showModal = true">IMPORT</button>
+      <button id="show-modal" @click="showModal = true">Import</button>
       <import-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
           <h2>Import cURL</h2>

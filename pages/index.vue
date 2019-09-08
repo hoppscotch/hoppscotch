@@ -1,6 +1,21 @@
 <template>
   <div class="page">
-    <pw-section class="cyan" label="Request" ref="request">
+    <pw-section class="blue" label="Import" ref="import">
+      <button id="show-modal" @click="showModal = true">Import</button>
+      <import-modal v-if="showModal" @close="showModal = false">
+        <div slot="header">
+          <h2>Import cURL</h2>
+        </div>
+        <div slot="body">
+          <textarea id="import-text" style="height:20rem">
+          </textarea>
+        </div>
+        <div slot="footer">
+          <button class="modal-default-button" @click="handleImport">OK</button>
+        </div>
+      </import-modal>
+    </pw-section>
+    <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
           <label for="method">Method</label>
@@ -260,6 +275,8 @@
   import section from "../components/section";
   import textareaAutoHeight from "../directives/textareaAutoHeight";
   import toggle from "../components/toggle";
+  import import_modal from "../components/modal";
+  import parseCurlCommand from '../assets/js/curlparser.js';
 
   const statusCategories = [{
       name: 'informational',
@@ -315,11 +332,13 @@
     components: {
       'pw-section': section,
       'pw-toggle': toggle,
+      'import-modal': import_modal,
       history,
-      autocomplete
+      autocomplete,
     },
     data() {
       return {
+        showModal: false,
         copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" /></svg>',
         copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"/></svg>',
         method: 'GET',
@@ -782,6 +801,30 @@
         });
 
         observer.observe(requestElement);
+      },
+      handleImport () {
+        console.log("handleimport");
+        let textarea = document.getElementById("import-text")
+        let text = textarea.value;
+        try {
+         let parsedCurl = parseCurlCommand(text);
+         console.log(parsedCurl); 
+         this.url=parsedCurl.url.replace(/\"/g,"").replace(/\'/g,"");
+         this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
+         this.path = "";
+         this.headers
+         this.showModal = false;
+         this.headers = [];
+          for (const key of Object.keys(parsedCurl.headers)) {
+              this.headers.push({
+                key: key,
+                value: parsedCurl.headers[key]
+              })
+          }
+          this.method = parsedCurl.method.toUpperCase();
+        } catch (error) {
+          this.showModal = false;
+        }
       }
     },
     mounted() {

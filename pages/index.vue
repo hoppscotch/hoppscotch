@@ -1,17 +1,32 @@
 <template>
   <div class="page">
     <pw-section class="yellow" label="Import" ref="import">
+      <ul>
+        <li>
       <button id="show-modal" @click="showModal = true">Import cURL</button>
+        </li>
+      </ul>
       <import-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
-          <h3 class="title">Import cURL</h3>
+          <ul>
+            <li>
+              <h3 class="title">Import cURL</h3>
+            </li>
+          </ul>
         </div>
         <div slot="body">
-          <textarea id="import-text" autofocus rows="8">
-          </textarea>
+          <ul>
+            <li>
+              <textarea id="import-text" autofocus rows="8"></textarea>
+            </li>
+          </ul>
         </div>
         <div slot="footer">
-          <button class="modal-default-button" @click="handleImport">OK</button>
+          <ul>
+            <li>
+              <button class="modal-default-button" @click="handleImport">Import</button>
+            </li>
+          </ul>
         </div>
       </import-modal>
     </pw-section>
@@ -227,7 +242,6 @@
       </ol>
       <ul>
         <li>
-          <label for="add">Action</label>
           <button @click="addRequestHeader" name="add">Add</button>
         </li>
       </ul>
@@ -255,7 +269,6 @@
       </ol>
       <ul>
         <li>
-          <label for="add">Action</label>
           <button @click="addRequestParam" name="add">Add</button>
         </li>
       </ul>

@@ -22,7 +22,7 @@
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 9;
+  z-index: 998;
   top: 0;
   left: 0;
   width: 100%;
@@ -47,15 +47,11 @@
   flex-grow: 1;
   flex-direction: column;
   margin: 8px;
-  padding: 16px;
+  padding: 12px;
   transition: all 0.2s ease;
   background-color: var(--bg-color);
   border: 2px solid var(--ac-color);
   border-radius: 4px;
-}
-
-.modal-body {
-  margin: 8px 0;
 }
 
 /*

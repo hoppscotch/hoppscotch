@@ -71,6 +71,7 @@ _Customized themes are also synced with local session storage_
  - Copy public "Share URL"
  - Generate request code for JavaScript XHR, Fetch, cURL
  - Copy generated request code to clipboard
+ - Import cURL
 
 :electric_plug: **Web Socket**: Establish full-duplex communication channels over a single TCP connection
 

@@ -17,6 +17,10 @@ $responsiveWidth: 720px;
   background-color: rgba(0, 0, 0, .5);
 }
 
+::placeholder {
+  color: var(--fg-color);
+}
+
 * {
   box-sizing: border-box;
   outline: 0;
@@ -194,6 +198,14 @@ fieldset.red legend {
   color: #ff5555;
 }
 
+fieldset.yellow {
+  border-color: #f1fa8c;
+}
+
+fieldset.yellow legend {
+  color: #f1fa8c;
+}
+
 .hidden {
   display: none;
 }
@@ -204,7 +216,7 @@ option,
 textarea,
 pre {
   margin: 4px;
-  padding: 8px 16px;
+  padding: 8px;
   border-radius: 4px;
   width: calc(100% - 8px);
   background-color: var(--bg-dark-color);
@@ -213,18 +225,18 @@ pre {
   font-size: 18px;
   font-family: monospace;
   transition: all 0.2s ease-in-out;
-}
-
-select,
-input,
-option {
-  height: 41px;
 
   &:not([readonly]):hover,
   &:not([readonly]):focus {
     background-color: var(--bg-color);
     box-shadow: inset 0 0 0 2px var(--ac-color);
   }
+}
+
+select,
+input,
+option {
+  height: 41px;
 }
 
 input[type="checkbox"] {

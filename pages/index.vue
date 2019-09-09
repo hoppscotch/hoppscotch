@@ -1,13 +1,13 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Import" ref="import">
-      <button id="show-modal" @click="showModal = true">Import</button>
+    <pw-section class="yellow" label="Import" ref="import">
+      <button id="show-modal" @click="showModal = true">Import cURL</button>
       <import-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
-          <h2>Import cURL</h2>
+          <h3 class="title">Import cURL</h3>
         </div>
         <div slot="body">
-          <textarea id="import-text" style="height:20rem">
+          <textarea id="import-text" autofocus rows="8">
           </textarea>
         </div>
         <div slot="footer">
@@ -90,7 +90,7 @@
               </button>
             </div>
           </div>
-          <textarea ref="generatedCode" name="generatedCode" style="font-family: monospace;" rows="16">{{requestCode}}</textarea>
+          <textarea ref="generatedCode" name="generatedCode" rows="16">{{requestCode}}</textarea>
         </li>
       </ul>
     </pw-section>
@@ -135,7 +135,7 @@
         </ul>
       </div>
       <div v-else>
-        <textarea @keydown="formatRawParams" rows="16" style="font-family: monospace;" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+        <textarea @keydown="formatRawParams" rows="16" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
       </div>
     </pw-section>
     <pw-section class="purple" id="response" label="Response" ref="response">
@@ -803,12 +803,10 @@
         observer.observe(requestElement);
       },
       handleImport () {
-        console.log("handleimport");
         let textarea = document.getElementById("import-text")
         let text = textarea.value;
         try {
          let parsedCurl = parseCurlCommand(text);
-         console.log(parsedCurl); 
          this.url=parsedCurl.url.replace(/\"/g,"").replace(/\'/g,"");
          this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
          this.path = "";

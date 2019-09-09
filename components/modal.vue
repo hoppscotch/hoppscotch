@@ -5,17 +5,13 @@
         <div class="modal-wrapper">
           <div class="modal-container">
             <div class="modal-header">
-              <slot name="header">default header</slot>
+              <slot name="header"></slot>
             </div>
-
             <div class="modal-body">
-              <slot name="body">default body</slot>
+              <slot name="body"></slot>
             </div>
-
             <div class="modal-footer">
-              <slot name="footer">
-                default footer
-              </slot>
+              <slot name="footer"></slot>
             </div>
           </div>
         </div>
@@ -23,50 +19,43 @@
     </transition>
   </div>
 </template>
-
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 9998;
+  z-index: 9;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  display: table;
-  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  max-width: 800px;
 }
 
 .modal-container {
-  width: 40rem;
-  height: 30rem;
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
-  transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
-  background-color: rgba(0, 0, 0, 0.95);
-}
-
-.modal-header h3 {
-  margin-top: 0;
-  color: #42b983;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  margin: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  background-color: var(--bg-color);
+  border: 2px solid var(--ac-color);
+  border-radius: 4px;
 }
 
 .modal-body {
-  height: 20rem;
-  margin: 20px 0;
-}
-
-.modal-default-button {
-  float: right;
+  margin: 8px 0;
 }
 
 /*

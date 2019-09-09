@@ -90,7 +90,7 @@
               </button>
             </div>
           </div>
-          <textarea ref="generatedCode" name="generatedCode" rows="16">{{requestCode}}</textarea>
+          <textarea ref="generatedCode" name="generatedCode" rows="16" v-model="requestCode"></textarea>
         </li>
       </ul>
     </pw-section>
@@ -107,7 +107,7 @@
         </li>
       </ul>
       <div v-if="!rawInput">
-        <ol v-for="(param, index) in bodyParams">
+        <ol v-for="(param, index) in bodyParams" :key="index">
           <li>
             <label :for="'bparam'+index">Key {{index + 1}}</label>
             <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState">
@@ -130,7 +130,7 @@
         <ul>
           <li>
             <label for="request">Parameter List</label>
-            <textarea name="request" readonly rows="1" v-textarea-auto-height="rawRequestBody">{{rawRequestBody || '(add at least one parameter)'}}</textarea>
+            <textarea name="request" readonly rows="1" v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)"></textarea>
           </li>
         </ul>
       </div>
@@ -145,7 +145,7 @@
           <input :class="statusCategory ? statusCategory.className : ''" :value="response.status || '(waiting to send request)'" name="status" readonly type="text">
         </li>
       </ul>
-      <ul v-for="(value, key) in response.headers">
+      <ul v-for="(value, key) in response.headers" :key="key">
         <li>
           <label for="value">{{key}}</label>
           <input :value="value" name="value" readonly>
@@ -165,7 +165,7 @@
             </div>
           </div>
           <div id="response-details-wrapper">
-            <textarea ref="responseBody" name="body" readonly rows="16">{{response.body || '(waiting to send request)'}}</textarea>
+            <textarea ref="responseBody" name="body" readonly rows="16" placeholder="(waiting to send request)">{{response.body}}</textarea>
             <iframe :class="{hidden: !previewEnabled}" class="covers-response" ref="previewFrame" src="about:blank"></iframe>
           </div>
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
@@ -211,7 +211,7 @@
       </ul>
     </pw-section>
     <pw-section class="orange" collapsed label="Headers">
-      <ol v-for="(header, index) in headers">
+      <ol v-for="(header, index) in headers" :key="index">
         <li>
           <label :for="'header'+index">Key {{index + 1}}</label>
           <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState">
@@ -234,12 +234,12 @@
       <ul>
         <li>
           <label for="request">Header List</label>
-          <textarea name="request" readonly ref="requestTextarea" rows="1" v-textarea-auto-height="headerString">{{headerString || '(add at least one header)'}}</textarea>
+          <textarea name="request" readonly ref="requestTextarea" rows="1" v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)"></textarea>
         </li>
       </ul>
     </pw-section>
     <pw-section class="pink" collapsed label="Parameters">
-      <ol v-for="(param, index) in params">
+      <ol v-for="(param, index) in params" :key="index">
         <li>
           <label :for="'param'+index">Key {{index + 1}}</label>
           <input :name="'param'+index" v-model="param.key">
@@ -262,7 +262,7 @@
       <ul>
         <li>
           <label for="request">Parameter List</label>
-          <textarea name="request" readonly rows="1" v-textarea-auto-height="queryString">{{queryString || '(add at least one parameter)'}}</textarea>
+          <textarea name="request" readonly rows="1" v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)"></textarea>
         </li>
       </ul>
     </pw-section>

@@ -180,7 +180,7 @@
             </div>
           </div>
           <div id="response-details-wrapper">
-            <textarea ref="responseBody" name="body" readonly rows="16" placeholder="(waiting to send request)">{{response.body}}</textarea>
+            <pre><code v-model="response.body" ref="responseBody" name="body" readonly rows="16" placeholder="(waiting to send request)">{{response.body}}</code></pre>
             <iframe :class="{hidden: !previewEnabled}" class="covers-response" ref="previewFrame" src="about:blank"></iframe>
           </div>
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
@@ -290,6 +290,8 @@
   import toggle from "../components/toggle";
   import import_modal from "../components/modal";
   import parseCurlCommand from '../assets/js/curlparser.js';
+  import hljs from 'highlight.js';
+  import 'highlight.js/styles/github.css';
 
   const statusCategories = [{
       name: 'informational',
@@ -405,6 +407,13 @@
       rawInput (status) {
         if (status && this.rawParams === '') this.rawParams = '{}'
         else this.setRouteQueryState()
+      },
+      'response.body': async function (val, oldVal) {
+          var responseText = document.querySelector("div#response-details-wrapper pre code");
+          if (responseText && this.response.body != "(waiting to send request)" && this.response.body != "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
+            await setTimeout('', 1000)
+            hljs.highlightBlock(document.querySelector("div#response-details-wrapper pre code"));
+          }
       }
     },
     computed: {

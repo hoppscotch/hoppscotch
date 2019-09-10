@@ -130,7 +130,8 @@ legend {
 }
 
 fieldset textarea,
-fieldset pre {
+fieldset pre
+code {
   resize: vertical;
 }
 
@@ -231,6 +232,20 @@ pre {
     background-color: var(--bg-color);
     box-shadow: inset 0 0 0 2px var(--ac-color);
   }
+}
+
+pre {
+  display: grid;
+}
+
+code {
+  height: 336px;
+}
+
+.hljs,
+.hljs-subst {
+  background-color: var(--bg-dark-color) !important;
+  color: var(--fg-color) !important;
 }
 
 select,

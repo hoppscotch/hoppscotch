@@ -2,8 +2,7 @@
   <pw-section class="gray" label="History">
     <ul>
       <li id="filter-history">
-        <label for="filter-history-input">Search History</label>
-        <input id="filter-history-input" type="text" :disabled="history.length === 0 || isClearingHistory" v-model="filterText">
+        <input id="filter-history-input" type="text" placeholder="search history" :readonly="history.length === 0 || isClearingHistory" v-model="filterText">
       </li>
     </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="89" :remain="Math.min(5, filteredHistory.length)">

@@ -16,7 +16,7 @@ node_js:
  - "12"
 
 env:
- - DEPLOY_ENV=GH_PAGES
+ - DEPLOY_ENV=POSTWOMAN_IO
 
 cache:
  directories:

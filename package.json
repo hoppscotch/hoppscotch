@@ -16,6 +16,7 @@
     "dependencies": {
         "@nuxtjs/axios": "^5.6.0",
         "@nuxtjs/pwa": "^3.0.0-0",
+        "highlight.js": "^9.15.10",
         "nuxt": "^2.9.2",
         "vue-virtual-scroll-list": "^1.4.2",
         "vuejs-auto-complete": "^0.9.0",

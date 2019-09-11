@@ -764,8 +764,18 @@
       },
       copyResponse() {
         this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';
-        this.$refs.responseBody.select();
-        document.execCommand("copy");
+        // Creates a textarea element
+        var aux = document.createElement("textarea");
+        var copy = this.responseType == 'application/json' ? JSON.stringify(this.response.body) : this.response.body;
+        // Adds response body to the new textarea
+        aux.innerText = copy;
+        // Append the textarea to the body
+        document.body.appendChild(aux);
+        // Highlight the content
+        aux.select();
+        document.execCommand('copy');
+        // Remove the input from the body
+        document.body.removeChild(aux);
         setTimeout(() => this.$refs.copyResponse.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
       },
       togglePreview() {

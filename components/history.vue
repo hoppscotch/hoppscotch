@@ -51,9 +51,7 @@
     </ul>
     <ul>
       <li v-if="!isClearingHistory">
-        <button id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">
-          Clear all
-        </button>
+        <button id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">Clear all</button>
       </li>
       <li v-else>
         <div class="flex-wrap">

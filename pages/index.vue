@@ -61,27 +61,29 @@
           <label for="path">Path</label>
           <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" v-model="path">
         </li>
-        <li>
-          <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
-          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-              <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
-            </svg>
-            <span>Share URL</span>
-          </button>
-        </li>
-        <li>
-          <label class="hide-on-small-screen" for="code">&nbsp;</label>
-          <button class="icon" id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="isHidden">
-              <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="!isHidden">
-              <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
-            </svg>
-            <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
-          </button>
-        </li>
+        <div class="show-on-small-screen">
+          <li>
+            <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
+            <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+              </svg>
+              <span>Share URL</span>
+            </button>
+          </li>
+          <li>
+            <label class="hide-on-small-screen" for="code">&nbsp;</label>
+            <button class="icon" id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="isHidden">
+                <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="!isHidden">
+                <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+              </svg>
+              <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
+            </button>
+          </li>
+        </div>
         <li>
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
@@ -145,21 +147,27 @@
             <label :for="'bvalue'+index">Value {{index + 1}}</label>
             <input :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
           </li>
-          <li>
-            <label class="hide-on-small-screen" for="request">&nbsp;</label>
-            <button @click="removeRequestBodyParam(index)" name="request">Remove</button>
-          </li>
+          <div>
+            <li>
+              <label class="hide-on-small-screen" for="request">&nbsp;</label>
+              <button class="icon" @click="removeRequestBodyParam(index)" name="request">
+                <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                  <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+                </svg>
+              </button>
+            </li>
+          </div>
         </ol>
         <ul>
           <li>
             <label for="addrequest">Action</label>
-            <button @click="addRequestBodyParam" name="addrequest">Add</button>
+            <button @click="addRequestBodyParam" name="addrequest">Add New</button>
           </li>
         </ul>
         <ul>
           <li>
             <label for="request">Parameter List</label>
-            <textarea name="request" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)"></textarea>
+            <textarea name="request" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
           </li>
         </ul>
       </div>
@@ -249,20 +257,26 @@
           <label :for="'value'+index">Value {{index + 1}}</label>
           <input :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
         </li>
-        <li>
-          <label class="hide-on-small-screen" for="header">&nbsp;</label>
-          <button @click="removeRequestHeader(index)" name="header">Remove</button>
-        </li>
+        <div>
+          <li>
+            <label class="hide-on-small-screen" for="header">&nbsp;</label>
+            <button class="icon" @click="removeRequestHeader(index)" name="header">
+              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+              </svg>
+            </button>
+          </li>
+        </div>
       </ol>
       <ul>
         <li>
-          <button @click="addRequestHeader" name="add">Add</button>
+          <button @click="addRequestHeader" name="add">Add New</button>
         </li>
       </ul>
       <ul>
         <li>
           <label for="request">Header List</label>
-          <textarea name="request" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)"></textarea>
+          <textarea name="request" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
         </li>
       </ul>
     </pw-section>
@@ -276,20 +290,26 @@
           <label :for="'value'+index">Value {{index + 1}}</label>
           <input :name="'value'+index" v-model="param.value">
         </li>
-        <li>
-          <label class="hide-on-small-screen" for="param">&nbsp;</label>
-          <button @click="removeRequestParam(index)" name="param">Remove</button>
-        </li>
+        <div>
+          <li>
+            <label class="hide-on-small-screen" for="param">&nbsp;</label>
+            <button class="icon" @click="removeRequestParam(index)" name="param">
+              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+              </svg>
+            </button>
+          </li>
+        </div>
       </ol>
       <ul>
         <li>
-          <button @click="addRequestParam" name="add">Add</button>
+          <button @click="addRequestParam" name="add">Add New</button>
         </li>
       </ul>
       <ul>
         <li>
           <label for="request">Parameter List</label>
-          <textarea name="request" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)"></textarea>
+          <textarea name="request" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
         </li>
       </ul>
     </pw-section>

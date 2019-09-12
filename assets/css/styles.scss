@@ -97,15 +97,17 @@ button {
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  fill: var(--act-color);
+
+  span {
+    display: inline-flex;
+    margin-left: 8px;
+  }
 
   &.icon {
     background-color: var(--bg-color);
     color: var(--ac-color);
     fill: var(--ac-color);
-
-    span {
-      margin-left: 8px;
-    }
   }
 
   &:not([disabled]):hover,
@@ -113,6 +115,7 @@ button {
     background-color: var(--bg-color);
     box-shadow: inset 0 0 0 2px var(--ac-color);
     color: var(--ac-color);
+    fill: var(--ac-color);
   }
 }
 

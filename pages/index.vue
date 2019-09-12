@@ -14,7 +14,9 @@
                 <h3 class="title">Import cURL</h3>
                 <div>
                  <button class="icon" @click="toggleModal">
-                   Close
+                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M23 20.168l-8.185-8.187 8.185-8.174-2.832-2.807-8.182 8.179-8.176-8.179-2.81 2.81 8.186 8.196-8.186 8.184 2.81 2.81 8.203-8.192 8.18 8.192z"/>
+                   </svg>
                  </button>
                 </div>
               </div>
@@ -84,6 +86,11 @@
           <label class="hide-on-small-screen" for="action">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
             Send <span id="hidden-message">Again</span>
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/>
+              </svg>
+            </span>
           </button>
         </li>
       </ul>
@@ -152,7 +159,7 @@
         <ul>
           <li>
             <label for="request">Parameter List</label>
-            <textarea name="request" readonly rows="1" v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)"></textarea>
+            <textarea name="request" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)"></textarea>
           </li>
         </ul>
       </div>
@@ -255,7 +262,7 @@
       <ul>
         <li>
           <label for="request">Header List</label>
-          <textarea name="request" readonly ref="requestTextarea" rows="1" v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)"></textarea>
+          <textarea name="request" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)"></textarea>
         </li>
       </ul>
     </pw-section>
@@ -282,7 +289,7 @@
       <ul>
         <li>
           <label for="request">Parameter List</label>
-          <textarea name="request" readonly rows="1" v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)"></textarea>
+          <textarea name="request" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)"></textarea>
         </li>
       </ul>
     </pw-section>
@@ -854,7 +861,7 @@
         let text = textarea.value;
         try {
          let parsedCurl = parseCurlCommand(text);
-         this.url=parsedCurl.url.replace(/\"/g,"").replace(/\'/g,"");
+         this.url = parsedCurl.url.replace(/"/g,"").replace(/'/g,"");
          this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
          this.path = "";
          this.headers

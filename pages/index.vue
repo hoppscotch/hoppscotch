@@ -408,12 +408,20 @@
         if (status && this.rawParams === '') this.rawParams = '{}'
         else this.setRouteQueryState()
       },
-      'response.body': async function (val, oldVal) {
-          var responseText = document.querySelector("div#response-details-wrapper pre code");
-          if (responseText && this.response.body != "(waiting to send request)" && this.response.body != "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
-            await setTimeout('', 1000)
+      'response.body': function (val) {
+        var responseText = document.querySelector("div#response-details-wrapper pre code") != null ? document.querySelector("div#response-details-wrapper pre code") : null;
+        if (responseText) {
+          if (document.querySelector('.hljs') !== null && responseText.innerHTML.indexOf('<span class="hljs') !== -1) {
+            responseText.removeAttribute("class");
+            responseText.innerHTML = null;
+            responseText.innerText = this.response.body;
+          } else if (responseText && this.response.body != "(waiting to send request)" && this.response.body != "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
+            responseText.innerText = this.responseType == 'application/json' ? JSON.stringify(this.response.body, null, 2) : this.response.body;
             hljs.highlightBlock(document.querySelector("div#response-details-wrapper pre code"));
+          } else {
+            responseText.innerText = this.response.body
           }
+        }
       }
     },
     computed: {

@@ -141,7 +141,7 @@
         <ol v-for="(param, index) in bodyParams" :key="index">
           <li>
             <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState">
+            <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
           </li>
           <li>
             <label :for="'bvalue'+index">Value {{index + 1}}</label>
@@ -251,7 +251,7 @@
       <ol v-for="(header, index) in headers" :key="index">
         <li>
           <label :for="'header'+index">Header {{index + 1}}</label>
-          <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState">
+          <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
         </li>
         <li>
           <label :for="'value'+index">Value {{index + 1}}</label>
@@ -284,7 +284,7 @@
       <ol v-for="(param, index) in params" :key="index">
         <li>
           <label :for="'param'+index">Parameter {{index + 1}}</label>
-          <input :name="'param'+index" v-model="param.key">
+          <input :name="'param'+index" v-model="param.key" autofocus>
         </li>
         <li>
           <label :for="'value'+index">Value {{index + 1}}</label>

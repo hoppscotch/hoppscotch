@@ -10,7 +10,14 @@
         <div slot="header">
           <ul>
             <li>
-              <h3 class="title">Import cURL</h3>
+              <div class="flex-wrap">
+                <h3 class="title">Import cURL</h3>
+                <div>
+                 <button class="icon" @click="toggleModal">
+                   Close
+                 </button>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -24,7 +31,7 @@
         <div slot="footer">
           <ul>
             <li>
-              <button class="modal-default-button" @click="handleImport">Import</button>
+              <button @click="handleImport">Import</button>
             </li>
           </ul>
         </div>
@@ -180,7 +187,7 @@
             </div>
           </div>
           <div id="response-details-wrapper">
-            <pre><code v-model="response.body" ref="responseBody" name="body" readonly rows="16" placeholder="(waiting to send request)">{{response.body}}</code></pre>
+            <pre><code ref="responseBody" name="body" rows="16" placeholder="(waiting to send request)">{{response.body}}</code></pre>
             <iframe :class="{hidden: !previewEnabled}" class="covers-response" ref="previewFrame" src="about:blank"></iframe>
           </div>
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
@@ -228,7 +235,7 @@
     <pw-section class="orange" collapsed label="Headers">
       <ol v-for="(header, index) in headers" :key="index">
         <li>
-          <label :for="'header'+index">Key {{index + 1}}</label>
+          <label :for="'header'+index">Header {{index + 1}}</label>
           <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState">
         </li>
         <li>
@@ -255,7 +262,7 @@
     <pw-section class="pink" collapsed label="Parameters">
       <ol v-for="(param, index) in params" :key="index">
         <li>
-          <label :for="'param'+index">Key {{index + 1}}</label>
+          <label :for="'param'+index">Parameter {{index + 1}}</label>
           <input :name="'param'+index" v-model="param.key">
         </li>
         <li>
@@ -291,7 +298,7 @@
   import import_modal from "../components/modal";
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
-  import 'highlight.js/styles/github.css';
+  import 'highlight.js/styles/dracula.css';
 
   const statusCategories = [{
       name: 'informational',
@@ -863,6 +870,9 @@
         } catch (error) {
           this.showModal = false;
         }
+      },
+      toggleModal() {
+        this.showModal = !this.showModal;
       }
     },
     mounted() {

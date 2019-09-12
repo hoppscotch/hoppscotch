@@ -42,7 +42,6 @@ body {
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -226,6 +225,7 @@ pre {
   font-size: 18px;
   font-family: monospace;
   transition: all 0.2s ease-in-out;
+  user-select: all;
 
   &:not([readonly]):hover,
   &:not([readonly]):focus {
@@ -418,7 +418,6 @@ fieldset#history {
   position: relative;
   overflow: hidden;
   border-radius: 4px;
-  margin: 4px;
 
   textarea {
     margin: 0;

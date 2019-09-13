@@ -29,7 +29,7 @@
             <label :for="'delete-button#'+index" class="hide-on-small-screen">&nbsp;</label>
             <button class="icon" :id="'delete-button#'+index" :disabled="isClearingHistory" @click="deleteHistory(entry)">
               <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+                <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z"/>
               </svg>
             </button>
           </li>
@@ -51,9 +51,7 @@
     </ul>
     <ul>
       <li v-if="!isClearingHistory">
-        <button id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">
-          Clear all
-        </button>
+        <button id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">Clear All</button>
       </li>
       <li v-else>
         <div class="flex-wrap">

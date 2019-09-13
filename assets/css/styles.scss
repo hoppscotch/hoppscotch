@@ -7,14 +7,15 @@ $responsiveWidth: 720px;
 
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, .3);
+  background-color: rgba(0, 0, 0, .5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, .6);
 }
 
 ::placeholder {

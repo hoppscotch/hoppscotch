@@ -203,6 +203,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
     <td align="center"><a href="https://github.com/nickpalenchar"><img src="https://github.com/nickpalenchar.png?size=100" width="100px;" alt="Nick Palenchar"/><br /><sub><b>Nick Palenchar</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nickpalenchar" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/yubathom"><img src="https://github.com/yubathom.png?size=100" width="100px;" alt="Thomas Yuba"/><br /><sub><b>Thomas Yuba</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=yubathom" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/larouxn"><img src="https://github.com/larouxn.png?size=100" width="100px;" alt="Nicholas La Roux"/><br /><sub><b>Nicholas La Roux</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=larouxn" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/JacobAnavisca"><img src="https://github.com/JacobAnavisca.png?size=100" width="100px;" alt="Jacob Anavisca"/><br /><sub><b>Jacob Anavisca</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=JacobAnavisca" title="Code">💻</a></td>
   </tr>
 </table>
 

@@ -3,21 +3,21 @@
     <pw-section class="yellow" label="Import" ref="import">
       <ul>
         <li>
-      <button id="show-modal" @click="showModal = true">Import cURL</button>
+          <button id="show-modal" @click="showModal = true">Import cURL</button>
         </li>
       </ul>
-      <import-modal v-if="showModal" @close="showModal = false">
+      <pw-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
           <ul>
             <li>
               <div class="flex-wrap">
                 <h3 class="title">Import cURL</h3>
                 <div>
-                 <button class="icon" @click="toggleModal">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M23 20.168l-8.185-8.187 8.185-8.174-2.832-2.807-8.182 8.179-8.176-8.179-2.81 2.81 8.186 8.196-8.186 8.184 2.81 2.81 8.203-8.192 8.18 8.192z"/>
-                   </svg>
-                 </button>
+                  <button class="icon" @click="toggleModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                      <path d="M23 20.168l-8.185-8.187 8.185-8.174-2.832-2.807-8.182 8.179-8.176-8.179-2.81 2.81 8.186 8.196-8.186 8.184 2.81 2.81 8.203-8.192 8.18 8.192z" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </li>
@@ -37,7 +37,7 @@
             </li>
           </ul>
         </div>
-      </import-modal>
+      </pw-modal>
     </pw-section>
     <pw-section class="blue" label="Request" ref="request">
       <ul>
@@ -65,7 +65,7 @@
           <li>
             <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
             <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
               </svg>
               <span>Share URL</span>
@@ -89,8 +89,8 @@
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
             Send <span id="hidden-message">Again</span>
             <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M0 12l11 3.1 7-8.1-8.156 5.672-4.312-1.202 15.362-7.68-3.974 14.57-3.75-3.339-2.17 2.925v-.769l-2-.56v7.383l4.473-6.031 4.527 4.031 6-22z" />
               </svg>
             </span>
           </button>
@@ -114,14 +114,14 @@
             <label for="generatedCode">Generated Code</label>
             <div>
               <button class="icon" @click="copyRequestCode" name="copyRequestCode" ref="copyRequestCode">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
                 </svg>
                 <span>Copy</span>
               </button>
             </div>
           </div>
-          <textarea ref="generatedCode" name="generatedCode" rows="16" v-model="requestCode"></textarea>
+          <textarea ref="generatedCode" name="generatedCode" rows="8" v-model="requestCode"></textarea>
         </li>
       </ul>
     </pw-section>
@@ -152,7 +152,7 @@
               <label class="hide-on-small-screen" for="request">&nbsp;</label>
               <button class="icon" @click="removeRequestBodyParam(index)" name="request">
                 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                  <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+                  <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
                 </svg>
               </button>
             </li>
@@ -172,7 +172,7 @@
         </ul>
       </div>
       <div v-else>
-        <textarea @keydown="formatRawParams" rows="16" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+        <textarea @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
       </div>
     </pw-section>
     <pw-section class="purple" id="response" label="Response" ref="response">
@@ -194,7 +194,7 @@
             <label for="body">response</label>
             <div>
               <button class="icon" @click="copyResponse" name="copyResponse" ref="copyResponse" v-if="response.body">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
                 </svg>
                 <span>Copy</span>
@@ -237,8 +237,21 @@
         </li>
         <li>
           <label for="http_basic_passwd">Password</label>
-          <input type="password" v-model="httpPassword">
+          <input :type="passwordFieldType" v-model="httpPassword">
         </li>
+        <div>
+          <li>
+            <label class="hide-on-small-screen" for="switchVisibility">&nbsp;</label>
+            <button class="icon" ref="switchVisibility" @click="switchVisibility">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType === 'text'">
+                <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType !== 'text'">
+                <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+              </svg>
+            </button>
+          </li>
+        </div>
       </ul>
       <ul v-if="auth === 'Bearer Token'">
         <li>
@@ -262,7 +275,7 @@
             <label class="hide-on-small-screen" for="header">&nbsp;</label>
             <button class="icon" @click="removeRequestHeader(index)" name="header">
               <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+                <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
               </svg>
             </button>
           </li>
@@ -295,7 +308,7 @@
             <label class="hide-on-small-screen" for="param">&nbsp;</label>
             <button class="icon" @click="removeRequestParam(index)" name="param">
               <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm6.605-17.581l-10.677 10.68 5.658 5.659 10.676-10.682-5.657-5.657z" />
+                <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
               </svg>
             </button>
           </li>
@@ -313,7 +326,7 @@
         </li>
       </ul>
     </pw-section>
-    <history @useHistory="handleUseHistory" ref="historyComponent" />
+    <history @useHistory="handleUseHistory" ref="historyComponent"></history>
   </div>
 </template>
 <script>
@@ -322,7 +335,7 @@
   import section from "../components/section";
   import textareaAutoHeight from "../directives/textareaAutoHeight";
   import toggle from "../components/toggle";
-  import import_modal from "../components/modal";
+  import modal from "../components/modal";
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
   import 'highlight.js/styles/dracula.css';
@@ -371,7 +384,8 @@
     return headerMap
 
   };
-  export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
+  export const findStatusGroup = responseStatus => statusCategories.find(status => status.statusCodeRegex.test(
+    responseStatus));
 
   export default {
     directives: {
@@ -381,21 +395,22 @@
     components: {
       'pw-section': section,
       'pw-toggle': toggle,
-      'import-modal': import_modal,
+      'pw-modal': modal,
       history,
       autocomplete,
     },
     data() {
       return {
         showModal: false,
-        copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" /></svg>',
-        copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"/></svg>',
+        copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" /></svg>',
+        copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"/></svg>',
         method: 'GET',
         url: 'https://reqres.in',
         auth: 'None',
         path: '/api/users',
         httpUser: '',
         httpPassword: '',
+        passwordFieldType: 'password',
         bearerToken: '',
         headers: [],
         params: [],
@@ -438,19 +453,23 @@
       contentType(val) {
         this.rawInput = !this.knownContentTypes.includes(val);
       },
-      rawInput (status) {
+      rawInput(status) {
         if (status && this.rawParams === '') this.rawParams = '{}'
         else this.setRouteQueryState()
       },
       'response.body': function (val) {
-        var responseText = document.querySelector("div#response-details-wrapper pre code") != null ? document.querySelector("div#response-details-wrapper pre code") : null;
+        var responseText = document.querySelector("div#response-details-wrapper pre code") != null ? document
+          .querySelector("div#response-details-wrapper pre code") : null;
         if (responseText) {
-          if (document.querySelector('.hljs') !== null && responseText.innerHTML.indexOf('<span class="hljs') !== -1) {
+          if (document.querySelector('.hljs') !== null && responseText.innerHTML.indexOf('<span class="hljs') !== -
+            1) {
             responseText.removeAttribute("class");
             responseText.innerHTML = null;
             responseText.innerText = this.response.body;
-          } else if (responseText && this.response.body != "(waiting to send request)" && this.response.body != "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
-            responseText.innerText = this.responseType == 'application/json' ? JSON.stringify(this.response.body, null, 2) : this.response.body;
+          } else if (responseText && this.response.body != "(waiting to send request)" && this.response.body !=
+            "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
+            responseText.innerText = this.responseType == 'application/json' ? JSON.stringify(this.response.body,
+              null, 2) : this.response.body;
             hljs.highlightBlock(document.querySelector("div#response-details-wrapper pre code"));
           } else {
             responseText.innerText = this.response.body
@@ -464,8 +483,11 @@
       },
       isValidURL() {
         const protocol = '^(https?:\\/\\/)?';
-        const validIP = new RegExp(protocol + "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
-        const validHostname = new RegExp(protocol + "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
+        const validIP = new RegExp(protocol +
+          "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+        const validHostname = new RegExp(protocol +
+          "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
+        );
         return validIP.test(this.url) || validHostname.test(this.url);
       },
       hasRequestBody() {
@@ -526,12 +548,13 @@
           requestString.push('const xhr = new XMLHttpRequest()');
           const user = this.auth === 'Basic' ? this.httpUser : null
           const pswd = this.auth === 'Basic' ? this.httpPassword : null
-          requestString.push('xhr.open(' + this.method + ', ' + this.url + this.path + this.queryString + ', true, ' + user + ', ' + pswd + ')');
+          requestString.push('xhr.open(' + this.method + ', ' + this.url + this.path + this.queryString + ', true, ' +
+            user + ', ' + pswd + ')');
           if (this.auth === 'Bearer Token') {
             requestString.push("xhr.setRequestHeader('Authorization', 'Bearer ' + " + this.bearerToken + ")");
           }
           if (this.headers) {
-            this.headers.forEach(function(element) {
+            this.headers.forEach(function (element) {
               requestString.push('xhr.setRequestHeader(' + element.key + ', ' + element.value + ')');
             })
           }
@@ -562,7 +585,7 @@
             headers.push('    "Content-Type": "' + this.contentType + '; charset=utf-8",\n')
           }
           if (this.headers) {
-            this.headers.forEach(function(element) {
+            this.headers.forEach(function (element) {
               headers.push('    "' + element.key + '": "' + element.value + '",\n');
             })
           }
@@ -585,12 +608,13 @@
           requestString.push("  '" + this.url + this.path + this.queryString + "' \\\n")
           if (this.auth === 'Basic') {
             var basic = this.httpUser + ':' + this.httpPassword;
-            requestString.push("  -H 'Authorization: Basic " + window.btoa(unescape(encodeURIComponent(basic))) + "' \\\n")
+            requestString.push("  -H 'Authorization: Basic " + window.btoa(unescape(encodeURIComponent(basic))) +
+              "' \\\n")
           } else if (this.auth === 'Bearer Token') {
             requestString.push("  -H 'Authorization: Bearer Token " + this.bearerToken + "' \\\n")
           }
           if (this.headers) {
-            this.headers.forEach(function(element) {
+            this.headers.forEach(function (element) {
               requestString.push("  -H '" + element.key + ": " + element.value + "' \\\n");
             })
           }
@@ -767,7 +791,8 @@
           const lastLine = textBeforeCursor.split('\n').slice(-1)[0];
           const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
           event.target.value = textBeforeCursor + '\n' + rightPadding + textAfterCursor;
-          setTimeout(() => event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + rightPadding.length + 1, 1);
+          setTimeout(() => event.target.selectionStart = event.target.selectionEnd = oldSelectionStart + rightPadding
+            .length + 1, 1);
         } else if (event.which === 9) {
           event.preventDefault();
           const oldSelectionStart = event.target.selectionStart;
@@ -781,12 +806,12 @@
           let time = new Date().toLocaleTimeString();
           let date = new Date().toLocaleDateString();
           navigator.share({
-            text: `Postwoman • API request builder at ${time} on ${date}`,
-            url: window.location.href
-          }).then(() => {
-            // console.log('Thanks for sharing!');
-          })
-          .catch(console.error);
+              text: `Postwoman • API request builder at ${time} on ${date}`,
+              url: window.location.href
+            }).then(() => {
+              // console.log('Thanks for sharing!');
+            })
+            .catch(console.error);
         } else {
           this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
           var dummy = document.createElement('input');
@@ -847,20 +872,21 @@
             return `${key}=${JSON.stringify(this[key])}&`
           } else return ''
         }
-        let flats = ['method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken', 'contentType'].map(item => flat(item))
+        let flats = ['method', 'url', 'path', 'auth', 'httpUser', 'httpPassword', 'bearerToken', 'contentType'].map(
+          item => flat(item))
         let deeps = ['headers', 'params'].map(item => deep(item))
         let bodyParams = this.rawInput ? [flat('rawParams')] : [deep('bodyParams')];
 
         this.$router.replace('/?' + flats.concat(deeps, bodyParams).join('').slice(0, -1))
       },
       setRouteQueries(queries) {
-        if (typeof(queries) !== 'object') throw new Error('Route query parameters must be a Object')
+        if (typeof (queries) !== 'object') throw new Error('Route query parameters must be a Object')
         for (const key in queries) {
           if (key === 'headers' || key === 'params' || key === 'bodyParams') this[key] = JSON.parse(queries[key])
           if (key === 'rawParams') {
             this.rawInput = true
             this.rawParams = queries['rawParams']
-          } else if (typeof(this[key]) === 'string') this[key] = queries[key]
+          } else if (typeof (this[key]) === 'string') this[key] = queries[key]
         }
       },
       observeRequestButton() {
@@ -876,22 +902,22 @@
 
         observer.observe(requestElement);
       },
-      handleImport () {
+      handleImport() {
         let textarea = document.getElementById("import-text")
         let text = textarea.value;
         try {
-         let parsedCurl = parseCurlCommand(text);
-         this.url = parsedCurl.url.replace(/"/g,"").replace(/'/g,"");
-         this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
-         this.path = "";
-         this.headers
-         this.showModal = false;
-         this.headers = [];
+          let parsedCurl = parseCurlCommand(text);
+          this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "");
+          this.url = this.url[this.url.length - 1] == '/' ? this.url.slice(0, -1) : this.url;
+          this.path = "";
+          this.headers
+          this.showModal = false;
+          this.headers = [];
           for (const key of Object.keys(parsedCurl.headers)) {
-              this.headers.push({
-                key: key,
-                value: parsedCurl.headers[key]
-              })
+            this.headers.push({
+              key: key,
+              value: parsedCurl.headers[key]
+            })
           }
           this.method = parsedCurl.method.toUpperCase();
         } catch (error) {
@@ -900,6 +926,9 @@
       },
       toggleModal() {
         this.showModal = !this.showModal;
+      },
+      switchVisibility() {
+        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
       }
     },
     mounted() {
@@ -925,5 +954,4 @@
       })
     }
   }
-
 </script>

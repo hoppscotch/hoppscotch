@@ -294,6 +294,7 @@ input[type="checkbox"] {
 [disabled] {
   background-color: var(--err-color);
   color: #b2b2b2;
+  fill: #b2b2b2;
   cursor: default;
 
   &.icon {

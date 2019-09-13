@@ -906,13 +906,11 @@
         let textarea = document.getElementById("import-text")
         let text = textarea.value;
         try {
-          let parsedCurl = parseCurlCommand(text);
-          this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "");
-          this.url = this.url[this.url.length - 1] == '/' ? this.url.slice(0, -1) : this.url;
-          this.path = "";
-          this.headers
-          this.showModal = false;
-          this.headers = [];
+         let parsedCurl = parseCurlCommand(text);
+         this.url = parsedCurl.url.replace(/"/g,"").replace(/'/g,"");
+         this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
+         this.path = "";
+         this.headers = [];
           for (const key of Object.keys(parsedCurl.headers)) {
             this.headers.push({
               key: key,
@@ -920,6 +918,11 @@
             })
           }
           this.method = parsedCurl.method.toUpperCase();
+          if (parsedCurl["data"]){
+            this.rawInput = true;
+            this.rawParams = parsedCurl["data"];
+          }
+          this.showModal = false;
         } catch (error) {
           this.showModal = false;
         }

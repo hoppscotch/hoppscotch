@@ -132,13 +132,13 @@
           </autocomplete>
           <span>
             <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
-              Raw input {{ rawInput ? "enabled" : "disabled" }}
+              Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
             </pw-toggle>
           </span>
         </li>
       </ul>
       <div v-if="!rawInput">
-        <ol v-for="(param, index) in bodyParams" :key="index">
+        <ul v-for="(param, index) in bodyParams" :key="index">
           <li>
             <label :for="'bparam'+index">Key {{index + 1}}</label>
             <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
@@ -157,10 +157,9 @@
               </button>
             </li>
           </div>
-        </ol>
+        </ul>
         <ul>
           <li>
-            <label for="addrequest">Action</label>
             <button @click="addRequestBodyParam" name="addrequest">Add New</button>
           </li>
         </ul>
@@ -172,7 +171,12 @@
         </ul>
       </div>
       <div v-else>
-        <textarea @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+        <ul>
+          <li>
+            <label for="rawBody">Raw Request Body</label>
+            <textarea name="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+          </li>
+        </ul>
       </div>
     </pw-section>
     <pw-section class="purple" id="response" label="Response" ref="response">
@@ -261,7 +265,7 @@
       </ul>
     </pw-section>
     <pw-section class="orange" collapsed label="Headers">
-      <ol v-for="(header, index) in headers" :key="index">
+      <ul v-for="(header, index) in headers" :key="index">
         <li>
           <label :for="'header'+index">Header {{index + 1}}</label>
           <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
@@ -280,7 +284,7 @@
             </button>
           </li>
         </div>
-      </ol>
+      </ul>
       <ul>
         <li>
           <button @click="addRequestHeader" name="add">Add New</button>
@@ -294,7 +298,7 @@
       </ul>
     </pw-section>
     <pw-section class="pink" collapsed label="Parameters">
-      <ol v-for="(param, index) in params" :key="index">
+      <ul v-for="(param, index) in params" :key="index">
         <li>
           <label :for="'param'+index">Parameter {{index + 1}}</label>
           <input :name="'param'+index" v-model="param.key" autofocus>
@@ -313,7 +317,7 @@
             </button>
           </li>
         </div>
-      </ol>
+      </ul>
       <ul>
         <li>
           <button @click="addRequestParam" name="add">Add New</button>

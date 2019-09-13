@@ -26,7 +26,6 @@ $responsiveWidth: 720px;
   box-sizing: border-box;
   outline: 0;
   border: 0;
-  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 a {
@@ -44,6 +43,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 h1,
@@ -96,6 +96,7 @@ button {
   color: var(--act-color);
   font-weight: 700;
   font-size: 16px;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   fill: var(--act-color);
@@ -308,7 +309,7 @@ label {
 ul,
 ol {
   display: flex;
-  margin: 8px 0 0;
+  margin: 4px 0 4px;
   padding: 0;
   list-style-type: none;
 }
@@ -400,7 +401,8 @@ fieldset#history {
     span {
       position: absolute;
       top: 44px;
-      right: 20px;
+      right: 12px;
+      font-weight: 700;
       font-family: monospace, monospace;
     }
   }

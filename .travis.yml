@@ -18,17 +18,24 @@ node_js:
 env:
  - DEPLOY_ENV=POSTWOMAN_IO
 
+addons:
+  apt:
+    packages:
+      # Ubuntu 16+ does not install this dependency by default, so we need to install it ourselves
+      - libgconf-2-4
+
 cache:
- directories:
-  - "node_modules"
+  npm: true
+  directories:
+  - ~/.cache
 
 branches:
  only:
   - "master"
 
 install:
- - "npm install"
- - "npm run generate"
+  - npm ci
+  - "npm run generate"
 
 notifications:
   webhooks: https://www.travisbuddy.com
@@ -42,3 +49,7 @@ deploy:
  local-dir: dist
  on:
   branch: master
+
+after_success:
+ - chmod +x prdeploy.sh
+ - ./prdeploy.sh

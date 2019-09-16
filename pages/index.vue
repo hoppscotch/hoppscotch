@@ -642,7 +642,7 @@
             requestString.push("  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n")
             requestString.push("  -d '" + requestBody + "' \\\n")
           }
-          return requestString.join('').slice(0, -4);
+          return requestString.join('').slice(0, -3);
         }
       }
     },

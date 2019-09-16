@@ -223,113 +223,127 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="green" collapsed label="Authentication">
-      <ul>
-        <li>
-          <label for="auth">Authentication Type</label>
-          <select v-model="auth">
-            <option>None</option>
-            <option>Basic</option>
-            <option>Bearer Token</option>
-          </select>
-        </li>
-      </ul>
-      <ul v-if="auth === 'Basic'">
-        <li>
-          <label for="http_basic_user">User</label>
-          <input v-model="httpUser">
-        </li>
-        <li>
-          <label for="http_basic_passwd">Password</label>
-          <input :type="passwordFieldType" v-model="httpPassword">
-        </li>
-        <div>
-          <li>
-            <label class="hide-on-small-screen" for="switchVisibility">&nbsp;</label>
-            <button class="icon" ref="switchVisibility" @click="switchVisibility">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType === 'text'">
-                <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
-              </svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType !== 'text'">
-                <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
-              </svg>
-            </button>
-          </li>
-        </div>
-      </ul>
-      <ul v-if="auth === 'Bearer Token'">
-        <li>
-          <label for="bearer_token">Token</label>
-          <input v-model="bearerToken">
-        </li>
-      </ul>
-    </pw-section>
-    <pw-section class="orange" collapsed label="Headers">
-      <ul v-for="(header, index) in headers" :key="index">
-        <li>
-          <label :for="'header'+index">Header {{index + 1}}</label>
-          <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
-        </li>
-        <li>
-          <label :for="'value'+index">Value {{index + 1}}</label>
-          <input :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
-        </li>
-        <div>
-          <li>
-            <label class="hide-on-small-screen" for="header">&nbsp;</label>
-            <button class="icon" @click="removeRequestHeader(index)" name="header">
-              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
-              </svg>
-            </button>
-          </li>
-        </div>
-      </ul>
-      <ul>
-        <li>
-          <button @click="addRequestHeader" name="add">Add New</button>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="request">Header List</label>
-          <textarea name="request" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
-        </li>
-      </ul>
-    </pw-section>
-    <pw-section class="pink" collapsed label="Parameters">
-      <ul v-for="(param, index) in params" :key="index">
-        <li>
-          <label :for="'param'+index">Parameter {{index + 1}}</label>
-          <input :name="'param'+index" v-model="param.key" autofocus>
-        </li>
-        <li>
-          <label :for="'value'+index">Value {{index + 1}}</label>
-          <input :name="'value'+index" v-model="param.value">
-        </li>
-        <div>
-          <li>
-            <label class="hide-on-small-screen" for="param">&nbsp;</label>
-            <button class="icon" @click="removeRequestParam(index)" name="param">
-              <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
-              </svg>
-            </button>
-          </li>
-        </div>
-      </ul>
-      <ul>
-        <li>
-          <button @click="addRequestParam" name="add">Add New</button>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="request">Parameter List</label>
-          <textarea name="request" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
-        </li>
-      </ul>
-    </pw-section>
+    <section>
+      <input id="tab-one" type="radio" name="grp" checked="checked">
+      <label for="tab-one">Authentication</label>
+      <div class="tab">
+        <pw-section class="green" label="Authentication">
+          <ul>
+            <li>
+              <label for="auth">Authentication Type</label>
+              <select v-model="auth">
+                <option>None</option>
+                <option>Basic</option>
+                <option>Bearer Token</option>
+              </select>
+            </li>
+          </ul>
+          <ul v-if="auth === 'Basic'">
+            <li>
+              <label for="http_basic_user">User</label>
+              <input v-model="httpUser">
+            </li>
+            <li>
+              <label for="http_basic_passwd">Password</label>
+              <input :type="passwordFieldType" v-model="httpPassword">
+            </li>
+            <div>
+              <li>
+                <label class="hide-on-small-screen" for="switchVisibility">&nbsp;</label>
+                <button class="icon" ref="switchVisibility" @click="switchVisibility">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType === 'text'">
+                    <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType !== 'text'">
+                    <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+                  </svg>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul v-if="auth === 'Bearer Token'">
+            <li>
+              <label for="bearer_token">Token</label>
+              <input v-model="bearerToken">
+            </li>
+          </ul>
+        </pw-section>
+      </div>
+      <input id="tab-two" type="radio" name="grp">
+      <label for="tab-two">Headers</label>
+      <div class="tab">
+        <pw-section class="orange" label="Headers">
+          <ul v-for="(header, index) in headers" :key="index">
+            <li>
+              <label :for="'header'+index">Header {{index + 1}}</label>
+              <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
+            </li>
+            <li>
+              <label :for="'value'+index">Value {{index + 1}}</label>
+              <input :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
+            </li>
+            <div>
+              <li>
+                <label class="hide-on-small-screen" for="header">&nbsp;</label>
+                <button class="icon" @click="removeRequestHeader(index)" name="header">
+                  <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                    <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
+                  </svg>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <button @click="addRequestHeader" name="add">Add New</button>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <label for="request">Header List</label>
+              <textarea name="request" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
+            </li>
+          </ul>
+        </pw-section>
+      </div>
+      <input id="tab-three" type="radio" name="grp">
+      <label for="tab-three">Parameters</label>
+      <div class="tab">
+        <pw-section class="pink" label="Parameters">
+          <ul v-for="(param, index) in params" :key="index">
+            <li>
+              <label :for="'param'+index">Parameter {{index + 1}}</label>
+              <input :name="'param'+index" v-model="param.key" autofocus>
+            </li>
+            <li>
+              <label :for="'value'+index">Value {{index + 1}}</label>
+              <input :name="'value'+index" v-model="param.value">
+            </li>
+            <div>
+              <li>
+                <label class="hide-on-small-screen" for="param">&nbsp;</label>
+                <button class="icon" @click="removeRequestParam(index)" name="param">
+                  <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                    <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
+                  </svg>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <button @click="addRequestParam" name="add">Add New</button>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <label for="request">Parameter List</label>
+              <textarea name="request" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
+            </li>
+          </ul>
+        </pw-section>
+      </div>
+    </section>
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
   </div>
 </template>

@@ -11,11 +11,11 @@ $responsiveWidth: 720px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, .6);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 ::placeholder {
@@ -134,8 +134,7 @@ legend {
 }
 
 fieldset textarea,
-fieldset pre
-code {
+fieldset pre code {
   resize: vertical;
 }
 
@@ -148,11 +147,11 @@ fieldset.blue legend {
 }
 
 fieldset.gray {
-  border-color: #BCC2CD;
+  border-color: #bcc2cd;
 }
 
 fieldset.gray legend {
-  color: #BCC2CD;
+  color: #bcc2cd;
 }
 
 fieldset.green {
@@ -226,7 +225,6 @@ pre {
   width: calc(100% - 8px);
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
-  font-weight: 700;
   font-size: 18px;
   font-family: monospace;
   transition: all 0.2s ease-in-out;
@@ -278,7 +276,7 @@ input[type="checkbox"] {
       justify-content: center;
       margin: 8px 8px 8px 0;
       color: transparent;
-      transition: .2s;
+      transition: 0.2s;
     }
   }
 
@@ -368,23 +366,23 @@ ol li {
 }
 
 .info-response {
-  background-color: #FFEB3B;
+  background-color: #ffeb3b;
 }
 
 .success-response {
-  background-color: #4BB543;
+  background-color: #4bb543;
 }
 
 .redir-response {
-  background-color: #FF5722;
+  background-color: #ff5722;
 }
 
 .cl-error-response {
-  background-color: #A63232;
+  background-color: #a63232;
 }
 
 .sv-error-response {
-  background-color: #B71C1C;
+  background-color: #b71c1c;
 }
 
 .missing-data-response {
@@ -403,7 +401,6 @@ fieldset#history {
       position: absolute;
       top: 44px;
       right: 12px;
-      font-weight: 700;
       font-family: monospace, monospace;
     }
   }
@@ -460,4 +457,38 @@ fieldset#history {
       margin-left: 4px;
     }
   }
+}
+
+section {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+div.tab {
+  width: 100%;
+  order: 1;
+}
+
+input[type="radio"],
+div.tab {
+  display: none;
+}
+
+input[type="radio"] + label {
+  padding: 8px 16px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--err-color);
+  }
+}
+
+input[type="radio"]:checked + label {
+  border-color: var(--ac-color);
+}
+
+input[type="radio"]:checked + label + div.tab {
+  display: block;
 }

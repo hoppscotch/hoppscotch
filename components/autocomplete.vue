@@ -1,11 +1,9 @@
 <template>
   <div class="autocomplete-wrapper">
     <label>
-      <slot />
       <input type="text" :placeholder="placeholder" v-model="value" @input="updateSuggestions" @keyup="updateSuggestions" @click="updateSuggestions" @keydown="handleKeystroke" ref="acInput" :spellcheck="spellcheck" :autocapitalize="spellcheck" :autocorrect="spellcheck">
-
       <ul class="suggestions" v-if="suggestions.length > 0 && suggestionsVisible" :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }">
-        <li v-for="(suggestion, index) in suggestions" @click.prevent="forceSuggestion(suggestion)" :class="{ active: currentSuggestionIndex === index }">{{ suggestion }}</li>
+        <li v-for="(suggestion, index) in suggestions" @click.prevent="forceSuggestion(suggestion)" :class="{ active: currentSuggestionIndex === index }" :key="index">{{ suggestion }}</li>
       </ul>
     </label>
   </div>
@@ -13,7 +11,6 @@
 
 <style lang="scss" scoped>
   .autocomplete-wrapper {
-
     position: relative;
 
     input:focus+ul.suggestions,
@@ -28,7 +25,6 @@
       top: 90%;
       margin: 0 4px;
       left: 0;
-
       padding: 0;
       border-radius: 0 0 4px 4px;
       z-index: 9999;
@@ -55,7 +51,6 @@
         }
       }
     }
-
   }
 
 </style>

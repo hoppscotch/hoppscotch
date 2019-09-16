@@ -28,7 +28,7 @@
           <label for="log">Log</label>
           <div id="log" name="log" class="log">
             <span v-if="communication.log">
-              <span v-for="logEntry in communication.log" :style="{ color: logEntry.color }">@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+              <span v-for="(logEntry, index) in communication.log" :style="{ color: logEntry.color }" :key="index">@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
             </span>
             <span v-else>(Waiting for connection...)</span>
           </div>

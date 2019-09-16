@@ -59,7 +59,7 @@
         </li>
         <li>
           <label for="path">Path</label>
-          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path">
+          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path" @input="pathInputHandler">
         </li>
         <div class="show-on-small-screen">
           <li>
@@ -444,6 +444,7 @@
           body: ''
         },
         previewEnabled: false,
+        paramsWatchEnabled: true,
 
         /**
          * These are content types that can be automatically
@@ -493,6 +494,32 @@
             responseText.innerText = this.response.body
           }
         }
+      },
+      params: {
+        handler: function(newValue) {
+          if(!this.paramsWatchEnabled) {
+            this.paramsWatchEnabled = true;
+            return;
+          }
+          let path = this.path;
+          let queryString = newValue
+            .filter(({
+              key
+            }) => !!key)
+            .map(({
+              key,
+              value
+            }) => `${key}=${value}`).join('&')
+          queryString = queryString === '' ? '' : `?${queryString}`
+          if(path.indexOf('?') !== -1) {
+            path = path.slice(0, path.indexOf('?')) + queryString;
+          } else {
+            path = path + queryString
+          }
+
+          this.path = path;
+        },
+        deep: true
       }
     },
     computed: {
@@ -510,6 +537,15 @@
       },
       hasRequestBody() {
         return ['POST', 'PUT', 'PATCH'].includes(this.method);
+      },
+      pathName() {
+        let result;
+        if(this.path.indexOf('?') !== -1) {
+          result = this.path.slice(0, this.path.indexOf('?'))
+        } else {
+          result = this.path;
+        }
+        return result;
       },
       rawRequestBody() {
         const {
@@ -715,7 +751,7 @@
         try {
           const payload = await this.$axios({
             method: this.method,
-            url: this.url + this.path + this.queryString,
+            url: this.url + this.pathName + this.queryString,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null
@@ -765,7 +801,38 @@
           this.response.body = "See JavaScript console (F12) for details.";
         }
       },
+      pathInputHandler(event) {
+        let newValue = event.target.value;
+        let path, start, end, queryString;
+        path = newValue;
+        start = path.indexOf('?');
+        end = path.indexOf('#') !== -1 ? path.indexOf('#') : path.length;
+        if(start !== -1) {
+          queryString = path.slice(start, end).length > 1 ? path.slice(start, end) : '';
+        } else {
+          queryString = ''
+        }
 
+        let params = [];
+
+        if(queryString) {
+          let paramsInString = newValue.split('?')[1];
+          params = paramsInString.split('&').filter(pair => !!pair).map(pair => {
+            pair = pair.replace(/#/g, '');
+            let key, value;
+            if(pair.indexOf('=') === -1) {
+              key = pair;
+              value = '';
+            } else {
+              let splited = pair.split('=');
+              [key, value] = [splited.shift(), splited.join('=')];
+            }
+            return {key, value}
+          })
+        }
+        this.paramsWatchEnabled = false;
+        this.params = params;
+      },
       addRequestHeader() {
         this.headers.push({
           key: '',

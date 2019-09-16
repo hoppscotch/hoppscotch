@@ -7,8 +7,8 @@
           <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="urlValid ? toggleConnection() : null">
         </li>
         <li>
-          <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button :disabled="!urlValid" name="action" @click="toggleConnection">
+          <label for="connect" class="hide-on-small-screen">&nbsp;</label>
+          <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
             {{ toggleConnectionVerb }}
             <span>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="!connectionState">
@@ -41,7 +41,7 @@
         </li>
         <li>
           <label for="send" class="hide-on-small-screen">&nbsp;</label>
-          <button name="send" :disabled="!connectionState" @click="sendMessage">
+          <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
             Send
             <span>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

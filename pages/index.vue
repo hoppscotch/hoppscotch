@@ -26,7 +26,7 @@
         <div slot="body">
           <ul>
             <li>
-              <textarea id="import-text" autofocus rows="8"></textarea>
+              <textarea id="import-text" autofocus rows="8" placeholder="Enter cURL"></textarea>
             </li>
           </ul>
         </div>
@@ -55,11 +55,11 @@
         </li>
         <li>
           <label for="url">URL</label>
-          <input :class="{ error: !isValidURL }" @keyup.enter="isValidURL ? sendRequest() : null" id="url" type="url" v-model="url">
+          <input :class="{ error: !isValidURL }" @keyup.enter="isValidURL ? sendRequest() : null" id="url" name="url" type="url" v-model="url">
         </li>
         <li>
           <label for="path">Path</label>
-          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" v-model="path">
+          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path">
         </li>
         <div class="show-on-small-screen">
           <li>
@@ -73,7 +73,7 @@
           </li>
           <li>
             <label class="hide-on-small-screen" for="code">&nbsp;</label>
-            <button class="icon" id="code" name="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
+            <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="isHidden">
                 <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
               </svg>
@@ -85,8 +85,8 @@
           </li>
         </div>
         <li>
-          <label class="hide-on-small-screen" for="action">&nbsp;</label>
-          <button :disabled="!isValidURL" @click="sendRequest" class="show" id="action" name="action" ref="sendButton">
+          <label class="hide-on-small-screen" for="send">&nbsp;</label>
+          <button :disabled="!isValidURL" @click="sendRequest" class="show" id="send" ref="sendButton">
             Send <span id="hidden-message">Again</span>
             <span>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@
       <ul>
         <li>
           <label for="requestType">Request Type</label>
-          <select name="requestType" v-model="requestType">
+          <select id="requestType" v-model="requestType">
             <option>JavaScript XHR</option>
             <option>Fetch</option>
             <option>cURL</option>
@@ -113,7 +113,7 @@
           <div class="flex-wrap">
             <label for="generatedCode">Generated Code</label>
             <div>
-              <button class="icon" @click="copyRequestCode" name="copyRequestCode" ref="copyRequestCode">
+              <button class="icon" @click="copyRequestCode" id="copyRequestCode" ref="copyRequestCode">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
                 </svg>
@@ -121,7 +121,7 @@
               </button>
             </div>
           </div>
-          <textarea ref="generatedCode" name="generatedCode" rows="8" v-model="requestCode"></textarea>
+          <textarea id="generatedCode" ref="generatedCode" name="generatedCode" rows="8" v-model="requestCode"></textarea>
         </li>
       </ul>
     </pw-section>
@@ -141,16 +141,16 @@
         <ul v-for="(param, index) in bodyParams" :key="index">
           <li>
             <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
+            <input :id="'bparam'+index" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
           </li>
           <li>
             <label :for="'bvalue'+index">Value {{index + 1}}</label>
-            <input :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
+            <input :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
           </li>
           <div>
             <li>
-              <label class="hide-on-small-screen" for="request">&nbsp;</label>
-              <button class="icon" @click="removeRequestBodyParam(index)" name="request">
+              <label class="hide-on-small-screen" for="delParam">&nbsp;</label>
+              <button class="icon" @click="removeRequestBodyParam(index)" id="delParam">
                 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                   <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
                 </svg>
@@ -165,8 +165,8 @@
         </ul>
         <ul>
           <li>
-            <label for="request">Parameter List</label>
-            <textarea name="request" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
+            <label for="reqParamList">Parameter List</label>
+            <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
           </li>
         </ul>
       </div>
@@ -174,7 +174,7 @@
         <ul>
           <li>
             <label for="rawBody">Raw Request Body</label>
-            <textarea name="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+            <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
           </li>
         </ul>
       </div>
@@ -183,13 +183,13 @@
       <ul>
         <li>
           <label for="status">status</label>
-          <input :class="statusCategory ? statusCategory.className : ''" :value="response.status || '(waiting to send request)'" name="status" readonly type="text">
+          <input :class="statusCategory ? statusCategory.className : ''" :value="response.status || '(waiting to send request)'" ref="status" id="status" name="status" readonly type="text">
         </li>
       </ul>
       <ul v-for="(value, key) in response.headers" :key="key">
         <li>
           <label for="value">{{key}}</label>
-          <input :value="value" name="value" readonly>
+          <input id="value" :value="value" name="value" readonly>
         </li>
       </ul>
       <ul v-if="response.body">
@@ -197,7 +197,7 @@
           <div class="flex-wrap">
             <label for="body">response</label>
             <div>
-              <button class="icon" @click="copyResponse" name="copyResponse" ref="copyResponse" v-if="response.body">
+              <button class="icon" @click="copyResponse" ref="copyResponse" v-if="response.body">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
                 </svg>
@@ -206,7 +206,7 @@
             </div>
           </div>
           <div id="response-details-wrapper">
-            <pre><code ref="responseBody" name="body" rows="16" placeholder="(waiting to send request)">{{response.body}}</code></pre>
+            <pre><code ref="responseBody" id="body" rows="16" placeholder="(waiting to send request)">{{response.body}}</code></pre>
             <iframe :class="{hidden: !previewEnabled}" class="covers-response" ref="previewFrame" src="about:blank"></iframe>
           </div>
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
@@ -231,7 +231,7 @@
           <ul>
             <li>
               <label for="auth">Authentication Type</label>
-              <select v-model="auth">
+              <select id="auth" v-model="auth">
                 <option>None</option>
                 <option>Basic</option>
                 <option>Bearer Token</option>
@@ -241,16 +241,16 @@
           <ul v-if="auth === 'Basic'">
             <li>
               <label for="http_basic_user">User</label>
-              <input v-model="httpUser">
+              <input id="http_basic_user" name="http_basic_user" v-model="httpUser">
             </li>
             <li>
               <label for="http_basic_passwd">Password</label>
-              <input :type="passwordFieldType" v-model="httpPassword">
+              <input id="http_basic_passwd" name="http_basic_passwd" :type="passwordFieldType" v-model="httpPassword">
             </li>
             <div>
               <li>
                 <label class="hide-on-small-screen" for="switchVisibility">&nbsp;</label>
-                <button class="icon" ref="switchVisibility" @click="switchVisibility">
+                <button class="icon" id="switchVisibility" ref="switchVisibility" @click="switchVisibility">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType === 'text'">
                     <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
                   </svg>
@@ -264,7 +264,7 @@
           <ul v-if="auth === 'Bearer Token'">
             <li>
               <label for="bearer_token">Token</label>
-              <input v-model="bearerToken">
+              <input id="bearer_token" name="bearer_token" v-model="bearerToken">
             </li>
           </ul>
         </pw-section>
@@ -276,16 +276,16 @@
           <ul v-for="(header, index) in headers" :key="index">
             <li>
               <label :for="'header'+index">Header {{index + 1}}</label>
-              <input :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
+              <input :id="'header'+index" :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
             <li>
               <label :for="'value'+index">Value {{index + 1}}</label>
-              <input :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
+              <input :id="'value'+index" :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
             </li>
             <div>
               <li>
                 <label class="hide-on-small-screen" for="header">&nbsp;</label>
-                <button class="icon" @click="removeRequestHeader(index)" name="header">
+                <button class="icon" @click="removeRequestHeader(index)" id="header">
                   <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                     <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
                   </svg>
@@ -295,13 +295,13 @@
           </ul>
           <ul>
             <li>
-              <button @click="addRequestHeader" name="add">Add New</button>
+              <button @click="addRequestHeader">Add New</button>
             </li>
           </ul>
           <ul>
             <li>
-              <label for="request">Header List</label>
-              <textarea name="request" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
+              <label for="headerList">Header List</label>
+              <textarea id="headerList" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
             </li>
           </ul>
         </pw-section>
@@ -313,16 +313,16 @@
           <ul v-for="(param, index) in params" :key="index">
             <li>
               <label :for="'param'+index">Parameter {{index + 1}}</label>
-              <input :name="'param'+index" v-model="param.key" autofocus>
+              <input :id="'param'+index" :name="'param'+index" v-model="param.key" autofocus>
             </li>
             <li>
               <label :for="'value'+index">Value {{index + 1}}</label>
-              <input :name="'value'+index" v-model="param.value">
+              <input :id="'value'+index" :name="'value'+index" v-model="param.value">
             </li>
             <div>
               <li>
                 <label class="hide-on-small-screen" for="param">&nbsp;</label>
-                <button class="icon" @click="removeRequestParam(index)" name="param">
+                <button class="icon" @click="removeRequestParam(index)" id="param">
                   <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                     <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
                   </svg>
@@ -332,13 +332,13 @@
           </ul>
           <ul>
             <li>
-              <button @click="addRequestParam" name="add">Add New</button>
+              <button @click="addRequestParam">Add New</button>
             </li>
           </ul>
           <ul>
             <li>
-              <label for="request">Parameter List</label>
-              <textarea name="request" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
+              <label for="paramList">Parameter List</label>
+              <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
             </li>
           </ul>
         </pw-section>

@@ -2,6 +2,7 @@
   <pw-section class="gray" label="History">
     <ul>
       <li id="filter-history">
+        <label for="filter-history-input">Search</label>
         <input id="filter-history-input" type="text" placeholder="search history" :readonly="history.length === 0 || isClearingHistory" v-model="filterText">
       </li>
     </ul>

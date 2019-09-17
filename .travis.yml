@@ -18,16 +18,25 @@ node_js:
 env:
  - DEPLOY_ENV=POSTWOMAN_IO
 
+addons:
+ if: branch = /^tests-.*$/
+ apt:
+  packages:
+   # Ubuntu 16+ does not install this dependency by default, so we need to install it ourselves
+   - libgconf-2-4
+
 cache:
+ npm: true
  directories:
-  - "node_modules"
+ - ~/.cache
 
 branches:
  only:
   - "master"
+  - /^tests-.*$/
 
 install:
- - "npm install"
+ - "npm ci"
  - "npm run generate"
 
 notifications:
@@ -42,3 +51,7 @@ deploy:
  local-dir: dist
  on:
   branch: master
+
+after_success:
+ - chmod +x testsdeploy.sh
+ - ./testsdeploy.sh

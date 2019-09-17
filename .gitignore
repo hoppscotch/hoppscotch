@@ -91,3 +91,8 @@ sw.*
 
 # Postwoman build data
 .postwoman
+
+# Cypress e2e files
+tests/e2e/screenshots/
+tests/e2e/videos/
+tests/ci/body_template.json

@@ -11,16 +11,17 @@ $responsiveWidth: 720px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 ::placeholder {
   color: var(--fg-color);
-  opacity: 0.3;
+  opacity: 0.2;
 }
 
 * {
@@ -91,7 +92,7 @@ button {
   align-items: center;
   justify-content: center;
   margin: 4px;
-  padding: 8px 16px;
+  padding: 0 16px;
   border-radius: 8px;
   background-color: var(--ac-color);
   color: var(--act-color);
@@ -101,6 +102,8 @@ button {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   fill: var(--act-color);
+  height: 41px;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.02);
 
   span {
     display: inline-flex;
@@ -187,7 +190,6 @@ pre {
   margin: 4px;
   padding: 8px;
   border-radius: 8px;
-  width: calc(100% - 8px);
   background-color: var(--brd-color);
   color: var(--fg-color);
   font-size: 18px;
@@ -208,6 +210,7 @@ pre {
 
 code {
   height: 336px;
+  border-radius: 8px;
 }
 
 .hljs,
@@ -256,13 +259,13 @@ input[type="checkbox"] {
 .disabled,
 [disabled] {
   background-color: var(--err-color);
-  color: #b2b2b2;
-  fill: #b2b2b2;
+  color: var(--fg-color);
+  fill: var(--fg-color);
   cursor: default;
 
   &.icon {
-    color: #b2b2b2;
-    fill: #b2b2b2;
+    color: var(--fg-color);
+    fill: var(--fg-color);
   }
 }
 
@@ -451,8 +454,7 @@ input[type="radio"] + label {
 }
 
 input[type="radio"]:checked + label {
-  color: var(--ac-color);
-  border-color: var(--ac-color);
+  border-color: var(--fg-color);
 }
 
 input[type="radio"]:checked + label + div.tab {

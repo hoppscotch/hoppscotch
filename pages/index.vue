@@ -144,10 +144,10 @@
       <div v-if="!rawInput">
         <ul v-for="(param, index) in bodyParams" :key="index">
           <li>
-            <input :placeholder="'Key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
+            <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
           </li>
           <li>
-            <input :placeholder="'Value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
+            <input :placeholder="'value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
           </li>
           <div>
             <li>
@@ -283,10 +283,10 @@
           </ul>
           <ul v-for="(header, index) in headers" :key="index">
             <li>
-              <input :placeholder="'Header '+(index+1)" :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
+              <input :placeholder="'header '+(index+1)" :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
             <li>
-              <input :placeholder="'Value '+(index+1)" :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
+              <input :placeholder="'value '+(index+1)" :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
             </li>
             <div>
               <li>
@@ -322,10 +322,10 @@
           </ul>
           <ul v-for="(param, index) in params" :key="index">
             <li>
-              <input :placeholder="'Parameter '+(index+1)" :name="'param'+index" v-model="param.key" autofocus>
+              <input :placeholder="'parameter '+(index+1)" :name="'param'+index" v-model="param.key" autofocus>
             </li>
             <li>
-              <input :placeholder="'Value '+(index+1)" :name="'value'+index" v-model="param.value">
+              <input :placeholder="'value '+(index+1)" :name="'value'+index" v-model="param.value">
             </li>
             <div>
               <li>

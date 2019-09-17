@@ -64,7 +64,7 @@
     padding: 8px 16px;
     width: calc(100% - 8px);
     border-radius: 8px;
-    background-color: var(--bg-dark-color);
+    background-color: var(--brd-color);
     color: var(--fg-color);
     height: 256px;
     overflow: auto;

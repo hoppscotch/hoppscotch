@@ -15,7 +15,7 @@
         padding: 8px 16px;
         margin: 4px;
         background-color: rgba(93, 93, 93, 0.2);
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
 
         &.active {

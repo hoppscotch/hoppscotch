@@ -2,23 +2,23 @@
   <pw-section class="gray" label="History">
     <ul>
       <li id="filter-history">
-        <input type="text" placeholder="search history" :readonly="history.length === 0 || isClearingHistory" v-model="filterText">
+        <input aria-label="Search" type="text" placeholder="search history" :readonly="history.length === 0 || isClearingHistory" v-model="filterText">
       </li>
     </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
-          <input :id="'time#'+index" type="text" readonly :value="entry.time" :title="entry.date">
+          <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date">
         </li>
         <li class="method-list-item">
-          <input :id="'method#'+index" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
+          <input aria-label="Method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">
           <span class="entry-status-code" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">{{entry.status}}</span>
         </li>
         <li>
-          <input :id="'url#'+index" type="text" readonly :value="entry.url">
+          <input aria-label="URL" type="text" readonly :value="entry.url">
         </li>
         <li>
-          <input :id="'path#'+index" type="text" readonly :value="entry.path">
+          <input aria-label="Path" type="text" readonly :value="entry.path">
         </li>
         <div class="show-on-small-screen">
           <li>

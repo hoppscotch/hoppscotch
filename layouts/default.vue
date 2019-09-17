@@ -25,7 +25,7 @@
       <!-- Top section of footer: GitHub/install links -->
       <div>
         <div>
-          <a href="https://github.com/liyasthomas/postwoman" target="_blank"><img id="imgGitHub" src="~static/icons/github.svg" alt="" :style="logoStyle()">GitHub</a>
+          <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener"><img id="imgGitHub" src="~static/icons/github.svg" alt="" :style="logoStyle()">GitHub</a>
         </div>
         <button id="installPWA" @click.prevent="showInstallPrompt()">
           Install PWA
@@ -34,13 +34,13 @@
       <!-- Bottom section of footer: version/author information -->
       <p class="align-center">
         <span v-if="version.name">
-          <a v-bind:href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name" target="_blank">{{version.name}}</a>
+          <a v-bind:href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name" target="_blank" rel="noopener">{{version.name}}</a>
           <span v-if="version.hash">
-            - <a v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash" target="_blank">{{version.hash}}</a>
+            - <a v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash" target="_blank" rel="noopener">{{version.hash}}</a>
           </span>
           <span v-if="version.variant"> ({{version.variant}})</span>
           &#x2022;
-        </span> by <a href="https://liyasthomas.web.app" target="_blank">Liyas Thomas 🦄</a>
+        </span> by <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">Liyas Thomas 🦄</a>
       </p>
     </footer>
   </div>

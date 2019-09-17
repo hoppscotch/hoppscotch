@@ -25,19 +25,19 @@
 }
 
 :root.light {
-  --bg-dark-color: #e1e4eb;
+  --bg-dark-color: #7a7a7a;
   // Background color
-  --bg-color: #ebeef5;
+  --bg-color: #fff;
   // Auto-complete color
-  --atc-color: #e1e4eb;
+  --atc-color: #ebebeb;
   // Text color
-  --fg-color: #5d5d5f;
+  --fg-color: #525252;
   // Border color
-  --brd-color: #ccc;
+  --brd-color: #f2f2f2;
   // Error color
-  --err-color: invert(#3C4556, 1);
+  --err-color: invert(#303341, 1);
   // Active color
   --ac-color: #57b5f9;
   // Active text color
-  --act-color: #ebeef5;
+  --act-color: #fff;
 }

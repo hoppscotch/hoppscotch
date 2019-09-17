@@ -27,6 +27,9 @@
         <div>
           <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener"><img id="imgGitHub" src="~static/icons/github.svg" alt="" :style="logoStyle()">GitHub</a>
         </div>
+        <div>
+          <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-size="large" data-text="👽 Postwoman - API request builder - Helps you create your requests faster, saving you precious time on your development" data-url="https://postwoman.io" data-via="liyasthomas" data-hashtags="postwoman" data-related="liyasthomas" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
         <button id="installPWA" @click.prevent="showInstallPrompt()">
           Install PWA
         </button>

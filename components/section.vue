@@ -8,10 +8,6 @@
 </template>
 
 <style>
-  fieldset.no-colored-frames {
-    border-color: #afafaf !important;
-  }
-
   fieldset.no-colored-frames legend {
     color: var(--ac-color);
   }

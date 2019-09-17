@@ -539,13 +539,7 @@
         return ['POST', 'PUT', 'PATCH'].includes(this.method);
       },
       pathName() {
-        let result;
-        if(this.path.indexOf('?') !== -1) {
-          result = this.path.slice(0, this.path.indexOf('?'))
-        } else {
-          result = this.path;
-        }
-        return result;
+        return this.path.match(/^([^?]*)\??/)[1]
       },
       rawRequestBody() {
         const {
@@ -801,35 +795,33 @@
           this.response.body = "See JavaScript console (F12) for details.";
         }
       },
-      pathInputHandler(event) {
-        let newValue = event.target.value;
-        let path, start, end, queryString;
-        path = newValue;
-        start = path.indexOf('?');
-        end = path.indexOf('#') !== -1 ? path.indexOf('#') : path.length;
+      getQueryStringFromPath() {
+        let path = this.path,
+            hashIndex = path.indexOf('#'),
+            start = path.indexOf('?'),
+            end = hashIndex !== -1 ? hashIndex : path.length,
+            queryString = '';
+
         if(start !== -1) {
-          queryString = path.slice(start, end).length > 1 ? path.slice(start, end) : '';
-        } else {
-          queryString = ''
+          let sliced = path.slice(start, end);
+          queryString = sliced.length > 1 ? sliced : '';
         }
 
-        let params = [];
-
-        if(queryString) {
-          let paramsInString = newValue.split('?')[1];
-          params = paramsInString.split('&').filter(pair => !!pair).map(pair => {
-            pair = pair.replace(/#/g, '');
-            let key, value;
-            if(pair.indexOf('=') === -1) {
-              key = pair;
-              value = '';
-            } else {
-              let splited = pair.split('=');
-              [key, value] = [splited.shift(), splited.join('=')];
+        return queryString;
+      },
+      queryStringToArray(queryString) {
+        return queryString.replace(/^\?/, '').split('&').filter(pair => !!pair).map(pair => {
+          let splited = pair.replace(/#/g, '').split('=');
+          return {
+            key: splited.shift(),
+            value: splited.join('=')
             }
-            return {key, value}
-          })
-        }
+        })
+      },
+      pathInputHandler() {
+        let queryString = this.getQueryStringFromPath(),
+            params = this.queryStringToArray(queryString);
+
         this.paramsWatchEnabled = false;
         this.params = params;
       },

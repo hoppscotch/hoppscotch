@@ -6,6 +6,12 @@
       </li>
     </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
+      <ul>
+        <li @click="sort_by_time()">Time</li>
+        <li @click="sort_by_status_code()">Status Code</li>
+        <li @click="sort_by_url()">URL</li>
+        <li @click="sort_by_path()">Path</li>
+      </ul>
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
           <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date">
@@ -82,7 +88,11 @@
         history: localStorageHistory || [],
         filterText: '',
         showFilter: false,
-        isClearingHistory: false
+        isClearingHistory: false,
+        reverse_sort_time: false,
+        reverse_sort_status_code: false,
+        reverse_sort_url: false,
+        reverse_sort_path: false
       }
     },
     computed: {
@@ -130,6 +140,56 @@
       },
       disableHistoryClearing() {
         this.isClearingHistory = false;
+      },
+      sort_by_time() {
+        let byDate = this.history.slice(0);
+        byDate.sort((a,b) =>{
+          let date_a = a.date.split("/");
+          let date_b = b.date.split("/");
+          let time_a = a.time.split(":")
+          let time_b = b.time.split(":")
+          let final_a = new Date(date_a[2], date_a[1], date_a[0], time_a[0], time_a[1], time_a[2]);
+          let final_b = new Date(date_b[2], date_b[1], date_b[0], time_b[0], time_b[1], time_b[2]);
+          if(this.reverse_sort_time)
+            return final_b - final_a;
+          else
+            return final_a - final_b;
+          })
+        this.history = byDate;
+        this.reverse_sort_time = !this.reverse_sort_time;
+      },
+      sort_by_status_code() {
+        let byCode = this.history.slice(0);
+        byCode.sort((a,b) =>{
+          if(this.reverse_sort_status_code)
+            return b.status - a.status;
+          else
+            return a.status - b.status;
+          })
+        this.history = byCode;
+        this.reverse_sort_status_code = !this.reverse_sort_status_code;
+      },
+      sort_by_url() {
+        let byUrl = this.history.slice(0);
+        byUrl.sort((a, b)=>{
+          if(this.reverse_sort_url)
+            return a.url == b.url ? 0 : +(a.url < b.url) || -1;
+          else
+            return a.url == b.url ? 0 : +(a.url > b.url) || -1;
+        });
+        this.history = byUrl;
+        this.reverse_sort_url = !this.reverse_sort_url;
+      },
+      sort_by_path() {
+        let byPath = this.history.slice(0);
+        byPath.sort((a, b)=>{
+          if(this.reverse_sort_path)
+            return a.path == b.path ? 0 : +(a.path < b.path) || -1;
+          else
+            return a.path == b.path ? 0 : +(a.path > b.path) || -1;
+        });
+        this.history = byPath;
+        this.reverse_sort_path = !this.reverse_sort_path;
       }
     }
   }

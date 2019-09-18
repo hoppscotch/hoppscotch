@@ -142,6 +142,12 @@
         </li>
       </ul>
       <div v-if="!rawInput">
+        <ul>
+          <li>
+            <label for="reqParamList">Parameter List</label>
+            <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
+          </li>
+        </ul>
         <ul v-for="(param, index) in bodyParams" :key="index">
           <li>
             <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
@@ -167,12 +173,6 @@
               </svg>
               <span>Add New</span>
             </button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <label for="reqParamList">Parameter List</label>
-            <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
           </li>
         </ul>
       </div>

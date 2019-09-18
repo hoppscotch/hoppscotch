@@ -40,7 +40,7 @@ function parseCurlCommand(curlCommand) {
     if (!url) {
         for (let argName in parsedArguments) {
             if (typeof parsedArguments[argName] === 'string') {
-                if (parsedArguments[argName].indexOf('http') === 0 || parsedArguments[argName].indexOf('www.') === 0) {
+                if (['http', 'www.'].includes(parsedArguments[argName])) {
                     url = parsedArguments[argName];
                 }
             }
@@ -57,7 +57,7 @@ function parseCurlCommand(curlCommand) {
                 parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]];
             }
             parsedArguments[headerFieldName].forEach(function(header) {
-                if (header.indexOf('Cookie') !== -1) {
+                if (header.includes('Cookie')) {
                     // stupid javascript tricks: closure
                     cookieString = header;
                 } else {
@@ -149,7 +149,7 @@ function parseCurlCommand(curlCommand) {
         if (option) {
             let urlQueryString = '';
 
-            if (url.indexOf('?') < 0) {
+            if (!url.includes('?')) {
                 url += '?';
             } else {
                 urlQueryString += '&';

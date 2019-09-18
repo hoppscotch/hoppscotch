@@ -5,13 +5,21 @@
         <input aria-label="Search" type="text" placeholder="search history" :readonly="history.length === 0 || isClearingHistory" v-model="filterText">
       </li>
     </ul>
+    <ul>
+      <li @click="sort_by_time()">
+        <label for="">Time</label>
+      </li>
+      <li @click="sort_by_status_code()">
+        <label for="">Status Code</label>
+      </li>
+      <li @click="sort_by_url()">
+        <label for="">URL</label>
+      </li>
+      <li @click="sort_by_path()">
+        <label for="">Path</label>
+      </li>
+    </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
-      <ul>
-        <li @click="sort_by_time()">Time</li>
-        <li @click="sort_by_status_code()">Status Code</li>
-        <li @click="sort_by_url()">URL</li>
-        <li @click="sort_by_path()">Path</li>
-      </ul>
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
           <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date">

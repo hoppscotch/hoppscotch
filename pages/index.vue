@@ -171,7 +171,7 @@
         </ul>
         <ul>
           <li>
-            <label for="reqParamList"></label>
+            <label for="reqParamList">Parameter List</label>
             <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
           </li>
         </ul>

@@ -63,7 +63,7 @@
         </li>
         <li>
           <label for="path">Path</label>
-          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path">
+          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path" @input="pathInputHandler">
         </li>
         <div class="show-on-small-screen">
           <li>
@@ -450,6 +450,7 @@
           body: ''
         },
         previewEnabled: false,
+        paramsWatchEnabled: true,
 
         /**
          * These are content types that can be automatically
@@ -499,6 +500,32 @@
             responseText.innerText = this.response.body
           }
         }
+      },
+      params: {
+        handler: function(newValue) {
+          if(!this.paramsWatchEnabled) {
+            this.paramsWatchEnabled = true;
+            return;
+          }
+          let path = this.path;
+          let queryString = newValue
+            .filter(({
+              key
+            }) => !!key)
+            .map(({
+              key,
+              value
+            }) => `${key}=${value}`).join('&')
+          queryString = queryString === '' ? '' : `?${queryString}`
+          if(path.indexOf('?') !== -1) {
+            path = path.slice(0, path.indexOf('?')) + queryString;
+          } else {
+            path = path + queryString
+          }
+
+          this.path = path;
+        },
+        deep: true
       }
     },
     computed: {
@@ -516,6 +543,9 @@
       },
       hasRequestBody() {
         return ['POST', 'PUT', 'PATCH'].includes(this.method);
+      },
+      pathName() {
+        return this.path.match(/^([^?]*)\??/)[1]
       },
       rawRequestBody() {
         const {
@@ -721,7 +751,7 @@
         try {
           const payload = await this.$axios({
             method: this.method,
-            url: this.url + this.path + this.queryString,
+            url: this.url + this.pathName + this.queryString,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null
@@ -771,7 +801,36 @@
           this.response.body = "See JavaScript console (F12) for details.";
         }
       },
+      getQueryStringFromPath() {
+        let path = this.path,
+            hashIndex = path.indexOf('#'),
+            start = path.indexOf('?'),
+            end = hashIndex !== -1 ? hashIndex : path.length,
+            queryString = '';
 
+        if(start !== -1) {
+          let sliced = path.slice(start, end);
+          queryString = sliced.length > 1 ? sliced : '';
+        }
+
+        return queryString;
+      },
+      queryStringToArray(queryString) {
+        return queryString.replace(/^\?/, '').split('&').filter(pair => !!pair).map(pair => {
+          let splited = pair.replace(/#/g, '').split('=');
+          return {
+            key: splited.shift(),
+            value: splited.join('=')
+            }
+        })
+      },
+      pathInputHandler() {
+        let queryString = this.getQueryStringFromPath(),
+            params = this.queryStringToArray(queryString);
+
+        this.paramsWatchEnabled = false;
+        this.params = params;
+      },
       addRequestHeader() {
         this.headers.push({
           key: '',

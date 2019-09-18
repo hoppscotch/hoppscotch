@@ -517,7 +517,7 @@
               value
             }) => `${key}=${value}`).join('&')
           queryString = queryString === '' ? '' : `?${queryString}`
-          if(path.indexOf('?') !== -1) {
+          if(path.includes('?')) {
             path = path.slice(0, path.indexOf('?')) + queryString;
           } else {
             path = path + queryString

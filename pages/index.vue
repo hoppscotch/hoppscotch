@@ -748,6 +748,14 @@
           headers
         );
 
+        const headersObject = {};
+
+        Object.keys(headers).forEach(id=>{
+          headersObject[headers[id].key] = headers[id].value
+        });
+
+        headers = headersObject;
+
         try {
           const payload = await this.$axios({
             method: this.method,

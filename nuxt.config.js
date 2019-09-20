@@ -84,7 +84,7 @@ export default {
       },
       {
         name: 'msapplication-TileColor',
-        content: '#282a36'
+        content: '#252628'
       },
       {
         name: 'msapplication-tap-highlight',
@@ -216,8 +216,8 @@ export default {
         short_name: meta.name,
         description: meta.shortDescription,
         display: "standalone",
-        theme_color: "#282a36",
-        background_color: "#282a36",
+        theme_color: "#252628",
+        background_color: "#252628",
         start_url: `${routerBase.router.base}`,
         icons: ((sizes) => {
           let icons = [];

@@ -20,7 +20,7 @@ $responsiveWidth: 720px;
 }
 
 ::placeholder {
-  color: var(--fg-color);
+  color: var(--fg-light-color);
   opacity: 0.3;
 }
 
@@ -34,25 +34,26 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--fg-color);
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
-  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 h3.title {
@@ -93,17 +94,17 @@ button {
   justify-content: center;
   margin: 4px;
   padding: 0 16px;
-  border-radius: 8px;
+  border-radius: 20px;
   background-color: var(--ac-color);
   color: var(--act-color);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 16px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
-  cursor: pointer;
   transition: all 0.2s ease-in-out;
   fill: var(--act-color);
-  height: 41px;
+  height: 40px;
   box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
 
   span {
     display: inline-flex;
@@ -112,15 +113,18 @@ button {
 
   &.icon {
     background-color: var(--bg-color);
-    color: var(--fg-color);
-    fill: var(--fg-color);
+    color: var(--fg-light-color);
+    fill: var(--fg-light-color);
+
+    &:not([disabled]):hover {
+      color: var(--fg-color);
+      fill: var(--fg-color);
+    }
   }
 
-  &:not([disabled]):hover,
-  &:not(.disabled):focus {
-    background-color: var(--bg-color);
-    color: var(--ac-color);
-    fill: var(--ac-color);
+  &:not([disabled]):hover {
+    color: var(--act-color);
+    fill: var(--act-color);
   }
 }
 
@@ -133,7 +137,7 @@ fieldset {
 
 legend {
   color: var(--fg-color);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -190,18 +194,17 @@ pre {
   margin: 4px;
   padding: 8px;
   border-radius: 8px;
-  background-color: var(--brd-color);
+  background-color: var(--bg-dark-color);
   color: var(--fg-color);
-  font-size: 18px;
+  font-size: 16px;
   font-family: monospace;
   transition: all 0.2s ease-in-out;
   user-select: text;
   width: calc(100% - 8px);
+  min-height: 40px;
 
-  &:not([readonly]):hover,
-  &:not([readonly]):focus {
-    background-color: var(--bg-color);
-    box-shadow: inset 0 0 0 2px var(--fg-color);
+  &:not([readonly]):hover {
+    background-color: var(--bg-dark-color);
   }
 }
 
@@ -216,14 +219,14 @@ code {
 
 .hljs,
 .hljs-subst {
-  background-color: var(--brd-color) !important;
+  background-color: var(--bg-dark-color) !important;
   color: var(--fg-color) !important;
 }
 
 select,
 input,
 option {
-  height: 41px;
+  height: 40px;
 }
 
 input[type="checkbox"] {
@@ -260,18 +263,19 @@ input[type="checkbox"] {
 .disabled,
 [disabled] {
   background-color: var(--err-color);
-  color: var(--fg-color);
-  fill: var(--fg-color);
+  color: var(--fg-light-color);
+  fill: var(--fg-light-color);
   cursor: default;
 
   &.icon {
-    color: var(--fg-color);
-    fill: var(--fg-color);
+    color: var(--bg-color);
+    fill: var(--bg-color);
   }
 }
 
 label {
   padding: 4px;
+  color: var(--fg-light-color);
 }
 
 ul,

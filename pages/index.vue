@@ -100,36 +100,7 @@
           </button>
         </li>
       </ul>
-    </pw-section>
-    <pw-section class="blue" label="Request Code" ref="requestCode" v-if="!isHidden">
-      <ul>
-        <li>
-          <label for="requestType">Request Type</label>
-          <select id="requestType" v-model="requestType">
-            <option>JavaScript XHR</option>
-            <option>Fetch</option>
-            <option>cURL</option>
-          </select>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <div class="flex-wrap">
-            <label for="generatedCode">Generated Code</label>
-            <div>
-              <button class="icon" @click="copyRequestCode" id="copyRequestCode" ref="copyRequestCode">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M19.647 15.247c-1.278 0-2.429.551-3.225 1.429l-7.788-3.846c.062-.343.079-.64.067-.942l8.058-4.231c.769.682 1.78 1.097 2.889 1.097 2.404-.001 4.352-1.949 4.352-4.353s-1.948-4.353-4.353-4.353-4.353 1.949-4.353 4.353c0 .18.012.356.033.53l-7.828 4.111c-.793-.829-1.908-1.347-3.146-1.347-2.405 0-4.353 1.949-4.353 4.353s1.948 4.353 4.353 4.353c1.013 0 1.943-.347 2.684-.927l8.26 4.078-.001.047c0 2.404 1.948 4.353 4.353 4.353s4.351-1.949 4.351-4.353-1.948-4.352-4.353-4.352z"/>
-                </svg>
-                <span>Copy</span>
-              </button>
-            </div>
-          </div>
-          <textarea id="generatedCode" ref="generatedCode" name="generatedCode" rows="8" v-model="requestCode"></textarea>
-        </li>
-      </ul>
-    </pw-section>
-    <pw-section class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
+    <div class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
         <li>
           <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
@@ -184,6 +155,35 @@
           </li>
         </ul>
       </div>
+    </div>
+    </pw-section>
+    <pw-section class="blue" label="Code" ref="requestCode" v-if="!isHidden">
+      <ul>
+        <li>
+          <label for="requestType">Request Type</label>
+          <select id="requestType" v-model="requestType">
+            <option>JavaScript XHR</option>
+            <option>Fetch</option>
+            <option>cURL</option>
+          </select>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <label for="generatedCode">Generated Code</label>
+            <div>
+              <button class="icon" @click="copyRequestCode" id="copyRequestCode" ref="copyRequestCode">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M19.647 15.247c-1.278 0-2.429.551-3.225 1.429l-7.788-3.846c.062-.343.079-.64.067-.942l8.058-4.231c.769.682 1.78 1.097 2.889 1.097 2.404-.001 4.352-1.949 4.352-4.353s-1.948-4.353-4.353-4.353-4.353 1.949-4.353 4.353c0 .18.012.356.033.53l-7.828 4.111c-.793-.829-1.908-1.347-3.146-1.347-2.405 0-4.353 1.949-4.353 4.353s1.948 4.353 4.353 4.353c1.013 0 1.943-.347 2.684-.927l8.26 4.078-.001.047c0 2.404 1.948 4.353 4.353 4.353s4.351-1.949 4.351-4.353-1.948-4.352-4.353-4.352z"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+          <textarea id="generatedCode" ref="generatedCode" name="generatedCode" rows="8" v-model="requestCode"></textarea>
+        </li>
+      </ul>
     </pw-section>
     <pw-section class="purple" id="response" label="Response" ref="response">
       <ul>
@@ -747,14 +747,6 @@
           // specify them.
           headers
         );
-
-        const headersObject = {};
-
-        Object.keys(headers).forEach(id=>{
-          headersObject[headers[id].key] = headers[id].value
-        });
-
-        headers = headersObject;
 
         try {
           const payload = await this.$axios({

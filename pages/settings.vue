@@ -79,7 +79,7 @@
         //        You should copy the existing light theme as a template and then just
         //        set the relevant values.
         themes: [{
-            "color": "#282a36",
+            "color": "rgb(37, 38, 40)",
             "name": "Dark (Default)",
             "class": ""
           },
@@ -174,7 +174,7 @@
         // By default, the color is vibrant.
         if (vibrant == null) vibrant = true;
         document.documentElement.style.setProperty('--ac-color', color);
-        document.documentElement.style.setProperty('--act-color', vibrant ? '#282a36' : '#f8f8f2');
+        document.documentElement.style.setProperty('--act-color', vibrant ? 'rgb(37, 38, 40)' : '#f8f8f2');
         this.applySetting('THEME_COLOR', color.toUpperCase());
         this.applySetting('THEME_COLOR_VIBRANT', vibrant);
       },

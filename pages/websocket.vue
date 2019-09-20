@@ -32,7 +32,7 @@
             <span v-if="communication.log">
               <span v-for="(logEntry, index) in communication.log" :style="{ color: logEntry.color }" :key="index">@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
             </span>
-            <span v-else>(Waiting for connection...)</span>
+            <span v-else>(waiting for connection)</span>
           </div>
         </li>
       </ul>
@@ -64,14 +64,13 @@
     padding: 8px 16px;
     width: calc(100% - 8px);
     border-radius: 8px;
-    background-color: var(--brd-color);
+    background-color: var(--bg-dark-color);
     color: var(--fg-color);
     height: 256px;
     overflow: auto;
 
     &,
     span {
-      font-weight: 700;
       font-size: 18px;
       font-family: monospace;
     }

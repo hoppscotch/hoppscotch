@@ -91,3 +91,6 @@ sw.*
 
 # Postwoman build data
 .postwoman
+
+# File explorer
+.directory

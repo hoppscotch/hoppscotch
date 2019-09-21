@@ -2,7 +2,7 @@
   <div class="color" :data-color="color">
     <span :style="{backgroundColor: color}" class="preview">
       <svg v-if="active" class="activeTick" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-        <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
+        <circle cx="12" cy="12" r="12"/>
       </svg>
     </span>
     {{ name || color }}
@@ -14,13 +14,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0 8px;
+    padding: 0 16px 0 4px;
     margin: 4px;
-    background-color: var(--brd-color);
+    background-color: var(--bg-dark-color);
     color: var(--fg-color);
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
-    height: 41px;
+    height: 40px;
 
     &.active {
       background-color: var(--bg-dark-color);
@@ -46,7 +46,7 @@
 
   .color.vibrant {
     .preview .activeTick {
-      fill: #000;
+      fill: var(--act-color);
     }
   }
 </style>

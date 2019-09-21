@@ -80,7 +80,7 @@
         //        set the relevant values.
         themes: [{
             "color": "rgb(37, 38, 40)",
-            "name": "Dark (Default)",
+            "name": "Dark (default)",
             "class": ""
           },
           {
@@ -95,7 +95,7 @@
           // If the color is vibrant, black is used as the active foreground color.
           {
             "color": "#50fa7b",
-            "name": "Green (Default)",
+            "name": "Green (default)",
             "vibrant": true
           },
           {

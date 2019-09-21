@@ -26,13 +26,13 @@
       <div>
         <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener"><img id="imgGitHub" src="~static/icons/github.svg" alt="" :style="logoStyle()">GitHub</a>
         <button class="icon" onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#1DA1F2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
             <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
           </svg>
           <span>Tweet</span>
         </button>
         <button class="icon" id="installPWA" @click.prevent="showInstallPrompt()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
             <path d="M12 4.435c-1.989-5.399-12-4.597-12 3.568 0 4.068 3.06 9.481 12 14.997 8.94-5.516 12-10.929 12-14.997 0-8.118-10-8.999-12-3.568z"/>
           </svg>
           <span>Install PWA</span>
@@ -78,7 +78,7 @@
   }
 
   footer {
-    margin: 40px auto;
+    margin: 32px auto;
   }
 
   nav {
@@ -116,7 +116,7 @@
       }
 
       &:not(.nuxt-link-exact-active):hover:before {
-        animation: linkHover 0.3s forwards ease-in-out;
+        animation: linkHover 0.2s forwards ease-in-out;
       }
 
       @keyframes linkHover {

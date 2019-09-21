@@ -103,6 +103,7 @@
     <div class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
       <ul>
         <li>
+          <label for="contentType">Content Type</label>
           <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
           </autocomplete>
           <span>

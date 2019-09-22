@@ -355,6 +355,8 @@
   </div>
 </template>
 <script>
+  import url from 'url';
+  import querystring from "querystring";
   import autocomplete from '../components/autocomplete';
   import history from "../components/history";
   import section from "../components/section";
@@ -803,27 +805,13 @@
         }
       },
       getQueryStringFromPath() {
-        let path = this.path,
-            hashIndex = path.indexOf('#'),
-            start = path.indexOf('?'),
-            end = hashIndex !== -1 ? hashIndex : path.length,
-            queryString = '';
-
-        if(start !== -1) {
-          let sliced = path.slice(start, end);
-          queryString = sliced.length > 1 ? sliced : '';
-        }
-
-        return queryString;
+        let queryString,
+            pathParsed = url.parse(this.path);
+        return queryString = pathParsed.query ? pathParsed.query : '';
       },
       queryStringToArray(queryString) {
-        return queryString.replace(/^\?/, '').split('&').filter(pair => !!pair).map(pair => {
-          let splited = pair.replace(/#/g, '').split('=');
-          return {
-            key: splited.shift(),
-            value: splited.join('=')
-            }
-        })
+        let queryParsed = querystring.parse(queryString);
+        return Object.keys(queryParsed).map((key) => ({key: key, value: queryParsed[key]}))
       },
       pathInputHandler() {
         let queryString = this.getQueryStringFromPath(),

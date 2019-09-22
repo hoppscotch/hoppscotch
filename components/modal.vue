@@ -25,7 +25,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -48,8 +48,8 @@
     padding: 12px;
     transition: all 0.2s ease;
     background-color: var(--bg-color);
-    border: 2px solid var(--ac-color);
-    border-radius: 4px;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 16px 70px;
   }
 
   /*
@@ -69,6 +69,6 @@
   .modal-fade-enter .modal-container,
   .modal-fade-leave-active .modal-container {
     transform: scale(0.9);
-    transition: all .2s ease;
+    transition: all 0.1s ease-in-out;
   }
 </style>

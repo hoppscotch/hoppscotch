@@ -7,37 +7,43 @@
 
 // Dark is the default theme variant.
 :root {
-  --bg-dark-color: #44475a;
+  // Dark Background color
+  --bg-dark-color: rgb(41, 42, 45);
   // Background color
-  --bg-color: #282a36;
+  --bg-color: rgb(37, 38, 40);
   // Auto-complete color
-  --atc-color: #3C4556;
+  --atc-color: rgb(49, 49, 55);
   // Text color
-  --fg-color: #f8f8f2;
-
+  --fg-color: rgb(247, 248, 248);
+  // Light Text color
+  --fg-light-color: rgb(150, 155, 160);
+  // Border color
+  --brd-color: rgb(48, 47, 55);
   // Error color
-  --err-color: #3C4556;
-
-  // Active color
+  --err-color: rgb(41, 42, 45);
+  // Acent color
   --ac-color: #50fa7b;
   // Active text color
-  --act-color: #282a36;
+  --act-color: rgb(37, 38, 40);
 }
 
 :root.light {
-  --bg-dark-color: #e1e4eb;
+  // Dark Background color
+  --bg-dark-color: #e8f0fe;
   // Background color
-  --bg-color: #ebeef5;
+  --bg-color: #fff;
   // Auto-complete color
-  --atc-color: #e1e4eb;
+  --atc-color: #ebebeb;
   // Text color
-  --fg-color: #5d5d5f;
-
+  --fg-color: #525252;
+  // Light Text color
+  --fg-light-color: rgb(150, 155, 160);
+  // Border color
+  --brd-color: #f2f2f2;
   // Error color
-  --err-color: invert(#3C4556, 1);
-
-  // Active color
+  --err-color: invert(#303341, 1);
+  // Acent color
   --ac-color: #57b5f9;
   // Active text color
-  --act-color: #ebeef5;
+  --act-color: #fff;
 }

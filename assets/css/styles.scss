@@ -11,15 +11,17 @@ $responsiveWidth: 720px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 ::placeholder {
-  color: var(--fg-color);
+  color: var(--fg-light-color);
+  opacity: 0.3;
 }
 
 * {
@@ -32,25 +34,26 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--fg-color);
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 16px;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
-  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 h3.title {
@@ -90,16 +93,18 @@ button {
   align-items: center;
   justify-content: center;
   margin: 4px;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 0 16px;
+  border-radius: 20px;
   background-color: var(--ac-color);
   color: var(--act-color);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 16px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
-  cursor: pointer;
   transition: all 0.2s ease-in-out;
   fill: var(--act-color);
+  height: 40px;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
 
   span {
     display: inline-flex;
@@ -108,28 +113,31 @@ button {
 
   &.icon {
     background-color: var(--bg-color);
-    color: var(--ac-color);
-    fill: var(--ac-color);
+    color: var(--fg-light-color);
+    fill: var(--fg-light-color);
+
+    &:not([disabled]):hover {
+      color: var(--fg-color);
+      fill: var(--fg-color);
+    }
   }
 
-  &:not([disabled]):hover,
-  &:not(.disabled):focus {
-    background-color: var(--bg-color);
-    box-shadow: inset 0 0 0 2px var(--ac-color);
-    color: var(--ac-color);
-    fill: var(--ac-color);
+  &:not([disabled]):hover {
+    color: var(--act-color);
+    fill: var(--act-color);
   }
 }
 
 fieldset {
   margin: 16px 0;
-  border: 2px solid var(--fg-color);
-  border-radius: 4px;
+  border: 1px solid var(--brd-color);
+  border-radius: 8px;
+  background-color: var(--bg-color);
 }
 
 legend {
   color: var(--fg-color);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -138,72 +146,36 @@ fieldset pre code {
   resize: vertical;
 }
 
-fieldset.blue {
-  border-color: #57b5f9;
-}
-
 fieldset.blue legend {
   color: #57b5f9;
-}
-
-fieldset.gray {
-  border-color: #bcc2cd;
 }
 
 fieldset.gray legend {
   color: #bcc2cd;
 }
 
-fieldset.green {
-  border-color: #50fa7b;
-}
-
 fieldset.green legend {
   color: #50fa7b;
-}
-
-fieldset.cyan {
-  border-color: #8be9fd;
 }
 
 fieldset.cyan legend {
   color: #8be9fd;
 }
 
-fieldset.purple {
-  border-color: #bd93f9;
-}
-
 fieldset.purple legend {
   color: #bd93f9;
-}
-
-fieldset.orange {
-  border-color: #ffb86c;
 }
 
 fieldset.orange legend {
   color: #ffb86c;
 }
 
-fieldset.pink {
-  border-color: #ff79c6;
-}
-
 fieldset.pink legend {
   color: #ff79c6;
 }
 
-fieldset.red {
-  border-color: #ff5555;
-}
-
 fieldset.red legend {
   color: #ff5555;
-}
-
-fieldset.yellow {
-  border-color: #f1fa8c;
 }
 
 fieldset.yellow legend {
@@ -221,19 +193,18 @@ textarea,
 pre {
   margin: 4px;
   padding: 8px;
-  border-radius: 4px;
-  width: calc(100% - 8px);
+  border-radius: 8px;
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
-  font-size: 18px;
+  font-size: 16px;
   font-family: monospace;
   transition: all 0.2s ease-in-out;
-  user-select: all;
+  user-select: text;
+  width: calc(100% - 8px);
+  min-height: 40px;
 
-  &:not([readonly]):hover,
-  &:not([readonly]):focus {
-    background-color: var(--bg-color);
-    box-shadow: inset 0 0 0 2px var(--ac-color);
+  &:not([readonly]):hover {
+    background-color: var(--bg-dark-color);
   }
 }
 
@@ -243,6 +214,7 @@ pre {
 
 code {
   height: 336px;
+  border-radius: 8px;
 }
 
 .hljs,
@@ -254,7 +226,7 @@ code {
 select,
 input,
 option {
-  height: 41px;
+  height: 40px;
 }
 
 input[type="checkbox"] {
@@ -267,8 +239,8 @@ input[type="checkbox"] {
 
     &:before {
       content: "\2714";
-      border: 2px solid var(--fg-color);
-      border-radius: 4px;
+      border: 1px solid var(--fg-color);
+      border-radius: 8px;
       display: inline-flex;
       height: 16px;
       width: 16px;
@@ -276,7 +248,7 @@ input[type="checkbox"] {
       justify-content: center;
       margin: 8px 8px 8px 0;
       color: transparent;
-      transition: 0.2s;
+      transition: all 0.2s ease-in-out;
     }
   }
 
@@ -291,18 +263,19 @@ input[type="checkbox"] {
 .disabled,
 [disabled] {
   background-color: var(--err-color);
-  color: #b2b2b2;
-  fill: #b2b2b2;
+  color: var(--fg-light-color);
+  fill: var(--fg-light-color);
   cursor: default;
 
   &.icon {
-    color: #b2b2b2;
-    fill: #b2b2b2;
+    color: var(--bg-color);
+    fill: var(--bg-color);
   }
 }
 
 label {
   padding: 4px;
+  color: var(--fg-light-color);
 }
 
 ul,
@@ -366,23 +339,23 @@ ol li {
 }
 
 .info-response {
-  background-color: #ffeb3b;
+  color: #ffeb3b;
 }
 
 .success-response {
-  background-color: #4bb543;
+  color: #4bb543;
 }
 
 .redir-response {
-  background-color: #ff5722;
+  color: #ff5722;
 }
 
 .cl-error-response {
-  background-color: #a63232;
+  color: #a63232;
 }
 
 .sv-error-response {
-  background-color: #b71c1c;
+  color: #b71c1c;
 }
 
 .missing-data-response {
@@ -399,7 +372,7 @@ fieldset#history {
 
     span {
       position: absolute;
-      top: 44px;
+      top: 12px;
       right: 12px;
       font-family: monospace, monospace;
     }
@@ -421,7 +394,7 @@ fieldset#history {
 #response-details-wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 8px;
 
   textarea {
     margin: 0;
@@ -478,15 +451,15 @@ input[type="radio"] + label {
   padding: 8px 16px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    border-color: var(--err-color);
+    border-color: var(--brd-color);
   }
 }
 
 input[type="radio"]:checked + label {
-  border-color: var(--ac-color);
+  border-color: var(--fg-color);
 }
 
 input[type="radio"]:checked + label + div.tab {

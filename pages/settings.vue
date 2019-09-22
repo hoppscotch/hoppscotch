@@ -79,8 +79,8 @@
         //        You should copy the existing light theme as a template and then just
         //        set the relevant values.
         themes: [{
-            "color": "#282a36",
-            "name": "Dark (Default)",
+            "color": "rgb(37, 38, 40)",
+            "name": "Dark (default)",
             "class": ""
           },
           {
@@ -95,7 +95,7 @@
           // If the color is vibrant, black is used as the active foreground color.
           {
             "color": "#50fa7b",
-            "name": "Green (Default)",
+            "name": "Green (default)",
             "vibrant": true
           },
           {
@@ -174,7 +174,7 @@
         // By default, the color is vibrant.
         if (vibrant == null) vibrant = true;
         document.documentElement.style.setProperty('--ac-color', color);
-        document.documentElement.style.setProperty('--act-color', vibrant ? '#282a36' : '#f8f8f2');
+        document.documentElement.style.setProperty('--act-color', vibrant ? 'rgb(37, 38, 40)' : '#f8f8f2');
         this.applySetting('THEME_COLOR', color.toUpperCase());
         this.applySetting('THEME_COLOR_VIBRANT', vibrant);
       },

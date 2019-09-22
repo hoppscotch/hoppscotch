@@ -3,7 +3,9 @@
     <pw-section class="yellow" label="Import" ref="import">
       <ul>
         <li>
-          <button id="show-modal" @click="showModal = true">Import cURL</button>
+          <button class="icon" id="show-modal" @click="showModal = true">
+            Import cURL
+          </button>
         </li>
       </ul>
       <pw-modal v-if="showModal" @close="showModal = false">
@@ -14,8 +16,8 @@
                 <h3 class="title">Import cURL</h3>
                 <div>
                   <button class="icon" @click="toggleModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                      <path d="M23 20.168l-8.185-8.187 8.185-8.174-2.832-2.807-8.182 8.179-8.176-8.179-2.81 2.81 8.186 8.196-8.186 8.184 2.81 2.81 8.203-8.192 8.18 8.192z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/>
                     </svg>
                   </button>
                 </div>
@@ -33,7 +35,9 @@
         <div slot="footer">
           <ul>
             <li>
-              <button @click="handleImport">Import</button>
+              <button class="icon" @click="handleImport">
+                Import
+              </button>
             </li>
           </ul>
         </div>
@@ -65,20 +69,20 @@
           <li>
             <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
             <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M19.647 15.247c-1.278 0-2.429.551-3.225 1.429l-7.788-3.846c.062-.343.079-.64.067-.942l8.058-4.231c.769.682 1.78 1.097 2.889 1.097 2.404-.001 4.352-1.949 4.352-4.353s-1.948-4.353-4.353-4.353-4.353 1.949-4.353 4.353c0 .18.012.356.033.53l-7.828 4.111c-.793-.829-1.908-1.347-3.146-1.347-2.405 0-4.353 1.949-4.353 4.353s1.948 4.353 4.353 4.353c1.013 0 1.943-.347 2.684-.927l8.26 4.078-.001.047c0 2.404 1.948 4.353 4.353 4.353s4.351-1.949 4.351-4.353-1.948-4.352-4.353-4.352z"/>
               </svg>
-              <span>Share URL</span>
+              <span>Permalink</span>
             </button>
           </li>
           <li>
             <label class="hide-on-small-screen" for="code">&nbsp;</label>
             <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="isHidden">
-                <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+                <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/>
               </svg>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="!isHidden">
-                <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+                <path d="M11.885 14.988l3.104-3.098.011.11c0 1.654-1.346 3-3 3l-.115-.012zm8.048-8.032l-3.274 3.268c.212.554.341 1.149.341 1.776 0 2.757-2.243 5-5 5-.631 0-1.229-.13-1.785-.344l-2.377 2.372c1.276.588 2.671.972 4.177.972 7.733 0 11.985-8.449 11.985-8.449s-1.415-2.478-4.067-4.595zm1.431-3.536l-18.619 18.58-1.382-1.422 3.455-3.447c-3.022-2.45-4.818-5.58-4.818-5.58s4.446-7.551 12.015-7.551c1.825 0 3.456.426 4.886 1.075l3.081-3.075 1.382 1.42zm-13.751 10.922l1.519-1.515c-.077-.264-.132-.538-.132-.827 0-1.654 1.346-3 3-3 .291 0 .567.055.833.134l1.518-1.515c-.704-.382-1.496-.619-2.351-.619-2.757 0-5 2.243-5 5 0 .852.235 1.641.613 2.342z"/>
               </svg>
               <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
             </button>
@@ -89,15 +93,72 @@
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="send" ref="sendButton">
             Send <span id="hidden-message">Again</span>
             <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                <path d="M0 12l11 3.1 7-8.1-8.156 5.672-4.312-1.202 15.362-7.68-3.974 14.57-3.75-3.339-2.17 2.925v-.769l-2-.56v7.383l4.473-6.031 4.527 4.031 6-22z" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M24 0l-6 22-8.129-7.239 7.802-8.234-10.458 7.227-7.215-1.754 24-12zm-15 16.668v7.332l3.258-4.431-3.258-2.901z"/>
               </svg>
             </span>
           </button>
         </li>
       </ul>
+    <div class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
+      <ul>
+        <li>
+          <label for="contentType">Content Type</label>
+          <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
+          </autocomplete>
+          <span>
+            <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
+              Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
+            </pw-toggle>
+          </span>
+        </li>
+      </ul>
+      <div v-if="!rawInput">
+        <ul>
+          <li>
+            <label for="reqParamList">Parameter List</label>
+            <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
+          </li>
+        </ul>
+        <ul v-for="(param, index) in bodyParams" :key="index">
+          <li>
+            <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
+          </li>
+          <li>
+            <input :placeholder="'value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
+          </li>
+          <div>
+            <li>
+              <button class="icon" @click="removeRequestBodyParam(index)" id="delParam">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M5.633 22.031c1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887zm6.418-16.884c-4.211 0-7.625-.746-7.625-1.667s3.414-1.667 7.625-1.667 7.624.746 7.624 1.667-3.413 1.667-7.624 1.667z"/>
+                </svg>
+              </button>
+            </li>
+          </div>
+        </ul>
+        <ul>
+          <li>
+            <button class="icon" @click="addRequestBodyParam" name="addrequest">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
+              </svg>
+              <span>Add New</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <ul>
+          <li>
+            <label for="rawBody">Raw Request Body</label>
+            <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+          </li>
+        </ul>
+      </div>
+    </div>
     </pw-section>
-    <pw-section class="blue" label="Request Code" ref="requestCode" v-if="!isHidden">
+    <pw-section class="blue" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>
@@ -114,8 +175,8 @@
             <label for="generatedCode">Generated Code</label>
             <div>
               <button class="icon" @click="copyRequestCode" id="copyRequestCode" ref="copyRequestCode">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M19.647 15.247c-1.278 0-2.429.551-3.225 1.429l-7.788-3.846c.062-.343.079-.64.067-.942l8.058-4.231c.769.682 1.78 1.097 2.889 1.097 2.404-.001 4.352-1.949 4.352-4.353s-1.948-4.353-4.353-4.353-4.353 1.949-4.353 4.353c0 .18.012.356.033.53l-7.828 4.111c-.793-.829-1.908-1.347-3.146-1.347-2.405 0-4.353 1.949-4.353 4.353s1.948 4.353 4.353 4.353c1.013 0 1.943-.347 2.684-.927l8.26 4.078-.001.047c0 2.404 1.948 4.353 4.353 4.353s4.351-1.949 4.351-4.353-1.948-4.352-4.353-4.352z"/>
                 </svg>
                 <span>Copy</span>
               </button>
@@ -124,60 +185,6 @@
           <textarea id="generatedCode" ref="generatedCode" name="generatedCode" rows="8" v-model="requestCode"></textarea>
         </li>
       </ul>
-    </pw-section>
-    <pw-section class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
-      <ul>
-        <li>
-          <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
-          </autocomplete>
-          <span>
-            <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
-              Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
-            </pw-toggle>
-          </span>
-        </li>
-      </ul>
-      <div v-if="!rawInput">
-        <ul v-for="(param, index) in bodyParams" :key="index">
-          <li>
-            <label :for="'bparam'+index">Key {{index + 1}}</label>
-            <input :id="'bparam'+index" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
-          </li>
-          <li>
-            <label :for="'bvalue'+index">Value {{index + 1}}</label>
-            <input :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
-          </li>
-          <div>
-            <li>
-              <label class="hide-on-small-screen" for="delParam">&nbsp;</label>
-              <button class="icon" @click="removeRequestBodyParam(index)" id="delParam">
-                <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                  <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
-                </svg>
-              </button>
-            </li>
-          </div>
-        </ul>
-        <ul>
-          <li>
-            <button @click="addRequestBodyParam" name="addrequest">Add New</button>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <label for="reqParamList">Parameter List</label>
-            <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-        <ul>
-          <li>
-            <label for="rawBody">Raw Request Body</label>
-            <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
-          </li>
-        </ul>
-      </div>
     </pw-section>
     <pw-section class="purple" id="response" label="Response" ref="response">
       <ul>
@@ -198,8 +205,8 @@
             <label for="body">response</label>
             <div>
               <button class="icon" @click="copyResponse" ref="copyResponse" v-if="response.body">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M19.647 15.247c-1.278 0-2.429.551-3.225 1.429l-7.788-3.846c.062-.343.079-.64.067-.942l8.058-4.231c.769.682 1.78 1.097 2.889 1.097 2.404-.001 4.352-1.949 4.352-4.353s-1.948-4.353-4.353-4.353-4.353 1.949-4.353 4.353c0 .18.012.356.033.53l-7.828 4.111c-.793-.829-1.908-1.347-3.146-1.347-2.405 0-4.353 1.949-4.353 4.353s1.948 4.353 4.353 4.353c1.013 0 1.943-.347 2.684-.927l8.26 4.078-.001.047c0 2.404 1.948 4.353 4.353 4.353s4.351-1.949 4.351-4.353-1.948-4.352-4.353-4.352z"/>
                 </svg>
                 <span>Copy</span>
               </button>
@@ -227,7 +234,7 @@
       <input id="tab-one" type="radio" name="grp" checked="checked">
       <label for="tab-one">Authentication</label>
       <div class="tab">
-        <pw-section class="green" label="Authentication">
+        <pw-section class="cyan" label="Authentication">
           <ul>
             <li>
               <label for="auth">Authentication Type</label>
@@ -240,22 +247,19 @@
           </ul>
           <ul v-if="auth === 'Basic'">
             <li>
-              <label for="http_basic_user">User</label>
-              <input id="http_basic_user" name="http_basic_user" v-model="httpUser">
+              <input placeholder="User" name="http_basic_user" v-model="httpUser">
             </li>
             <li>
-              <label for="http_basic_passwd">Password</label>
-              <input id="http_basic_passwd" name="http_basic_passwd" :type="passwordFieldType" v-model="httpPassword">
+              <input placeholder="Password" name="http_basic_passwd" :type="passwordFieldType" v-model="httpPassword">
             </li>
             <div>
               <li>
-                <label class="hide-on-small-screen" for="switchVisibility">&nbsp;</label>
                 <button class="icon" id="switchVisibility" ref="switchVisibility" @click="switchVisibility">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType === 'text'">
-                    <path d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 5c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2zm0-2c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z" />
+                    <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/>
                   </svg>
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="passwordFieldType !== 'text'">
-                    <path d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z" />
+                    <path d="M11.885 14.988l3.104-3.098.011.11c0 1.654-1.346 3-3 3l-.115-.012zm8.048-8.032l-3.274 3.268c.212.554.341 1.149.341 1.776 0 2.757-2.243 5-5 5-.631 0-1.229-.13-1.785-.344l-2.377 2.372c1.276.588 2.671.972 4.177.972 7.733 0 11.985-8.449 11.985-8.449s-1.415-2.478-4.067-4.595zm1.431-3.536l-18.619 18.58-1.382-1.422 3.455-3.447c-3.022-2.45-4.818-5.58-4.818-5.58s4.446-7.551 12.015-7.551c1.825 0 3.456.426 4.886 1.075l3.081-3.075 1.382 1.42zm-13.751 10.922l1.519-1.515c-.077-.264-.132-.538-.132-.827 0-1.654 1.346-3 3-3 .291 0 .567.055.833.134l1.518-1.515c-.704-.382-1.496-.619-2.351-.619-2.757 0-5 2.243-5 5 0 .852.235 1.641.613 2.342z"/>
                   </svg>
                 </button>
               </li>
@@ -263,8 +267,7 @@
           </ul>
           <ul v-if="auth === 'Bearer Token'">
             <li>
-              <label for="bearer_token">Token</label>
-              <input id="bearer_token" name="bearer_token" v-model="bearerToken">
+              <input placeholder="Token" name="bearer_token" v-model="bearerToken">
             </li>
           </ul>
         </pw-section>
@@ -273,21 +276,24 @@
       <label for="tab-two">Headers</label>
       <div class="tab">
         <pw-section class="orange" label="Headers">
+          <ul>
+            <li>
+              <label for="headerList">Header List</label>
+              <textarea id="headerList" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
+            </li>
+          </ul>
           <ul v-for="(header, index) in headers" :key="index">
             <li>
-              <label :for="'header'+index">Header {{index + 1}}</label>
-              <input :id="'header'+index" :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
+              <input :placeholder="'header '+(index+1)" :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
             <li>
-              <label :for="'value'+index">Value {{index + 1}}</label>
-              <input :id="'value'+index" :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
+              <input :placeholder="'value '+(index+1)" :name="'value'+index" v-model="header.value" @keyup.prevent="setRouteQueryState">
             </li>
             <div>
               <li>
-                <label class="hide-on-small-screen" for="header">&nbsp;</label>
                 <button class="icon" @click="removeRequestHeader(index)" id="header">
-                  <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                    <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M5.633 22.031c1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887zm6.418-16.884c-4.211 0-7.625-.746-7.625-1.667s3.414-1.667 7.625-1.667 7.624.746 7.624 1.667-3.413 1.667-7.624 1.667z"/>
                   </svg>
                 </button>
               </li>
@@ -295,13 +301,12 @@
           </ul>
           <ul>
             <li>
-              <button @click="addRequestHeader">Add New</button>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="headerList">Header List</label>
-              <textarea id="headerList" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
+              <button class="icon" @click="addRequestHeader">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
+                </svg>
+                <span>Add New</span>
+              </button>
             </li>
           </ul>
         </pw-section>
@@ -310,21 +315,24 @@
       <label for="tab-three">Parameters</label>
       <div class="tab">
         <pw-section class="pink" label="Parameters">
+          <ul>
+            <li>
+              <label for="paramList">Parameter List</label>
+              <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
+            </li>
+          </ul>
           <ul v-for="(param, index) in params" :key="index">
             <li>
-              <label :for="'param'+index">Parameter {{index + 1}}</label>
-              <input :id="'param'+index" :name="'param'+index" v-model="param.key" autofocus>
+              <input :placeholder="'parameter '+(index+1)" :name="'param'+index" v-model="param.key" autofocus>
             </li>
             <li>
-              <label :for="'value'+index">Value {{index + 1}}</label>
-              <input :id="'value'+index" :name="'value'+index" v-model="param.value">
+              <input :placeholder="'value '+(index+1)" :name="'value'+index" v-model="param.value">
             </li>
             <div>
               <li>
-                <label class="hide-on-small-screen" for="param">&nbsp;</label>
                 <button class="icon" @click="removeRequestParam(index)" id="param">
-                  <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                    <path d="M19 24h-14c-1.104 0-2-.896-2-2v-17h-1v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2h-1v17c0 1.104-.896 2-2 2zm0-19h-14v16.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-16.5zm-9 4c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm-2-7h-4v1h4v-1z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M5.633 22.031c1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887zm6.418-16.884c-4.211 0-7.625-.746-7.625-1.667s3.414-1.667 7.625-1.667 7.624.746 7.624 1.667-3.413 1.667-7.624 1.667z"/>
                   </svg>
                 </button>
               </li>
@@ -332,13 +340,12 @@
           </ul>
           <ul>
             <li>
-              <button @click="addRequestParam">Add New</button>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="paramList">Parameter List</label>
-              <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
+              <button class="icon" @click="addRequestParam">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
+                </svg>
+                <span>Add New</span>
+              </button>
             </li>
           </ul>
         </pw-section>
@@ -420,8 +427,8 @@
     data() {
       return {
         showModal: false,
-        copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M22 6v16h-16v-16h16zm2-2h-20v20h20v-20zm-24 17v-21h21v2h-19v19h-2z" /></svg>',
-        copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"/></svg>',
+        copyButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M19.647 15.247c-1.278 0-2.429.551-3.225 1.429l-7.788-3.846c.062-.343.079-.64.067-.942l8.058-4.231c.769.682 1.78 1.097 2.889 1.097 2.404-.001 4.352-1.949 4.352-4.353s-1.948-4.353-4.353-4.353-4.353 1.949-4.353 4.353c0 .18.012.356.033.53l-7.828 4.111c-.793-.829-1.908-1.347-3.146-1.347-2.405 0-4.353 1.949-4.353 4.353s1.948 4.353 4.353 4.353c1.013 0 1.943-.347 2.684-.927l8.26 4.078-.001.047c0 2.404 1.948 4.353 4.353 4.353s4.351-1.949 4.351-4.353-1.948-4.352-4.353-4.352z"/></svg>',
+        copiedButton: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/></svg>',
         method: 'GET',
         url: 'https://reqres.in',
         auth: 'None',
@@ -511,7 +518,7 @@
               value
             }) => `${key}=${value}`).join('&')
           queryString = queryString === '' ? '' : `?${queryString}`
-          if(path.indexOf('?') !== -1) {
+          if(path.includes('?')) {
             path = path.slice(0, path.indexOf('?')) + queryString;
           } else {
             path = path + queryString
@@ -897,7 +904,7 @@
           dummy.select();
           document.execCommand('copy');
           document.body.removeChild(dummy);
-          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Share URL</span>', 1500)
+          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Permalink</span>', 1500)
         }
       },
       copyRequestCode() {

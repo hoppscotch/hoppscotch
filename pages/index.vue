@@ -494,7 +494,7 @@
             responseText.innerText = this.response.body;
           } else if (responseText && this.response.body != "(waiting to send request)" && this.response.body !=
             "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
-            responseText.innerText = this.responseType == 'application/json' ? JSON.stringify(this.response.body,
+            responseText.innerText = this.responseType == 'application/json' || 'application/hal+json' ? JSON.stringify(this.response.body,
               null, 2) : this.response.body;
             hljs.highlightBlock(document.querySelector("div#response-details-wrapper pre code"));
           } else {

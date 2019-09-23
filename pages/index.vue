@@ -612,7 +612,7 @@
               requestString.push('xhr.setRequestHeader(' + element.key + ', ' + element.value + ')');
             })
           }
-          if (this.method === 'POST' || this.method === 'PUT') {
+          if (['POST', 'PUT'].includes(this.method)]) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push("xhr.setRequestHeader('Content-Length', " + requestBody.length + ")")
             requestString.push("xhr.setRequestHeader('Content-Type', `" + this.contentType + "; charset=utf-8`)")

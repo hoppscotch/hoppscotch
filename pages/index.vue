@@ -965,7 +965,7 @@
       setRouteQueries(queries) {
         if (typeof (queries) !== 'object') throw new Error('Route query parameters must be a Object')
         for (const key in queries) {
-          if (key === 'headers' || key === 'params' || key === 'bodyParams') this[key] = JSON.parse(queries[key])
+          if (['headers', 'params', 'bodyParams'].includes(key)) this[key] = JSON.parse(queries[key])
           if (key === 'rawParams') {
             this.rawInput = true
             this.rawParams = queries['rawParams']

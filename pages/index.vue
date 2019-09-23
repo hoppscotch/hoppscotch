@@ -632,7 +632,7 @@
           } else if (this.auth === 'Bearer Token') {
             headers.push('    "Authorization": "Bearer Token ' + this.bearerToken + ',\n')
           }
-          if (this.method === 'POST' || this.method === 'PUT') {
+          if (['POST', 'PUT'].includes(this.method)]) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push('  body: ' + requestBody + ',\n')
             headers.push('    "Content-Length": ' + requestBody.length + ',\n')

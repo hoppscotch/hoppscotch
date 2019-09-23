@@ -580,7 +580,7 @@
             key,
             value
           }) => `${key}: ${value}`).join(',\n')
-        return result == '' ? '' : `${result}`
+        return result === '' ? '' : `${result}`
       },
       queryString() {
         const result = this.params

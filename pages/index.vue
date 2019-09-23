@@ -722,7 +722,7 @@
 
         let headers = {};
 
-        // If the request has a request body, we want to ensure Content-Length and
+        // If the request has a body, we want to ensure Content-Length and
         // Content-Type are sent.
         let requestBody;
         if (this.hasRequestBody) {

@@ -581,7 +581,7 @@
             key,
             value
           }) => `${key}: ${value}`).join(',\n')
-        return result == '' ? '' : `${result}`
+        return result === '' ? '' : `${result}`
       },
       queryString() {
         const result = this.params
@@ -613,7 +613,7 @@
               requestString.push('xhr.setRequestHeader(' + element.key + ', ' + element.value + ')');
             })
           }
-          if (this.method === 'POST' || this.method === 'PUT') {
+          if (['POST', 'PUT'].includes(this.method)) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push("xhr.setRequestHeader('Content-Length', " + requestBody.length + ")")
             requestString.push("xhr.setRequestHeader('Content-Type', `" + this.contentType + "; charset=utf-8`)")
@@ -633,7 +633,7 @@
           } else if (this.auth === 'Bearer Token') {
             headers.push('    "Authorization": "Bearer Token ' + this.bearerToken + ',\n')
           }
-          if (this.method === 'POST' || this.method === 'PUT') {
+          if (['POST', 'PUT'].includes(this.method)) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push('  body: ' + requestBody + ',\n')
             headers.push('    "Content-Length": ' + requestBody.length + ',\n')
@@ -673,7 +673,7 @@
               requestString.push("  -H '" + element.key + ": " + element.value + "' \\\n");
             })
           }
-          if (this.method === 'POST' || this.method === 'PUT') {
+          if (['POST', 'PUT'].includes(this.method)) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push("  -H 'Content-Length: " + requestBody.length + "' \\\n")
             requestString.push("  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n")
@@ -723,7 +723,7 @@
 
         let headers = {};
 
-        // If the request has a request body, we want to ensure Content-Length and
+        // If the request has a body, we want to ensure Content-Length and
         // Content-Type are sent.
         let requestBody;
         if (this.hasRequestBody) {
@@ -966,7 +966,7 @@
       setRouteQueries(queries) {
         if (typeof (queries) !== 'object') throw new Error('Route query parameters must be a Object')
         for (const key in queries) {
-          if (key === 'headers' || key === 'params' || key === 'bodyParams') this[key] = JSON.parse(queries[key])
+          if (['headers', 'params', 'bodyParams'].includes(key)) this[key] = JSON.parse(queries[key])
           if (key === 'rawParams') {
             this.rawInput = true
             this.rawParams = queries['rawParams']
@@ -992,7 +992,7 @@
         try {
          let parsedCurl = parseCurlCommand(text);
          this.url = parsedCurl.url.replace(/"/g,"").replace(/'/g,"");
-         this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
+         this.url = this.url.slice(-1).pop() == '/' ? this.url.slice(0, -1): this.url;
          this.path = "";
          this.headers = [];
           for (const key of Object.keys(parsedCurl.headers)) {

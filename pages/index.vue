@@ -991,7 +991,7 @@
         try {
          let parsedCurl = parseCurlCommand(text);
          this.url = parsedCurl.url.replace(/"/g,"").replace(/'/g,"");
-         this.url = this.url[this.url.length -1] == '/' ? this.url.slice(0, -1): this.url;
+         this.url = this.url.slice(-1).pop() == '/' ? this.url.slice(0, -1): this.url;
          this.path = "";
          this.headers = [];
           for (const key of Object.keys(parsedCurl.headers)) {

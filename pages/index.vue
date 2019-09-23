@@ -672,7 +672,7 @@
               requestString.push("  -H '" + element.key + ": " + element.value + "' \\\n");
             })
           }
-          if (this.method === 'POST' || this.method === 'PUT') {
+          if (['POST', 'PUT'].includes(this.method)]) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push("  -H 'Content-Length: " + requestBody.length + "' \\\n")
             requestString.push("  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n")

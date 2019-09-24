@@ -1030,7 +1030,7 @@
             this.auth = 'None';
             this.httpUser = '';
             this.httpPassword = '';
-            this.headers = '';
+            this.headers = [];
             this.params = [];
         }
       }

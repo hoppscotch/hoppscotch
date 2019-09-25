@@ -651,7 +651,7 @@
               requestString.push('xhr.setRequestHeader(' + element.key + ', ' + element.value + ')');
             })
           }
-          if (['POST', 'PUT'].includes(this.method)) {
+          if (['POST', 'PUT', 'PATCH'].includes(this.method)) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push("xhr.setRequestHeader('Content-Length', " + requestBody.length + ")")
             requestString.push("xhr.setRequestHeader('Content-Type', `" + this.contentType + "; charset=utf-8`)")
@@ -671,7 +671,7 @@
           } else if (this.auth === 'Bearer Token') {
             headers.push('    "Authorization": "Bearer Token ' + this.bearerToken + ',\n')
           }
-          if (['POST', 'PUT'].includes(this.method)) {
+          if (['POST', 'PUT', 'PATCH'].includes(this.method)) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push('  body: ' + requestBody + ',\n')
             headers.push('    "Content-Length": ' + requestBody.length + ',\n')
@@ -711,7 +711,7 @@
               requestString.push("  -H '" + element.key + ": " + element.value + "' \\\n");
             })
           }
-          if (['POST', 'PUT'].includes(this.method)) {
+          if (['POST', 'PUT', 'PATCH'].includes(this.method)) {
             const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
             requestString.push("  -H 'Content-Length: " + requestBody.length + "' \\\n")
             requestString.push("  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n")
@@ -760,6 +760,12 @@
         } : null;
 
         let headers = {};
+        let headersObject = {};
+
+        Object.keys(headers).forEach(id => {
+          headersObject[headers[id].key] = headers[id].value
+        });
+        headers = headersObject;
 
         // If the request has a body, we want to ensure Content-Length and
         // Content-Type are sent.
@@ -787,7 +793,6 @@
           headers
         );
 
-        const headersObject = {};
         Object.keys(headers).forEach(id => {
           headersObject[headers[id].key] = headers[id].value
         });

@@ -159,6 +159,8 @@ docker build -t postwoman:latest
 docker run -p 3000:3000 postwoman:latest
 ```
 
+---
+
 ## Releasing
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.

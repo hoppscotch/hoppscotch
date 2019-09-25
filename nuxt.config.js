@@ -24,6 +24,9 @@ export default {
   /*
    ** Headers of the page
    */
+  server: {
+    host: '0.0.0.0', // default: localhost
+  },
   head: {
     title: `${meta.name} \u2022 ${meta.shortDescription}`,
     meta: [

@@ -152,7 +152,15 @@ You're done!
 
 ---
 
+## Docker
+
+```bash
+docker build -t postwoman:latest
+docker run -p 3000:3000 postwoman:latest
+```
+
 ## Releasing
+
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
 1. Build the release files with `npm run build`.

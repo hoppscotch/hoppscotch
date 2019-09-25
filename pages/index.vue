@@ -44,6 +44,7 @@
       </pw-modal>
     </pw-section>
     <pw-section class="blue" label="Request" ref="request">
+      <button @click="clearContent">Clear</button>
       <ul>
         <li>
           <label for="method">Method</label>
@@ -235,6 +236,7 @@
       <label for="tab-one">Authentication</label>
       <div class="tab">
         <pw-section class="cyan" label="Authentication">
+          <button @click="clearContent('auth')">Clear</button>
           <ul>
             <li>
               <label for="auth">Authentication Type</label>
@@ -276,6 +278,7 @@
       <label for="tab-two">Headers</label>
       <div class="tab">
         <pw-section class="orange" label="Headers">
+          <button @click="clearContent('headers')">Clear</button>
           <ul>
             <li>
               <label for="headerList">Header List</label>
@@ -315,6 +318,7 @@
       <label for="tab-three">Parameters</label>
       <div class="tab">
         <pw-section class="pink" label="Parameters">
+          <button @click="clearContent('parameters')">Clear</button>
           <ul>
             <li>
               <label for="paramList">Parameter List</label>
@@ -1004,6 +1008,31 @@
       },
       switchVisibility() {
         this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
+      },
+      clearContent(name){
+        switch(name){
+          case "auth":
+            this.auth = 'None';
+            this.httpUser = '';
+            this.httpPassword = '';
+            break;
+          case "headers":
+            this.headers = [];
+            break;
+          case "parameters":
+            this.params = [];
+            break;
+          default:
+            this.method= 'GET',
+            this.url= 'https://reqres.in',
+            this.auth= 'None',
+            this.path= '/api/users',
+            this.auth = 'None';
+            this.httpUser = '';
+            this.httpPassword = '';
+            this.headers = [];
+            this.params = [];
+        }
       }
     },
     mounted() {

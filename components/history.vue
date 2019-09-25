@@ -121,6 +121,11 @@
         this.filterText = '';
         this.disableHistoryClearing();
         updateOnLocalStorage('history', this.history);
+        this.$toast.error('History Deleted', {
+          icon: 'delete',
+          position: 'bottom-center',
+          duration: 1000,
+        });
       },
       useHistory(entry) {
         this.$emit('useHistory', entry);
@@ -137,6 +142,11 @@
           this.filterText = '';
         }
         updateOnLocalStorage('history', this.history);
+        this.$toast.error('Deleted', {
+          icon: 'delete',
+          position: 'bottom-center',
+          duration: 1000,
+        });
       },
       addEntry(entry) {
         this.history.push(entry);

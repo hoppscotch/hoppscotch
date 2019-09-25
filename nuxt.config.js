@@ -235,7 +235,8 @@ export default {
         })([48, 72, 96, 144, 192, 512])
       }
     }],
-    ['@nuxtjs/axios']
+    ['@nuxtjs/axios'],
+    ['@nuxtjs/toast']
   ],
   /*
    ** Build configuration

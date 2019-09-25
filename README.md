@@ -23,6 +23,8 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 **Chat here: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
+**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Buy me a coffee](https://www.buymeacoffee.com/liyasthomas)_**
+
 <div align="center">
   <br>
   <img src="static/screenshot.gif" alt="postwoman" width="100%">

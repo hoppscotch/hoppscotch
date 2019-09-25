@@ -849,6 +849,11 @@
 
           this.response.status = error.message;
           this.response.body = "See JavaScript console (F12) for details.";
+          this.$toast.error('Something went wrong!', {
+            icon: 'delete',
+            position: 'bottom-center',
+            duration: 1000,
+          });
         }
       },
       getQueryStringFromPath() {
@@ -876,6 +881,11 @@
       },
       removeRequestHeader(index) {
         this.headers.splice(index, 1)
+        this.$toast.error('Deleted', {
+          icon: 'delete',
+          position: 'bottom-center',
+          duration: 1000,
+        });
       },
       addRequestParam() {
         this.params.push({
@@ -886,6 +896,11 @@
       },
       removeRequestParam(index) {
         this.params.splice(index, 1)
+        this.$toast.error('Deleted', {
+          icon: 'delete',
+          position: 'bottom-center',
+          duration: 1000,
+        });
       },
       addRequestBodyParam() {
         this.bodyParams.push({
@@ -896,6 +911,11 @@
       },
       removeRequestBodyParam(index) {
         this.bodyParams.splice(index, 1)
+        this.$toast.error('Deleted', {
+          icon: 'delete',
+          position: 'bottom-center',
+          duration: 1000,
+        });
       },
       formatRawParams(event) {
         if ((event.which !== 13 && event.which !== 9)) {
@@ -1052,8 +1072,8 @@
       switchVisibility() {
         this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
       },
-      clearContent(name){
-        switch(name){
+      clearContent(name) {
+        switch(name) {
           case "auth":
             this.auth = 'None';
             this.httpUser = '';
@@ -1076,6 +1096,11 @@
             this.headers = [];
             this.params = [];
         }
+        this.$toast.error('Cleared', {
+          icon: 'delete',
+          position: 'bottom-center',
+          duration: 1000,
+        });
       }
     },
     mounted() {

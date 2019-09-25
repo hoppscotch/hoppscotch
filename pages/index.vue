@@ -44,7 +44,6 @@
       </pw-modal>
     </pw-section>
     <pw-section class="blue" label="Request" ref="request">
-      <button @click="clearContent">Clear</button>
       <ul>
         <li>
           <label for="method">Method</label>
@@ -101,63 +100,69 @@
           </button>
         </li>
       </ul>
-    <div class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
-      <ul>
-        <li>
-          <label for="contentType">Content Type</label>
-          <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
-          </autocomplete>
-          <span>
-            <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
-              Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
-            </pw-toggle>
-          </span>
-        </li>
-      </ul>
-      <div v-if="!rawInput">
+      <div class="blue" label="Request Body" v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'">
         <ul>
           <li>
-            <label for="reqParamList">Parameter List</label>
-            <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
+            <label for="contentType">Content Type</label>
+            <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
+            </autocomplete>
+            <span>
+              <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
+                Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
+              </pw-toggle>
+            </span>
           </li>
         </ul>
-        <ul v-for="(param, index) in bodyParams" :key="index">
-          <li>
-            <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
-          </li>
-          <li>
-            <input :placeholder="'value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
-          </li>
-          <div>
+        <div v-if="!rawInput">
+          <ul>
             <li>
-              <button class="icon" @click="removeRequestBodyParam(index)" id="delParam">
+              <label for="reqParamList">Parameter List</label>
+              <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
+            </li>
+          </ul>
+          <ul v-for="(param, index) in bodyParams" :key="index">
+            <li>
+              <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
+            </li>
+            <li>
+              <input :placeholder="'value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
+            </li>
+            <div>
+              <li>
+                <button class="icon" @click="removeRequestBodyParam(index)" id="delParam">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M5.633 22.031c1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887zm6.418-16.884c-4.211 0-7.625-.746-7.625-1.667s3.414-1.667 7.625-1.667 7.624.746 7.624 1.667-3.413 1.667-7.624 1.667z"/>
+                  </svg>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <button class="icon" @click="addRequestBodyParam" name="addrequest">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M5.633 22.031c1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887zm6.418-16.884c-4.211 0-7.625-.746-7.625-1.667s3.414-1.667 7.625-1.667 7.624.746 7.624 1.667-3.413 1.667-7.624 1.667z"/>
+                  <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
                 </svg>
+                <span>Add New</span>
               </button>
             </li>
-          </div>
-        </ul>
-        <ul>
-          <li>
-            <button class="icon" @click="addRequestBodyParam" name="addrequest">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
-              </svg>
-              <span>Add New</span>
-            </button>
-          </li>
-        </ul>
+          </ul>
+        </div>
+        <div v-else>
+          <ul>
+            <li>
+              <label for="rawBody">Raw Request Body</label>
+              <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div v-else>
-        <ul>
-          <li>
-            <label for="rawBody">Raw Request Body</label>
-            <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
-          </li>
-        </ul>
-      </div>
-    </div>
+      <button class="icon" @click="clearContent">
+        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+          <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm.456-11.429l-4.528 4.528 5.658 5.659 4.527-4.53-5.657-5.657z"/>
+        </svg>
+        <span>Reset</span>
+      </button>
     </pw-section>
     <pw-section class="blue" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
@@ -236,10 +241,19 @@
       <label for="tab-one">Authentication</label>
       <div class="tab">
         <pw-section class="cyan" label="Authentication">
-          <button @click="clearContent('auth')">Clear</button>
           <ul>
             <li>
-              <label for="auth">Authentication Type</label>
+              <div class="flex-wrap">
+                <label for="auth">Authentication Type</label>
+                <div>
+                  <button class="icon" @click="clearContent('auth')">
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                      <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm.456-11.429l-4.528 4.528 5.658 5.659 4.527-4.53-5.657-5.657z"/>
+                    </svg>
+                    <span>Clear</span>
+                  </button>
+                </div>
+              </div>
               <select id="auth" v-model="auth">
                 <option>None</option>
                 <option>Basic</option>
@@ -278,10 +292,19 @@
       <label for="tab-two">Headers</label>
       <div class="tab">
         <pw-section class="orange" label="Headers">
-          <button @click="clearContent('headers')">Clear</button>
           <ul>
             <li>
-              <label for="headerList">Header List</label>
+              <div class="flex-wrap">
+                <label for="headerList">Header List</label>
+                <div>
+                  <button class="icon" @click="clearContent('headers')">
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                      <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm.456-11.429l-4.528 4.528 5.658 5.659 4.527-4.53-5.657-5.657z"/>
+                    </svg>
+                    <span>Clear</span>
+                  </button>
+                </div>
+              </div>
               <textarea id="headerList" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
             </li>
           </ul>
@@ -318,10 +341,19 @@
       <label for="tab-three">Parameters</label>
       <div class="tab">
         <pw-section class="pink" label="Parameters">
-          <button @click="clearContent('parameters')">Clear</button>
           <ul>
             <li>
-              <label for="paramList">Parameter List</label>
+              <div class="flex-wrap">
+                <label for="paramList">Parameter List</label>
+                <div>
+                  <button class="icon" @click="clearContent('parameters')">
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                      <path d="M5.662 23l-5.369-5.365c-.195-.195-.293-.45-.293-.707 0-.256.098-.512.293-.707l14.929-14.928c.195-.194.451-.293.707-.293.255 0 .512.099.707.293l7.071 7.073c.196.195.293.451.293.708 0 .256-.097.511-.293.707l-11.216 11.219h5.514v2h-12.343zm3.657-2l-5.486-5.486-1.419 1.414 4.076 4.072h2.829zm.456-11.429l-4.528 4.528 5.658 5.659 4.527-4.53-5.657-5.657z"/>
+                    </svg>
+                    <span>Clear</span>
+                  </button>
+                </div>
+              </div>
               <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
             </li>
           </ul>

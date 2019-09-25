@@ -1,9 +1,7 @@
 <template>
   <div class="color" :data-color="color">
     <span :style="{backgroundColor: color}" class="preview">
-      <svg v-if="active" class="activeTick" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="12"/>
-      </svg>
+      <i v-if="active" class="material-icons activeTick">done</i>
     </span>
     {{ name || color }}
   </div>
@@ -39,14 +37,14 @@
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          fill: #fff;
+          color: #fff;
       }
     }
   }
 
   .color.vibrant {
     .preview .activeTick {
-      fill: var(--act-color);
+      color: var(--act-color);
     }
   }
 </style>

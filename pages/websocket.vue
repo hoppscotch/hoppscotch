@@ -12,12 +12,8 @@
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
               {{ toggleConnectionVerb }}
               <span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" v-if="connectionState">
-                  <path d="M16 0l-3 9h9l-1.866 2h-14.4l10.266-11zm2.267 13h-14.4l-1.867 2h9l-3 9 10.267-11z"/>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" v-if="!connectionState">
-                  <path d="M8 24l3-9h-9l14-15-3 9h9l-14 15z"/>
-                </svg>
+                <i class="material-icons" v-if="!connectionState">sync</i>
+                <i class="material-icons" v-if="connectionState">sync_disabled</i>
               </span>
             </button>
           </li>
@@ -47,9 +43,7 @@
             <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
               Send
               <span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M24 0l-6 22-8.129-7.239 7.802-8.234-10.458 7.227-7.215-1.754 24-12zm-15 16.668v7.332l3.258-4.431-3.258-2.901z"/>
-                </svg>
+                <i class="material-icons">send</i>
               </span>
             </button>
           </li>

@@ -7,16 +7,16 @@
     </ul>
     <ul>
       <li @click="sort_by_time()">
-        <label for="">Time</label>
+        <label for="" class="flex-wrap">Time<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_status_code()">
-        <label for="">Status Code</label>
+        <label for="" class="flex-wrap">Status Code<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_url()">
-        <label for="">URL</label>
+        <label for="" class="flex-wrap">URL<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_path()">
-        <label for="">Path</label>
+        <label for="" class="flex-wrap">Path<i class="material-icons">sort</i></label>
       </li>
     </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
@@ -37,16 +37,12 @@
         <div class="show-on-small-screen">
           <li>
             <button class="icon" :id="'delete-button#'+index" @click="deleteHistory(entry)" aria-label="Delete">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                <path d="M5.633 22.031c1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887zm6.418-16.884c-4.211 0-7.625-.746-7.625-1.667s3.414-1.667 7.625-1.667 7.624.746 7.624 1.667-3.413 1.667-7.624 1.667z"/>
-              </svg>
+              <i class="material-icons">delete</i>
             </button>
           </li>
           <li>
             <button class="icon" :id="'use-button#'+index" @click="useHistory(entry)" aria-label="Edit">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                <path d="M19.769 9.923l-12.642 12.639-7.127 1.438 1.438-7.128 12.641-12.64 5.69 5.691zm1.414-1.414l2.817-2.82-5.691-5.689-2.816 2.817 5.69 5.692z"/>
-              </svg>
+              <i class="material-icons">edit</i>
             </button>
           </li>
         </div>
@@ -59,7 +55,10 @@
     </ul>
     <ul>
       <li v-if="!isClearingHistory">
-        <button class="icon" id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">Clear All</button>
+        <button class="icon" id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">
+          <i class="material-icons">clear_all</i>
+          <span>Clear All</span>
+        </button>
       </li>
       <li v-else>
         <div class="flex-wrap">

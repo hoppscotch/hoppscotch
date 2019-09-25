@@ -136,9 +136,16 @@ fieldset {
 }
 
 legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--fg-color);
   font-weight: 600;
   cursor: pointer;
+
+  i {
+    margin-left: 8px;
+  }
 }
 
 fieldset textarea,

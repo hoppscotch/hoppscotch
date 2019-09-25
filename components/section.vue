@@ -1,6 +1,6 @@
 <template>
   <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': noFrameColors }">
-    <legend @click.prevent="collapse">{{ label }} ↕</legend>
+    <legend @click.prevent="collapse"><span>{{ label }}</span><i class="material-icons" v-if="isCollapsed">expand_more</i><i class="material-icons" v-if="!isCollapsed">expand_less</i></legend>
     <div class="collapsible" :class="{ hidden: collapsed }">
       <slot />
     </div>
@@ -18,6 +18,12 @@ export default {
   computed: {
     noFrameColors() {
       return this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false;
+    },
+  },
+
+  data() {
+    return {
+      isCollapsed: false
     }
   },
 
@@ -33,8 +39,9 @@ export default {
 
   methods: {
     collapse({ target }) {
-      const parent = target.parentNode;
+      const parent = target.parentNode.parentNode;
       parent.querySelector(".collapsible").classList.toggle("hidden");
+      this.isCollapsed = !this.isCollapsed;
     }
   }
 };

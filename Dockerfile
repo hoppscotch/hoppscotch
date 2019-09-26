@@ -1,5 +1,7 @@
 FROM node:12.10.0-buster
 
+LABEL maintainer="Liyas Thomas (liyascthomas@gmail.com)"
+
 WORKDIR /app
 
 COPY . .

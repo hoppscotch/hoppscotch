@@ -903,6 +903,7 @@
           let time = new Date().toLocaleTimeString();
           let date = new Date().toLocaleDateString();
           navigator.share({
+              title: `Postwoman`,
               text: `Postwoman • API request builder at ${time} on ${date}`,
               url: window.location.href
             }).then(() => {

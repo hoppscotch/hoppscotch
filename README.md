@@ -1,10 +1,19 @@
 ```
 When I wrote this, only God and I understood what I was doing. Now, only God knows.
 ```
+
 <div align="center">
-    <a href="https://liyas-thomas.firebaseapp.com"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Liyas Thomas" width="200"></a>
+    <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
     <br>
-    <h1>Liyas Thomas</h1>
+    <h1>Postwoman</h1>
+    <p>
+      API request builder - Helps you create your requests faster, saving you precious time on your development
+    </p>
+<p>
+
+[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://liyas-thomas.firebaseapp.com) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
+
+</p>
     <sub>Built with ❤︎ by
       <a href="https://github.com/liyasthomas">liyasthomas</a> and
       <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
@@ -12,12 +21,6 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 </div>
 
 ---
-
-[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://liyas-thomas.firebaseapp.com) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
-
-# <img src="static/icon.png" alt="postwoman" width="32"> Postwoman
-
-### API request builder
 
 **Start here: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md)_**
 
@@ -118,11 +121,11 @@ _History entries can be deleted one-by-one or all together_
 
 ---
 
-## Demo
+## Demo 🚀
 
 [https://postwoman.io](https://postwoman.io)
 
-## Usage
+## Usage 💡
 
 1. Specify your request method
 2. Type in your API URL
@@ -134,7 +137,7 @@ You're done!
 
 ---
 
-## Built with
+## Built with 🔧
 
 * **[Chromium](https://github.com/chromium/chromium)** - Thanks for being so fast!
 * HTML - For the web framework
@@ -145,7 +148,7 @@ You're done!
 
 ---
 
-## Developing
+## Developing 👷
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
@@ -154,7 +157,7 @@ You're done!
 
 ---
 
-## Docker
+## Docker 🐳
 
 ```bash
 docker build -t postwoman:latest
@@ -163,7 +166,7 @@ docker run -p 3000:3000 postwoman:latest
 
 ---
 
-## Releasing
+## Releasing 🔖
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
@@ -172,43 +175,42 @@ docker run -p 3000:3000 postwoman:latest
 
 ---
 
-## Contributing
+## Contributing ⚗
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
 ---
 
-## Continuous Integration
+## Continuous Integration 💚
 
 We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/liyasthomas/postwoman).
 
 ---
 
-## Versioning
+## Versioning ✅
 
 This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
 ---
 
-## Change log
+## Change log 📝
 
 See the [CHANGELOG](CHANGELOG.md) file for details.
 
 ---
 
-## Authors
+## Authors 🔮
 
-### Lead Developers
-* [**Liyas Thomas**](https://github.com/liyasthomas) - *Author*
+### Lead Developers 👨‍💻
 
-### Testing and Debugging
-* [Liyas Thomas](https://github.com/liyasthomas)
+* **[Liyas Thomas](https://github.com/liyasthomas)** - *Author*
+
+### Testing and Debugging 🚧
+
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
-### Contributors
+### Contributors 🚸
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore -->
 <table>
   <tr>
     <td align="center"><a href="https://github.com/NBTX"><img src="https://github.com/NBTX.png?size=100" width="100px;" alt="John Harker"/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=NBTX" title="Code">💻</a></td>
@@ -224,23 +226,30 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
   </tr>
 </table>
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
 See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
 
-### Thanks
+### Thanks 🤝
+
 * [Dribbble](https://dribbble.com)
 
 ---
 
-## License
+## License 📄
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Acknowledgments
+## Acknowledgments 🙏
 
 * Hat tip to anyone who's code was used
 * Inspirations:
 	* [Dribbble](https://dribbble.com)
+
+---
+
+<div align="center">
+    <a href="https://liyas-thomas.firebaseapp.com"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Liyas Thomas" width="200"></a>
+    <br>
+    <h3>Happy Coding ❤︎</h3>
+</div>

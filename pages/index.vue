@@ -694,7 +694,11 @@
       },
       async sendRequest() {
         if (!this.isValidURL) {
-          alert('Please check the formatting of the URL.');
+          this.$toast.error('URL is not formatted properly', {
+            icon: 'error',
+            position: 'bottom-center',
+            duration: 1000,
+          });
           return;
         }
 
@@ -808,7 +812,7 @@
           this.response.status = error.message;
           this.response.body = "See JavaScript console (F12) for details.";
           this.$toast.error('Something went wrong!', {
-            icon: 'delete',
+            icon: 'error',
             position: 'bottom-center',
             duration: 1000,
           });
@@ -907,28 +911,47 @@
               text: `Postwoman • API request builder at ${time} on ${date}`,
               url: window.location.href
             }).then(() => {
-              // console.log('Thanks for sharing!');
+              this.$toast.success('Thanks for sharing!', {
+                icon: 'share',
+                position: 'bottom-center',
+                duration: 1000,
+              });
             })
             .catch(console.error);
         } else {
           this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
+          this.$toast.success('Copied to clipboard', {
+            icon: 'file_copy',
+            position: 'bottom-center',
+            duration: 1000,
+          });
           var dummy = document.createElement('input');
           document.body.appendChild(dummy);
           dummy.value = window.location.href;
           dummy.select();
           document.execCommand('copy');
           document.body.removeChild(dummy);
-          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Permalink</span>', 1500)
+          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Permalink</span>', 1000)
         }
       },
       copyRequestCode() {
         this.$refs.copyRequestCode.innerHTML = this.copiedButton + '<span>Copied</span>';
+        this.$toast.success('Copied to clipboard', {
+          icon: 'file_copy',
+          position: 'bottom-center',
+          duration: 1000,
+        });
         this.$refs.generatedCode.select();
         document.execCommand("copy");
-        setTimeout(() => this.$refs.copyRequestCode.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
+        setTimeout(() => this.$refs.copyRequestCode.innerHTML = this.copyButton + '<span>Copy</span>', 1000)
       },
       copyResponse() {
         this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';
+        this.$toast.success('Copied to clipboard', {
+          icon: 'file_copy',
+          position: 'bottom-center',
+          duration: 1000,
+        });
         // Creates a textarea element
         var aux = document.createElement("textarea");
         var copy = this.responseType == 'application/json' ? JSON.stringify(this.response.body) : this.response.body;
@@ -941,7 +964,7 @@
         document.execCommand('copy');
         // Remove the input from the body
         document.body.removeChild(aux);
-        setTimeout(() => this.$refs.copyResponse.innerHTML = this.copyButton + '<span>Copy</span>', 1500)
+        setTimeout(() => this.$refs.copyResponse.innerHTML = this.copyButton + '<span>Copy</span>', 1000)
       },
       togglePreview() {
         this.previewEnabled = !this.previewEnabled;
@@ -1023,6 +1046,11 @@
           this.showModal = false;
         } catch (error) {
           this.showModal = false;
+          this.$toast.error('cURL is not formatted properly', {
+            icon: 'error',
+            position: 'bottom-center',
+            duration: 1000,
+          });
         }
       },
       toggleModal() {

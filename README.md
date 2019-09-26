@@ -164,7 +164,7 @@ docker run -p 3000:3000 postwoman:latest
 1. Find the built project in `./dist`.
 
 
-## Contributing ⚗
+## Contributing 🍰
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 

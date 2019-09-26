@@ -130,6 +130,11 @@
               color: 'var(--ac-color)',
               ts: (new Date()).toLocaleTimeString()
             }];
+            this.$toast.success('Connected', {
+              icon: 'sync',
+              position: 'bottom-center',
+              duration: 1000,
+            });
           };
           this.socket.onerror = (event) => {
             this.handleError();
@@ -142,6 +147,11 @@
               color: '#ff5555',
               ts: (new Date()).toLocaleTimeString()
             });
+            this.$toast.error('Disconnected', {
+              icon: 'sync_disabled',
+              position: 'bottom-center',
+              duration: 1000,
+            });
           };
           this.socket.onmessage = (event) => {
             this.communication.log.push({
@@ -152,6 +162,11 @@
           }
         } catch (ex) {
           this.handleError(ex);
+          this.$toast.error('Something went wrong!', {
+            icon: 'error',
+            position: 'bottom-center',
+            duration: 1000,
+          });
         }
       },
       disconnect() {

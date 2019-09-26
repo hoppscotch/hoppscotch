@@ -11,7 +11,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
     </p>
 <p>
 
-[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://liyas-thomas.firebaseapp.com) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
+[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
 
 </p>
     <sub>Built with ❤︎ by
@@ -30,7 +30,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 <div align="center">
   <br>
-  <img src="static/screenshot.gif" alt="postwoman" width="100%">
+  <img src="static/screenshot1.png" alt="postwoman" width="100%">
   <img src="static/screenshot2.png" alt="postwoman" width="100%">
   <br>
 </div>
@@ -119,8 +119,6 @@ _HTML responses have "Preview HTML" feature_
 
 _History entries can be deleted one-by-one or all together_
 
----
-
 ## Demo 🚀
 
 [https://postwoman.io](https://postwoman.io)
@@ -135,18 +133,14 @@ _History entries can be deleted one-by-one or all together_
 
 You're done!
 
----
-
 ## Built with 🔧
 
-* **[Chromium](https://github.com/chromium/chromium)** - Thanks for being so fast!
+* [Chromium](https://github.com/chromium/chromium) - Thanks for being so fast!
 * HTML - For the web framework
 * CSS - For styling components
 * JavaScript - For magic!
 * [Vue](https://vuejs.org/) - To add to the JavaScript magic!
-* [Nuxt](https://nuxtjs.org/) - To add to the Vue magic! <!-- (Nuxt helps create the PWA and single page application.) -->
-
----
+* [Nuxt](https://nuxtjs.org/) - To add to the Vue magic!
 
 ## Developing 👷
 
@@ -155,16 +149,12 @@ You're done!
 1. Start the development server with `npm run dev`.
 1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 
----
-
 ## Docker 🐳
 
 ```bash
 docker build -t postwoman:latest
 docker run -p 3000:3000 postwoman:latest
 ```
-
----
 
 ## Releasing 🔖
 
@@ -173,31 +163,22 @@ docker run -p 3000:3000 postwoman:latest
 1. Build the release files with `npm run build`.
 1. Find the built project in `./dist`.
 
----
 
 ## Contributing ⚗
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
----
-
 ## Continuous Integration 💚
 
 We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/liyasthomas/postwoman).
-
----
 
 ## Versioning ✅
 
 This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
----
-
 ## Change log 📝
 
 See the [CHANGELOG](CHANGELOG.md) file for details.
-
----
 
 ## Authors 🔮
 
@@ -232,21 +213,15 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 
 * [Dribbble](https://dribbble.com)
 
----
-
 ## License 📄
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## Acknowledgments 🙏
 
 * Hat tip to anyone who's code was used
 * Inspirations:
 	* [Dribbble](https://dribbble.com)
-
----
 
 <div align="center">
     <a href="https://liyas-thomas.firebaseapp.com"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Liyas Thomas" width="200"></a>

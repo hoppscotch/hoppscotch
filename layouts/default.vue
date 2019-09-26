@@ -30,7 +30,7 @@
             <span>GitHub</span>
           </button>
         </a>
-        <button class="icon" id="installPA" @click.prevent="showInstallPrompt()">
+        <button class="icon" id="installPWA" @click.prevent="showInstallPrompt()">
           <i class="material-icons">add_to_home_screen</i>
           <span>Install PWA</span>
         </button>

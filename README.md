@@ -149,6 +149,12 @@ You're done!
 1. Start the development server with `npm run dev`.
 1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 
+#### Or, with docker-compose:
+
+1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
+1. Run `docker-compose up`
+1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
+
 ## Docker 🐳
 
 ```bash

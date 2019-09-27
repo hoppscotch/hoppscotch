@@ -306,10 +306,6 @@ ol li {
   justify-content: space-between;
 }
 
-.show-on-small-screen {
-  display: flex;
-}
-
 @media (max-width: $responsiveWidth) {
   header div {
     display: flex;
@@ -334,10 +330,6 @@ ol li {
 
   .hide-on-small-screen {
     display: none;
-  }
-
-  .show-on-small-screen {
-    display: inline-flex;
   }
 }
 

@@ -65,23 +65,21 @@
           <label for="path">Path</label>
           <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path" @input="pathInputHandler">
         </li>
-        <div class="show-on-small-screen">
-          <li>
-            <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
-            <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
-              <i class="material-icons">share</i>
-              <span>Permalink</span>
-            </button>
-          </li>
-          <li>
-            <label class="hide-on-small-screen" for="code">&nbsp;</label>
-            <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
-              <i class="material-icons" v-if="isHidden">visibility</i>
-              <i class="material-icons" v-if="!isHidden">visibility_off</i>
-              <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
-            </button>
-          </li>
-        </div>
+        <li>
+          <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
+          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
+            <i class="material-icons">share</i>
+            <span>Permalink</span>
+          </button>
+        </li>
+        <li>
+          <label class="hide-on-small-screen" for="code">&nbsp;</label>
+          <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
+            <i class="material-icons" v-if="isHidden">visibility</i>
+            <i class="material-icons" v-if="!isHidden">visibility_off</i>
+            <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
+          </button>
+        </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="send" ref="sendButton">

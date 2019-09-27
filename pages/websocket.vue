@@ -6,18 +6,16 @@
           <label for="url">URL</label>
           <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="urlValid ? toggleConnection() : null">
         </li>
-        <div>
-          <li>
-            <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
-              {{ toggleConnectionVerb }}
-              <span>
-                <i class="material-icons" v-if="!connectionState">sync</i>
-                <i class="material-icons" v-if="connectionState">sync_disabled</i>
-              </span>
-            </button>
-          </li>
-        </div>
+        <li>
+          <label for="connect" class="hide-on-small-screen">&nbsp;</label>
+          <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
+            {{ toggleConnectionVerb }}
+            <span>
+              <i class="material-icons" v-if="!connectionState">sync</i>
+              <i class="material-icons" v-if="connectionState">sync_disabled</i>
+            </span>
+          </button>
+        </li>
       </ul>
     </pw-section>
     <pw-section class="purple" label="Communication" id="response" ref="response">
@@ -37,17 +35,15 @@
           <label for="message">Message</label>
           <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
         </li>
-        <div>
-          <li>
-            <label for="send" class="hide-on-small-screen">&nbsp;</label>
-            <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
-              Send
-              <span>
-                <i class="material-icons">send</i>
-              </span>
-            </button>
-          </li>
-        </div>
+        <li>
+          <label for="send" class="hide-on-small-screen">&nbsp;</label>
+          <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+            Send
+            <span>
+              <i class="material-icons">send</i>
+            </span>
+          </button>
+        </li>
       </ul>
     </pw-section>
   </div>

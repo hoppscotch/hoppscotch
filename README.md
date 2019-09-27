@@ -5,9 +5,9 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 <div align="center">
   <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
   <br>
-  <h1>[Postwoman](https://postwoman.io)</h1>
+  <h1><a href="https://postwoman.io">Postwoman</a></h1>
   <p>
-    API request builder - Helps you create your requests faster, saving you precious time on your development. [Subscribe for updates](https://postwoman.launchaco.com)
+    API request builder - Helps you create your requests faster, saving you precious time on your development. <a href="https://postwoman.launchaco.com">Subscribe for updates</a>
   </p>
 <p>
 
@@ -225,7 +225,7 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 
 * [Dribbble](https://dribbble.com)
 
-## Contributors
+## Contributors 🍰
 
 ### Code Contributors
 

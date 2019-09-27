@@ -1,48 +1,38 @@
 <template>
   <div class="page">
-    <pw-section class="yellow" label="Import" ref="import">
-      <ul>
-        <li>
-          <button class="icon" id="show-modal" @click="showModal = true">
-            <i class="material-icons">import_export</i>
-            <span>Import cURL</span>
-          </button>
-        </li>
-      </ul>
-      <pw-modal v-if="showModal" @close="showModal = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <h3 class="title">Import cURL</h3>
-                <div>
-                  <button class="icon" @click="toggleModal">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
+    <pw-modal v-if="showModal" @close="showModal = false">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <h3 class="title">Import cURL</h3>
+              <div>
+                <button class="icon" @click="toggleModal">
+                  <i class="material-icons">close</i>
+                </button>
               </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <textarea id="import-text" autofocus rows="8" placeholder="Enter cURL"></textarea>
-            </li>
-          </ul>
-        </div>
-        <div slot="footer">
-          <ul>
-            <li>
-              <button class="icon" @click="handleImport">
-                <i class="material-icons">get_app</i>
-                <span>Import</span>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </pw-modal>
-    </pw-section>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <ul>
+          <li>
+            <textarea id="import-text" autofocus rows="8" placeholder="Enter cURL"></textarea>
+          </li>
+        </ul>
+      </div>
+      <div slot="footer">
+        <ul>
+          <li>
+            <button class="icon" @click="handleImport">
+              <i class="material-icons">get_app</i>
+              <span>Import</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </pw-modal>
     <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
@@ -141,12 +131,18 @@
           </ul>
         </div>
       </div>
-      <button class="icon" @click="clearContent">
-        <i class="material-icons">clear_all</i>
-        <span>Clear all</span>
-      </button>
+      <div class="flex-wrap">
+        <button class="icon" id="show-modal" @click="showModal = true">
+          <i class="material-icons">import_export</i>
+          <span>Import cURL</span>
+        </button>
+        <button class="icon" @click="clearContent">
+          <i class="material-icons">clear_all</i>
+          <span>Clear all</span>
+        </button>
+      </div>
     </pw-section>
-    <pw-section class="blue" label="Code" ref="requestCode" v-if="!isHidden">
+    <pw-section class="yellow" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>
@@ -919,7 +915,7 @@
         } else {
           this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
           this.$toast.success('Copied to clipboard', {
-            icon: 'file_copy',
+            icon: 'done',
             position: 'bottom-center',
             duration: 1000,
           });
@@ -935,7 +931,7 @@
       copyRequestCode() {
         this.$refs.copyRequestCode.innerHTML = this.copiedButton + '<span>Copied</span>';
         this.$toast.success('Copied to clipboard', {
-          icon: 'file_copy',
+          icon: 'done',
           position: 'bottom-center',
           duration: 1000,
         });
@@ -946,7 +942,7 @@
       copyResponse() {
         this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';
         this.$toast.success('Copied to clipboard', {
-          icon: 'file_copy',
+          icon: 'done',
           position: 'bottom-center',
           duration: 1000,
         });
@@ -1083,7 +1079,7 @@
             this.bodyParams = [];
             this.rawParams = '';
         }
-        this.$toast.error('Cleared', {
+        this.$toast.info('Cleared', {
           icon: 'clear_all',
           position: 'bottom-center',
           duration: 1000,

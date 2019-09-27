@@ -3,21 +3,21 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 ```
 
 <div align="center">
-    <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
-    <br>
-    <h1>Postwoman</h1>
-    <p>
-      API request builder - Helps you create your requests faster, saving you precious time on your development
-    </p>
+  <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
+  <br>
+  <h1>Postwoman</h1>
+  <p>
+    API request builder - Helps you create your requests faster, saving you precious time on your development
+  </p>
 <p>
 
 [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
 
 </p>
-    <sub>Built with ❤︎ by
-      <a href="https://github.com/liyasthomas">liyasthomas</a> and
-      <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
-    </sub>
+  <sub>Built with ❤︎ by
+    <a href="https://github.com/liyasthomas">liyasthomas</a> and
+    <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
+  </sub>
 </div>
 
 ---
@@ -202,7 +202,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
-### Contributors 🚸
+### Collaborators 🚸
 
 <table>
   <tr>

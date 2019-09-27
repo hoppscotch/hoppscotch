@@ -152,8 +152,14 @@ You're done!
 ## Docker 🐳
 
 ```bash
+#pull
+docker pull liyasthomas/postwoman
+
+#run
+docker run -p 3000:3000 liyasthomas/postwoman:latest
+
+#build
 docker build -t postwoman:latest
-docker run -p 3000:3000 postwoman:latest
 ```
 
 ## Releasing 🔖

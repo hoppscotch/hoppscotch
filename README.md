@@ -5,9 +5,9 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 <div align="center">
   <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
   <br>
-  <h1>Postwoman</h1>
+  <h1>[Postwoman](https://postwoman.io)</h1>
   <p>
-    API request builder - Helps you create your requests faster, saving you precious time on your development
+    API request builder - Helps you create your requests faster, saving you precious time on your development. [Subscribe for updates](https://postwoman.launchaco.com)
   </p>
 <p>
 

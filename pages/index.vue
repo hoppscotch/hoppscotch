@@ -177,8 +177,8 @@
       </ul>
       <ul v-for="(value, key) in response.headers" :key="key">
         <li>
-          <label for="value">{{key}}</label>
-          <input id="value" :value="value" name="value" readonly>
+          <label :for="key">{{key}}</label>
+          <input :id="key" :value="value" :name="key" readonly>
         </li>
       </ul>
       <ul v-if="response.body">
@@ -689,9 +689,7 @@
       async sendRequest() {
         if (!this.isValidURL) {
           this.$toast.error('URL is not formatted properly', {
-            icon: 'error',
-            position: 'bottom-center',
-            duration: 1000,
+            icon: 'error'
           });
           return;
         }
@@ -806,9 +804,7 @@
           this.response.status = error.message;
           this.response.body = "See JavaScript console (F12) for details.";
           this.$toast.error('Something went wrong!', {
-            icon: 'error',
-            position: 'bottom-center',
-            duration: 1000,
+            icon: 'error'
           });
         }
       },
@@ -838,9 +834,7 @@
       removeRequestHeader(index) {
         this.headers.splice(index, 1)
         this.$toast.error('Deleted', {
-          icon: 'delete',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'delete'
         });
       },
       addRequestParam() {
@@ -853,9 +847,7 @@
       removeRequestParam(index) {
         this.params.splice(index, 1)
         this.$toast.error('Deleted', {
-          icon: 'delete',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'delete'
         });
       },
       addRequestBodyParam() {
@@ -868,9 +860,7 @@
       removeRequestBodyParam(index) {
         this.bodyParams.splice(index, 1)
         this.$toast.error('Deleted', {
-          icon: 'delete',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'delete'
         });
       },
       formatRawParams(event) {
@@ -904,20 +894,12 @@
               title: `Postwoman`,
               text: `Postwoman • API request builder at ${time} on ${date}`,
               url: window.location.href
-            }).then(() => {
-              this.$toast.success('Thanks for sharing!', {
-                icon: 'share',
-                position: 'bottom-center',
-                duration: 1000,
-              });
-            })
+            }).then(() => {})
             .catch(console.error);
         } else {
           this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
           this.$toast.success('Copied to clipboard', {
-            icon: 'done',
-            position: 'bottom-center',
-            duration: 1000,
+            icon: 'done'
           });
           var dummy = document.createElement('input');
           document.body.appendChild(dummy);
@@ -931,9 +913,7 @@
       copyRequestCode() {
         this.$refs.copyRequestCode.innerHTML = this.copiedButton + '<span>Copied</span>';
         this.$toast.success('Copied to clipboard', {
-          icon: 'done',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'done'
         });
         this.$refs.generatedCode.select();
         document.execCommand("copy");
@@ -942,9 +922,7 @@
       copyResponse() {
         this.$refs.copyResponse.innerHTML = this.copiedButton + '<span>Copied</span>';
         this.$toast.success('Copied to clipboard', {
-          icon: 'done',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'done'
         });
         // Creates a textarea element
         var aux = document.createElement("textarea");
@@ -1041,9 +1019,7 @@
         } catch (error) {
           this.showModal = false;
           this.$toast.error('cURL is not formatted properly', {
-            icon: 'error',
-            position: 'bottom-center',
-            duration: 1000,
+            icon: 'error'
           });
         }
       },
@@ -1080,9 +1056,7 @@
             this.rawParams = '';
         }
         this.$toast.info('Cleared', {
-          icon: 'clear_all',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'clear_all'
         });
       }
     },

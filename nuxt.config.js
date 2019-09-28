@@ -236,8 +236,17 @@ export default {
       }
     }],
     ['@nuxtjs/axios'],
-    ['@nuxtjs/toast']
+    ['@nuxtjs/toast'],
+    ['@nuxtjs/google-analytics']
   ],
+  toast: {
+    position: 'bottom-center',
+    duration: 2000,
+    theme: 'bubble'
+  },
+  googleAnalytics: {
+    id: 'UA-61422507-2'
+  },
   /*
    ** Build configuration
    */

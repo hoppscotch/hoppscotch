@@ -53,7 +53,12 @@
         <label>Nothing found for "{{filterText}}"</label>
       </li>
     </ul>
-    <ul>
+    <ul v-if="history.length === 0">
+      <li>
+        <label>History is empty</label>
+      </li>
+    </ul>
+    <ul v-if="history.length !== 0">
       <li v-if="!isClearingHistory">
         <button class="icon" id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">
           <i class="material-icons">clear_all</i>
@@ -121,9 +126,7 @@
         this.disableHistoryClearing();
         updateOnLocalStorage('history', this.history);
         this.$toast.error('History Deleted', {
-          icon: 'delete',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'delete'
         });
       },
       useHistory(entry) {
@@ -142,9 +145,7 @@
         }
         updateOnLocalStorage('history', this.history);
         this.$toast.error('Deleted', {
-          icon: 'delete',
-          position: 'bottom-center',
-          duration: 1000,
+          icon: 'delete'
         });
       },
       addEntry(entry) {

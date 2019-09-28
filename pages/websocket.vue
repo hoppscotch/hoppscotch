@@ -127,9 +127,7 @@
               ts: (new Date()).toLocaleTimeString()
             }];
             this.$toast.success('Connected', {
-              icon: 'sync',
-              position: 'bottom-center',
-              duration: 1000,
+              icon: 'sync'
             });
           };
           this.socket.onerror = (event) => {
@@ -144,9 +142,7 @@
               ts: (new Date()).toLocaleTimeString()
             });
             this.$toast.error('Disconnected', {
-              icon: 'sync_disabled',
-              position: 'bottom-center',
-              duration: 1000,
+              icon: 'sync_disabled'
             });
           };
           this.socket.onmessage = (event) => {
@@ -159,9 +155,7 @@
         } catch (ex) {
           this.handleError(ex);
           this.$toast.error('Something went wrong!', {
-            icon: 'error',
-            position: 'bottom-center',
-            duration: 1000,
+            icon: 'error'
           });
         }
       },

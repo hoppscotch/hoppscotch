@@ -31,7 +31,6 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 <div align="center">
   <br>
   <img src="static/screenshot1.png" alt="postwoman" width="100%">
-  <img src="static/screenshot2.png" alt="postwoman" width="100%">
   <br>
 </div>
 
@@ -98,7 +97,7 @@ _Customized themes are also synced with local session storage_
 :page_with_curl: **Request Body**: Used to send and receive data via the REST API
 
 **Options:**
- - Set content Type
+ - Set Content Type
  - Toggle between RAW input and parameter list
 
 :wave: **Responses**: Contains the status line, headers and the message/response body
@@ -184,7 +183,7 @@ Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT]
 
 We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/liyasthomas/postwoman).
 
-## Versioning ✅
+## Versioning 🔖
 
 This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
@@ -194,15 +193,15 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 ## Authors 🔮
 
-### Lead Developers 👨‍💻
+### Lead Developers
 
 * **[Liyas Thomas](https://github.com/liyasthomas)** - *Author*
 
-### Testing and Debugging 🚧
+### Testing and Debugging
 
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
-### Collaborators 🚸
+### Collaborators
 
 <table>
   <tr>
@@ -221,11 +220,11 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
 
-### Thanks 🤝
+### Thanks
 
-* [Dribbble](https://dribbble.com)
+* [dev.to](https://dev.to)
 
-## Contributors 🍰
+## Contributors 🚸
 
 ### Code Contributors
 

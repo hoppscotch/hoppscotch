@@ -50,7 +50,7 @@
           </span>
           <span v-if="version.variant"> ({{version.variant}})</span>
           &#x2022;
-        </span> by <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">Liyas Thomas 🦄</a>
+        </span> by <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">Liyas Thomas 🦄</a> &#x2022; <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener">Subscribe</a>
       </p>
     </footer>
   </div>

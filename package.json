@@ -11,7 +11,9 @@
         "build": "nuxt build",
         "start": "nuxt start",
         "pregenerate": "node build.js",
-        "generate": "nuxt generate"
+        "generate": "nuxt generate",
+        "lint": "eslint --ext .js,.vue .",
+  	    "lintfix": "eslint --fix --ext .js,.vue ."
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.6.0",

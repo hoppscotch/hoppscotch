@@ -27,6 +27,13 @@
     },
     "devDependencies": {
         "node-sass": "^4.12.0",
-        "sass-loader": "^7.3.1"
+        "sass-loader": "^7.3.1",
+        "babel-eslint": "^10.0.3",
+        "eslint": "^6.4.0",
+        "eslint-config-prettier": "^6.3.0",
+        "eslint-loader": "^3.0.0",
+        "eslint-plugin-prettier": "^3.1.1",
+        "eslint-plugin-vue": "^5.2.3",
+        "prettier": "^1.18.2"
     }
 }

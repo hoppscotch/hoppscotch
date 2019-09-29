@@ -225,6 +225,7 @@ export default {
       
       display: "standalone",
       
+      theme_color: "#252628",
       background_color: "#252628",
       start_url: `${routerBase.router.base}`
     },

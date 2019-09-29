@@ -213,32 +213,39 @@ export default {
    */
   modules: [
     // See https://goo.gl/OOhYW5
-    ['@nuxtjs/pwa', {
-      manifest: {
-        name: meta.name,
-        short_name: meta.name,
-        description: meta.shortDescription,
-        display: "standalone",
-        theme_color: "#252628",
-        background_color: "#252628",
-        start_url: `${routerBase.router.base}`,
-        icons: ((sizes) => {
-          let icons = [];
-          for (let size of sizes) {
-            icons.push({
-              "src": `${routerBase.router.base}icons/icon-${size}x${size}.png`,
-              "type": "image/png",
-              "sizes": `${size}x${size}`
-            });
-          }
-          return icons;
-        })([48, 72, 96, 144, 192, 512])
-      }
-    }],
+    ['@nuxtjs/pwa'],
     ['@nuxtjs/axios'],
     ['@nuxtjs/toast'],
     ['@nuxtjs/google-analytics']
   ],
+  pwa: {
+    manifest: {
+      name: meta.name,
+      short_name: meta.name,
+      
+      display: "standalone",
+      
+      background_color: "#252628",
+      start_url: `${routerBase.router.base}`
+    },
+    
+    meta: {
+      description: meta.shortDescription,
+      theme_color: "#252628",
+    },
+    
+    icons: ((sizes) => {
+      let icons = [];
+      for (let size of sizes) {
+        icons.push({
+          "src": `${routerBase.router.base}icons/icon-${size}x${size}.png`,
+          "type": "image/png",
+          "sizes": `${size}x${size}`
+        });
+      }
+      return icons;
+    })([48, 72, 96, 144, 192, 512])
+  },
   toast: {
     position: 'bottom-center',
     duration: 2000,

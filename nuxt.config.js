@@ -222,19 +222,19 @@ export default {
     manifest: {
       name: meta.name,
       short_name: meta.name,
-      
+
       display: "standalone",
-      
+
       theme_color: "#252628",
       background_color: "#252628",
       start_url: `${routerBase.router.base}`
     },
-    
+
     meta: {
       description: meta.shortDescription,
       theme_color: "#252628",
     },
-    
+
     icons: ((sizes) => {
       let icons = [];
       for (let size of sizes) {
@@ -253,7 +253,7 @@ export default {
     theme: 'bubble'
   },
   googleAnalytics: {
-    id: 'UA-61422507-2'
+    id: process.env.GA_ID || ''
   },
   /*
    ** Build configuration

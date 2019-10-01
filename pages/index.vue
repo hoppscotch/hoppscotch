@@ -340,6 +340,7 @@
       </div>
     </section>
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
+    <collections></collections>
   </div>
 </template>
 <script>
@@ -351,6 +352,7 @@
   import textareaAutoHeight from "../directives/textareaAutoHeight";
   import toggle from "../components/toggle";
   import modal from "../components/modal";
+  import collections from '../components/collections';
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
   import 'highlight.js/styles/dracula.css';
@@ -413,6 +415,7 @@
       'pw-modal': modal,
       history,
       autocomplete,
+      collections,
     },
     data() {
       return {
@@ -517,9 +520,16 @@
           this.path = path;
         },
         deep: true
-      }
+      },
+      selectedRequest (newValue, oldValue) {
+        if (!newValue) return;
+        this.url = newValue.url;
+      },
     },
     computed: {
+      selectedRequest() {
+        return this.$store.state.postwoman.selectedRequest;
+      },
       statusCategory() {
         return findStatusGroup(this.response.status);
       },
@@ -1058,7 +1068,7 @@
         this.$toast.info('Cleared', {
           icon: 'clear_all'
         });
-      }
+      },
     },
     mounted() {
       this.observeRequestButton();

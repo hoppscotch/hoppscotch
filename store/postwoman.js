@@ -42,7 +42,22 @@ export const SETTINGS_KEYS = [
 ];
 
 export const state = () => ({
-    settings: {}
+    settings: {},
+    collections: [{
+        name: 'My First Collection',
+        folders: [{
+            name: 'Folder 1',
+            requests: [{
+                name: "Example request",
+                url: 'http://test.com',
+            }],
+        }],
+        requests: [{
+            name: "Example request",
+            url: 'http://test.com',
+        }],
+    }],
+    selectedRequest: {},
 });
 
 export const mutations = {
@@ -59,6 +74,24 @@ export const mutations = {
         if (!SETTINGS_KEYS.includes(key)) throw new Error("The settings structure does not include the key " + key);
 
         state.settings[key] = value;
+    },
+
+    addCollection (state, newCollection) {
+        state.collections.push(newCollection);
+    },
+
+    addFolder (state, payload) {
+        const { collectionIndex, folder } = payload;
+        state.collections[collectionIndex].folders.push(folder);
+    },
+
+    addRequest (state, payload) {
+        const { collectionIndex, folderIndex, request } = payload;
+        state.collections[collectionIndex].folders[folderIndex].push(request);
+    },
+
+    selectRequest (state, payload) {
+        state.selectedRequest = Object.assign({}, payload.request);
     }
 
 };

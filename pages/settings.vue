@@ -88,6 +88,11 @@
             "name": "Light",
             "vibrant": true,
             "class": "light"
+          },
+          {
+            "color": "#000",
+            name: "Black",
+            "class": "black"
           }
         ],
         // You can define a new color here! It will simply store the color value.

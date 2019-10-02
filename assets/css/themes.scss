@@ -3,6 +3,7 @@
 
   - dark (default)
   - light
+  - black
  */
 
 // Dark is the default theme variant.
@@ -11,6 +12,27 @@
   --bg-dark-color: rgb(41, 42, 45);
   // Background color
   --bg-color: rgb(37, 38, 40);
+  // Auto-complete color
+  --atc-color: rgb(49, 49, 55);
+  // Text color
+  --fg-color: rgb(247, 248, 248);
+  // Light Text color
+  --fg-light-color: rgb(150, 155, 160);
+  // Border color
+  --brd-color: rgb(48, 47, 55);
+  // Error color
+  --err-color: rgb(41, 42, 45);
+  // Acent color
+  --ac-color: #50fa7b;
+  // Active text color
+  --act-color: rgb(37, 38, 40);
+}
+
+:root.black {
+  // Dark Background color
+  --bg-dark-color: rgb(23, 24, 26);
+  // Background color
+  --bg-color: #000;
   // Auto-complete color
   --atc-color: rgb(49, 49, 55);
   // Text color

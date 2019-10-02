@@ -17,6 +17,7 @@
         "@nuxtjs/axios": "^5.6.0",
         "@nuxtjs/google-analytics": "^2.2.0",
         "@nuxtjs/pwa": "^3.0.0-beta.19",
+        "@nuxtjs/sitemap": "^2.0.0",
         "@nuxtjs/toast": "^3.2.1",
         "highlight.js": "^9.15.10",
         "nuxt": "^2.9.2",

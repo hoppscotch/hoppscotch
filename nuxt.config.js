@@ -216,7 +216,8 @@ export default {
     ['@nuxtjs/pwa'],
     ['@nuxtjs/axios'],
     ['@nuxtjs/toast'],
-    ['@nuxtjs/google-analytics']
+    ['@nuxtjs/google-analytics'],
+    ['@nuxtjs/sitemap']
   ],
   pwa: {
     manifest: {

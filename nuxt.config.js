@@ -253,7 +253,7 @@ export default {
     theme: 'bubble'
   },
   googleAnalytics: {
-    id: process.env.GA_ID || ''
+    id: process.env.GA_ID || 'UA-61422507-2'
   },
   /*
    ** Build configuration

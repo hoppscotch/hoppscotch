@@ -256,6 +256,9 @@ export default {
   googleAnalytics: {
     id: process.env.GA_ID || 'UA-61422507-2'
   },
+  sitemap: {
+    hostname: 'https://postwoman.io'
+  },
   /*
    ** Build configuration
    */

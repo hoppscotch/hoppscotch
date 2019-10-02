@@ -217,7 +217,8 @@ export default {
     ['@nuxtjs/axios'],
     ['@nuxtjs/toast'],
     ['@nuxtjs/google-analytics'],
-    ['@nuxtjs/sitemap']
+    ['@nuxtjs/sitemap'],
+    ['@nuxtjs/google-tag-manager', { id: process.env.GTM_ID || 'GTM-MXWD8NQ' }]
   ],
   pwa: {
     manifest: {

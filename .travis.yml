@@ -31,7 +31,7 @@ install:
  - "npm install"
 
 script:
- - "cd cloud-functions/functions"
+ - "cd functions"
  - "npm install"
  - "cd .."
  - "npm run generate"

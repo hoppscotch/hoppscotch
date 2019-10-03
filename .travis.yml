@@ -29,6 +29,11 @@ branches:
 install:
  - "npm install firebase-tools"
  - "npm install"
+
+script:
+ - "cd cloud-functions/functions"
+ - "npm install"
+ - "cd .."
  - "npm run generate"
 
 notifications:

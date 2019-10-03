@@ -27,18 +27,12 @@ branches:
   - "master"
 
 install:
+ - "npm install firebase-tools"
  - "npm install"
  - "npm run generate"
 
 notifications:
   webhooks: https://www.travisbuddy.com
 
-deploy:
- provider: pages
- skip-cleanup: true
- # Refer to: https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
- github-token: $GITHUB_ACCESS_TOKEN
- target-branch: gh-pages
- local-dir: dist
- on:
-  branch: master
+after_success:
+  - firebase deploy --token $FIREBASE_TOKEN

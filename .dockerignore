@@ -3,6 +3,10 @@ Dockerfile
 .github
 
 # Created by .ignore support plugin (hsz.mobi)
+
+# Firebase
+.firebase
+
 ### Node template
 # Logs
 logs

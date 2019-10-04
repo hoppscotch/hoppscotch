@@ -6,6 +6,9 @@
       </li>
     </ul>
     <ul>
+      <li @click="sort_by_label()">
+        <label for="" class="flex-wrap">Name<i class="material-icons">sort</i></label>
+      </li>
       <li @click="sort_by_time()">
         <label for="" class="flex-wrap">Time<i class="material-icons">sort</i></label>
       </li>
@@ -21,6 +24,9 @@
     </ul>
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+        <li>
+          <input aria-label="Label" type="text" readonly :value="entry.label" :title="entry.label">
+        </li>
         <li>
           <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date">
         </li>
@@ -104,7 +110,8 @@
         reverse_sort_time: false,
         reverse_sort_status_code: false,
         reverse_sort_url: false,
-        reverse_sort_path: false
+        reverse_sort_path: false,
+        reverse_sort_label: false
       }
     },
     computed: {
@@ -191,12 +198,23 @@
         let byUrl = this.history.slice(0);
         byUrl.sort((a, b)=>{
           if(this.reverse_sort_url)
-            return a.url == b.url ? 0 : +(a.url < b.url) || -1;
+            return a.url === b.url ? 0 : +(a.url < b.url) || -1;
           else
-            return a.url == b.url ? 0 : +(a.url > b.url) || -1;
+            return a.url === b.url ? 0 : +(a.url > b.url) || -1;
         });
         this.history = byUrl;
         this.reverse_sort_url = !this.reverse_sort_url;
+      },
+      sort_by_label() {
+        let byLabel = this.history.slice(0);
+        byLabel.sort((a, b)=>{
+          if(this.reverse_sort_label)
+            return a.label === b.label ? 0 : +(a.label < b.label) || -1;
+          else
+            return a.label === b.label ? 0 : +(a.label > b.label) || -1;
+        });
+        this.history = byLabel;
+        this.reverse_sort_label = !this.reverse_sort_label;
       },
       sort_by_path() {
         let byPath = this.history.slice(0);

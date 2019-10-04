@@ -107,11 +107,11 @@
         filterText: '',
         showFilter: false,
         isClearingHistory: false,
+        reverse_sort_label: false,
         reverse_sort_time: false,
         reverse_sort_status_code: false,
         reverse_sort_url: false,
-        reverse_sort_path: false,
-        reverse_sort_label: false
+        reverse_sort_path: false
       }
     },
     computed: {
@@ -198,9 +198,9 @@
         let byUrl = this.history.slice(0);
         byUrl.sort((a, b)=>{
           if(this.reverse_sort_url)
-            return a.url === b.url ? 0 : +(a.url < b.url) || -1;
+            return a.url == b.url ? 0 : +(a.url < b.url) || -1;
           else
-            return a.url === b.url ? 0 : +(a.url > b.url) || -1;
+            return a.url == b.url ? 0 : +(a.url > b.url) || -1;
         });
         this.history = byUrl;
         this.reverse_sort_url = !this.reverse_sort_url;
@@ -209,9 +209,9 @@
         let byLabel = this.history.slice(0);
         byLabel.sort((a, b)=>{
           if(this.reverse_sort_label)
-            return a.label === b.label ? 0 : +(a.label < b.label) || -1;
+            return a.label == b.label ? 0 : +(a.label < b.label) || -1;
           else
-            return a.label === b.label ? 0 : +(a.label > b.label) || -1;
+            return a.label == b.label ? 0 : +(a.label > b.label) || -1;
         });
         this.history = byLabel;
         this.reverse_sort_label = !this.reverse_sort_label;

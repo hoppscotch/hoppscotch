@@ -990,9 +990,9 @@
             sendButtonElement.classList.toggle('show');
           });
         }, {
-          threshold: 1
+          rootMargin: '0px',
+          threshold: [0],
         });
-
         observer.observe(requestElement);
       },
       handleImport() {

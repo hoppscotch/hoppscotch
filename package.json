@@ -11,7 +11,11 @@
         "build": "nuxt build",
         "start": "nuxt start",
         "pregenerate": "node build.js",
-        "generate": "nuxt generate"
+        "generate": "nuxt generate",
+        "e2e": "cypress run",
+        "e2e:open": "cypress open",
+        "dev:e2e": "start-server-and-test dev http://localhost:3000 e2e:open",
+        "test": "start-server-and-test dev http://localhost:3000 e2e"
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.6.0",
@@ -28,7 +32,9 @@
         "yargs-parser": "^14.0.0"
     },
     "devDependencies": {
+        "cypress": "^3.4.1",
         "node-sass": "^4.12.0",
-        "sass-loader": "^7.3.1"
+        "sass-loader": "^7.3.1",
+        "start-server-and-test": "^1.10.3"
     }
 }

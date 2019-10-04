@@ -226,10 +226,11 @@ export default {
       short_name: meta.name,
 
       display: "standalone",
+      orientation: "any",
 
       theme_color: "#252628",
       background_color: "#252628",
-      start_url: `${routerBase.router.base}`
+      start_url: `.\/?utm_source=postwomanpwa&utm_medium=pwa&utm_campaign=pwapp`
     },
 
     meta: {

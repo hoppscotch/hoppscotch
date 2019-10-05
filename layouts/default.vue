@@ -174,7 +174,7 @@
         let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
         if (vibrant == null) vibrant = true;
         document.documentElement.style.setProperty('--ac-color', color);
-        document.documentElement.style.setProperty('--act-color', vibrant ? 'rgb(37, 38, 40)' : '#fff');
+        document.documentElement.style.setProperty('--act-color', vibrant ? 'rgb(37, 38, 40)' : '#ffffff');
       })();
     },
 

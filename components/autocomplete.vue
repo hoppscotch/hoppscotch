@@ -1,32 +1,30 @@
 <template>
   <div class="autocomplete-wrapper">
-    <label>
-      <input
-        type="text"
-        :placeholder="placeholder"
-        v-model="value"
-        @input="updateSuggestions"
-        @keyup="updateSuggestions"
-        @click="updateSuggestions"
-        @keydown="handleKeystroke"
-        ref="acInput"
-        :spellcheck="spellcheck"
-        :autocapitalize="spellcheck"
-        :autocorrect="spellcheck"
-      />
-      <ul
-        class="suggestions"
-        v-if="suggestions.length > 0 && suggestionsVisible"
-        :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }"
-      >
-        <li
-          v-for="(suggestion, index) in suggestions"
-          @click.prevent="forceSuggestion(suggestion)"
-          :class="{ active: currentSuggestionIndex === index }"
-          :key="index"
-        >{{ suggestion }}</li>
-      </ul>
-    </label>
+    <input
+      type="text"
+      :placeholder="placeholder"
+      v-model="value"
+      @input="updateSuggestions"
+      @keyup="updateSuggestions"
+      @click="updateSuggestions"
+      @keydown="handleKeystroke"
+      ref="acInput"
+      :spellcheck="spellcheck"
+      :autocapitalize="spellcheck"
+      :autocorrect="spellcheck"
+    />
+    <ul
+      class="suggestions"
+      v-if="suggestions.length > 0 && suggestionsVisible"
+      :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }"
+    >
+      <li
+        v-for="(suggestion, index) in suggestions"
+        @click.prevent="forceSuggestion(suggestion)"
+        :class="{ active: currentSuggestionIndex === index }"
+        :key="index"
+      >{{ suggestion }}</li>
+    </ul>
   </div>
 </template>
 
@@ -43,7 +41,7 @@
     display: none;
     background-color: var(--atc-color);
     position: absolute;
-    top: 90%;
+    top: calc(100% - 4px);
     margin: 0 4px;
     left: 0;
     padding: 0;
@@ -55,7 +53,6 @@
       width: 100%;
       display: block;
       padding: 8px 16px;
-      font-weight: 700;
       font-size: 18px;
       font-family: monospace;
       white-space: pre-wrap;

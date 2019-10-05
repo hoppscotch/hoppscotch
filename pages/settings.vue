@@ -80,14 +80,8 @@
         //        set the relevant values.
         themes: [
           {
-            "color": "",
-            "name": "Auto",
-            "vibrant": window.matchMedia('(prefers-color-scheme: light)').matches,
-            "class": "auto"
-          },
-          {
             "color": "rgb(37, 38, 40)",
-            "name": "Dark (default)",
+            "name": "Dark",
             "class": ""
           },
           {
@@ -98,8 +92,14 @@
           },
           {
             "color": "#000",
-            name: "Black",
+            "name": "Black",
             "class": "black"
+          },
+          {
+            "color": "var(--bg-color)",
+            "name": "Auto (system)",
+            "vibrant": window.matchMedia('(prefers-color-scheme: light)').matches,
+            "class": "auto"
           }
         ],
         // You can define a new color here! It will simply store the color value.
@@ -107,7 +107,7 @@
           // If the color is vibrant, black is used as the active foreground color.
           {
             "color": "#50fa7b",
-            "name": "Green (default)",
+            "name": "Green",
             "vibrant": true
           },
           {

@@ -78,7 +78,14 @@
         // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
         //        You should copy the existing light theme as a template and then just
         //        set the relevant values.
-        themes: [{
+        themes: [
+          {
+            "color": "",
+            "name": "Auto",
+            "vibrant": window.matchMedia('(prefers-color-scheme: light)').matches,
+            "class": "auto"
+          },
+          {
             "color": "rgb(37, 38, 40)",
             "name": "Dark (default)",
             "class": ""

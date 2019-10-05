@@ -615,7 +615,7 @@
         } else if (this.requestType == 'Fetch') {
           var requestString = [];
           var headers = [];
-          requestString.push('fetch(' + this.url + this.path + this.queryString + ', {\n')
+          requestString.push('fetch("' + this.url + this.path + this.queryString + '", {\n')
           requestString.push('  method: "' + this.method + '",\n')
           if (this.auth === 'Basic') {
             var basic = this.httpUser + ':' + this.httpPassword;

@@ -593,7 +593,7 @@
           requestString.push('const xhr = new XMLHttpRequest()');
           const user = this.auth === 'Basic' ? this.httpUser : null
           const pswd = this.auth === 'Basic' ? this.httpPassword : null
-          requestString.push('xhr.open(' + this.method + ', ' + this.url + this.path + this.queryString + ', true, ' +
+          requestString.push('xhr.open("' + this.method + '", "' + this.url + this.path + this.queryString + '", true, ' +
             user + ', ' + pswd + ')');
           if (this.auth === 'Bearer Token') {
             requestString.push("xhr.setRequestHeader('Authorization', 'Bearer ' + " + this.bearerToken + ")");

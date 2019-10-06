@@ -82,8 +82,11 @@
         <ul>
           <li>
             <label for="contentType">Content Type</label>
-            <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
-            </autocomplete>
+            <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type</autocomplete>
+          </li>
+        </ul>
+        <ul>
+          <li>
             <span>
               <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
                 Raw Input {{ rawInput ? "Enabled" : "Disabled" }}

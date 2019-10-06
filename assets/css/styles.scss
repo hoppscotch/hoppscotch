@@ -148,11 +148,6 @@ legend {
   }
 }
 
-fieldset textarea,
-fieldset pre code {
-  resize: vertical;
-}
-
 fieldset.blue legend {
   color: #57b5f9;
 }
@@ -209,6 +204,7 @@ pre {
   user-select: text;
   width: calc(100% - 8px);
   min-height: 40px;
+  resize: vertical;
 
   &:not([readonly]):hover {
     background-color: var(--bg-dark-color);

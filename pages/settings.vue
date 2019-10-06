@@ -85,13 +85,13 @@
             "class": ""
           },
           {
-            "color": "#ebeef5",
+            "color": "#ffffff",
             "name": "Light",
             "vibrant": true,
             "class": "light"
           },
           {
-            "color": "#000",
+            "color": "#000000",
             "name": "Black",
             "class": "black"
           },

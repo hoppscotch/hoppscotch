@@ -15,12 +15,19 @@ language: node_js
 node_js:
  - "12"
 
+addons:
+ apt:
+  packages:
+   - libgconf-2-4 # cypress binary dependency
+
 env:
  - DEPLOY_ENV=POSTWOMAN_IO
 
 cache:
+ npm: true
  directories:
   - "node_modules"
+  - ~/.cache
 
 branches:
  only:
@@ -29,6 +36,9 @@ branches:
 install:
  - "npm install firebase-tools"
  - "npm install"
+
+before_script:
+ - "npm run test"
 
 script:
  - "cd functions"

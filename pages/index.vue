@@ -1,6 +1,5 @@
 <template>
   <div class="page">
-      <input @keyup.enter="requestName" id="label" name="label" type="label" v-model="label">
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -135,6 +134,11 @@
           </ul>
         </div>
       </div>
+      <ul>
+        <li>
+          <input id="label" name="label" type="text" v-model="label" placeholder="Label request">
+        </li>
+      </ul>
       <div class="flex-wrap">
         <button class="icon" id="show-modal" @click="showModal = true">
           <i class="material-icons">import_export</i>
@@ -420,7 +424,7 @@
     },
     data() {
       return {
-        label:'Enter request name',
+        label: '',
         showModal: false,
         copyButton: '<i class="material-icons">file_copy</i>',
         copiedButton: '<i class="material-icons">done</i>',
@@ -683,10 +687,12 @@
     },
     methods: {
       handleUseHistory({
+        label,
         method,
         url,
         path
       }) {
+        this.label = label;
         this.method = method;
         this.url = url;
         this.path = path;

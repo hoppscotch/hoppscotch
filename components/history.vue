@@ -7,7 +7,7 @@
     </ul>
     <ul>
       <li @click="sort_by_label()">
-        <label for="" class="flex-wrap">Name<i class="material-icons">sort</i></label>
+        <label for="" class="flex-wrap">Label<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_time()">
         <label for="" class="flex-wrap">Time<i class="material-icons">sort</i></label>
@@ -25,7 +25,7 @@
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
-          <input aria-label="Label" type="text" readonly :value="entry.label" :title="entry.label">
+          <input aria-label="Label" type="text" readonly :value="entry.label" placeholder="No label">
         </li>
         <li>
           <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date">
@@ -38,7 +38,7 @@
           <input aria-label="URL" type="text" readonly :value="entry.url">
         </li>
         <li>
-          <input aria-label="Path" type="text" readonly :value="entry.path">
+          <input aria-label="Path" type="text" readonly :value="entry.path" placeholder="No path">
         </li>
         <div class="show-on-small-screen">
           <li>

@@ -81,18 +81,18 @@
         themes: [
           {
             "color": "rgb(37, 38, 40)",
-            "name": "Dark",
+            "name": "Kinda Dark",
             "class": ""
           },
           {
             "color": "#ffffff",
-            "name": "Light",
+            "name": "Clearly White",
             "vibrant": true,
             "class": "light"
           },
           {
             "color": "#000000",
-            "name": "Black",
+            "name": "Just Black",
             "class": "black"
           },
           {

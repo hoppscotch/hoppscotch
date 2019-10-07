@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-      <input :class="{ error: !requestName }" @keyup.enter="requestName ? validRequestName() : null" id="label" name="label" type="label" v-model="label">
+      <input @keyup.enter="requestName" id="label" name="label" type="label" v-model="label">
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -523,7 +523,7 @@
     },
     computed: {
       requestName() {
-        return this.label.match(/^([^?]*)\??/)[1]
+        return this.label
       },
       statusCategory() {
         return findStatusGroup(this.response.status);
@@ -691,13 +691,6 @@
           behavior: 'smooth'
         });
       },
-      async validRequestName() {
-        if (!this.requestName) {
-          this.$toast.error('Request Name is not valid', {
-            icon: 'error'
-          });
-          return;
-        }},
       async sendRequest() {
         if (!this.isValidURL) {
           this.$toast.error('URL is not formatted properly', {

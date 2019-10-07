@@ -1,5 +1,6 @@
 <template>
   <div class="page">
+      <input @keyup.enter="requestName" id="label" name="label" type="label" v-model="label">
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -419,6 +420,7 @@
     },
     data() {
       return {
+        label:'Enter request name',
         showModal: false,
         copyButton: '<i class="material-icons">file_copy</i>',
         copiedButton: '<i class="material-icons">done</i>',
@@ -523,6 +525,9 @@
       }
     },
     computed: {
+      requestName() {
+        return this.label
+      },
       statusCategory() {
         return findStatusGroup(this.response.status);
       },
@@ -776,6 +781,7 @@
 
             // Addition of an entry to the history component.
             const entry = {
+              label: this.requestName,
               status,
               date,
               time,
@@ -793,6 +799,7 @@
 
             // Addition of an entry to the history component.
             const entry = {
+              label: this.requestName,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
@@ -1046,6 +1053,7 @@
             this.params = [];
             break;
           default:
+            this.label = '',
             this.method= 'GET',
             this.url = 'https://reqres.in',
             this.auth = 'None',
@@ -1069,6 +1077,7 @@
     created() {
       if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
       this.$watch(vm => [
+        vm.label,
         vm.method,
         vm.url,
         vm.auth,

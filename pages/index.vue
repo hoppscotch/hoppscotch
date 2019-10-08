@@ -52,21 +52,6 @@
           <input :class="{ error: !isValidURL }" @keyup.enter="isValidURL ? sendRequest() : null" id="url" name="url" type="url" v-model="url">
         </li>
         <li>
-          <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
-          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
-            <i class="material-icons">share</i>
-            <span>Permalink</span>
-          </button>
-        </li>
-        <li>
-          <label class="hide-on-small-screen" for="code">&nbsp;</label>
-          <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
-            <i class="material-icons" v-if="isHidden">visibility</i>
-            <i class="material-icons" v-if="!isHidden">visibility_off</i>
-            <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
-          </button>
-        </li>
-        <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
           <button :disabled="!isValidURL" @click="sendRequest" class="show" id="send" ref="sendButton">
             Send <span id="hidden-message">Again</span>
@@ -139,6 +124,15 @@
         <button class="icon" id="show-modal" @click="showModal = true">
           <i class="material-icons">import_export</i>
           <span>Import cURL</span>
+        </button>
+        <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
+          <i class="material-icons">share</i>
+          <span>Permalink</span>
+        </button>
+        <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
+          <i class="material-icons" v-if="isHidden">visibility</i>
+          <i class="material-icons" v-if="!isHidden">visibility_off</i>
+          <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
         </button>
         <button class="icon" @click="clearContent">
           <i class="material-icons">clear_all</i>

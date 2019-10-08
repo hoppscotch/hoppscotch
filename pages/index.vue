@@ -52,10 +52,6 @@
           <input :class="{ error: !isValidURL }" @keyup.enter="isValidURL ? sendRequest() : null" id="url" name="url" type="url" v-model="url">
         </li>
         <li>
-          <label for="path">Path</label>
-          <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path" @input="pathInputHandler">
-        </li>
-        <li>
           <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
           <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
             <i class="material-icons">share</i>
@@ -507,26 +503,9 @@
             this.paramsWatchEnabled = true;
             return;
           }
-          let path = this.path;
-          let queryString = newValue
-            .filter(({
-              key
-            }) => !!key)
-            .map(({
-              key,
-              value
-            }) => `${key}=${value}`).join('&')
-          queryString = queryString === '' ? '' : `?${queryString}`
-          if(path.includes('?')) {
-            path = path.slice(0, path.indexOf('?')) + queryString;
-          } else {
-            path = path + queryString
-          }
-
-          this.path = path;
         },
         deep: true
-      }
+      },
     },
     computed: {
       requestName() {
@@ -542,7 +521,13 @@
         const validHostname = new RegExp(protocol +
           "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
         );
-        return validIP.test(this.url) || validHostname.test(this.url);
+
+        const validUrl = validIP.test(this.url) || validHostname.test(this.url);
+        if (validUrl) {
+          this.updateQueryParams();
+        }
+
+        return validUrl;
       },
       hasRequestBody() {
         return ['POST', 'PUT', 'PATCH'].includes(this.method);
@@ -605,7 +590,7 @@
           requestString.push('const xhr = new XMLHttpRequest()');
           const user = this.auth === 'Basic' ? this.httpUser : null
           const pswd = this.auth === 'Basic' ? this.httpPassword : null
-          requestString.push('xhr.open("' + this.method + '", "' + this.url + this.path + this.queryString + '", true, ' +
+          requestString.push('xhr.open("' + this.method + '", "' + this.url + this.queryString + '", true, ' +
             user + ', ' + pswd + ')');
           if (this.auth === 'Bearer Token') {
             requestString.push("xhr.setRequestHeader('Authorization', 'Bearer ' + " + this.bearerToken + ")");
@@ -627,7 +612,7 @@
         } else if (this.requestType == 'Fetch') {
           var requestString = [];
           var headers = [];
-          requestString.push('fetch("' + this.url + this.path + this.queryString + '", {\n')
+          requestString.push('fetch("' + this.url + this.queryString + '", {\n')
           requestString.push('  method: "' + this.method + '",\n')
           if (this.auth === 'Basic') {
             var basic = this.httpUser + ':' + this.httpPassword;
@@ -662,7 +647,7 @@
         } else if (this.requestType == 'cURL') {
           var requestString = [];
           requestString.push('curl -X ' + this.method + ' \\\n')
-          requestString.push("  '" + this.url + this.path + this.queryString + "' \\\n")
+          requestString.push("  '" + this.url + this.queryString + "' \\\n")
           if (this.auth === 'Basic') {
             var basic = this.httpUser + ':' + this.httpPassword;
             requestString.push("  -H 'Authorization: Basic " + window.btoa(unescape(encodeURIComponent(basic))) +
@@ -690,12 +675,10 @@
         label,
         method,
         url,
-        path
       }) {
         this.label = label;
         this.method = method;
         this.url = url;
-        this.path = path;
         this.$refs.request.$el.scrollIntoView({
           behavior: 'smooth'
         });
@@ -707,7 +690,6 @@
           });
           return;
         }
-
         // Start showing the loading bar as soon as possible.
         // The nuxt axios module will hide it when the request is made.
         this.$nuxt.$loading.start();
@@ -765,11 +747,11 @@
           headersObject[headers[id].key] = headers[id].value
         });
         headers = headersObject;
-
+        
         try {
           const payload = await this.$axios({
             method: this.method,
-            url: this.url + this.pathName + this.queryString,
+            url: this.url + this.queryString,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null
@@ -785,6 +767,8 @@
             const date = new Date().toLocaleDateString();
             const time = new Date().toLocaleTimeString();
 
+            const url = new URL(this.url);
+
             // Addition of an entry to the history component.
             const entry = {
               label: this.requestName,
@@ -792,8 +776,8 @@
               date,
               time,
               method: this.method,
-              url: this.url,
-              path: this.path
+              url,
+              path: url.pathname
             };
             this.$refs.historyComponent.addEntry(entry);
           })();
@@ -824,21 +808,22 @@
           });
         }
       },
-      getQueryStringFromPath() {
-        let queryString,
-            pathParsed = url.parse(this.path);
-        return queryString = pathParsed.query ? pathParsed.query : '';
+      updateQueryParams() {
+        const query = this.queryInputHandler();
+        for (let param of query) {
+          this.addRequestBodyParam(param.key, param.value);
+        }
       },
       queryStringToArray(queryString) {
         let queryParsed = querystring.parse(queryString);
         return Object.keys(queryParsed).map((key) => ({key: key, value: queryParsed[key]}))
       },
-      pathInputHandler() {
-        let queryString = this.getQueryStringFromPath(),
+      queryInputHandler() {
+        let queryString = new URL(this.url).search.slice(1),
             params = this.queryStringToArray(queryString);
-
-        this.paramsWatchEnabled = false;
+          
         this.params = params;
+        return params;
       },
       addRequestHeader() {
         this.headers.push({
@@ -866,10 +851,10 @@
           icon: 'delete'
         });
       },
-      addRequestBodyParam() {
+      addRequestBodyParam(key = '', value = '') {
         this.bodyParams.push({
-          key: '',
-          value: ''
+          key,
+          value
         })
         return false
       },
@@ -1061,9 +1046,8 @@
           default:
             this.label = '',
             this.method= 'GET',
-            this.url = 'https://reqres.in',
+            this.url = 'https://reqres.in/api/users',
             this.auth = 'None',
-            this.path = '/api/users',
             this.auth = 'None';
             this.httpUser = '';
             this.httpPassword = '';

@@ -745,7 +745,7 @@
         try {
           const payload = await this.$axios({
             method: this.method,
-            url: this.url + this.queryString,
+            url: this.url,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null

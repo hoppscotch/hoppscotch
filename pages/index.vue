@@ -34,7 +34,7 @@
       </div>
     </pw-modal>
     <pw-section class="blue" label="Request" ref="request">
-      <ul>
+      <ul class="request">
         <li>
           <label for="method">Method</label>
           <select id="method" v-model="method">

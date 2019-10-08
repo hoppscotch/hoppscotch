@@ -281,6 +281,17 @@ label {
   color: var(--fg-light-color);
 }
 
+.request {
+  li:first-child {
+    width: 100%;
+    max-width: 150px;
+  }
+  li:last-child {
+    width: 100%;
+    max-width: 150px;
+  }
+}
+
 ul,
 ol {
   display: flex;

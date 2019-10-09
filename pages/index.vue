@@ -99,7 +99,7 @@
           </ul>
           <ul>
             <li>
-              <button class="icon" @click="addRequestBodyParam" name="addrequest">
+              <button class="icon" @click="addRequestBodyParam()" name="addrequest">
                 <i class="material-icons">add</i>
                 <span>Add New</span>
               </button>
@@ -525,9 +525,6 @@
       },
       hasRequestBody() {
         return ['POST', 'PUT', 'PATCH'].includes(this.method);
-      },
-      pathName() {
-        return this.path.match(/^([^?]*)\??/)[1]
       },
       rawRequestBody() {
         const {

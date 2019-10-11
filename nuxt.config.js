@@ -188,6 +188,14 @@ export default {
     color: 'var(--ac-color)'
   },
   /*
+   ** Customize the loading indicator
+   */
+  loadingIndicator: {
+    name: 'pulse',
+    color: 'var(--ac-color)',
+    background: 'var(--bg-color)'
+  },
+  /*
    ** Global CSS
    */
   css: [

@@ -202,6 +202,7 @@ pre {
   width: calc(100% - 8px);
   min-height: 40px;
   resize: vertical;
+  text-overflow: ellipsis;
 
   &:not([readonly]):hover {
     background-color: var(--bg-dark-color);

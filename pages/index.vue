@@ -767,12 +767,19 @@
         headers = headersObject;
 
         try {
+          const startTime = new Date().getTime();
           const payload = await this.$axios({
             method: this.method,
             url: this.url + this.pathName + this.queryString,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null
+          });
+
+          const endTime = new Date().getTime();
+          const duration = endTime - startTime;
+          this.$toast.info(`Finished in ${duration}ms`, {
+            icon: 'done'
           });
 
           (() => {

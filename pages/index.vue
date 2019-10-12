@@ -767,7 +767,7 @@
         headers = headersObject;
 
         try {
-          const startTime = new Date().getTime();
+          const startTime = Date.now();
           const payload = await this.$axios({
             method: this.method,
             url: this.url + this.pathName + this.queryString,
@@ -776,8 +776,7 @@
             data: requestBody ? requestBody.toString() : null
           });
 
-          const endTime = new Date().getTime();
-          const duration = endTime - startTime;
+          const duration = Date.now() - startTime;
           this.$toast.info(`Finished in ${duration}ms`, {
             icon: 'done'
           });

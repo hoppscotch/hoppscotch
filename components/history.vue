@@ -13,7 +13,7 @@
         <label for="" class="flex-wrap">Time<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_status_code()">
-        <label for="" class="flex-wrap">Status Code<i class="material-icons">sort</i></label>
+        <label for="" class="flex-wrap">Status<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_url()">
         <label for="" class="flex-wrap">URL<i class="material-icons">sort</i></label>

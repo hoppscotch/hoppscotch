@@ -53,11 +53,11 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 _History entries are synced with local session storage_
 
-🌈 **Make it yours**: Neon combination background, foreground & accent colors - because customization === freedom ✨
+🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization === freedom ✨ [[Customize now](https://postwoman.io/settings)]
 
 **Customizations:**
- - Dark and Light background themes
- - Choose accent color
+ - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
+ - Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
  - Toggle multi-colored frames
 
 _Customized themes are also synced with local session storage_
@@ -65,19 +65,25 @@ _Customized themes are also synced with local session storage_
 🔥 **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device
 
 **Features:**
- - Instant loading with Service Workers
+ - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
  - Offline support
  - Low RAM/memory and CPU usage
+ - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
+ - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
+ - [Full features](https://developers.google.com/web/progressive-web-apps)
 
 🚀 **Request**: Retrieve data from a URL without having to do a full page refresh
 
  - Choose `method`
  - Enter `URL`
  - Enter `Path`
- - Copy public "Share URL"
- - Generate request code for JavaScript XHR, Fetch, cURL
+
+**Features:**
+ - Copy/share public "Share URL"
+ - Generate request code for JavaScript XHR, Fetch and cURL
  - Copy generated request code to clipboard
  - Import cURL
+ - Label requests
 
 🔌 **Web Socket**: Establish full-duplex communication channels over a single TCP connection
 
@@ -92,13 +98,16 @@ _Customized themes are also synced with local session storage_
 
 📢 **Headers**: Describes the format the body of your request is being sent as
 
+ - Add or remove Header list
+
 📫 **Parameters**: Use request parameters to set varying parts in simulated requests
 
 📃 **Request Body**: Used to send and receive data via the REST API
 
 **Options:**
  - Set Content Type
- - Toggle between RAW input and parameter list
+ - Add or remove Parameter list
+ - Toggle between key-value and RAW input Parameter list
 
 👋 **Responses**: Contains the status line, headers and the message/response body
 
@@ -110,13 +119,16 @@ _HTML responses have "Preview HTML" feature_
 ⏰ **History**: Request entries are synced with local session storage to reuse with a single click
 
 **Fields**
+ - Label
  - Timestamp
  - Method
  - Status code
  - URL
  - Path
 
-_History entries can be deleted one-by-one or all together_
+_History entries can be sorted by any fields_
+
+_Histories can deleted one-by-one or all together_
 
 ## Demo 🚀
 

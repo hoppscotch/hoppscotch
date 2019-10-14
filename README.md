@@ -11,7 +11,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
   </p>
 <p>
 
-[![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
+[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
 
 </p>
   <sub>Built with ❤︎ by
@@ -26,7 +26,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 **Chat here: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
-**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Buy me a coffee](https://www.buymeacoffee.com/liyasthomas)_**
+**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
 
 <div align="center">
   <br>
@@ -36,11 +36,11 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 ### Features ✨
 
-❤️ **Lightweight**: Crafted with minimalistic UI design
+❤️ **Lightweight**: Crafted with minimalistic UI design. Simple design is the best design.
 
  - Faster, lighter, cleaner, minimal & responsive
 
-⚡️ **Real-time**: Send requests and get/copy responses right away!
+⚡️ **Fast**: Send requests and get/copy responses in real-time! Fast software is the best software.
 
 **Methods:**
  - `GET` - Retrieve information about the REST API resource
@@ -53,7 +53,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 _History entries are synced with local session storage_
 
-🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization === freedom ✨ [[Customize now](https://postwoman.io/settings)]
+🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization === freedom. [Customize now ✨](https://postwoman.io/settings).
 
 **Customizations:**
  - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
@@ -62,7 +62,7 @@ _History entries are synced with local session storage_
 
 _Customized themes are also synced with local session storage_
 
-🔥 **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device
+🔥 **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device.
 
 **Features:**
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
@@ -72,7 +72,7 @@ _Customized themes are also synced with local session storage_
  - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
  - [Full features](https://developers.google.com/web/progressive-web-apps)
 
-🚀 **Request**: Retrieve data from a URL without having to do a full page refresh
+🚀 **Request**: Retrieve data from a URL without having to do a full page refresh.
 
  - Choose `method`
  - Enter `URL`
@@ -85,38 +85,38 @@ _Customized themes are also synced with local session storage_
  - Import cURL
  - Label requests
 
-🔌 **Web Socket**: Establish full-duplex communication channels over a single TCP connection
+🔌 **Web Socket**: Establish full-duplex communication channels over a single TCP connection.
 
  -  Send and receive data
 
-🔐 **Authentication**: Allows to identity the end user
+🔐 **Authentication**: Allows to identity the end user.
 
 **Types:**
  - None
  - Basic authentication using username and password
  - Token based authentication
 
-📢 **Headers**: Describes the format the body of your request is being sent as
+📢 **Headers**: Describes the format the body of your request is being sent as.
 
  - Add or remove Header list
 
-📫 **Parameters**: Use request parameters to set varying parts in simulated requests
+📫 **Parameters**: Use request parameters to set varying parts in simulated requests.
 
-📃 **Request Body**: Used to send and receive data via the REST API
+📃 **Request Body**: Used to send and receive data via the REST API.
 
 **Options:**
  - Set Content Type
  - Add or remove Parameter list
  - Toggle between key-value and RAW input Parameter list
 
-👋 **Responses**: Contains the status line, headers and the message/response body
+👋 **Responses**: Contains the status line, headers and the message/response body.
 
  - Copy response to clipboard
  - View preview for HTML responses
 
 _HTML responses have "Preview HTML" feature_
 
-⏰ **History**: Request entries are synced with local session storage to reuse with a single click
+⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
 **Fields**
  - Label

@@ -33,6 +33,62 @@
         </ul>
       </div>
     </pw-modal>
+    <pw-section class="yellow" label="Environment" ref="environment">
+      <div class="yellow" label="Environment">
+        <ul>
+          <li>
+            <input id="label" name="label" type="text" v-model="label" placeholder="Label environment">
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <span>
+              <pw-toggle :on="environmentRawInput" @change="environmentRawInput = !environmentRawInput">
+                Raw Input {{ environmentRawInput ? "Enabled" : "Disabled" }}
+              </pw-toggle>
+            </span>
+          </li>
+        </ul>
+        <div v-if="!environmentRawInput">
+          <ul v-for="(param, index) in environment" :key="index">
+            <li>
+              <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
+            </li>
+            <li>
+              <input :placeholder="'value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
+            </li>
+            <div>
+              <li>
+                <button class="icon" @click="removeEnvironmentProperty(index)" id="removeEnvironmentProperty">
+                  <i class="material-icons">delete</i>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <button class="icon" @click="addEnvironmentProperty()" name="addEnvironmentProperty">
+                <i class="material-icons">add</i>
+                <span>Add New</span>
+              </button>
+            </li>
+            <li>
+              <button class="icon" @click="clearContent">
+                <i class="material-icons">clear_all</i>
+                <span>Clear all</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          <ul>
+            <li>
+              <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </pw-section>
     <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
@@ -439,8 +495,10 @@
         headers: [],
         params: [],
         bodyParams: [],
+        environment: [],
         rawParams: '',
         rawInput: false,
+        environmentRawInput: false,
         contentType: 'application/json',
         requestType: 'JavaScript XHR',
         isHidden: true,
@@ -879,6 +937,15 @@
         })
         return false
       },
+      addEnvironmentProperty(key = '', value = '') {
+        this.environment.push({ key, value });
+        return false;
+      },
+      removeEnvironmentProperty(index) {
+        this.environment.splice(index, 1);
+        this.$toast.error('Removed environment property', { icon: 'delete' });
+        return false
+      },
       removeRequestBodyParam(index) {
         this.bodyParams.splice(index, 1)
         this.$toast.error('Deleted', {
@@ -1063,6 +1130,9 @@
             break;
           case "parameters":
             this.params = [];
+            break;
+          case "environment":
+            this.environment = [];
             break;
           default:
             this.label = '',

@@ -78,7 +78,7 @@
         <div v-if="!rawInput">
           <ul>
             <li>
-              <label for="reqParamList">Parameter List</label>
+              <label for="reqParamList">Payload Parameters</label>
               <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
             </li>
           </ul>
@@ -300,7 +300,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="paramList">Parameter List</label>
+                <label for="paramList">Query Parameters</label>
                 <div>
                   <button class="icon" @click="clearContent('parameters')">
                     <i class="material-icons">clear_all</i>

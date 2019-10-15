@@ -518,7 +518,7 @@
 
         const validUrl = validIP.test(this.url) || validHostname.test(this.url);
         if (validUrl) {
-          this.updateQueryParams();
+          this.queryInputHandler();
         }
 
         return validUrl;
@@ -805,12 +805,6 @@
           });
         }
       },
-      updateQueryParams() {
-        const query = this.queryInputHandler();
-        for (let param of query) {
-          this.addRequestBodyParam(param.key, param.value);
-        }
-      },
       queryStringToArray(queryString) {
         let queryParsed = querystring.parse(queryString);
         return Object.keys(queryParsed).map((key) => ({key: key, value: queryParsed[key]}))
@@ -835,10 +829,10 @@
           icon: 'delete'
         });
       },
-      addRequestParam() {
+      addRequestParam(key = '', value = '') {
         this.params.push({
-          key: '',
-          value: ''
+          key,
+          value
         })
         return false
       },

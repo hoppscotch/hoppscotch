@@ -62,7 +62,7 @@
     &,
     span {
       font-size: 18px;
-      font-family: monospace;
+      font-family: 'Roboto Mono', monospace;
     }
 
     span {

@@ -37,7 +37,7 @@
       <div class="yellow" label="Environment">
         <ul>
           <li>
-            <input id="label" name="label" type="text" v-model="label" placeholder="Label environment">
+            <input id="environment_label" name="environment_label" type="text" v-model="environmentLabel" placeholder="Label environment">
           </li>
         </ul>
         <ul>
@@ -73,7 +73,7 @@
               </button>
             </li>
             <li>
-              <button class="icon" @click="clearContent">
+              <button class="icon" @click="clearContent('environment')">
                 <i class="material-icons">clear_all</i>
                 <span>Clear all</span>
               </button>
@@ -495,9 +495,10 @@
         headers: [],
         params: [],
         bodyParams: [],
-        environment: [],
         rawParams: '',
         rawInput: false,
+        environment: [],
+        environmentLabel: '',
         environmentRawInput: false,
         contentType: 'application/json',
         requestType: 'JavaScript XHR',
@@ -1135,11 +1136,12 @@
             this.environment = [];
             break;
           default:
+            name = 'request';
             this.label = '',
             this.method= 'GET',
-            this.url = 'https://reqres.in',
+            this.url = '',
             this.auth = 'None',
-            this.path = '/api/users',
+            this.path = '',
             this.auth = 'None';
             this.httpUser = '';
             this.httpPassword = '';
@@ -1148,7 +1150,7 @@
             this.bodyParams = [];
             this.rawParams = '';
         }
-        this.$toast.info('Cleared', {
+        this.$toast.info(`Cleared ${name}`, {
           icon: 'clear_all'
         });
       }

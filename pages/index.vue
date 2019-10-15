@@ -738,6 +738,8 @@
           headersObject[headers[id].key] = headers[id].value
         });
         headers = headersObject;
+
+        const { origin, pathname } = new URL(this.url);
         
         try {
           const startTime = Date.now();
@@ -764,8 +766,6 @@
             const date = new Date().toLocaleDateString();
             const time = new Date().toLocaleTimeString();
 
-            const url = new URL(this.url);
-
             // Addition of an entry to the history component.
             const entry = {
               label: this.requestName,
@@ -773,8 +773,8 @@
               date,
               time,
               method: this.method,
-              url,
-              path: url.pathname
+              url: origin,
+              path: pathname
             };
             this.$refs.historyComponent.addEntry(entry);
           })();
@@ -791,8 +791,8 @@
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
               method: this.method,
-              url: this.url,
-              path: this.path
+              url: origin,
+              path: pathname
             };
             this.$refs.historyComponent.addEntry(entry);
             return;

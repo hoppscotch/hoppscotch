@@ -183,6 +183,50 @@
       // etc.
       (async () => {
         this.showInstallPrompt = await intializePwa();
+        let cookiesAllowed = localStorage.getItem('cookiesAllowed') === 'yes';
+        if(!cookiesAllowed) {
+          this.$toast.show('We use cookies for analytics and to improve our site', {
+            icon: 'info',
+            duration: 0,
+            action: [
+              {
+                text: 'Deny',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0);
+                  this.$toast.error("HTTP service won't work without your consent", {
+                    icon: 'error',
+                    duration: 0,
+                    action: [
+                      {
+                        text: 'Leave',
+                        onClick: (e, toastObject) => {
+                          this.$router.push({
+                            path: '/websocket'
+                          });
+                          toastObject.goAway(0);
+                        }
+                      },
+                      {
+                        text: 'Opt-in',
+                        onClick: (e, toastObject) => {
+                          localStorage.setItem('cookiesAllowed', 'yes');
+                          toastObject.goAway(0);
+                        }
+                      }
+                    ]
+                  });
+                }
+              },
+              {
+                text: 'Accept',
+                onClick: (e, toastObject) => {
+                  localStorage.setItem('cookiesAllowed', 'yes');
+                  toastObject.goAway(0);
+                }
+              }
+            ]
+          });
+        }
       })();
     }
   }

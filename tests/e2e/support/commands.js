@@ -8,9 +8,9 @@
 Cypress.Commands.add('seedAndVisit', (seedData, path = '/', method = 'GET') => {
   cy.server()
     .route(method, 'https://api.thecatapi.com/', `fixture:${seedData}`).as(
-    'load'
-  )
+      'load'
+    );
   cy.visit(path)
     .get('#send').click()
-    .wait('@load')
-})
+    .wait('@load');
+});

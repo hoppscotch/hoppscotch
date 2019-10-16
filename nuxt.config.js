@@ -1,15 +1,15 @@
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const meta = {
-  name: "Postwoman",
-  shortDescription: "API request builder",
-  description: "The Postwoman API request builder helps you create your requests faster, saving you precious time on your development."
+  name: 'Postwoman',
+  shortDescription: 'API request builder',
+  description: 'The Postwoman API request builder helps you create your requests faster, saving you precious time on your development.'
 };
 // Sets the base path for the router.
 // Important for deploying to GitHub pages.
 // -- Travis includes the author in the repo slug,
 //    so if there's a /, we need to get everything after it.
-let repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
+const repoName = (process.env.TRAVIS_REPO_SLUG || '').split('/').pop();
 export const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
     base: `/${repoName}/`
@@ -25,7 +25,7 @@ export default {
    ** Headers of the page
    */
   server: {
-    host: '0.0.0.0', // default: localhost
+    host: '0.0.0.0' // default: localhost
   },
   head: {
     title: `${meta.name} \u2022 ${meta.shortDescription}`,
@@ -48,18 +48,18 @@ export default {
       },
       {
         name: 'X-UA-Compatible',
-        content: "IE=edge, chrome=1"
+        content: 'IE=edge, chrome=1'
       },
       {
-        itemprop: "name",
+        itemprop: 'name',
         content: `${meta.name} \u2022 ${meta.shortDescription}`
       },
       {
-        itemprop: "description",
+        itemprop: 'description',
         content: meta.description
       },
       {
-        itemprop: "image",
+        itemprop: 'image',
         content: `${routerBase.router.base}icons/icon-192x192.png`
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
@@ -121,19 +121,19 @@ export default {
       // Twitter
       {
         name: 'twitter:card',
-        content: "summary"
+        content: 'summary'
       },
       {
         name: 'twitter:site',
-        content: "@liyasthomas"
+        content: '@liyasthomas'
       },
       {
         name: 'twitter:creator',
-        content: "@liyasthomas"
+        content: '@liyasthomas'
       },
       {
         name: 'twitter:url',
-        content: "https://postwoman.io"
+        content: 'https://postwoman.io'
       },
       {
         name: 'twitter:title',
@@ -146,7 +146,7 @@ export default {
       {
         name: 'twitter:image',
         content: `${routerBase.router.base}icons/icon-144x144.png`
-      },
+      }
     ],
     link: [
       {
@@ -178,7 +178,7 @@ export default {
         rel: 'apple-touch-icon',
         sizes: '192x192',
         href: `${routerBase.router.base}icons/icon-192x192.png`
-      },
+      }
     ]
   },
   /*
@@ -233,25 +233,25 @@ export default {
       name: meta.name,
       short_name: meta.name,
 
-      display: "standalone",
+      display: 'standalone',
 
-      theme_color: "#252628",
-      background_color: "#252628",
+      theme_color: '#252628',
+      background_color: '#252628',
       start_url: `${routerBase.router.base}`
     },
 
     meta: {
       description: meta.shortDescription,
-      theme_color: "#252628",
+      theme_color: '#252628'
     },
 
     icons: ((sizes) => {
-      let icons = [];
-      for (let size of sizes) {
+      const icons = [];
+      for (const size of sizes) {
         icons.push({
-          "src": `${routerBase.router.base}icons/icon-${size}x${size}.png`,
-          "type": "image/png",
-          "sizes": `${size}x${size}`
+          src: `${routerBase.router.base}icons/icon-${size}x${size}.png`,
+          type: 'image/png',
+          sizes: `${size}x${size}`
         });
       }
       return icons;
@@ -275,7 +275,7 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
+    extend (config, ctx) {}
   },
   /*
    ** Generate configuration
@@ -287,4 +287,4 @@ export default {
    ** Router configuration
    */
   ...routerBase
-}
+};

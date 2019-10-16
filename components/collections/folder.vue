@@ -4,6 +4,7 @@
             <i @click="toggleShowChildren" v-show='!showChildren' class="material-icons">arrow_right</i>
             <i @click="toggleShowChildren" v-show='showChildren' class="material-icons">arrow_drop_down</i>
             <div @click="toggleShowChildren">{{folder.name}}</div>
+            <button class="add-button" @click="removeFolder">x</button>
         </div>
 
         <div v-show="showChildren">
@@ -30,6 +31,14 @@
         display: flex;
         align-items: center;
     }
+
+    .add-button {
+        padding: 0;
+        width: 20px;
+        margin: 0;
+        height: 20px;
+        border-radius: 50%;
+    }
 </style>
 
 <script>
@@ -55,6 +64,13 @@ export default {
         },
         selectRequest(request) {
             this.$store.commit('postwoman/selectRequest', { request });
+        },
+        removeFolder() {
+            if (!confirm("Are you sure you want to remove this folder?")) return;
+            this.$store.commit('postwoman/removeFolder', {
+                collectionIndex: this.collectionIndex,
+                folderIndex: this.folderIndex,
+            });
         },
     }
 };

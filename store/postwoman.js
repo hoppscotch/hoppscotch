@@ -80,9 +80,25 @@ export const mutations = {
         state.collections.push(newCollection);
     },
 
+    removeCollection (state, payload) {
+        const { collectionIndex } = payload;
+        state.collections.splice(collectionIndex, 1)
+    },
+
+    saveCollection (state, payload) {
+        const { savedCollection } = payload;
+        state.collections[savedCollection.collectionIndex] = savedCollection;
+    },
+
     addFolder (state, payload) {
         const { collectionIndex, folder } = payload;
         state.collections[collectionIndex].folders.push(folder);
+    },
+
+    removeFolder (state, payload) {
+        const { collectionIndex, folderIndex } = payload;
+        console.log(collectionIndex)
+        state.collections[collectionIndex].folders.splice(folderIndex, 1)
     },
 
     addRequest (state, payload) {

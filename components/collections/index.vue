@@ -3,7 +3,10 @@
     <addCollection
       v-bind:show="showAddModel"
       v-on:new-collection="addNewCollection"
-      v-on:hide-model='toggleModal'>
+      v-on:hide-model='toggleModal'
+      v-bind:editing-collection="selectedCollection"
+      v-on:saved-collection="savedCollection"
+      >
     </addCollection>
 
     <div class='header'>
@@ -14,7 +17,11 @@
     
     <ul>
       <li v-for="(collection, index) in collections" :key="collection.name">
-        <collection :collection-index="index" :collection="collection"></collection>
+        <collection
+          :collection-index="index"
+          :collection="collection"
+          v-on:edit-collection="editCollection"
+          ></collection>
       </li>
     </ul>
   </div>
@@ -52,6 +59,7 @@
     data() {
       return {
         showAddModel: false,
+        selectedCollection: {},
       }
     },
     computed: {
@@ -66,6 +74,16 @@
       addNewCollection(newCollection) {
         this.$store.commit('postwoman/addCollection', newCollection);
         this.showAddModel = false;
+      },
+      editCollection(payload) {
+        const { collection, collectionIndex } = payload;
+        this.selectedCollection = Object.assign({ collectionIndex }, collection);
+        this.showAddModel = true;
+      },
+      savedCollection(savedCollection) {
+        this.$store.commit('postwoman/saveCollection', { savedCollection });
+        this.showAddModel = false;
+        this.selectedCollection = {};
       },
     },
   }

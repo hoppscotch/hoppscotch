@@ -12,13 +12,15 @@
             <label @click="toggleShowChildren">
                 {{collection.name}}
             </label>
+            <button class="add-button" @click="editCollection">e</button>
+            <button class="add-button" @click="removeCollection">x</button>
             <button class="add-button" @click="toggleModal">+</button>
         </div>
         
         <div v-show="showChildren">
             <ul>
                 <li v-for="(folder, index) in collection.folders" :key="folder.name">
-                    <folder :folder="folder" :folderIndex="index" />
+                    <folder :folder="folder" :folderIndex="index" :collection-index="collectionIndex" />
                 </li>
             </ul>
 
@@ -93,6 +95,18 @@ export default {
                 folder: newFolder,
             });
             this.showModal = false;
+        },
+        editCollection() {
+            this.$emit('edit-collection', {
+                collectionIndex: this.collectionIndex,
+                collection: this.collection,
+            });
+        },
+        removeCollection() {
+            if (!confirm("Are you sure you want to remove this collection?")) return;
+            this.$store.commit('postwoman/removeCollection', {
+                collectionIndex: this.collectionIndex,
+            });
         },
     }
 };

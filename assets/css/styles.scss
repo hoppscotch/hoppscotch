@@ -34,13 +34,13 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--fg-color);
-  font-weight: 400;
+  font-weight: 500;
   font-size: 16px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
   line-height: 1.5;
@@ -53,7 +53,7 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 h3.title {
@@ -78,10 +78,7 @@ nav {
 }
 
 body.sticky-footer footer {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  opacity: .25;
 }
 
 .logo {
@@ -97,7 +94,7 @@ button {
   border-radius: 20px;
   background-color: var(--ac-color);
   color: var(--act-color);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
   transition: all 0.2s ease-in-out;
@@ -140,17 +137,12 @@ legend {
   align-items: center;
   justify-content: center;
   color: var(--fg-color);
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 
   i {
     margin-left: 8px;
   }
-}
-
-fieldset textarea,
-fieldset pre code {
-  resize: vertical;
 }
 
 fieldset.blue legend {
@@ -204,11 +196,13 @@ pre {
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
   font-size: 16px;
-  font-family: monospace;
+  font-family: 'Roboto Mono', monospace;
   transition: all 0.2s ease-in-out;
   user-select: text;
   width: calc(100% - 8px);
   min-height: 40px;
+  resize: vertical;
+  text-overflow: ellipsis;
 
   &:not([readonly]):hover {
     background-color: var(--bg-dark-color);
@@ -228,6 +222,7 @@ code {
 .hljs-subst {
   background-color: var(--bg-dark-color) !important;
   color: var(--fg-color) !important;
+  font-family: 'Roboto Mono', monospace;
 }
 
 select,
@@ -306,6 +301,10 @@ ol li {
   justify-content: space-between;
 }
 
+.show-on-small-screen {
+  display: flex;
+}
+
 @media (max-width: $responsiveWidth) {
   header div {
     display: flex;
@@ -330,6 +329,10 @@ ol li {
 
   .hide-on-small-screen {
     display: none;
+  }
+
+  .show-on-small-screen {
+    display: inline-flex;
   }
 }
 
@@ -373,7 +376,7 @@ fieldset#history {
       position: absolute;
       top: 12px;
       right: 12px;
-      font-family: monospace, monospace;
+      font-family: 'Roboto Mono', monospace;
     }
   }
 }

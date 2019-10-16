@@ -78,16 +78,28 @@
         // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
         //        You should copy the existing light theme as a template and then just
         //        set the relevant values.
-        themes: [{
+        themes: [
+          {
             "color": "rgb(37, 38, 40)",
-            "name": "Dark (default)",
+            "name": "Kinda Dark",
             "class": ""
           },
           {
-            "color": "#ebeef5",
-            "name": "Light",
+            "color": "#ffffff",
+            "name": "Clearly White",
             "vibrant": true,
             "class": "light"
+          },
+          {
+            "color": "#000000",
+            "name": "Just Black",
+            "class": "black"
+          },
+          {
+            "color": "var(--bg-color)",
+            "name": "Auto (system)",
+            "vibrant": window.matchMedia('(prefers-color-scheme: light)').matches,
+            "class": "auto"
           }
         ],
         // You can define a new color here! It will simply store the color value.
@@ -95,7 +107,7 @@
           // If the color is vibrant, black is used as the active foreground color.
           {
             "color": "#50fa7b",
-            "name": "Green (default)",
+            "name": "Green",
             "vibrant": true
           },
           {

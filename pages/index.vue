@@ -82,8 +82,11 @@
         <ul>
           <li>
             <label for="contentType">Content Type</label>
-            <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type
-            </autocomplete>
+            <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType">Content Type</autocomplete>
+          </li>
+        </ul>
+        <ul>
+          <li>
             <span>
               <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
                 Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
@@ -131,6 +134,11 @@
           </ul>
         </div>
       </div>
+      <ul>
+        <li>
+          <input id="label" name="label" type="text" v-model="label" placeholder="Label request">
+        </li>
+      </ul>
       <div class="flex-wrap">
         <button class="icon" id="show-modal" @click="showModal = true">
           <i class="material-icons">import_export</i>
@@ -419,6 +427,7 @@
     },
     data() {
       return {
+        label: '',
         showModal: false,
         copyButton: '<i class="material-icons">file_copy</i>',
         copiedButton: '<i class="material-icons">done</i>',
@@ -530,6 +539,9 @@
       selectedRequest() {
         return this.$store.state.postwoman.selectedRequest;
       },
+      requestName() {
+        return this.label
+      },
       statusCategory() {
         return findStatusGroup(this.response.status);
       },
@@ -603,7 +615,7 @@
           requestString.push('const xhr = new XMLHttpRequest()');
           const user = this.auth === 'Basic' ? this.httpUser : null
           const pswd = this.auth === 'Basic' ? this.httpPassword : null
-          requestString.push('xhr.open(' + this.method + ', ' + this.url + this.path + this.queryString + ', true, ' +
+          requestString.push('xhr.open("' + this.method + '", "' + this.url + this.path + this.queryString + '", true, ' +
             user + ', ' + pswd + ')');
           if (this.auth === 'Bearer Token') {
             requestString.push("xhr.setRequestHeader('Authorization', 'Bearer ' + " + this.bearerToken + ")");
@@ -625,7 +637,7 @@
         } else if (this.requestType == 'Fetch') {
           var requestString = [];
           var headers = [];
-          requestString.push('fetch(' + this.url + this.path + this.queryString + ', {\n')
+          requestString.push('fetch("' + this.url + this.path + this.queryString + '", {\n')
           requestString.push('  method: "' + this.method + '",\n')
           if (this.auth === 'Basic') {
             var basic = this.httpUser + ':' + this.httpPassword;
@@ -685,10 +697,12 @@
     },
     methods: {
       handleUseHistory({
+        label,
         method,
         url,
         path
       }) {
+        this.label = label;
         this.method = method;
         this.url = url;
         this.path = path;
@@ -763,12 +777,18 @@
         headers = headersObject;
 
         try {
+          const startTime = Date.now();
           const payload = await this.$axios({
             method: this.method,
             url: this.url + this.pathName + this.queryString,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null
+          });
+
+          const duration = Date.now() - startTime;
+          this.$toast.info(`Finished in ${duration}ms`, {
+            icon: 'done'
           });
 
           (() => {
@@ -783,6 +803,7 @@
 
             // Addition of an entry to the history component.
             const entry = {
+              label: this.requestName,
               status,
               date,
               time,
@@ -800,6 +821,7 @@
 
             // Addition of an entry to the history component.
             const entry = {
+              label: this.requestName,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
@@ -1000,9 +1022,9 @@
             sendButtonElement.classList.toggle('show');
           });
         }, {
-          threshold: 1
+          rootMargin: '0px',
+          threshold: [0],
         });
-
         observer.observe(requestElement);
       },
       handleImport() {
@@ -1053,6 +1075,7 @@
             this.params = [];
             break;
           default:
+            this.label = '',
             this.method= 'GET',
             this.url = 'https://reqres.in',
             this.auth = 'None',
@@ -1076,6 +1099,7 @@
     created() {
       if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query);
       this.$watch(vm => [
+        vm.label,
         vm.method,
         vm.url,
         vm.auth,

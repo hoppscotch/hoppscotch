@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "postwoman-api"
+  },
+  "targets": {
+    "postwoman-api": {
+      "hosting": {
+        "postwoman": [
+          "postwoman"
+        ]
+      }
+    }
+  }
+}

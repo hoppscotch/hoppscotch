@@ -174,7 +174,7 @@
         let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
         if (vibrant == null) vibrant = true;
         document.documentElement.style.setProperty('--ac-color', color);
-        document.documentElement.style.setProperty('--act-color', vibrant ? 'rgb(37, 38, 40)' : '#fff');
+        document.documentElement.style.setProperty('--act-color', vibrant ? 'rgb(37, 38, 40)' : '#ffffff');
       })();
     },
 
@@ -183,6 +183,23 @@
       // etc.
       (async () => {
         this.showInstallPrompt = await intializePwa();
+        let cookiesAllowed = localStorage.getItem('cookiesAllowed') === 'yes';
+        if(!cookiesAllowed) {
+          this.$toast.show('We use cookies', {
+            icon: 'info',
+            duration: 5000,
+            theme: 'toasted-primary',
+            action: [
+              {
+                text: 'Dismiss',
+                onClick: (e, toastObject) => {
+                  localStorage.setItem('cookiesAllowed', 'yes');
+                  toastObject.goAway(0);
+                }
+              }
+            ]
+          });
+        }
       })();
     }
   }

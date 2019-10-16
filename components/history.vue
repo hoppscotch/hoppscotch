@@ -6,11 +6,14 @@
       </li>
     </ul>
     <ul>
+      <li @click="sort_by_label()">
+        <label for="" class="flex-wrap">Label<i class="material-icons">sort</i></label>
+      </li>
       <li @click="sort_by_time()">
         <label for="" class="flex-wrap">Time<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_status_code()">
-        <label for="" class="flex-wrap">Status Code<i class="material-icons">sort</i></label>
+        <label for="" class="flex-wrap">Status<i class="material-icons">sort</i></label>
       </li>
       <li @click="sort_by_url()">
         <label for="" class="flex-wrap">URL<i class="material-icons">sort</i></label>
@@ -22,6 +25,9 @@
     <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="54" :remain="Math.min(5, filteredHistory.length)">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
+          <input aria-label="Label" type="text" readonly :value="entry.label" placeholder="No label">
+        </li>
+        <li>
           <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date">
         </li>
         <li class="method-list-item">
@@ -32,7 +38,7 @@
           <input aria-label="URL" type="text" readonly :value="entry.url">
         </li>
         <li>
-          <input aria-label="Path" type="text" readonly :value="entry.path">
+          <input aria-label="Path" type="text" readonly :value="entry.path" placeholder="No path">
         </li>
         <div class="show-on-small-screen">
           <li>
@@ -101,6 +107,7 @@
         filterText: '',
         showFilter: false,
         isClearingHistory: false,
+        reverse_sort_label: false,
         reverse_sort_time: false,
         reverse_sort_status_code: false,
         reverse_sort_url: false,
@@ -197,6 +204,17 @@
         });
         this.history = byUrl;
         this.reverse_sort_url = !this.reverse_sort_url;
+      },
+      sort_by_label() {
+        let byLabel = this.history.slice(0);
+        byLabel.sort((a, b)=>{
+          if(this.reverse_sort_label)
+            return a.label == b.label ? 0 : +(a.label < b.label) || -1;
+          else
+            return a.label == b.label ? 0 : +(a.label > b.label) || -1;
+        });
+        this.history = byLabel;
+        this.reverse_sort_label = !this.reverse_sort_label;
       },
       sort_by_path() {
         let byPath = this.history.slice(0);

@@ -4,21 +4,22 @@
       <span class="handle"></span>
     </label>
     <label class="caption">
-      <slot /></label>
+      <slot/>
+    </label>
   </div>
 </template>
 
 <style lang="scss" scoped>
-  $useBorder: true;
-  $borderColor: var(--fg-color);
+  $useBorder: false;
+  $borderColor: var(--fg-light-color);
   $activeColor: var(--ac-color);
-  $inactiveColor: var(--fg-color);
+  $inactiveColor: var(--fg-light-color);
 
-  $inactiveHandleColor: $inactiveColor;
+  $inactiveHandleColor: var(--bg-color);
   $activeHandleColor: var(--act-color);
 
-  $width: 50px;
-  $height: 20px;
+  $width: 32px;
+  $height: 16px;
   $handleSpacing: 4px;
 
   $transition: all 0.2s ease-in-out;
@@ -29,7 +30,6 @@
   }
 
   label.caption {
-    margin-left: 4px;
     vertical-align: middle;
     cursor: pointer;
   }
@@ -43,11 +43,11 @@
     background-color: if($useBorder, transparent, $inactiveColor);
     vertical-align: middle;
 
-    border-radius: 100px;
+    border-radius: 32px;
     transition: $transition;
     box-sizing: initial;
     padding: 0;
-    margin: 10px 5px;
+    margin: 8px 4px;
     cursor: pointer;
 
     .handle {

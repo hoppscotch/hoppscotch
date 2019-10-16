@@ -5,13 +5,13 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 <div align="center">
   <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
   <br>
-  <h1><a href="https://postwoman.io">Postwoman</a></h1>
+  <h1><a href="https://postwoman.io">Postwoman.io</a></h1>
   <p>
-    API request builder - Helps you create your requests faster, saving you precious time on your development. <a href="https://postwoman.launchaco.com">Subscribe for updates</a>
+    API request builder - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe for updates</a>
   </p>
 <p>
 
-[![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![repo size](https://img.shields.io/github/repo-size/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/archive/master.zip) [![license](https://img.shields.io/github/license/liyasthomas/postwoman.svg)](https://github.com/liyasthomas/postwoman/blob/master/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Buy me a coffee](https://img.shields.io/badge/$-BuyMeACoffee-orange.svg)](https://www.buymeacoffee.com/liyasthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
+[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
 
 </p>
   <sub>Built with ❤︎ by
@@ -26,7 +26,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 **Chat here: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
-**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Buy me a coffee](https://www.buymeacoffee.com/liyasthomas)_**
+**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
 
 <div align="center">
   <br>
@@ -34,13 +34,13 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
   <br>
 </div>
 
-### Features :sparkles:
+### Features ✨
 
-:heart: **Lightweight**: Crafted with minimalistic UI design
+❤️ **Lightweight**: Crafted with minimalistic UI design. Simple design is the best design.
 
  - Faster, lighter, cleaner, minimal & responsive
 
-:zap: **Real-time**: Send requests and get/copy responses right away!
+⚡️ **Fast**: Send requests and get/copy responses in real-time! Fast software is the best software.
 
 **Methods:**
  - `GET` - Retrieve information about the REST API resource
@@ -53,70 +53,82 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 _History entries are synced with local session storage_
 
-:rainbow: **VIBGYOR**: Neon combination background, foreground & accent colors - because customization === freedom :sparkles:
+🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization === freedom. [Customize now ✨](https://postwoman.io/settings).
 
 **Customizations:**
- - Dark and Light background themes
- - Choose accent color
+ - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
+ - Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
  - Toggle multi-colored frames
 
 _Customized themes are also synced with local session storage_
 
-:fire: **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device
+🔥 **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device.
 
 **Features:**
- - Instant loading with Service Workers
+ - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
  - Offline support
  - Low RAM/memory and CPU usage
+ - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
+ - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
+ - [Full features](https://developers.google.com/web/progressive-web-apps)
 
-:rocket: **Request**: Retrieve data from a URL without having to do a full page refresh
+🚀 **Request**: Retrieve data from a URL without having to do a full page refresh.
 
  - Choose `method`
  - Enter `URL`
  - Enter `Path`
- - Copy public "Share URL"
- - Generate request code for JavaScript XHR, Fetch, cURL
+
+**Features:**
+ - Copy/share public "Share URL"
+ - Generate request code for JavaScript XHR, Fetch and cURL
  - Copy generated request code to clipboard
  - Import cURL
+ - Label requests
 
-:electric_plug: **Web Socket**: Establish full-duplex communication channels over a single TCP connection
+🔌 **Web Socket**: Establish full-duplex communication channels over a single TCP connection.
 
  -  Send and receive data
 
-:closed_lock_with_key: **Authentication**: Allows to identity the end user
+🔐 **Authentication**: Allows to identity the end user.
 
 **Types:**
  - None
  - Basic authentication using username and password
  - Token based authentication
 
-:loudspeaker: **Headers**: Describes the format the body of your request is being sent as
+📢 **Headers**: Describes the format the body of your request is being sent as.
 
-:mailbox: **Parameters**: Use request parameters to set varying parts in simulated requests
+ - Add or remove Header list
 
-:page_with_curl: **Request Body**: Used to send and receive data via the REST API
+📫 **Parameters**: Use request parameters to set varying parts in simulated requests.
+
+📃 **Request Body**: Used to send and receive data via the REST API.
 
 **Options:**
  - Set Content Type
- - Toggle between RAW input and parameter list
+ - Add or remove Parameter list
+ - Toggle between key-value and RAW input Parameter list
 
-:wave: **Responses**: Contains the status line, headers and the message/response body
+👋 **Responses**: Contains the status line, headers and the message/response body.
 
  - Copy response to clipboard
  - View preview for HTML responses
 
 _HTML responses have "Preview HTML" feature_
 
-:alarm_clock: **History**: Request entries are synced with local session storage to reuse with a single click
+⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
 **Fields**
+ - Label
  - Timestamp
  - Method
  - Status code
  - URL
  - Path
 
-_History entries can be deleted one-by-one or all together_
+_History entries can be sorted by any fields_
+
+_Histories can deleted one-by-one or all together_
 
 ## Demo 🚀
 
@@ -167,7 +179,7 @@ docker run -p 3000:3000 liyasthomas/postwoman:latest
 docker build -t postwoman:latest
 ```
 
-## Releasing 🔖
+## Releasing 🏷️
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
@@ -229,6 +241,7 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 ### Code Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+
 <a href="https://github.com/liyasthomas/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors
@@ -237,7 +250,7 @@ Become a financial contributor and help us sustain our community. [[Contribute](
 
 #### Individuals
 
-<a href="https://opencollective.com/postwoman"><img src="https://opencollective.com/postwoman/individuals.svg?width=890"></a>
+<a href="https://opencollective.com/postwoman"><img src="https://opencollective.com/postwoman/individuals.svg"></a>
 
 #### Organizations
 

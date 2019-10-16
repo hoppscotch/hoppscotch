@@ -188,6 +188,14 @@ export default {
     color: 'var(--ac-color)'
   },
   /*
+   ** Customize the loading indicator
+   */
+  loadingIndicator: {
+    name: 'pulse',
+    color: 'var(--ac-color)',
+    background: 'var(--bg-color)'
+  },
+  /*
    ** Global CSS
    */
   css: [
@@ -216,25 +224,27 @@ export default {
     ['@nuxtjs/pwa'],
     ['@nuxtjs/axios'],
     ['@nuxtjs/toast'],
-    ['@nuxtjs/google-analytics']
+    ['@nuxtjs/google-analytics'],
+    ['@nuxtjs/sitemap'],
+    ['@nuxtjs/google-tag-manager', { id: process.env.GTM_ID || 'GTM-MXWD8NQ' }]
   ],
   pwa: {
     manifest: {
       name: meta.name,
       short_name: meta.name,
-      
+
       display: "standalone",
-      
+
       theme_color: "#252628",
       background_color: "#252628",
       start_url: `${routerBase.router.base}`
     },
-    
+
     meta: {
       description: meta.shortDescription,
       theme_color: "#252628",
     },
-    
+
     icons: ((sizes) => {
       let icons = [];
       for (let size of sizes) {
@@ -253,7 +263,10 @@ export default {
     theme: 'bubble'
   },
   googleAnalytics: {
-    id: 'UA-61422507-2'
+    id: process.env.GA_ID || 'UA-61422507-2'
+  },
+  sitemap: {
+    hostname: 'https://postwoman.io'
   },
   /*
    ** Build configuration

@@ -11,22 +11,30 @@
         "build": "nuxt build",
         "start": "nuxt start",
         "pregenerate": "node build.js",
-        "generate": "nuxt generate"
+        "generate": "nuxt generate",
+        "e2e": "cypress run",
+        "e2e:open": "cypress open",
+        "dev:e2e": "start-server-and-test dev http://localhost:3000 e2e:open",
+        "test": "start-server-and-test dev http://localhost:3000 e2e"
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.6.0",
         "@nuxtjs/google-analytics": "^2.2.0",
+        "@nuxtjs/google-tag-manager": "^2.3.0",
         "@nuxtjs/pwa": "^3.0.0-beta.19",
+        "@nuxtjs/sitemap": "^2.0.0",
         "@nuxtjs/toast": "^3.2.1",
         "highlight.js": "^9.15.10",
-        "nuxt": "^2.9.2",
+        "nuxt": "^2.10.1",
         "vue-virtual-scroll-list": "^1.4.2",
         "vuejs-auto-complete": "^0.9.0",
         "vuex-persist": "^2.1.0",
-        "yargs-parser": "^14.0.0"
+        "yargs-parser": "^15.0.0"
     },
     "devDependencies": {
+        "cypress": "^3.4.1",
         "node-sass": "^4.12.0",
-        "sass-loader": "^7.3.1"
+        "sass-loader": "^7.3.1",
+        "start-server-and-test": "^1.10.5"
     }
 }

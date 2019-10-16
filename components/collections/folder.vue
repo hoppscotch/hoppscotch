@@ -4,6 +4,7 @@
             <i @click="toggleShowChildren" v-show='!showChildren' class="material-icons">arrow_right</i>
             <i @click="toggleShowChildren" v-show='showChildren' class="material-icons">arrow_drop_down</i>
             <div @click="toggleShowChildren">{{folder.name}}</div>
+            <button class="add-button" @click="editFolder">e</button>
             <button class="add-button" @click="removeFolder">x</button>
         </div>
 
@@ -70,6 +71,13 @@ export default {
             this.$store.commit('postwoman/removeFolder', {
                 collectionIndex: this.collectionIndex,
                 folderIndex: this.folderIndex,
+            });
+        },
+        editFolder() {
+            this.$emit('edit-folder', {
+                collectionIndex: this.collectionIndex,
+                folderIndex: this.folderIndex,
+                folder: this.folder,
             });
         },
     }

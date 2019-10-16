@@ -4,7 +4,8 @@
             <ul>
             <li>
                 <div class="flex-wrap">
-                <h3 class="title">Add New Folder</h3>
+                <h3 class="title" v-if='!newFolder.hasOwnProperty("folderIndex")'>Add New Folder</h3>
+                <h3 class="title" v-if='newFolder.hasOwnProperty("folderIndex")'>Edit Folder</h3>
                 <div>
                     <button class="icon" @click="hideModel">
                     <i class="material-icons">close</i>
@@ -22,7 +23,8 @@
             </ul>
         </div>
         <div slot="footer">
-            <button @click="addNewFolder">Add</button>
+            <button @click="addNewFolder" v-if='!newFolder.hasOwnProperty("folderIndex")'>Add</button>
+            <button @click="saveFolder" v-if='newFolder.hasOwnProperty("folderIndex")'>Save</button>
         </div>
     </modal>
 </template>
@@ -33,6 +35,7 @@ import modal from "../../components/modal";
 export default {
     props: {
         show: Boolean,
+        editingFolder: Object,
     },
     components: {
         modal,
@@ -45,10 +48,24 @@ export default {
             },
         }
     },
+    watch: {
+        show() {
+            if (!this.editingFolder.folderIndex);
+            this.newFolder = Object.assign({}, this.editingFolder);
+        },
+    },
     methods: {
         addNewFolder() {
             const newFolder = Object.assign({}, this.newFolder);
             this.$emit('new-folder', newFolder);
+            this.newFolder = {
+                name: '',
+                requests: [],
+            };
+        },
+        saveFolder() {
+            const savedFolder = Object.assign({}, this.newFolder);
+            this.$emit('saved-folder', savedFolder);
             this.newFolder = {
                 name: '',
                 requests: [],

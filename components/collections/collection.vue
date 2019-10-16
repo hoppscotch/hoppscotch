@@ -3,7 +3,10 @@
         <addFolder
             v-bind:show="showModal"
             v-on:new-folder="addNewFolder"
-            v-on:hide-model='toggleModal'>
+            v-on:hide-model='toggleModal'
+            v-bind:editing-folder="selectedFolder"
+            v-on:saved-folder="savedFolder"
+        >
         </addFolder>
 
         <div class="header">
@@ -20,7 +23,12 @@
         <div v-show="showChildren">
             <ul>
                 <li v-for="(folder, index) in collection.folders" :key="folder.name">
-                    <folder :folder="folder" :folderIndex="index" :collection-index="collectionIndex" />
+                    <folder 
+                        :folder="folder"
+                        :folderIndex="index"
+                        :collection-index="collectionIndex"
+                        v-on:edit-folder="editFolder"
+                    />
                 </li>
             </ul>
 
@@ -80,6 +88,7 @@ export default {
         return {
             showChildren: false,
             showModal: false,
+            selectedFolder: {},
         };
     },
     methods: {
@@ -107,6 +116,16 @@ export default {
             this.$store.commit('postwoman/removeCollection', {
                 collectionIndex: this.collectionIndex,
             });
+        },
+        editFolder(payload) {
+            const { folder, collectionIndex, folderIndex } = payload;
+            this.selectedFolder = Object.assign({ collectionIndex, folderIndex }, folder);
+            this.showModal = true;
+        },
+        savedFolder(savedFolder) {
+            this.$store.commit('postwoman/saveFolder', { savedFolder });
+            this.showModal = false;
+            this.selectedFolder = {};
         },
     }
 };

@@ -97,8 +97,12 @@ export const mutations = {
 
     removeFolder (state, payload) {
         const { collectionIndex, folderIndex } = payload;
-        console.log(collectionIndex)
         state.collections[collectionIndex].folders.splice(folderIndex, 1)
+    },
+
+    saveFolder (state, payload) {
+        const { savedFolder } = payload;
+        state.collections[savedFolder.collectionIndex].folders[savedFolder.folderIndex] = savedFolder;
     },
 
     addRequest (state, payload) {

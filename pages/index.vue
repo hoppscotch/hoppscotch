@@ -49,7 +49,7 @@
         </li>
         <li>
           <label for="url">URL</label>
-          <input :class="{ error: !isValidURL }" @keyup.enter="isValidURL ? sendRequest() : null" id="url" name="url" type="url" v-model="url">
+          <input :class="{ error: !isValidURL }" @keyup.enter="isValidURL ? sendRequest() : null" id="url" name="url" type="url" v-model="url" @input="queryInputHandler">
         </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -311,7 +311,7 @@
               <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
             </li>
           </ul>
-          <ul v-for="(param, index) in params" :key="index">
+          <ul v-for="(param, index) in params" :key="index" @input="updateUrlParams()">
             <li>
               <input :placeholder="'parameter '+(index+1)" :name="'param'+index" v-model="param.key" autofocus>
             </li>
@@ -518,7 +518,7 @@
 
         const validUrl = validIP.test(this.url) || validHostname.test(this.url);
         if (validUrl) {
-          this.queryInputHandler();
+          this.queryInputHandler;
         }
 
         return validUrl;
@@ -562,7 +562,7 @@
         return result === '' ? '' : `${result}`
       },
       queryString() {
-        const result = this.params
+        let result = this.params
           .filter(({
             key
           }) => !!key)
@@ -570,7 +570,8 @@
             key,
             value
           }) => `${key}=${encodeURIComponent(value)}`).join('&')
-        return result === '' ? '' : `?${result}`
+
+        return result === '' ? '' : `?${result}`;
       },
       responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
@@ -670,6 +671,7 @@
       }) {
         this.label = label;
         this.method = method;
+        debugger;
         this.url = url + path;
         this.$refs.request.$el.scrollIntoView({
           behavior: 'smooth'
@@ -740,7 +742,8 @@
         });
         headers = headersObject;
 
-        const { origin, pathname, search } = new URL(this.url);
+        let { origin, pathname, search } = new URL(this.url);
+        pathname = pathname === '/' ? '' : pathname;
 
         try {
           const startTime = Date.now();
@@ -806,6 +809,13 @@
           });
         }
       },
+      updateUrlParams(paramString = this.queryString) {
+        if (paramString && !this.url.includes(paramString)) {
+          let { origin, pathname } = new URL(this.url);
+          pathname = pathname === '/' ? '' : pathname;
+          this.url = `${origin}${pathname}${paramString}`;
+        }
+      },
       queryStringToArray(queryString) {
         let queryParsed = querystring.parse(queryString);
         return Object.keys(queryParsed).map((key) => ({key: key, value: queryParsed[key]}))
@@ -813,7 +823,7 @@
       queryInputHandler() {
         let queryString = new URL(this.url).search.slice(1),
             params = this.queryStringToArray(queryString);
-          
+        
         this.params = params;
         return params;
       },

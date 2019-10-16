@@ -43,7 +43,7 @@
         <ul>
           <li>
             <span>
-              <pw-toggle :on="environmentRawInput" @change="environmentRawInput = !environmentRawInput">
+              <pw-toggle id="environmentRawInputToggle" :on="environmentRawInput" @change="environmentRawInput = !environmentRawInput">
                 Raw Input {{ environmentRawInput ? "Enabled" : "Disabled" }}
               </pw-toggle>
             </span>
@@ -52,14 +52,14 @@
         <div v-if="!environmentRawInput">
           <ul v-for="(param, index) in environment" :key="index">
             <li>
-              <input :placeholder="'key '+(index+1)" :name="'bparam'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
+              <input :placeholder="'key '+(index+1)" :id="'envKey'+index" :name="'envKey'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
             <li>
-              <input :placeholder="'value '+(index+1)" :id="'bvalue'+index" :name="'bvalue'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
+              <input :placeholder="'value '+(index+1)" :id="'envVal'+index" :name="'envVal'+index" v-model="param.value" @keyup.prevent="setRouteQueryState">
             </li>
             <div>
               <li>
-                <button class="icon" @click="removeEnvironmentProperty(index)" id="removeEnvironmentProperty">
+                <button id="removeEnvironmentProperty" class="icon" @click="removeEnvironmentProperty(index)">
                   <i class="material-icons">delete</i>
                 </button>
               </li>
@@ -67,13 +67,13 @@
           </ul>
           <ul>
             <li>
-              <button class="icon" @click="addEnvironmentProperty()" name="addEnvironmentProperty">
+              <button id="addEnvironmentProperty" class="icon" @click="addEnvironmentProperty()" name="addEnvironmentProperty">
                 <i class="material-icons">add</i>
                 <span>Add New</span>
               </button>
             </li>
             <li>
-              <button class="icon" @click="clearContent('environment')">
+              <button id="environmentClearContent" class="icon" @click="clearContent('environment')">
                 <i class="material-icons">clear_all</i>
                 <span>Clear all</span>
               </button>
@@ -83,7 +83,7 @@
         <div v-else>
           <ul>
             <li>
-              <textarea id="rawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+              <textarea id="environmentRawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
             </li>
           </ul>
         </div>

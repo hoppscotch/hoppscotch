@@ -106,8 +106,18 @@ export const mutations = {
     },
 
     addRequest (state, payload) {
-        const { collectionIndex, folderIndex, request } = payload;
-        state.collections[collectionIndex].folders[folderIndex].push(request);
+        const { request } = payload;
+        state.collections[request.collection].folders[request.folder].requests.push(request);
+    },
+
+    saveRequeest (state, payload) {
+        const { request } = payload;
+        state.collections[request.collection].folders[request.folder].requests[request.requestIndex] = request;
+    },
+
+    removeFolder (state, payload) {
+        const { request } = payload;
+        state.collections[collectionIndex].folders[request.folder].requests.splice(request.requestIndex, 1)
     },
 
     selectRequest (state, payload) {

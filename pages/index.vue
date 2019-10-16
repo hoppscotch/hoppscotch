@@ -1,5 +1,10 @@
 <template>
   <div class="page">
+    <save-request
+      v-bind:show="showRequestModal"
+      v-on:hide-model='hideRequestModal'
+      v-bind:editing-request='request'
+    ></save-request>
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -68,6 +73,13 @@
             <i class="material-icons" v-if="isHidden">visibility</i>
             <i class="material-icons" v-if="!isHidden">visibility_off</i>
             <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
+          </button>
+        </li>
+        <li>
+          <label class="hide-on-small-screen" for="saveRequest">&nbsp;</label>
+          <button class="icon" @click="saveRequest" id="saveRequest" ref="saveRequest" :disabled="!isValidURL">
+            <i class="material-icons">share</i>
+            <span>Save</span>
           </button>
         </li>
         <li>
@@ -361,6 +373,7 @@
   import toggle from "../components/toggle";
   import modal from "../components/modal";
   import collections from '../components/collections';
+  import saveRequest from '../components/collections/saveRequest';
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
   import 'highlight.js/styles/dracula.css';
@@ -424,6 +437,7 @@
       history,
       autocomplete,
       collections,
+      saveRequest,
     },
     data() {
       return {
@@ -474,7 +488,9 @@
           'application/x-www-form-urlencoded',
           'text/html',
           'text/plain'
-        ]
+        ],
+        showRequestModal: false,
+        request: {},
       }
     },
     watch: {
@@ -533,6 +549,20 @@
       selectedRequest (newValue, oldValue) {
         if (!newValue) return;
         this.url = newValue.url;
+        this.path = '/api/users';
+        this.method = newValue.method;
+        this.auth = 'None';
+        this.httpUser = '';
+        this.httpPassword = '';
+        // passwordFieldType: 'password',
+        // bearerToken: '',
+        // headers: [],
+        // params: [],
+        // bodyParams: [],
+        // rawParams: '',
+        // rawInput: false,
+        // contentType: 'application/json',
+        // requestType: 'JavaScript XHR',
       },
     },
     computed: {
@@ -1091,6 +1121,29 @@
         this.$toast.info('Cleared', {
           icon: 'clear_all'
         });
+      },
+      saveRequest() {
+        this.request = {
+          url: this.url,
+          path: this.path,
+          method: this.method,
+          auth: this.auth,
+          httpUser: this.httpUser,
+          httpPassword: this.httpPassword,
+          passwordFieldType: this.passwordFieldType,
+          bearerToken: this.bearerToken,
+          headers: this.headers,
+          params: this.params,
+          bodyParams: this.bodyParams,
+          rawParams: this.rawParams,
+          rawInput: this.rawInput,
+          contentType: this.contentType,
+          requestType: this.requestType,
+        }
+        this.showRequestModal = true;
+      },
+      hideRequestModal() {
+        this.showRequestModal = false;
       },
     },
     mounted() {

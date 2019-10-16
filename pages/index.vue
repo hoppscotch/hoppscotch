@@ -666,10 +666,11 @@
         label,
         method,
         url,
+        path
       }) {
         this.label = label;
         this.method = method;
-        this.url = url;
+        this.url = url + path;
         this.$refs.request.$el.scrollIntoView({
           behavior: 'smooth'
         });
@@ -739,8 +740,8 @@
         });
         headers = headersObject;
 
-        const { origin, pathname } = new URL(this.url);
-        
+        const { origin, pathname, search } = new URL(this.url);
+
         try {
           const startTime = Date.now();
           const payload = await this.$axios({
@@ -774,7 +775,7 @@
               time,
               method: this.method,
               url: origin,
-              path: pathname
+              path: pathname + search,
             };
             this.$refs.historyComponent.addEntry(entry);
           })();
@@ -792,7 +793,7 @@
               time: new Date().toLocaleTimeString(),
               method: this.method,
               url: origin,
-              path: pathname
+              path: pathname + search,
             };
             this.$refs.historyComponent.addEntry(entry);
             return;

@@ -19,7 +19,7 @@ describe('Url and path', () => {
 })
 
 describe('Query Parameters', () => {
-  it('should add a new query parameter with blank entries for the parameter and value', () => {
+  it('Add a new query parameter with blank entries for the parameter and value', () => {
       cy
         .get('label').contains('Parameters').click()
         .get('#newRequestParam').click()
@@ -28,6 +28,19 @@ describe('Query Parameters', () => {
           cy.get('input[name="value0"]').should('have.value', '')
         })
   })
+
+  it('Add a new query parameter and update the primary URL field in the request section (query param to url binding)', () => {
+    cy
+      .get('#url').type('/api/users?first=worst')
+      .get('label').contains('Parameters').click()
+      .get('#newRequestParam').click()
+      .then(() => {
+        cy
+          .get('input[name="param1"]').type('second')
+          .get('input[name="value1"]').type('best')
+          .get('#url').should('have.value', 'https://api.thecatapi.com/api/users?first=worst&second=best')
+      })
+})
 })
 
 describe('Authentication', () => {

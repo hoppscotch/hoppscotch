@@ -15,7 +15,8 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "dev:e2e": "start-server-and-test dev http://localhost:3000 e2e:open",
-        "test": "start-server-and-test dev http://localhost:3000 e2e"
+        "test": "start-server-and-test dev http://localhost:3000 e2e",
+        "lint": "semistandard"
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.6.0",
@@ -26,6 +27,7 @@
         "@nuxtjs/toast": "^3.2.1",
         "highlight.js": "^9.15.10",
         "nuxt": "^2.10.1",
+        "semistandard": "^14.2.0",
         "vue-virtual-scroll-list": "^1.4.2",
         "vuejs-auto-complete": "^0.9.0",
         "vuex-persist": "^2.1.0",

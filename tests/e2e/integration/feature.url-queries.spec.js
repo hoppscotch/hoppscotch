@@ -18,6 +18,18 @@ describe('Url and path', () => {
   })
 })
 
+describe('Query Parameters', () => {
+  it('should add a new query parameter with blank entries for the parameter and value', () => {
+      cy
+        .get('label').contains('Parameters').click()
+        .get('#newRequestParam').click()
+        .then(() => {
+          cy.get('input[name="param0"]').should('have.value', '')
+          cy.get('input[name="value0"]').should('have.value', '')
+        })
+  })
+})
+
 describe('Authentication', () => {
   it(`Change default auth 'None' to 'Basic' and set httpUser and httpPassword with url query`, () => {
     cy.visit(`?&auth=Basic&httpUser=foo&httpPassword=bar`, { retryOnStatusCodeFailure: true })

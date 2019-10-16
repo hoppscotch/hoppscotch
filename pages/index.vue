@@ -328,7 +328,7 @@
           </ul>
           <ul>
             <li>
-              <button class="icon" @click="addRequestParam">
+              <button id="newRequestParam" class="icon" @click="addRequestParam()">
                 <i class="material-icons">add</i>
                 <span>Add New</span>
               </button>

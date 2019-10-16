@@ -417,7 +417,10 @@
   import modal from "../components/modal";
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
+  import { Liquid } from 'liquidjs';
   import 'highlight.js/styles/dracula.css';
+
+  const engine = new Liquid();
 
   const statusCategories = [{
       name: 'informational',
@@ -888,6 +891,9 @@
             icon: 'error'
           });
         }
+      },
+      async parseTemplate(template, environment = this.environment) {
+        return await engine.parseAndRender(template, environment);
       },
       getQueryStringFromPath() {
         let queryString,

@@ -37,6 +37,7 @@
                     <request 
                         :request="request"
                         :collection-index="collectionIndex"
+                        :folder-index="-1"
                         :request-index="index"
                     ></request>
                 </li>

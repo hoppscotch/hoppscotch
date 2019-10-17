@@ -1,6 +1,7 @@
 <template>
     <div @click='selectRequest()'>
         {{request.name}}
+        <button class="add-button" @click="editRequest">e</button>
         <button class="add-button" @click="removeRequest">x</button>
     </div>
 </template>
@@ -26,6 +27,10 @@ export default {
     methods: {
         selectRequest() {
             this.$store.commit('postwoman/selectRequest', { request: this.request });
+        },
+        editRequest() {
+            this.request.requestIndex = this.requestIndex;
+            this.$store.commit('postwoman/editRequest', { request: this.request });
         },
         removeRequest() {
             if (!confirm("Are you sure you want to remove this request?")) return;

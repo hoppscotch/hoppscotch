@@ -8,9 +8,9 @@
                             <h3 class="title" v-if='!request.hasOwnProperty("requestIndex")'>Add New Request</h3>
                             <h3 class="title" v-if='request.hasOwnProperty("requestIndex")'>Edit Request</h3>
                             <div>
-                            <button class="icon" @click="hideModel">
-                                <i class="material-icons">close</i>
-                            </button>
+                                <button class="icon" @click="hideModel">
+                                    <i class="material-icons">close</i>
+                                </button>
                             </div>
                         </div>
                     </li>
@@ -63,7 +63,7 @@ export default {
             request: {
                 name: '',
                 collection: '',
-                folder: '',
+                folder: -1,
             },
         }
     },
@@ -110,7 +110,7 @@ export default {
             const savedRequest = Object.assign({}, this.request);
 
             this.$store.commit('postwoman/saveRequest', {
-                savedRequest,
+                request: savedRequest,
             });
 
             this.request = {

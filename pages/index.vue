@@ -3,7 +3,7 @@
     <save-request
       v-bind:show="showRequestModal"
       v-on:hide-model='hideRequestModal'
-      v-bind:editing-request='request'
+      v-bind:editing-request='editRequest'
     ></save-request>
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
@@ -490,7 +490,7 @@
           'text/plain'
         ],
         showRequestModal: false,
-        request: {},
+        editRequest: {},
       }
     },
     watch: {
@@ -547,27 +547,35 @@
         deep: true
       },
       selectedRequest (newValue, oldValue) {
+        // @TODO: Convert all variables to single request variable
         if (!newValue) return;
         this.url = newValue.url;
-        this.path = '/api/users';
+        this.path = newValue.path;
         this.method = newValue.method;
-        this.auth = 'None';
-        this.httpUser = '';
-        this.httpPassword = '';
-        // passwordFieldType: 'password',
-        // bearerToken: '',
-        // headers: [],
-        // params: [],
-        // bodyParams: [],
-        // rawParams: '',
-        // rawInput: false,
-        // contentType: 'application/json',
-        // requestType: 'JavaScript XHR',
+        this.auth = newValue.auth;
+        this.httpUser = newValue.httpUser;
+        this.httpPassword = newValue.httpPassword;
+        this.passwordFieldType = newValue.passwordFieldType;
+        this.bearerToken = newValue.bearerToken;
+        this.headers = newValue.headers;
+        this.params = newValue.params;
+        this.bodyParams = newValue.bodyParams;
+        this.rawParams = newValue.rawParams;
+        this.rawInput = newValue.rawInput;
+        this.contentType = newValue.contentType;
+        this.requestType = newValue.requestType;
       },
+      editingRequest (newValue) {
+        this.editRequest = newValue;
+        this.showRequestModal = true;
+      }
     },
     computed: {
       selectedRequest() {
         return this.$store.state.postwoman.selectedRequest;
+      },
+      editingRequest() {
+        return this.$store.state.postwoman.editingRequest;
       },
       requestName() {
         return this.label
@@ -1123,7 +1131,7 @@
         });
       },
       saveRequest() {
-        this.request = {
+        this.editRequest = {
           url: this.url,
           path: this.path,
           method: this.method,
@@ -1139,11 +1147,13 @@
           rawInput: this.rawInput,
           contentType: this.contentType,
           requestType: this.requestType,
-        }
+        };
+        console.log(this.editRequest);
         this.showRequestModal = true;
       },
       hideRequestModal() {
         this.showRequestModal = false;
+        this.editRequest = {};
       },
     },
     mounted() {

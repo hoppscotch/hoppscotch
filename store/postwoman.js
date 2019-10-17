@@ -49,6 +49,7 @@ export const state = () => ({
         requests: [],
     }],
     selectedRequest: {},
+    editingRequest: {},
 });
 
 export const mutations = {
@@ -100,7 +101,7 @@ export const mutations = {
         const { request } = payload;
         
         // Request that is directly attached to collection
-        if (!request.folder) {
+        if (request.folder === -1) {
             state.collections[request.collection].requests.push(request);
             return
         }
@@ -112,7 +113,7 @@ export const mutations = {
         const { request } = payload;
         
         // Request that is directly attached to collection
-        if (!request.folder) {
+        if (request.folder === -1) {
             state.collections[request.collection].requests[request.requestIndex] = request;
             return
         }
@@ -124,7 +125,7 @@ export const mutations = {
         const { collectionIndex, folderIndex, requestIndex } = payload;
 
         // Request that is directly attached to collection
-        if (!folderIndex) {
+        if (folderIndex === -1) {
             state.collections[collectionIndex].requests.splice(requestIndex, 1)
             return
         }
@@ -134,6 +135,10 @@ export const mutations = {
 
     selectRequest (state, payload) {
         state.selectedRequest = Object.assign({}, payload.request);
-    }
+    },
+
+    editRequest (state, payload) {
+        state.editingRequest = Object.assign({}, payload.request);
+    },
 
 };

@@ -83,11 +83,9 @@ export default {
                 });
         },
         folders() {
-            console.log(this.request)
             if (this.request.collection === '') return []
             return this.$store.state.postwoman.collections[this.request.collection].folders
                 .map((folder, index) => {
-                    console.log(folder)
                     return {
                         name: folder.name,
                         folderIndex: index,

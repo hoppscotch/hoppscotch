@@ -33,8 +33,12 @@
             </ul>
 
             <ul>
-                <li v-for="request in collection.requests" :key="request.name">
-                    <request :request="request"></request>
+                <li v-for="(request, index) in collection.requests" :key="index">
+                    <request 
+                        :request="request"
+                        :collection-index="collectionIndex"
+                        :request-index="index"
+                    ></request>
                 </li>
             </ul>
         </div>

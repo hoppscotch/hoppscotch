@@ -10,8 +10,13 @@
 
         <div v-show="showChildren">
             <ul>
-                <li v-for="request in folder.requests" :key="request.name">
-                    <request :request="request"></request>
+                <li v-for="(request, index) in folder.requests" :key="index">
+                    <request 
+                        :request="request"
+                        :collection-index="collectionIndex"
+                        :folder-index="folderIndex"
+                        :request-index="index"
+                    ></request>
                 </li>
             </ul>
         </div>

@@ -45,17 +45,8 @@ export const state = () => ({
     settings: {},
     collections: [{
         name: 'My First Collection',
-        folders: [{
-            name: 'Folder 1',
-            requests: [{
-                name: "Example request",
-                url: 'http://test.com',
-            }],
-        }],
-        requests: [{
-            name: "Example request",
-            url: 'http://test.com',
-        }],
+        folders: [],
+        requests: [],
     }],
     selectedRequest: {},
 });
@@ -107,17 +98,38 @@ export const mutations = {
 
     addRequest (state, payload) {
         const { request } = payload;
+        
+        // Request that is directly attached to collection
+        if (!request.folder) {
+            state.collections[request.collection].requests.push(request);
+            return
+        }
+
         state.collections[request.collection].folders[request.folder].requests.push(request);
     },
 
-    saveRequeest (state, payload) {
+    saveRequest (state, payload) {
         const { request } = payload;
+        
+        // Request that is directly attached to collection
+        if (!request.folder) {
+            state.collections[request.collection].requests[request.requestIndex] = request;
+            return
+        }
+
         state.collections[request.collection].folders[request.folder].requests[request.requestIndex] = request;
     },
 
-    removeFolder (state, payload) {
-        const { request } = payload;
-        state.collections[collectionIndex].folders[request.folder].requests.splice(request.requestIndex, 1)
+    removeRequest (state, payload) {
+        const { collectionIndex, folderIndex, requestIndex } = payload;
+
+        // Request that is directly attached to collection
+        if (!folderIndex) {
+            state.collections[collectionIndex].requests.splice(requestIndex, 1)
+            return
+        }
+
+        state.collections[collectionIndex].folders[folderIndex].requests.splice(requestIndex, 1)
     },
 
     selectRequest (state, payload) {

@@ -209,6 +209,9 @@ export default {
   plugins: [
     {
       src: '~/plugins/vuex-persist'
+    },
+    {
+      src: '~/plugins/v-tooltip'
     }
   ],
   /*

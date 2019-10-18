@@ -500,7 +500,7 @@
         bodyParams: [],
         rawParams: '',
         rawInput: false,
-        environment: [],
+        environment: [{ key: 'token', value: 'test' }],
         environmentLabel: '',
         environmentRawInput: false,
         contentType: 'application/json',
@@ -647,16 +647,24 @@
           }) => `${key}: ${value}`).join(',\n')
         return result === '' ? '' : `${result}`
       },
-      queryString() {
-        const result = this.params
-          .filter(({
-            key
-          }) => !!key)
-          .map(({
-            key,
-            value
-          }) => `${key}=${encodeURIComponent(value)}`).join('&')
-        return result === '' ? '' : `?${result}`
+      async queryString() {
+        let result = '';
+
+        const obj = this.paramsToObject;
+        result = await this.parseObject(obj)
+          .then(result => {
+            result = result.map(({ key, value }) => `${key}=${encodeURIComponent(value)}`).join('&');
+            return result === '' ? '' : `?${result}`
+          });
+
+          return result;
+      },
+      paramsToObject() {
+        let obj = {};
+        this.params.forEach((curr) => {
+          obj[curr.key] = curr.value;
+        });
+        return obj;
       },
       responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
@@ -892,8 +900,29 @@
           });
         }
       },
-      async parseTemplate(template, environment = this.environment) {
-        return await engine.parseAndRender(template, environment);
+      async parseObject(object) {
+        return await Promise.all(Object.keys(object).map(async key => { 
+          return {
+            key,
+            value: await this.parseTemplate(object[key])
+          };
+      }));
+      },
+      async parseTemplate(template, environment) {
+        if (!environment) {
+          if (this.environmentRawInput) {
+            environment = this.rawEnvironment;
+          } else {
+            environment = this.environment
+              .filter(({ key, value }) => !!key)
+              .reduce((acc, curr) => {
+                acc[curr.key] = curr.value;
+                return acc;
+              }, {})
+          }
+        }
+
+        return await engine.parseAndRender(template, environment)
       },
       getQueryStringFromPath() {
         let queryString,

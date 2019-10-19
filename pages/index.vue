@@ -700,6 +700,28 @@
           behavior: 'smooth'
         });
       },
+      async makeRequest(auth, headers, requestBody) {
+        const config = this.$store.state.postwoman.settings.PROXY_ENABLED ? {
+            method: 'POST',
+            url: '/proxy',
+            data: {
+              method: this.method,
+              url: this.url + this.pathName + this.queryString,
+              auth,
+              headers,
+              data: requestBody ? requestBody.toString() : null
+            }
+          } : {
+            method: this.method,
+            url: this.url + this.pathName + this.queryString,
+            auth,
+            headers,
+            data: requestBody ? requestBody.toString() : null
+          };
+
+        const response = await this.$axios(config);
+        return this.$store.state.postwoman.settings.PROXY_ENABLED ? response.data : response;
+      },
       async sendRequest() {
         if (!this.isValidURL) {
           this.$toast.error('URL is not formatted properly', {
@@ -768,13 +790,8 @@
 
         try {
           const startTime = Date.now();
-          const payload = await this.$axios({
-            method: this.method,
-            url: this.url + this.pathName + this.queryString,
-            auth,
-            headers,
-            data: requestBody ? requestBody.toString() : null
-          });
+
+          const payload = await this.makeRequest(auth, headers, requestBody);
 
           const duration = Date.now() - startTime;
           this.$toast.info(`Finished in ${duration}ms`, {
@@ -821,13 +838,21 @@
             };
             this.$refs.historyComponent.addEntry(entry);
             return;
+          } else {
+            this.response.status = error.message;
+            this.response.body = "See JavaScript console (F12) for details.";
+            this.$toast.error('Something went wrong!', {
+              icon: 'error'
+            });
+            if(!this.$store.state.postwoman.settings.PROXY_ENABLED) {
+              this.$toast.info('Turn on the proxy', {
+                duration: 4000,
+                action: {
+                  text: 'Click',
+                }
+              });
+            }
           }
-
-          this.response.status = error.message;
-          this.response.body = "See JavaScript console (F12) for details.";
-          this.$toast.error('Something went wrong!', {
-            icon: 'error'
-          });
         }
       },
       getQueryStringFromPath() {

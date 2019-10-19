@@ -846,9 +846,12 @@
             });
             if(!this.$store.state.postwoman.settings.PROXY_ENABLED) {
               this.$toast.info('Turn on the proxy', {
-                duration: 4000,
+                dontClose : true,
                 action: {
-                  text: 'Click',
+                  text: 'Go to settings',
+                  onClick : (e, toastObject) => {
+                    this.$router.push({ path: '/settings' });
+                  }
                 }
               });
             }

@@ -15,30 +15,39 @@ language: node_js
 node_js:
  - "12"
 
+addons:
+ apt:
+  packages:
+   - libgconf-2-4 # cypress binary dependency
+
 env:
- - DEPLOY_ENV=GH_PAGES
+ - DEPLOY_ENV=POSTWOMAN_IO
 
 cache:
+ npm: true
  directories:
   - "node_modules"
+  - ~/.cache
 
 branches:
  only:
   - "master"
 
 install:
+ - "npm install firebase-tools"
  - "npm install"
+
+before_script:
+ - "npm run test"
+
+script:
+ - "cd functions"
+ - "npm install"
+ - "cd .."
  - "npm run generate"
 
 notifications:
   webhooks: https://www.travisbuddy.com
 
-deploy:
- provider: pages
- skip-cleanup: true
- # Refer to: https://docs.travis-ci.com/user/deployment/pages/#Setting-the-GitHub-token
- github-token: $GITHUB_ACCESS_TOKEN
- target-branch: gh-pages
- local-dir: dist
- on:
-  branch: master
+after_success:
+  - firebase deploy --token $FIREBASE_TOKEN

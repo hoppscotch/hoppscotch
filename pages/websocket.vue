@@ -7,8 +7,14 @@
           <input id="url" type="url" :class="{ error: !urlValid }" v-model="url" @keyup.enter="urlValid ? toggleConnection() : null">
         </li>
         <li>
-          <label for="action" class="hide-on-small-screen">&nbsp;</label>
-          <button :disabled="!urlValid" name="action" @click="toggleConnection">{{ toggleConnectionVerb }}</button>
+          <label for="connect" class="hide-on-small-screen">&nbsp;</label>
+          <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
+            {{ toggleConnectionVerb }}
+            <span>
+              <i class="material-icons" v-if="!connectionState">sync</i>
+              <i class="material-icons" v-if="connectionState">sync_disabled</i>
+            </span>
+          </button>
         </li>
       </ul>
     </pw-section>
@@ -18,20 +24,25 @@
           <label for="log">Log</label>
           <div id="log" name="log" class="log">
             <span v-if="communication.log">
-              <span v-for="logEntry in communication.log" :style="{ color: logEntry.color }">@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+              <span v-for="(logEntry, index) in communication.log" :style="{ color: logEntry.color }" :key="index">@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
             </span>
-            <span v-else>(Waiting for connection...)</span>
+            <span v-else>(waiting for connection)</span>
           </div>
         </li>
       </ul>
       <ul>
         <li>
           <label for="message">Message</label>
-          <input id="message" name="message" type="text" v-model="communication.input" :disabled="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
+          <input id="message" name="message" type="text" v-model="communication.input" :readonly="!connectionState" @keyup.enter="connectionState ? sendMessage() : null">
         </li>
         <li>
           <label for="send" class="hide-on-small-screen">&nbsp;</label>
-          <button name="send" :disabled="!connectionState" @click="sendMessage">Send</button>
+          <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+            Send
+            <span>
+              <i class="material-icons">send</i>
+            </span>
+          </button>
         </li>
       </ul>
     </pw-section>
@@ -42,7 +53,7 @@
     margin: 4px;
     padding: 8px 16px;
     width: calc(100% - 8px);
-    border-radius: 4px;
+    border-radius: 8px;
     background-color: var(--bg-dark-color);
     color: var(--fg-color);
     height: 256px;
@@ -50,9 +61,8 @@
 
     &,
     span {
-      font-weight: 700;
       font-size: 18px;
-      font-family: monospace;
+      font-family: 'Roboto Mono', monospace;
     }
 
     span {
@@ -104,7 +114,7 @@
         this.communication.log = [{
           payload: `Connecting to ${this.url}...`,
           source: 'info',
-          color: 'lime'
+          color: 'var(--ac-color)'
         }];
         try {
           this.socket = new WebSocket(this.url);
@@ -113,9 +123,12 @@
             this.communication.log = [{
               payload: `Connected to ${this.url}.`,
               source: 'info',
-              color: 'lime',
+              color: 'var(--ac-color)',
               ts: (new Date()).toLocaleTimeString()
             }];
+            this.$toast.success('Connected', {
+              icon: 'sync'
+            });
           };
           this.socket.onerror = (event) => {
             this.handleError();
@@ -125,8 +138,11 @@
             this.communication.log.push({
               payload: `Disconnected from ${this.url}.`,
               source: 'info',
-              color: 'red',
+              color: '#ff5555',
               ts: (new Date()).toLocaleTimeString()
+            });
+            this.$toast.error('Disconnected', {
+              icon: 'sync_disabled'
             });
           };
           this.socket.onmessage = (event) => {
@@ -138,6 +154,9 @@
           }
         } catch (ex) {
           this.handleError(ex);
+          this.$toast.error('Something went wrong!', {
+            icon: 'error'
+          });
         }
       },
       disconnect() {
@@ -149,13 +168,13 @@
         this.communication.log.push({
           payload: `An error has occurred.`,
           source: 'info',
-          color: 'red',
+          color: '#ff5555',
           ts: (new Date()).toLocaleTimeString()
         });
         if (error != null) this.communication.log.push({
           payload: error,
           source: 'info',
-          color: 'red',
+          color: '#ff5555',
           ts: (new Date()).toLocaleTimeString()
         });
       },

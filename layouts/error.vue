@@ -1,8 +1,8 @@
 <template>
   <div class="page page-error">
-    <h1>{{ error.statusCode }}</h1>
-    <h2>{{ error.message }}</h2>
-    <br>
+    <img src="~static/icons/error.svg" alt="Error" class="error_banner">
+    <h2>{{ error.statusCode }}</h2>
+    <h3>{{ error.message }}</h3>
     <p><nuxt-link to="/"><button>Go Home</button></nuxt-link></p>
     <p><a href="" @click.prevent="reloadApplication">Reload</a></p>
   </div>
@@ -11,13 +11,15 @@
 <style lang="scss">
   // Center the error page in the viewport.
   .page-error {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
     text-align: center;
+  }
+
+  .error_banner {
+    width: 256px;
   }
 </style>
 

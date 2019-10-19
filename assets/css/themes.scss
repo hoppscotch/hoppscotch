@@ -3,41 +3,116 @@
 
   - dark (default)
   - light
+  - black
+  - auto
  */
 
 // Dark is the default theme variant.
 :root {
-  --bg-dark-color: #000000;
+  // Dark Background color
+  --bg-dark-color: rgb(41, 42, 45);
   // Background color
-  --bg-color: #121212;
-	// Auto-complete color
-	--atc-color: #212121;
+  --bg-color: rgb(37, 38, 40);
+  // Auto-complete color
+  --atc-color: rgb(49, 49, 55);
   // Text color
-  --fg-color: #FFF;
-
+  --fg-color: rgb(247, 248, 248);
+  // Light Text color
+  --fg-light-color: rgb(150, 155, 160);
+  // Border color
+  --brd-color: rgb(48, 47, 55);
   // Error color
-  --err-color: #393939;
-
-  // Active color
-  --ac-color: #51FF0D;
+  --err-color: rgb(41, 42, 45);
+  // Acent color
+  --ac-color: #50fa7b;
   // Active text color
-  --act-color: #121212;
+  --act-color: rgb(37, 38, 40);
 }
 
 :root.light {
-  --bg-dark-color: #ffffff;
+  // Dark Background color
+  --bg-dark-color: #f6f6f6;
   // Background color
-  --bg-color: #F6F8FA;
-	// Auto-complete color
-	--atc-color: #F1F1F1;
+  --bg-color: #ffffff;
+  // Auto-complete color
+  --atc-color: #ebebeb;
   // Text color
-  --fg-color: #121212;
-
+  --fg-color: #525252;
+  // Light Text color
+  --fg-light-color: rgb(150, 155, 160);
+  // Border color
+  --brd-color: #eeeeed;
   // Error color
-  --err-color: invert(#393939, 1);
-
-  // Active color
-  --ac-color: #51FF0D;
+  --err-color: #f6f6f6;
+  // Acent color
+  --ac-color: #57b5f9;
   // Active text color
-  --act-color: #121212;
+  --act-color: #ffffff;
+}
+
+:root.black {
+  // Dark Background color
+  --bg-dark-color: rgb(8, 8, 8);
+  // Background color
+  --bg-color: #000000;
+  // Auto-complete color
+  --atc-color: rgb(18, 18, 18);
+  // Text color
+  --fg-color: rgb(250, 250, 250);
+  // Light Text color
+  --fg-light-color: rgb(100, 100, 100);
+  // Border color
+  --brd-color: rgb(16, 16, 16);
+  // Error color
+  --err-color: rgb(8, 8, 8);
+  // Acent color
+  --ac-color: #50fa7b;
+  // Active text color
+  --act-color: #000000;
+}
+
+@media(prefers-color-scheme: light) {
+  :root.auto {
+    // Dark Background color
+    --bg-dark-color: #f6f6f6;
+    // Background color
+    --bg-color: #ffffff;
+    // Auto-complete color
+    --atc-color: #ebebeb;
+    // Text color
+    --fg-color: #525252;
+    // Light Text color
+    --fg-light-color: rgb(150, 155, 160);
+    // Border color
+    --brd-color: #eeeeed;
+    // Error color
+    --err-color: #f6f6f6;
+    // Acent color
+    --ac-color: #57b5f9;
+    // Active text color
+    --act-color: #ffffff;
+  }
+}
+
+@media(prefers-color-scheme: dark) {
+  :root.auto {
+    // Dark Background color
+    --bg-dark-color: rgb(41, 42, 45);
+    // Background color
+    --bg-color: rgb(37, 38, 40);
+    // Auto-complete color
+    --atc-color: rgb(49, 49, 55);
+    // Text color
+    --fg-color: rgb(247, 248, 248);
+    // Light Text color
+    --fg-light-color: rgb(150, 155, 160);
+    // Border color
+    --brd-color: rgb(48, 47, 55);
+    // Error color
+    --err-color: rgb(41, 42, 45);
+    // Acent color
+    --ac-color: #50fa7b;
+    // Active text color
+    --act-color: rgb(37, 38, 40);
+  }
 }

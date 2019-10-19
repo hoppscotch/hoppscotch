@@ -48,16 +48,15 @@ export const state = () => ({
 export const mutations = {
 
     applySetting (state, setting) {
-        if(setting == null || !(setting instanceof Array) || setting.length !== 2)
+        if (setting == null || !(setting instanceof Array) || setting.length !== 2)
             throw new Error("You must provide a setting (array in the form [key, value])");
 
-        let key = setting[0];
-        let value = setting[1];
+        const [key, value] = setting;
         // Do not just remove this check.
         // Add your settings key to the SETTINGS_KEYS array at the
         // top of the file.
         // This is to ensure that application settings remain documented.
-        if(!SETTINGS_KEYS.includes(key)) throw new Error("The settings structure does not include the key " + key);
+        if (!SETTINGS_KEYS.includes(key)) throw new Error("The settings structure does not include the key " + key);
 
         state.settings[key] = value;
     }

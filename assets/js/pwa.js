@@ -23,7 +23,7 @@ export default () => {
 
     // Show the install button if the prompt appeared.
     if (!pwaInstalled) {
-      document.querySelector('#installPWA').style.display = 'block';
+      document.querySelector('#installPWA').style.display = 'inline-flex';
     }
   });
 

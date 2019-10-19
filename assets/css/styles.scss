@@ -7,17 +7,27 @@ $responsiveWidth: 720px;
 
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #4a4a4a;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+::placeholder {
+  color: var(--fg-light-color);
+  opacity: 0.3;
 }
 
 * {
   box-sizing: border-box;
   outline: 0;
   border: 0;
-  font-family: "Poppins", "Roboto", "Noto", sans-serif;
 }
 
 a {
@@ -31,10 +41,11 @@ body {
   background-color: var(--bg-color);
   color: var(--fg-color);
   font-weight: 500;
+  font-size: 16px;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -43,6 +54,116 @@ h2,
 h3 {
   margin: 0;
   font-weight: 700;
+}
+
+.tooltip {
+  display: block !important;
+  z-index: 10000;
+
+  .tooltip-inner {
+    background: black;
+    color: white;
+    border-radius: 16px;
+    padding: 5px 10px 4px;
+  }
+
+  .tooltip-arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    position: absolute;
+    margin: 5px;
+    border-color: black;
+    z-index: 1;
+  }
+
+  &[x-placement^="top"] {
+    margin-bottom: 5px;
+
+    .tooltip-arrow {
+      border-width: 5px 5px 0 5px;
+      border-left-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      bottom: -5px;
+      left: calc(50% - 5px);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  &[x-placement^="bottom"] {
+    margin-top: 5px;
+
+    .tooltip-arrow {
+      border-width: 0 5px 5px 5px;
+      border-left-color: transparent !important;
+      border-right-color: transparent !important;
+      border-top-color: transparent !important;
+      top: -5px;
+      left: calc(50% - 5px);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  &[x-placement^="right"] {
+    margin-left: 5px;
+
+    .tooltip-arrow {
+      border-width: 5px 5px 5px 0;
+      border-left-color: transparent !important;
+      border-top-color: transparent !important;
+      border-bottom-color: transparent !important;
+      left: -5px;
+      top: calc(50% - 5px);
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &[x-placement^="left"] {
+    margin-right: 5px;
+
+    .tooltip-arrow {
+      border-width: 5px 0 5px 5px;
+      border-top-color: transparent !important;
+      border-right-color: transparent !important;
+      border-bottom-color: transparent !important;
+      right: -5px;
+      top: calc(50% - 5px);
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &.popover {
+    $color: #f9f9f9;
+
+    .popover-inner {
+      background: $color;
+      color: black;
+      padding: 24px;
+      border-radius: 5px;
+      box-shadow: 0 5px 30px rgba(black, .1);
+    }
+
+    .popover-arrow {
+      border-color: $color;
+    }
+  }
+
+  &[aria-hidden='true'] {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .15s, visibility .15s;
+  }
+
+  &[aria-hidden='false'] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity .15s;
+  }
 }
 
 h3.title {
@@ -67,10 +188,7 @@ nav {
 }
 
 body.sticky-footer footer {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  opacity: .25;
 }
 
 .logo {
@@ -78,101 +196,99 @@ body.sticky-footer footer {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 4px;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 0 16px;
+  border-radius: 20px;
   background-color: var(--ac-color);
   color: var(--act-color);
   font-weight: 700;
   font-size: 16px;
-  cursor: pointer;
+  font-family: "Poppins", "Roboto", "Noto", sans-serif;
   transition: all 0.2s ease-in-out;
+  fill: var(--act-color);
+  height: 40px;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
 
-  &[disabled], &.disabled {
-    opacity: 0.7;
-    cursor: default;
+  span {
+    display: inline-flex;
+    margin-left: 8px;
   }
 
-	// Only show hover and focus if the button is *not*
-	// disabled.
-	&:not([disabled]):hover, &:not(.disabled):focus {
-		background-color: transparent;
-		box-shadow: inset 0 0 0 2px var(--ac-color);
-		color: var(--ac-color);
-	}
+  &.icon {
+    background-color: var(--bg-color);
+    color: var(--fg-light-color);
+    fill: var(--fg-light-color);
+
+    &:not([disabled]):hover {
+      color: var(--fg-color);
+      fill: var(--fg-color);
+    }
+  }
+
+  &:not([disabled]):hover {
+    color: var(--act-color);
+    fill: var(--act-color);
+  }
 }
 
 fieldset {
   margin: 16px 0;
-  border: 2px solid var(--fg-color);
-  border-radius: 4px;
+  border: 1px solid var(--brd-color);
+  border-radius: 8px;
+  background-color: var(--bg-color);
 }
 
 legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--fg-color);
   font-weight: 700;
   cursor: pointer;
-}
 
-fieldset textarea,
-fieldset pre {
-  resize: vertical;
-}
-
-fieldset.blue {
-  border-color: #57b5f9;
+  i {
+    margin-left: 8px;
+  }
 }
 
 fieldset.blue legend {
   color: #57b5f9;
 }
 
-fieldset.gray {
-  border-color: #9B9B9B;
-}
-
 fieldset.gray legend {
-  color: #9B9B9B;
-}
-
-fieldset.green {
-  border-color: #B8E986;
+  color: #bcc2cd;
 }
 
 fieldset.green legend {
-  color: #B8E986;
-}
-
-fieldset.cyan {
-  border-color: #50E3C2;
+  color: #50fa7b;
 }
 
 fieldset.cyan legend {
-  color: #50E3C2;
-}
-
-fieldset.blue-dark {
-  border-color: #4A90E2;
-}
-
-fieldset.blue-dark legend {
-  color: #4A90E2;
-}
-
-fieldset.purple {
-  border-color: #C198FB;
+  color: #8be9fd;
 }
 
 fieldset.purple legend {
-  color: #C198FB;
-}
-
-fieldset.orange {
-  border-color: #F5A623;
+  color: #bd93f9;
 }
 
 fieldset.orange legend {
-  color: #F5A623;
+  color: #ffb86c;
+}
+
+fieldset.pink legend {
+  color: #ff79c6;
+}
+
+fieldset.red legend {
+  color: #ff5555;
+}
+
+fieldset.yellow legend {
+  color: #f1fa8c;
 }
 
 .hidden {
@@ -185,21 +301,44 @@ option,
 textarea,
 pre {
   margin: 4px;
-  padding: 8px 16px;
-  border-radius: 4px;
-  width: calc(100% - 8px);
+  padding: 8px;
+  border-radius: 8px;
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
-  font-weight: 700;
-  font-size: 18px;
-  font-family: monospace;
+  font-size: 16px;
+  font-family: 'Roboto Mono', monospace;
+  transition: all 0.2s ease-in-out;
+  user-select: text;
+  width: calc(100% - 8px);
+  min-height: 40px;
+  resize: vertical;
+  text-overflow: ellipsis;
+
+  &:not([readonly]):hover {
+    background-color: var(--bg-dark-color);
+  }
 }
 
-// Force the same height, for dropdowns and regular input boxes.
+pre {
+  display: grid;
+}
+
+code {
+  height: 336px;
+  border-radius: 8px;
+}
+
+.hljs,
+.hljs-subst {
+  background-color: var(--bg-dark-color) !important;
+  color: var(--fg-color) !important;
+  font-family: 'Roboto Mono', monospace;
+}
+
 select,
 input,
 option {
-  height: 41px;
+  height: 40px;
 }
 
 input[type="checkbox"] {
@@ -212,8 +351,8 @@ input[type="checkbox"] {
 
     &:before {
       content: "\2714";
-      border: 2px solid var(--fg-color);
-      border-radius: 4px;
+      border: 1px solid var(--fg-color);
+      border-radius: 8px;
       display: inline-flex;
       height: 16px;
       width: 16px;
@@ -221,7 +360,7 @@ input[type="checkbox"] {
       justify-content: center;
       margin: 8px 8px 8px 0;
       color: transparent;
-      transition: .2s;
+      transition: all 0.2s ease-in-out;
     }
   }
 
@@ -232,25 +371,29 @@ input[type="checkbox"] {
   }
 }
 
-.error {
-  background-color: var(--err-color);
-}
-
+.error,
 .disabled,
-input[disabled],
-button[disabled] {
+[disabled] {
   background-color: var(--err-color);
-  color: #b2b2b2;
+  color: var(--fg-light-color);
+  fill: var(--fg-light-color);
+  cursor: default;
+
+  &.icon {
+    color: var(--bg-color);
+    fill: var(--bg-color);
+  }
 }
 
 label {
   padding: 4px;
+  color: var(--fg-light-color);
 }
 
 ul,
 ol {
   display: flex;
-  margin: 8px 0 0;
+  margin: 4px 0 4px;
   padding: 0;
   list-style-type: none;
 }
@@ -264,8 +407,12 @@ ol li {
 
 .flex-wrap {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+}
+
+.show-on-small-screen {
+  display: flex;
 }
 
 @media (max-width: $responsiveWidth) {
@@ -293,6 +440,10 @@ ol li {
   .hide-on-small-screen {
     display: none;
   }
+
+  .show-on-small-screen {
+    display: inline-flex;
+  }
 }
 
 #installPWA {
@@ -300,27 +451,27 @@ ol li {
 }
 
 .info-response {
-  background-color: #FFEB3B;
+  color: #ffeb3b;
 }
 
 .success-response {
-  background-color: #4BB543;
+  color: #4bb543;
 }
 
 .redir-response {
-  background-color: #FF5722;
+  color: #ff5722;
 }
 
 .cl-error-response {
-  background-color: #A63232;
+  color: #a63232;
 }
 
 .sv-error-response {
-  background-color: #B71C1C;
+  color: #b71c1c;
 }
 
 .missing-data-response {
-  background-color: #676767;
+  background-color: var(--err-color);
 }
 
 .virtual-list::-webkit-scrollbar {
@@ -333,9 +484,9 @@ fieldset#history {
 
     span {
       position: absolute;
-      top: 44px;
-      right: 20px;
-      font-family: monospace, monospace;
+      top: 12px;
+      right: 12px;
+      font-family: 'Roboto Mono', monospace;
     }
   }
 }
@@ -355,15 +506,11 @@ fieldset#history {
 #response-details-wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
-  margin: 4px;
+  border-radius: 8px;
 
   textarea {
-    width: 100%;
-  }
-
-  #response-details {
     margin: 0;
+    width: 100%;
   }
 
   .covers-response {
@@ -378,7 +525,7 @@ fieldset#history {
   }
 }
 
-#action {
+#send {
   #hidden-message {
     display: none;
   }
@@ -395,4 +542,38 @@ fieldset#history {
       margin-left: 4px;
     }
   }
+}
+
+section {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+div.tab {
+  width: 100%;
+  order: 1;
+}
+
+input[type="radio"],
+div.tab {
+  display: none;
+}
+
+input[type="radio"] + label {
+  padding: 8px 16px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    border-color: var(--brd-color);
+  }
+}
+
+input[type="radio"]:checked + label {
+  border-color: var(--fg-color);
+}
+
+input[type="radio"]:checked + label + div.tab {
+  display: block;
 }

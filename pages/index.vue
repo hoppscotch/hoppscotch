@@ -711,7 +711,7 @@
 
         const config = this.$store.state.postwoman.settings.PROXY_ENABLED ? {
             method: 'POST',
-            url: '/proxy',
+            url: `${window.location.protocol}//${window.location.host}/proxy`,
             data: requestOptions
           } : requestOptions;
 

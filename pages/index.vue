@@ -72,8 +72,8 @@
         </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
-          <button :disabled="!isValidURL" @click="sendRequest" class="show" id="send" ref="sendButton">
-            Send <span id="hidden-message">Again</span>
+          <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
+            Send<span id="hidden-message"> Again</span>
             <span><i class="material-icons">send</i></span>
           </button>
         </li>
@@ -491,9 +491,9 @@
             responseText.removeAttribute("class");
             responseText.innerHTML = null;
             responseText.innerText = this.response.body;
-          } else if (responseText && this.response.body != "(waiting to send request)" && this.response.body !=
-            "Loading..." && this.response.body != "See JavaScript console (F12) for details.") {
-            responseText.innerText = this.responseType == 'application/json' || 'application/hal+json' ? JSON.stringify(this.response.body,
+          } else if (responseText && this.response.body !== "(waiting to send request)" && this.response.body !==
+            "Loading..." && this.response.body !== "See JavaScript console (F12) for details.") {
+            responseText.innerText = this.responseType === 'application/json' || this.responseType === 'application/hal+json' ? JSON.stringify(this.response.body,
               null, 2) : this.response.body;
             hljs.highlightBlock(document.querySelector("div#response-details-wrapper pre code"));
           } else {
@@ -600,7 +600,7 @@
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
       },
       requestCode() {
-        if (this.requestType == 'JavaScript XHR') {
+        if (this.requestType === 'JavaScript XHR') {
           var requestString = []
           requestString.push('const xhr = new XMLHttpRequest()');
           const user = this.auth === 'Basic' ? this.httpUser : null
@@ -659,7 +659,7 @@
           requestString.push('  error.message\n')
           requestString.push(')}')
           return requestString.join('');
-        } else if (this.requestType == 'cURL') {
+        } else if (this.requestType === 'cURL') {
           var requestString = [];
           requestString.push('curl -X ' + this.method + ' \\\n')
           requestString.push("  '" + this.url + this.path + this.queryString + "' \\\n")
@@ -701,28 +701,26 @@
         });
       },
       async makeRequest(auth, headers, requestBody) {
-        const config = this.$store.state.postwoman.settings.PROXY_ENABLED ? {
-            method: 'POST',
-            url: '/proxy',
-            data: {
-              method: this.method,
-              url: this.url + this.pathName + this.queryString,
-              auth,
-              headers,
-              data: requestBody ? requestBody.toString() : null
-            }
-          } : {
+        const requestOptions = {
             method: this.method,
             url: this.url + this.pathName + this.queryString,
             auth,
             headers,
             data: requestBody ? requestBody.toString() : null
-          };
+        };
+
+        const config = this.$store.state.postwoman.settings.PROXY_ENABLED ? {
+            method: 'POST',
+            url: '/proxy',
+            data: requestOptions
+          } : requestOptions;
 
         const response = await this.$axios(config);
         return this.$store.state.postwoman.settings.PROXY_ENABLED ? response.data : response;
       },
       async sendRequest() {
+        this.$toast.clear();
+
         if (!this.isValidURL) {
           this.$toast.error('URL is not formatted properly', {
             icon: 'error'
@@ -845,11 +843,10 @@
               icon: 'error'
             });
             if(!this.$store.state.postwoman.settings.PROXY_ENABLED) {
-              this.$toast.info('Turn on the proxy', {
-                dontClose : true,
+              this.$toast.info('Enable proxy mode?', {
                 action: {
-                  text: 'Go to settings',
-                  onClick : (e, toastObject) => {
+                  text: 'Settings',
+                  onClick: (e, toastObject) => {
                     this.$router.push({ path: '/settings' });
                   }
                 }
@@ -1037,7 +1034,10 @@
         const sendButtonElement = this.$refs.sendButton;
         const observer = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
-            sendButtonElement.classList.toggle('show');
+            if(entry.isIntersecting) sendButtonElement.classList.remove('show');
+            // The button should float when it is no longer visible on screen.
+            // This is done by adding the show class to the button.
+            else sendButtonElement.classList.add('show');
           });
         }, {
           rootMargin: '0px',

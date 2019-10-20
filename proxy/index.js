@@ -8,11 +8,13 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', '*');
   next();
 });
 
-app.post('/', async function(req, res) {
+app.post('/', async (req, res) => {
   const {method, url, auth, headers, data} = req.body;
+
   try {
     const payload = await axios({
       method,
@@ -20,9 +22,9 @@ app.post('/', async function(req, res) {
       auth,
       headers,
       data
-    })
+    });
 
-    return res.json({
+    return await res.json({
         data: payload.data,
         status: payload.status,
         statusText: payload.statusText,
@@ -32,7 +34,7 @@ app.post('/', async function(req, res) {
   } catch(error) {
     if(error.response) {
       const errorResponse = error.response;
-      return res.json({
+      return await res.json({
         data: errorResponse.data,
         status: errorResponse.status,
         statusText: errorResponse.statusText,

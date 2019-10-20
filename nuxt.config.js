@@ -265,8 +265,9 @@ export default {
   },
   toast: {
     position: 'bottom-center',
-    duration: 2000,
-    theme: 'bubble'
+    duration: 3000,
+    theme: 'bubble',
+    keepOnHover: true
   },
   googleAnalytics: {
     id: process.env.GA_ID || 'UA-61422507-2'

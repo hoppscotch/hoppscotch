@@ -144,6 +144,10 @@
           <i class="material-icons">import_export</i>
           <span>Import cURL</span>
         </button>
+        <button class="icon" id="goto-history" @click="gotoHistory()">
+          <i class="material-icons">history</i>
+          <span>History</span>
+        </button>
         <button class="icon" @click="clearContent">
           <i class="material-icons">clear_all</i>
           <span>Clear all</span>
@@ -854,6 +858,11 @@
             }
           }
         }
+      },
+      gotoHistory() {
+        this.$refs.historyComponent.$el.scrollIntoView({
+          behavior: 'smooth'
+        });
       },
       getQueryStringFromPath() {
         let queryString,

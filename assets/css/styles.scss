@@ -1,7 +1,15 @@
 $responsiveWidth: 720px;
 
+// Make theme transition smoother.
+body.afterLoad {
+  &, & * {
+    transition: background-color 0.2s ease-in-out,
+                border 0.2s ease-in-out;
+  }
+}
+
 ::selection {
-  background-color: var(--ac-color);
+  background-color: var(--ac-sel-color);
   color: var(--act-color);
 }
 
@@ -576,4 +584,17 @@ input[type="radio"]:checked + label {
 
 input[type="radio"]:checked + label + div.tab {
   display: block;
+}
+
+.toasted-container .toasted {
+  justify-content: start !important;
+}
+
+.toasted.info {
+  background-color: var(--ac-color) !important;
+  color: var(--act-color) !important;
+}
+
+.toasted.bubble .action {
+  color: inherit !important;
 }

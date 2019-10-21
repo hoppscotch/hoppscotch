@@ -154,7 +154,7 @@
           <ul>
             <li>
               <label for="reqParamList">Parameter List</label>
-              <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" placeholder="(add at least one parameter)" rows="1"></textarea>
+              <textarea id="reqParamList" readonly v-textarea-auto-height="rawRequestBody" v-model="rawRequestBody" ref="reqParamList" placeholder="(add at least one parameter)" rows="1"></textarea>
             </li>
           </ul>
           <ul v-for="(param, index) in bodyParams" :key="index">
@@ -374,10 +374,10 @@
                   </button>
                 </div>
               </div>
-              <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
+              <textarea id="paramList" readonly v-textarea-auto-height="queryString" v-model="queryString" ref="queryString" placeholder="(add at least one parameter)" rows="1"></textarea>
             </li>
           </ul>
-          <ul v-for="(param, index) in params" :key="index">
+          <ul v-for="(param, index) in params" :key="index" @input="paramsToQueryString">
             <li>
               <input :placeholder="'parameter '+(index+1)" :name="'param'+index" v-model="param.key" autofocus>
             </li>
@@ -501,6 +501,7 @@
         rawParams: '',
         rawInput: false,
         environment: [{ key: 'token', value: 'test' }],
+        queryString: '',
         environmentLabel: '',
         environmentRawInput: false,
         contentType: 'application/json',
@@ -585,6 +586,7 @@
             path = path + queryString
           }
 
+          this.paramsToQueryString();
           this.path = path;
         },
         deep: true
@@ -611,6 +613,9 @@
       },
       pathName() {
         return this.path.match(/^([^?]*)\??/)[1]
+      },
+      queryString() {
+        return this.queryString;
       },
       rawRequestBody() {
         const {
@@ -646,18 +651,6 @@
             value
           }) => `${key}: ${value}`).join(',\n')
         return result === '' ? '' : `${result}`
-      },
-      async queryString() {
-        let result = '';
-
-        const obj = this.paramsToObject;
-        result = await this.parseObject(obj)
-          .then(result => {
-            result = result.map(({ key, value }) => `${key}=${encodeURIComponent(value)}`).join('&');
-            return result === '' ? '' : `?${result}`
-          });
-
-          return result;
       },
       paramsToObject() {
         let obj = {};
@@ -924,6 +917,16 @@
 
         return await engine.parseAndRender(template, environment)
       },
+      async paramsToQueryString() {
+        let result = '';
+
+        const obj = this.paramsToObject;
+        this.parseObject(obj)
+          .then(result => {
+            result = result.map(({ key, value }) => `${key}=${encodeURIComponent(value)}`).join('&');
+            this.queryString = result === '' ? '' : `?${result}`;
+          });
+      },
       getQueryStringFromPath() {
         let queryString,
             pathParsed = url.parse(this.path);
@@ -1184,6 +1187,7 @@
             this.params = [];
             this.bodyParams = [];
             this.rawParams = '';
+            this.queryString = '';
         }
         this.$toast.info(`Cleared ${name}`, {
           icon: 'clear_all'
@@ -1208,7 +1212,8 @@
         vm.params,
         vm.bodyParams,
         vm.contentType,
-        vm.rawParams
+        vm.rawParams,
+        vm.queryString
       ], val => {
         this.setRouteQueryState()
       })

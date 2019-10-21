@@ -62,7 +62,7 @@ _History entries are synced with local session storage_
 
 _Customized themes are also synced with local session storage_
 
-🔥 **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device.
+🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
 **Features:**
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
@@ -70,7 +70,7 @@ _Customized themes are also synced with local session storage_
  - Low RAM/memory and CPU usage
  - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
  - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
- - [Full features](https://developers.google.com/web/progressive-web-apps)
+ - ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve data from a URL without having to do a full page refresh.
 
@@ -118,7 +118,7 @@ _HTML responses have "Preview HTML" feature_
 
 ⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
-**Fields**
+**Field:s**
  - Label
  - Timestamp
  - Method

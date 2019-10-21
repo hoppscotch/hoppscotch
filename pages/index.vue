@@ -847,7 +847,9 @@
               icon: 'error'
             });
             if(!this.$store.state.postwoman.settings.PROXY_ENABLED) {
-              this.$toast.info('Enable proxy mode?', {
+              this.$toast.info('Try enabling Proxy', {
+                icon: 'help',
+                duration: 5000,
                 action: {
                   text: 'Settings',
                   onClick: (e, toastObject) => {

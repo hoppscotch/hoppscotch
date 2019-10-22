@@ -1,5 +1,10 @@
 <template>
   <div class="page">
+    <save-request
+      v-bind:show="showRequestModal"
+      v-on:hide-model='hideRequestModal'
+      v-bind:editing-request='editRequest'
+    ></save-request>
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -68,6 +73,13 @@
             <i class="material-icons" v-if="isHidden">visibility</i>
             <i class="material-icons" v-if="!isHidden">visibility_off</i>
             <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
+          </button>
+        </li>
+        <li>
+          <label class="hide-on-small-screen" for="saveRequest">&nbsp;</label>
+          <button class="icon" @click="saveRequest" id="saveRequest" ref="saveRequest" :disabled="!isValidURL">
+            <i class="material-icons">save</i>
+            <span>Save</span>
           </button>
         </li>
         <li>
@@ -352,6 +364,7 @@
       </div>
     </section>
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
+    <collections></collections>
   </div>
 </template>
 <script>
@@ -363,6 +376,8 @@
   import textareaAutoHeight from "../directives/textareaAutoHeight";
   import toggle from "../components/toggle";
   import modal from "../components/modal";
+  import collections from '../components/collections';
+  import saveRequest from '../components/collections/saveRequest';
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
   import 'highlight.js/styles/dracula.css';
@@ -425,6 +440,8 @@
       'pw-modal': modal,
       history,
       autocomplete,
+      collections,
+      saveRequest,
     },
     data() {
       return {
@@ -475,7 +492,9 @@
           'application/x-www-form-urlencoded',
           'text/html',
           'text/plain'
-        ]
+        ],
+        showRequestModal: false,
+        editRequest: {},
       }
     },
     watch: {
@@ -530,9 +549,38 @@
           this.path = path;
         },
         deep: true
+      },
+      selectedRequest (newValue, oldValue) {
+        // @TODO: Convert all variables to single request variable
+        if (!newValue) return;
+        this.url = newValue.url;
+        this.path = newValue.path;
+        this.method = newValue.method;
+        this.auth = newValue.auth;
+        this.httpUser = newValue.httpUser;
+        this.httpPassword = newValue.httpPassword;
+        this.passwordFieldType = newValue.passwordFieldType;
+        this.bearerToken = newValue.bearerToken;
+        this.headers = newValue.headers;
+        this.params = newValue.params;
+        this.bodyParams = newValue.bodyParams;
+        this.rawParams = newValue.rawParams;
+        this.rawInput = newValue.rawInput;
+        this.contentType = newValue.contentType;
+        this.requestType = newValue.requestType;
+      },
+      editingRequest (newValue) {
+        this.editRequest = newValue;
+        this.showRequestModal = true;
       }
     },
     computed: {
+      selectedRequest() {
+        return this.$store.state.postwoman.selectedRequest;
+      },
+      editingRequest() {
+        return this.$store.state.postwoman.editingRequest;
+      },
       requestName() {
         return this.label
       },
@@ -1120,7 +1168,36 @@
         this.$toast.info('Cleared', {
           icon: 'clear_all'
         });
-      }
+      },
+      saveRequest() {
+        this.editRequest = {
+          url: this.url,
+          path: this.path,
+          method: this.method,
+          auth: this.auth,
+          httpUser: this.httpUser,
+          httpPassword: this.httpPassword,
+          passwordFieldType: this.passwordFieldType,
+          bearerToken: this.bearerToken,
+          headers: this.headers,
+          params: this.params,
+          bodyParams: this.bodyParams,
+          rawParams: this.rawParams,
+          rawInput: this.rawInput,
+          contentType: this.contentType,
+          requestType: this.requestType,
+        };
+
+        if (this.selectedRequest.url) {
+          this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest);
+        }
+
+        this.showRequestModal = true;
+      },
+      hideRequestModal() {
+        this.showRequestModal = false;
+        this.editRequest = {};
+      },
     },
     mounted() {
       this.observeRequestButton();

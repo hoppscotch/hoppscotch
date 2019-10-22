@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="cyan" label="Theme">
+    <pw-section class="cyan" icon="color_lens" label="Theme">
       <ul>
         <li>
           <h3 class="title">Background</h3>
@@ -32,7 +32,7 @@
         </li>
       </ul>
     </pw-section>
-		<pw-section class="blue" label="Proxy">
+		<pw-section class="blue" icon="public" label="Proxy">
 			<ul>
 				<li>
 					<pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">

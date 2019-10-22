@@ -14,10 +14,10 @@
             </button>
           </div>
           <div>
-            <button class="icon" @click="editFolder">
+            <button class="icon" @click="editFolder" v-tooltip="'Edit folder'">
               <i class="material-icons">edit</i>
             </button>
-            <button class="icon" @click="removeFolder">
+            <button class="icon" @click="removeFolder" v-tooltip="'Delete folder'">
               <i class="material-icons">delete</i>
             </button>
           </div>
@@ -46,7 +46,8 @@
 
     ul li {
         display: flex;
-        padding-left: 1rem;
+        padding-left: 16px;
+        border-left: 1px solid var(--brd-color);
     }
 </style>
 

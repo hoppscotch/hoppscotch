@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="gray" label="History">
+  <pw-section class="gray" icon="history" label="History">
     <ul>
       <li id="filter-history">
         <input aria-label="Search" type="text" placeholder="search history" :readonly="history.length === 0" v-model="filterText">

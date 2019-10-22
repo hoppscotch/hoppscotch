@@ -7,10 +7,10 @@
         </button>
       </div>
       <div>
-        <button class="icon" @click="editRequest">
+        <button class="icon" @click="editRequest" v-tooltip="'Edit request'">
           <i class="material-icons">edit</i>
         </button>
-        <button class="icon" @click="removeRequest">
+        <button class="icon" @click="removeRequest" v-tooltip="'Delete collection'">
           <i class="material-icons">delete</i>
         </button>
       </div>
@@ -18,12 +18,15 @@
 </template>
 
 <style scoped>
-    .add-button {
-        padding: 0;
-        width: 20px;
-        margin: 0;
-        height: 20px;
-        border-radius: 50%;
+    ul {
+        display: flex;
+        flex-direction: column;
+    }
+
+    ul li {
+        display: flex;
+        padding-left: 16px;
+        border-left: 1px solid var(--brd-color);
     }
 </style>
 

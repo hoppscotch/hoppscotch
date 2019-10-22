@@ -24,8 +24,18 @@
             </ul>
             </div>
             <div slot="footer">
-                <button @click="addNewCollection" v-if='!newCollection.hasOwnProperty("collectionIndex")'>Add</button>
-                <button @click="saveCollection" v-if='newCollection.hasOwnProperty("collectionIndex")'>Save</button>
+              <ul>
+                <li>
+                  <button class="icon" @click="addNewCollection" v-if='!newCollection.hasOwnProperty("collectionIndex")'>
+                    <i class="material-icons">add</i>
+                    <span>Create</span>
+                  </button>
+                  <button class="icon" @click="saveCollection" v-if='newCollection.hasOwnProperty("collectionIndex")'>
+                    <i class="material-icons">save</i>
+                    <span>Save</span>
+                  </button>
+                </li>
+              </ul>
             </div>
         </modal>
     </div>

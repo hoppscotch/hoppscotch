@@ -23,13 +23,13 @@
             </button>
           </div>
           <div>
-            <button class="icon" @click="editCollection">
+            <button class="icon" @click="editCollection" v-tooltip="'Edit collection'">
               <i class="material-icons">create</i>
             </button>
-            <button class="icon" @click="removeCollection">
+            <button class="icon" @click="removeCollection" v-tooltip="'Delete collection'">
               <i class="material-icons">delete</i>
             </button>
-            <button class="icon" @click="toggleModal">
+            <button class="icon" @click="toggleModal" v-tooltip="'New Folder'">
               <i class="material-icons">add</i>
             </button>
           </div>
@@ -69,7 +69,8 @@
 
     ul li {
         display: flex;
-        padding-left: 1rem;
+        padding-left: 16px;
+        border-left: 1px solid var(--brd-color);
     }
 </style>
 

@@ -38,7 +38,7 @@
         </ul>
       </div>
     </pw-modal>
-    <pw-section class="blue" label="Request" ref="request">
+    <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
       <ul>
         <li>
           <label for="method">Method</label>
@@ -166,7 +166,7 @@
         </button>
       </div>
     </pw-section>
-    <pw-section class="yellow" label="Code" ref="requestCode" v-if="!isHidden">
+    <pw-section class="yellow" icon="code" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>
@@ -192,7 +192,7 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="purple" id="response" label="Response" ref="response">
+    <pw-section class="purple" icon="cloud_download" id="response" label="Response" ref="response">
       <ul>
         <li>
           <label for="status">status</label>
@@ -234,7 +234,7 @@
       <input id="tab-one" type="radio" name="grp" checked="checked">
       <label for="tab-one">Authentication</label>
       <div class="tab">
-        <pw-section class="cyan" label="Authentication">
+        <pw-section class="cyan" icon="vpn_key" label="Authentication">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -279,7 +279,7 @@
       <input id="tab-two" type="radio" name="grp">
       <label for="tab-two">Headers</label>
       <div class="tab">
-        <pw-section class="orange" label="Headers">
+        <pw-section class="orange" icon="toc" label="Headers">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -322,7 +322,7 @@
       <input id="tab-three" type="radio" name="grp">
       <label for="tab-three">Parameters</label>
       <div class="tab">
-        <pw-section class="pink" label="Parameters">
+        <pw-section class="pink" icon="input" label="Parameters">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -364,7 +364,9 @@
       </div>
     </section>
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
-    <collections></collections>
+    <pw-section class="blue" icon="folder_special" label="Collections" ref="Collections">
+      <collections></collections>
+    </pw-section>
   </div>
 </template>
 <script>

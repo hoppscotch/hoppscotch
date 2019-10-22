@@ -1148,7 +1148,11 @@
           contentType: this.contentType,
           requestType: this.requestType,
         };
-        console.log(this.editRequest);
+        
+        if (this.selectedRequest.url) {
+          this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest);
+        }
+
         this.showRequestModal = true;
       },
       hideRequestModal() {

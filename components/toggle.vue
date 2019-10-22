@@ -92,8 +92,8 @@
 
     methods: {
       toggle() {
-        this.$refs.toggle.classList.toggle("on");
-        this.$emit('change', this.$refs.toggle.classList.contains("on"));
+        const containsOnClass = this.$refs.toggle.classList.toggle("on");
+        this.$emit('change', containsOnClass);
       }
     }
 

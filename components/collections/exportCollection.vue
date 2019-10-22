@@ -37,7 +37,7 @@ export default {
     },
     computed: {
         collectionJson () {
-            return JSON.stringify(this.$store.state.postwoman.collections);
+            return JSON.stringify(this.$store.state.postwoman.collections, null, 2);
         }
     },
     methods: {

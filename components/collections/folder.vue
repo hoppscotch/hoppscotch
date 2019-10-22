@@ -1,17 +1,32 @@
 <template>
     <div>
-        <div class="header">
-            <i @click="toggleShowChildren" v-show='!showChildren' class="material-icons">arrow_right</i>
-            <i @click="toggleShowChildren" v-show='showChildren' class="material-icons">arrow_drop_down</i>
-            <div @click="toggleShowChildren">{{folder.name}}</div>
-            <button class="add-button" @click="editFolder">e</button>
-            <button class="add-button" @click="removeFolder">x</button>
+        <div class="flex-wrap">
+          <div>
+            <button class="icon" @click="toggleShowChildren" v-show='!showChildren'>
+              <i class="material-icons">arrow_right</i>
+            </button>
+            <button class="icon" @click="toggleShowChildren" v-show='showChildren'>
+              <i class="material-icons">arrow_drop_down</i>
+            </button>
+            <button class="icon" @click="toggleShowChildren">
+              <i class="material-icons">folder_open</i>
+              <span>{{folder.name}}</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon" @click="editFolder">
+              <i class="material-icons">edit</i>
+            </button>
+            <button class="icon" @click="removeFolder">
+              <i class="material-icons">delete</i>
+            </button>
+          </div>
         </div>
 
         <div v-show="showChildren">
             <ul>
                 <li v-for="(request, index) in folder.requests" :key="index">
-                    <request 
+                    <request
                         :request="request"
                         :collection-index="collectionIndex"
                         :folder-index="folderIndex"
@@ -30,21 +45,8 @@
     }
 
     ul li {
-        padding-left: 1rem;
-    }
-
-    .header {
         display: flex;
-        align-items: center;
-    }
-
-    .add-button {
-        padding: 0;
-        width: 20px;
-        margin: 0;
-        margin-right: .2rem;
-        height: 20px;
-        border-radius: 50%;
+        padding-left: 1rem;
     }
 </style>
 

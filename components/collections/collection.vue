@@ -9,21 +9,36 @@
         >
         </addFolder>
 
-        <div class="header">
-            <i @click="toggleShowChildren" v-show='!showChildren' class="material-icons">arrow_right</i>
-            <i @click="toggleShowChildren" v-show='showChildren' class="material-icons">arrow_drop_down</i>
-            <label @click="toggleShowChildren">
-                {{collection.name}}
-            </label>
-            <button class="add-button" @click="editCollection">e</button>
-            <button class="add-button" @click="removeCollection">x</button>
-            <button class="add-button" @click="toggleModal">+</button>
+        <div class="flex-wrap">
+          <div>
+            <button class="icon" @click="toggleShowChildren" v-show='!showChildren'>
+              <i class="material-icons">arrow_right</i>
+            </button>
+            <button class="icon" @click="toggleShowChildren" v-show='showChildren'>
+              <i class="material-icons">arrow_drop_down</i>
+            </button>
+            <button class="icon" @click="toggleShowChildren">
+              <i class="material-icons">folder</i>
+              <span>{{collection.name}}</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon" @click="editCollection">
+              <i class="material-icons">create</i>
+            </button>
+            <button class="icon" @click="removeCollection">
+              <i class="material-icons">delete</i>
+            </button>
+            <button class="icon" @click="toggleModal">
+              <i class="material-icons">add</i>
+            </button>
+          </div>
         </div>
-        
+
         <div v-show="showChildren">
             <ul>
                 <li v-for="(folder, index) in collection.folders" :key="folder.name">
-                    <folder 
+                    <folder
                         :folder="folder"
                         :folderIndex="index"
                         :collection-index="collectionIndex"
@@ -34,7 +49,7 @@
 
             <ul>
                 <li v-for="(request, index) in collection.requests" :key="index">
-                    <request 
+                    <request
                         :request="request"
                         :collection-index="collectionIndex"
                         :folder-index="-1"
@@ -53,25 +68,8 @@
     }
 
     ul li {
-        padding-left: 1rem;
-    }
-
-    .header {
         display: flex;
-        align-items: center;
-    }
-
-    label {
-        padding-left: .5rem;
-    }
-
-    .add-button {
-        padding: 0;
-        width: 20px;
-        margin: 0;
-        margin-right: .2rem;
-        height: 20px;
-        border-radius: 50%;
+        padding-left: 1rem;
     }
 </style>
 

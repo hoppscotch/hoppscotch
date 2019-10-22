@@ -1148,7 +1148,7 @@
           contentType: this.contentType,
           requestType: this.requestType,
         };
-        
+
         if (this.selectedRequest.url) {
           this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest);
         }

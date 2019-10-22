@@ -1,8 +1,19 @@
 <template>
-    <div @click='selectRequest()'>
-        {{request.name}}
-        <button class="add-button" @click="editRequest">e</button>
-        <button class="add-button" @click="removeRequest">x</button>
+    <div class="flex-wrap">
+      <div>
+        <button class="icon" @click="selectRequest()">
+          <i class="material-icons">star</i>
+          <span>{{request.name}}</span>
+        </button>
+      </div>
+      <div>
+        <button class="icon" @click="editRequest">
+          <i class="material-icons">edit</i>
+        </button>
+        <button class="icon" @click="removeRequest">
+          <i class="material-icons">delete</i>
+        </button>
+      </div>
     </div>
 </template>
 

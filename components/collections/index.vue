@@ -11,13 +11,20 @@
 
     <exportCollection :show="showExportModal" v-on:hide-model='toggleExport'></exportCollection>
 
-    <div class='header'>
-      <Label>Collections</label>
-      <button class="collection-button" @click="toggleModal">+</button>
-      <button class="export-button" @click="toggleExport">Export</button>
+    <div class='flex-wrap'>
+      <h3 class="title">Collections</h3>
+      <div>
+        <button class="icon" @click="toggleModal">
+          <i class="material-icons">add</i>
+          <span>New</span>
+        </button>
+        <button class="icon" @click="toggleExport">
+          <i class="material-icons">import_export</i>
+          <span>Export</span>
+        </button>
+      </div>
     </div>
-    
-    
+
     <ul>
       <li v-for="(collection, index) in collections" :key="collection.name">
         <collection
@@ -34,24 +41,6 @@
   ul {
     display: flex;
     flex-direction: column;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-  }
-
-  .collection-button {
-    padding: 0;
-    width: 20px;
-    margin: 0;
-    height: 20px;
-    border-radius: 50%;
-  }
-
-  .export-button {
-    padding: 10px 8px;
-    height: 15px;
   }
 </style>
 

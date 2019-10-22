@@ -78,7 +78,7 @@
         <li>
           <label class="hide-on-small-screen" for="saveRequest">&nbsp;</label>
           <button class="icon" @click="saveRequest" id="saveRequest" ref="saveRequest" :disabled="!isValidURL">
-            <i class="material-icons">share</i>
+            <i class="material-icons">save</i>
             <span>Save</span>
           </button>
         </li>

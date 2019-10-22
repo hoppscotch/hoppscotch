@@ -23,8 +23,18 @@
             </ul>
         </div>
         <div slot="footer">
-            <button @click="addNewFolder" v-if='!newFolder.hasOwnProperty("folderIndex")'>Add</button>
-            <button @click="saveFolder" v-if='newFolder.hasOwnProperty("folderIndex")'>Save</button>
+          <ul>
+            <li>
+            <button class="icon" @click="addNewFolder" v-if='!newFolder.hasOwnProperty("folderIndex")'>
+              <i class="material-icons">add</i>
+              <span>Create</span>
+            </button>
+            <button class="icon" @click="saveFolder" v-if='newFolder.hasOwnProperty("folderIndex")'>
+              <i class="material-icons">save</i>
+              <span>Save</span>
+            </button>
+            </li>
+          </ul>
         </div>
     </modal>
 </template>

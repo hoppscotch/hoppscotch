@@ -16,8 +16,8 @@
             </ul>
             </div>
             <div slot="body">
-                <textarea v-model='collectionJson'>
-                </textarea>
+              <textarea v-model='collectionJson' rows="8">
+              </textarea>
             </div>
             <div slot="footer">
             </div>

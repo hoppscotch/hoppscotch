@@ -19,7 +19,7 @@
             <div slot="body">
             <ul>
                 <li>
-                    <input type="text" v-model="newCollection.name" placeholder="My New Collection" />
+                  <input type="text" v-model="newCollection.name" placeholder="My New Collection" />
                 </li>
             </ul>
             </div>

@@ -11,13 +11,9 @@
 
         <div class="flex-wrap">
           <div>
-            <button class="icon" @click="toggleShowChildren" v-show='!showChildren'>
-              <i class="material-icons">arrow_right</i>
-            </button>
-            <button class="icon" @click="toggleShowChildren" v-show='showChildren'>
-              <i class="material-icons">arrow_drop_down</i>
-            </button>
             <button class="icon" @click="toggleShowChildren">
+              <i class="material-icons" v-show='!showChildren'>arrow_right</i>
+              <i class="material-icons" v-show='showChildren'>arrow_drop_down</i>
               <i class="material-icons">folder</i>
               <span>{{collection.name}}</span>
             </button>

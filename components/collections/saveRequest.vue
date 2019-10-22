@@ -21,7 +21,7 @@
                     <li>
                         <input type="text" v-model="request.name" placeholder="My New Request" />
                         <select type="text" v-model="request.collection" >
-                            <option 
+                            <option
                                 v-for="collection in collections"
                                 :key="collection.collectionIndex"
                                 :value="collection.collectionIndex">
@@ -29,7 +29,7 @@
                             </option>
                         </select>
                         <select type="text" v-model="request.folder" >
-                            <option 
+                            <option
                                 v-for="folder in folders"
                                 :key="folder.folderIndex"
                                 :value="folder.folderIndex">
@@ -40,8 +40,18 @@
                 </ul>
             </div>
             <div slot="footer">
-                <button @click="addRequest" v-if='!request.hasOwnProperty("requestIndex")'>Add</button>
-                <button @click="saveRequest" v-if='request.hasOwnProperty("requestIndex")'>Save</button>
+              <ul>
+                <li>
+                <button class="icon" @click="addRequest" v-if='!request.hasOwnProperty("requestIndex")'>
+                  <i class="material-icons">add</i>
+                  <span>Create</span>
+                </button>
+                <button class="icon" @click="saveRequest" v-if='request.hasOwnProperty("requestIndex")'>
+                  <i class="material-icons">save</i>
+                  <span>Save</span>
+                </button>
+                </li>
+              </ul>
             </div>
         </modal>
     </div>

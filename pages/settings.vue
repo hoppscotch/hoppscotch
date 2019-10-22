@@ -25,7 +25,7 @@
         <li>
           <h3 class="title">Frames</h3>
           <span>
-            <pw-toggle :on="!settings.DISABLE_FRAME_COLORS" @change="toggleSetting('DISABLE_FRAME_COLORS')">
+            <pw-toggle :on="!settings.DISABLE_FRAME_COLORS" @change="applySetting('DISABLE_FRAME_COLORS', $event)">
               Multi-color {{ settings.DISABLE_FRAME_COLORS ? "Disabled" : "Enabled" }}
             </pw-toggle>
           </span>
@@ -35,7 +35,7 @@
 		<pw-section class="blue" icon="public" label="Proxy">
 			<ul>
 				<li>
-					<pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
+					<pw-toggle :on="settings.PROXY_ENABLED" @change="applySetting('PROXY_ENABLED', $event)">
 						Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}
 					</pw-toggle>
 				</li>

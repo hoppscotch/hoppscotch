@@ -100,7 +100,7 @@
         <ul>
           <li>
             <span>
-              <pw-toggle :on="rawInput" @change="rawInput = !rawInput">
+              <pw-toggle :on="rawInput" @change="rawInput = $event">
                 Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
               </pw-toggle>
             </span>

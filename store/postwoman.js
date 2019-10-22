@@ -111,6 +111,21 @@ export const mutations = {
 
     saveRequest (state, payload) {
         const { request } = payload;
+
+        // Remove the old request from collection
+        if (request.hasOwnProperty('oldCollection') && request.oldCollection > -1) {
+            const folder = request.hasOwnProperty('oldFolder') && request.oldFolder >= -1 ? request.oldFolder : request.folder;
+            if (folder > -1) {
+                state.collections[request.oldCollection].folders[folder].requests.splice(request.requestIndex, 1)
+            } else {
+                state.collections[request.oldCollection].requests.splice(request.requestIndex, 1)
+            }
+        } else if (request.hasOwnProperty('oldFolder') && request.oldFolder !== -1) {
+            state.collections[request.collection].folders[folder].requests.splice(request.requestIndex, 1)
+        }
+
+        delete request.oldCollection;
+        delete request.oldFolder;
         
         // Request that is directly attached to collection
         if (request.folder === -1) {

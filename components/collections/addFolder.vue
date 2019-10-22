@@ -50,7 +50,7 @@ export default {
     },
     watch: {
         show() {
-            if (!this.editingFolder.folderIndex);
+            if (!this.editingFolder.folderIndex) return;
             this.newFolder = Object.assign({}, this.editingFolder);
         },
     },

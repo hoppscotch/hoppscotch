@@ -71,6 +71,26 @@ export default {
         show() {
             this.request = Object.assign(this.request, this.editingRequest);
         },
+        'request.collection': function (newValue, oldValue) {
+            if (!oldValue) return;
+
+            if (newValue === oldValue) {
+                delete this.request.oldCollection;
+                return;
+            }
+            this.request.oldFolder = this.request.folder;
+            this.request.folder = -1;
+            this.request.oldCollection = oldValue;
+        },
+        'request.folder': function (newValue, oldValue) {
+            if (!oldValue) return;
+
+            if (newValue === oldValue) {
+                delete this.request.oldFolder;
+                return;
+            }
+            this.request.oldFolder = oldValue;
+        }
     },
     computed: {
         collections() {

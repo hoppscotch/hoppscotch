@@ -53,7 +53,7 @@ export default {
     },
     watch: {
         show() {
-            if (!this.editingCollection.collectionIndex);
+            if (!this.editingCollection.collectionIndex) return;
             this.newCollection = Object.assign({}, this.editingCollection);
         },
     },

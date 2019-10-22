@@ -83,7 +83,7 @@
         <div v-else>
           <ul>
             <li>
-              <textarea id="environmentRawBody" @keydown="formatRawParams" rows="8" v-model="rawParams" v-textarea-auto-height="rawParams"></textarea>
+              <textarea id="environmentRawBody" @keydown="formatRawParams" rows="8" v-model="rawEnvironment" @input="paramsToQueryString" v-textarea-auto-height="rawParams"></textarea>
             </li>
           </ul>
         </div>
@@ -904,7 +904,9 @@
       async parseTemplate(template, environment) {
         if (!environment) {
           if (this.environmentRawInput) {
-            environment = this.rawEnvironment;
+            environment = typeof this.rawEnvironment === 'string'
+              ? JSON.parse(this.rawEnvironment.replace(/(\r\n|\n|\r)/gm, '').replace(/\s+/g, ''))
+              : this.rawEnvironment;
           } else {
             environment = this.environment
               .filter(({ key, value }) => !!key)
@@ -1213,7 +1215,7 @@
         vm.bodyParams,
         vm.contentType,
         vm.rawParams,
-        vm.queryString
+        vm.queryString,
       ], val => {
         this.setRouteQueryState()
       })

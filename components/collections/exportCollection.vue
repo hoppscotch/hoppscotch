@@ -20,6 +20,14 @@
               </textarea>
             </div>
             <div slot="footer">
+              <ul>
+                <li>
+                <button class="icon" @click="exportJSON">
+                  <i class="material-icons">get_app</i>
+                  <span>Export JSON</span>
+                </button>
+                </li>
+              </ul>
             </div>
         </modal>
     </div>
@@ -44,6 +52,21 @@ export default {
         hideModel() {
             this.$emit('hide-model');
         },
+        exportJSON() {
+          let text = this.collectionJson;
+          text = text.replace(/\n/g, '\r\n');
+          let blob = new Blob([text], {
+            type: 'text/json'
+          });
+          let anchor = document.createElement('a');
+          anchor.download = 'postwoman-collection.json';
+          anchor.href = window.URL.createObjectURL(blob);
+          anchor.target = '_blank';
+          anchor.style.display = 'none';
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+        }
     },
 };
 </script>

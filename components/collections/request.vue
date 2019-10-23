@@ -1,17 +1,17 @@
 <template>
     <div class="flex-wrap">
       <div>
-        <button class="icon" @click="selectRequest()">
-          <i class="material-icons">star</i>
+        <button class="icon" @click="selectRequest()" v-tooltip="'Use request'">
+          <i class="material-icons">insert_drive_file</i>
           <span>{{request.name}}</span>
         </button>
       </div>
       <div>
-        <button class="icon" @click="editRequest" v-tooltip="'Edit request'">
-          <i class="material-icons">edit</i>
-        </button>
         <button class="icon" @click="removeRequest" v-tooltip="'Delete collection'">
           <i class="material-icons">delete</i>
+        </button>
+        <button class="icon" @click="editRequest" v-tooltip="'Edit request'">
+          <i class="material-icons">edit</i>
         </button>
       </div>
     </div>

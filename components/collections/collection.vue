@@ -19,14 +19,14 @@
             </button>
           </div>
           <div>
-            <button class="icon" @click="editCollection" v-tooltip="'Edit collection'">
-              <i class="material-icons">create</i>
-            </button>
             <button class="icon" @click="removeCollection" v-tooltip="'Delete collection'">
               <i class="material-icons">delete</i>
             </button>
+            <button class="icon" @click="editCollection" v-tooltip="'Edit collection'">
+              <i class="material-icons">create</i>
+            </button>
             <button class="icon" @click="toggleModal" v-tooltip="'New Folder'">
-              <i class="material-icons">add</i>
+              <i class="material-icons">create_new_folder</i>
             </button>
           </div>
         </div>

@@ -10,11 +10,11 @@
             </button>
           </div>
           <div>
-            <button class="icon" @click="editFolder" v-tooltip="'Edit folder'">
-              <i class="material-icons">edit</i>
-            </button>
             <button class="icon" @click="removeFolder" v-tooltip="'Delete folder'">
               <i class="material-icons">delete</i>
+            </button>
+            <button class="icon" @click="editFolder" v-tooltip="'Edit folder'">
+              <i class="material-icons">edit</i>
             </button>
           </div>
         </div>

@@ -42,12 +42,12 @@
         </li>
         <div class="show-on-small-screen">
           <li>
-            <button v-tooltip="'Delete'" class="icon" :id="'delete-button#'+index" @click="deleteHistory(entry)" aria-label="Delete">
+            <button v-tooltip="'Delete entry'" class="icon" :id="'delete-button#'+index" @click="deleteHistory(entry)" aria-label="Delete">
               <i class="material-icons">delete</i>
             </button>
           </li>
           <li>
-            <button v-tooltip="'Edit'" class="icon" :id="'use-button#'+index" @click="useHistory(entry)" aria-label="Edit">
+            <button v-tooltip="'Edit entry'" class="icon" :id="'use-button#'+index" @click="useHistory(entry)" aria-label="Edit">
               <i class="material-icons">edit</i>
             </button>
           </li>

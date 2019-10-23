@@ -990,6 +990,18 @@
 
         return await engine.parseAndRender(template, environment)
       },
+      async parseBody() {
+        const requestBody = this.rawInput
+          ? this.objectArrayToObject(this.rawParams)
+          : this.rawRequestBody;
+
+        this.parseObject(requestBody)
+          .then(result => {
+            if (this.rawInput) {
+              this.rawInput = result
+            }
+          });
+      },
       async paramsToQueryString() {
         let result = '';
         
@@ -1013,7 +1025,8 @@
       gotoHistory() {
         this.$refs.historyComponent.$el.scrollIntoView({
           behavior: 'smooth'
-        });
+        })
+      },
       objectArrayToObject(objArray) {
         let obj = {};
         objArray.forEach((curr) => {

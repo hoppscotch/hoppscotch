@@ -41,6 +41,9 @@
                         v-on:edit-folder="editFolder"
                     />
                 </li>
+                <li v-if="collection.folders.length === 0">
+                  <label>Collection is empty</label>
+                </li>
             </ul>
 
             <ul>

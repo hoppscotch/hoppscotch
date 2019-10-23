@@ -61,26 +61,8 @@
           <input @keyup.enter="isValidURL ? sendRequest() : null" id="path" name="path" v-model="path" @input="pathInputHandler">
         </li>
         <li>
-          <label class="hide-on-small-screen" for="copyRequest">&nbsp;</label>
-          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL">
-            <i class="material-icons">share</i>
-            <span>Permalink</span>
-          </button>
-        </li>
-        <li>
-          <label class="hide-on-small-screen" for="code">&nbsp;</label>
-          <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL">
-            <i class="material-icons" v-if="isHidden">visibility</i>
-            <i class="material-icons" v-if="!isHidden">visibility_off</i>
-            <span>{{ isHidden ? 'Show Code' : 'Hide Code' }}</span>
-          </button>
-        </li>
-        <li>
-          <label class="hide-on-small-screen" for="saveRequest">&nbsp;</label>
-          <button class="icon" @click="saveRequest" id="saveRequest" ref="saveRequest" :disabled="!isValidURL">
-            <i class="material-icons">save</i>
-            <span>Save</span>
-          </button>
+          <label for="label">Label</label>
+          <input id="label" name="label" type="text" v-model="label" placeholder="(optional)">
         </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -146,24 +128,30 @@
           </ul>
         </div>
       </div>
-      <ul>
-        <li>
-          <input id="label" name="label" type="text" v-model="label" placeholder="Label request">
-        </li>
-      </ul>
       <div class="flex-wrap">
-        <button class="icon" id="show-modal" @click="showModal = true">
-          <i class="material-icons">import_export</i>
-          <span>Import cURL</span>
-        </button>
-        <button class="icon" id="goto-history" @click="gotoHistory()">
-          <i class="material-icons">history</i>
-          <span>History</span>
-        </button>
-        <button class="icon" @click="clearContent">
-          <i class="material-icons">clear_all</i>
-          <span>Clear all</span>
-        </button>
+        <div style="text-align: center;">
+          <button class="icon" id="show-modal" @click="showModal = true" v-tooltip.bottom='"Import cURL"'>
+            <i class="material-icons">import_export</i>
+          </button>
+          <button class="icon" id="code" v-on:click="isHidden = !isHidden" :disabled="!isValidURL" v-tooltip.bottom='{ content: isHidden ? "Show Code" : "Hide Code"}'>
+            <i class="material-icons" v-if="isHidden">visibility</i>
+            <i class="material-icons" v-if="!isHidden">visibility_off</i>
+          </button>
+        </div>
+        <div style="text-align: center;">
+          <button class="icon" @click="copyRequest" id="copyRequest" ref="copyRequest" :disabled="!isValidURL" v-tooltip.bottom='"Sharable request URL"'>
+            <i class="material-icons">share</i>
+          </button>
+          <button class="icon" @click="saveRequest" id="saveRequest" ref="saveRequest" :disabled="!isValidURL" v-tooltip.bottom='"Save to Collections"'>
+            <i class="material-icons">save</i>
+          </button>
+          <button class="icon" id="goto-history" @click="gotoHistory()" v-tooltip.bottom='"History / Collections"'>
+            <i class="material-icons">watch_later</i>
+          </button>
+          <button class="icon" @click="clearContent" v-tooltip.bottom='"Clear all"'>
+            <i class="material-icons">clear_all</i>
+          </button>
+        </div>
       </div>
     </pw-section>
     <pw-section class="yellow" icon="code" label="Code" ref="requestCode" v-if="!isHidden">
@@ -364,7 +352,7 @@
       </div>
     </section>
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
-    <pw-section class="blue" icon="folder_special" label="Collections" ref="Collections">
+    <pw-section class="yellow" icon="folder_special" label="Collections" ref="Collections">
       <collections></collections>
     </pw-section>
   </div>
@@ -1006,17 +994,17 @@
             }).then(() => {})
             .catch(console.error);
         } else {
-          this.$refs.copyRequest.innerHTML = this.copiedButton + '<span>Copied</span>';
-          this.$toast.success('Copied to clipboard', {
-            icon: 'done'
-          });
           var dummy = document.createElement('input');
           document.body.appendChild(dummy);
           dummy.value = window.location.href;
           dummy.select();
           document.execCommand('copy');
           document.body.removeChild(dummy);
-          setTimeout(() => this.$refs.copyRequest.innerHTML = this.copyButton + '<span>Permalink</span>', 1000)
+          this.$refs.copyRequest.innerHTML = this.copiedButton;
+          this.$toast.success('Copied to clipboard', {
+            icon: 'done'
+          });
+          setTimeout(() => this.$refs.copyRequest.innerHTML = '<i class="material-icons">share</i>', 1000)
         }
       },
       copyRequestCode() {

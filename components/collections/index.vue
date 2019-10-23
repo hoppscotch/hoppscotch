@@ -12,12 +12,13 @@
     <exportCollection :show="showExportModal" v-on:hide-model='toggleExport'></exportCollection>
 
     <div class='flex-wrap'>
-      <h3 class="title">Collections</h3>
       <div>
         <button class="icon" @click="toggleModal">
           <i class="material-icons">add</i>
           <span>New</span>
         </button>
+      </div>
+      <div>
         <button class="icon" @click="toggleExport">
           <i class="material-icons">import_export</i>
           <span>Export</span>
@@ -32,6 +33,9 @@
           :collection="collection"
           v-on:edit-collection="editCollection"
           ></collection>
+      </li>
+      <li v-if="collections.length === 0">
+        <label>Collections are empty</label>
       </li>
     </ul>
   </div>

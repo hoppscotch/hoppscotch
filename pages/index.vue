@@ -50,7 +50,7 @@
           </li>
         </ul>
         <div v-if="!environmentRawInput">
-          <ul v-for="(param, index) in environment" :key="index" @input="paramsToQueryString">
+          <ul v-for="(param, index) in environment" :key="index" @input="propogateEnvironment">
             <li>
               <input :placeholder="'key '+(index+1)" :id="'envKey'+index" :name="'envKey'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
@@ -83,7 +83,7 @@
         <div v-else>
           <ul>
             <li>
-              <textarea id="environmentRawBody" @keydown="formatRawParams" rows="8" v-model="rawEnvironment" @input="paramsToQueryString" v-textarea-auto-height="rawParams"></textarea>
+              <textarea id="environmentRawBody" @keydown="formatRawParams" rows="8" v-model="rawEnvironment" @input="propogateEnvironment" v-textarea-auto-height="rawParams"></textarea>
             </li>
           </ul>
         </div>
@@ -873,9 +873,9 @@
           });
         }
       },
-      async propogateEnvironment() {
-        this.paramsToQueryString;
-        this.
+      propogateEnvironment() {
+        this.paramsToQueryString();
+        this.headersToHeaderString();
       },
       hasCompleteTemplate(str) {
         return !!str.match(/(\{{\w+(\.\w+)+\}})|([\w]+\.)+[\w]+(?=[\s]|)|(\{{.\w+.\}})/gi);

@@ -42,7 +42,14 @@ export const SETTINGS_KEYS = [
 ];
 
 export const state = () => ({
-    settings: {}
+    settings: {},
+    collections: [{
+        name: 'My First Collection',
+        folders: [],
+        requests: [],
+    }],
+    selectedRequest: {},
+    editingRequest: {},
 });
 
 export const mutations = {
@@ -59,6 +66,94 @@ export const mutations = {
         if (!SETTINGS_KEYS.includes(key)) throw new Error("The settings structure does not include the key " + key);
 
         state.settings[key] = value;
-    }
+    },
+
+    addCollection (state, newCollection) {
+        state.collections.push(newCollection);
+    },
+
+    removeCollection (state, payload) {
+        const { collectionIndex } = payload;
+        state.collections.splice(collectionIndex, 1)
+    },
+
+    saveCollection (state, payload) {
+        const { savedCollection } = payload;
+        state.collections[savedCollection.collectionIndex] = savedCollection;
+    },
+
+    addFolder (state, payload) {
+        const { collectionIndex, folder } = payload;
+        state.collections[collectionIndex].folders.push(folder);
+    },
+
+    removeFolder (state, payload) {
+        const { collectionIndex, folderIndex } = payload;
+        state.collections[collectionIndex].folders.splice(folderIndex, 1)
+    },
+
+    saveFolder (state, payload) {
+        const { savedFolder } = payload;
+        state.collections[savedFolder.collectionIndex].folders[savedFolder.folderIndex] = savedFolder;
+    },
+
+    addRequest (state, payload) {
+        const { request } = payload;
+        
+        // Request that is directly attached to collection
+        if (request.folder === -1) {
+            state.collections[request.collection].requests.push(request);
+            return
+        }
+
+        state.collections[request.collection].folders[request.folder].requests.push(request);
+    },
+
+    saveRequest (state, payload) {
+        const { request } = payload;
+
+        // Remove the old request from collection
+        if (request.hasOwnProperty('oldCollection') && request.oldCollection > -1) {
+            const folder = request.hasOwnProperty('oldFolder') && request.oldFolder >= -1 ? request.oldFolder : request.folder;
+            if (folder > -1) {
+                state.collections[request.oldCollection].folders[folder].requests.splice(request.requestIndex, 1)
+            } else {
+                state.collections[request.oldCollection].requests.splice(request.requestIndex, 1)
+            }
+        } else if (request.hasOwnProperty('oldFolder') && request.oldFolder !== -1) {
+            state.collections[request.collection].folders[folder].requests.splice(request.requestIndex, 1)
+        }
+
+        delete request.oldCollection;
+        delete request.oldFolder;
+        
+        // Request that is directly attached to collection
+        if (request.folder === -1) {
+            state.collections[request.collection].requests[request.requestIndex] = request;
+            return
+        }
+
+        state.collections[request.collection].folders[request.folder].requests[request.requestIndex] = request;
+    },
+
+    removeRequest (state, payload) {
+        const { collectionIndex, folderIndex, requestIndex } = payload;
+
+        // Request that is directly attached to collection
+        if (folderIndex === -1) {
+            state.collections[collectionIndex].requests.splice(requestIndex, 1)
+            return
+        }
+
+        state.collections[collectionIndex].folders[folderIndex].requests.splice(requestIndex, 1)
+    },
+
+    selectRequest (state, payload) {
+        state.selectedRequest = Object.assign({}, payload.request);
+    },
+
+    editRequest (state, payload) {
+        state.editingRequest = Object.assign({}, payload.request);
+    },
 
 };

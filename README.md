@@ -7,11 +7,11 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
   <br>
   <h1><a href="https://postwoman.io">Postwoman.io</a></h1>
   <p>
-    API request builder - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe for updates</a>
+    API request builder - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
   </p>
 <p>
 
-[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/liyasthomas/postwoman/issues) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR)
+[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Twitter URL](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
 </p>
   <sub>Built with ❤︎ by
@@ -62,7 +62,7 @@ _History entries are synced with local session storage_
 
 _Customized themes are also synced with local session storage_
 
-🔥 **PWA**: Install as a **[PWA](https://developers.google.com/web/progressive-web-apps)** on your device.
+🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
 **Features:**
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
@@ -70,7 +70,7 @@ _Customized themes are also synced with local session storage_
  - Low RAM/memory and CPU usage
  - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
  - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
- - [Full features](https://developers.google.com/web/progressive-web-apps)
+ - ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve data from a URL without having to do a full page refresh.
 
@@ -118,7 +118,7 @@ _HTML responses have "Preview HTML" feature_
 
 ⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
-**Fields**
+**Field:s**
  - Label
  - Timestamp
  - Method
@@ -130,7 +130,7 @@ _History entries can be sorted by any fields_
 
 _Histories can deleted one-by-one or all together_
 
-## Demo 🚀
+## Demo 🚀 [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io)
 
 [https://postwoman.io](https://postwoman.io)
 
@@ -166,7 +166,7 @@ You're done!
 1. Run `docker-compose up`
 1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Docker 🐳
+## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/postwoman)](https://hub.docker.com/r/liyasthomas/postwoman)
 
 ```bash
 #pull
@@ -186,16 +186,15 @@ docker build -t postwoman:latest
 1. Build the release files with `npm run build`.
 1. Find the built project in `./dist`.
 
-
 ## Contributing 🍰
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-## Continuous Integration 💚
+## Continuous Integration 💚 [![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman)
 
 We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/liyasthomas/postwoman).
 
-## Versioning 🔖
+## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest)
 
 This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
@@ -227,6 +226,8 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/nityanandagohain"><img src="https://github.com/nityanandagohain.png?size=100" width="100px;" alt="Nityananda Gohain"/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nityanandagohain" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/terranblake"><img src="https://github.com/terranblake.png?size=100" width="100px;" alt="Terran Blake"/><br /><sub><b>Terran Blake</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=terranblake" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://github.com/hosseinnedaee.png?size=100" width="100px;" alt="Hossein Nedaee"/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=hosseinnedaee" title="Code">💻</a></td>
   </tr>
 </table>
 
@@ -234,7 +235,7 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 
 ### Thanks
 
-* [dev.to](https://dev.to)
+* [dev.to 👩‍💻👨‍💻](https://dev.to)
 
 ## Contributors 🚸
 

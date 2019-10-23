@@ -3,15 +3,15 @@
         <div slot="header">
             <ul>
             <li>
-                <div class="flex-wrap">
-                <h3 class="title" v-if='!newFolder.hasOwnProperty("folderIndex")'>Add New Folder</h3>
+              <div class="flex-wrap">
+                <h3 class="title" v-if='!newFolder.hasOwnProperty("folderIndex")'>New Folder</h3>
                 <h3 class="title" v-if='newFolder.hasOwnProperty("folderIndex")'>Edit Folder</h3>
                 <div>
-                    <button class="icon" @click="hideModel">
-                    <i class="material-icons">close</i>
-                    </button>
+                  <button class="icon" @click="hideModel">
+                  <i class="material-icons">close</i>
+                  </button>
                 </div>
-                </div>
+              </div>
             </li>
             </ul>
         </div>

@@ -5,12 +5,12 @@
                 <ul>
                     <li>
                         <div class="flex-wrap">
-                            <h3 class="title" v-if='!request.hasOwnProperty("requestIndex")'>Add New Request</h3>
+                            <h3 class="title" v-if='!request.hasOwnProperty("requestIndex")'>New Request</h3>
                             <h3 class="title" v-if='request.hasOwnProperty("requestIndex")'>Edit Request</h3>
                             <div>
-                                <button class="icon" @click="hideModel">
-                                    <i class="material-icons">close</i>
-                                </button>
+                              <button class="icon" @click="hideModel">
+                                <i class="material-icons">close</i>
+                              </button>
                             </div>
                         </div>
                     </li>

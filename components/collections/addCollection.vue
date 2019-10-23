@@ -5,13 +5,13 @@
             <ul>
                 <li>
                 <div class="flex-wrap">
-                    <h3 class="title" v-if='!newCollection.hasOwnProperty("collectionIndex")'>Add New Collection</h3>
-                    <h3 class="title" v-if='newCollection.hasOwnProperty("collectionIndex")'>Edit Collection</h3>
-                    <div>
-                    <button class="icon" @click="hideModel">
+                  <h3 class="title" v-if='!newCollection.hasOwnProperty("collectionIndex")'>New Collection</h3>
+                  <h3 class="title" v-if='newCollection.hasOwnProperty("collectionIndex")'>Edit Collection</h3>
+                  <div>
+                    <button class="icon" @click="hideModel" >
                         <i class="material-icons">close</i>
                     </button>
-                    </div>
+                  </div>
                 </div>
                 </li>
             </ul>

@@ -145,9 +145,6 @@
           <button class="icon" @click="saveRequest" id="saveRequest" ref="saveRequest" :disabled="!isValidURL" v-tooltip.bottom='"Save to Collections"'>
             <i class="material-icons">save</i>
           </button>
-          <button class="icon" id="goto-history" @click="gotoHistory()" v-tooltip.bottom='"History / Collections"'>
-            <i class="material-icons">watch_later</i>
-          </button>
           <button class="icon" @click="clearContent" v-tooltip.bottom='"Clear all"'>
             <i class="material-icons">clear_all</i>
           </button>
@@ -899,11 +896,6 @@
             }
           }
         }
-      },
-      gotoHistory() {
-        this.$refs.historyComponent.$el.scrollIntoView({
-          behavior: 'smooth'
-        });
       },
       getQueryStringFromPath() {
         let queryString,

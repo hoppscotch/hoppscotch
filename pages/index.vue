@@ -873,6 +873,7 @@
             this.$refs.historyComponent.addEntry(entry);
           })();
         } catch (error) {
+          console.error(error);
           if (error.response) {
             this.response.headers = error.response.headers;
             this.response.status = error.response.status;

@@ -873,6 +873,7 @@
             this.$refs.historyComponent.addEntry(entry);
           })();
         } catch (error) {
+          console.error(error);
           if (error.response) {
             this.response.headers = error.response.headers;
             this.response.status = error.response.status;
@@ -893,7 +894,7 @@
           } else {
             this.response.status = error.message;
             this.response.body = "See JavaScript console (F12) for details.";
-            this.$toast.error('Something went wrong!', {
+            this.$toast.error(error + ' (F12 for details)', {
               icon: 'error'
             });
             if(!this.$store.state.postwoman.settings.PROXY_ENABLED) {

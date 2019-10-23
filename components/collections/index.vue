@@ -9,7 +9,7 @@
       >
     </addCollection>
 
-    <exportCollection :show="showExportModal" v-on:hide-model='toggleExport'></exportCollection>
+    <importExportCollections :show="showImportExportModal" v-on:hide-model='toggleImportExport'></importExportCollections>
 
     <div class='flex-wrap'>
       <div>
@@ -19,9 +19,9 @@
         </button>
       </div>
       <div>
-        <button class="icon" @click="toggleExport">
+        <button class="icon" @click="toggleImportExport">
           <i class="material-icons">import_export</i>
-          <span>Export</span>
+          <span>Import / Export</span>
         </button>
       </div>
     </div>
@@ -50,19 +50,19 @@
 
 <script>
   import addCollection from "./addCollection";
-  import exportCollection from "./exportCollection";
+  import importExportCollections from "./importExportCollections";
   import collection from './collection'
 
   export default {
     components: {
       collection,
       addCollection,
-      exportCollection,
+      importExportCollections,
     },
     data() {
       return {
         showAddModel: false,
-        showExportModal: false,
+        showImportExportModal: false,
         selectedCollection: {},
       }
     },
@@ -75,8 +75,8 @@
       toggleModal() {
         this.showAddModel = !this.showAddModel;
       },
-      toggleExport() {
-        this.showExportModal = !this.showExportModal;
+      toggleImportExport() {
+        this.showImportExportModal = !this.showImportExportModal;
       },
       addNewCollection(newCollection) {
         this.$store.commit('postwoman/addCollection', newCollection);

@@ -5,7 +5,7 @@
             <ul>
                 <li>
                 <div class="flex-wrap">
-                    <h3 class="title">Export Collections</h3>
+                    <h3 class="title">Import / Export Collections</h3>
                     <div>
                     <button class="icon" @click="hideModel">
                         <i class="material-icons">close</i>
@@ -21,6 +21,20 @@
             </div>
             <div slot="footer">
               <ul>
+                <li>
+                <button class="icon" @click="openDialogChooseFileToReplaceWith">
+                  <i class="material-icons">get_app</i>
+                  <span>Replace with JSON</span>
+                  <input type="file" @change="replaceWithJSON" style="display: none;" ref="inputChooseFileToReplaceWith">
+                </button>
+                </li>
+                <li>
+                <button class="icon" @click="openDialogChooseFileToImportFrom">
+                  <i class="material-icons">get_app</i>
+                  <span>Import from JSON</span>
+                  <input type="file" @change="importFromJSON" style="display: none;" ref="inputChooseFileToImportFrom">
+                </button>
+                </li>
                 <li>
                 <button class="icon" @click="exportJSON">
                   <i class="material-icons">get_app</i>
@@ -51,6 +65,30 @@ export default {
     methods: {
         hideModel() {
             this.$emit('hide-model');
+        },
+        openDialogChooseFileToReplaceWith() {
+          this.$refs.inputChooseFileToReplaceWith.click();
+        },
+        openDialogChooseFileToImportFrom() {
+          this.$refs.inputChooseFileToImportFrom.click();
+        },
+        replaceWithJSON() {
+          let reader = new FileReader();
+          reader.onload = (event) => {
+            let content = event.target.result;
+            let collections = JSON.parse(content);
+            this.$store.commit('postwoman/replaceCollections', collections);
+          };
+          reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
+        },
+        importFromJSON() {
+          let reader = new FileReader();
+          reader.onload = (event) => {
+            let content = event.target.result;
+            let collections = JSON.parse(content);
+            this.$store.commit('postwoman/importCollections', collections);
+          };
+          reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
         },
         exportJSON() {
           let text = this.collectionJson;

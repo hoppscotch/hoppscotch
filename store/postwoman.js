@@ -68,6 +68,14 @@ export const mutations = {
         state.settings[key] = value;
     },
 
+    replaceCollections (state, collections) {
+        state.collections = collections;
+    },
+
+    importCollections (state, collections) {
+        state.collections = [...state.collections, ...collections];
+    },
+
     addCollection (state, newCollection) {
         state.collections.push(newCollection);
     },
@@ -99,7 +107,7 @@ export const mutations = {
 
     addRequest (state, payload) {
         const { request } = payload;
-        
+
         // Request that is directly attached to collection
         if (request.folder === -1) {
             state.collections[request.collection].requests.push(request);
@@ -126,7 +134,7 @@ export const mutations = {
 
         delete request.oldCollection;
         delete request.oldFolder;
-        
+
         // Request that is directly attached to collection
         if (request.folder === -1) {
             state.collections[request.collection].requests[request.requestIndex] = request;

@@ -74,10 +74,21 @@ export const mutations = {
 
     importCollections (state, collections) {
         state.collections = [...state.collections, ...collections];
+
+        let index = 0;
+        for (let collection of collections) {
+            collection.collectionIndex = index;
+            index += 1;
+        }
     },
 
-    addCollection (state, newCollection) {
-        state.collections.push(newCollection);
+    addNewCollection (state, collection) {
+        state.collections.push({
+            name: '',
+            folders: [],
+            requests: [],
+            ...collection,
+        })
     },
 
     removeCollection (state, payload) {
@@ -85,9 +96,9 @@ export const mutations = {
         state.collections.splice(collectionIndex, 1)
     },
 
-    saveCollection (state, payload) {
-        const { savedCollection } = payload;
-        state.collections[savedCollection.collectionIndex] = savedCollection;
+    editCollection (state, payload) {
+        const { collection, collectionIndex } = payload
+        state.collections[collectionIndex] = collection
     },
 
     addFolder (state, payload) {

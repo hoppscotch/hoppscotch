@@ -64,7 +64,7 @@ export default {
     },
     methods: {
         hideModel() {
-            this.$emit('hide-model');
+            this.$emit('hide-modal');
         },
         openDialogChooseFileToReplaceWith() {
           this.$refs.inputChooseFileToReplaceWith.click();

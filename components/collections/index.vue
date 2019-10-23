@@ -1,25 +1,29 @@
 <template>
   <div class="collections-wrapper">
     <addCollection
-      v-bind:show="showAddModel"
-      v-on:new-collection="addNewCollection"
-      v-on:hide-model='toggleModal'
-      v-bind:editing-collection="selectedCollection"
-      v-on:saved-collection="savedCollection"
+      v-bind:show="showModalAdd"
+      v-on:hide-modal='displayModalAdd(false)'
       >
     </addCollection>
+    <editCollection
+      v-bind:show="showModalEdit"
+      v-bind:editingCollection="editingCollection"
+      v-bind:editingCollectionIndex="editingCollectionIndex"
+      v-on:hide-modal='displayModalEdit(false)'
+      >
+    </editCollection>
 
-    <importExportCollections :show="showImportExportModal" v-on:hide-model='toggleImportExport'></importExportCollections>
+    <importExportCollections :show="showModalImportExport" v-on:hide-modal='displayImportExport(false)'></importExportCollections>
 
     <div class='flex-wrap'>
       <div>
-        <button class="icon" @click="toggleModal">
+        <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
           <span>New</span>
         </button>
       </div>
       <div>
-        <button class="icon" @click="toggleImportExport">
+        <button class="icon" @click="displayImportExport(true)">
           <i class="material-icons">import_export</i>
           <span>Import / Export</span>
         </button>
@@ -31,7 +35,7 @@
         <collection
           :collection-index="index"
           :collection="collection"
-          v-on:edit-collection="editCollection"
+          v-on:edit-collection="editCollection(collection, index)"
           ></collection>
       </li>
       <li v-if="collections.length === 0">
@@ -50,6 +54,7 @@
 
 <script>
   import addCollection from "./addCollection";
+  import editCollection from "./editCollection";
   import importExportCollections from "./importExportCollections";
   import collection from './collection'
 
@@ -57,40 +62,42 @@
     components: {
       collection,
       addCollection,
+      editCollection,
       importExportCollections,
     },
     data() {
       return {
-        showAddModel: false,
-        showImportExportModal: false,
-        selectedCollection: {},
+        showModalAdd: false,
+        showModalEdit: false,
+        showModalImportExport: false,
+        editingCollection: undefined,
+        editingCollectionIndex: undefined,
       }
     },
     computed: {
       collections () {
-        return this.$store.state.postwoman.collections;
+        return this.$store.state.postwoman.collections
       }
     },
     methods: {
-      toggleModal() {
-        this.showAddModel = !this.showAddModel;
+      displayModalAdd(shouldDisplay) {
+        this.showModalAdd = shouldDisplay
       },
-      toggleImportExport() {
-        this.showImportExportModal = !this.showImportExportModal;
+      displayModalEdit(shouldDisplay) {
+        this.showModalEdit = shouldDisplay
+
+        if (!shouldDisplay) {
+          this.$data.editingCollection = undefined
+          this.$data.editingCollectionIndex = undefined
+        }
       },
-      addNewCollection(newCollection) {
-        this.$store.commit('postwoman/addCollection', newCollection);
-        this.showAddModel = false;
+      displayImportExport(shouldDisplay) {
+        this.showModalImportExport = shouldDisplay
       },
-      editCollection(payload) {
-        const { collection, collectionIndex } = payload;
-        this.selectedCollection = Object.assign({ collectionIndex }, collection);
-        this.showAddModel = true;
-      },
-      savedCollection(savedCollection) {
-        this.$store.commit('postwoman/saveCollection', { savedCollection });
-        this.showAddModel = false;
-        this.selectedCollection = {};
+      editCollection(collection, collectionIndex) {
+        this.$data.editingCollection = collection
+        this.$data.editingCollectionIndex = collectionIndex
+        this.displayModalEdit(true)
       },
     },
   }

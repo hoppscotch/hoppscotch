@@ -1,13 +1,13 @@
 <template>
     <div>
-        <modal v-if="show" @close="hideModal">
-            <div slot="header">
+        <modal v-if="show" @close="hideModel">
+            <div slot='header'>
             <ul>
                 <li>
                 <div class="flex-wrap">
-                  <h3 class="title">New Collection</h3>
+                  <h3 class="title">Edit Collection</h3>
                   <div>
-                    <button class="icon" @click="hideModal" >
+                    <button class="icon" @click="hideModel" >
                         <i class="material-icons">close</i>
                     </button>
                   </div>
@@ -18,16 +18,16 @@
             <div slot="body">
             <ul>
                 <li>
-                  <input type="text" v-model="name" placeholder="My New Collection" />
+                  <input type="text" v-model="name" v-bind:placeholder="editingCollection.name" />
                 </li>
             </ul>
             </div>
             <div slot="footer">
               <ul>
                 <li>
-                  <button class="icon" @click="addNewCollection">
-                    <i class="material-icons">add</i>
-                    <span>Create</span>
+                  <button class="icon" @click="saveCollection">
+                    <i class="material-icons">save</i>
+                    <span>Save</span>
                   </button>
                 </li>
               </ul>
@@ -42,6 +42,8 @@ import modal from "../../components/modal";
 export default {
     props: {
         show: Boolean,
+        editingCollection: Object,
+        editingCollectionIndex: Number,
     },
     components: {
         modal,
@@ -52,12 +54,13 @@ export default {
         }
     },
     methods: {
-        addNewCollection() {
-            this.$store.commit('postwoman/addNewCollection', { name: this.$data.name })
-            this.$emit('hide-modal')
+        saveCollection() {
+            const collectionUpdated = { ...this.$props.editingCollection, name: this.$data.name }
+            this.$store.commit('postwoman/editCollection', { collection: collectionUpdated, collectionIndex: this.$props.editingCollectionIndex })
+            this.$emit('hide-modal');
         },
-        hideModal() {
-            this.$emit('hide-modal')
+        hideModel() {
+            this.$emit('hide-modal');
         },
     },
 };

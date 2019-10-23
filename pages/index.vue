@@ -50,7 +50,7 @@
           </li>
         </ul>
         <div v-if="!environmentRawInput">
-          <ul v-for="(param, index) in environment" :key="index">
+          <ul v-for="(param, index) in environment" :key="index" @input="paramsToQueryString">
             <li>
               <input :placeholder="'key '+(index+1)" :id="'envKey'+index" :name="'envKey'+index" v-model="param.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
@@ -334,7 +334,7 @@
               <textarea id="headerList" readonly v-textarea-auto-height="headerString" v-model="headerString" placeholder="(add at least one header)" rows="1"></textarea>
             </li>
           </ul>
-          <ul v-for="(header, index) in headers" :key="index">
+          <ul v-for="(header, index) in headers" :key="index" @input="headersToHeaderString">
             <li>
               <input :placeholder="'header '+(index+1)" :name="'header'+index" v-model="header.key" @keyup.prevent="setRouteQueryState" autofocus>
             </li>
@@ -502,6 +502,7 @@
         rawInput: false,
         environment: [{ key: 'token', value: 'test' }],
         queryString: '',
+        headerString: '',
         environmentLabel: '',
         environmentRawInput: false,
         contentType: 'application/json',
@@ -586,7 +587,7 @@
             path = path + queryString
           }
 
-          this.paramsToQueryString();
+          this.paramsToQueryString;
           this.path = path;
         },
         deep: true
@@ -614,9 +615,6 @@
       pathName() {
         return this.path.match(/^([^?]*)\??/)[1]
       },
-      queryString() {
-        return this.queryString;
-      },
       rawRequestBody() {
         const {
           bodyParams
@@ -640,24 +638,6 @@
               value
             }) => `${key}=${encodeURIComponent(value)}`).join('&')
         }
-      },
-      headerString() {
-        const result = this.headers
-          .filter(({
-            key
-          }) => !!key)
-          .map(({
-            key,
-            value
-          }) => `${key}: ${value}`).join(',\n')
-        return result === '' ? '' : `${result}`
-      },
-      paramsToObject() {
-        let obj = {};
-        this.params.forEach((curr) => {
-          obj[curr.key] = curr.value;
-        });
-        return obj;
       },
       responseType() {
         return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase();
@@ -893,11 +873,20 @@
           });
         }
       },
+      async propogateEnvironment() {
+        this.paramsToQueryString;
+        this.
+      },
+      hasCompleteTemplate(str) {
+        return !!str.match(/(\{{\w+(\.\w+)+\}})|([\w]+\.)+[\w]+(?=[\s]|)|(\{{.\w+.\}})/gi);
+      },
       async parseObject(object) {
         return await Promise.all(Object.keys(object).map(async key => { 
           return {
             key,
-            value: await this.parseTemplate(object[key])
+            value: this.hasCompleteTemplate(object[key])
+              ? await this.parseTemplate(object[key])
+              : object[key]
           };
       }));
       },
@@ -921,13 +910,30 @@
       },
       async paramsToQueryString() {
         let result = '';
-
-        const obj = this.paramsToObject;
+        
+        const obj = this.objectArrayToObject(this.params);
         this.parseObject(obj)
           .then(result => {
             result = result.map(({ key, value }) => `${key}=${encodeURIComponent(value)}`).join('&');
             this.queryString = result === '' ? '' : `?${result}`;
           });
+      },
+      async headersToHeaderString() {
+        let result = '';
+
+        const obj = this.objectArrayToObject(this.headers);
+        this.parseObject(obj)
+          .then(result => {
+            result = result.map(({ key, value }) => `${key}: ${value}`).join(',\n');
+            this.headerString = result === '' ? '' : `${result}`
+          });
+      },
+      objectArrayToObject(objArray) {
+        let obj = {};
+        objArray.forEach((curr) => {
+          obj[curr.key] = curr.value;
+        });
+        return obj;
       },
       getQueryStringFromPath() {
         let queryString,
@@ -1212,10 +1218,12 @@
         vm.bearerToken,
         vm.headers,
         vm.params,
+        vm.headers,
         vm.bodyParams,
         vm.contentType,
         vm.rawParams,
         vm.queryString,
+        vm.headerString,
       ], val => {
         this.setRouteQueryState()
       })

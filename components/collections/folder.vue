@@ -23,10 +23,11 @@
             <ul>
                 <li v-for="(request, index) in folder.requests" :key="index">
                     <request
-                        :request="request"
-                        :collection-index="collectionIndex"
-                        :folder-index="folderIndex"
-                        :request-index="index"
+                        v-bind:request          = "request"
+                        v-bind:collection-index = "collectionIndex"
+                        v-bind:folder-index     = "folderIndex"
+                        v-bind:request-index    = "index"
+                        v-on:edit-request       = "$emit('edit-request', { request, collectionIndex, folderIndex, requestIndex: index })"
                     ></request>
                 </li>
                 <li v-if="folder.requests.length === 0">
@@ -55,9 +56,9 @@ import request from './request';
 
 export default {
     props: {
-        folder: Object,
-        collectionIndex: Number,
-        folderIndex: Number,
+        folder          : Object,
+        collectionIndex : Number,
+        folderIndex     : Number,
     },
     components: {
         request,
@@ -82,11 +83,7 @@ export default {
             });
         },
         editFolder() {
-            this.$emit('edit-folder', {
-                collectionIndex: this.collectionIndex,
-                folderIndex: this.folderIndex,
-                folder: this.folder,
-            });
+            this.$emit('edit-folder')
         },
     }
 };

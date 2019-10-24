@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="gray" label="History">
+  <pw-section class="green" icon="history" label="History">
     <ul>
       <li id="filter-history">
         <input aria-label="Search" type="text" placeholder="search history" :readonly="history.length === 0" v-model="filterText">
@@ -42,12 +42,12 @@
         </li>
         <div class="show-on-small-screen">
           <li>
-            <button v-tooltip="'Delete'" class="icon" :id="'delete-button#'+index" @click="deleteHistory(entry)" aria-label="Delete">
+            <button v-tooltip="'Delete entry'" class="icon" :id="'delete-button#'+index" @click="deleteHistory(entry)" aria-label="Delete">
               <i class="material-icons">delete</i>
             </button>
           </li>
           <li>
-            <button v-tooltip="'Edit'" class="icon" :id="'use-button#'+index" @click="useHistory(entry)" aria-label="Edit">
+            <button v-tooltip="'Edit entry'" class="icon" :id="'use-button#'+index" @click="useHistory(entry)" aria-label="Edit">
               <i class="material-icons">edit</i>
             </button>
           </li>

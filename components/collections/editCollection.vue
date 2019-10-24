@@ -41,9 +41,9 @@ import modal from "../../components/modal";
 
 export default {
     props: {
-        show: Boolean,
-        editingCollection: Object,
-        editingCollectionIndex: Number,
+        show                   : Boolean,
+        editingCollection      : Object,
+        editingCollectionIndex : Number,
     },
     components: {
         modal,

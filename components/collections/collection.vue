@@ -1,14 +1,5 @@
 <template>
     <div>
-        <addFolder
-            v-bind:show="showModal"
-            v-on:new-folder="addNewFolder"
-            v-on:hide-model='toggleModal'
-            v-bind:editing-folder="selectedFolder"
-            v-on:saved-folder="savedFolder"
-        >
-        </addFolder>
-
         <div class="flex-wrap">
           <div>
             <button class="icon" @click="toggleShowChildren">
@@ -22,10 +13,10 @@
             <button class="icon" @click="removeCollection" v-tooltip="'Delete collection'">
               <i class="material-icons">delete</i>
             </button>
-            <button class="icon" @click="editCollection" v-tooltip="'Edit collection'">
+            <button class="icon" @click="$emit('edit-collection')" v-tooltip="'Edit collection'">
               <i class="material-icons">create</i>
             </button>
-            <button class="icon" @click="toggleModal" v-tooltip="'New Folder'">
+            <button class="icon" @click="$emit('add-folder')" v-tooltip="'New Folder'">
               <i class="material-icons">create_new_folder</i>
             </button>
           </div>
@@ -35,10 +26,10 @@
             <ul>
                 <li v-for="(folder, index) in collection.folders" :key="folder.name">
                     <folder
-                        :folder="folder"
-                        :folderIndex="index"
-                        :collection-index="collectionIndex"
-                        v-on:edit-folder="editFolder"
+                        v-bind:folder           = "folder"
+                        v-bind:folderIndex      = "index"
+                        v-bind:collection-index = "collectionIndex"
+                        v-on:edit-folder        = "editFolder(collectionIndex, folder, index)"
                     />
                 </li>
                 <li v-if="(collection.folders.length === 0) && (collection.requests.length === 0)">
@@ -75,13 +66,11 @@
 
 <script>
 import folder from './folder';
-import addFolder from "./addFolder";
 import request from './request';
 
 export default {
     components: {
         folder,
-        addFolder,
         request,
     },
     props: {
@@ -90,30 +79,13 @@ export default {
     },
     data () {
         return {
-            showChildren: false,
-            showModal: false,
-            selectedFolder: {},
+            showChildren   : false,
+            selectedFolder : {},
         };
     },
     methods: {
         toggleShowChildren() {
             this.showChildren = !this.showChildren;
-        },
-        toggleModal() {
-            this.showModal = !this.showModal;
-        },
-        addNewFolder(newFolder) {
-            this.$store.commit('postwoman/addFolder', {
-                collectionIndex: this.collectionIndex,
-                folder: newFolder,
-            });
-            this.showModal = false;
-        },
-        editCollection() {
-            this.$emit('edit-collection', {
-                collectionIndex: this.collectionIndex,
-                collection: this.collection,
-            });
         },
         removeCollection() {
             if (!confirm("Are you sure you want to remove this collection?")) return;
@@ -121,15 +93,8 @@ export default {
                 collectionIndex: this.collectionIndex,
             });
         },
-        editFolder(payload) {
-            const { folder, collectionIndex, folderIndex } = payload;
-            this.selectedFolder = Object.assign({ collectionIndex, folderIndex }, folder);
-            this.showModal = true;
-        },
-        savedFolder(savedFolder) {
-            this.$store.commit('postwoman/saveFolder', { savedFolder });
-            this.showModal = false;
-            this.selectedFolder = {};
+        editFolder(collectionIndex, folder, folderIndex) {
+            this.$emit('edit-folder', { collectionIndex, folder, folderIndex })
         },
     }
 };

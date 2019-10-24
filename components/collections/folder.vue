@@ -82,11 +82,7 @@ export default {
             });
         },
         editFolder() {
-            this.$emit('edit-folder', {
-                collectionIndex: this.collectionIndex,
-                folderIndex: this.folderIndex,
-                folder: this.folder,
-            });
+            this.$emit('edit-folder')
         },
     }
 };

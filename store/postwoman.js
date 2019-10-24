@@ -84,9 +84,9 @@ export const mutations = {
 
     addNewCollection (state, collection) {
         state.collections.push({
-            name: '',
-            folders: [],
-            requests: [],
+            name     : '',
+            folders  : [],
+            requests : [],
             ...collection,
         })
     },
@@ -98,22 +98,27 @@ export const mutations = {
 
     editCollection (state, payload) {
         const { collection, collectionIndex } = payload
-        state.collections[collectionIndex] = collection
+        state.collections[collectionIndex]    = collection
     },
 
-    addFolder (state, payload) {
+    addNewFolder (state, payload) {
         const { collectionIndex, folder } = payload;
-        state.collections[collectionIndex].folders.push(folder);
+        state.collections[collectionIndex].folders.push({
+            name     : '',
+            requests : [],
+            ...folder,
+        });
+    },
+
+    editFolder (state, payload) {
+        const { collectionIndex, folder, folderIndex } = payload;
+        state.collections[collectionIndex].folders[folderIndex] = folder;
+        state.collections[collectionIndex].folders = [...state.collections[collectionIndex].folders]  // mark updated
     },
 
     removeFolder (state, payload) {
         const { collectionIndex, folderIndex } = payload;
         state.collections[collectionIndex].folders.splice(folderIndex, 1)
-    },
-
-    saveFolder (state, payload) {
-        const { savedFolder } = payload;
-        state.collections[savedFolder.collectionIndex].folders[savedFolder.folderIndex] = savedFolder;
     },
 
     addRequest (state, payload) {

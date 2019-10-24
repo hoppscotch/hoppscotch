@@ -1,3 +1,8 @@
+<!--
+TODO:
+    - probably refactor and pass event arguments to modals directly without unpacking
+-->
+
 <template>
   <div class="collections-wrapper">
     <addCollection
@@ -28,6 +33,15 @@
         v-on:hide-modal        = 'displayModalEditFolder(false)'
     >
     </editFolder>
+    <editRequest
+        v-bind:show            = "showModalEditRequest"
+        v-bind:collectionIndex = "editingCollectionIndex"
+        v-bind:folderIndex     = "editingFolderIndex"
+        v-bind:request         = "editingRequest"
+        v-bind:requestIndex    = "editingRequestIndex"
+        v-on:hide-modal        = "displayModalEditRequest(false)"
+    >
+    </editRequest>
     <importExportCollections
         v-bind:show     = "showModalImportExport"
         v-on:hide-modal = 'displayModalImportExport(false)'
@@ -57,6 +71,7 @@
           v-on:edit-collection    = "editCollection(collection, index)"
           v-on:add-folder         = "addFolder(collection, index)"
           v-on:edit-folder        = "editFolder($event)"
+          v-on:edit-request       = "editRequest($event)"
           >
         </collection>
       </li>
@@ -80,6 +95,7 @@
   import collection              from './collection'
   import editCollection          from "./editCollection";
   import editFolder              from "./editFolder";
+  import editRequest             from "./editRequest";
   import importExportCollections from "./importExportCollections";
 
   export default {
@@ -89,6 +105,7 @@
       collection,
       editCollection,
       editFolder,
+      editRequest,
       importExportCollections,
     },
     data() {
@@ -98,10 +115,13 @@
         showModalImportExport  : false,
         showModalAddFolder     : false,
         showModalEditFolder    : false,
+        showModalEditRequest   : false,
         editingCollection      : undefined,
         editingCollectionIndex : undefined,
         editingFolder          : undefined,
         editingFolderIndex     : undefined,
+        editingRequest         : undefined,
+        editingRequestIndex    : undefined,
       }
     },
     computed: {
@@ -134,6 +154,12 @@
           if (!shouldDisplay)
             this.resetSelectedData()
       },
+      displayModalEditRequest(shouldDisplay) {
+          this.showModalEditRequest = shouldDisplay
+
+          if (!shouldDisplay)
+            this.resetSelectedData()
+      },
       editCollection(collection, collectionIndex) {
         this.$data.editingCollection      = collection
         this.$data.editingCollectionIndex = collectionIndex
@@ -152,11 +178,22 @@
         this.$data.editingFolderIndex     = folderIndex
         this.displayModalEditFolder(true)
       },
+      editRequest(payload) {
+        const { request, collectionIndex, folderIndex, requestIndex } = payload
+        this.$data.editingCollectionIndex = collectionIndex
+        this.$data.editingFolderIndex     = folderIndex
+        this.$data.editingRequest         = request
+        this.$data.editingRequestIndex    = requestIndex
+        this.displayModalEditRequest(true)
+
+      },
       resetSelectedData() {
         this.$data.editingCollection      = undefined
         this.$data.editingCollectionIndex = undefined
         this.$data.editingFolder          = undefined
         this.$data.editingFolderIndex     = undefined
+        this.$data.editingRequest         = undefined
+        this.$data.editingRequestIndex    = undefined
       },
     },
   }

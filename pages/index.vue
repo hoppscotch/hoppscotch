@@ -1,10 +1,10 @@
 <template>
   <div class="page">
-    <save-request
+    <save-request-as
       v-bind:show="showRequestModal"
       v-on:hide-model='hideRequestModal'
       v-bind:editing-request='editRequest'
-    ></save-request>
+    ></save-request-as>
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -364,7 +364,7 @@
   import toggle from "../components/toggle";
   import modal from "../components/modal";
   import collections from '../components/collections';
-  import saveRequest from '../components/collections/saveRequest';
+  import saveRequestAs from '../components/collections/saveRequestAs';
   import parseCurlCommand from '../assets/js/curlparser.js';
   import hljs from 'highlight.js';
   import 'highlight.js/styles/dracula.css';
@@ -428,7 +428,7 @@
       history,
       autocomplete,
       collections,
-      saveRequest,
+      saveRequestAs,
     },
     data() {
       return {

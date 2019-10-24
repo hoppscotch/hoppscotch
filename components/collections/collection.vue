@@ -30,6 +30,7 @@
                         v-bind:folderIndex      = "index"
                         v-bind:collection-index = "collectionIndex"
                         v-on:edit-folder        = "editFolder(collectionIndex, folder, index)"
+                        v-on:edit-request       = "$emit('edit-request', $event)"
                     />
                 </li>
                 <li v-if="(collection.folders.length === 0) && (collection.requests.length === 0)">
@@ -40,10 +41,11 @@
             <ul>
                 <li v-for="(request, index) in collection.requests" :key="index">
                     <request
-                        :request="request"
-                        :collection-index="collectionIndex"
-                        :folder-index="-1"
-                        :request-index="index"
+                        v-bind:request          = "request"
+                        v-bind:collection-index = "collectionIndex"
+                        v-bind:folder-index     = "-1"
+                        v-bind:request-index    = "index"
+                        v-on:edit-request       = "$emit('edit-request', { request, collectionIndex, folderIndex: undefined, requestIndex: index })"
                     ></request>
                 </li>
             </ul>
@@ -65,7 +67,7 @@
 </style>
 
 <script>
-import folder from './folder';
+import folder  from './folder';
 import request from './request';
 
 export default {
@@ -74,8 +76,8 @@ export default {
         request,
     },
     props: {
-        collectionIndex: Number,
-        collection: Object,
+        collectionIndex : Number,
+        collection      : Object,
     },
     data () {
         return {

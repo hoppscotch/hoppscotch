@@ -41,7 +41,7 @@
           <span>
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
-              @change="applySetting('FRAME_COLORS_ENABLED', $event)"
+              @change="toggleSetting('FRAME_COLORS_ENABLED')"
             >Multi-color {{ settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled" }}</pw-toggle>
           </span>
         </li>
@@ -52,7 +52,7 @@
         <li>
           <pw-toggle
             :on="settings.PROXY_ENABLED"
-            @change="applySetting('PROXY_ENABLED', $event)"
+            @change="toggleSetting('PROXY_ENABLED')"
           >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
         </li>
       </ul>
@@ -165,6 +165,7 @@
           THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || "",
           THEME_COLOR: "",
           THEME_COLOR_VIBRANT: true,
+
           FRAME_COLORS_ENABLED:
             this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
           PROXY_ENABLED:
@@ -218,7 +219,6 @@
         ).toUpperCase()}`;
       },
       applySetting(key, value) {
-        console.log(key, value)
         this.settings[key] = value;
         this.$store.commit("postwoman/applySetting", [key, value]);
       },

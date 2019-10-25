@@ -33,6 +33,7 @@
         </nav>
       </div>
     </header>
+    <br>
     <nuxt id="main" />
     <footer>
       <!-- Top section of footer: GitHub/install links -->

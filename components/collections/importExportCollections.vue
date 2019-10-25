@@ -20,8 +20,8 @@
     <div slot="footer">
       <ul>
         <li>
-          <button class="icon" @click="openDialogChooseFileToReplaceWith">
-            <i class="material-icons">get_app</i>
+          <button class="icon" @click="openDialogChooseFileToReplaceWith" v-tooltip="'Replace current'">
+            <i class="material-icons">create_new_folder</i>
             <span>Replace with JSON</span>
             <input
               type="file"
@@ -32,8 +32,8 @@
           </button>
         </li>
         <li>
-          <button class="icon" @click="openDialogChooseFileToImportFrom">
-            <i class="material-icons">get_app</i>
+          <button class="icon" @click="openDialogChooseFileToImportFrom" v-tooltip="'Preserve current'">
+            <i class="material-icons">folder_shared</i>
             <span>Import from JSON</span>
             <input
               type="file"
@@ -44,9 +44,9 @@
           </button>
         </li>
         <li>
-          <button class="icon" @click="exportJSON">
+          <button class="icon" @click="exportJSON" v-tooltip="'Download file'">
             <i class="material-icons">get_app</i>
-            <span>Export JSON</span>
+            <span>Export to JSON</span>
           </button>
         </li>
       </ul>

@@ -17,20 +17,24 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="requestData.name" v-bind:placeholder="defaultRequestName" />
-          <select type="text" v-model="requestData.collectionIndex">
+          <label for="selectLabel">Label</label>
+          <input type="text" id="selectLabel" v-model="requestData.name" v-bind:placeholder="defaultRequestName" />
+          <label for="selectCollection">Collection</label>
+          <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
             <option
               v-for="(collection, index) in $store.state.postwoman.collections"
               :key="index"
               :value="index"
             >{{ collection.name }}</option>
           </select>
-          <select type="text" v-model="requestData.folderIndex">
-            <option :key="undefined" :value="undefined"></option>
+          <label for="selectFolder">Folder</label>
+          <select type="text" id="selectFolder" v-model="requestData.folderIndex">
+            <option :key="undefined" :value="undefined">/</option>
             <option v-for="(folder, index) in folders" :key="index" :value="index">{{ folder.name }}</option>
           </select>
-          <select type="text" v-model="requestData.requestIndex">
-            <option :key="undefined" :value="undefined"></option>
+          <label for="selectRequest">Request</label>
+          <select type="text" id="selectRequest" v-model="requestData.requestIndex">
+            <option :key="undefined" :value="undefined">/</option>
             <option
               v-for="(folder, index) in requests"
               :key="index"
@@ -124,7 +128,7 @@
         const userDidntSpecifyCollection =
           this.$data.requestData.collectionIndex === undefined;
         if (userDidntSpecifyCollection) {
-          this.$toast.error("please, specify collection first", {
+          this.$toast.error("Select a Collection", {
             icon: "error"
           });
           return;

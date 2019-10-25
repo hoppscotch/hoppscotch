@@ -40,9 +40,9 @@
           <h3 class="title">Frames</h3>
           <span>
             <pw-toggle
-              :on="!settings.DISABLE_FRAME_COLORS"
-              @change="applySetting('DISABLE_FRAME_COLORS', $event)"
-            >Multi-color {{ settings.DISABLE_FRAME_COLORS ? "Disabled" : "Enabled" }}</pw-toggle>
+              :on="settings.FRAME_COLORS_ENABLED"
+              @change="applySetting('FRAME_COLORS_ENABLED', $event)"
+            >Multi-color {{ settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled" }}</pw-toggle>
           </span>
         </li>
       </ul>
@@ -51,7 +51,6 @@
       <ul>
         <li>
           <pw-toggle
-            :on="settings.PROXY_ENABLED"
             @change="applySetting('PROXY_ENABLED', $event)"
           >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
         </li>
@@ -165,9 +164,8 @@
           THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || "",
           THEME_COLOR: "",
           THEME_COLOR_VIBRANT: true,
-
-          DISABLE_FRAME_COLORS:
-            this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false,
+          FRAME_COLORS_ENABLED:
+            this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
           PROXY_ENABLED:
             this.$store.state.postwoman.settings.PROXY_ENABLED || false,
           PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "",
@@ -219,6 +217,7 @@
         ).toUpperCase()}`;
       },
       applySetting(key, value) {
+        console.log(key, value)
         this.settings[key] = value;
         this.$store.commit("postwoman/applySetting", [key, value]);
       },

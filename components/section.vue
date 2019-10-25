@@ -1,5 +1,5 @@
 <template>
-  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': noFrameColors }">
+  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
     <legend @click.prevent="collapse">
       <i class="material-icons icon">{{ icon }}</i>
       <span>{{ label }}</span>
@@ -24,8 +24,8 @@
 <script>
   export default {
     computed: {
-      noFrameColors() {
-        return this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false;
+      frameColorsEnabled() {
+        return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false;
       }
     },
 

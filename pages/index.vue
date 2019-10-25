@@ -1127,6 +1127,7 @@
             this.auth = 'None';
             this.httpUser = '';
             this.httpPassword = '';
+            this.bearerToken = '';
             break;
           case "headers":
             this.headers = [];
@@ -1143,6 +1144,7 @@
             this.auth = 'None';
             this.httpUser = '';
             this.httpPassword = '';
+            this.bearerToken = '';
             this.headers = [];
             this.params = [];
             this.bodyParams = [];

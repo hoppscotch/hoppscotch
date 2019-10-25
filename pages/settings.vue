@@ -51,6 +51,7 @@
       <ul>
         <li>
           <pw-toggle
+            :on="settings.PROXY_ENABLED"
             @change="applySetting('PROXY_ENABLED', $event)"
           >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
         </li>

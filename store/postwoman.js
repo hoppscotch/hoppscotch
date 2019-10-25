@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 export const SETTINGS_KEYS = [
     /**
      * The CSS class that should be applied to the root element.
@@ -42,14 +44,14 @@ export const SETTINGS_KEYS = [
 ];
 
 export const state = () => ({
-    settings: {},
-    collections: [{
-        name: 'My First Collection',
-        folders: [],
-        requests: [],
+    settings        : {},
+    collections     : [{
+        name     : 'My First Collection',
+        folders  : [],
+        requests : [],
     }],
-    selectedRequest: {},
-    editingRequest: {},
+    selectedRequest : {},
+    editingRequest  : {},
 });
 
 export const mutations = {
@@ -68,8 +70,27 @@ export const mutations = {
         state.settings[key] = value;
     },
 
-    addCollection (state, newCollection) {
-        state.collections.push(newCollection);
+    replaceCollections (state, collections) {
+        state.collections = collections;
+    },
+
+    importCollections (state, collections) {
+        state.collections = [...state.collections, ...collections];
+
+        let index = 0;
+        for (let collection of collections) {
+            collection.collectionIndex = index;
+            index += 1;
+        }
+    },
+
+    addNewCollection (state, collection) {
+        state.collections.push({
+            name     : '',
+            folders  : [],
+            requests : [],
+            ...collection,
+        })
     },
 
     removeCollection (state, payload) {
@@ -77,14 +98,23 @@ export const mutations = {
         state.collections.splice(collectionIndex, 1)
     },
 
-    saveCollection (state, payload) {
-        const { savedCollection } = payload;
-        state.collections[savedCollection.collectionIndex] = savedCollection;
+    editCollection (state, payload) {
+        const { collection, collectionIndex } = payload
+        state.collections[collectionIndex]    = collection
     },
 
-    addFolder (state, payload) {
+    addNewFolder (state, payload) {
         const { collectionIndex, folder } = payload;
-        state.collections[collectionIndex].folders.push(folder);
+        state.collections[collectionIndex].folders.push({
+            name     : '',
+            requests : [],
+            ...folder,
+        });
+    },
+
+    editFolder (state, payload) {
+        const { collectionIndex, folder, folderIndex } = payload;
+        Vue.set(state.collections[collectionIndex].folders, folderIndex, folder)
     },
 
     removeFolder (state, payload) {
@@ -92,14 +122,9 @@ export const mutations = {
         state.collections[collectionIndex].folders.splice(folderIndex, 1)
     },
 
-    saveFolder (state, payload) {
-        const { savedFolder } = payload;
-        state.collections[savedFolder.collectionIndex].folders[savedFolder.folderIndex] = savedFolder;
-    },
-
     addRequest (state, payload) {
         const { request } = payload;
-        
+
         // Request that is directly attached to collection
         if (request.folder === -1) {
             state.collections[request.collection].requests.push(request);
@@ -107,6 +132,67 @@ export const mutations = {
         }
 
         state.collections[request.collection].folders[request.folder].requests.push(request);
+    },
+
+    editRequest (state, payload) {
+        const {
+            requestOld,
+            requestOldCollectionIndex,
+            requestOldFolderIndex,
+            requestOldIndex,
+            requestNew,
+            requestNewCollectionIndex,
+            requestNewFolderIndex,
+        } = payload
+
+        const changedCollection = requestOldCollectionIndex !== requestNewCollectionIndex
+        const changedFolder     = requestOldFolderIndex     !== requestNewFolderIndex
+        const changedPlace      = changedCollection || changedFolder
+
+        // set new request
+        if (requestNewFolderIndex !== undefined)
+            Vue.set(state.collections[requestNewCollectionIndex].folders[requestNewFolderIndex].requests, requestOldIndex, requestNew)
+        else
+            Vue.set(state.collections[requestNewCollectionIndex].requests, requestOldIndex, requestNew)
+
+        // remove old request
+        if (changedPlace) {
+            if (requestOldFolderIndex !== undefined)
+                state.collections[requestOldCollectionIndex].folders[requestOldFolderIndex].requests.splice(requestOldIndex, 1)
+            else
+                state.collections[requestOldCollectionIndex].requests.splice(requestOldIndex, 1)
+        }
+    },
+
+    saveRequestAs (state, payload) {
+        const {
+            request,
+            collectionIndex,
+            folderIndex,
+            requestIndex,
+        } = payload
+
+        const specifiedCollection = collectionIndex !== undefined
+        const specifiedFolder     = folderIndex     !== undefined
+        const specifiedRequest    = requestIndex    !== undefined
+
+        if      (specifiedCollection && specifiedFolder && specifiedRequest)
+            Vue.set(state.collections[collectionIndex].folders[folderIndex].requests, requestIndex, request)
+        else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
+            const requests         = state.collections[collectionIndex].folders[folderIndex].requests
+            const lastRequestIndex = requests.length - 1;
+            Vue.set(requests, lastRequestIndex + 1, request)
+        }
+        else if (specifiedCollection && !specifiedFolder && specifiedRequest) {
+            const requests         = state.collections[collectionIndex].requests
+            Vue.set(requests,requestIndex, request)
+        }
+        else if (specifiedCollection && !specifiedFolder && !specifiedRequest) {
+            const requests         = state.collections[collectionIndex].requests
+            const lastRequestIndex = requests.length - 1;
+            Vue.set(requests, lastRequestIndex + 1, request)
+        }
+
     },
 
     saveRequest (state, payload) {
@@ -126,14 +212,14 @@ export const mutations = {
 
         delete request.oldCollection;
         delete request.oldFolder;
-        
+
         // Request that is directly attached to collection
         if (request.folder === -1) {
-            state.collections[request.collection].requests[request.requestIndex] = request;
+            Vue.set(state.collections[request.collection].requests, request.requestIndex, request)
             return
         }
 
-        state.collections[request.collection].folders[request.folder].requests[request.requestIndex] = request;
+        Vue.set(state.collections[request.collection].folders[request.folder].requests, request.requestIndex, request)
     },
 
     removeRequest (state, payload) {
@@ -150,10 +236,6 @@ export const mutations = {
 
     selectRequest (state, payload) {
         state.selectedRequest = Object.assign({}, payload.request);
-    },
-
-    editRequest (state, payload) {
-        state.editingRequest = Object.assign({}, payload.request);
     },
 
 };

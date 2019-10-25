@@ -38,6 +38,7 @@
         </ul>
       </div>
     </pw-modal>
+
     <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
       <ul>
         <li>
@@ -206,9 +207,9 @@
             id="copyRequest"
             ref="copyRequest"
             :disabled="!isValidURL"
-            v-tooltip.bottom="'Sharable request URL'"
+            v-tooltip.bottom="'Copy Request URL'"
           >
-            <i class="material-icons">share</i>
+            <i class="material-icons">file_copy</i>
           </button>
           <button
             class="icon"
@@ -220,7 +221,7 @@
           >
             <i class="material-icons">save</i>
           </button>
-          <button class="icon" @click="clearContent" v-tooltip.bottom="'Clear all'">
+          <button class="icon" @click="clearContent" v-tooltip.bottom="'Clear All'">
             <i class="material-icons">clear_all</i>
           </button>
         </div>
@@ -263,62 +264,7 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="purple" icon="cloud_download" id="response" label="Response" ref="response">
-      <ul>
-        <li>
-          <label for="status">status</label>
-          <input
-            :class="statusCategory ? statusCategory.className : ''"
-            :value="response.status || '(waiting to send request)'"
-            ref="status"
-            id="status"
-            name="status"
-            readonly
-            type="text"
-          />
-        </li>
-      </ul>
-      <ul v-for="(value, key) in response.headers" :key="key">
-        <li>
-          <label :for="key">{{key}}</label>
-          <input :id="key" :value="value" :name="key" readonly />
-        </li>
-      </ul>
-      <ul v-if="response.body">
-        <li>
-          <div class="flex-wrap">
-            <label for="body">response</label>
-            <div>
-              <button class="icon" @click="copyResponse" ref="copyResponse" v-if="response.body">
-                <i class="material-icons">file_copy</i>
-                <span>Copy</span>
-              </button>
-            </div>
-          </div>
-          <div id="response-details-wrapper">
-            <pre><code
-  ref="responseBody"
-  id="body"
-  rows="16"
-  placeholder="(waiting to send request)"
->{{response.body}}</code></pre>
-            <iframe
-              :class="{hidden: !previewEnabled}"
-              class="covers-response"
-              ref="previewFrame"
-              src="about:blank"
-            ></iframe>
-          </div>
-          <div class="align-right" v-if="response.body && responseType === 'text/html'">
-            <button class="icon" @click.prevent="togglePreview">
-              <i class="material-icons" v-if="!previewEnabled">visibility</i>
-              <i class="material-icons" v-if="previewEnabled">visibility_off</i>
-              <span>{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</span>
-            </button>
-          </div>
-        </li>
-      </ul>
-    </pw-section>
+
     <section>
       <input id="tab-one" type="radio" name="grp" checked="checked" />
       <label for="tab-one">Authentication</label>
@@ -373,6 +319,9 @@
               <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
             </li>
           </ul>
+          <p class="align-right"><pw-toggle
+            :on="!urlExcludes.auth"
+            @change="setExclude('auth', !$event)">Include Authentication in URL</pw-toggle></p>
         </pw-section>
       </div>
       <input id="tab-two" type="radio" name="grp" />
@@ -492,10 +441,75 @@
         </pw-section>
       </div>
     </section>
-    <history @useHistory="handleUseHistory" ref="historyComponent"></history>
-    <pw-section class="yellow" icon="folder_special" label="Collections" ref="Collections">
-      <collections></collections>
+
+    <br>
+
+    <pw-section class="purple" icon="cloud_download" id="response" label="Response" ref="response">
+      <ul>
+        <li>
+          <label for="status">status</label>
+          <input
+            :class="statusCategory ? statusCategory.className : ''"
+            :value="response.status || '(waiting to send request)'"
+            ref="status"
+            id="status"
+            name="status"
+            readonly
+            type="text"
+          />
+        </li>
+      </ul>
+      <ul v-for="(value, key) in response.headers" :key="key">
+        <li>
+          <label :for="key">{{key}}</label>
+          <input :id="key" :value="value" :name="key" readonly />
+        </li>
+      </ul>
+      <ul v-if="response.body">
+        <li>
+          <div class="flex-wrap">
+            <label for="body">response</label>
+            <div>
+              <button class="icon" @click="copyResponse" ref="copyResponse" v-if="response.body">
+                <i class="material-icons">file_copy</i>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+          <div id="response-details-wrapper">
+            <pre><code
+              ref="responseBody"
+              id="body"
+              rows="16"
+              placeholder="(waiting to send request)"
+            >{{response.body}}</code></pre>
+            <iframe
+              :class="{hidden: !previewEnabled}"
+              class="covers-response"
+              ref="previewFrame"
+              src="about:blank"
+            ></iframe>
+          </div>
+          <div class="align-right" v-if="response.body && responseType === 'text/html'">
+            <button class="icon" @click.prevent="togglePreview">
+              <i class="material-icons" v-if="!previewEnabled">visibility</i>
+              <i class="material-icons" v-if="previewEnabled">visibility_off</i>
+              <span>{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</span>
+            </button>
+          </div>
+        </li>
+      </ul>
     </pw-section>
+
+    <br>
+
+    <pw-section class="yellow" icon="folder_special" label="Collections" ref="Collections">
+      <collections />
+    </pw-section>
+
+    <br>
+
+    <history @useHistory="handleUseHistory" ref="historyComponent"></history>
   </div>
 </template>
 <script>
@@ -577,7 +591,7 @@ export default {
     collections,
     saveRequestAs
   },
-  data() {
+  data () {
     return {
       label: "",
       showModal: false,
@@ -628,10 +642,18 @@ export default {
         "text/plain"
       ],
       showRequestModal: false,
-      editRequest: {}
+      editRequest: {},
+
+      urlExcludes: {}
     };
   },
   watch: {
+    urlExcludes: {
+        deep: true,
+        handler () {
+          this.$store.commit("postwoman/applySetting", ['URL_EXCLUDES', Object.assign({}, this.urlExcludes)]);
+        }
+    },
     contentType(val) {
       this.rawInput = !this.knownContentTypes.includes(val);
     },
@@ -1218,13 +1240,13 @@ export default {
         document.execCommand("copy");
         document.body.removeChild(dummy);
         this.$refs.copyRequest.innerHTML = this.copiedButton;
-        this.$toast.success("Copied to clipboard", {
+        this.$toast.info("Copied to clipboard", {
           icon: "done"
         });
         setTimeout(
           () =>
             (this.$refs.copyRequest.innerHTML =
-              '<i class="material-icons">share</i>'),
+              '<i class="material-icons">file_copy</i>'),
           1000
         );
       }
@@ -1311,12 +1333,12 @@ export default {
         "method",
         "url",
         "path",
-        "auth",
+        !this.urlExcludes.auth ? "auth" : null,
         "httpUser",
         "httpPassword",
         "bearerToken",
         "contentType"
-      ].map(item => flat(item));
+      ].filter((item) => item !== null).map(item => flat(item));
       let deeps = ["headers", "params"].map(item => deep(item));
       let bodyParams = this.rawInput
         ? [flat("rawParams")]
@@ -1463,12 +1485,21 @@ export default {
     hideRequestModal() {
       this.showRequestModal = false;
       this.editRequest = {};
+    },
+    setExclude (excludedField, excluded) {
+        this.urlExcludes[excludedField] = excluded;
+        this.setRouteQueryState();
     }
   },
   mounted() {
     this.observeRequestButton();
   },
   created() {
+    this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
+        // Exclude authentication by default for security reasons.
+        auth: true
+    };
+
     if (Object.keys(this.$route.query).length)
       this.setRouteQueries(this.$route.query);
     this.$watch(

@@ -976,7 +976,7 @@ export default {
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
-            url: `${window.location.protocol}//${window.location.host}/proxy`,
+            url: `https://postwoman.apollotv.xyz/`,
             data: requestOptions
           }
         : requestOptions;

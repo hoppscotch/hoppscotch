@@ -13,7 +13,13 @@ app.use((req, res, next) => {
 });
 
 app.post('/', async (req, res) => {
-  const {method, url, auth, headers, data} = req.body;
+  const {
+    method,
+    url,
+    auth,
+    headers,
+    data
+  } = req.body;
 
   try {
     const payload = await axios({
@@ -25,14 +31,14 @@ app.post('/', async (req, res) => {
     });
 
     return await res.json({
-        data: payload.data,
-        status: payload.status,
-        statusText: payload.statusText,
-        headers: payload.headers,
+      data: payload.data,
+      status: payload.status,
+      statusText: payload.statusText,
+      headers: payload.headers,
     });
 
-  } catch(error) {
-    if(error.response) {
+  } catch (error) {
+    if (error.response) {
       const errorResponse = error.response;
       return await res.json({
         data: errorResponse.data,

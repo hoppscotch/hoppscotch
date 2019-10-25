@@ -228,6 +228,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
     <td align="center"><a href="https://github.com/nityanandagohain"><img src="https://github.com/nityanandagohain.png?size=100" width="100px;" alt="Nityananda Gohain"/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nityanandagohain" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/terranblake"><img src="https://github.com/terranblake.png?size=100" width="100px;" alt="Terran Blake"/><br /><sub><b>Terran Blake</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=terranblake" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://github.com/hosseinnedaee.png?size=100" width="100px;" alt="Hossein Nedaee"/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=hosseinnedaee" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/vlad0337187"><img src="https://github.com/vlad0337187.png?size=100" width="100px;" alt="Vladislav"/><br /><sub><b>Vladislav</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=vlad0337187" title="Code">💻</a></td>
   </tr>
 </table>
 

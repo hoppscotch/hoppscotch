@@ -48,6 +48,9 @@
       </ul>
     </pw-section>
     <pw-section class="blue" icon="public" label="Proxy">
+      <ul class="info">
+        <li><p>Postwoman's Proxy is hosted by ApolloTV.<br>You can read the ApolloTV privacy policy by clicking <a href="https://apollotv.xyz/legal" target="_blank">here</a/>.</p></li>
+      </ul>
       <ul>
         <li>
           <pw-toggle
@@ -74,6 +77,12 @@
     </pw-section>
   </div>
 </template>
+
+<style scoped>
+  .info {
+    margin-left: 5px;
+  }
+</style>
 
 <script>
   import section from "../components/section";

@@ -48,16 +48,18 @@
       </ul>
     </pw-section>
     <pw-section class="blue" icon="public" label="Proxy">
-      <ul class="info">
-        <li><p>Postwoman's Proxy is hosted by ApolloTV.<br>You can read the ApolloTV privacy policy by clicking <a href="https://apollotv.xyz/legal" target="_blank">here</a/>.</p></li>
-      </ul>
       <ul>
         <li>
-          <pw-toggle
-            :on="settings.PROXY_ENABLED"
-            @change="toggleSetting('PROXY_ENABLED')"
-          >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+          <span>
+            <pw-toggle
+              :on="settings.PROXY_ENABLED"
+              @change="toggleSetting('PROXY_ENABLED')"
+            >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+          </span>
         </li>
+      </ul>
+      <ul class="info">
+        <li><p>Postwoman's Proxy is hosted by ApolloTV.<br>Read the ApolloTV privacy policy <a href="https://apollotv.xyz/legal" target="_blank">here</a>.</p></li>
       </ul>
       <!--
       PROXY SETTINGS URL AND KEY
@@ -80,7 +82,8 @@
 
 <style scoped>
   .info {
-    margin-left: 5px;
+    margin-left: 4px;
+    color: var(--fg-light-color);
   }
 </style>
 

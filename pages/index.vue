@@ -319,9 +319,13 @@
               <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
             </li>
           </ul>
-          <p class="align-right"><pw-toggle
+          <div class="flex-wrap">
+            <pw-toggle
             :on="!urlExcludes.auth"
-            @change="setExclude('auth', !$event)">Include Authentication in URL</pw-toggle></p>
+            @change="setExclude('auth', !$event)">
+              Include in URL
+            </pw-toggle>
+          </div>
         </pw-section>
       </div>
       <input id="tab-two" type="radio" name="grp" />

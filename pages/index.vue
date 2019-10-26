@@ -1531,7 +1531,8 @@ export default {
         this.setRouteQueryState();
     },
     methodChange() {
-      this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
+      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
+      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '';
     }
   },
   mounted() {

@@ -35,8 +35,6 @@ export default () => {
   });
 
   // When the app is uninstalled, add the prompts back
-
-
   return async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();

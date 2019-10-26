@@ -4,7 +4,7 @@
       <span class="handle"></span>
     </label>
     <label class="caption">
-      <slot/>
+      <slot />
     </label>
   </div>
 </template>
@@ -59,8 +59,8 @@
       margin: $handleSpacing;
       background-color: $inactiveHandleColor;
 
-      width: #{ $height - ($handleSpacing * 2) };
-      height: #{ $height - ($handleSpacing * 2) };
+      width: #{$height - ($handleSpacing * 2)};
+      height: #{$height - ($handleSpacing * 2)};
       border-radius: 100px;
 
       pointer-events: none;
@@ -77,14 +77,12 @@
       }
     }
   }
-
 </style>
 
 <script>
   export default {
-
     props: {
-      'on': {
+      on: {
         type: Boolean,
         default: false
       }
@@ -93,10 +91,8 @@
     methods: {
       toggle() {
         const containsOnClass = this.$refs.toggle.classList.toggle("on");
-        this.$emit('change', containsOnClass);
+        this.$emit("change", containsOnClass);
       }
     }
-
-  }
-
+  };
 </script>

@@ -1,6 +1,5 @@
 /**
   Main Themes:
-
   - dark (default)
   - light
   - black
@@ -33,6 +32,7 @@
 :root {
   @include darkTheme;
 }
+
 @media(prefers-color-scheme: dark) {
   :root.auto {
     @include darkTheme;
@@ -64,6 +64,7 @@
 :root.light {
   @include lightTheme;
 }
+
 @media(prefers-color-scheme: light) {
   :root.auto {
     @include lightTheme;
@@ -91,6 +92,7 @@
   // Active text color
   --act-color: #000000;
 }
+
 :root.black {
   @include blackTheme;
 }

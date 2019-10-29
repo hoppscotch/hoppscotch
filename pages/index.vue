@@ -1381,9 +1381,9 @@ export default {
         "url",
         "path",
         !this.urlExcludes.auth ? "auth" : null,
-        "httpUser",
-        "httpPassword",
-        "bearerToken",
+        !this.urlExcludes.httpUser ? "httpUser" : null,
+        !this.urlExcludes.httpPassword ? "httpPassword" : null,
+        !this.urlExcludes.bearerToken ? "bearerToken" : null,
         "contentType"
       ].filter((item) => item !== null).map(item => flat(item));
       let deeps = ["headers", "params"].map(item => deep(item));
@@ -1531,8 +1531,15 @@ export default {
       this.editRequest = {};
     },
     setExclude (excludedField, excluded) {
+      if (excludedField === "auth") {
+        this.urlExcludes.auth = excluded;
+        this.urlExcludes.httpUser = excluded;
+        this.urlExcludes.httpPassword = excluded;
+        this.urlExcludes.bearerToken = excluded;
+      } else {
         this.urlExcludes[excludedField] = excluded;
-        this.setRouteQueryState();
+      }
+      this.setRouteQueryState();
     },
     methodChange() {
       // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
@@ -1545,7 +1552,10 @@ export default {
   created() {
     this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
         // Exclude authentication by default for security reasons.
-        auth: true
+        auth: true,
+        httpUser: true,
+        httpPassword: true,
+        bearerToken: true
     };
 
     if (Object.keys(this.$route.query).length)

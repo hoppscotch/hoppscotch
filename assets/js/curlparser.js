@@ -97,9 +97,7 @@ function parseCurlCommand(curlCommand) {
     }
     parsedArguments.F.forEach(function(multipartArgument) {
       // input looks like key=value. value could be json or a file path prepended with an @
-      let splitArguments = multipartArgument.split("=", 2);
-      let key = splitArguments[0];
-      let value = splitArguments[1];
+      const [key, value] = multipartArgument.split("=", 2);
       multipartUploads[key] = value;
     });
   }

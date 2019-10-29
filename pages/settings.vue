@@ -40,9 +40,9 @@
           <h3 class="title">Frames</h3>
           <span>
             <pw-toggle
-              :on="!settings.DISABLE_FRAME_COLORS"
-              @change="applySetting('DISABLE_FRAME_COLORS', $event)"
-            >Multi-color {{ settings.DISABLE_FRAME_COLORS ? "Disabled" : "Enabled" }}</pw-toggle>
+              :on="settings.FRAME_COLORS_ENABLED"
+              @change="toggleSetting('FRAME_COLORS_ENABLED')"
+            >Multi-color {{ settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled" }}</pw-toggle>
           </span>
         </li>
       </ul>
@@ -50,11 +50,16 @@
     <pw-section class="blue" icon="public" label="Proxy">
       <ul>
         <li>
-          <pw-toggle
-            :on="settings.PROXY_ENABLED"
-            @change="applySetting('PROXY_ENABLED', $event)"
-          >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+          <span>
+            <pw-toggle
+              :on="settings.PROXY_ENABLED"
+              @change="toggleSetting('PROXY_ENABLED')"
+            >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+          </span>
         </li>
+      </ul>
+      <ul class="info">
+        <li><p>Postwoman's Proxy is hosted by ApolloTV.<br>Read the ApolloTV privacy policy <a href="https://apollotv.xyz/legal" target="_blank">here</a>.</p></li>
       </ul>
       <!--
       PROXY SETTINGS URL AND KEY
@@ -74,6 +79,13 @@
     </pw-section>
   </div>
 </template>
+
+<style scoped>
+  .info {
+    margin-left: 4px;
+    color: var(--fg-light-color);
+  }
+</style>
 
 <script>
   import section from "../components/section";
@@ -167,8 +179,8 @@
           THEME_TAB_COLOR: "",
           THEME_COLOR_VIBRANT: true,
 
-          DISABLE_FRAME_COLORS:
-            this.$store.state.postwoman.settings.DISABLE_FRAME_COLORS || false,
+          FRAME_COLORS_ENABLED:
+            this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
           PROXY_ENABLED:
             this.$store.state.postwoman.settings.PROXY_ENABLED || false,
           PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "",

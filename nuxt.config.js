@@ -27,9 +27,6 @@ export default {
   server: {
     host: '0.0.0.0', // default: localhost
   },
-  serverMiddleware: [
-    '~/proxy/index.js'
-  ],
   head: {
     title: `${meta.name} \u2022 ${meta.shortDescription}`,
     meta: [

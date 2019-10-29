@@ -130,6 +130,25 @@ _History entries can be sorted by any fields_
 
 _Histories can deleted one-by-one or all together_
 
+📁 **Collections**: Keep your API requests organized with collections and folders. Reuse them with a single click.
+
+**Options:**
+ - Create infinite collections, folders and requests
+ - Edit, delete, move, export, import and replace
+
+_Export, import and replace collections with JSON files_
+
+_Collections are synced with local session storage_
+
+📁 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs
+
+**Features:**
+ - Hide your IP address
+ - Fixes [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
+ - Access APIs served in non-HTTPS (`http://`, `localhost`, etc.)
+
+_Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
+
 ## Demo 🚀 [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io)
 
 [https://postwoman.io](https://postwoman.io)

@@ -130,22 +130,22 @@
           </ul>
           <ul v-for="(param, index) in bodyParams" :key="index">
             <li>
-              <input 
-                :placeholder="'key '+(index+1)" 
-                :name="'bparam'+index" 
-                :value="param.key" 
-                @change="$store.commit('setKeyBodyParams', { index, value: $event.target.value })" 
-                @keyup.prevent="setRouteQueryState" 
+              <input
+                :placeholder="'key '+(index+1)"
+                :name="'bparam'+index"
+                :value="param.key"
+                @change="$store.commit('setKeyBodyParams', { index, value: $event.target.value })"
+                @keyup.prevent="setRouteQueryState"
                 autofocus
               />
             </li>
             <li>
-              <input 
-                :placeholder="'value '+(index+1)" 
-                :id="'bvalue'+index" 
-                :name="'bvalue'+index" 
-                :value="param.value" 
-                @change="$store.commit('setValueBodyParams', { index, value: $event.target.value })" 
+              <input
+                :placeholder="'value '+(index+1)"
+                :id="'bvalue'+index"
+                :name="'bvalue'+index"
+                :value="param.value"
+                @change="$store.commit('setValueBodyParams', { index, value: $event.target.value })"
                 @keyup.prevent="setRouteQueryState"
               />
             </li>
@@ -357,21 +357,21 @@
           </ul>
           <ul v-for="(header, index) in headers" :key="index">
             <li>
-              <input 
-                :placeholder="'header '+(index+1)" 
-                :name="'header'+index" 
-                :value="header.key" 
-                @change="$store.commit('setKeyHeader', { index, value: $event.target.value })" 
-                @keyup.prevent="setRouteQueryState" 
+              <input
+                :placeholder="'header '+(index+1)"
+                :name="'header'+index"
+                :value="header.key"
+                @change="$store.commit('setKeyHeader', { index, value: $event.target.value })"
+                @keyup.prevent="setRouteQueryState"
                 autofocus
               />
             </li>
             <li>
-              <input 
-                :placeholder="'value '+(index+1)" 
-                :name="'value'+index" 
-                :value="header.value" 
-                @change="$store.commit('setValueHeader', { index, value: $event.target.value })"  
+              <input
+                :placeholder="'value '+(index+1)"
+                :name="'value'+index"
+                :value="header.value"
+                @change="$store.commit('setValueHeader', { index, value: $event.target.value })"
                 @keyup.prevent="setRouteQueryState"
               />
             </li>
@@ -420,19 +420,19 @@
           </ul>
           <ul v-for="(param, index) in params" :key="index">
             <li>
-              <input 
-                :placeholder="'parameter '+(index+1)" 
-                :name="'param'+index" 
-                :value="param.key" 
-                @change="$store.commit('setKeyParams', { index, value: $event.target.value })" 
+              <input
+                :placeholder="'parameter '+(index+1)"
+                :name="'param'+index"
+                :value="param.key"
+                @change="$store.commit('setKeyParams', { index, value: $event.target.value })"
                 autofocus
               />
             </li>
             <li>
-              <input 
-                :placeholder="'value '+(index+1)" 
-                :name="'value'+index" 
-                :value="param.value" 
+              <input
+                :placeholder="'value '+(index+1)"
+                :name="'value'+index"
+                :value="param.value"
                 @change="$store.commit('setValueParams', { index, value: $event.target.value })"
               />
             </li>

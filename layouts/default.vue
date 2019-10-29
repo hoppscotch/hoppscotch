@@ -223,6 +223,7 @@
           "--act-color",
           vibrant ? "rgb(37, 38, 40)" : "#ffffff"
         );
+        document.querySelector('meta[name=theme-color]').setAttribute('content', this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628")
       })();
     },
 

@@ -46,7 +46,7 @@
 
   ul li {
     display: flex;
-    padding-left: 16px;
+    margin-left: 32px;
     border-left: 1px solid var(--brd-color);
   }
 </style>

@@ -140,7 +140,7 @@ _Export, import and replace collections with JSON files_
 
 _Collections are synced with local session storage_
 
-📁 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs
+🌐 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs
 
 **Features:**
  - Hide your IP address

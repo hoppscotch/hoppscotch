@@ -38,7 +38,9 @@
         </ul>
       </div>
     </pw-modal>
-
+    <pw-section v-if="showPreRequestScript" label="Pre-Request" ref="preRequest">
+      <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="rawParams" spellcheck="false"></textarea>
+    </pw-section>
     <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
       <ul>
         <li>
@@ -130,22 +132,22 @@
           </ul>
           <ul v-for="(param, index) in bodyParams" :key="index">
             <li>
-              <input 
-                :placeholder="'key '+(index+1)" 
-                :name="'bparam'+index" 
-                :value="param.key" 
-                @change="$store.commit('setKeyBodyParams', { index, value: $event.target.value })" 
-                @keyup.prevent="setRouteQueryState" 
+              <input
+                :placeholder="'key '+(index+1)"
+                :name="'bparam'+index"
+                :value="param.key"
+                @change="$store.commit('setKeyBodyParams', { index, value: $event.target.value })"
+                @keyup.prevent="setRouteQueryState"
                 autofocus
               />
             </li>
             <li>
-              <input 
-                :placeholder="'value '+(index+1)" 
-                :id="'bvalue'+index" 
-                :name="'bvalue'+index" 
-                :value="param.value" 
-                @change="$store.commit('setValueBodyParams', { index, value: $event.target.value })" 
+              <input
+                :placeholder="'value '+(index+1)"
+                :id="'bvalue'+index"
+                :name="'bvalue'+index"
+                :value="param.value"
+                @change="$store.commit('setValueBodyParams', { index, value: $event.target.value })"
                 @keyup.prevent="setRouteQueryState"
               />
             </li>
@@ -200,6 +202,14 @@
           >
             <i class="material-icons" v-if="isHidden">visibility</i>
             <i class="material-icons" v-if="!isHidden">visibility_off</i>
+          </button>
+          <button
+            :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+            id="preRequestScriptButton"
+            v-tooltip.bottom="'Pre-Request Script'"
+            @click="showPreRequestScript = !showPreRequestScript"
+          >
+            <i class="material-icons" :class="showPreRequestScript">code</i>
           </button>
         </div>
         <div style="text-align: center;">
@@ -357,21 +367,21 @@
           </ul>
           <ul v-for="(header, index) in headers" :key="index">
             <li>
-              <input 
-                :placeholder="'header '+(index+1)" 
-                :name="'header'+index" 
-                :value="header.key" 
-                @change="$store.commit('setKeyHeader', { index, value: $event.target.value })" 
-                @keyup.prevent="setRouteQueryState" 
+              <input
+                :placeholder="'header '+(index+1)"
+                :name="'header'+index"
+                :value="header.key"
+                @change="$store.commit('setKeyHeader', { index, value: $event.target.value })"
+                @keyup.prevent="setRouteQueryState"
                 autofocus
               />
             </li>
             <li>
-              <input 
-                :placeholder="'value '+(index+1)" 
-                :name="'value'+index" 
-                :value="header.value" 
-                @change="$store.commit('setValueHeader', { index, value: $event.target.value })"  
+              <input
+                :placeholder="'value '+(index+1)"
+                :name="'value'+index"
+                :value="header.value"
+                @change="$store.commit('setValueHeader', { index, value: $event.target.value })"
                 @keyup.prevent="setRouteQueryState"
               />
             </li>
@@ -420,19 +430,19 @@
           </ul>
           <ul v-for="(param, index) in params" :key="index">
             <li>
-              <input 
-                :placeholder="'parameter '+(index+1)" 
-                :name="'param'+index" 
-                :value="param.key" 
-                @change="$store.commit('setKeyParams', { index, value: $event.target.value })" 
+              <input
+                :placeholder="'parameter '+(index+1)"
+                :name="'param'+index"
+                :value="param.key"
+                @change="$store.commit('setKeyParams', { index, value: $event.target.value })"
                 autofocus
               />
             </li>
             <li>
-              <input 
-                :placeholder="'value '+(index+1)" 
-                :name="'value'+index" 
-                :value="param.value" 
+              <input
+                :placeholder="'value '+(index+1)"
+                :name="'value'+index"
+                :value="param.value"
                 @change="$store.commit('setValueParams', { index, value: $event.target.value })"
               />
             </li>
@@ -540,6 +550,8 @@ import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import hljs from "highlight.js";
 import "highlight.js/styles/dracula.css";
+import getEnvironmentVariablesFromScript from "../functions/preRequest";
+import parseTemplateString from '../functions/templating'
 
 const statusCategories = [
   {
@@ -608,6 +620,8 @@ export default {
   data () {
     return {
       showModal: false,
+      showPreRequestScript: false,
+      preRequestScript: '',
       copyButton: '<i class="material-icons">file_copy</i>',
       copiedButton: '<i class="material-icons">done</i>',
       isHidden: true,
@@ -816,6 +830,10 @@ export default {
       return findStatusGroup(this.response.status);
     },
     isValidURL() {
+      if (this.showPreRequestScript) {
+        // we cannot determine if a URL is valid because the full string is not known ahead of time
+        return true;
+      }
       const protocol = "^(https?:\\/\\/)?";
       const validIP = new RegExp(
         protocol +
@@ -1017,7 +1035,13 @@ export default {
         behavior: "smooth"
       });
     },
-    async makeRequest(auth, headers, requestBody) {
+    getVariablesFromPreRequestScript() {
+      if(!this.preRequestScript) {
+        return {};
+      }
+      return getEnvironmentVariablesFromScript(this.preRequestScript);
+    },
+    async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
         method: this.method,
         url: this.url + this.pathName + this.queryString,
@@ -1025,7 +1049,14 @@ export default {
         headers,
         data: requestBody ? requestBody.toString() : null
       };
-
+      if (preRequestScript) {
+        const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript);
+        requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables);
+        //TODO parse all other headers
+      }
+      if (typeof requestOptions.data === 'string') {
+        requestOptions.data = parseTemplateString(requestOptions.data);
+      }
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
@@ -1114,7 +1145,7 @@ export default {
       try {
         const startTime = Date.now();
 
-        const payload = await this.makeRequest(auth, headers, requestBody);
+        const payload = await this.makeRequest(auth, headers, requestBody, this.preRequestScript);
 
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
@@ -1139,7 +1170,8 @@ export default {
             time,
             method: this.method,
             url: this.url,
-            path: this.path
+            path: this.path,
+            usesScripts: Boolean(this.preRequestScript)
           };
           this.$refs.historyComponent.addEntry(entry);
         })();
@@ -1158,7 +1190,8 @@ export default {
             time: new Date().toLocaleTimeString(),
             method: this.method,
             url: this.url,
-            path: this.path
+            path: this.path,
+            usesScripts: Boolean(this.preRequestScript)
           };
           this.$refs.historyComponent.addEntry(entry);
           return;

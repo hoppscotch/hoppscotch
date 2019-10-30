@@ -141,7 +141,7 @@ _Export, import and replace collections with JSON files_
 
 _Collections are synced with local session storage_
 
-🌐 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs
+🌐 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs.
 
 **Features:**
  - Hide your IP address
@@ -149,6 +149,15 @@ _Collections are synced with local session storage_
  - Access APIs served in non-HTTPS (`http://`, `localhost`, etc.)
 
 _Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
+
+📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
+
+**Use-cases:**
+ - Including the timestamp in the request headers
+ - Sending a random alphanumeric string in the URL parameters
+
+_Pre-Request Scripts is an experimental feature and is in Public Beta testing_
+_Requests with Pre-Request Scripts are indicated in History entries_
 
 ## Demo 🚀 [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io)
 

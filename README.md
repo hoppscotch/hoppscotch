@@ -45,12 +45,12 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 
 **Methods:**
  - `GET` - Retrieve information about the REST API resource
- - `HEAD` - Asks for a response identical to that of a GET request, but without the response body.
+ - `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
  - `POST` - Create a REST API resource
  - `PUT` - Update a REST API resource
  - `DELETE` - Delete a REST API resource or related component
  - `OPTIONS` - Describe the communication options for the target resource
- - `PATCH` - Applies partial modifications to a REST API resource
+ - `PATCH` - Apply partial modifications to a REST API resource
 
 _History entries are synced with local session storage_
 
@@ -119,7 +119,7 @@ _HTML responses have "Preview HTML" feature_
 
 ⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
-**Field:s**
+**Fields:**
  - Label
  - Timestamp
  - Method
@@ -293,9 +293,9 @@ Support this project with your organization. Your logo will show up here with a 
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments 🙏
+## Acknowledgements 🙏
 
-* Hat tip to anyone who's code was used
+* Hat tip to anyone whose code was used
 * Inspirations:
 	* [Dribbble](https://dribbble.com)
 

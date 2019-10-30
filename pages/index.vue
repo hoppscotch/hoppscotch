@@ -1052,7 +1052,14 @@ export default {
       if (preRequestScript) {
         const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript);
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables);
-        //TODO parse all other headers
+        requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables);
+        for (let k in requestOptions.headers) {
+          const kParsed = parseTemplateString(k, environmentVariables);
+          const valParsed = parseTemplateString(requestOptions.headers[k], environmentVariables);
+          delete requestOptions.headers[k];
+          requestOptions.headers[kParsed] = valParsed;
+        }
+
       }
       if (typeof requestOptions.data === 'string') {
         requestOptions.data = parseTemplateString(requestOptions.data);
@@ -1145,7 +1152,7 @@ export default {
       try {
         const startTime = Date.now();
 
-        const payload = await this.makeRequest(auth, headers, requestBody, this.preRequestScript);
+        const payload = await this.makeRequest(auth, headers, requestBody, this.showPreRequestScript && this.preRequestScript);
 
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {

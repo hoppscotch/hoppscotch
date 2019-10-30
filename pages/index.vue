@@ -5,6 +5,7 @@
       v-on:hide-model="hideRequestModal"
       v-bind:editing-request="editRequest"
     ></save-request-as>
+
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -38,9 +39,11 @@
         </ul>
       </div>
     </pw-modal>
-    <pw-section v-if="showPreRequestScript" label="Pre-Request" ref="preRequest">
+
+    <pw-section v-if="showPreRequestScript" class="orange" icon="code" label="Pre-Request • β (experimental)" ref="preRequest">
       <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="rawParams" spellcheck="false"></textarea>
     </pw-section>
+
     <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
       <ul>
         <li>
@@ -200,16 +203,17 @@
             :disabled="!isValidURL"
             v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code'}"
           >
-            <i class="material-icons" v-if="isHidden">visibility</i>
-            <i class="material-icons" v-if="!isHidden">visibility_off</i>
+            <i class="material-icons" v-if="isHidden">flash_on</i>
+            <i class="material-icons" v-if="!isHidden">flash_off</i>
           </button>
           <button
             :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
             id="preRequestScriptButton"
-            v-tooltip.bottom="'Pre-Request Script'"
+            v-tooltip.bottom="{ content: !showPreRequestScript ? 'Show Pre-Request Script' : 'Hide Pre-Request Script'}"
             @click="showPreRequestScript = !showPreRequestScript"
           >
-            <i class="material-icons" :class="showPreRequestScript">code</i>
+            <i class="material-icons" :class="showPreRequestScript" v-if="!showPreRequestScript">code</i>
+            <i class="material-icons" :class="showPreRequestScript" v-if="showPreRequestScript">close</i>
           </button>
         </div>
         <div style="text-align: center;">
@@ -239,7 +243,8 @@
         </div>
       </div>
     </pw-section>
-    <pw-section class="yellow" icon="code" label="Code" ref="requestCode" v-if="!isHidden">
+
+    <pw-section class="yellow" icon="flash_on" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>

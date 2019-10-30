@@ -5,6 +5,7 @@
       v-on:hide-model="hideRequestModal"
       v-bind:editing-request="editRequest"
     ></save-request-as>
+
     <pw-modal v-if="showModal" @close="showModal = false">
       <div slot="header">
         <ul>
@@ -38,6 +39,10 @@
         </ul>
       </div>
     </pw-modal>
+
+    <pw-section v-if="showPreRequestScript" class="orange" icon="code" label="Pre-Request • β (experimental)" ref="preRequest">
+      <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="rawParams" spellcheck="false"></textarea>
+    </pw-section>
 
     <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
       <ul>
@@ -198,8 +203,17 @@
             :disabled="!isValidURL"
             v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code'}"
           >
-            <i class="material-icons" v-if="isHidden">visibility</i>
-            <i class="material-icons" v-if="!isHidden">visibility_off</i>
+            <i class="material-icons" v-if="isHidden">flash_on</i>
+            <i class="material-icons" v-if="!isHidden">flash_off</i>
+          </button>
+          <button
+            :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+            id="preRequestScriptButton"
+            v-tooltip.bottom="{ content: !showPreRequestScript ? 'Show Pre-Request Script' : 'Hide Pre-Request Script'}"
+            @click="showPreRequestScript = !showPreRequestScript"
+          >
+            <i class="material-icons" :class="showPreRequestScript" v-if="!showPreRequestScript">code</i>
+            <i class="material-icons" :class="showPreRequestScript" v-if="showPreRequestScript">close</i>
           </button>
         </div>
         <div style="text-align: center;">
@@ -229,7 +243,8 @@
         </div>
       </div>
     </pw-section>
-    <pw-section class="yellow" icon="code" label="Code" ref="requestCode" v-if="!isHidden">
+
+    <pw-section class="yellow" icon="flash_on" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>
@@ -540,6 +555,8 @@ import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import hljs from "highlight.js";
 import "highlight.js/styles/dracula.css";
+import getEnvironmentVariablesFromScript from "../functions/preRequest";
+import parseTemplateString from '../functions/templating'
 
 const statusCategories = [
   {
@@ -608,6 +625,8 @@ export default {
   data () {
     return {
       showModal: false,
+      showPreRequestScript: false,
+      preRequestScript: '',
       copyButton: '<i class="material-icons">file_copy</i>',
       copiedButton: '<i class="material-icons">done</i>',
       isHidden: true,
@@ -816,6 +835,10 @@ export default {
       return findStatusGroup(this.response.status);
     },
     isValidURL() {
+      if (this.showPreRequestScript) {
+        // we cannot determine if a URL is valid because the full string is not known ahead of time
+        return true;
+      }
       const protocol = "^(https?:\\/\\/)?";
       const validIP = new RegExp(
         protocol +
@@ -1017,7 +1040,13 @@ export default {
         behavior: "smooth"
       });
     },
-    async makeRequest(auth, headers, requestBody) {
+    getVariablesFromPreRequestScript() {
+      if(!this.preRequestScript) {
+        return {};
+      }
+      return getEnvironmentVariablesFromScript(this.preRequestScript);
+    },
+    async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
         method: this.method,
         url: this.url + this.pathName + this.queryString,
@@ -1025,7 +1054,21 @@ export default {
         headers,
         data: requestBody ? requestBody.toString() : null
       };
+      if (preRequestScript) {
+        const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript);
+        requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables);
+        requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables);
+        for (let k in requestOptions.headers) {
+          const kParsed = parseTemplateString(k, environmentVariables);
+          const valParsed = parseTemplateString(requestOptions.headers[k], environmentVariables);
+          delete requestOptions.headers[k];
+          requestOptions.headers[kParsed] = valParsed;
+        }
 
+      }
+      if (typeof requestOptions.data === 'string') {
+        requestOptions.data = parseTemplateString(requestOptions.data);
+      }
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
@@ -1114,7 +1157,7 @@ export default {
       try {
         const startTime = Date.now();
 
-        const payload = await this.makeRequest(auth, headers, requestBody);
+        const payload = await this.makeRequest(auth, headers, requestBody, this.showPreRequestScript && this.preRequestScript);
 
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
@@ -1139,7 +1182,8 @@ export default {
             time,
             method: this.method,
             url: this.url,
-            path: this.path
+            path: this.path,
+            usesScripts: Boolean(this.preRequestScript)
           };
           this.$refs.historyComponent.addEntry(entry);
         })();
@@ -1158,7 +1202,8 @@ export default {
             time: new Date().toLocaleTimeString(),
             method: this.method,
             url: this.url,
-            path: this.path
+            path: this.path,
+            usesScripts: Boolean(this.preRequestScript)
           };
           this.$refs.historyComponent.addEntry(entry);
           return;

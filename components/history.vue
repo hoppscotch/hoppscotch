@@ -12,6 +12,7 @@
       </li>
     </ul>
     <ul>
+      <li style="max-width: 44px"></li>
       <li @click="sort_by_label()">
         <label class="flex-wrap">
           Label
@@ -50,6 +51,12 @@
       :remain="Math.min(5, filteredHistory.length)"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+        <li style="width: 44px">
+          <button v-if="entry.usesScripts"
+            v-tooltip="'This entry used pre-request scripts.'"
+            class="icon"
+          ><i class="material-icons" style="z-index: 10050;">code</i></button>
+        </li>
         <li>
           <input
             aria-label="Label"

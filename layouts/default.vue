@@ -230,6 +230,7 @@
       if (process.client) {
         document.body.classList.add("afterLoad");
       }
+      document.querySelector('meta[name=theme-color]').setAttribute('content', this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628");
 
       // Initializes the PWA code - checks if the app is installed,
       // etc.

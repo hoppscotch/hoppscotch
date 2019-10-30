@@ -13,6 +13,11 @@ export const SETTINGS_KEYS = [
   "THEME_COLOR",
 
   /**
+   * The hex color code for browser tab color.
+   */
+  "THEME_TAB_COLOR",
+
+  /**
    * Whether or not THEME_COLOR is considered 'vibrant'.
    *
    * For readability reasons, if the THEME_COLOR is vibrant,

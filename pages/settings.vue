@@ -5,7 +5,7 @@
         <li>
           <h3 class="title">Background</h3>
           <div class="backgrounds">
-            <span :key="theme.class" @click="applyTheme(theme.class)" v-for="theme in themes">
+            <span :key="theme.class" @click="applyTheme(theme.class, theme.color)" v-for="theme in themes">
               <swatch
                 :active="settings.THEME_CLASS === theme.class"
                 :class="{ vibrant: theme.vibrant }"
@@ -176,6 +176,7 @@
         settings: {
           THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || "",
           THEME_COLOR: "",
+          THEME_TAB_COLOR: "",
           THEME_COLOR_VIBRANT: true,
 
           FRAME_COLORS_ENABLED:
@@ -199,8 +200,10 @@
     },
 
     methods: {
-      applyTheme(name) {
+      applyTheme(name, color) {
         this.applySetting("THEME_CLASS", name);
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color)
+        this.applySetting("THEME_TAB_COLOR", color);
         document.documentElement.className = name;
         let imgGitHub = document.getElementById("imgGitHub");
         imgGitHub.style["filter"] = "";

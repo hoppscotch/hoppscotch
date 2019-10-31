@@ -37,7 +37,7 @@
       </ul>
       <ul>
         <li>
-          <h3 class="title">Frames</h3>
+          <h3 class="title">Labels</h3>
           <span>
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
@@ -240,6 +240,9 @@
       toggleSetting(key) {
         this.settings[key] = !this.settings[key];
         this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
+        this.$router.replace('/settings', {
+            force: true
+        });
       }
     },
     beforeMount() {

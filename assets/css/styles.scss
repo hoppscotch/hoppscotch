@@ -252,12 +252,16 @@ fieldset {
 }
 
 legend {
-  display: flex;
+  display: inline-block;
   align-items: center;
   justify-content: center;
   color: var(--fg-color);
   font-weight: 700;
   cursor: pointer;
+
+  * {
+    vertical-align: middle;
+  }
 
   i {
     margin-left: 8px;

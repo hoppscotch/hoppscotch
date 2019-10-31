@@ -3,7 +3,7 @@ When I wrote this, only God and I understood what I was doing. Now, only God kno
 ```
 
 <div align="center">
-  <a href="https://liyas-thomas.firebaseapp.com"><img src="static/icons/logo.svg" alt="Liyas Thomas" height="128"></a>
+  <a href="https://postwoman.io"><img src="static/icons/logo.svg" alt="Postwoman.io" height="128"></a>
   <br>
   <h1><a href="https://postwoman.io">Postwoman.io</a></h1>
   <p>
@@ -157,7 +157,10 @@ _Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
  - Sending a random alphanumeric string in the URL parameters
 
 _Pre-Request Scripts is an experimental feature and is in Public Beta testing_
+
 _Requests with Pre-Request Scripts are indicated in History entries_
+
+**To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 
 ## Demo 🚀 [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io)
 
@@ -308,8 +311,47 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 * Inspirations:
 	* [Dribbble](https://dribbble.com)
 
+## Badges
+
+**Default**
+
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b)](https://postwoman.io)
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b)](https://postwoman.io)
+```
+
+**Success**
+
+[![Postwoman](https://img.shields.io/badge/Trusted_by-Postwoman-success)](https://postwoman.io)
+```
+[![Postwoman](https://img.shields.io/badge/Trusted_by-Postwoman-success)](https://postwoman.io)
+```
+
+**Critical**
+
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical)](https://postwoman.io)
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical)](https://postwoman.io)
+```
+
+**Custom**
+
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet)](https://postwoman.io)
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet)](https://postwoman.io)
+```
+
+Make your own badge!
+
+[![Postwoman](https://img.shields.io/badge/<your_text>-Postwoman-<hex_color_code>)](https://postwoman.io)
+```
+[![Postwoman](https://img.shields.io/badge/<your_text>-Postwoman-<hex_color_code>)](https://postwoman.io)
+```
+
+Replace `<your text>` with your custom text and `<hex_color_code>` with 6 digit color hex code.
+
 <div align="center">
-    <a href="https://liyas-thomas.firebaseapp.com"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Liyas Thomas" width="200"></a>
+    <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Postwoman.io" width="200"></a>
     <br>
     <h3>Happy Coding ❤︎</h3>
 </div>

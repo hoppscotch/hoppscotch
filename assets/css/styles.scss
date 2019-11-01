@@ -74,10 +74,11 @@ h3 {
   z-index: 10000;
 
   .tooltip-inner {
-    background: #353535;
+    background: black;
     color: white;
-    border-radius: 16px;
-    padding: 5px 10px 4px;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
   }
 
   .tooltip-arrow {
@@ -86,7 +87,7 @@ h3 {
     border-style: solid;
     position: absolute;
     margin: 5px;
-    border-color: #353535;
+    border-color: black;
     z-index: 1;
   }
 
@@ -155,10 +156,10 @@ h3 {
 
     .popover-inner {
       background: $color;
-      color: #353535;
+      color: black;
       padding: 24px;
       border-radius: 5px;
-      box-shadow: 0 5px 30px rgba(#353535, .1);
+      box-shadow: 0 5px 30px rgba(black, .1);
     }
 
     .popover-arrow {

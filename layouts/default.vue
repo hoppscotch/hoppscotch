@@ -19,16 +19,16 @@
               We're using manual checks for linkActive because the query string
               seems to mess up the nuxt-link active class.
             -->
-            <nuxt-link to="/" :class="linkActive('/')">
+            <nuxt-link to="/" :class="linkActive('/')" v-tooltip.right="'Home'">
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
-            <nuxt-link to="/websocket" :class="linkActive('/websocket')">
+            <nuxt-link to="/websocket" :class="linkActive('/websocket')" v-tooltip.right="'WebSocket'">
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
               to="/settings"
               :class="linkActive('/settings')"
-              v-tooltip="'Settings'"
+              v-tooltip.right="'Settings'"
               aria-label="Settings"
             >
               <i class="material-icons">settings</i>
@@ -38,27 +38,27 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request">
+                  <a href="#request" v-tooltip.right="'Request'">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#options">
+                  <a href="#options" v-tooltip.right="'Options'">
                     <i class="material-icons">toc</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response">
+                  <a href="#response" v-tooltip.right="'Response'">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#collections">
+                  <a href="#collections" v-tooltip.right="'Collections'">
                     <i class="material-icons">folder_special</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#history">
+                  <a href="#history" v-tooltip.right="'History'">
                     <i class="material-icons">watch_later</i>
                   </a>
                 </li>
@@ -69,12 +69,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request">
+                  <a href="#request" v-tooltip.right="'Request'">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response">
+                  <a href="#response" v-tooltip.right="'Response'">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -85,12 +85,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#theme">
+                  <a href="#theme" v-tooltip.right="'Theme'">
                     <i class="material-icons">brush</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#proxy">
+                  <a href="#proxy" v-tooltip.right="'Proxy'">
                     <i class="material-icons">public</i>
                   </a>
                 </li>

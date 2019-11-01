@@ -40,11 +40,11 @@
       </div>
     </pw-modal>
 
-    <pw-section v-if="showPreRequestScript" class="orange" icon="code" label="Pre-Request • β (experimental)" ref="preRequest">
+    <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request • β (experimental)" ref="preRequest">
       <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="rawParams" spellcheck="false"></textarea>
     </pw-section>
 
-    <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
+    <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
           <label for="method">Method</label>
@@ -244,7 +244,7 @@
       </div>
     </pw-section>
 
-    <pw-section class="yellow" icon="flash_on" label="Code" ref="requestCode" v-if="!isHidden">
+    <pw-section class="yellow" label="Code" ref="requestCode" v-if="!isHidden">
       <ul>
         <li>
           <label for="requestType">Request Type</label>
@@ -282,11 +282,11 @@
       </ul>
     </pw-section>
 
-    <section>
+    <section id="options">
       <input id="tab-one" type="radio" name="grp" checked="checked" />
       <label for="tab-one">Authentication</label>
       <div class="tab">
-        <pw-section class="cyan" icon="vpn_key" label="Authentication">
+        <pw-section class="cyan" label="Authentication" ref="authentication">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -348,7 +348,7 @@
       <input id="tab-two" type="radio" name="grp" />
       <label for="tab-two">Headers</label>
       <div class="tab">
-        <pw-section class="orange" icon="toc" label="Headers">
+        <pw-section class="orange" label="Headers" ref="headers">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -411,7 +411,7 @@
       <input id="tab-three" type="radio" name="grp" />
       <label for="tab-three">Parameters</label>
       <div class="tab">
-        <pw-section class="pink" icon="input" label="Parameters">
+        <pw-section class="pink" label="Parameters" ref="parameters">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -473,7 +473,7 @@
 
     <br>
 
-    <pw-section class="purple" icon="cloud_download" id="response" label="Response" ref="response">
+    <pw-section class="purple" id="response" label="Response" ref="response">
       <ul>
         <li>
           <label for="status">status</label>
@@ -532,7 +532,7 @@
 
     <br>
 
-    <pw-section class="yellow" icon="folder_special" label="Collections" ref="Collections">
+    <pw-section class="yellow" label="Collections" ref="collections">
       <collections />
     </pw-section>
 

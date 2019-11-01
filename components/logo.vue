@@ -37,11 +37,12 @@
 
 <style>
   #circle3814 {
+    /* fill: var(--fg-color); */
+    fill: transparent;
+  }
+  /* #path3816 {
     fill: var(--bg-color);
-  }
-  #path3816 {
-    fill: var(--ac-color);
-  }
+  } */
 </style>
 
 <script>

@@ -1,41 +1,107 @@
 <template>
-  <div>
-    <header>
+  <div class="wrapper">
+    <header class="header">
       <div>
         <div class="slide-in">
           <nuxt-link to="/">
-            <h1 class="logo">
-              <logo alt style="height: 24px; margin-right: 16px"></logo>Postwoman
-            </h1>
+            <h1 class="logo">Postwoman</h1>
           </nuxt-link>
-          <h3>API request builder</h3>
+          <h3 class="tagline">API request builder</h3>
         </div>
-        <nav>
-          <!--
-           We're using manual checks for linkActive because the query string
-           seems to mess up the nuxt-link active class.
-          -->
-          <nuxt-link to="/" :class="linkActive('/')">HTTP</nuxt-link>
-          <nuxt-link to="/websocket" :class="linkActive('/websocket')">WebSocket</nuxt-link>
-          <nuxt-link
-            to="/settings"
-            :class="linkActive('/settings')"
-            v-tooltip="'Settings'"
-            aria-label="Settings"
-          >
-            <!-- Settings cog -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-              <path
-                d="M24 13.616v-3.232c-1.651-.587-2.694-.752-3.219-2.019v-.001c-.527-1.271.1-2.134.847-3.707l-2.285-2.285c-1.561.742-2.433 1.375-3.707.847h-.001c-1.269-.526-1.435-1.576-2.019-3.219h-3.232c-.582 1.635-.749 2.692-2.019 3.219h-.001c-1.271.528-2.132-.098-3.707-.847l-2.285 2.285c.745 1.568 1.375 2.434.847 3.707-.527 1.271-1.584 1.438-3.219 2.02v3.232c1.632.58 2.692.749 3.219 2.019.53 1.282-.114 2.166-.847 3.707l2.285 2.286c1.562-.743 2.434-1.375 3.707-.847h.001c1.27.526 1.436 1.579 2.019 3.219h3.232c.582-1.636.75-2.69 2.027-3.222h.001c1.262-.524 2.12.101 3.698.851l2.285-2.286c-.744-1.563-1.375-2.433-.848-3.706.527-1.271 1.588-1.44 3.221-2.021zm-12 2.384c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4z"
-              />
-            </svg>
-          </nuxt-link>
-        </nav>
       </div>
     </header>
-    <br>
-    <nuxt id="main" />
-    <footer>
+    <div class="content">
+      <div class="columns">
+        <nuxt id="main" class="main" />
+        <aside class="nav-first">
+          <nav class="primary-nav">
+            <!--
+              We're using manual checks for linkActive because the query string
+              seems to mess up the nuxt-link active class.
+            -->
+            <nuxt-link to="/" :class="linkActive('/')">
+              <logo alt style="height: 24px;"></logo>
+            </nuxt-link>
+            <nuxt-link to="/websocket" :class="linkActive('/websocket')">
+              <i class="material-icons">cloud</i>
+            </nuxt-link>
+            <nuxt-link
+              to="/settings"
+              :class="linkActive('/settings')"
+              v-tooltip="'Settings'"
+              aria-label="Settings"
+            >
+              <i class="material-icons">settings</i>
+            </nuxt-link>
+          </nav>
+          <div v-if="['/'].includes($route.path)">
+            <nav class="secondary-nav">
+              <ul>
+                <li>
+                  <a href="#request">
+                    <i class="material-icons">cloud_upload</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#options">
+                    <i class="material-icons">toc</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#response">
+                    <i class="material-icons">cloud_download</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#collections">
+                    <i class="material-icons">folder_special</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#history">
+                    <i class="material-icons">watch_later</i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div v-else-if="['/websocket'].includes($route.path)">
+            <nav class="secondary-nav">
+              <ul>
+                <li>
+                  <a href="#request">
+                    <i class="material-icons">cloud_upload</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#response">
+                    <i class="material-icons">cloud_download</i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div v-else-if="['/settings'].includes($route.path)">
+            <nav class="secondary-nav">
+              <ul>
+                <li>
+                  <a href="#theme">
+                    <i class="material-icons">brush</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#proxy">
+                    <i class="material-icons">public</i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </aside>
+        <aside class="nav-second"></aside>
+      </div>
+    </div>
+    <footer class="footer">
       <!-- Top section of footer: GitHub/install links -->
       <div class="flex-wrap">
         <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener">
@@ -87,6 +153,107 @@
 </template>
 
 <style lang="scss">
+  html {
+    scroll-behavior: smooth;
+  }
+
+  header,
+  footer {
+    & > div {
+      display: flex;
+      padding: 16px;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  body.sticky-footer footer {
+    opacity: 0.25;
+  }
+
+  .wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header,
+  .content,
+  .columns,
+  .footer {
+    display: flex;
+    flex: 1;
+  }
+
+  .logo {
+    font-size: 22px;
+    color: var(--ac-color);
+  }
+
+  .tagline {
+    font-size: 18px;
+  }
+
+  .nav-first {
+    display: flex;
+    order: 1;
+    flex-flow: column;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+  }
+
+  .main {
+    flex: 1;
+    order: 2;
+    position: relative;
+    padding: 0 8px;
+  }
+
+  .nav-second {
+    display: flex;
+    width: 10%;
+    order: 3;
+    // comment this to display
+    display: none;
+  }
+
+  nav.secondary-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ul {
+      display: flex;
+      flex-flow: column;
+
+      li {
+        display: flex;
+
+        a {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          border-radius: 50%;
+          background-color: var(--bg-dark-color);
+          color: var(--fg-light-color);
+          margin: 8px;
+
+          &:hover {
+            color: var(--fg-color);
+          }
+
+          &.current {
+            color: var(--ac-color);
+            fill: var(--ac-color);
+          }
+        }
+      }
+    }
+  }
+
   .slide-in {
     position: relative;
     animation: slideIn 0.2s forwards ease-in-out;
@@ -104,66 +271,63 @@
     }
   }
 
-  header,
-  #main,
-  footer {
-    margin: 0 auto;
-    max-width: 1200px;
+  .footer {
+    flex-direction: column;
   }
 
-  footer {
-    margin: 32px auto;
-  }
+  nav.primary-nav {
+    display: flex;
+    flex-flow: column;
+    border-bottom: 1px solid var(--brd-color);
 
-  nav {
     svg {
-      vertical-align: sub;
+      fill: var(--fg-light-color);
     }
 
     a {
-      display: inline-block;
-      position: relative;
-      padding: 8px 16px;
-      fill: var(--fg-color);
-      color: var(--fg-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border-radius: 8px;
+      background-color: var(--brd-color);
+      color: var(--fg-light-color);
+      margin: 8px;
+
+      &:hover {
+        color: var(--fg-color);
+
+        svg {
+          fill: var(--fg-color);
+        }
+      }
 
       &.nuxt-link-exact-active {
-        color: var(--act-color);
-        fill: var(--act-color);
-
-        &:before {
-          width: 100%;
-          height: 100%;
-        }
-      }
-
-      &:before {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: -1;
         background-color: var(--ac-color);
-        border-radius: 8px;
-        margin: auto;
-      }
+        color: var(--act-color);
 
-      &:not(.nuxt-link-exact-active):hover:before {
-        animation: linkHover 0.2s forwards ease-in-out;
-      }
-
-      @keyframes linkHover {
-        0% {
-          width: 0;
-          height: 2px;
-        }
-
-        100% {
-          width: 100%;
-          height: 2px;
+        svg {
+          fill: var(--act-color);
         }
       }
+    }
+  }
+
+  $responsiveWidth: 720px;
+
+  @media (max-width: $responsiveWidth) {
+    .columns {
+      flex-flow: column;
+    }
+    .nav-first {
+      width: 100%;
+      background-color: var(--bg-color);
+    }
+    nav.primary-nav {
+      flex-flow: row;
+    }
+    nav.secondary-nav {
+      display: none;
     }
   }
 </style>
@@ -230,7 +394,13 @@
       if (process.client) {
         document.body.classList.add("afterLoad");
       }
-      document.querySelector('meta[name=theme-color]').setAttribute('content', this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628");
+
+      document
+        .querySelector("meta[name=theme-color]")
+        .setAttribute(
+          "content",
+          this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628"
+        );
 
       // Initializes the PWA code - checks if the app is installed,
       // etc.
@@ -254,6 +424,23 @@
           });
         }
       })();
+
+      window.addEventListener("scroll", event => {
+        let mainNavLinks = document.querySelectorAll("nav ul li a");
+        let fromTop = window.scrollY;
+        mainNavLinks.forEach(link => {
+          let section = document.querySelector(link.hash);
+
+          if (
+            section.offsetTop <= fromTop &&
+            section.offsetTop + section.offsetHeight > fromTop
+          ) {
+            link.classList.add("current");
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
     },
 
     watch: {

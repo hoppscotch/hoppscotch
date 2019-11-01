@@ -21,12 +21,13 @@ body.afterLoad {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--fg-light-color);
   border-radius: 8px;
+  border: 2px solid var(--bg-color);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--fg-color);
 }
 
 ::placeholder {
@@ -57,6 +58,8 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
+  padding: 0;
+  margin: 0;
 }
 
 h1,
@@ -178,31 +181,6 @@ h3 {
 
 h3.title {
   margin: 4px;
-}
-
-header,
-footer {
-  &>div {
-    display: flex;
-    padding: 16px;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-nav {
-  a:not(:last-of-type) {
-    margin-right: 15px;
-  }
-}
-
-body.sticky-footer footer {
-  opacity: .25;
-}
-
-.logo {
-  color: var(--ac-color);
 }
 
 button {
@@ -429,16 +407,6 @@ ol li {
 }
 
 @media (max-width: $responsiveWidth) {
-  header div {
-    display: flex;
-    text-align: center;
-    flex-direction: column;
-
-    nav {
-      display: inline-flex;
-      margin-top: 20px;
-    }
-  }
 
   ul,
   ol {

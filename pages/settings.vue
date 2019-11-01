@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="cyan" icon="color_lens" label="Theme">
+    <pw-section class="cyan" label="Theme" ref="theme">
       <ul>
         <li>
           <h3 class="title">Background</h3>
@@ -47,7 +47,10 @@
         </li>
       </ul>
     </pw-section>
-    <pw-section class="blue" icon="public" label="Proxy">
+
+    <br>
+
+    <pw-section class="blue" label="Proxy" ref="proxy">
       <ul>
         <li>
           <span>

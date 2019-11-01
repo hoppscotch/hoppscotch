@@ -348,7 +348,7 @@ Make your own badge!
 [![Postwoman](https://img.shields.io/badge/<your_text>-Postwoman-<hex_color_code>)](https://postwoman.io)
 ```
 
-Replace `<your text>` with your custom text and `<hex_color_code>` with 6 digit color hex code.
+Replace `<your_text>` with your custom text and `<hex_color_code>` with 6 digit color hex code.
 
 <div align="center">
     <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Postwoman.io" width="200"></a>

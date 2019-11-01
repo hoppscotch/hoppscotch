@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="green" icon="history" label="History">
+  <pw-section class="green" icon="history" label="History" ref="history">
     <ul>
       <li id="filter-history">
         <input

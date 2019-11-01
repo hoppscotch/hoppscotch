@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="blue" icon="cloud_upload" label="Request" ref="request">
+    <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
           <label for="url">URL</label>
@@ -24,9 +24,11 @@
         </li>
       </ul>
     </pw-section>
+
+    <br>
+
     <pw-section
       class="purple"
-      icon="cloud_download"
       label="Communication"
       id="response"
       ref="response"

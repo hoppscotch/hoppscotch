@@ -209,7 +209,7 @@
     flex: 1;
     order: 2;
     position: relative;
-    padding: 0 8px;
+    padding: 0 16px;
   }
 
   .nav-second {
@@ -294,7 +294,7 @@
       background-color: var(--brd-color);
       color: var(--fg-light-color);
       margin: 8px;
-      transition: border-radius .2s ease-in-out;
+      transition: all .2s ease-in-out;
 
       &:hover {
         color: var(--fg-color);
@@ -331,6 +331,9 @@
     }
     nav.secondary-nav {
       display: none;
+    }
+    .main {
+      padding: 0 8px;
     }
   }
 </style>

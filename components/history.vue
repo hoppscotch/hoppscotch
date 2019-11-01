@@ -12,37 +12,33 @@
       </li>
     </ul>
     <ul>
-      <li style="max-width: 44px"></li>
+      <li></li>
       <li @click="sort_by_label()">
-        <label class="flex-wrap">
+        <label>
           Label
-          <i class="material-icons">unfold_more</i>
         </label>
       </li>
       <li @click="sort_by_time()">
-        <label class="flex-wrap">
+        <label>
           Time
-          <i class="material-icons">unfold_more</i>
         </label>
       </li>
       <li @click="sort_by_status_code()">
-        <label class="flex-wrap">
+        <label>
           Status
-          <i class="material-icons">unfold_more</i>
         </label>
       </li>
       <li @click="sort_by_url()">
-        <label class="flex-wrap">
+        <label>
           URL
-          <i class="material-icons">unfold_more</i>
         </label>
       </li>
       <li @click="sort_by_path()">
-        <label class="flex-wrap">
+        <label>
           Path
-          <i class="material-icons">unfold_more</i>
         </label>
       </li>
+      <li></li>
     </ul>
     <virtual-list
       class="virtual-list"
@@ -51,11 +47,19 @@
       :remain="Math.min(5, filteredHistory.length)"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
-        <li style="width: 44px">
+        <li>
           <button v-if="entry.usesScripts"
-            v-tooltip="'This entry used pre-request scripts.'"
+            v-tooltip="'This entry used pre-request scripts'"
             class="icon"
-          ><i class="material-icons" style="z-index: 10050;">code</i></button>
+          >
+            <i class="material-icons">code</i>
+          </button>
+          <button v-else
+            v-tooltip="'No pre-request scripts'"
+            class="icon"
+          >
+            <i class="material-icons">http</i>
+          </button>
         </li>
         <li>
           <input
@@ -67,7 +71,7 @@
           />
         </li>
         <li>
-          <input aria-label="Time" type="text" readonly :value="entry.time" :title="entry.date" />
+          <input aria-label="Time" type="text" readonly :value="entry.time" v-tooltip="entry.date" />
         </li>
         <li class="method-list-item">
           <input
@@ -139,7 +143,7 @@
         </button>
       </li>
       <li v-else>
-        <div class="flex-wrap">
+        <div>
           <label for="clear-history-button">Are you sure?</label>
           <div>
             <button class="icon" id="confirm-clear-history-button" @click="clearHistory">Yes</button>
@@ -158,8 +162,12 @@
     }
   }
 
-  .flex-wrap {
-    cursor: pointer;
+  label {
+
+    &:hover {
+      cursor: pointer;
+      color: var(--fg-color);
+    }
   }
 
   @media (max-width: 720px) {

@@ -41,7 +41,7 @@
     </pw-modal>
 
     <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request • β (experimental)" ref="preRequest">
-      <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="rawParams" spellcheck="false"></textarea>
+      <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="preRequestScript" spellcheck="false" placeholder='pw.environment.set("variable", "value");'></textarea>
     </pw-section>
 
     <pw-section class="blue" label="Request" ref="request">
@@ -282,10 +282,15 @@
       </ul>
     </pw-section>
 
+    <br>
+
     <section id="options">
       <input id="tab-one" type="radio" name="grp" checked="checked" />
       <label for="tab-one">Authentication</label>
       <div class="tab">
+
+        <br>
+
         <pw-section class="cyan" label="Authentication" ref="authentication">
           <ul>
             <li>
@@ -348,6 +353,9 @@
       <input id="tab-two" type="radio" name="grp" />
       <label for="tab-two">Headers</label>
       <div class="tab">
+
+        <br>
+
         <pw-section class="orange" label="Headers" ref="headers">
           <ul>
             <li>
@@ -411,6 +419,9 @@
       <input id="tab-three" type="radio" name="grp" />
       <label for="tab-three">Parameters</label>
       <div class="tab">
+
+        <br>
+
         <pw-section class="pink" label="Parameters" ref="parameters">
           <ul>
             <li>

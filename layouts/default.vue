@@ -8,6 +8,12 @@
           </nuxt-link>
           <h3 class="tagline">API request builder</h3>
         </div>
+        <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener">
+          <button class="icon">
+            <img id="imgGitHub" src="~static/icons/github.svg" alt="GitHub" :style="logoStyle()" />
+            <span>GitHub</span>
+          </button>
+        </a>
       </div>
     </header>
     <div class="content">
@@ -104,12 +110,6 @@
     <footer class="footer">
       <!-- Top section of footer: GitHub/install links -->
       <div class="flex-wrap">
-        <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener">
-          <button class="icon">
-            <img id="imgGitHub" src="~static/icons/github.svg" alt="GitHub" :style="logoStyle()" />
-            <span>GitHub</span>
-          </button>
-        </a>
         <button class="icon" id="installPWA" @click.prevent="showInstallPrompt()">
           <i class="material-icons">add_to_home_screen</i>
           <span>Install PWA</span>

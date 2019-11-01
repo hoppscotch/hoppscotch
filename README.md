@@ -322,9 +322,9 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 **Success**
 
-[![Postwoman](https://img.shields.io/badge/Trusted_by-Postwoman-success)](https://postwoman.io)
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success)](https://postwoman.io)
 ```
-[![Postwoman](https://img.shields.io/badge/Trusted_by-Postwoman-success)](https://postwoman.io)
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success)](https://postwoman.io)
 ```
 
 **Critical**

@@ -18,7 +18,6 @@
     </header>
     <div class="content">
       <div class="columns">
-        <nuxt id="main" class="main" />
         <aside class="nav-first">
           <nav class="primary-nav">
             <!--
@@ -104,6 +103,7 @@
             </nav>
           </div>
         </aside>
+        <nuxt id="main" class="main" />
         <aside class="nav-second"></aside>
       </div>
     </div>
@@ -202,6 +202,7 @@
     position: sticky;
     top: 0;
     align-self: flex-start;
+    z-index: 1;
   }
 
   .main {
@@ -289,10 +290,11 @@
       align-items: center;
       justify-content: center;
       padding: 16px;
-      border-radius: 8px;
+      border-radius: 50%;
       background-color: var(--brd-color);
       color: var(--fg-light-color);
       margin: 8px;
+      transition: border-radius .2s ease-in-out;
 
       &:hover {
         color: var(--fg-color);
@@ -305,6 +307,7 @@
       &.nuxt-link-exact-active {
         background-color: var(--ac-color);
         color: var(--act-color);
+        border-radius: 8px;
 
         svg {
           fill: var(--act-color);

@@ -1,15 +1,15 @@
-```
-When I wrote this, only God and I understood what I was doing. Now, only God knows.
-```
-
 <div align="center">
-  <a href="https://postwoman.io"><img src="static/icons/logo.svg" alt="Postwoman.io" height="128"></a>
+  <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" width="395" height="179"></a>
   <br>
-  <h1><a href="https://postwoman.io">Postwoman.io</a></h1>
+  <br>
   <p>
     API request builder - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
   </p>
 <p>
+
+```
+When I wrote this, only God and I understood what I was doing. Now, only God knows.
+```
 
 [![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Twitter URL](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
@@ -239,6 +239,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 ### Lead Developers
 
 * **[Liyas Thomas](https://github.com/liyasthomas)** - *Author*
+* **[Caneco](https://twitter.com/caneco)** - *Designer*
 
 ### Testing and Debugging
 

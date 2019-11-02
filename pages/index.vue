@@ -763,7 +763,6 @@ export default {
       this.url = newValue.url;
       this.path = newValue.path;
       this.method = newValue.method;
-      this.label = newValue.label;
       this.auth = newValue.auth;
       this.httpUser = newValue.httpUser;
       this.httpPassword = newValue.httpPassword;

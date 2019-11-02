@@ -24,7 +24,7 @@
         "@nuxtjs/pwa": "^3.0.0-beta.19",
         "@nuxtjs/sitemap": "^2.0.0",
         "@nuxtjs/toast": "^3.2.1",
-        "highlight.js": "^9.15.10",
+        "highlight.js": "^9.16.2",
         "nuxt": "^2.10.2",
         "v-tooltip": "^2.0.2",
         "vue-virtual-scroll-list": "^1.4.2",

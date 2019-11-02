@@ -26,6 +26,7 @@
           />
           <label for="selectCollection">Collection</label>
           <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
+            <option :key="undefined" :value="undefined" hidden disabled selected>Select a Collection</option>
             <option
               v-for="(collection, index) in $store.state.postwoman.collections"
               :key="index"

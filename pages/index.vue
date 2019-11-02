@@ -258,7 +258,7 @@
           >
             <i class="material-icons">save</i>
           </button>
-          <button class="icon" @click="clearContent" v-tooltip.bottom="'Clear All'">
+          <button class="icon" @click="clearContent('', $event)" v-tooltip.bottom="'Clear All'">
             <i class="material-icons">clear_all</i>
           </button>
         </div>
@@ -317,9 +317,8 @@
               <div class="flex-wrap">
                 <label for="auth">Authentication Type</label>
                 <div>
-                  <button class="icon" @click="clearContent('auth')">
+                  <button class="icon" @click="clearContent('auth', $event)" v-tooltip.bottom="'Clear'">
                     <i class="material-icons">clear_all</i>
-                    <span>Clear</span>
                   </button>
                 </div>
               </div>
@@ -377,9 +376,8 @@
               <div class="flex-wrap">
                 <label for="headerList">Header List</label>
                 <div>
-                  <button class="icon" @click="clearContent('headers')">
+                  <button class="icon" @click="clearContent('headers', $event)" v-tooltip.bottom="'Clear'">
                     <i class="material-icons">clear_all</i>
-                    <span>Clear</span>
                   </button>
                 </div>
               </div>
@@ -442,9 +440,8 @@
               <div class="flex-wrap">
                 <label for="paramList">Parameter List</label>
                 <div>
-                  <button class="icon" @click="clearContent('parameters')">
+                  <button class="icon" @click="clearContent('parameters', $event)" v-tooltip.bottom="'Clear'">
                     <i class="material-icons">clear_all</i>
-                    <span>Clear</span>
                   </button>
                 </div>
               </div>
@@ -1143,14 +1140,17 @@ export default {
     }
   },
   methods: {
+    scrollInto(view) {
+      this.$refs[view].$el.scrollIntoView({
+        behavior: "smooth"
+      });
+    },
     handleUseHistory({ label, method, url, path }) {
       this.label = label;
       this.method = method;
       this.url = url;
       this.path = path;
-      this.$refs.request.$el.scrollIntoView({
-        behavior: "smooth"
-      });
+      this.scrollInto('request');
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -1206,6 +1206,7 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear();
+      this.scrollInto('response');
 
       if (!this.isValidURL) {
         this.$toast.error("URL is not formatted properly", {
@@ -1221,9 +1222,6 @@ export default {
       if (this.$refs.response.$el.classList.contains("hidden")) {
         this.$refs.response.$el.classList.toggle("hidden");
       }
-      this.$refs.response.$el.scrollIntoView({
-        behavior: "smooth"
-      });
       this.previewEnabled = false;
       this.response.status = "Fetching...";
       this.response.body = "Loading...";
@@ -1641,7 +1639,7 @@ export default {
       this.passwordFieldType =
         this.passwordFieldType === "password" ? "text" : "password";
     },
-    clearContent(name) {
+    clearContent(name, e) {
       switch (name) {
         case "auth":
           this.auth = "None";
@@ -1670,9 +1668,16 @@ export default {
           this.bodyParams = [];
           this.rawParams = "";
       }
+      e.target.innerHTML = this.copiedButton;
       this.$toast.info("Cleared", {
         icon: "clear_all"
       });
+      setTimeout(
+        () =>
+          (e.target.innerHTML =
+            '<i class="material-icons">clear_all</i>'),
+        1000
+      );
     },
     saveRequest() {
       this.editRequest = {

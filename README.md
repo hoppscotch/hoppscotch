@@ -1,23 +1,22 @@
 <div align="center">
-  <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" width="395" height="179"></a>
+  <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="200"></a>
   <br>
   <br>
-  <p>
-    API request builder - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
+  <p style="font-weight: bold">
+    API request builder
   </p>
-<p>
-
-```
-When I wrote this, only God and I understood what I was doing. Now, only God knows.
-```
-
-[![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md) [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io) [![Financial Contributors on Open Collective](https://opencollective.com/postwoman/all/badge.svg?label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/$-donate-blue.svg)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Twitter URL](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
-
-</p>
-  <sub>Built with ❤︎ by
-    <a href="https://github.com/liyasthomas">liyasthomas</a> and
-    <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
-  </sub>
+  <p>
+    A free, fast, and beautiful alternative to Postman - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
+  </p>
+  <p>
+    [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io)](https://postwoman.io) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Twitter URL](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
+  </p>
+  <p>
+    <sub>Built with ❤︎ by
+      <a href="https://github.com/liyasthomas">liyasthomas</a> and
+      <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
+    </sub>
+  </p>
 </div>
 
 ---
@@ -162,7 +161,7 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 
-## Demo 🚀 [![Website](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=website)](https://postwoman.io)
+## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io)](https://postwoman.io)
 
 [https://postwoman.io](https://postwoman.io)
 
@@ -188,17 +187,17 @@ You're done!
 ## Developing 👷
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
-1. Start the development server with `npm run dev`.
-1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
+2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
+3. Start the development server with `npm run dev`.
+4. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 
 #### Or, with docker-compose:
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-1. Run `docker-compose up`
-1. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
+2. Run `docker-compose up`
+3. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/postwoman)](https://hub.docker.com/r/liyasthomas/postwoman)
+## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/postwoman?logo=Docker)](https://hub.docker.com/r/liyasthomas/postwoman)
 
 ```bash
 #pull
@@ -214,19 +213,19 @@ docker build -t postwoman:latest
 ## Releasing 🏷️
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-1. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
-1. Build the release files with `npm run build`.
-1. Find the built project in `./dist`.
+2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
+3. Build the release files with `npm run build`.
+4. Find the built project in `./dist`.
 
 ## Contributing 🍰
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-## Continuous Integration 💚 [![Build Status](https://travis-ci.com/liyasthomas/postwoman.svg?branch=master)](https://travis-ci.com/liyasthomas/postwoman)
+## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman)
 
 We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/liyasthomas/postwoman).
 
-## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all.svg)](https://github.com/liyasthomas/postwoman/releases/latest)
+## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest)
 
 This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
@@ -310,7 +309,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 * Hat tip to anyone whose code was used
 * Inspirations:
-	* [Dribbble](https://dribbble.com)
+  * [Dribbble](https://dribbble.com)
 
 ## Badges
 
@@ -352,7 +351,7 @@ Make your own badge!
 Replace `<your_text>` with your custom text and `<hex_color_code>` with 6 digit color hex code.
 
 <div align="center">
-    <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Postwoman.io" width="200"></a>
-    <br>
-    <h3>Happy Coding ❤︎</h3>
+  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Postwoman.io" width="200"></a>
+  <br>
+  <h3>Happy Coding ❤︎</h3>
 </div>

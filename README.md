@@ -2,11 +2,11 @@
   <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="200"></a>
   <br>
   <br>
-  <p style="font-weight: bold">
-    API request builder
+  <p>
+    API request builder - A free, fast, and beautiful alternative to Postman
   </p>
   <p>
-    A free, fast, and beautiful alternative to Postman - Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
+     Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
   </p>
   <p>
 

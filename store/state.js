@@ -1,4 +1,4 @@
-export default {
+export default () => ({
   request: {
     method: 'GET',
     url: 'https://reqres.in',
@@ -7,13 +7,14 @@ export default {
     auth: 'None',
     httpUser: '',
     httpPassword: '',
+    passwordFieldType: 'password',
     bearerToken: '',
     headers: [],
     params: [],
     bodyParams: [],
     rawParams: '',
     rawInput: false,
-    requestType: '',
+    requestType: 'JavaScript XHR',
     contentType: '',
   }
-};
+});

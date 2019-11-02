@@ -37,7 +37,6 @@
           <label>Collection is empty</label>
         </li>
       </ul>
-
       <ul>
         <li v-for="(request, index) in collection.requests" :key="index">
           <request

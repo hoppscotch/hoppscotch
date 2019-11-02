@@ -17,16 +17,20 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="requestUpdateData.name" v-bind:placeholder="request.name" />
-          <select type="text" v-model="requestUpdateData.collectionIndex">
+          <label for="selectLabel">Label</label>
+          <input type="text" id="selectLabel" v-model="requestUpdateData.name" :placeholder="request.name" />
+          <label for="selectCollection">Collection</label>
+          <select type="text" id="selectCollection" v-model="requestUpdateData.collectionIndex">
+            <option :key="undefined" :value="undefined" hidden disabled selected>Current Collection</option>
             <option
               v-for="(collection, index) in $store.state.postwoman.collections"
               :key="index"
               :value="index"
             >{{ collection.name }}</option>
           </select>
-          <select type="text" v-model="requestUpdateData.folderIndex">
-            <option :key="undefined" :value="undefined"></option>
+          <label for="selectFolder">Folder</label>
+          <select type="text" id="selectFolder" v-model="requestUpdateData.folderIndex">
+            <option :key="undefined" :value="undefined">/</option>
             <option v-for="(folder, index) in folders" :key="index" :value="index">{{ folder.name }}</option>
           </select>
         </li>

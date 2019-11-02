@@ -9,7 +9,9 @@ export default {
     const vuexLocalStorage = new VuexPersist({
       key: 'vuex',
       storage: window.localStorage,
-      reducer: ({ ...request }) => ({
+      reducer: ({
+        ...request
+      }) => ({
         ...request
       })
     })

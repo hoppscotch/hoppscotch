@@ -18,7 +18,12 @@
       <ul>
         <li>
           <label for="selectLabel">Label</label>
-          <input type="text" id="selectLabel" v-model="requestData.name" v-bind:placeholder="defaultRequestName" />
+          <input
+            type="text"
+            id="selectLabel"
+            v-model="requestData.name"
+            v-bind:placeholder="defaultRequestName"
+          />
           <label for="selectCollection">Collection</label>
           <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
             <option
@@ -58,101 +63,101 @@
 </template>
 
 <script>
-  import modal from "../../components/modal";
+import modal from "../../components/modal";
 
-  export default {
-    props: {
-      show: Boolean,
-      editingRequest: Object
-    },
-    components: {
-      modal
-    },
-    data() {
-      return {
-        defaultRequestName: "My New Request",
-        requestData: {
-          name: undefined,
-          collectionIndex: undefined,
-          folderIndex: undefined,
-          requestIndex: undefined
-        }
-      };
-    },
-    watch: {
-      "requestData.collectionIndex": function resetFolderAndRequestIndex() {
-        // if user choosen some folder, than selected other collection, which doesn't have any folders
-        // than `requestUpdateData.folderIndex` won't be reseted
-        this.$data.requestData.folderIndex = undefined;
-        this.$data.requestData.requestIndex = undefined;
-      },
-      "requestData.folderIndex": function resetRequestIndex() {
-        this.$data.requestData.requestIndex = undefined;
+export default {
+  props: {
+    show: Boolean,
+    editingRequest: Object
+  },
+  components: {
+    modal
+  },
+  data() {
+    return {
+      defaultRequestName: "My New Request",
+      requestData: {
+        name: undefined,
+        collectionIndex: undefined,
+        folderIndex: undefined,
+        requestIndex: undefined
       }
+    };
+  },
+  watch: {
+    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
+      // if user choosen some folder, than selected other collection, which doesn't have any folders
+      // than `requestUpdateData.folderIndex` won't be reseted
+      this.$data.requestData.folderIndex = undefined;
+      this.$data.requestData.requestIndex = undefined;
     },
-    computed: {
-      folders() {
-        const userSelectedAnyCollection =
-          this.$data.requestData.collectionIndex !== undefined;
-        if (!userSelectedAnyCollection) return [];
+    "requestData.folderIndex": function resetRequestIndex() {
+      this.$data.requestData.requestIndex = undefined;
+    }
+  },
+  computed: {
+    folders() {
+      const userSelectedAnyCollection =
+        this.$data.requestData.collectionIndex !== undefined;
+      if (!userSelectedAnyCollection) return [];
 
-        return this.$store.state.postwoman.collections[
+      return this.$store.state.postwoman.collections[
+        this.$data.requestData.collectionIndex
+      ].folders;
+    },
+    requests() {
+      const userSelectedAnyCollection =
+        this.$data.requestData.collectionIndex !== undefined;
+      if (!userSelectedAnyCollection) return [];
+
+      const userSelectedAnyFolder =
+        this.$data.requestData.folderIndex !== undefined;
+      if (userSelectedAnyFolder) {
+        const collection = this.$store.state.postwoman.collections[
           this.$data.requestData.collectionIndex
-        ].folders;
-      },
-      requests() {
-        const userSelectedAnyCollection =
-          this.$data.requestData.collectionIndex !== undefined;
-        if (!userSelectedAnyCollection) return [];
-
-        const userSelectedAnyFolder =
-          this.$data.requestData.folderIndex !== undefined;
-        if (userSelectedAnyFolder) {
-          const collection = this.$store.state.postwoman.collections[
-            this.$data.requestData.collectionIndex
-          ];
-          const folder = collection.folders[this.$data.requestData.folderIndex];
-          const requests = folder.requests;
-          return requests;
-        } else {
-          const collection = this.$store.state.postwoman.collections[
-            this.$data.requestData.collectionIndex
-          ];
-          const requests = collection.requests;
-          return requests;
-        }
-      }
-    },
-    methods: {
-      saveRequestAs() {
-        const userDidntSpecifyCollection =
-          this.$data.requestData.collectionIndex === undefined;
-        if (userDidntSpecifyCollection) {
-          this.$toast.error("Select a Collection", {
-            icon: "error"
-          });
-          return;
-        }
-
-        const requestUpdated = {
-          ...this.$props.editingRequest,
-          name: this.$data.requestData.name || this.$data.defaultRequestName,
-          collection: this.$data.requestData.collectionIndex
-        };
-
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.$data.requestData.collectionIndex,
-          folderIndex: this.$data.requestData.folderIndex,
-          requestIndex: this.$data.requestData.requestIndex
-        });
-
-        this.hideModal();
-      },
-      hideModal() {
-        this.$emit("hide-modal");
-        this.$emit("hide-model"); // for backward compatibility  // TODO: use fixed event
+        ];
+        const folder = collection.folders[this.$data.requestData.folderIndex];
+        const requests = folder.requests;
+        return requests;
+      } else {
+        const collection = this.$store.state.postwoman.collections[
+          this.$data.requestData.collectionIndex
+        ];
+        const requests = collection.requests;
+        return requests;
       }
     }
-  };
+  },
+  methods: {
+    saveRequestAs() {
+      const userDidntSpecifyCollection =
+        this.$data.requestData.collectionIndex === undefined;
+      if (userDidntSpecifyCollection) {
+        this.$toast.error("Select a Collection", {
+          icon: "error"
+        });
+        return;
+      }
+
+      const requestUpdated = {
+        ...this.$props.editingRequest,
+        name: this.$data.requestData.name || this.$data.defaultRequestName,
+        collection: this.$data.requestData.collectionIndex
+      };
+
+      this.$store.commit("postwoman/saveRequestAs", {
+        request: requestUpdated,
+        collectionIndex: this.$data.requestData.collectionIndex,
+        folderIndex: this.$data.requestData.folderIndex,
+        requestIndex: this.$data.requestData.requestIndex
+      });
+
+      this.hideModal();
+    },
+    hideModal() {
+      this.$emit("hide-modal");
+      this.$emit("hide-model"); // for backward compatibility  // TODO: use fixed event
+    }
+  }
+};
 </script>

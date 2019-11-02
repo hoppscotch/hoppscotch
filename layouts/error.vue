@@ -15,36 +15,36 @@
 </template>
 
 <style lang="scss">
-  // Center the error page in the viewport.
-  .page-error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-  }
+// Center the error page in the viewport.
+.page-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
 
-  .error_banner {
-    width: 256px;
-  }
+.error_banner {
+  width: 256px;
+}
 </style>
 
 <script>
-  export default {
-    props: ["error"],
+export default {
+  props: ["error"],
 
-    methods: {
-      reloadApplication() {
-        this.$router.push("/", () => window.location.reload());
-      }
-    },
-
-    head() {
-      return {
-        bodyAttrs: {
-          class: "sticky-footer"
-        }
-      };
+  methods: {
+    reloadApplication() {
+      this.$router.push("/", () => window.location.reload());
     }
-  };
+  },
+
+  head() {
+    return {
+      bodyAttrs: {
+        class: "sticky-footer"
+      }
+    };
+  }
+};
 </script>

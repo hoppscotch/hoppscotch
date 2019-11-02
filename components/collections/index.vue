@@ -73,113 +73,113 @@ TODO:
 </template>
 
 <style lang="scss" scoped>
-  ul {
-    display: flex;
-    flex-direction: column;
-  }
+ul {
+  display: flex;
+  flex-direction: column;
+}
 </style>
 
 <script>
-  import addCollection from "./addCollection";
-  import addFolder from "./addFolder";
-  import collection from "./collection";
-  import editCollection from "./editCollection";
-  import editFolder from "./editFolder";
-  import editRequest from "./editRequest";
-  import importExportCollections from "./importExportCollections";
+import addCollection from "./addCollection";
+import addFolder from "./addFolder";
+import collection from "./collection";
+import editCollection from "./editCollection";
+import editFolder from "./editFolder";
+import editRequest from "./editRequest";
+import importExportCollections from "./importExportCollections";
 
-  export default {
-    components: {
-      addCollection,
-      addFolder,
-      collection,
-      editCollection,
-      editFolder,
-      editRequest,
-      importExportCollections
-    },
-    data() {
-      return {
-        showModalAdd: false,
-        showModalEdit: false,
-        showModalImportExport: false,
-        showModalAddFolder: false,
-        showModalEditFolder: false,
-        showModalEditRequest: false,
-        editingCollection: undefined,
-        editingCollectionIndex: undefined,
-        editingFolder: undefined,
-        editingFolderIndex: undefined,
-        editingRequest: undefined,
-        editingRequestIndex: undefined
-      };
-    },
-    computed: {
-      collections() {
-        return this.$store.state.postwoman.collections;
-      }
-    },
-    methods: {
-      displayModalAdd(shouldDisplay) {
-        this.showModalAdd = shouldDisplay;
-      },
-      displayModalEdit(shouldDisplay) {
-        this.showModalEdit = shouldDisplay;
-
-        if (!shouldDisplay) this.resetSelectedData();
-      },
-      displayModalImportExport(shouldDisplay) {
-        this.showModalImportExport = shouldDisplay;
-      },
-      displayModalAddFolder(shouldDisplay) {
-        this.showModalAddFolder = shouldDisplay;
-
-        if (!shouldDisplay) this.resetSelectedData();
-      },
-      displayModalEditFolder(shouldDisplay) {
-        this.showModalEditFolder = shouldDisplay;
-
-        if (!shouldDisplay) this.resetSelectedData();
-      },
-      displayModalEditRequest(shouldDisplay) {
-        this.showModalEditRequest = shouldDisplay;
-
-        if (!shouldDisplay) this.resetSelectedData();
-      },
-      editCollection(collection, collectionIndex) {
-        this.$data.editingCollection = collection;
-        this.$data.editingCollectionIndex = collectionIndex;
-        this.displayModalEdit(true);
-      },
-      addFolder(collection, collectionIndex) {
-        this.$data.editingCollection = collection;
-        this.$data.editingCollectionIndex = collectionIndex;
-        this.displayModalAddFolder(true);
-      },
-      editFolder(payload) {
-        const { collectionIndex, folder, folderIndex } = payload;
-        this.$data.editingCollection = collection;
-        this.$data.editingCollectionIndex = collectionIndex;
-        this.$data.editingFolder = folder;
-        this.$data.editingFolderIndex = folderIndex;
-        this.displayModalEditFolder(true);
-      },
-      editRequest(payload) {
-        const { request, collectionIndex, folderIndex, requestIndex } = payload;
-        this.$data.editingCollectionIndex = collectionIndex;
-        this.$data.editingFolderIndex = folderIndex;
-        this.$data.editingRequest = request;
-        this.$data.editingRequestIndex = requestIndex;
-        this.displayModalEditRequest(true);
-      },
-      resetSelectedData() {
-        this.$data.editingCollection = undefined;
-        this.$data.editingCollectionIndex = undefined;
-        this.$data.editingFolder = undefined;
-        this.$data.editingFolderIndex = undefined;
-        this.$data.editingRequest = undefined;
-        this.$data.editingRequestIndex = undefined;
-      }
+export default {
+  components: {
+    addCollection,
+    addFolder,
+    collection,
+    editCollection,
+    editFolder,
+    editRequest,
+    importExportCollections
+  },
+  data() {
+    return {
+      showModalAdd: false,
+      showModalEdit: false,
+      showModalImportExport: false,
+      showModalAddFolder: false,
+      showModalEditFolder: false,
+      showModalEditRequest: false,
+      editingCollection: undefined,
+      editingCollectionIndex: undefined,
+      editingFolder: undefined,
+      editingFolderIndex: undefined,
+      editingRequest: undefined,
+      editingRequestIndex: undefined
+    };
+  },
+  computed: {
+    collections() {
+      return this.$store.state.postwoman.collections;
     }
-  };
+  },
+  methods: {
+    displayModalAdd(shouldDisplay) {
+      this.showModalAdd = shouldDisplay;
+    },
+    displayModalEdit(shouldDisplay) {
+      this.showModalEdit = shouldDisplay;
+
+      if (!shouldDisplay) this.resetSelectedData();
+    },
+    displayModalImportExport(shouldDisplay) {
+      this.showModalImportExport = shouldDisplay;
+    },
+    displayModalAddFolder(shouldDisplay) {
+      this.showModalAddFolder = shouldDisplay;
+
+      if (!shouldDisplay) this.resetSelectedData();
+    },
+    displayModalEditFolder(shouldDisplay) {
+      this.showModalEditFolder = shouldDisplay;
+
+      if (!shouldDisplay) this.resetSelectedData();
+    },
+    displayModalEditRequest(shouldDisplay) {
+      this.showModalEditRequest = shouldDisplay;
+
+      if (!shouldDisplay) this.resetSelectedData();
+    },
+    editCollection(collection, collectionIndex) {
+      this.$data.editingCollection = collection;
+      this.$data.editingCollectionIndex = collectionIndex;
+      this.displayModalEdit(true);
+    },
+    addFolder(collection, collectionIndex) {
+      this.$data.editingCollection = collection;
+      this.$data.editingCollectionIndex = collectionIndex;
+      this.displayModalAddFolder(true);
+    },
+    editFolder(payload) {
+      const { collectionIndex, folder, folderIndex } = payload;
+      this.$data.editingCollection = collection;
+      this.$data.editingCollectionIndex = collectionIndex;
+      this.$data.editingFolder = folder;
+      this.$data.editingFolderIndex = folderIndex;
+      this.displayModalEditFolder(true);
+    },
+    editRequest(payload) {
+      const { request, collectionIndex, folderIndex, requestIndex } = payload;
+      this.$data.editingCollectionIndex = collectionIndex;
+      this.$data.editingFolderIndex = folderIndex;
+      this.$data.editingRequest = request;
+      this.$data.editingRequestIndex = requestIndex;
+      this.displayModalEditRequest(true);
+    },
+    resetSelectedData() {
+      this.$data.editingCollection = undefined;
+      this.$data.editingCollectionIndex = undefined;
+      this.$data.editingFolder = undefined;
+      this.$data.editingFolderIndex = undefined;
+      this.$data.editingRequest = undefined;
+      this.$data.editingRequestIndex = undefined;
+    }
+  }
+};
 </script>

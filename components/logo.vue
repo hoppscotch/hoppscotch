@@ -36,21 +36,21 @@
 </template>
 
 <style>
-  #circle3814 {
-    /* fill: var(--fg-color); */
-    fill: transparent;
-  }
-  /* #path3816 {
+#circle3814 {
+  /* fill: var(--fg-color); */
+  fill: transparent;
+}
+/* #path3816 {
     fill: var(--bg-color);
   } */
 </style>
 
 <script>
-  export default {
-    props: {
-      color: {
-        type: String
-      }
+export default {
+  props: {
+    color: {
+      type: String
     }
-  };
+  }
+};
 </script>

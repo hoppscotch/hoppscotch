@@ -20,7 +20,11 @@
     <div slot="footer">
       <ul>
         <li>
-          <button class="icon" @click="openDialogChooseFileToReplaceWith" v-tooltip="'Replace current'">
+          <button
+            class="icon"
+            @click="openDialogChooseFileToReplaceWith"
+            v-tooltip="'Replace current'"
+          >
             <i class="material-icons">create_new_folder</i>
             <span>Replace with JSON</span>
             <input
@@ -32,7 +36,11 @@
           </button>
         </li>
         <li>
-          <button class="icon" @click="openDialogChooseFileToImportFrom" v-tooltip="'Preserve current'">
+          <button
+            class="icon"
+            @click="openDialogChooseFileToImportFrom"
+            v-tooltip="'Preserve current'"
+          >
             <i class="material-icons">folder_shared</i>
             <span>Import from JSON</span>
             <input
@@ -55,63 +63,63 @@
 </template>
 
 <script>
-  import modal from "../../components/modal";
+import modal from "../../components/modal";
 
-  export default {
-    props: {
-      show: Boolean
-    },
-    components: {
-      modal
-    },
-    computed: {
-      collectionJson() {
-        return JSON.stringify(this.$store.state.postwoman.collections, null, 2);
-      }
-    },
-    methods: {
-      hideModel() {
-        this.$emit("hide-modal");
-      },
-      openDialogChooseFileToReplaceWith() {
-        this.$refs.inputChooseFileToReplaceWith.click();
-      },
-      openDialogChooseFileToImportFrom() {
-        this.$refs.inputChooseFileToImportFrom.click();
-      },
-      replaceWithJSON() {
-        let reader = new FileReader();
-        reader.onload = event => {
-          let content = event.target.result;
-          let collections = JSON.parse(content);
-          this.$store.commit("postwoman/replaceCollections", collections);
-        };
-        reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
-      },
-      importFromJSON() {
-        let reader = new FileReader();
-        reader.onload = event => {
-          let content = event.target.result;
-          let collections = JSON.parse(content);
-          this.$store.commit("postwoman/importCollections", collections);
-        };
-        reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
-      },
-      exportJSON() {
-        let text = this.collectionJson;
-        text = text.replace(/\n/g, "\r\n");
-        let blob = new Blob([text], {
-          type: "text/json"
-        });
-        let anchor = document.createElement("a");
-        anchor.download = "postwoman-collection.json";
-        anchor.href = window.URL.createObjectURL(blob);
-        anchor.target = "_blank";
-        anchor.style.display = "none";
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-      }
+export default {
+  props: {
+    show: Boolean
+  },
+  components: {
+    modal
+  },
+  computed: {
+    collectionJson() {
+      return JSON.stringify(this.$store.state.postwoman.collections, null, 2);
     }
-  };
+  },
+  methods: {
+    hideModel() {
+      this.$emit("hide-modal");
+    },
+    openDialogChooseFileToReplaceWith() {
+      this.$refs.inputChooseFileToReplaceWith.click();
+    },
+    openDialogChooseFileToImportFrom() {
+      this.$refs.inputChooseFileToImportFrom.click();
+    },
+    replaceWithJSON() {
+      let reader = new FileReader();
+      reader.onload = event => {
+        let content = event.target.result;
+        let collections = JSON.parse(content);
+        this.$store.commit("postwoman/replaceCollections", collections);
+      };
+      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
+    },
+    importFromJSON() {
+      let reader = new FileReader();
+      reader.onload = event => {
+        let content = event.target.result;
+        let collections = JSON.parse(content);
+        this.$store.commit("postwoman/importCollections", collections);
+      };
+      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
+    },
+    exportJSON() {
+      let text = this.collectionJson;
+      text = text.replace(/\n/g, "\r\n");
+      let blob = new Blob([text], {
+        type: "text/json"
+      });
+      let anchor = document.createElement("a");
+      anchor.download = "postwoman-collection.json";
+      anchor.href = window.URL.createObjectURL(blob);
+      anchor.target = "_blank";
+      anchor.style.display = "none";
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    }
+  }
+};
 </script>

@@ -39,52 +39,52 @@
 </template>
 
 <style scoped>
-  ul {
-    display: flex;
-    flex-direction: column;
-  }
+ul {
+  display: flex;
+  flex-direction: column;
+}
 
-  ul li {
-    display: flex;
-    margin-left: 32px;
-    border-left: 1px solid var(--brd-color);
-  }
+ul li {
+  display: flex;
+  margin-left: 32px;
+  border-left: 1px solid var(--brd-color);
+}
 </style>
 
 <script>
-  import request from "./request";
+import request from "./request";
 
-  export default {
-    props: {
-      folder: Object,
-      collectionIndex: Number,
-      folderIndex: Number
+export default {
+  props: {
+    folder: Object,
+    collectionIndex: Number,
+    folderIndex: Number
+  },
+  components: {
+    request
+  },
+  data() {
+    return {
+      showChildren: false
+    };
+  },
+  methods: {
+    toggleShowChildren() {
+      this.showChildren = !this.showChildren;
     },
-    components: {
-      request
+    selectRequest(request) {
+      this.$store.commit("postwoman/selectRequest", { request });
     },
-    data() {
-      return {
-        showChildren: false
-      };
+    removeFolder() {
+      if (!confirm("Are you sure you want to remove this folder?")) return;
+      this.$store.commit("postwoman/removeFolder", {
+        collectionIndex: this.collectionIndex,
+        folderIndex: this.folderIndex
+      });
     },
-    methods: {
-      toggleShowChildren() {
-        this.showChildren = !this.showChildren;
-      },
-      selectRequest(request) {
-        this.$store.commit("postwoman/selectRequest", { request });
-      },
-      removeFolder() {
-        if (!confirm("Are you sure you want to remove this folder?")) return;
-        this.$store.commit("postwoman/removeFolder", {
-          collectionIndex: this.collectionIndex,
-          folderIndex: this.folderIndex
-        });
-      },
-      editFolder() {
-        this.$emit("edit-folder");
-      }
+    editFolder() {
+      this.$emit("edit-folder");
     }
-  };
+  }
+};
 </script>

@@ -54,50 +54,50 @@
 </template>
 
 <style scoped>
-  ul {
-    display: flex;
-    flex-direction: column;
-  }
+ul {
+  display: flex;
+  flex-direction: column;
+}
 
-  ul li {
-    display: flex;
-    margin-left: 32px;
-    border-left: 1px solid var(--brd-color);
-  }
+ul li {
+  display: flex;
+  margin-left: 32px;
+  border-left: 1px solid var(--brd-color);
+}
 </style>
 
 <script>
-  import folder from "./folder";
-  import request from "./request";
+import folder from "./folder";
+import request from "./request";
 
-  export default {
-    components: {
-      folder,
-      request
+export default {
+  components: {
+    folder,
+    request
+  },
+  props: {
+    collectionIndex: Number,
+    collection: Object
+  },
+  data() {
+    return {
+      showChildren: false,
+      selectedFolder: {}
+    };
+  },
+  methods: {
+    toggleShowChildren() {
+      this.showChildren = !this.showChildren;
     },
-    props: {
-      collectionIndex: Number,
-      collection: Object
+    removeCollection() {
+      if (!confirm("Are you sure you want to remove this collection?")) return;
+      this.$store.commit("postwoman/removeCollection", {
+        collectionIndex: this.collectionIndex
+      });
     },
-    data() {
-      return {
-        showChildren: false,
-        selectedFolder: {}
-      };
-    },
-    methods: {
-      toggleShowChildren() {
-        this.showChildren = !this.showChildren;
-      },
-      removeCollection() {
-        if (!confirm("Are you sure you want to remove this collection?")) return;
-        this.$store.commit("postwoman/removeCollection", {
-          collectionIndex: this.collectionIndex
-        });
-      },
-      editFolder(collectionIndex, folder, folderIndex) {
-        this.$emit("edit-folder", { collectionIndex, folder, folderIndex });
-      }
+    editFolder(collectionIndex, folder, folderIndex) {
+      this.$emit("edit-folder", { collectionIndex, folder, folderIndex });
     }
-  };
+  }
+};
 </script>

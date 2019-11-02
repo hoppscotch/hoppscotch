@@ -143,7 +143,7 @@
         </button>
       </li>
       <li v-else>
-        <div>
+        <div class="flex-wrap">
           <label for="clear-history-button">Are you sure?</label>
           <div>
             <button class="icon" id="confirm-clear-history-button" @click="clearHistory">Yes</button>

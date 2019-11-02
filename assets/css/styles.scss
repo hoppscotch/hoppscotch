@@ -1,67 +1,5 @@
 $responsiveWidth: 720px;
 
-// Make theme transition smoother.
-body.afterLoad {
-
-  &,
-  & * {
-    transition: background-color 0.2s ease-in-out,
-      border 0.2s ease-in-out;
-  }
-}
-
-::selection {
-  background-color: var(--ac-sel-color);
-  color: var(--act-color);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--fg-light-color);
-  border-radius: 8px;
-  border: 2px solid var(--bg-color);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--fg-color);
-}
-
-::placeholder {
-  color: var(--fg-light-color);
-  opacity: 0.3;
-}
-
-* {
-  box-sizing: border-box;
-  outline: 0;
-  border: 0;
-}
-
-a {
-  display: inline-flex;
-  color: inherit;
-  text-decoration: none;
-  font-weight: 700;
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--fg-color);
-  font-weight: 500;
-  font-size: 16px;
-  font-family: "Poppins", "Roboto", "Noto", sans-serif;
-  line-height: 1.5;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  user-select: none;
-  padding: 0;
-  margin: 0;
-}
-
 h1,
 h2,
 h3 {
@@ -159,7 +97,7 @@ h3 {
       color: black;
       padding: 24px;
       border-radius: 5px;
-      box-shadow: 0 5px 30px rgba(black, .1);
+      box-shadow: 0 5px 30px rgba(black, 0.1);
     }
 
     .popover-arrow {
@@ -167,16 +105,16 @@ h3 {
     }
   }
 
-  &[aria-hidden='true'] {
+  &[aria-hidden="true"] {
     visibility: hidden;
     opacity: 0;
-    transition: opacity .15s, visibility .15s;
+    transition: opacity 0.15s, visibility 0.15s;
   }
 
-  &[aria-hidden='false'] {
+  &[aria-hidden="false"] {
     visibility: visible;
     opacity: 1;
-    transition: opacity .15s;
+    transition: opacity 0.15s;
   }
 }
 
@@ -515,8 +453,8 @@ fieldset#history {
   &.show {
     display: flex;
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: 12px;
+    right: 12px;
     z-index: 1;
 
     #hidden-message {

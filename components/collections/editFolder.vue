@@ -35,36 +35,36 @@
 </template>
 
 <script>
-  import modal from "../../components/modal";
+import modal from "../../components/modal";
 
-  export default {
-    props: {
-      show: Boolean,
-      collection: Object,
-      collectionIndex: Number,
-      folder: Object,
-      folderIndex: Number
+export default {
+  props: {
+    show: Boolean,
+    collection: Object,
+    collectionIndex: Number,
+    folder: Object,
+    folderIndex: Number
+  },
+  components: {
+    modal
+  },
+  data() {
+    return {
+      name: undefined
+    };
+  },
+  methods: {
+    editFolder() {
+      this.$store.commit("postwoman/editFolder", {
+        collectionIndex: this.$props.collectionIndex,
+        folder: { ...this.$props.folder, name: this.$data.name },
+        folderIndex: this.$props.folderIndex
+      });
+      this.hideModal();
     },
-    components: {
-      modal
-    },
-    data() {
-      return {
-        name: undefined
-      };
-    },
-    methods: {
-      editFolder() {
-        this.$store.commit("postwoman/editFolder", {
-          collectionIndex: this.$props.collectionIndex,
-          folder: { ...this.$props.folder, name: this.$data.name },
-          folderIndex: this.$props.folderIndex
-        });
-        this.hideModal();
-      },
-      hideModal() {
-        this.$emit("hide-modal");
-      }
+    hideModal() {
+      this.$emit("hide-modal");
     }
-  };
+  }
+};
 </script>

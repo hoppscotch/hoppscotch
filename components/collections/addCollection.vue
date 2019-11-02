@@ -35,30 +35,30 @@
 </template>
 
 <script>
-  import modal from "../../components/modal";
+import modal from "../../components/modal";
 
-  export default {
-    props: {
-      show: Boolean
+export default {
+  props: {
+    show: Boolean
+  },
+  components: {
+    modal
+  },
+  data() {
+    return {
+      name: undefined
+    };
+  },
+  methods: {
+    addNewCollection() {
+      this.$store.commit("postwoman/addNewCollection", {
+        name: this.$data.name
+      });
+      this.$emit("hide-modal");
     },
-    components: {
-      modal
-    },
-    data() {
-      return {
-        name: undefined
-      };
-    },
-    methods: {
-      addNewCollection() {
-        this.$store.commit("postwoman/addNewCollection", {
-          name: this.$data.name
-        });
-        this.$emit("hide-modal");
-      },
-      hideModal() {
-        this.$emit("hide-modal");
-      }
+    hideModal() {
+      this.$emit("hide-modal");
     }
-  };
+  }
+};
 </script>

@@ -29,8 +29,7 @@ export default {
   },
   head: {
     title: `${meta.name} \u2022 ${meta.shortDescription}`,
-    meta: [
-      {
+    meta: [{
         charset: 'utf-8'
       },
       {
@@ -148,8 +147,7 @@ export default {
         content: `${routerBase.router.base}icons/icon-144x144.png`
       },
     ],
-    link: [
-      {
+    link: [{
         rel: 'icon',
         type: 'image/x-icon',
         href: `${routerBase.router.base}favicon.ico`
@@ -206,8 +204,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [
-    {
+  plugins: [{
       src: '~/plugins/vuex-persist'
     },
     {
@@ -217,8 +214,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [
-  ],
+  buildModules: [],
   /*
    ** Nuxt.js modules
    */
@@ -229,7 +225,9 @@ export default {
     ['@nuxtjs/toast'],
     ['@nuxtjs/google-analytics'],
     ['@nuxtjs/sitemap'],
-    ['@nuxtjs/google-tag-manager', { id: process.env.GTM_ID || 'GTM-MXWD8NQ' }]
+    ['@nuxtjs/google-tag-manager', {
+      id: process.env.GTM_ID || 'GTM-MXWD8NQ'
+    }]
   ],
   pwa: {
     manifest: {

@@ -40,8 +40,21 @@
       </div>
     </pw-modal>
 
-    <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request • β (experimental)" ref="preRequest">
-      <textarea id="preRequestScript" @keydown="formatRawParams" rows="8" v-model="preRequestScript" v-textarea-auto-height="preRequestScript" spellcheck="false" placeholder='pw.environment.set("variable", "value");'></textarea>
+    <pw-section
+      v-if="showPreRequestScript"
+      class="orange"
+      label="Pre-Request • β (experimental)"
+      ref="preRequest"
+    >
+      <textarea
+        id="preRequestScript"
+        @keydown="formatRawParams"
+        rows="8"
+        v-model="preRequestScript"
+        v-textarea-auto-height="preRequestScript"
+        spellcheck="false"
+        placeholder="pw.environment.set('variable', 'value');"
+      ></textarea>
     </pw-section>
 
     <pw-section class="blue" label="Request" ref="request">
@@ -212,8 +225,16 @@
             v-tooltip.bottom="{ content: !showPreRequestScript ? 'Show Pre-Request Script' : 'Hide Pre-Request Script'}"
             @click="showPreRequestScript = !showPreRequestScript"
           >
-            <i class="material-icons" :class="showPreRequestScript" v-if="!showPreRequestScript">code</i>
-            <i class="material-icons" :class="showPreRequestScript" v-if="showPreRequestScript">close</i>
+            <i
+              class="material-icons"
+              :class="showPreRequestScript"
+              v-if="!showPreRequestScript"
+            >code</i>
+            <i
+              class="material-icons"
+              :class="showPreRequestScript"
+              v-if="showPreRequestScript"
+            >close</i>
           </button>
         </div>
         <div style="text-align: center;">
@@ -282,14 +303,13 @@
       </ul>
     </pw-section>
 
-    <br>
+    <br />
 
     <section id="options">
       <input id="tab-one" type="radio" name="grp" checked="checked" />
       <label for="tab-one">Authentication</label>
       <div class="tab">
-
-        <br>
+        <br />
 
         <pw-section class="cyan" label="Authentication" ref="authentication">
           <ul>
@@ -342,19 +362,14 @@
             </li>
           </ul>
           <div class="flex-wrap">
-            <pw-toggle
-            :on="!urlExcludes.auth"
-            @change="setExclude('auth', !$event)">
-              Include in URL
-            </pw-toggle>
+            <pw-toggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">Include in URL</pw-toggle>
           </div>
         </pw-section>
       </div>
       <input id="tab-two" type="radio" name="grp" />
       <label for="tab-two">Headers</label>
       <div class="tab">
-
-        <br>
+        <br />
 
         <pw-section class="orange" label="Headers" ref="headers">
           <ul>
@@ -419,8 +434,7 @@
       <input id="tab-three" type="radio" name="grp" />
       <label for="tab-three">Parameters</label>
       <div class="tab">
-
-        <br>
+        <br />
 
         <pw-section class="pink" label="Parameters" ref="parameters">
           <ul>
@@ -482,7 +496,7 @@
       </div>
     </section>
 
-    <br>
+    <br />
 
     <pw-section class="purple" id="response" label="Response" ref="response">
       <ul>
@@ -518,11 +532,11 @@
           </div>
           <div id="response-details-wrapper">
             <pre><code
-              ref="responseBody"
-              id="body"
-              rows="16"
-              placeholder="(waiting to send request)"
-            >{{response.body}}</code></pre>
+  ref="responseBody"
+  id="body"
+  rows="16"
+  placeholder="(waiting to send request)"
+>{{response.body}}</code></pre>
             <iframe
               :class="{hidden: !previewEnabled}"
               class="covers-response"
@@ -541,13 +555,13 @@
       </ul>
     </pw-section>
 
-    <br>
+    <br />
 
     <pw-section class="yellow" label="Collections" ref="collections">
       <collections />
     </pw-section>
 
-    <br>
+    <br />
 
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
   </div>
@@ -567,7 +581,7 @@ import parseCurlCommand from "../assets/js/curlparser.js";
 import hljs from "highlight.js";
 import "highlight.js/styles/dracula.css";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
-import parseTemplateString from '../functions/templating'
+import parseTemplateString from "../functions/templating";
 
 const statusCategories = [
   {
@@ -633,11 +647,11 @@ export default {
     collections,
     saveRequestAs
   },
-  data () {
+  data() {
     return {
       showModal: false,
       showPreRequestScript: false,
-      preRequestScript: '',
+      preRequestScript: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       copiedButton: '<i class="material-icons">done</i>',
       isHidden: true,
@@ -677,10 +691,13 @@ export default {
   },
   watch: {
     urlExcludes: {
-        deep: true,
-        handler () {
-          this.$store.commit("postwoman/applySetting", ['URL_EXCLUDES', Object.assign({}, this.urlExcludes)]);
-        }
+      deep: true,
+      handler() {
+        this.$store.commit("postwoman/applySetting", [
+          "URL_EXCLUDES",
+          Object.assign({}, this.urlExcludes)
+        ]);
+      }
     },
     contentType(val) {
       this.rawInput = !this.knownContentTypes.includes(val);
@@ -769,68 +786,135 @@ export default {
   },
   computed: {
     url: {
-        get() { return this.$store.state.request.url; },
-        set(value) { this.$store.commit('setState', { value, 'attribute': 'url' }) },
+      get() {
+        return this.$store.state.request.url;
       },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "url" });
+      }
+    },
     method: {
-      get() { return this.$store.state.request.method; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'method' }) },
+      get() {
+        return this.$store.state.request.method;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "method" });
+      }
     },
     path: {
-      get() { return this.$store.state.request.path; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'path' }) },
+      get() {
+        return this.$store.state.request.path;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "path" });
+      }
     },
     label: {
-      get() { return this.$store.state.request.label; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'label' }) },
+      get() {
+        return this.$store.state.request.label;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "label" });
+      }
     },
     auth: {
-      get() { return this.$store.state.request.auth; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'auth' }) },
+      get() {
+        return this.$store.state.request.auth;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "auth" });
+      }
     },
     httpUser: {
-      get() { return this.$store.state.request.httpUser; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'httpUser' }) },
+      get() {
+        return this.$store.state.request.httpUser;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "httpUser" });
+      }
     },
     httpPassword: {
-      get() { return this.$store.state.request.httpPassword; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'httpPassword' }) },
+      get() {
+        return this.$store.state.request.httpPassword;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "httpPassword" });
+      }
     },
     bearerToken: {
-      get() { return this.$store.state.request.bearerToken; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'bearerToken' }) },
+      get() {
+        return this.$store.state.request.bearerToken;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "bearerToken" });
+      }
     },
     headers: {
-      get() { return this.$store.state.request.headers; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'headers' }) },
+      get() {
+        return this.$store.state.request.headers;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "headers" });
+      }
     },
     params: {
-      get() { return this.$store.state.request.params; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'params' }) },
+      get() {
+        return this.$store.state.request.params;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "params" });
+      }
     },
     bodyParams: {
-      get() { return this.$store.state.request.bodyParams; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'bodyParams' }) },
+      get() {
+        return this.$store.state.request.bodyParams;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "bodyParams" });
+      }
     },
     rawParams: {
-      get() { return this.$store.state.request.rawParams; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'rawParams' }) },
+      get() {
+        return this.$store.state.request.rawParams;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "rawParams" });
+      }
     },
     rawInput: {
-      get() { return this.$store.state.request.rawInput; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'rawInput' }) },
+      get() {
+        return this.$store.state.request.rawInput;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "rawInput" });
+      }
     },
     requestType: {
-      get() { return this.$store.state.request.requestType; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'requestType' }) },
+      get() {
+        return this.$store.state.request.requestType;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "requestType" });
+      }
     },
     contentType: {
-      get() { return this.$store.state.request.contentType; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'contentType' }) },
+      get() {
+        return this.$store.state.request.contentType;
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "contentType" });
+      }
     },
     passwordFieldType: {
-      get() { return this.$store.state.request.passwordFieldType; },
-      set(value) { this.$store.commit('setState', { value, 'attribute': 'passwordFieldType' }) }
+      get() {
+        return this.$store.state.request.passwordFieldType;
+      },
+      set(value) {
+        this.$store.commit("setState", {
+          value,
+          attribute: "passwordFieldType"
+        });
+      }
     },
 
     selectedRequest() {
@@ -970,21 +1054,38 @@ export default {
         requestString.push('  method: "' + this.method + '",\n');
         if (this.auth === "Basic") {
           var basic = this.httpUser + ":" + this.httpPassword;
-          this.$store.commit('addHeaders', '    "Authorization": "Basic ' + window.btoa(unescape(encodeURIComponent(basic))) + ",\n")
+          this.$store.commit(
+            "addHeaders",
+            '    "Authorization": "Basic ' +
+              window.btoa(unescape(encodeURIComponent(basic))) +
+              ",\n"
+          );
         } else if (this.auth === "Bearer Token") {
-          this.$store.commit('addHeaders', '    "Authorization": "Bearer Token ' + this.bearerToken + ",\n")
+          this.$store.commit(
+            "addHeaders",
+            '    "Authorization": "Bearer Token ' + this.bearerToken + ",\n"
+          );
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput
             ? this.rawParams
             : this.rawRequestBody;
           requestString.push("  body: " + requestBody + ",\n");
-          this.$store.commit('addHeaders', '    "Content-Length": ' + requestBody.length + ",\n")
-          this.$store.commit('addHeaders', '    "Content-Type": "' + this.contentType + '; charset=utf-8",\n')
+          this.$store.commit(
+            "addHeaders",
+            '    "Content-Length": ' + requestBody.length + ",\n"
+          );
+          this.$store.commit(
+            "addHeaders",
+            '    "Content-Type": "' + this.contentType + '; charset=utf-8",\n'
+          );
         }
         if (this.headers) {
           this.headers.forEach(function(element) {
-            this.$store.commit('addHeaders', '    "' + element.key + '": "' + element.value + '",\n')
+            this.$store.commit(
+              "addHeaders",
+              '    "' + element.key + '": "' + element.value + '",\n'
+            );
           });
         }
         headers = headers.join("").slice(0, -3);
@@ -1052,7 +1153,7 @@ export default {
       });
     },
     getVariablesFromPreRequestScript() {
-      if(!this.preRequestScript) {
+      if (!this.preRequestScript) {
         return {};
       }
       return getEnvironmentVariablesFromScript(this.preRequestScript);
@@ -1066,18 +1167,28 @@ export default {
         data: requestBody ? requestBody.toString() : null
       };
       if (preRequestScript) {
-        const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript);
-        requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables);
-        requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables);
+        const environmentVariables = getEnvironmentVariablesFromScript(
+          preRequestScript
+        );
+        requestOptions.url = parseTemplateString(
+          requestOptions.url,
+          environmentVariables
+        );
+        requestOptions.data = parseTemplateString(
+          requestOptions.data,
+          environmentVariables
+        );
         for (let k in requestOptions.headers) {
           const kParsed = parseTemplateString(k, environmentVariables);
-          const valParsed = parseTemplateString(requestOptions.headers[k], environmentVariables);
+          const valParsed = parseTemplateString(
+            requestOptions.headers[k],
+            environmentVariables
+          );
           delete requestOptions.headers[k];
           requestOptions.headers[kParsed] = valParsed;
         }
-
       }
-      if (typeof requestOptions.data === 'string') {
+      if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data);
       }
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
@@ -1168,7 +1279,12 @@ export default {
       try {
         const startTime = Date.now();
 
-        const payload = await this.makeRequest(auth, headers, requestBody, this.showPreRequestScript && this.preRequestScript);
+        const payload = await this.makeRequest(
+          auth,
+          headers,
+          requestBody,
+          this.showPreRequestScript && this.preRequestScript
+        );
 
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
@@ -1259,34 +1375,34 @@ export default {
       this.params = params;
     },
     addRequestHeader() {
-      this.$store.commit('addHeaders', {
+      this.$store.commit("addHeaders", {
         key: "",
         value: ""
       });
       return false;
     },
     removeRequestHeader(index) {
-      this.$store.commit('removeHeaders', index)
+      this.$store.commit("removeHeaders", index);
       this.$toast.error("Deleted", {
         icon: "delete"
       });
     },
     addRequestParam() {
-      this.$store.commit('addParams', { key: "", value: "" })
+      this.$store.commit("addParams", { key: "", value: "" });
       return false;
     },
     removeRequestParam(index) {
-      this.$store.commit('removeParams', index)
+      this.$store.commit("removeParams", index);
       this.$toast.error("Deleted", {
         icon: "delete"
       });
     },
     addRequestBodyParam() {
-      this.$store.commit('addBodyParams', { key: "", value: "" })
+      this.$store.commit("addBodyParams", { key: "", value: "" });
       return false;
     },
     removeRequestBodyParam(index) {
-      this.$store.commit('removeBodyParams', index)
+      this.$store.commit("removeBodyParams", index);
       this.$toast.error("Deleted", {
         icon: "delete"
       });
@@ -1441,7 +1557,9 @@ export default {
         !this.urlExcludes.httpPassword ? "httpPassword" : null,
         !this.urlExcludes.bearerToken ? "bearerToken" : null,
         "contentType"
-      ].filter((item) => item !== null).map(item => flat(item));
+      ]
+        .filter(item => item !== null)
+        .map(item => flat(item));
       let deeps = ["headers", "params"].map(item => deep(item));
       let bodyParams = this.rawInput
         ? [flat("rawParams")]
@@ -1498,7 +1616,10 @@ export default {
         this.path = "";
         this.headers = [];
         for (const key of Object.keys(parsedCurl.headers)) {
-          this.$store.commit('addHeaders', { key: key, value: parsedCurl.headers[key] })
+          this.$store.commit("addHeaders", {
+            key: key,
+            value: parsedCurl.headers[key]
+          });
         }
         this.method = parsedCurl.method.toUpperCase();
         if (parsedCurl["data"]) {
@@ -1586,7 +1707,7 @@ export default {
       this.showRequestModal = false;
       this.editRequest = {};
     },
-    setExclude (excludedField, excluded) {
+    setExclude(excludedField, excluded) {
       if (excludedField === "auth") {
         this.urlExcludes.auth = excluded;
         this.urlExcludes.httpUser = excluded;
@@ -1599,7 +1720,9 @@ export default {
     },
     methodChange() {
       // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '';
+      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
+        ? "application/json"
+        : "";
     }
   },
   mounted() {
@@ -1607,11 +1730,11 @@ export default {
   },
   created() {
     this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
-        // Exclude authentication by default for security reasons.
-        auth: true,
-        httpUser: true,
-        httpPassword: true,
-        bearerToken: true
+      // Exclude authentication by default for security reasons.
+      auth: true,
+      httpUser: true,
+      httpPassword: true,
+      bearerToken: true
     };
 
     if (Object.keys(this.$route.query).length)

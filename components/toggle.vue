@@ -10,89 +10,89 @@
 </template>
 
 <style lang="scss" scoped>
-  $useBorder: false;
-  $borderColor: var(--fg-light-color);
-  $activeColor: var(--ac-color);
-  $inactiveColor: var(--fg-light-color);
+$useBorder: false;
+$borderColor: var(--fg-light-color);
+$activeColor: var(--ac-color);
+$inactiveColor: var(--fg-light-color);
 
-  $inactiveHandleColor: var(--bg-color);
-  $activeHandleColor: var(--act-color);
+$inactiveHandleColor: var(--bg-color);
+$activeHandleColor: var(--act-color);
 
-  $width: 32px;
-  $height: 16px;
-  $handleSpacing: 4px;
+$width: 32px;
+$height: 16px;
+$handleSpacing: 4px;
 
-  $transition: all 0.2s ease-in-out;
+$transition: all 0.2s ease-in-out;
 
-  div {
+div {
+  display: inline-block;
+  cursor: pointer;
+}
+
+label.caption {
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+label.toggle {
+  position: relative;
+  display: inline-block;
+  width: $width;
+  height: $height;
+  border: if($useBorder, 2px solid $borderColor, none);
+  background-color: if($useBorder, transparent, $inactiveColor);
+  vertical-align: middle;
+
+  border-radius: 32px;
+  transition: $transition;
+  box-sizing: initial;
+  padding: 0;
+  margin: 8px 4px;
+  cursor: pointer;
+
+  .handle {
+    position: absolute;
     display: inline-block;
-    cursor: pointer;
-  }
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin: $handleSpacing;
+    background-color: $inactiveHandleColor;
 
-  label.caption {
-    vertical-align: middle;
-    cursor: pointer;
-  }
+    width: #{$height - ($handleSpacing * 2)};
+    height: #{$height - ($handleSpacing * 2)};
+    border-radius: 100px;
 
-  label.toggle {
-    position: relative;
-    display: inline-block;
-    width: $width;
-    height: $height;
-    border: if($useBorder, 2px solid $borderColor, none);
-    background-color: if($useBorder, transparent, $inactiveColor);
-    vertical-align: middle;
-
-    border-radius: 32px;
+    pointer-events: none;
     transition: $transition;
-    box-sizing: initial;
-    padding: 0;
-    margin: 8px 4px;
-    cursor: pointer;
+  }
+
+  &.on {
+    background-color: $activeColor;
+    border-color: $activeColor;
 
     .handle {
-      position: absolute;
-      display: inline-block;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      margin: $handleSpacing;
-      background-color: $inactiveHandleColor;
-
-      width: #{$height - ($handleSpacing * 2)};
-      height: #{$height - ($handleSpacing * 2)};
-      border-radius: 100px;
-
-      pointer-events: none;
-      transition: $transition;
-    }
-
-    &.on {
-      background-color: $activeColor;
-      border-color: $activeColor;
-
-      .handle {
-        background-color: $activeHandleColor;
-        left: #{$width - $height};
-      }
+      background-color: $activeHandleColor;
+      left: #{$width - $height};
     }
   }
+}
 </style>
 
 <script>
-  export default {
-    props: {
-      on: {
-        type: Boolean,
-        default: false
-      }
-    },
-
-    methods: {
-      toggle() {
-        const containsOnClass = this.$refs.toggle.classList.toggle("on");
-        this.$emit("change", containsOnClass);
-      }
+export default {
+  props: {
+    on: {
+      type: Boolean,
+      default: false
     }
-  };
+  },
+
+  methods: {
+    toggle() {
+      const containsOnClass = this.$refs.toggle.classList.toggle("on");
+      this.$emit("change", containsOnClass);
+    }
+  }
+};
 </script>

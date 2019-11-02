@@ -35,37 +35,37 @@
 </template>
 
 <script>
-  import modal from "../../components/modal";
+import modal from "../../components/modal";
 
-  export default {
-    props: {
-      show: Boolean,
-      editingCollection: Object,
-      editingCollectionIndex: Number
-    },
-    components: {
-      modal
-    },
-    data() {
-      return {
-        name: undefined
+export default {
+  props: {
+    show: Boolean,
+    editingCollection: Object,
+    editingCollectionIndex: Number
+  },
+  components: {
+    modal
+  },
+  data() {
+    return {
+      name: undefined
+    };
+  },
+  methods: {
+    saveCollection() {
+      const collectionUpdated = {
+        ...this.$props.editingCollection,
+        name: this.$data.name
       };
+      this.$store.commit("postwoman/editCollection", {
+        collection: collectionUpdated,
+        collectionIndex: this.$props.editingCollectionIndex
+      });
+      this.$emit("hide-modal");
     },
-    methods: {
-      saveCollection() {
-        const collectionUpdated = {
-          ...this.$props.editingCollection,
-          name: this.$data.name
-        };
-        this.$store.commit("postwoman/editCollection", {
-          collection: collectionUpdated,
-          collectionIndex: this.$props.editingCollectionIndex
-        });
-        this.$emit("hide-modal");
-      },
-      hideModel() {
-        this.$emit("hide-modal");
-      }
+    hideModel() {
+      this.$emit("hide-modal");
     }
-  };
+  }
+};
 </script>

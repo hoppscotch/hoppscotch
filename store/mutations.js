@@ -1,5 +1,5 @@
 export default {
-  setState(state, object){
+  setState(state, object) {
     state.request[object.attribute] = object.value
   },
 

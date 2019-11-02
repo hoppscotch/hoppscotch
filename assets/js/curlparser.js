@@ -9,7 +9,7 @@ import * as querystring from "querystring";
  */
 function joinDataArguments(dataArguments) {
   let data = "";
-  dataArguments.forEach(function(argument, i) {
+  dataArguments.forEach(function (argument, i) {
     if (i === 0) {
       data += argument;
     } else {
@@ -47,7 +47,7 @@ function parseCurlCommand(curlCommand) {
   }
   let headers;
 
-  let parseHeaders = function(headerFieldName) {
+  let parseHeaders = function (headerFieldName) {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {};
@@ -55,7 +55,7 @@ function parseCurlCommand(curlCommand) {
       if (!Array.isArray(parsedArguments[headerFieldName])) {
         parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]];
       }
-      parsedArguments[headerFieldName].forEach(function(header) {
+      parsedArguments[headerFieldName].forEach(function (header) {
         if (header.includes("Cookie")) {
           // stupid javascript tricks: closure
           cookieString = header;
@@ -95,7 +95,7 @@ function parseCurlCommand(curlCommand) {
     if (!Array.isArray(parsedArguments.F)) {
       parsedArguments.F = [parsedArguments.F];
     }
-    parsedArguments.F.forEach(function(multipartArgument) {
+    parsedArguments.F.forEach(function (multipartArgument) {
       // input looks like key=value. value could be json or a file path prepended with an @
       const [key, value] = multipartArgument.split("=", 2);
       multipartUploads[key] = value;
@@ -103,7 +103,7 @@ function parseCurlCommand(curlCommand) {
   }
   if (cookieString) {
     let cookieParseOptions = {
-      decode: function(s) {
+      decode: function (s) {
         return s;
       }
     };

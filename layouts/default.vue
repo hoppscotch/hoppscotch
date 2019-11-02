@@ -27,7 +27,11 @@
             <nuxt-link to="/" :class="linkActive('/')" v-tooltip.right="'Home'">
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
-            <nuxt-link to="/websocket" :class="linkActive('/websocket')" v-tooltip.right="'WebSocket'">
+            <nuxt-link
+              to="/websocket"
+              :class="linkActive('/websocket')"
+              v-tooltip.right="'WebSocket'"
+            >
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
@@ -157,6 +161,70 @@
     scroll-behavior: smooth;
   }
 
+  ::selection {
+    background-color: var(--ac-sel-color);
+    color: var(--act-color);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--fg-light-color);
+    border-radius: 8px;
+    border: 2px solid var(--bg-color);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--fg-color);
+  }
+
+  ::placeholder {
+    color: var(--fg-light-color);
+    opacity: 0.3;
+  }
+
+  * {
+    box-sizing: border-box;
+    outline: 0;
+    border: 0;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    font-weight: 500;
+    font-size: 16px;
+    font-family: "Poppins", "Roboto", "Noto", sans-serif;
+    line-height: 1.5;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  // Make theme transition smoother.
+  body.afterLoad {
+    &,
+    & * {
+      transition: background-color 0.2s ease-in-out, border 0.2s ease-in-out;
+    }
+  }
+
+  body.sticky-footer footer {
+    opacity: 0.25;
+  }
+
+  a {
+    display: inline-flex;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
   header,
   footer {
     & > div {
@@ -166,10 +234,6 @@
       align-items: center;
       justify-content: space-between;
     }
-  }
-
-  body.sticky-footer footer {
-    opacity: 0.25;
   }
 
   .wrapper {
@@ -184,6 +248,23 @@
   .footer {
     display: flex;
     flex: 1;
+  }
+
+  .slide-in {
+    position: relative;
+    animation: slideIn 0.2s forwards ease-in-out;
+  }
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      left: -16px;
+    }
+
+    100% {
+      opacity: 1;
+      left: 0px;
+    }
   }
 
   .logo {
@@ -220,14 +301,53 @@
     display: none;
   }
 
+  nav.primary-nav {
+    display: flex;
+    flex-flow: column nowrap;
+    border-bottom: 1px solid var(--brd-color);
+
+    svg {
+      fill: var(--fg-light-color);
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 16px;
+      border-radius: 50%;
+      background-color: var(--brd-color);
+      color: var(--fg-light-color);
+      margin: 8px;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        color: var(--fg-color);
+
+        svg {
+          fill: var(--fg-color);
+        }
+      }
+
+      &.nuxt-link-exact-active {
+        background-color: var(--ac-color);
+        color: var(--act-color);
+        border-radius: 16px;
+
+        svg {
+          fill: var(--act-color);
+        }
+      }
+    }
+  }
+
   nav.secondary-nav {
     display: flex;
-    align-items: center;
-    justify-content: center;
 
     ul {
       display: flex;
-      flex-flow: column;
+      flex-flow: column nowrap;
 
       li {
         display: flex;
@@ -236,6 +356,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
           padding: 16px;
           border-radius: 50%;
           background-color: var(--bg-dark-color);
@@ -255,65 +376,8 @@
     }
   }
 
-  .slide-in {
-    position: relative;
-    animation: slideIn 0.2s forwards ease-in-out;
-  }
-
-  @keyframes slideIn {
-    0% {
-      opacity: 0;
-      left: -16px;
-    }
-
-    100% {
-      opacity: 1;
-      left: 0px;
-    }
-  }
-
   .footer {
     flex-direction: column;
-  }
-
-  nav.primary-nav {
-    display: flex;
-    flex-flow: column;
-    border-bottom: 1px solid var(--brd-color);
-
-    svg {
-      fill: var(--fg-light-color);
-    }
-
-    a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      border-radius: 50%;
-      background-color: var(--brd-color);
-      color: var(--fg-light-color);
-      margin: 8px;
-      transition: all .2s ease-in-out;
-
-      &:hover {
-        color: var(--fg-color);
-
-        svg {
-          fill: var(--fg-color);
-        }
-      }
-
-      &.nuxt-link-exact-active {
-        background-color: var(--ac-color);
-        color: var(--act-color);
-        border-radius: 8px;
-
-        svg {
-          fill: var(--act-color);
-        }
-      }
-    }
   }
 
   $responsiveWidth: 720px;

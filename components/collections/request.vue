@@ -18,38 +18,38 @@
 </template>
 
 <style scoped>
-  ul {
-    display: flex;
-    flex-direction: column;
-  }
+ul {
+  display: flex;
+  flex-direction: column;
+}
 
-  ul li {
-    display: flex;
-    padding-left: 16px;
-    border-left: 1px solid var(--brd-color);
-  }
+ul li {
+  display: flex;
+  padding-left: 16px;
+  border-left: 1px solid var(--brd-color);
+}
 </style>
 
 <script>
-  export default {
-    props: {
-      request: Object,
-      collectionIndex: Number,
-      folderIndex: Number,
-      requestIndex: Number
+export default {
+  props: {
+    request: Object,
+    collectionIndex: Number,
+    folderIndex: Number,
+    requestIndex: Number
+  },
+  methods: {
+    selectRequest() {
+      this.$store.commit("postwoman/selectRequest", { request: this.request });
     },
-    methods: {
-      selectRequest() {
-        this.$store.commit("postwoman/selectRequest", { request: this.request });
-      },
-      removeRequest() {
-        if (!confirm("Are you sure you want to remove this request?")) return;
-        this.$store.commit("postwoman/removeRequest", {
-          collectionIndex: this.collectionIndex,
-          folderIndex: this.folderIndex,
-          requestIndex: this.requestIndex
-        });
-      }
+    removeRequest() {
+      if (!confirm("Are you sure you want to remove this request?")) return;
+      this.$store.commit("postwoman/removeRequest", {
+        collectionIndex: this.collectionIndex,
+        folderIndex: this.folderIndex,
+        requestIndex: this.requestIndex
+      });
     }
-  };
+  }
+};
 </script>

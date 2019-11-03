@@ -275,7 +275,8 @@ export default {
     UserAgent: '*',
     Disallow: '',
     Allow: '/',
-    Sitemap: '/sitemap.xml'
+    Host: 'https://postwoman.io',
+    Sitemap: 'sitemap.xml'
   },
   /*
    ** Build configuration

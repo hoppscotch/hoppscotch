@@ -510,3 +510,7 @@ input[type="radio"]:checked+label+div.tab {
 .toasted.bubble .action {
   color: inherit !important;
 }
+
+.wrapper .content {
+    min-height: 100vh;
+}

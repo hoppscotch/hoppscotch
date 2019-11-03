@@ -10,7 +10,7 @@
   </p>
   <p>
 
-  [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io)](https://postwoman.io) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Twitter URL](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
+  [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
   </p>
   <p>
@@ -315,44 +315,16 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Badges
 
-**Default**
-
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b)](https://postwoman.io)
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b)](https://postwoman.io)
-```
-
-**Success**
-
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success)](https://postwoman.io)
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success)](https://postwoman.io)
-```
-
-**Critical**
-
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical)](https://postwoman.io)
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical)](https://postwoman.io)
-```
-
-**Custom**
-
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet)](https://postwoman.io)
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet)](https://postwoman.io)
-```
-
-Make your own badge!
-
-[![Postwoman](https://img.shields.io/badge/<your_text>-Postwoman-<hex_color_code>)](https://postwoman.io)
-```
-[![Postwoman](https://img.shields.io/badge/<your_text>-Postwoman-<hex_color_code>)](https://postwoman.io)
-```
-
-Replace `<your_text>` with your custom text and `<hex_color_code>` with 6 digit color hex code.
+| Status | Preview | Markdown Code (copy & paste into `readme.md`) |
+| ----------- | ----------- | ----------- |
+| **Default** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b)](https://postwoman.io)` |
+| **Success** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success)](https://postwoman.io)` |
+| **Critical** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical)](https://postwoman.io)` |
+| **Custom** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet)](https://postwoman.io)` |
+| Make your own badge! | [![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code)](https://postwoman.io)` |
 
 <div align="center">
+  <br>
   <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Postwoman.io" width="200"></a>
   <br>
   <h3>Happy Coding ❤︎</h3>

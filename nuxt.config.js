@@ -273,9 +273,9 @@ export default {
   },
   robots: {
     UserAgent: '*',
-    Allow: '/',
     Disallow: '',
-    Sitemap: 'sitemap.xml'
+    Allow: '/',
+    Sitemap: '/sitemap.xml'
   },
   /*
    ** Build configuration

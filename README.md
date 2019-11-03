@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="200"></a>
+  <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
   <p>

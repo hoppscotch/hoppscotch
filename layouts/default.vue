@@ -24,7 +24,7 @@
               We're using manual checks for linkActive because the query string
               seems to mess up the nuxt-link active class.
             -->
-            <nuxt-link to="/" :class="linkActive('/')" v-tooltip.right="'Home'">
+            <nuxt-link to="/" :class="linkActive('/')" v-tooltip.right="'Home'" aria-label="Home">
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
             <nuxt-link

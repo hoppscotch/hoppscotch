@@ -227,7 +227,8 @@ export default {
     ['@nuxtjs/sitemap'],
     ['@nuxtjs/google-tag-manager', {
       id: process.env.GTM_ID || 'GTM-MXWD8NQ'
-    }]
+    }],
+    ['@nuxtjs/robots']
   ],
   pwa: {
     manifest: {
@@ -269,6 +270,12 @@ export default {
   },
   sitemap: {
     hostname: 'https://postwoman.io'
+  },
+  robots: {
+    UserAgent: '*',
+    Allow: '/',
+    Disallow: '',
+    Sitemap: 'sitemap.xml'
   },
   /*
    ** Build configuration

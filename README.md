@@ -31,8 +31,8 @@
 
 <div align="center">
   <br>
-  <img src="static/screenshot1.png" alt="Screenshot1" width="100%">
-  <img src="static/screenshot2.png" alt="Screenshot2" width="100%">
+  <img src="static/images/screenshot1.png" alt="Screenshot1" width="100%">
+  <img src="static/images/screenshot2.png" alt="Screenshot2" width="100%">
   <br>
 </div>
 

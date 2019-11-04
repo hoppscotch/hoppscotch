@@ -1,5 +1,5 @@
 <div align="center">
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors)
   <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
@@ -263,6 +263,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/vlad0337187"><img src="https://avatars1.githubusercontent.com/u/12682937?v=4" width="100px;" alt="Vladislav"/><br /><sub><b>Vladislav</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=vlad0337187" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/izerozlu"><img src="https://avatars3.githubusercontent.com/u/17386157?v=4" width="100px;" alt="izerozlu"/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=izerozlu" title="Code">💻</a></td>
   </tr>
 </table>
 

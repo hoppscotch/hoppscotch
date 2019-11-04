@@ -13,6 +13,105 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "NBTX",
+      "name": "John Harker",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/43181178?v=4",
+      "profile": "https://github.com/NBTX",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "larouxn",
+      "name": "Nicholas La Roux",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1557529?v=4",
+      "profile": "https://nicholaslaroux.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "yubathom",
+      "name": "Thomas Yuba",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/4117768?v=4",
+      "profile": "https://github.com/yubathom",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "nickpalenchar",
+      "name": "Nick Palenchar",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/7539781?v=4",
+      "profile": "http://www.linkedin.com/in/nickpalenchar",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "terranblake",
+      "name": "Terran Blake",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/8795767?v=4",
+      "profile": "https://www.lumahealth.io/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AndrewBastin",
+      "name": "Andrew Bastin",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/9131943?v=4",
+      "profile": "https://github.com/AndrewBastin",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "vlad0337187",
+      "name": "Vladislav",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/12682937?v=4",
+      "profile": "https://github.com/vlad0337187",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "izerozlu",
+      "name": "izerozlu",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/17386157?v=4",
+      "profile": "https://github.com/izerozlu",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JacobAnavisca",
+      "name": "Jacob Anavisca",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/21232366?v=4",
+      "profile": "https://github.com/JacobAnavisca",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "nityanandagohain",
+      "name": "Nityananda Gohain",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/26831659?v=4",
+      "profile": "http://nityanandagohain.github.io",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hosseinnedaee",
+      "name": "Hossein Nedaee",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/42691357?v=4",
+      "profile": "https://github.com/hosseinnedaee",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

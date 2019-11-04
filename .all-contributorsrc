@@ -40,6 +40,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "nickpalenchar",
+      "name": "Nick Palenchar",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/7539781?v=4",
+      "profile": "http://www.linkedin.com/in/nickpalenchar",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -1,7 +1,7 @@
 {
     "name": "postwoman",
-    "version": "0.1.0",
-    "description": "Lightweight API request builder by Liyas Thomas",
+    "version": "1.0.0",
+    "description": "A free, fast, and beautiful API request builder",
     "author": "liyasthomas",
     "private": true,
     "scripts": {

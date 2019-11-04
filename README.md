@@ -1,5 +1,5 @@
 <div align="center">
-[![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors)
   <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
@@ -266,6 +266,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
     <td align="center"><a href="https://github.com/izerozlu"><img src="https://avatars3.githubusercontent.com/u/17386157?v=4" width="100px;" alt="izerozlu"/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=izerozlu" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/JacobAnavisca"><img src="https://avatars2.githubusercontent.com/u/21232366?v=4" width="100px;" alt="Jacob Anavisca"/><br /><sub><b>Jacob Anavisca</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=JacobAnavisca" title="Code">💻</a></td>
     <td align="center"><a href="http://nityanandagohain.github.io"><img src="https://avatars3.githubusercontent.com/u/26831659?v=4" width="100px;" alt="Nityananda Gohain"/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nityanandagohain" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://avatars2.githubusercontent.com/u/42691357?v=4" width="100px;" alt="Hossein Nedaee"/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=hosseinnedaee" title="Code">💻</a></td>
   </tr>
 </table>
 

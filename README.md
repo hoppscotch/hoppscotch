@@ -247,33 +247,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
-### Collaborators
-
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/NBTX"><img src="https://github.com/NBTX.png?size=100" width="100px;" alt="John Harker"/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=NBTX" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/izerozlu"><img src="https://github.com/izerozlu.png?size=100" width="100px;" alt="izerozlu"/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=izerozlu" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/AndrewBastin"><img src="https://github.com/AndrewBastin.png?size=100" width="100px;" alt="Andrew Bastin"/><br /><sub><b>Andrew Bastin</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=AndrewBastin" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/nickpalenchar"><img src="https://github.com/nickpalenchar.png?size=100" width="100px;" alt="Nick Palenchar"/><br /><sub><b>Nick Palenchar</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nickpalenchar" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/yubathom"><img src="https://github.com/yubathom.png?size=100" width="100px;" alt="Thomas Yuba"/><br /><sub><b>Thomas Yuba</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=yubathom" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/larouxn"><img src="https://github.com/larouxn.png?size=100" width="100px;" alt="Nicholas La Roux"/><br /><sub><b>Nicholas La Roux</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=larouxn" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/JacobAnavisca"><img src="https://github.com/JacobAnavisca.png?size=100" width="100px;" alt="Jacob Anavisca"/><br /><sub><b>Jacob Anavisca</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=JacobAnavisca" title="Code">💻</a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/nityanandagohain"><img src="https://github.com/nityanandagohain.png?size=100" width="100px;" alt="Nityananda Gohain"/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nityanandagohain" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/terranblake"><img src="https://github.com/terranblake.png?size=100" width="100px;" alt="Terran Blake"/><br /><sub><b>Terran Blake</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=terranblake" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://github.com/hosseinnedaee.png?size=100" width="100px;" alt="Hossein Nedaee"/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=hosseinnedaee" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/vlad0337187"><img src="https://github.com/vlad0337187.png?size=100" width="100px;" alt="Vladislav"/><br /><sub><b>Vladislav</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=vlad0337187" title="Code">💻</a></td>
-  </tr>
-</table>
-
-See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
-
-### Thanks
-
-* [dev.to 👩‍💻👨‍💻](https://dev.to)
-
-## Contributors 🚸
+### Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
@@ -284,6 +258,13 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 </table>
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
+
+### Thanks
+
+* [dev.to 👩‍💻👨‍💻](https://dev.to)
+
 ### Code Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].

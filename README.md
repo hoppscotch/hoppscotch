@@ -1,4 +1,5 @@
 <div align="center">
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
   <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
@@ -274,6 +275,15 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 
 ## Contributors 🚸
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table>
+  <tr>
+    <td align="center"><a href="https://liyasthomas.web.app"><img src="https://avatars1.githubusercontent.com/u/10395817?v=4" width="100px;" alt="Liyas Thomas"/><br /><sub><b>Liyas Thomas</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=liyasthomas" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 ### Code Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].

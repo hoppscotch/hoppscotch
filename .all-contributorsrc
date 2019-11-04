@@ -1,0 +1,23 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "liyasthomas",
+      "name": "Liyas Thomas",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/10395817?v=4",
+      "profile": "https://liyasthomas.web.app",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "postwoman",
+  "projectOwner": "liyasthomas",
+  "repoType": "github",
+  "repoHost": "https://github.com"
+}

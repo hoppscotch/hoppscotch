@@ -76,6 +76,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "izerozlu",
+      "name": "izerozlu",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/17386157?v=4",
+      "profile": "https://github.com/izerozlu",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JacobAnavisca",
+      "name": "Jacob Anavisca",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/21232366?v=4",
+      "profile": "https://github.com/JacobAnavisca",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "nityanandagohain",
+      "name": "Nityananda Gohain",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/26831659?v=4",
+      "profile": "http://nityanandagohain.github.io",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

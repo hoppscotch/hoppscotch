@@ -576,7 +576,7 @@ import collections from "../components/collections";
 import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import hljs from "highlight.js";
-import "highlight.js/styles/dracula.css";
+import "highlight.js/styles/androidstudio.css";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 

@@ -317,7 +317,11 @@
               <div class="flex-wrap">
                 <label for="auth">Authentication Type</label>
                 <div>
-                  <button class="icon" @click="clearContent('auth', $event)" v-tooltip.bottom="'Clear'">
+                  <button
+                    class="icon"
+                    @click="clearContent('auth', $event)"
+                    v-tooltip.bottom="'Clear'"
+                  >
                     <i class="material-icons">clear_all</i>
                   </button>
                 </div>
@@ -376,7 +380,11 @@
               <div class="flex-wrap">
                 <label for="headerList">Header List</label>
                 <div>
-                  <button class="icon" @click="clearContent('headers', $event)" v-tooltip.bottom="'Clear'">
+                  <button
+                    class="icon"
+                    @click="clearContent('headers', $event)"
+                    v-tooltip.bottom="'Clear'"
+                  >
                     <i class="material-icons">clear_all</i>
                   </button>
                 </div>
@@ -440,7 +448,11 @@
               <div class="flex-wrap">
                 <label for="paramList">Parameter List</label>
                 <div>
-                  <button class="icon" @click="clearContent('parameters', $event)" v-tooltip.bottom="'Clear'">
+                  <button
+                    class="icon"
+                    @click="clearContent('parameters', $event)"
+                    v-tooltip.bottom="'Clear'"
+                  >
                     <i class="material-icons">clear_all</i>
                   </button>
                 </div>
@@ -1051,15 +1063,13 @@ export default {
         requestString.push('  method: "' + this.method + '",\n');
         if (this.auth === "Basic") {
           var basic = this.httpUser + ":" + this.httpPassword;
-          this.$store.commit(
-            "addHeaders",
+          headers.push(
             '    "Authorization": "Basic ' +
               window.btoa(unescape(encodeURIComponent(basic))) +
               ",\n"
           );
         } else if (this.auth === "Bearer Token") {
-          this.$store.commit(
-            "addHeaders",
+          headers.push(
             '    "Authorization": "Bearer Token ' + this.bearerToken + ",\n"
           );
         }
@@ -1068,19 +1078,14 @@ export default {
             ? this.rawParams
             : this.rawRequestBody;
           requestString.push("  body: " + requestBody + ",\n");
-          this.$store.commit(
-            "addHeaders",
-            '    "Content-Length": ' + requestBody.length + ",\n"
-          );
-          this.$store.commit(
-            "addHeaders",
+          headers.push('    "Content-Length": ' + requestBody.length + ",\n");
+          headers.push(
             '    "Content-Type": "' + this.contentType + '; charset=utf-8",\n'
           );
         }
         if (this.headers) {
           this.headers.forEach(function(element) {
-            this.$store.commit(
-              "addHeaders",
+            headers.push(
               '    "' + element.key + '": "' + element.value + '",\n'
             );
           });
@@ -1150,7 +1155,7 @@ export default {
       this.method = method;
       this.url = url;
       this.path = path;
-      this.scrollInto('request');
+      this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -1206,7 +1211,7 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear();
-      this.scrollInto('response');
+      this.scrollInto("response");
 
       if (!this.isValidURL) {
         this.$toast.error("URL is not formatted properly", {
@@ -1673,9 +1678,7 @@ export default {
         icon: "clear_all"
       });
       setTimeout(
-        () =>
-          (e.target.innerHTML =
-            '<i class="material-icons">clear_all</i>'),
+        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
       );
     },

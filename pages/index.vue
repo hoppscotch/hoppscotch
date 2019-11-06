@@ -1022,16 +1022,17 @@ export default {
       if (this.requestType === "JavaScript XHR") {
         var requestString = [];
         requestString.push("const xhr = new XMLHttpRequest()");
-        const user = this.auth === "Basic" ? this.httpUser : null;
-        const pswd = this.auth === "Basic" ? this.httpPassword : null;
+        const user = this.auth === "Basic" ? "'" + this.httpUser + "'" : null;
+        const pswd =
+          this.auth === "Basic" ? "'" + this.httpPassword + "'" : null;
         requestString.push(
-          'xhr.open("' +
+          "xhr.open('" +
             this.method +
-            '", "' +
+            "', '" +
             this.url +
             this.path +
             this.queryString +
-            '", true, ' +
+            "', true, " +
             user +
             ", " +
             pswd +
@@ -1039,15 +1040,19 @@ export default {
         );
         if (this.auth === "Bearer Token") {
           requestString.push(
-            "xhr.setRequestHeader('Authorization', 'Bearer ' + " +
+            "xhr.setRequestHeader('Authorization', 'Bearer " +
               this.bearerToken +
-              ")"
+              "')"
           );
         }
         if (this.headers) {
           this.headers.forEach(function(element) {
             requestString.push(
-              "xhr.setRequestHeader(" + element.key + ", " + element.value + ")"
+              "xhr.setRequestHeader('" +
+                element.key +
+                "', '" +
+                element.value +
+                "')"
             );
           });
         }
@@ -1059,9 +1064,9 @@ export default {
             "xhr.setRequestHeader('Content-Length', " + requestBody.length + ")"
           );
           requestString.push(
-            "xhr.setRequestHeader('Content-Type', `" +
+            "xhr.setRequestHeader('Content-Type', '" +
               this.contentType +
-              "; charset=utf-8`)"
+              "; charset=utf-8')"
           );
           requestString.push("xhr.send(" + requestBody + ")");
         } else {
@@ -1080,11 +1085,11 @@ export default {
           headers.push(
             '    "Authorization": "Basic ' +
               window.btoa(unescape(encodeURIComponent(basic))) +
-              ",\n"
+              '",\n'
           );
         } else if (this.auth === "Bearer Token") {
           headers.push(
-            '    "Authorization": "Bearer Token ' + this.bearerToken + ",\n"
+            '    "Authorization": "Bearer ' + this.bearerToken + '",\n'
           );
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
@@ -1104,18 +1109,18 @@ export default {
             );
           });
         }
-        headers = headers.join("").slice(0, -3);
+        headers = headers.join("").slice(0, -2);
         requestString.push("  headers: {\n" + headers + "\n  },\n");
         requestString.push('  credentials: "same-origin"\n');
-        requestString.push(")}).then(function(response) {\n");
+        requestString.push("}).then(function(response) {\n");
         requestString.push("  response.status\n");
         requestString.push("  response.statusText\n");
         requestString.push("  response.headers\n");
         requestString.push("  response.url\n\n");
         requestString.push("  return response.text()\n");
-        requestString.push(")}, function(error) {\n");
+        requestString.push("}).catch(function(error) {\n");
         requestString.push("  error.message\n");
-        requestString.push(")}");
+        requestString.push("})");
         return requestString.join("");
       } else if (this.requestType === "cURL") {
         var requestString = [];
@@ -1132,7 +1137,7 @@ export default {
           );
         } else if (this.auth === "Bearer Token") {
           requestString.push(
-            "  -H 'Authorization: Bearer Token " + this.bearerToken + "' \\\n"
+            "  -H 'Authorization: Bearer " + this.bearerToken + "' \\\n"
           );
         }
         if (this.headers) {

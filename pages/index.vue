@@ -1030,7 +1030,7 @@ export default {
             this.method +
             "', '" +
             this.url +
-            this.path +
+            this.pathName +
             this.queryString +
             "', true, " +
             user +
@@ -1077,7 +1077,7 @@ export default {
         var requestString = [];
         var headers = [];
         requestString.push(
-          'fetch("' + this.url + this.path + this.queryString + '", {\n'
+          'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
         );
         requestString.push('  method: "' + this.method + '",\n');
         if (this.auth === "Basic") {
@@ -1126,7 +1126,7 @@ export default {
         var requestString = [];
         requestString.push("curl -X " + this.method + " \\\n");
         requestString.push(
-          "  '" + this.url + this.path + this.queryString + "' \\\n"
+          "  '" + this.url + this.pathName + this.queryString + "' \\\n"
         );
         if (this.auth === "Basic") {
           var basic = this.httpUser + ":" + this.httpPassword;

@@ -43,18 +43,32 @@
     <pw-section
       v-if="showPreRequestScript"
       class="orange"
-      label="Pre-Request • β (experimental)"
+      label="Pre-Request"
       ref="preRequest"
     >
-      <textarea
-        id="preRequestScript"
-        @keydown="formatRawParams"
-        rows="8"
-        v-model="preRequestScript"
-        v-textarea-auto-height="preRequestScript"
-        spellcheck="false"
-        placeholder="pw.environment.set('variable', 'value');"
-      ></textarea>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <label for="generatedCode">JavaScript Code</label>
+            <div>
+              <a href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts" target="_blank">
+                <button class="icon" v-tooltip="'Wiki'">
+                  <i class="material-icons">help</i>
+                </button>
+              </a>
+            </div>
+          </div>
+          <textarea
+            id="preRequestScript"
+            @keydown="formatRawParams"
+            rows="8"
+            v-model="preRequestScript"
+            v-textarea-auto-height="preRequestScript"
+            spellcheck="false"
+            placeholder="pw.environment.set('variable', 'value');"
+          ></textarea>
+        </li>
+      </ul>
     </pw-section>
 
     <pw-section class="blue" label="Request" ref="request">

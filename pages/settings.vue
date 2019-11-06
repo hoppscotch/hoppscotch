@@ -57,12 +57,19 @@
     <pw-section class="blue" label="Proxy" ref="proxy">
       <ul>
         <li>
-          <span>
-            <pw-toggle
-              :on="settings.PROXY_ENABLED"
-              @change="toggleSetting('PROXY_ENABLED')"
-            >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
-          </span>
+          <div class="flex-wrap">
+            <span>
+              <pw-toggle
+                :on="settings.PROXY_ENABLED"
+                @change="toggleSetting('PROXY_ENABLED')"
+              >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+            </span>
+            <a href="https://github.com/liyasthomas/postwoman/wiki/Proxy" target="_blank">
+              <button class="icon" v-tooltip="'Wiki'">
+                <i class="material-icons">help</i>
+              </button>
+            </a>
+          </div>
         </li>
       </ul>
       <ul class="info">

@@ -300,9 +300,9 @@
                 @click="copyRequestCode"
                 id="copyRequestCode"
                 ref="copyRequestCode"
+                v-tooltip="'Copy code'"
               >
                 <i class="material-icons">file_copy</i>
-                <span>Copy</span>
               </button>
             </div>
           </div>
@@ -1510,17 +1510,14 @@ export default {
       }
     },
     copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML =
-        this.doneButton + "<span>Copied</span>";
+      this.$refs.copyRequestCode.innerHTML = this.doneButton;
       this.$toast.success("Copied to clipboard", {
         icon: "done"
       });
       this.$refs.generatedCode.select();
       document.execCommand("copy");
       setTimeout(
-        () =>
-          (this.$refs.copyRequestCode.innerHTML =
-            this.copyButton + "<span>Copy</span>"),
+        () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
         1000
       );
     },

@@ -131,7 +131,7 @@ _HTML responses have "Preview HTML" feature_
 
 _History entries can be sorted by any fields_
 
-_Histories can deleted one-by-one or all together_
+_Histories can be deleted one-by-one or all together_
 
 📁 **Collections**: Keep your API requests organized with collections and folders. Reuse them with a single click.
 

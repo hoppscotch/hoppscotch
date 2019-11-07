@@ -51,7 +51,11 @@ TODO:
           <i class="material-icons">import_export</i>
           <span>Import / Export</span>
         </button>
-        <a href="https://github.com/liyasthomas/postwoman/wiki/Collections" target="_blank">
+        <a
+          href="https://github.com/liyasthomas/postwoman/wiki/Collections"
+          target="_blank"
+          rel="noopener"
+        >
           <button class="icon" v-tooltip="'Wiki'">
             <i class="material-icons">help</i>
           </button>

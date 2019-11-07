@@ -762,8 +762,7 @@ export default {
         } else if (
           responseText &&
           this.response.body !== "(waiting to send request)" &&
-          this.response.body !== "Loading..." &&
-          this.response.body.indexOf("console") == -1
+          this.response.body !== "Loading..."
         ) {
           responseText.innerText =
             this.responseType === "application/json" ||
@@ -1375,7 +1374,7 @@ export default {
           return;
         } else {
           this.response.status = error.message;
-          this.response.body = error + "\nCheck console for details.";
+          this.response.body = error + ". Check console for details.";
           this.$toast.error(error + " (F12 for details)", {
             icon: "error"
           });

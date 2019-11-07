@@ -18,7 +18,7 @@
       <ul>
         <li>
           <label for="selectLabel">Label</label>
-          <input type="text" id="selectLabel" v-model="requestUpdateData.name" :placeholder="request.name" />
+          <input type="text" id="selectLabel" v-model="requestUpdateData.name" @keyup.enter="saveRequest" :placeholder="request.name" />
           <label for="selectCollection">Collection</label>
           <select type="text" id="selectCollection" v-model="requestUpdateData.collectionIndex">
             <option :key="undefined" :value="undefined" hidden disabled selected>Current Collection</option>

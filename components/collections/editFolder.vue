@@ -17,7 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" v-bind:placeholder="folder.name" />
+          <input type="text" v-model="name" v-bind:placeholder="folder.name" @keyup.enter="editFolder" />
         </li>
       </ul>
     </div>

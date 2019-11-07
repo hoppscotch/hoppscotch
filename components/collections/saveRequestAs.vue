@@ -23,6 +23,7 @@
             id="selectLabel"
             v-model="requestData.name"
             v-bind:placeholder="defaultRequestName"
+            @keyup.enter="saveRequestAs"
           />
           <label for="selectCollection">Collection</label>
           <select type="text" id="selectCollection" v-model="requestData.collectionIndex">

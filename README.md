@@ -114,6 +114,7 @@ _Customized themes are also synced with local session storage_
 👋 **Responses**: Contains the status line, headers and the message/response body.
 
  - Copy response to clipboard
+ - Download response to a local file
  - View preview for HTML responses
 
 _HTML responses have "Preview HTML" feature_

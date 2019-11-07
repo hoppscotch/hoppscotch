@@ -262,6 +262,7 @@
           >
             <i class="material-icons">file_copy</i>
           </button>
+          
           <button
             class="icon"
             @click="saveRequest"
@@ -551,6 +552,10 @@
                 <i class="material-icons">file_copy</i>
                 <span>Copy</span>
               </button>
+              <button class="icon" @click="downloadResponse" ref="downloadResponse" v-if="response.body">
+                <i class="material-icons">cloud_download</i>
+                <span>Download</span>
+              </button>
             </div>
           </div>
           <div id="response-details-wrapper">
@@ -677,6 +682,7 @@ export default {
       preRequestScript: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       copiedButton: '<i class="material-icons">done</i>',
+      downloadedButton: '<i class="material-icons">cloud_done</i>',
       isHidden: true,
       response: {
         status: "",
@@ -1534,6 +1540,37 @@ export default {
             this.copyButton + "<span>Copy</span>"),
         1000
       );
+    },
+
+    downloadResponse(){
+      // Storing the data in a organized way
+      var dataToWrite = JSON.stringify(this.response.body, null, 2);
+      // Default filename, maybe its better to add the url requested ?
+      var filename = 'response'
+      // Creating the Blob with data and mimetype
+      var file = new Blob([dataToWrite], {type: 'application/json'});
+      // Create a "a" element
+      var a = document.createElement("a"),
+              url = URL.createObjectURL(file);
+      
+      // Point "a" element to url of new to be downloaded
+      a.href = url;
+      // Makes "a" element downloadable with filename
+      a.download = filename;
+      // Appends the brand new "a" element on body.
+      document.body.appendChild(a);
+      // Finally click on element to download it!
+      a.click();
+      this.$refs.downloadResponse.innerHTML =
+        this.downloadedButton + "<span>Downloaded</span>";
+      this.$toast.success("Download started, check your browser", {
+        icon: "done"
+      });
+      setTimeout(function() {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);  
+      }, 0); 
+      
     },
     togglePreview() {
       this.previewEnabled = !this.previewEnabled;

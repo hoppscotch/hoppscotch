@@ -565,17 +565,17 @@ input[type="checkbox"] {
   }
 }
 
-.error,
-.disabled,
+.error:not(input),
+.disabled:not(input),
 [disabled] {
   background-color: var(--err-color);
   color: var(--fg-light-color);
   fill: var(--fg-light-color);
-  cursor: default;
+  cursor: not-allowed;
 
   &.icon {
-    color: var(--bg-color);
-    fill: var(--bg-color);
+    color: var(--err-color);
+    fill: var(--err-color);
   }
 }
 

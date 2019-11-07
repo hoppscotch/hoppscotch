@@ -64,7 +64,7 @@
                 @change="toggleSetting('PROXY_ENABLED')"
               >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
             </span>
-            <a href="https://github.com/liyasthomas/postwoman/wiki/Proxy" target="_blank">
+            <a href="https://github.com/liyasthomas/postwoman/wiki/Proxy" target="_blank" rel="noopener">
               <button class="icon" v-tooltip="'Wiki'">
                 <i class="material-icons">help</i>
               </button>
@@ -76,11 +76,8 @@
         <li>
           <p>
             Postwoman's Proxy is hosted by ApolloTV.
-            <br />Read the ApolloTV privacy policy
-            <a
-              href="https://apollotv.xyz/legal"
-              target="_blank"
-            >here</a>.
+            <br />
+            Read the <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">ApolloTV privacy policy</a>.
           </p>
         </li>
       </ul>

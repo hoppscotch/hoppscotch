@@ -500,6 +500,7 @@ pre {
   &:not([readonly]):active,
   &:not([readonly]):focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
+    transition: all 0.2s ease-in-out;
   }
 }
 

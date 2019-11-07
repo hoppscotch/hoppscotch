@@ -397,20 +397,28 @@ button {
     margin-left: 8px;
   }
 
+  &:not([disabled]):hover,
+  &:not([disabled]):active,
+  &:not([disabled]):focus {
+    color: var(--act-color);
+    fill: var(--act-color);
+    box-shadow: 0 0 0 2px var(--fg-color);
+    transition: all 0.2s ease-in-out;
+  }
+
   &.icon {
     background-color: var(--bg-color);
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
 
-    &:not([disabled]):hover {
+    &:not([disabled]):hover,
+    &:not([disabled]):active,
+    &:not([disabled]):focus {
       color: var(--fg-color);
       fill: var(--fg-color);
+      box-shadow: none;
+      transition: all 0.2s ease-in-out;
     }
-  }
-
-  &:not([disabled]):hover {
-    color: var(--act-color);
-    fill: var(--act-color);
   }
 }
 
@@ -497,6 +505,7 @@ pre {
   resize: vertical;
   text-overflow: ellipsis;
 
+  &:not([readonly]):hover,
   &:not([readonly]):active,
   &:not([readonly]):focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
@@ -740,7 +749,9 @@ input[type="radio"]+label {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
-  &:hover {
+  &:hover,
+  &:active,
+  &:focus {
     border-color: var(--brd-color);
   }
 }

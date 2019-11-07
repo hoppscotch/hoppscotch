@@ -763,7 +763,7 @@ export default {
           responseText &&
           this.response.body !== "(waiting to send request)" &&
           this.response.body !== "Loading..." &&
-          this.response.body !== "See JavaScript console (F12) for details."
+          this.response.body.indexOf("console") == -1
         ) {
           responseText.innerText =
             this.responseType === "application/json" ||
@@ -1375,14 +1375,14 @@ export default {
           return;
         } else {
           this.response.status = error.message;
-          this.response.body = "See JavaScript console (F12) for details.";
+          this.response.body = error + "\nCheck console for details.";
           this.$toast.error(error + " (F12 for details)", {
             icon: "error"
           });
           if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
             this.$toast.info("Try enabling Proxy", {
               icon: "help",
-              duration: 5000,
+              duration: 8000,
               action: {
                 text: "Settings",
                 onClick: (e, toastObject) => {

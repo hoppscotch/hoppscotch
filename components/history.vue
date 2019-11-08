@@ -37,6 +37,11 @@
           Path
         </label>
       </li>
+      <li @click="sort_by_duration()">
+        <label>
+          Duration
+        </label>
+      </li>
       <li></li>
     </ul>
     <virtual-list
@@ -88,10 +93,16 @@
           >{{entry.status}}</span>
         </li>
         <li>
-          <input aria-label="URL" type="text" readonly :value="entry.url" />
+          <input aria-label="URL" type="text" readonly :value="entry.url" placeholder="No URL" />
         </li>
         <li>
           <input aria-label="Path" type="text" readonly :value="entry.path" placeholder="No path" />
+        </li>
+        <li>
+          <input aria-label="Duration" type="text" readonly :value="entry.duration" placeholder="No duration" />
+        </li>
+        <li>
+          <input aria-label="Pre Request Script" type="text" readonly :value="entry.preRequestScript" placeholder="No pre request script" />
         </li>
         <div class="show-on-small-screen">
           <li>
@@ -327,6 +338,16 @@
         });
         this.history = byPath;
         this.reverse_sort_path = !this.reverse_sort_path;
+      },
+      sort_by_duration() {
+        let byDuration = this.history.slice(0);
+        byDuration.sort((a, b) => {
+          if (this.reverse_sort_duration)
+            return a.duration == b.duration ? 0 : +(a.duration < b.duration) || -1;
+          else return a.duration == b.duration ? 0 : +(a.duration > b.duration) || -1;
+        });
+        this.history = byDuration;
+        this.reverse_sort_duration = !this.reverse_sort_duration;
       }
     }
   };

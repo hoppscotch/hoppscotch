@@ -1185,11 +1185,12 @@ export default {
         behavior: "smooth"
       });
     },
-    handleUseHistory({ label, method, url, path }) {
+    handleUseHistory({ label, method, url, path, preRequestScript }) {
       this.label = label;
       this.method = method;
       this.url = url;
       this.path = path;
+      this.preRequestScript = preRequestScript;
       this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
@@ -1348,7 +1349,9 @@ export default {
             method: this.method,
             url: this.url,
             path: this.path,
-            usesScripts: Boolean(this.preRequestScript)
+            usesScripts: Boolean(this.preRequestScript),
+            preRequestScript: this.preRequestScript,
+            duration
           };
           this.$refs.historyComponent.addEntry(entry);
         })();

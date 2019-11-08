@@ -2,7 +2,7 @@
   <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
-  <p>
+  <p style="font-weight: bold;">
     API request builder - A free, fast, and beautiful alternative to Postman
   </p>
   <p>
@@ -23,7 +23,7 @@
 
 ---
 
-**Start here: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md)_**
+**Start here: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0 - free, fast & beautiful alternative to Postman](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)_**
 
 **Chat here: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
@@ -321,13 +321,13 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Badges
 
-| Status | Preview | Markdown Code (copy & paste into `readme.md`) |
+| Status | Preview | Markdown code (copy & paste into `readme.md`) |
 | ----------- | ----------- | ----------- |
 | **Default** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b?logo=Postwoman)](https://postwoman.io)` |
 | **Success** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)` |
 | **Critical** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)` |
 | **Custom** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)` |
-| Make your own badge! | [![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)` |
+| Customize | [![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)` |
 
 <div align="center">
   <br>

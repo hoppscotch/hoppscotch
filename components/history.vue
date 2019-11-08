@@ -37,12 +37,27 @@
           Path
         </label>
       </li>
-      <li @click="sort_by_duration()">
-        <label>
-          Duration
-        </label>
-      </li>
+      <transition name="smooth" v-if="show">
+        <li>
+          <ul>
+            <li @click="sort_by_duration()">
+              <label>
+                Duration
+              </label>
+            </li>
+            <li>
+              <label>
+                Pre-script
+              </label>
+            </li>
+          </ul>
+        </li>
+      </transition>
       <li></li>
+      <button class="icon" @click="toggleCollapse()" v-tooltip="'Show more'">
+        <i class="material-icons" v-if="!show">first_page</i>
+        <i class="material-icons" v-else>last_page</i>
+      </button>
     </ul>
     <virtual-list
       class="virtual-list"
@@ -50,7 +65,7 @@
       :size="56"
       :remain="Math.min(5, filteredHistory.length)"
     >
-      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+        <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <li>
           <button v-if="entry.usesScripts"
             v-tooltip="'This entry used pre-request scripts'"
@@ -98,12 +113,16 @@
         <li>
           <input aria-label="Path" type="text" readonly :value="entry.path" placeholder="No path" />
         </li>
-        <li>
-          <input aria-label="Duration" type="text" readonly :value="entry.duration" placeholder="No duration" />
-        </li>
-        <li>
-          <input aria-label="Pre Request Script" type="text" readonly :value="entry.preRequestScript" placeholder="No pre request script" />
-        </li>
+        <transition name="smooth">
+          <div v-if="show" class="show-on-small-screen">
+            <li>
+              <input aria-label="Duration" type="text" readonly :value="entry.duration" placeholder="No duration" />
+            </li>
+            <li>
+              <input aria-label="Pre Request Script" type="text" readonly :value="entry.preRequestScript" placeholder="No pre request script" />
+            </li>
+          </div>
+        </transition>
         <div class="show-on-small-screen">
           <li>
             <button
@@ -182,6 +201,13 @@
     }
   }
 
+  .smooth-enter-active, .smooth-leave-active {
+    transition: all 0.2s;
+  }
+  .smooth-enter, .smooth-leave-to {
+    opacity: 0;
+  }
+
   @media (max-width: 720px) {
     .virtual-list.filled {
       min-height: 200px;
@@ -214,7 +240,8 @@
         reverse_sort_time: false,
         reverse_sort_status_code: false,
         reverse_sort_url: false,
-        reverse_sort_path: false
+        reverse_sort_path: false,
+        show: false
       };
     },
     computed: {
@@ -348,6 +375,9 @@
         });
         this.history = byDuration;
         this.reverse_sort_duration = !this.reverse_sort_duration;
+      },
+      toggleCollapse: function() {
+        this.show = !this.show
       }
     }
   };

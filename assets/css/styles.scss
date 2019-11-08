@@ -530,9 +530,9 @@ code {
 }
 
 select,
-input,
 option {
   height: 40px;
+  cursor: pointer;
 }
 
 input[type="checkbox"] {

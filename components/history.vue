@@ -6,12 +6,11 @@
           aria-label="Search"
           type="text"
           placeholder="search history"
-          :readonly="history.length === 0"
           v-model="filterText"
         />
       </li>
     </ul>
-    <ul>
+    <ul v-if="history.length !== 0">
       <li></li>
       <li @click="sort_by_label()">
         <label>
@@ -43,7 +42,7 @@
     <virtual-list
       class="virtual-list"
       :class="{filled: filteredHistory.length}"
-      :size="54"
+      :size="56"
       :remain="Math.min(5, filteredHistory.length)"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
@@ -157,6 +156,8 @@
 
 <style scoped lang="scss">
   .virtual-list {
+    min-height: 90px;
+
     [readonly] {
       cursor: default;
     }

@@ -259,6 +259,7 @@
           let section = document.querySelector(link.hash);
 
           if (
+            section &&
             section.offsetTop <= fromTop &&
             section.offsetTop + section.offsetHeight > fromTop
           ) {

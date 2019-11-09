@@ -64,7 +64,7 @@
             v-model="preRequestScript"
             v-textarea-auto-height="preRequestScript"
             spellcheck="false"
-            placeholder="pw.environment.set('variable', 'value');"
+            placeholder="pw.env.set('variable', 'value');"
           ></textarea>
         </li>
       </ul>
@@ -1185,11 +1185,12 @@ export default {
         behavior: "smooth"
       });
     },
-    handleUseHistory({ label, method, url, path, preRequestScript }) {
+    handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
       this.label = label;
       this.method = method;
       this.url = url;
       this.path = path;
+      this.showPreRequestScript = usesScripts;
       this.preRequestScript = preRequestScript;
       this.scrollInto("request");
     },
@@ -1371,7 +1372,8 @@ export default {
             method: this.method,
             url: this.url,
             path: this.path,
-            usesScripts: Boolean(this.preRequestScript)
+            usesScripts: Boolean(this.preRequestScript),
+            preRequestScript: this.preRequestScript
           };
           this.$refs.historyComponent.addEntry(entry);
           return;

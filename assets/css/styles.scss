@@ -12,16 +12,23 @@ html {
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+  border-radius: 8px;
+  background-color: var(--bg-dark-color);
+  visibility: hidden;
+
+  &:hover {
+    visibility: visible;
+  }
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--fg-light-color);
   border-radius: 8px;
   border: 2px solid var(--bg-color);
-}
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--fg-color);
+  &:hover {
+    background-color: var(--fg-color);
+  }
 }
 
 ::placeholder {
@@ -656,10 +663,6 @@ ol li {
 
 .missing-data-response {
   background-color: var(--err-color);
-}
-
-.virtual-list::-webkit-scrollbar {
-  width: 0;
 }
 
 fieldset#history {

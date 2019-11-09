@@ -2,110 +2,93 @@
   <pw-section class="green" icon="history" label="History" ref="history">
     <ul>
       <li id="filter-history">
-        <input
-          aria-label="Search"
-          type="text"
-          placeholder="search history"
-          v-model="filterText"
-        />
+        <input aria-label="Search" type="text" placeholder="search history" v-model="filterText" />
       </li>
     </ul>
     <ul v-if="history.length !== 0">
-      <li></li>
-      <li @click="sort_by_label()">
-        <label>
+      <div class="show-on-small-screen">
+        <li>
+          <button class="icon">
+            <i class="material-icons">history</i>
+          </button>
+        </li>
+      </div>
+      <li>
+        <button class="icon" @click="sort_by_label()">
           Label
-        </label>
+        </button>
       </li>
-      <li @click="sort_by_time()">
-        <label>
+      <li>
+        <button class="icon" @click="sort_by_time()">
           Time
-        </label>
+        </button>
       </li>
-      <li @click="sort_by_status_code()">
-        <label>
+      <li>
+        <button class="icon" @click="sort_by_status_code()">
           Status
-        </label>
+        </button>
       </li>
-      <li @click="sort_by_url()">
-        <label>
+      <li>
+        <button class="icon" @click="sort_by_url()">
           URL
-        </label>
+        </button>
       </li>
-      <li @click="sort_by_path()">
-        <label>
+      <li>
+        <button class="icon" @click="sort_by_path()">
           Path
-        </label>
+        </button>
       </li>
       <transition name="smooth" v-if="show">
         <li>
           <ul>
-            <li @click="sort_by_duration()">
-              <label>
+            <li>
+              <button class="icon" @click="sort_by_duration()">
                 Duration
-              </label>
+              </button>
             </li>
             <li>
-              <label>
+              <button class="icon">
                 Pre-script
-              </label>
+              </button>
             </li>
           </ul>
         </li>
       </transition>
-      <li></li>
-      <button class="icon" @click="toggleCollapse()" v-tooltip="{ content: !show ? 'Show more' : 'Hide more'}">
-        <i class="material-icons" v-if="!show">first_page</i>
-        <i class="material-icons" v-else>last_page</i>
-      </button>
-    </ul>
-    <virtual-list
-      class="virtual-list"
-      :class="{filled: filteredHistory.length}"
-      :size="56"
-      :remain="Math.min(5, filteredHistory.length)"
-    >
-        <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+      <div class="show-on-small-screen">
         <li>
-          <button v-if="entry.usesScripts"
-            v-tooltip="'This entry used pre-request scripts'"
-            class="icon"
-          >
-            <i class="material-icons">code</i>
-          </button>
-          <button v-else
-            v-tooltip="'No pre-request scripts'"
-            class="icon"
-          >
-            <i class="material-icons">http</i>
+          <button class="icon" @click="enableHistoryClearing" v-tooltip="'Clear History'">
+            <i class="material-icons">clear_all</i>
           </button>
         </li>
         <li>
-          <input
-            aria-label="Label"
-            type="text"
-            readonly
-            :value="entry.label"
-            placeholder="No label"
-          />
+          <button class="icon" @click="toggleCollapse()" v-tooltip="{ content: !show ? 'Show more' : 'Hide more'}">
+            <i class="material-icons" v-if="!show">first_page</i>
+            <i class="material-icons" v-else>last_page</i>
+          </button>
+        </li>
+      </div>
+    </ul>
+    <virtual-list class="virtual-list" :class="{filled: filteredHistory.length}" :size="56" :remain="Math.min(5, filteredHistory.length)">
+      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+        <div class="show-on-small-screen">
+          <li>
+            <button v-if="entry.usesScripts" class="icon" v-tooltip="'This entry used pre-request scripts'">
+              <i class="material-icons">code</i>
+            </button>
+            <button v-else class="icon" v-tooltip="'No pre-request scripts'">
+              <i class="material-icons">http</i>
+            </button>
+          </li>
+        </div>
+        <li>
+          <input aria-label="Label" type="text" readonly :value="entry.label" placeholder="No label" />
         </li>
         <li>
           <input aria-label="Time" type="text" readonly :value="entry.time" v-tooltip="entry.date" />
         </li>
         <li class="method-list-item">
-          <input
-            aria-label="Method"
-            type="text"
-            readonly
-            :value="entry.method"
-            :class="findEntryStatus(entry).className"
-            :style="{'--status-code': entry.status}"
-          />
-          <span
-            class="entry-status-code"
-            :class="findEntryStatus(entry).className"
-            :style="{'--status-code': entry.status}"
-          >{{entry.status}}</span>
+          <input aria-label="Method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}" />
+          <span class="entry-status-code" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">{{entry.status}}</span>
         </li>
         <li>
           <input aria-label="URL" type="text" readonly :value="entry.url" placeholder="No URL" />
@@ -125,24 +108,12 @@
         </transition>
         <div class="show-on-small-screen">
           <li>
-            <button
-              v-tooltip="'Delete entry'"
-              class="icon"
-              :id="'delete-button#'+index"
-              @click="deleteHistory(entry)"
-              aria-label="Delete"
-            >
+            <button v-tooltip="'Delete entry'" class="icon" :id="'delete-button#'+index" @click="deleteHistory(entry)" aria-label="Delete">
               <i class="material-icons">delete</i>
             </button>
           </li>
           <li>
-            <button
-              v-tooltip="'Edit entry'"
-              class="icon"
-              :id="'use-button#'+index"
-              @click="useHistory(entry)"
-              aria-label="Edit"
-            >
+            <button v-tooltip="'Edit entry'" class="icon" :id="'use-button#'+index" @click="useHistory(entry)" aria-label="Edit">
               <i class="material-icons">edit</i>
             </button>
           </li>
@@ -161,12 +132,7 @@
     </ul>
     <ul v-if="history.length !== 0">
       <li v-if="!isClearingHistory">
-        <button
-          class="icon"
-          id="clear-history-button"
-          :disabled="history.length === 0"
-          @click="enableHistoryClearing"
-        >
+        <button class="icon" id="clear-history-button" :disabled="history.length === 0" @click="enableHistoryClearing">
           <i class="material-icons">clear_all</i>
           <span>Clear All</span>
         </button>
@@ -201,10 +167,13 @@
     }
   }
 
-  .smooth-enter-active, .smooth-leave-active {
+  .smooth-enter-active,
+  .smooth-leave-active {
     transition: all 0.2s;
   }
-  .smooth-enter, .smooth-leave-to {
+
+  .smooth-enter,
+  .smooth-leave-to {
     opacity: 0;
   }
 
@@ -213,12 +182,15 @@
       min-height: 200px;
     }
   }
+
 </style>
 
 <script>
   import VirtualList from "vue-virtual-scroll-list";
   import section from "./section";
-  import { findStatusGroup } from "../pages/index";
+  import {
+    findStatusGroup
+  } from "../pages/index";
 
   const updateOnLocalStorage = (propertyName, property) =>
     window.localStorage.setItem(propertyName, JSON.stringify(property));
@@ -381,4 +353,5 @@
       }
     }
   };
+
 </script>

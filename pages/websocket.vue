@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Request" ref="request">
+    <pw-section class="blue" label="Connection" id="connection" ref="Connection">
       <ul>
         <li>
           <label for="url">URL</label>
@@ -27,7 +27,7 @@
 
     <br />
 
-    <pw-section class="purple" label="Communication" id="response" ref="response">
+    <pw-section class="purple" label="Communication" id="communication" ref="communication">
       <ul>
         <li>
           <label for="log">Log</label>

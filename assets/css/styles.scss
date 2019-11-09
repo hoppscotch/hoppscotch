@@ -123,8 +123,16 @@ footer {
 }
 
 .logo {
+  margin-left: 5px;
   font-size: 22px;
   color: var(--ac-color);
+}
+
+.logo-image {
+  fill: var(--ac-color);
+  stroke: var(--ac-color);
+  position: relative;
+  top: 6px;
 }
 
 .tagline {

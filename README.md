@@ -23,11 +23,11 @@
 
 ---
 
-**Start here: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)_**
+**Read: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)_**
 
-**Chat here: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
+**Chat: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
-**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
+**Donate: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
 
 <div align="center">
   <br>
@@ -64,7 +64,7 @@ _History entries are synced with local session storage_
 
 _Customized themes are also synced with local session storage_
 
-🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
+🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) (100/100 Lighthouse score) on your device.
 
 **Features:**
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)

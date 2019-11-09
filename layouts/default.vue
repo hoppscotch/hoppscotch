@@ -131,7 +131,7 @@
         </button>
       </div>
       <!-- Bottom section of footer: version/author information -->
-      <p class="align-center">
+      <p class="align-center mono">
         <span v-if="version.name">
           <a
             v-bind:href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name"

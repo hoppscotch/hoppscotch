@@ -36,7 +36,7 @@ try {
     }
 
     // Get the current version hash as the short hash from Git.
-    version.hash = runCommand("git", ["rev-parse", "--short", "HEAD"]);
+    version.hash = runCommand("git", ["rev-parse --short HEAD"]);
     // Get the 'variant' name as the branch, if it's not master.
     version.variant =
       process.env.TRAVIS_BRANCH ||

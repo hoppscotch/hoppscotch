@@ -54,7 +54,7 @@
         </li>
       </transition>
       <li></li>
-      <button class="icon" @click="toggleCollapse()" v-tooltip="'Show more'">
+      <button class="icon" @click="toggleCollapse()" v-tooltip="{ content: !show ? 'Show more' : 'Hide more'}">
         <i class="material-icons" v-if="!show">first_page</i>
         <i class="material-icons" v-else>last_page</i>
       </button>

@@ -21,7 +21,7 @@ try {
 
     let version = {};
     // Get the current version name as the tag from Git.
-    version.name = process.env.TRAVIS_TAG || runCommand("git", ["tag"]);
+    version.name = process.env.TRAVIS_TAG || runCommand("git", ["tag --sort=committerdate | tail -1"]);
 
     // FALLBACK: If version.name was unset, let's grab it from GitHub.
     if (!version.name) {

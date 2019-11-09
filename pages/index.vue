@@ -568,14 +568,13 @@
             </div>
           </div>
           <div id="response-details-wrapper">
-            <pre>
-              <code
-  ref="responseBody"
-  id="body"
-  rows="16"
-  placeholder="(waiting to send request)"
->{{response.body}}</code>
-            </pre>
+            <ResponseBody
+              :value="responseBodyText"
+              theme="dracula"
+              lang="json"
+              :rows="16"
+              fontSize="18px"
+              placeholder="(waiting to send request)" />
             <iframe
               :class="{hidden: !previewEnabled}"
               class="covers-response"
@@ -617,8 +616,7 @@ import modal from "../components/modal";
 import collections from "../components/collections";
 import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
-import hljs from "highlight.js";
-import "highlight.js/styles/androidstudio.css";
+import AceEditor from '../components/ace-editor';
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 
@@ -684,7 +682,8 @@ export default {
     history,
     autocomplete,
     collections,
-    saveRequestAs
+    saveRequestAs,
+    ResponseBody: AceEditor
   },
   data() {
     return {
@@ -726,7 +725,8 @@ export default {
       showRequestModal: false,
       editRequest: {},
 
-      urlExcludes: {}
+      urlExcludes: {},
+      responseBodyText: '',
     };
   },
   watch: {
@@ -747,35 +747,18 @@ export default {
       else this.setRouteQueryState();
     },
     "response.body": function(val) {
-      var responseText =
-        document.querySelector("div#response-details-wrapper pre code") != null
-          ? document.querySelector("div#response-details-wrapper pre code")
-          : null;
-      if (responseText) {
         if (
-          document.querySelector(".hljs") !== null &&
-          responseText.innerHTML.indexOf('<span class="hljs') !== -1
-        ) {
-          responseText.removeAttribute("class");
-          responseText.innerHTML = null;
-          responseText.innerText = this.response.body;
-        } else if (
-          responseText &&
           this.response.body !== "(waiting to send request)" &&
           this.response.body !== "Loading..."
         ) {
-          responseText.innerText =
+          this.responseBodyText =
             this.responseType === "application/json" ||
             this.responseType === "application/hal+json"
               ? JSON.stringify(this.response.body, null, 2)
               : this.response.body;
-          hljs.highlightBlock(
-            document.querySelector("div#response-details-wrapper pre code")
-          );
         } else {
-          responseText.innerText = this.response.body;
+          this.responseBodyText = this.response.body;
         }
-      }
     },
     params: {
       handler: function(newValue) {

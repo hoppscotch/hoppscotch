@@ -505,9 +505,9 @@ pre {
   resize: vertical;
   text-overflow: ellipsis;
 
-  &:not([readonly]):hover,
-  &:not([readonly]):active,
-  &:not([readonly]):focus {
+  &:not([readonly]):not(.ace_editor):hover,
+  &:not([readonly]):not(.ace_editor):active,
+  &:not([readonly]):not(.ace_editor):focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
     transition: all 0.2s ease-in-out;
   }
@@ -515,6 +515,10 @@ pre {
 
 pre {
   display: grid;
+}
+
+pre.ace_editor {
+  z-index: 0;
 }
 
 code {

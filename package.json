@@ -25,7 +25,7 @@
         "@nuxtjs/robots": "^2.4.2",
         "@nuxtjs/sitemap": "^2.0.0",
         "@nuxtjs/toast": "^3.3.0",
-        "highlight.js": "^9.16.2",
+        "ace-builds": "^1.4.7",
         "nuxt": "^2.10.2",
         "v-tooltip": "^2.0.2",
         "vue-virtual-scroll-list": "^1.4.2",

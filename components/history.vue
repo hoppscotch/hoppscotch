@@ -9,7 +9,12 @@
       <div class="show-on-small-screen">
         <li>
           <button class="icon">
-            <i class="material-icons">history</i>
+            <i class="material-icons">details</i>
+          </button>
+        </li>
+        <li>
+          <button class="icon">
+            <i class="material-icons">change_history</i>
           </button>
         </li>
       </div>
@@ -72,11 +77,15 @@
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-small-screen">
           <li>
-            <button v-if="entry.usesScripts" class="icon" v-tooltip="'This entry used pre-request scripts'">
-              <i class="material-icons">code</i>
+            <button class="icon" :class="{ stared: entry.star }" @click="toggleStar(index)" v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star'}">
+              <i class="material-icons" v-if="entry.star">star</i>
+              <i class="material-icons" v-else>star_border</i>
             </button>
-            <button v-else class="icon" v-tooltip="'No pre-request scripts'">
-              <i class="material-icons">http</i>
+          </li>
+          <li>
+            <button class="icon" v-tooltip="{ content: !entry.usesScripts ? 'No pre-request script' : 'Used pre-request script'}">
+              <i class="material-icons" v-if="!entry.usesScripts">http</i>
+              <i class="material-icons" v-else>code</i>
             </button>
           </li>
         </div>
@@ -177,9 +186,13 @@
     opacity: 0;
   }
 
+  .stared {
+    color: #F8E81C !important;
+  }
+
   @media (max-width: 720px) {
     .virtual-list.filled {
-      min-height: 200px;
+      min-height: 320px;
     }
   }
 
@@ -348,8 +361,12 @@
         this.history = byDuration;
         this.reverse_sort_duration = !this.reverse_sort_duration;
       },
-      toggleCollapse: function() {
+      toggleCollapse() {
         this.show = !this.show
+      },
+      toggleStar(index) {
+        this.history[index]["star"] = !this.history[index]["star"];
+        updateOnLocalStorage("history", this.history);
       }
     }
   };

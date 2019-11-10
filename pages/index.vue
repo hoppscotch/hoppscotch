@@ -1352,7 +1352,8 @@ export default {
             path: this.path,
             usesScripts: Boolean(this.preRequestScript),
             preRequestScript: this.preRequestScript,
-            duration
+            duration,
+            star: false
           };
           this.$refs.historyComponent.addEntry(entry);
         })();

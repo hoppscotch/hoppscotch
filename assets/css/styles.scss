@@ -671,9 +671,12 @@ fieldset#history {
 
     span {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 8px;
+      right: 8px;
       font-family: 'Roboto Mono', monospace;
+      background-color: var(--bg-color);
+      padding: 4px 8px;
+      border-radius: 8px;
     }
   }
 }

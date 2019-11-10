@@ -597,6 +597,11 @@ ol {
   margin: 4px 0 4px;
   padding: 0;
   list-style-type: none;
+
+  ul,
+  ol {
+    margin: 0;
+  }
 }
 
 ul li,

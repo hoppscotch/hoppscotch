@@ -27,7 +27,7 @@ export default {
     },
     fontSize: {
       type: String,
-      default: '12px'
+      default: '16px'
     },
     placeholder: {
       type: String,

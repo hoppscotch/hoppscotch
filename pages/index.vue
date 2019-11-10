@@ -573,7 +573,7 @@
               theme="dracula"
               lang="json"
               :rows="16"
-              fontSize="18px"
+              fontSize="16px"
               placeholder="(waiting to send request)" />
             <iframe
               :class="{hidden: !previewEnabled}"

@@ -570,11 +570,17 @@
           <div id="response-details-wrapper">
             <ResponseBody
               :value="responseBodyText"
-              theme="dracula"
               lang="json"
-              :rows="16"
-              fontSize="16px"
-              placeholder="(waiting to send request)" />
+              :options="{
+                maxLines: '16',
+                minLines: '16',
+                fontSize: '16px',
+                autoScrollEditorIntoView: true,
+                readOnly: true,
+                showPrintMargin: false,
+                useWorker: false
+                }"
+            />
             <iframe
               :class="{hidden: !previewEnabled}"
               class="covers-response"

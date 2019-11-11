@@ -3,6 +3,8 @@
 </template>
 
 <script>
+const DEFAULT_THEME = 'dracula';
+
 import ace from 'ace-builds';
 import "ace-builds/webpack-resolver";
 
@@ -15,27 +17,15 @@ export default {
     },
     theme: {
       type: String,
-      default: 'dracula'
+      required: false
     },
     lang: {
       type: String,
-      default: 'json'
+      default: 'json',
     },
-    rows: {
-      type: Number,
-      default: 16
-    },
-    fontSize: {
-      type: String,
-      default: '16px'
-    },
-    placeholder: {
-      type: String,
-      default: ''
-    },
-    checkSyntax: {
-      type: Boolean,
-      default: false
+    options: {
+      type: Object,
+      default: {}
     }
   },
 
@@ -47,33 +37,45 @@ export default {
   },
 
   watch: {
-    value(val) {
-      if(val !== this.cacheValue) {
-        this.editor.session.setValue(val,1);
-        this.cacheValue = val;
+    value(value) {
+      if(value !== this.cacheValue) {
+        this.editor.session.setValue(value,1);
+        this.cacheValue = value;
       }
 
+    },
+    theme() {
+      this.editor.setTheme('ace/theme/' + this.defineTheme())
+    },
+    lang(value) {
+      this.editor.getSession().setMode('ace/mode/' + value);
+    },
+    options(value) {
+      this.editor.setOptions(value);
     }
   },
 
   mounted() {
     const editor = ace.edit(this.$refs.editor, {
-      theme: 'ace/theme/'+ this.theme,
+      theme: 'ace/theme/'+ this.defineTheme(),
       mode: "ace/mode/" + this.lang,
-      maxLines: this.rows,
-      minLines: this.rows,
-      fontSize: this.fontSize,
-      autoScrollEditorIntoView: true,
-      readOnly: true,
-      showPrintMargin: false,
-    })
+      ...this.options
+      })
 
     editor.setValue(this.value);
-    this.cacheValue = this.value;
-
-    editor.session.setUseWorker(this.checkSyntax)
 
     this.editor = editor;
+    this.cacheValue = this.value;
+  },
+
+  methods: {
+    defineTheme() {
+      if(this.theme) {
+        return this.theme;
+      } else {
+        return this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+      }
+    }
   },
 
   beforeDestroy() {

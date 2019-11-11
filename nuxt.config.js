@@ -59,7 +59,7 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${routerBase.router.base}logo.png`
+        content: `${routerBase.router.base}logo.jpg`
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
@@ -115,12 +115,12 @@ export default {
       },
       {
         property: 'og:image',
-        content: `${routerBase.router.base}logo.png`
+        content: `${routerBase.router.base}logo.jpg`
       },
       // Twitter
       {
         name: 'twitter:card',
-        content: "summary"
+        content: "summary_large_image"
       },
       {
         name: 'twitter:site',
@@ -144,7 +144,7 @@ export default {
       },
       {
         name: 'twitter:image',
-        content: `${routerBase.router.base}logo.png`
+        content: `${routerBase.router.base}logo.jpg`
       },
     ],
     link: [{

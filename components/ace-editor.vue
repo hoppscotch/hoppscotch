@@ -42,7 +42,6 @@ export default {
         this.editor.session.setValue(value,1);
         this.cacheValue = value;
       }
-
     },
     theme() {
       this.editor.setTheme('ace/theme/' + this.defineTheme())

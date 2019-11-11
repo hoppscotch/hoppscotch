@@ -570,7 +570,7 @@
           <div id="response-details-wrapper">
             <ResponseBody
               :value="responseBodyText"
-              lang="json"
+              :lang="responseBodyType"
               :options="{
                 maxLines: '16',
                 minLines: '16',
@@ -733,6 +733,7 @@ export default {
 
       urlExcludes: {},
       responseBodyText: '',
+      responseBodyType: 'text'
     };
   },
   watch: {
@@ -753,18 +754,26 @@ export default {
       else this.setRouteQueryState();
     },
     "response.body": function(val) {
-        if (
-          this.response.body !== "(waiting to send request)" &&
-          this.response.body !== "Loading..."
+      if (
+        this.response.body === "(waiting to send request)" ||
+        this.response.body === "Loading..."
+      ) {
+        this.responseBodyText = this.response.body;
+        this.responseBodyType = 'text';
+      } else {
+        if(this.responseType === "application/json" ||
+         this.responseType === "application/hal+json"
         ) {
-          this.responseBodyText =
-            this.responseType === "application/json" ||
-            this.responseType === "application/hal+json"
-              ? JSON.stringify(this.response.body, null, 2)
-              : this.response.body;
+          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
+          this.responseBodyType = 'json'
+        } else if (this.responseType === "text/html") {
+          this.responseBodyText = this.response.body;
+          this.responseBodyType = 'html'
         } else {
           this.responseBodyText = this.response.body;
+          this.responseBodyType = 'text';
         }
+      }
     },
     params: {
       handler: function(newValue) {

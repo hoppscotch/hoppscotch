@@ -46,7 +46,11 @@
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
               @change="toggleSetting('FRAME_COLORS_ENABLED')"
-            >Multi-color {{ settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled" }}</pw-toggle>
+              >Multi-color
+              {{
+                settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled"
+              }}</pw-toggle
+            >
           </span>
         </li>
       </ul>
@@ -62,9 +66,15 @@
               <pw-toggle
                 :on="settings.PROXY_ENABLED"
                 @change="toggleSetting('PROXY_ENABLED')"
-              >Proxy {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+                >Proxy
+                {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle
+              >
             </span>
-            <a href="https://github.com/liyasthomas/postwoman/wiki/Proxy" target="_blank" rel="noopener">
+            <a
+              href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
+              target="_blank"
+              rel="noopener"
+            >
               <button class="icon" v-tooltip="'Wiki'">
                 <i class="material-icons">help</i>
               </button>
@@ -77,7 +87,10 @@
           <p>
             Postwoman's Proxy is hosted by ApolloTV.
             <br />
-            Read the <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">ApolloTV privacy policy</a>.
+            Read the
+            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener"
+              >ApolloTV privacy policy</a
+            >.
           </p>
         </li>
       </ul>
@@ -149,7 +162,9 @@ export default {
           name: "Auto (system)",
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
           class: "auto",
-          aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches ? 'xcode' : 'dracula'
+          aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "xcode"
+            : "dracula"
         }
       ],
       // You can define a new color here! It will simply store the color value.
@@ -224,7 +239,7 @@ export default {
   },
 
   methods: {
-    applyTheme({class:name, color, aceEditor}) {
+    applyTheme({ class: name, color, aceEditor }) {
       this.applySetting("THEME_CLASS", name);
       this.applySetting("THEME_ACE_EDITOR", aceEditor);
       document

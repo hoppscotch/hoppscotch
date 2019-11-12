@@ -23,7 +23,9 @@
         @click.prevent="forceSuggestion(suggestion)"
         :class="{ active: currentSuggestionIndex === index }"
         :key="index"
-      >{{ suggestion }}</li>
+      >
+        {{ suggestion }}
+      </li>
     </ul>
   </div>
 </template>

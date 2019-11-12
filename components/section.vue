@@ -1,5 +1,8 @@
 <template>
-  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
+  <fieldset
+    :id="label.toLowerCase()"
+    :class="{ 'no-colored-frames': !frameColorsEnabled }"
+  >
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="material-icons" v-if="isCollapsed">expand_more</i>

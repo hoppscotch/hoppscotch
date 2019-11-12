@@ -6,17 +6,29 @@
           <i class="material-icons" v-show="!showChildren">arrow_right</i>
           <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
           <i class="material-icons">folder</i>
-          <span>{{collection.name}}</span>
+          <span>{{ collection.name }}</span>
         </button>
       </div>
       <div>
-        <button class="icon" @click="removeCollection" v-tooltip="'Delete collection'">
+        <button
+          class="icon"
+          @click="removeCollection"
+          v-tooltip="'Delete collection'"
+        >
           <i class="material-icons">delete</i>
         </button>
-        <button class="icon" @click="$emit('edit-collection')" v-tooltip="'Edit collection'">
+        <button
+          class="icon"
+          @click="$emit('edit-collection')"
+          v-tooltip="'Edit collection'"
+        >
           <i class="material-icons">create</i>
         </button>
-        <button class="icon" @click="$emit('add-folder')" v-tooltip="'New Folder'">
+        <button
+          class="icon"
+          @click="$emit('add-folder')"
+          v-tooltip="'New Folder'"
+        >
           <i class="material-icons">create_new_folder</i>
         </button>
       </div>
@@ -33,7 +45,11 @@
             v-on:edit-request="$emit('edit-request', $event)"
           />
         </li>
-        <li v-if="(collection.folders.length === 0) && (collection.requests.length === 0)">
+        <li
+          v-if="
+            collection.folders.length === 0 && collection.requests.length === 0
+          "
+        >
           <label>Collection is empty</label>
         </li>
       </ul>
@@ -44,7 +60,14 @@
             v-bind:collection-index="collectionIndex"
             v-bind:folder-index="-1"
             v-bind:request-index="index"
-            v-on:edit-request="$emit('edit-request', { request, collectionIndex, folderIndex: undefined, requestIndex: index })"
+            v-on:edit-request="
+              $emit('edit-request', {
+                request,
+                collectionIndex,
+                folderIndex: undefined,
+                requestIndex: index
+              })
+            "
           ></request>
         </li>
       </ul>

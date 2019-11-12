@@ -17,7 +17,12 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" v-bind:placeholder="editingCollection.name" @keyup.enter="saveCollection" />
+          <input
+            type="text"
+            v-model="name"
+            v-bind:placeholder="editingCollection.name"
+            @keyup.enter="saveCollection"
+          />
         </li>
       </ul>
     </div>

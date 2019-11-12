@@ -1,6 +1,6 @@
 <template>
   <div @click="toggle()">
-    <label class="toggle" :class="{on: on}" ref="toggle">
+    <label class="toggle" :class="{ on: on }" ref="toggle">
       <span class="handle"></span>
     </label>
     <label class="caption">

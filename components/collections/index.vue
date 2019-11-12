@@ -5,7 +5,10 @@ TODO:
 
 <template>
   <div class="collections-wrapper">
-    <addCollection v-bind:show="showModalAdd" v-on:hide-modal="displayModalAdd(false)"></addCollection>
+    <addCollection
+      v-bind:show="showModalAdd"
+      v-on:hide-modal="displayModalAdd(false)"
+    ></addCollection>
     <editCollection
       v-bind:show="showModalEdit"
       v-bind:editingCollection="editingCollection"

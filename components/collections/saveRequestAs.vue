@@ -26,27 +26,48 @@
             @keyup.enter="saveRequestAs"
           />
           <label for="selectCollection">Collection</label>
-          <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
-            <option :key="undefined" :value="undefined" hidden disabled selected>Select a Collection</option>
+          <select
+            type="text"
+            id="selectCollection"
+            v-model="requestData.collectionIndex"
+          >
+            <option :key="undefined" :value="undefined" hidden disabled selected
+              >Select a Collection</option
+            >
             <option
               v-for="(collection, index) in $store.state.postwoman.collections"
               :key="index"
               :value="index"
-            >{{ collection.name }}</option>
+              >{{ collection.name }}</option
+            >
           </select>
           <label for="selectFolder">Folder</label>
-          <select type="text" id="selectFolder" v-model="requestData.folderIndex">
+          <select
+            type="text"
+            id="selectFolder"
+            v-model="requestData.folderIndex"
+          >
             <option :key="undefined" :value="undefined">/</option>
-            <option v-for="(folder, index) in folders" :key="index" :value="index">{{ folder.name }}</option>
+            <option
+              v-for="(folder, index) in folders"
+              :key="index"
+              :value="index"
+              >{{ folder.name }}</option
+            >
           </select>
           <label for="selectRequest">Request</label>
-          <select type="text" id="selectRequest" v-model="requestData.requestIndex">
+          <select
+            type="text"
+            id="selectRequest"
+            v-model="requestData.requestIndex"
+          >
             <option :key="undefined" :value="undefined">/</option>
             <option
               v-for="(folder, index) in requests"
               :key="index"
               :value="index"
-            >{{ folder.name }}</option>
+              >{{ folder.name }}</option
+            >
           </select>
         </li>
       </ul>

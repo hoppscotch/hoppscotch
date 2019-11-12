@@ -3,17 +3,16 @@
 </template>
 
 <script>
-const DEFAULT_THEME = 'dracula';
+const DEFAULT_THEME = "dracula";
 
-import ace from 'ace-builds';
+import ace from "ace-builds";
 import "ace-builds/webpack-resolver";
 
 export default {
-
   props: {
     value: {
       type: String,
-      default: ''
+      default: ""
     },
     theme: {
       type: String,
@@ -21,7 +20,7 @@ export default {
     },
     lang: {
       type: String,
-      default: 'json',
+      default: "json"
     },
     options: {
       type: Object,
@@ -32,22 +31,22 @@ export default {
   data() {
     return {
       editor: null,
-      cacheValue: ''
-    }
+      cacheValue: ""
+    };
   },
 
   watch: {
     value(value) {
-      if(value !== this.cacheValue) {
-        this.editor.session.setValue(value,1);
+      if (value !== this.cacheValue) {
+        this.editor.session.setValue(value, 1);
         this.cacheValue = value;
       }
     },
     theme() {
-      this.editor.setTheme('ace/theme/' + this.defineTheme())
+      this.editor.setTheme("ace/theme/" + this.defineTheme());
     },
     lang(value) {
-      this.editor.getSession().setMode('ace/mode/' + value);
+      this.editor.getSession().setMode("ace/mode/" + value);
     },
     options(value) {
       this.editor.setOptions(value);
@@ -56,10 +55,10 @@ export default {
 
   mounted() {
     const editor = ace.edit(this.$refs.editor, {
-      theme: 'ace/theme/'+ this.defineTheme(),
+      theme: "ace/theme/" + this.defineTheme(),
       mode: "ace/mode/" + this.lang,
       ...this.options
-      })
+    });
 
     editor.setValue(this.value);
 
@@ -69,10 +68,12 @@ export default {
 
   methods: {
     defineTheme() {
-      if(this.theme) {
+      if (this.theme) {
         return this.theme;
       } else {
-        return this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+        return (
+          this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+        );
       }
     }
   },
@@ -81,5 +82,5 @@ export default {
     this.editor.destroy();
     this.editor.container.remove();
   }
-}
+};
 </script>

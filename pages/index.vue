@@ -24,7 +24,12 @@
       <div slot="body">
         <ul>
           <li>
-            <textarea id="import-text" autofocus rows="8" placeholder="Enter cURL"></textarea>
+            <textarea
+              id="import-text"
+              autofocus
+              rows="8"
+              placeholder="Enter cURL"
+            ></textarea>
           </li>
         </ul>
       </div>
@@ -40,7 +45,12 @@
       </div>
     </pw-modal>
 
-    <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request" ref="preRequest">
+    <pw-section
+      v-if="showPreRequestScript"
+      class="orange"
+      label="Pre-Request"
+      ref="preRequest"
+    >
       <ul>
         <li>
           <div class="flex-wrap">
@@ -107,11 +117,22 @@
         </li>
         <li>
           <label for="label">Label</label>
-          <input id="label" name="label" type="text" v-model="label" placeholder="(optional)" />
+          <input
+            id="label"
+            name="label"
+            type="text"
+            v-model="label"
+            placeholder="(optional)"
+          />
         </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
-          <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
+          <button
+            :disabled="!isValidURL"
+            @click="sendRequest"
+            id="send"
+            ref="sendButton"
+          >
             Send
             <span id="hidden-message">Again</span>
             <span>
@@ -132,16 +153,16 @@
               :source="validContentTypes"
               :spellcheck="false"
               v-model="contentType"
-            >Content Type</autocomplete>
+              >Content Type</autocomplete
+            >
           </li>
         </ul>
         <ul>
           <li>
             <span>
-              <pw-toggle
-                :on="rawInput"
-                @change="rawInput = $event"
-              >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle>
+              <pw-toggle :on="rawInput" @change="rawInput = $event"
+                >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
+              >
             </span>
           </li>
         </ul>
@@ -162,27 +183,41 @@
           <ul v-for="(param, index) in bodyParams" :key="index">
             <li>
               <input
-                :placeholder="'key '+(index+1)"
-                :name="'bparam'+index"
+                :placeholder="'key ' + (index + 1)"
+                :name="'bparam' + index"
                 :value="param.key"
-                @change="$store.commit('setKeyBodyParams', { index, value: $event.target.value })"
+                @change="
+                  $store.commit('setKeyBodyParams', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
                 @keyup.prevent="setRouteQueryState"
                 autofocus
               />
             </li>
             <li>
               <input
-                :placeholder="'value '+(index+1)"
-                :id="'bvalue'+index"
-                :name="'bvalue'+index"
+                :placeholder="'value ' + (index + 1)"
+                :id="'bvalue' + index"
+                :name="'bvalue' + index"
                 :value="param.value"
-                @change="$store.commit('setValueBodyParams', { index, value: $event.target.value })"
+                @change="
+                  $store.commit('setValueBodyParams', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
                 @keyup.prevent="setRouteQueryState"
               />
             </li>
             <div>
               <li>
-                <button class="icon" @click="removeRequestBodyParam(index)" id="delParam">
+                <button
+                  class="icon"
+                  @click="removeRequestBodyParam(index)"
+                  id="delParam"
+                >
                   <i class="material-icons">delete</i>
                 </button>
               </li>
@@ -190,7 +225,11 @@
           </ul>
           <ul>
             <li>
-              <button class="icon" @click="addRequestBodyParam" name="addrequest">
+              <button
+                class="icon"
+                @click="addRequestBodyParam"
+                name="addrequest"
+              >
                 <i class="material-icons">add</i>
                 <span>Add New</span>
               </button>
@@ -227,7 +266,7 @@
             id="code"
             v-on:click="isHidden = !isHidden"
             :disabled="!isValidURL"
-            v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code'}"
+            v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code' }"
           >
             <i class="material-icons" v-if="isHidden">flash_on</i>
             <i class="material-icons" v-else>flash_off</i>
@@ -235,19 +274,22 @@
           <button
             :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
             id="preRequestScriptButton"
-            v-tooltip.bottom="{ content: !showPreRequestScript ? 'Show Pre-Request Script' : 'Hide Pre-Request Script'}"
+            v-tooltip.bottom="{
+              content: !showPreRequestScript
+                ? 'Show Pre-Request Script'
+                : 'Hide Pre-Request Script'
+            }"
             @click="showPreRequestScript = !showPreRequestScript"
           >
             <i
               class="material-icons"
               :class="showPreRequestScript"
               v-if="!showPreRequestScript"
-            >code</i>
-            <i
-              class="material-icons"
-              :class="showPreRequestScript"
-              v-else
-            >close</i>
+              >code</i
+            >
+            <i class="material-icons" :class="showPreRequestScript" v-else
+              >close</i
+            >
           </button>
         </div>
         <div style="text-align: center;">
@@ -272,7 +314,11 @@
           >
             <i class="material-icons">save</i>
           </button>
-          <button class="icon" @click="clearContent('', $event)" v-tooltip.bottom="'Clear All'">
+          <button
+            class="icon"
+            @click="clearContent('', $event)"
+            v-tooltip.bottom="'Clear All'"
+          >
             <i class="material-icons">clear_all</i>
           </button>
         </div>
@@ -349,7 +395,11 @@
           </ul>
           <ul v-if="auth === 'Basic'">
             <li>
-              <input placeholder="User" name="http_basic_user" v-model="httpUser" />
+              <input
+                placeholder="User"
+                name="http_basic_user"
+                v-model="httpUser"
+              />
             </li>
             <li>
               <input
@@ -367,19 +417,31 @@
                   ref="switchVisibility"
                   @click="switchVisibility"
                 >
-                  <i class="material-icons" v-if="passwordFieldType === 'text'">visibility</i>
-                  <i class="material-icons" v-if="passwordFieldType !== 'text'">visibility_off</i>
+                  <i class="material-icons" v-if="passwordFieldType === 'text'"
+                    >visibility</i
+                  >
+                  <i class="material-icons" v-if="passwordFieldType !== 'text'"
+                    >visibility_off</i
+                  >
                 </button>
               </li>
             </div>
           </ul>
           <ul v-else-if="auth === 'Bearer Token'">
             <li>
-              <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
+              <input
+                placeholder="Token"
+                name="bearer_token"
+                v-model="bearerToken"
+              />
             </li>
           </ul>
           <div class="flex-wrap">
-            <pw-toggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">Include in URL</pw-toggle>
+            <pw-toggle
+              :on="!urlExcludes.auth"
+              @change="setExclude('auth', !$event)"
+              >Include in URL</pw-toggle
+            >
           </div>
         </pw-section>
       </div>
@@ -416,26 +478,40 @@
           <ul v-for="(header, index) in headers" :key="index">
             <li>
               <input
-                :placeholder="'header '+(index+1)"
-                :name="'header'+index"
+                :placeholder="'header ' + (index + 1)"
+                :name="'header' + index"
                 :value="header.key"
-                @change="$store.commit('setKeyHeader', { index, value: $event.target.value })"
+                @change="
+                  $store.commit('setKeyHeader', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
                 @keyup.prevent="setRouteQueryState"
                 autofocus
               />
             </li>
             <li>
               <input
-                :placeholder="'value '+(index+1)"
-                :name="'value'+index"
+                :placeholder="'value ' + (index + 1)"
+                :name="'value' + index"
                 :value="header.value"
-                @change="$store.commit('setValueHeader', { index, value: $event.target.value })"
+                @change="
+                  $store.commit('setValueHeader', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
                 @keyup.prevent="setRouteQueryState"
               />
             </li>
             <div>
               <li>
-                <button class="icon" @click="removeRequestHeader(index)" id="header">
+                <button
+                  class="icon"
+                  @click="removeRequestHeader(index)"
+                  id="header"
+                >
                   <i class="material-icons">delete</i>
                 </button>
               </li>
@@ -484,24 +560,38 @@
           <ul v-for="(param, index) in params" :key="index">
             <li>
               <input
-                :placeholder="'parameter '+(index+1)"
-                :name="'param'+index"
+                :placeholder="'parameter ' + (index + 1)"
+                :name="'param' + index"
                 :value="param.key"
-                @change="$store.commit('setKeyParams', { index, value: $event.target.value })"
+                @change="
+                  $store.commit('setKeyParams', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
                 autofocus
               />
             </li>
             <li>
               <input
-                :placeholder="'value '+(index+1)"
-                :name="'value'+index"
+                :placeholder="'value ' + (index + 1)"
+                :name="'value' + index"
                 :value="param.value"
-                @change="$store.commit('setValueParams', { index, value: $event.target.value })"
+                @change="
+                  $store.commit('setValueParams', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
               />
             </li>
             <div>
               <li>
-                <button class="icon" @click="removeRequestParam(index)" id="param">
+                <button
+                  class="icon"
+                  @click="removeRequestParam(index)"
+                  id="param"
+                >
                   <i class="material-icons">delete</i>
                 </button>
               </li>
@@ -538,7 +628,7 @@
       </ul>
       <ul v-for="(value, key) in response.headers" :key="key">
         <li>
-          <label :for="key">{{key}}</label>
+          <label :for="key">{{ key }}</label>
           <input :id="key" :value="value" :name="key" readonly />
         </li>
       </ul>
@@ -579,20 +669,25 @@
                 readOnly: true,
                 showPrintMargin: false,
                 useWorker: false
-                }"
+              }"
             />
             <iframe
-              :class="{hidden: !previewEnabled}"
+              :class="{ hidden: !previewEnabled }"
               class="covers-response"
               ref="previewFrame"
               src="about:blank"
             ></iframe>
           </div>
-          <div class="align-right" v-if="response.body && responseType === 'text/html'">
+          <div
+            class="align-right"
+            v-if="response.body && responseType === 'text/html'"
+          >
             <button class="icon" @click.prevent="togglePreview">
               <i class="material-icons" v-if="!previewEnabled">visibility</i>
               <i class="material-icons" v-else>visibility_off</i>
-              <span>{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</span>
+              <span>{{
+                previewEnabled ? "Hide Preview" : "Preview HTML"
+              }}</span>
             </button>
           </div>
         </li>
@@ -622,7 +717,7 @@ import modal from "../components/modal";
 import collections from "../components/collections";
 import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
-import AceEditor from '../components/ace-editor';
+import AceEditor from "../components/ace-editor";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 
@@ -732,8 +827,8 @@ export default {
       editRequest: {},
 
       urlExcludes: {},
-      responseBodyText: '',
-      responseBodyType: 'text'
+      responseBodyText: "",
+      responseBodyType: "text"
     };
   },
   watch: {
@@ -759,19 +854,20 @@ export default {
         this.response.body === "Loading..."
       ) {
         this.responseBodyText = this.response.body;
-        this.responseBodyType = 'text';
+        this.responseBodyType = "text";
       } else {
-        if(this.responseType === "application/json" ||
-         this.responseType === "application/hal+json"
+        if (
+          this.responseType === "application/json" ||
+          this.responseType === "application/hal+json"
         ) {
-          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType = 'json'
+          this.responseBodyText = JSON.stringify(this.response.body, null, 2);
+          this.responseBodyType = "json";
         } else if (this.responseType === "text/html") {
           this.responseBodyText = this.response.body;
-          this.responseBodyType = 'html'
+          this.responseBodyType = "html";
         } else {
           this.responseBodyText = this.response.body;
-          this.responseBodyType = 'text';
+          this.responseBodyType = "text";
         }
       }
     },
@@ -1183,7 +1279,14 @@ export default {
         behavior: "smooth"
       });
     },
-    handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
+    handleUseHistory({
+      label,
+      method,
+      url,
+      path,
+      usesScripts,
+      preRequestScript
+    }) {
       this.label = label;
       this.method = method;
       this.url = url;

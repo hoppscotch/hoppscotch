@@ -142,7 +142,7 @@ export default {
           color: "#000000",
           name: "Just Black",
           class: "black",
-          aceEditor: "tomorrow_night_blue"
+          aceEditor: "vibrant_ink"
         },
         {
           color: "var(--bg-color)",

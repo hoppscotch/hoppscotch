@@ -1,19 +1,75 @@
 <template>
   <div class="wrapper">
     <header class="header">
-      <div>
+      <div class="flex-wrap">
         <div class="slide-in">
           <nuxt-link to="/">
             <h1 class="logo">Postwoman</h1>
           </nuxt-link>
-          <h3 class="tagline">API request builder</h3>
         </div>
-        <a href="https://github.com/liyasthomas/postwoman" target="_blank" rel="noopener">
-          <button class="icon">
-            <img id="imgGitHub" src="~static/icons/github.svg" alt="GitHub" :style="logoStyle()" />
-            <span>GitHub</span>
-          </button>
-        </a>
+        <div class="flex-wrap">
+          <a
+            href="https://github.com/liyasthomas/postwoman"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon">
+              <img
+                id="imgGitHub"
+                src="~static/icons/github.svg"
+                alt="GitHub"
+                :style="logoStyle()"
+              />
+            </button>
+          </a>
+          <v-popover>
+            <button class="tooltip-target icon">
+              <i class="material-icons">more_vert</i>
+            </button>
+            <template slot="popover">
+              <div>
+                <button
+                  class="icon"
+                  id="installPWA"
+                  @click.prevent="showInstallPrompt()"
+                >
+                  <i class="material-icons">offline_bolt</i>
+                  <span>Install PWA</span>
+                </button>
+              </div>
+              <div>
+                <a
+                  href="https://opencollective.com/postwoman"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <button class="icon">
+                    <i class="material-icons">favorite</i>
+                    <span>Donate</span>
+                  </button>
+                </a>
+              </div>
+              <div>
+                <button
+                  class="icon"
+                  onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
+                    />
+                  </svg>
+                  <span>Tweet</span>
+                </button>
+              </div>
+            </template>
+          </v-popover>
+        </div>
       </div>
     </header>
     <div class="content">
@@ -24,7 +80,12 @@
               We're using manual checks for linkActive because the query string
               seems to mess up the nuxt-link active class.
             -->
-            <nuxt-link to="/" :class="linkActive('/')" v-tooltip.right="'Home'" aria-label="Home">
+            <nuxt-link
+              to="/"
+              :class="linkActive('/')"
+              v-tooltip.right="'Home'"
+              aria-label="Home"
+            >
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
             <nuxt-link
@@ -112,32 +173,18 @@
       </div>
     </div>
     <footer class="footer">
-      <!-- Top section of footer: GitHub/install links -->
-      <div class="flex-wrap">
-        <button class="icon" id="installPWA" @click.prevent="showInstallPrompt()">
-          <i class="material-icons">add_to_home_screen</i>
-          <span>Install PWA</span>
-        </button>
-        <button
-          class="icon"
-          onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-            <path
-              d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
-            />
-          </svg>
-          <span>Tweet</span>
-        </button>
-      </div>
       <!-- Bottom section of footer: version/author information -->
       <p class="align-center mono">
         <span v-if="version.name">
           <a
-            v-bind:href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name"
+            v-bind:href="
+              'https://github.com/liyasthomas/postwoman/releases/tag/' +
+                version.name
+            "
             target="_blank"
             rel="noopener"
-          >{{version.name}}</a>
+            >{{ version.name }}</a
+          >
           <!-- <span v-if="version.hash">
             -
             <a
@@ -149,132 +196,136 @@
           <!-- <span v-if="version.variant">({{version.variant}})</span> -->
           &#x2022;
         </span>
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">🦄</a> &#x2022;
-        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener">Subscribe</a>
+        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener"
+          >🦄</a
+        >
+        &#x2022;
+        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener"
+          >Subscribe</a
+        >
       </p>
     </footer>
   </div>
 </template>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>
 
 <script>
-  import intializePwa from "../assets/js/pwa";
-  import logo from "../components/logo";
-  import * as version from "../.postwoman/version.json";
+import intializePwa from "../assets/js/pwa";
+import logo from "../components/logo";
+import * as version from "../.postwoman/version.json";
 
-  export default {
-    components: {
-      logo
-    },
+export default {
+  components: {
+    logo
+  },
 
-    methods: {
-      linkActive(path) {
-        return {
-          "nuxt-link-exact-active": this.$route.path === path,
-          "nuxt-link-active": this.$route.path === path
-        };
-      }
-    },
-
-    data() {
+  methods: {
+    linkActive(path) {
       return {
-        // Once the PWA code is initialized, this holds a method
-        // that can be called to show the user the installation
-        // prompt.
-        showInstallPrompt: null,
-        logoStyle() {
-          return (
-            this.$store.state.postwoman.settings.THEME_CLASS || ""
-          ).includes("light")
-            ? " filter: invert(100%); -webkit-filter: invert(100%);"
-            : "";
-        },
-
-        version: {}
+        "nuxt-link-exact-active": this.$route.path === path,
+        "nuxt-link-active": this.$route.path === path
       };
-    },
-
-    beforeMount() {
-      // Set version data
-      this.version = version.default;
-
-      // Load theme settings
-      (() => {
-        // Apply theme from settings.
-        document.documentElement.className =
-          this.$store.state.postwoman.settings.THEME_CLASS || "";
-        // Load theme color data from settings, or use default color.
-        let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
-        let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
-        if (vibrant == null) vibrant = true;
-        document.documentElement.style.setProperty("--ac-color", color);
-        document.documentElement.style.setProperty(
-          "--act-color",
-          vibrant ? "rgb(37, 38, 40)" : "#ffffff"
-        );
-      })();
-    },
-
-    mounted() {
-      if (process.client) {
-        document.body.classList.add("afterLoad");
-      }
-
-      document
-        .querySelector("meta[name=theme-color]")
-        .setAttribute(
-          "content",
-          this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628"
-        );
-
-      // Initializes the PWA code - checks if the app is installed,
-      // etc.
-      (async () => {
-        this.showInstallPrompt = await intializePwa();
-        let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
-        if (!cookiesAllowed) {
-          this.$toast.show("We use cookies", {
-            icon: "info",
-            duration: 5000,
-            theme: "toasted-primary",
-            action: [
-              {
-                text: "Dismiss",
-                onClick: (e, toastObject) => {
-                  localStorage.setItem("cookiesAllowed", "yes");
-                  toastObject.goAway(0);
-                }
-              }
-            ]
-          });
-        }
-      })();
-
-      window.addEventListener("scroll", event => {
-        let mainNavLinks = document.querySelectorAll("nav ul li a");
-        let fromTop = window.scrollY;
-        mainNavLinks.forEach(link => {
-          let section = document.querySelector(link.hash);
-
-          if (
-            section &&
-            section.offsetTop <= fromTop &&
-            section.offsetTop + section.offsetHeight > fromTop
-          ) {
-            link.classList.add("current");
-          } else {
-            link.classList.remove("current");
-          }
-        });
-      });
-    },
-
-    watch: {
-      $route() {
-        this.$toast.clear();
-      }
     }
-  };
+  },
+
+  data() {
+    return {
+      // Once the PWA code is initialized, this holds a method
+      // that can be called to show the user the installation
+      // prompt.
+      showInstallPrompt: null,
+      logoStyle() {
+        return (
+          this.$store.state.postwoman.settings.THEME_CLASS || ""
+        ).includes("light")
+          ? " filter: invert(100%); -webkit-filter: invert(100%);"
+          : "";
+      },
+
+      version: {}
+    };
+  },
+
+  beforeMount() {
+    // Set version data
+    this.version = version.default;
+
+    // Load theme settings
+    (() => {
+      // Apply theme from settings.
+      document.documentElement.className =
+        this.$store.state.postwoman.settings.THEME_CLASS || "";
+      // Load theme color data from settings, or use default color.
+      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
+      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
+      if (vibrant == null) vibrant = true;
+      document.documentElement.style.setProperty("--ac-color", color);
+      document.documentElement.style.setProperty(
+        "--act-color",
+        vibrant ? "rgb(37, 38, 40)" : "#ffffff"
+      );
+    })();
+  },
+
+  mounted() {
+    if (process.client) {
+      document.body.classList.add("afterLoad");
+    }
+
+    document
+      .querySelector("meta[name=theme-color]")
+      .setAttribute(
+        "content",
+        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628"
+      );
+
+    // Initializes the PWA code - checks if the app is installed,
+    // etc.
+    (async () => {
+      this.showInstallPrompt = await intializePwa();
+      let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
+      if (!cookiesAllowed) {
+        this.$toast.show("We use cookies", {
+          icon: "info",
+          duration: 5000,
+          theme: "toasted-primary",
+          action: [
+            {
+              text: "Dismiss",
+              onClick: (e, toastObject) => {
+                localStorage.setItem("cookiesAllowed", "yes");
+                toastObject.goAway(0);
+              }
+            }
+          ]
+        });
+      }
+    })();
+
+    window.addEventListener("scroll", event => {
+      let mainNavLinks = document.querySelectorAll("nav ul li a");
+      let fromTop = window.scrollY;
+      mainNavLinks.forEach(link => {
+        let section = document.querySelector(link.hash);
+
+        if (
+          section &&
+          section.offsetTop <= fromTop &&
+          section.offsetTop + section.offsetHeight > fromTop
+        ) {
+          link.classList.add("current");
+        } else {
+          link.classList.remove("current");
+        }
+      });
+    });
+  },
+
+  watch: {
+    $route() {
+      this.$toast.clear();
+    }
+  }
+};
 </script>

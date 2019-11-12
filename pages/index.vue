@@ -64,7 +64,7 @@
             v-model="preRequestScript"
             v-textarea-auto-height="preRequestScript"
             spellcheck="false"
-            placeholder="pw.environment.set('variable', 'value');"
+            placeholder="pw.env.set('variable', 'value');"
           ></textarea>
         </li>
       </ul>
@@ -230,7 +230,7 @@
             v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code'}"
           >
             <i class="material-icons" v-if="isHidden">flash_on</i>
-            <i class="material-icons" v-if="!isHidden">flash_off</i>
+            <i class="material-icons" v-else>flash_off</i>
           </button>
           <button
             :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
@@ -246,7 +246,7 @@
             <i
               class="material-icons"
               :class="showPreRequestScript"
-              v-if="showPreRequestScript"
+              v-else
             >close</i>
           </button>
         </div>
@@ -373,7 +373,7 @@
               </li>
             </div>
           </ul>
-          <ul v-if="auth === 'Bearer Token'">
+          <ul v-else-if="auth === 'Bearer Token'">
             <li>
               <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
             </li>
@@ -591,7 +591,7 @@
           <div class="align-right" v-if="response.body && responseType === 'text/html'">
             <button class="icon" @click.prevent="togglePreview">
               <i class="material-icons" v-if="!previewEnabled">visibility</i>
-              <i class="material-icons" v-if="previewEnabled">visibility_off</i>
+              <i class="material-icons" v-else>visibility_off</i>
               <span>{{ previewEnabled ? 'Hide Preview' : 'Preview HTML' }}</span>
             </button>
           </div>
@@ -978,7 +978,7 @@ export default {
       );
       const validHostname = new RegExp(
         protocol +
-          "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$"
+          "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$"
       );
       return validIP.test(this.url) || validHostname.test(this.url);
     },
@@ -1183,11 +1183,13 @@ export default {
         behavior: "smooth"
       });
     },
-    handleUseHistory({ label, method, url, path }) {
+    handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
       this.label = label;
       this.method = method;
       this.url = url;
       this.path = path;
+      this.showPreRequestScript = usesScripts;
+      this.preRequestScript = preRequestScript;
       this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
@@ -1346,7 +1348,10 @@ export default {
             method: this.method,
             url: this.url,
             path: this.path,
-            usesScripts: Boolean(this.preRequestScript)
+            usesScripts: Boolean(this.preRequestScript),
+            preRequestScript: this.preRequestScript,
+            duration,
+            star: false
           };
           this.$refs.historyComponent.addEntry(entry);
         })();
@@ -1366,7 +1371,8 @@ export default {
             method: this.method,
             url: this.url,
             path: this.path,
-            usesScripts: Boolean(this.preRequestScript)
+            usesScripts: Boolean(this.preRequestScript),
+            preRequestScript: this.preRequestScript
           };
           this.$refs.historyComponent.addEntry(entry);
           return;

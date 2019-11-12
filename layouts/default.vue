@@ -131,25 +131,25 @@
         </button>
       </div>
       <!-- Bottom section of footer: version/author information -->
-      <p class="align-center">
+      <p class="align-center mono">
         <span v-if="version.name">
           <a
             v-bind:href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name"
             target="_blank"
             rel="noopener"
           >{{version.name}}</a>
-          <span v-if="version.hash">
+          <!-- <span v-if="version.hash">
             -
             <a
               v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
               target="_blank"
               rel="noopener"
             >{{version.hash}}</a>
-          </span>
-          <span v-if="version.variant">({{version.variant}})</span>
+          </span> -->
+          <!-- <span v-if="version.variant">({{version.variant}})</span> -->
           &#x2022;
-        </span> by
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">Liyas Thomas 🦄</a> &#x2022;
+        </span>
+        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">🦄</a> &#x2022;
         <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener">Subscribe</a>
       </p>
     </footer>
@@ -259,6 +259,7 @@
           let section = document.querySelector(link.hash);
 
           if (
+            section &&
             section.offsetTop <= fromTop &&
             section.offsetTop + section.offsetHeight > fromTop
           ) {

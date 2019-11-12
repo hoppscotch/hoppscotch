@@ -7,6 +7,9 @@ export default function getEnvironmentVariablesFromScript(script) {
     environment: {
       set: (key, value) => _variables[key] = value,
     },
+    env: {
+      set: (key, value) => _variables[key] = value,
+    },
     // globals that the script is allowed to have access to.
   };
 

@@ -23,11 +23,11 @@
 
 ---
 
-**Start here: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md)_**
+**Read: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)_**
 
-**Chat here: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
+**Chat: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
-**Donate here: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
+**Donate: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
 
 <div align="center">
   <br>
@@ -64,7 +64,7 @@ _History entries are synced with local session storage_
 
 _Customized themes are also synced with local session storage_
 
-🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
+🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) (100/100 Lighthouse score) on your device.
 
 **Features:**
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
@@ -321,13 +321,13 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Badges
 
-| Status | Preview | Markdown Code (copy & paste into `readme.md`) |
+| Status | Preview | Markdown code (copy & paste into `readme.md`) |
 | ----------- | ----------- | ----------- |
 | **Default** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b?logo=Postwoman)](https://postwoman.io)` |
 | **Success** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)` |
 | **Critical** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)` |
 | **Custom** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)` |
-| Make your own badge! | [![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)` |
+| Customize | [![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)` |
 
 <div align="center">
   <br>

@@ -88,6 +88,8 @@ div.log {
   span {
     display: block;
     white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
   }
 }
 </style>
@@ -118,7 +120,7 @@ export default {
         "^(wss?:\\/\\/)?" +
           "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
           "((\\d{1,3}\\.){3}\\d{1,3}))" +
-          "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" +
+          "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
           "(\\?[;&a-z\\d%_.~+=-]*)?" +
           "(\\#[-a-z\\d_]*)?$",
         "i"

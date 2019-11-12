@@ -34,7 +34,7 @@ export default {
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no, minimal-ui'
+        content: 'width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, minimal-ui'
       },
       {
         hid: 'description',
@@ -59,7 +59,7 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${routerBase.router.base}icons/icon-192x192.png`
+        content: `${routerBase.router.base}logo.jpg`
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
@@ -115,12 +115,12 @@ export default {
       },
       {
         property: 'og:image',
-        content: `${routerBase.router.base}icons/icon-144x144.png`
+        content: `${routerBase.router.base}logo.jpg`
       },
       // Twitter
       {
         name: 'twitter:card',
-        content: "summary"
+        content: "summary_large_image"
       },
       {
         name: 'twitter:site',
@@ -136,15 +136,15 @@ export default {
       },
       {
         name: 'twitter:title',
-        content: meta.name
+        content: `${meta.name} \u2022 ${meta.shortDescription}`
       },
       {
         name: 'twitter:description',
-        content: meta.shortDescription
+        content: meta.description
       },
       {
         name: 'twitter:image',
-        content: `${routerBase.router.base}icons/icon-144x144.png`
+        content: `${routerBase.router.base}logo.jpg`
       },
     ],
     link: [{

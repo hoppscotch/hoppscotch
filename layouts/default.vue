@@ -213,6 +213,7 @@
 import intializePwa from "../assets/js/pwa";
 import logo from "../components/logo";
 import * as version from "../.postwoman/version.json";
+import VTooltip from 'v-tooltip'
 
 export default {
   components: {

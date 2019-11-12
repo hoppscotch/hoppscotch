@@ -27,6 +27,11 @@ export const SETTINGS_KEYS = [
   "THEME_COLOR_VIBRANT",
 
   /**
+   * The Ace editor theme
+   */
+  "THEME_ACE_EDITOR",
+
+  /**
    * Normally, section frames are multicolored in the UI
    * to emphasise the different sections.
    * This setting allows that to be turned off.

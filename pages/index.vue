@@ -568,14 +568,19 @@
             </div>
           </div>
           <div id="response-details-wrapper">
-            <pre>
-              <code
-  ref="responseBody"
-  id="body"
-  rows="16"
-  placeholder="(waiting to send request)"
->{{response.body}}</code>
-            </pre>
+            <ResponseBody
+              :value="responseBodyText"
+              :lang="responseBodyType"
+              :options="{
+                maxLines: '16',
+                minLines: '16',
+                fontSize: '16px',
+                autoScrollEditorIntoView: true,
+                readOnly: true,
+                showPrintMargin: false,
+                useWorker: false
+                }"
+            />
             <iframe
               :class="{hidden: !previewEnabled}"
               class="covers-response"
@@ -617,8 +622,7 @@ import modal from "../components/modal";
 import collections from "../components/collections";
 import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
-import hljs from "highlight.js";
-import "highlight.js/styles/androidstudio.css";
+import AceEditor from '../components/ace-editor';
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 
@@ -684,7 +688,8 @@ export default {
     history,
     autocomplete,
     collections,
-    saveRequestAs
+    saveRequestAs,
+    ResponseBody: AceEditor
   },
   data() {
     return {
@@ -726,7 +731,9 @@ export default {
       showRequestModal: false,
       editRequest: {},
 
-      urlExcludes: {}
+      urlExcludes: {},
+      responseBodyText: '',
+      responseBodyType: 'text'
     };
   },
   watch: {
@@ -747,33 +754,24 @@ export default {
       else this.setRouteQueryState();
     },
     "response.body": function(val) {
-      var responseText =
-        document.querySelector("div#response-details-wrapper pre code") != null
-          ? document.querySelector("div#response-details-wrapper pre code")
-          : null;
-      if (responseText) {
-        if (
-          document.querySelector(".hljs") !== null &&
-          responseText.innerHTML.indexOf('<span class="hljs') !== -1
+      if (
+        this.response.body === "(waiting to send request)" ||
+        this.response.body === "Loading..."
+      ) {
+        this.responseBodyText = this.response.body;
+        this.responseBodyType = 'text';
+      } else {
+        if(this.responseType === "application/json" ||
+         this.responseType === "application/hal+json"
         ) {
-          responseText.removeAttribute("class");
-          responseText.innerHTML = null;
-          responseText.innerText = this.response.body;
-        } else if (
-          responseText &&
-          this.response.body !== "(waiting to send request)" &&
-          this.response.body !== "Loading..."
-        ) {
-          responseText.innerText =
-            this.responseType === "application/json" ||
-            this.responseType === "application/hal+json"
-              ? JSON.stringify(this.response.body, null, 2)
-              : this.response.body;
-          hljs.highlightBlock(
-            document.querySelector("div#response-details-wrapper pre code")
-          );
+          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
+          this.responseBodyType = 'json'
+        } else if (this.responseType === "text/html") {
+          this.responseBodyText = this.response.body;
+          this.responseBodyType = 'html'
         } else {
-          responseText.innerText = this.response.body;
+          this.responseBodyText = this.response.body;
+          this.responseBodyType = 'text';
         }
       }
     },

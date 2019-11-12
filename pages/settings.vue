@@ -7,7 +7,7 @@
           <div class="backgrounds">
             <span
               :key="theme.class"
-              @click="applyTheme(theme.class, theme.color)"
+              @click="applyTheme(theme)"
               v-for="theme in themes"
             >
               <swatch
@@ -128,24 +128,28 @@ export default {
         {
           color: "#252628",
           name: "Kinda Dark",
-          class: ""
+          class: "",
+          aceEditor: "dracula"
         },
         {
           color: "#ffffff",
           name: "Clearly White",
           vibrant: true,
-          class: "light"
+          class: "light",
+          aceEditor: "xcode"
         },
         {
           color: "#000000",
           name: "Just Black",
-          class: "black"
+          class: "black",
+          aceEditor: "tomorrow_night_blue"
         },
         {
           color: "var(--bg-color)",
           name: "Auto (system)",
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
-          class: "auto"
+          class: "auto",
+          aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches ? 'xcode' : 'dracula'
         }
       ],
       // You can define a new color here! It will simply store the color value.
@@ -220,8 +224,9 @@ export default {
   },
 
   methods: {
-    applyTheme(name, color) {
+    applyTheme({class:name, color, aceEditor}) {
       this.applySetting("THEME_CLASS", name);
+      this.applySetting("THEME_ACE_EDITOR", aceEditor);
       document
         .querySelector("meta[name=theme-color]")
         .setAttribute("content", color);

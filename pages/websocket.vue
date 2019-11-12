@@ -14,7 +14,12 @@
         </li>
         <li>
           <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-          <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
+          <button
+            :disabled="!urlValid"
+            id="connect"
+            name="connect"
+            @click="toggleConnection"
+          >
             {{ toggleConnectionVerb }}
             <span>
               <i class="material-icons" v-if="!connectionState">sync</i>
@@ -27,7 +32,12 @@
 
     <br />
 
-    <pw-section class="purple" label="Communication" id="response" ref="response">
+    <pw-section
+      class="purple"
+      label="Communication"
+      id="response"
+      ref="response"
+    >
       <ul>
         <li>
           <label for="log">Log</label>
@@ -37,7 +47,9 @@
                 v-for="(logEntry, index) in communication.log"
                 :style="{ color: logEntry.color }"
                 :key="index"
-              >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+                >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }}
+                {{ logEntry.payload }}</span
+              >
             </span>
             <span v-else>(waiting for connection)</span>
           </div>
@@ -57,7 +69,12 @@
         </li>
         <li>
           <label for="send" class="hide-on-small-screen">&nbsp;</label>
-          <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+          <button
+            id="send"
+            name="send"
+            :disabled="!connectionState"
+            @click="sendMessage"
+          >
             Send
             <span>
               <i class="material-icons">send</i>

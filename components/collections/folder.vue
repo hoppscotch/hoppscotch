@@ -6,7 +6,7 @@
           <i class="material-icons" v-show="!showChildren">arrow_right</i>
           <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
           <i class="material-icons">folder_open</i>
-          <span>{{folder.name}}</span>
+          <span>{{ folder.name }}</span>
         </button>
       </div>
       <div>
@@ -27,7 +27,14 @@
             v-bind:collection-index="collectionIndex"
             v-bind:folder-index="folderIndex"
             v-bind:request-index="index"
-            v-on:edit-request="$emit('edit-request', { request, collectionIndex, folderIndex, requestIndex: index })"
+            v-on:edit-request="
+              $emit('edit-request', {
+                request,
+                collectionIndex,
+                folderIndex,
+                requestIndex: index
+              })
+            "
           ></request>
         </li>
         <li v-if="folder.requests.length === 0">

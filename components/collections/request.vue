@@ -3,14 +3,18 @@
     <div>
       <button class="icon" @click="selectRequest()" v-tooltip="'Use request'">
         <i class="material-icons">insert_drive_file</i>
-        <span>{{request.name}}</span>
+        <span>{{ request.name }}</span>
       </button>
     </div>
     <div>
       <button class="icon" @click="removeRequest" v-tooltip="'Delete request'">
         <i class="material-icons">delete</i>
       </button>
-      <button class="icon" @click="$emit('edit-request')" v-tooltip="'Edit request'">
+      <button
+        class="icon"
+        @click="$emit('edit-request')"
+        v-tooltip="'Edit request'"
+      >
         <i class="material-icons">edit</i>
       </button>
     </div>

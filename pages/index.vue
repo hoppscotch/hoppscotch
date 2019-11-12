@@ -1,50 +1,5 @@
 <template>
   <div class="page">
-    <save-request-as
-      v-bind:show="showRequestModal"
-      v-on:hide-model="hideRequestModal"
-      v-bind:editing-request="editRequest"
-    ></save-request-as>
-
-    <pw-modal v-if="showModal" @close="showModal = false">
-      <div slot="header">
-        <ul>
-          <li>
-            <div class="flex-wrap">
-              <h3 class="title">Import cURL</h3>
-              <div>
-                <button class="icon" @click="toggleModal">
-                  <i class="material-icons">close</i>
-                </button>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div slot="body">
-        <ul>
-          <li>
-            <textarea
-              id="import-text"
-              autofocus
-              rows="8"
-              placeholder="Enter cURL"
-            ></textarea>
-          </li>
-        </ul>
-      </div>
-      <div slot="footer">
-        <ul>
-          <li>
-            <button class="icon" @click="handleImport">
-              <i class="material-icons">get_app</i>
-              <span>Import</span>
-            </button>
-          </li>
-        </ul>
-      </div>
-    </pw-modal>
-
     <pw-section
       v-if="showPreRequestScript"
       class="orange"
@@ -79,6 +34,8 @@
         </li>
       </ul>
     </pw-section>
+
+    <br />
 
     <pw-section class="blue" label="Request" ref="request">
       <ul>
@@ -268,8 +225,7 @@
             :disabled="!isValidURL"
             v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code' }"
           >
-            <i class="material-icons" v-if="isHidden">flash_on</i>
-            <i class="material-icons" v-else>flash_off</i>
+            <i class="material-icons">flash_on</i>
           </button>
           <button
             :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
@@ -323,44 +279,6 @@
           </button>
         </div>
       </div>
-    </pw-section>
-
-    <pw-section class="yellow" label="Code" ref="requestCode" v-if="!isHidden">
-      <ul>
-        <li>
-          <label for="requestType">Request Type</label>
-          <select id="requestType" v-model="requestType">
-            <option>JavaScript XHR</option>
-            <option>Fetch</option>
-            <option>cURL</option>
-          </select>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <div class="flex-wrap">
-            <label for="generatedCode">Generated Code</label>
-            <div>
-              <button
-                class="icon"
-                @click="copyRequestCode"
-                id="copyRequestCode"
-                ref="copyRequestCode"
-                v-tooltip="'Copy code'"
-              >
-                <i class="material-icons">file_copy</i>
-              </button>
-            </div>
-          </div>
-          <textarea
-            id="generatedCode"
-            ref="generatedCode"
-            name="generatedCode"
-            rows="8"
-            v-model="requestCode"
-          ></textarea>
-        </li>
-      </ul>
     </pw-section>
 
     <br />
@@ -703,6 +621,106 @@
     <br />
 
     <history @useHistory="handleUseHistory" ref="historyComponent"></history>
+
+    <save-request-as
+      v-bind:show="showRequestModal"
+      v-on:hide-model="hideRequestModal"
+      v-bind:editing-request="editRequest"
+    ></save-request-as>
+
+    <pw-modal v-if="showModal" @close="showModal = false">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <h3 class="title">Import cURL</h3>
+              <div>
+                <button class="icon" @click="showModal = false">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <ul>
+          <li>
+            <textarea
+              id="import-text"
+              autofocus
+              rows="8"
+              placeholder="Enter cURL"
+            ></textarea>
+          </li>
+        </ul>
+      </div>
+      <div slot="footer">
+        <ul>
+          <li>
+            <button class="icon" @click="handleImport">
+              <i class="material-icons">get_app</i>
+              <span>Import</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </pw-modal>
+
+    <pw-modal v-if="!isHidden" @close="isHidden = true">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <h3 class="title">Generate code</h3>
+              <div>
+                <button class="icon" @click="isHidden = true">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <ul>
+          <li>
+            <label for="requestType">Request Type</label>
+            <select id="requestType" v-model="requestType">
+              <option>JavaScript XHR</option>
+              <option>Fetch</option>
+              <option>cURL</option>
+            </select>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <label for="generatedCode">Generated Code</label>
+              <div>
+                <button
+                  class="icon"
+                  @click="copyRequestCode"
+                  id="copyRequestCode"
+                  ref="copyRequestCode"
+                  v-tooltip="'Copy code'"
+                >
+                  <i class="material-icons">file_copy</i>
+                </button>
+              </div>
+            </div>
+            <textarea
+              id="generatedCode"
+              ref="generatedCode"
+              name="generatedCode"
+              rows="8"
+              v-model="requestCode"
+            ></textarea>
+          </li>
+        </ul>
+      </div>
+      <div slot="footer"></div>
+    </pw-modal>
   </div>
 </template>
 <script>
@@ -1793,9 +1811,6 @@ export default {
           icon: "error"
         });
       }
-    },
-    toggleModal() {
-      this.showModal = !this.showModal;
     },
     switchVisibility() {
       this.passwordFieldType =

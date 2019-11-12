@@ -12,6 +12,7 @@
             href="https://github.com/liyasthomas/postwoman"
             target="_blank"
             rel="noopener"
+            v-tooltip="'GitHub'"
           >
             <button class="icon">
               <img
@@ -22,21 +23,19 @@
               />
             </button>
           </a>
+          <button
+            class="icon"
+            id="installPWA"
+            @click.prevent="showInstallPrompt()"
+            v-tooltip="'Install PWA'"
+          >
+            <i class="material-icons">offline_bolt</i>
+          </button>
           <v-popover>
-            <button class="tooltip-target icon">
+            <button class="tooltip-target icon" v-tooltip="'More'">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
-              <div>
-                <button
-                  class="icon"
-                  id="installPWA"
-                  @click.prevent="showInstallPrompt()"
-                >
-                  <i class="material-icons">offline_bolt</i>
-                  <span>Install PWA</span>
-                </button>
-              </div>
               <div>
                 <a
                   href="https://opencollective.com/postwoman"

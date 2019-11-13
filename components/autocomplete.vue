@@ -196,7 +196,7 @@ export default {
           })
           // Cut off the part that's already been typed.
           .map(entry => entry.substring(this.selectionStart))
-          // We only want the top 3 suggestions.
+          // We only want the top 6 suggestions.
           .slice(0, 6)
       );
     }

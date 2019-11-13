@@ -11,10 +11,14 @@
           <a
             href="https://github.com/liyasthomas/postwoman"
             target="_blank"
+            aria-label="GitHub"
             rel="noopener"
-            v-tooltip="'GitHub'"
           >
-            <button class="icon">
+            <button
+              class="icon"
+              aria-label="GitHub"
+              v-tooltip="'GitHub'"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

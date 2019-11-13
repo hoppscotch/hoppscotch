@@ -116,11 +116,21 @@
         </ul>
         <ul>
           <li>
-            <span>
-              <pw-toggle :on="rawInput" @change="rawInput = $event"
-                >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
-              >
-            </span>
+            <div class="flex-wrap">
+              <span>
+                <pw-toggle :on="rawInput" @change="rawInput = $event"
+                  >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
+                >
+              </span>
+              <div>
+                <label for="payload">
+                  <button class="icon" @click="$refs.payload.click()" v-tooltip="'Upload file'">
+                    <i class="material-icons">attach_file</i>
+                  </button>
+                </label>
+                <input ref="payload" name="payload" type="file" @change="uploadPayload"/>
+              </div>
+            </div>
           </li>
         </ul>
         <div v-if="!rawInput">
@@ -1903,6 +1913,25 @@ export default {
       this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
         ? "application/json"
         : "";
+    },
+    uploadPayload() {
+      this.rawInput = true;
+      let file = this.$refs.payload.files[0];
+      if (file != null) {
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          this.rawParams = e.target.result;
+        };
+        reader.readAsText(file);
+        this.$toast.info("File imported", {
+          icon: "attach_file"
+        });
+      }
+      else {
+        this.$toast.error("Choose a file", {
+          icon: "attach_file"
+        });
+      }
     }
   },
   mounted() {

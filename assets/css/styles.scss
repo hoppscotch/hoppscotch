@@ -348,6 +348,10 @@ h3 {
   }
 
   &.popover {
+    .wrapper {
+      min-height: auto;
+    }
+
     .popover-inner {
       background: $bgcolor;
       color: $fgcolor;
@@ -616,6 +620,10 @@ ol li {
   display: flex;
 }
 
+.hide-on-large-screen {
+  display: none;
+}
+
 @media (max-width: $responsiveWidth) {
 
   ul,
@@ -630,6 +638,10 @@ ol li {
 
   .hide-on-small-screen {
     display: none;
+  }
+
+  .hide-on-large-screen {
+    display: inline-flex;
   }
 
   .show-on-small-screen {
@@ -748,6 +760,7 @@ div.tab {
   order: 1;
 }
 
+input[type="file"],
 input[type="radio"],
 div.tab {
   display: none;

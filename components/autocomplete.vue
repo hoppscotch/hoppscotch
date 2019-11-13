@@ -49,7 +49,7 @@
     padding: 0;
     border-radius: 0 0 4px 4px;
     z-index: 9999;
-    transition: transform 200ms ease-out;
+    transition: transform 0.2s ease-out;
 
     li {
       width: 100%;
@@ -57,7 +57,6 @@
       padding: 8px 16px;
       font-size: 18px;
       font-family: "Roboto Mono", monospace;
-      white-space: pre-wrap;
 
       &:last-child {
         border-radius: 0 0 4px 4px;

@@ -9,7 +9,7 @@
           <span>{{ collection.name }}</span>
         </button>
       </div>
-      <div>
+      <div class="hide-on-small-screen">
         <button
           class="icon"
           @click="removeCollection"
@@ -32,6 +32,46 @@
           <i class="material-icons">create_new_folder</i>
         </button>
       </div>
+      <v-popover class="hide-on-large-screen">
+        <button class="tooltip-target icon" v-tooltip="'More'">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <template slot="popover">
+          <div>
+            <button
+              class="icon"
+              @click="removeCollection"
+              v-tooltip="'Delete collection'"
+              v-close-popover
+            >
+              <i class="material-icons">delete</i>
+              <span>Delete</span>
+            </button>
+          </div>
+          <div>
+            <button
+              class="icon"
+              @click="$emit('edit-collection')"
+              v-tooltip="'Edit collection'"
+              v-close-popover
+            >
+              <i class="material-icons">create</i>
+              <span>Edit</span>
+            </button>
+          </div>
+          <div>
+            <button
+              class="icon"
+              @click="$emit('add-folder')"
+              v-tooltip="'New Folder'"
+              v-close-popover
+            >
+              <i class="material-icons">create_new_folder</i>
+              <span>New folder</span>
+            </button>
+          </div>
+        </template>
+      </v-popover>
     </div>
 
     <div v-show="showChildren">

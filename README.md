@@ -91,7 +91,7 @@ _Customized themes are also synced with local session storage_
 
  -  Send and receive data
 
-🔐 **Authentication**: Allows to identity the end user.
+🔐 **Authentication**: Allows to identify the end user.
 
 **Types:**
  - None

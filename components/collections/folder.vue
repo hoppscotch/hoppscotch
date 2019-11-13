@@ -9,7 +9,7 @@
           <span>{{ folder.name }}</span>
         </button>
       </div>
-      <div>
+      <div class="hide-on-small-screen">
         <button class="icon" @click="removeFolder" v-tooltip="'Delete folder'">
           <i class="material-icons">delete</i>
         </button>
@@ -17,6 +17,25 @@
           <i class="material-icons">edit</i>
         </button>
       </div>
+      <v-popover class="hide-on-large-screen">
+        <button class="tooltip-target icon" v-tooltip="'More'">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <template slot="popover">
+          <div>
+            <button class="icon" @click="removeFolder" v-tooltip="'Delete folder'">
+              <i class="material-icons">delete</i>
+              <span>Delete</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon" @click="editFolder" v-tooltip="'Edit folder'">
+              <i class="material-icons">edit</i>
+              <span>Edit</span>
+            </button>
+          </div>
+        </template>
+      </v-popover>
     </div>
 
     <div v-show="showChildren">

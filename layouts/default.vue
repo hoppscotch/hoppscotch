@@ -41,6 +41,7 @@
                   href="https://opencollective.com/postwoman"
                   target="_blank"
                   rel="noopener"
+                  v-close-popover
                 >
                   <button class="icon">
                     <i class="material-icons">favorite</i>
@@ -52,6 +53,7 @@
                 <button
                   class="icon"
                   onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+                  v-close-popover
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

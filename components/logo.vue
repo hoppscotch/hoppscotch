@@ -35,7 +35,7 @@
   </svg>
 </template>
 
-<style>
+<style lang="scss" scoped>
 #circle3814 {
   /* fill: var(--fg-color); */
   fill: transparent;

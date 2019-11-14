@@ -1947,6 +1947,10 @@ export default {
         e.preventDefault();
         this.saveRequest();
       }
+      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.copyRequest();
+      }
     };
     document.addEventListener("keydown", this._keyListener.bind(this));
   },

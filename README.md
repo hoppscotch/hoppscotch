@@ -162,6 +162,14 @@ _Pre-Request Scripts is an experimental feature and is in Public Beta testing_
 
 _Requests with Pre-Request Scripts are indicated in History entries_
 
+⌨️ **Keyboard Shortcuts**: Optimized for efficiency.
+
+**Shortcuts:**
+ - Send Request <kbd>Ctrl</kbd> + <kbd>G</kbd>
+ - Save to Collections <kbd>Ctrl</kbd> + <kbd>S</kbd>
+ - Copy Request Link <kbd>Ctrl</kbd> + <kbd>K</kbd>
+ - Reset Request <kbd>Ctrl</kbd> + <kbd>L</kbd>
+
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 
 ## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io)

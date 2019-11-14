@@ -28,6 +28,7 @@
             class="icon"
             @click="removeRequest"
             v-tooltip="'Delete request'"
+            v-close-popover
           >
             <i class="material-icons">delete</i>
             <span>Delete</span>
@@ -38,6 +39,7 @@
             class="icon"
             @click="$emit('edit-request')"
             v-tooltip="'Edit request'"
+            v-close-popover
           >
             <i class="material-icons">edit</i>
             <span>Edit</span>

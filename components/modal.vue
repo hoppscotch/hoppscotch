@@ -37,7 +37,7 @@
   align-items: center;
   justify-content: center;
   flex-grow: 1;
-  max-width: 800px;
+  max-width: 720px;
 }
 
 .modal-container {

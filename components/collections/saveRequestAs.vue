@@ -24,7 +24,14 @@
             v-model="requestData.name"
             v-bind:placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
+            list="preCollectionLabels"
           />
+          <datalist id="preCollectionLabels">
+            <option value="Login"></option>
+            <option value="Logout"></option>
+            <option value="Bug"></option>
+            <option value="Users"></option>
+          </datalist>
           <label for="selectCollection">Collection</label>
           <select
             type="text"

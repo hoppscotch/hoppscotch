@@ -27,7 +27,6 @@
             @keydown="formatRawParams"
             rows="8"
             v-model="preRequestScript"
-            v-textarea-auto-height="preRequestScript"
             spellcheck="false"
             placeholder="pw.env.set('variable', 'value');"
           ></textarea>
@@ -78,7 +77,14 @@
             type="text"
             v-model="label"
             placeholder="(optional)"
+            list="preLabels"
           />
+          <datalist id="preLabels">
+            <option value="Login"></option>
+            <option value="Logout"></option>
+            <option value="Bug"></option>
+            <option value="Users"></option>
+          </datalist>
         </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -219,7 +225,6 @@
                 @keydown="formatRawParams"
                 rows="8"
                 v-model="rawParams"
-                v-textarea-auto-height="rawParams"
               ></textarea>
             </li>
           </ul>
@@ -291,6 +296,7 @@
             class="icon"
             @click="clearContent('', $event)"
             v-tooltip.bottom="'Clear All'"
+            ref="clearAll"
           >
             <i class="material-icons">clear_all</i>
           </button>
@@ -1943,13 +1949,21 @@ export default {
   mounted() {
     this.observeRequestButton();
     this._keyListener = function(e) {
-      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.sendRequest();
+      }
+      else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.saveRequest();
       }
-      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+      else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.copyRequest();
+      }
+      else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.$refs.clearAll.click();
       }
     };
     document.addEventListener("keydown", this._keyListener.bind(this));

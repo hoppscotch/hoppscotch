@@ -236,23 +236,27 @@
         </ul>
       </div>
       <div slot="body">
-        <ul>
-          <li>
-            <div>
-              <label>Save to Collections</label>
-              <kbd>Ctrl</kbd><kbd>S</kbd>
-            </div>
-          </li>
-        </ul>
         <br>
-        <ul>
-          <li>
-            <div>
-              <label>Copy Sharable Link</label>
-              <kbd>Ctrl</kbd><kbd>K</kbd>
-            </div>
-          </li>
-        </ul>
+        <div>
+          <label>Send Request</label>
+          <kbd>Ctrl G</kbd>
+        </div>
+        <br>
+        <div>
+          <label>Save to Collections</label>
+          <kbd>Ctrl S</kbd>
+        </div>
+        <br>
+        <div>
+          <label>Copy Request Link</label>
+          <kbd>Ctrl K</kbd>
+        </div>
+        <br>
+        <div>
+          <label>Reset Request</label>
+          <kbd>Ctrl L</kbd>
+        </div>
+        <br>
       </div>
       <div slot="footer"></div>
     </modal>

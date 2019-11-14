@@ -1,6 +1,6 @@
 <template>
   <div class="color" :data-color="color">
-    <span :style="{backgroundColor: color}" class="preview">
+    <span :style="{ backgroundColor: color }" class="preview">
       <i v-if="active" class="material-icons activeTick">done</i>
     </span>
     {{ name || color }}

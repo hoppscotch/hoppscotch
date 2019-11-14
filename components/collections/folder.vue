@@ -23,7 +23,11 @@
         </button>
         <template slot="popover">
           <div>
-            <button class="icon" @click="removeFolder" v-tooltip="'Delete folder'">
+            <button
+              class="icon"
+              @click="removeFolder"
+              v-tooltip="'Delete folder'"
+            >
               <i class="material-icons">delete</i>
               <span>Delete</span>
             </button>

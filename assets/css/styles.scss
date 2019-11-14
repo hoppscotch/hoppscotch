@@ -58,6 +58,7 @@ body {
 
 // Make theme transition smoother.
 body.afterLoad {
+
   &,
   & * {
     transition: background-color 0.2s ease-in-out, border 0.2s ease-in-out;

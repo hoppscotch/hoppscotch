@@ -236,16 +236,23 @@
         </ul>
       </div>
       <div slot="body">
-        <div class="flex-wrap">
-          <div>
-            <label>Save to Collection</label>
-            <kbd>Ctrl</kbd><kbd>S</kbd>
-          </div>
-          <div>
-            <label>Copy Sharable URL</label>
-            <kbd>Ctrl</kbd><kbd>K</kbd>
-          </div>
-        </div>
+        <ul>
+          <li>
+            <div>
+              <label>Save to Collections</label>
+              <kbd>Ctrl</kbd><kbd>S</kbd>
+            </div>
+          </li>
+        </ul>
+        <br>
+        <ul>
+          <li>
+            <div>
+              <label>Copy Sharable Link</label>
+              <kbd>Ctrl</kbd><kbd>K</kbd>
+            </div>
+          </li>
+        </ul>
       </div>
       <div slot="footer"></div>
     </modal>

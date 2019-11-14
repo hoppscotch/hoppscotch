@@ -53,7 +53,7 @@
           <ul>
             <li>
               <button class="icon" @click="sort_by_duration()">
-                Duration
+                Duration (ms)
               </button>
             </li>
             <li>

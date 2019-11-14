@@ -231,31 +231,6 @@ nav.secondary-nav {
   flex-direction: column;
 }
 
-$responsiveWidth: 720px;
-
-@media (max-width: $responsiveWidth) {
-  .columns {
-    flex-flow: column;
-  }
-
-  .nav-first {
-    width: 100%;
-    background-color: var(--bg-color);
-  }
-
-  nav.primary-nav {
-    flex-flow: row;
-  }
-
-  nav.secondary-nav {
-    display: none;
-  }
-
-  .main {
-    padding: 0 8px;
-  }
-}
-
 h1,
 h2,
 h3 {
@@ -625,31 +600,6 @@ ol li {
   display: none;
 }
 
-@media (max-width: $responsiveWidth) {
-
-  ul,
-  ol {
-    flex-direction: column;
-  }
-
-  ul li,
-  ol li {
-    display: flex;
-  }
-
-  .hide-on-small-screen {
-    display: none;
-  }
-
-  .hide-on-large-screen {
-    display: inline-flex;
-  }
-
-  .show-on-small-screen {
-    display: inline-flex;
-  }
-}
-
 #installPWA {
   display: none;
 }
@@ -799,4 +749,46 @@ input[type="radio"]:checked+label+div.tab {
 
 .toasted.bubble .action {
   color: inherit !important;
+}
+
+@media (max-width: $responsiveWidth) {
+  .columns {
+    flex-flow: column;
+  }
+
+  .nav-first {
+    width: 100%;
+    background-color: var(--bg-color);
+  }
+
+  nav.primary-nav {
+    flex-flow: row;
+  }
+
+  nav.secondary-nav {
+    display: none;
+  }
+
+  .main {
+    padding: 0 8px;
+  }
+
+  ul,
+  ol {
+    flex-direction: column;
+  }
+
+  ul li,
+  ol li {
+    display: flex;
+  }
+
+  .hide-on-small-screen {
+    display: none;
+  }
+
+  .hide-on-large-screen,
+  .show-on-small-screen {
+    display: inline-flex;
+  }
 }

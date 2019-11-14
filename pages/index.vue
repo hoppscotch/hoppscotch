@@ -35,8 +35,6 @@
       </ul>
     </pw-section>
 
-    <br />
-
     <pw-section class="blue" label="Request" ref="request">
       <ul>
         <li>
@@ -124,11 +122,20 @@
               </span>
               <div>
                 <label for="payload">
-                  <button class="icon" @click="$refs.payload.click()" v-tooltip="'Upload file'">
+                  <button
+                    class="icon"
+                    @click="$refs.payload.click()"
+                    v-tooltip="'Upload file'"
+                  >
                     <i class="material-icons">attach_file</i>
                   </button>
                 </label>
-                <input ref="payload" name="payload" type="file" @change="uploadPayload"/>
+                <input
+                  ref="payload"
+                  name="payload"
+                  type="file"
+                  @change="uploadPayload"
+                />
               </div>
             </div>
           </li>
@@ -1919,15 +1926,14 @@ export default {
       let file = this.$refs.payload.files[0];
       if (file != null) {
         let reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = e => {
           this.rawParams = e.target.result;
         };
         reader.readAsText(file);
         this.$toast.info("File imported", {
           icon: "attach_file"
         });
-      }
-      else {
+      } else {
         this.$toast.error("Choose a file", {
           icon: "attach_file"
         });

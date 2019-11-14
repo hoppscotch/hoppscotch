@@ -41,6 +41,16 @@
             </button>
             <template slot="popover">
               <div>
+                <button
+                  class="icon"
+                  @click="showShortcuts = true"
+                  v-close-popover
+                >
+                  <i class="material-icons">keyboard</i>
+                  <span>Shortcuts</span>
+                </button>
+              </div>
+              <div>
                 <a
                   href="https://opencollective.com/postwoman"
                   target="_blank"
@@ -210,6 +220,35 @@
         >
       </p>
     </footer>
+    <modal v-if="showShortcuts" @close="showShortcuts = false">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <h3 class="title">Shortcuts</h3>
+              <div>
+                <button class="icon" @click="showShortcuts = false">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <div class="flex-wrap">
+          <div>
+            <label>Save to Collection</label>
+            <kbd>Ctrl</kbd><kbd>S</kbd>
+          </div>
+          <div>
+            <label>Copy Sharable URL</label>
+            <kbd>Ctrl</kbd><kbd>K</kbd>
+          </div>
+        </div>
+      </div>
+      <div slot="footer"></div>
+    </modal>
   </div>
 </template>
 
@@ -219,10 +258,12 @@
 import intializePwa from "../assets/js/pwa";
 import logo from "../components/logo";
 import * as version from "../.postwoman/version.json";
+import modal from "../components/modal";
 
 export default {
   components: {
-    logo
+    logo,
+    modal
   },
 
   methods: {
@@ -240,7 +281,8 @@ export default {
       // that can be called to show the user the installation
       // prompt.
       showInstallPrompt: null,
-      version: {}
+      version: {},
+      showShortcuts: false
     };
   },
 

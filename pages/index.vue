@@ -1942,6 +1942,13 @@ export default {
   },
   mounted() {
     this.observeRequestButton();
+    this._keyListener = function(e) {
+      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.saveRequest();
+      }
+    };
+    document.addEventListener("keydown", this._keyListener.bind(this));
   },
   created() {
     this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
@@ -1974,6 +1981,9 @@ export default {
         this.setRouteQueryState();
       }
     );
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this._keyListener);
   }
 };
 </script>

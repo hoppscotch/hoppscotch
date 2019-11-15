@@ -754,6 +754,7 @@ import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
+import AceEditor from "../components/ace-editor";
 
 const statusCategories = [
   {
@@ -818,7 +819,7 @@ export default {
     autocomplete: () => import("../components/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    ResponseBody: () => import("../components/ace-editor")
+    ResponseBody: AceEditor
   },
   data() {
     return {

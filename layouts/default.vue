@@ -267,14 +267,12 @@
 
 <script>
 import intializePwa from "../assets/js/pwa";
-import logo from "../components/logo";
 import * as version from "../.postwoman/version.json";
-import modal from "../components/modal";
 
 export default {
   components: {
-    logo,
-    modal
+    logo: () => import("../components/logo"),
+    modal: () => import("../components/modal")
   },
 
   methods: {

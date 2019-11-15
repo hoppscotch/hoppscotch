@@ -92,23 +92,15 @@ ul {
 </style>
 
 <script>
-import addCollection from "./addCollection";
-import addFolder from "./addFolder";
-import collection from "./collection";
-import editCollection from "./editCollection";
-import editFolder from "./editFolder";
-import editRequest from "./editRequest";
-import importExportCollections from "./importExportCollections";
-
 export default {
   components: {
-    addCollection,
-    addFolder,
-    collection,
-    editCollection,
-    editFolder,
-    editRequest,
-    importExportCollections
+    addCollection: () => import("./addCollection"),
+    addFolder: () => import("./addFolder"),
+    collection: () => import("./collection"),
+    editCollection: () => import("./editCollection"),
+    editFolder: () => import("./editFolder"),
+    editRequest: () => import("./editRequest"),
+    importExportCollections: () => import("./importExportCollections")
   },
   data() {
     return {

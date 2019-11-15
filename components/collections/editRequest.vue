@@ -72,8 +72,6 @@
 </template>
 
 <script>
-import modal from "../../components/modal";
-
 export default {
   props: {
     show: Boolean,
@@ -83,7 +81,7 @@ export default {
     requestIndex: Number
   },
   components: {
-    modal
+    modal: () => import("../../components/modal")
   },
   data() {
     return {

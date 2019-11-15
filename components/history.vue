@@ -318,16 +318,14 @@ label {
 </style>
 
 <script>
-import VirtualList from "vue-virtual-scroll-list";
-import section from "./section";
 import { findStatusGroup } from "../pages/index";
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property));
 export default {
   components: {
-    "pw-section": section,
-    VirtualList
+    "pw-section": () => import("./section"),
+    VirtualList: () => import("vue-virtual-scroll-list")
   },
   data() {
     const localStorageHistory = JSON.parse(

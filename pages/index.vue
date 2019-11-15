@@ -747,20 +747,14 @@
   </div>
 </template>
 <script>
+import section from "../components/section";
 import url from "url";
 import querystring from "querystring";
-import autocomplete from "../components/autocomplete";
-import history from "../components/history";
-import section from "../components/section";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
-import toggle from "../components/toggle";
-import modal from "../components/modal";
-import collections from "../components/collections";
-import saveRequestAs from "../components/collections/saveRequestAs";
 import parseCurlCommand from "../assets/js/curlparser.js";
-import AceEditor from "../components/ace-editor";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
+import AceEditor from "../components/ace-editor";
 
 const statusCategories = [
   {
@@ -819,12 +813,12 @@ export default {
 
   components: {
     "pw-section": section,
-    "pw-toggle": toggle,
-    "pw-modal": modal,
-    history,
-    autocomplete,
-    collections,
-    saveRequestAs,
+    "pw-toggle": () => import("../components/toggle"),
+    "pw-modal": () => import("../components/modal"),
+    history: () => import("../components/history"),
+    autocomplete: () => import("../components/autocomplete"),
+    collections: () => import("../components/collections"),
+    saveRequestAs: () => import("../components/collections/saveRequestAs"),
     ResponseBody: AceEditor
   },
   data() {

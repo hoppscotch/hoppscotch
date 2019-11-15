@@ -129,13 +129,10 @@ ul li {
 </style>
 
 <script>
-import folder from "./folder";
-import request from "./request";
-
 export default {
   components: {
-    folder,
-    request
+    folder: () => import("./folder"),
+    request: () => import("./request")
   },
   props: {
     collectionIndex: Number,

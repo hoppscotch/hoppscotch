@@ -88,8 +88,6 @@ ul li {
 </style>
 
 <script>
-import request from "./request";
-
 export default {
   props: {
     folder: Object,
@@ -97,7 +95,7 @@ export default {
     folderIndex: Number
   },
   components: {
-    request
+    request: () => import("./request")
   },
   data() {
     return {

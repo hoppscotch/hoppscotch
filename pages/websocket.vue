@@ -112,10 +112,9 @@ div.log {
 </style>
 
 <script>
-import section from "../components/section";
 export default {
   components: {
-    "pw-section": section
+    "pw-section": () => import("../components/section")
   },
   data() {
     return {

@@ -63,14 +63,12 @@
 </template>
 
 <script>
-import modal from "../../components/modal";
-
 export default {
   props: {
     show: Boolean
   },
   components: {
-    modal
+    modal: () => import("../../components/modal")
   },
   computed: {
     collectionJson() {

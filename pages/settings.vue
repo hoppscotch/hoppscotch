@@ -121,15 +121,11 @@
 </style>
 
 <script>
-import section from "../components/section";
-import swatch from "../components/settings/swatch";
-import toggle from "../components/toggle";
-
 export default {
   components: {
-    "pw-section": section,
-    "pw-toggle": toggle,
-    swatch: swatch
+    "pw-section": () => import("../components/section"),
+    "pw-toggle": () => import("../components/toggle"),
+    swatch: () => import("../components/settings/swatch")
   },
 
   data() {

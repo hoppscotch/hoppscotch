@@ -1,5 +1,5 @@
 <template>
-  <transition name="modal-fade">
+  <transition name="modal" appear>
     <div class="modal-backdrop">
       <div class="modal-wrapper">
         <div class="modal-container">
@@ -61,13 +61,13 @@
   * these styles.
   */
 
-.modal-fade-enter,
-.modal-fade-leave-active {
+.modal-enter,
+.modal-leave-active {
   opacity: 0;
 }
 
-.modal-fade-enter .modal-container,
-.modal-fade-leave-active .modal-container {
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
   transform: scale(0.8);
   transition: all 0.2s ease-in-out;
 }

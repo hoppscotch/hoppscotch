@@ -642,17 +642,17 @@
 
       <aside class="sticky-inner inner-right">
         <section>
-          <input id="collection-tab" type="radio" name="side" checked="checked" />
-          <label for="collection-tab">Collections</label>
-          <div class="tab">
-            <pw-section class="yellow" label="Collections" ref="collections">
-          <collections />
-          </pw-section>
-          </div>
-          <input id="history-tab" type="radio" name="side" />
+          <input id="history-tab" type="radio" name="side" checked="checked" />
           <label for="history-tab">History</label>
           <div class="tab">
             <history @useHistory="handleUseHistory" ref="historyComponent"></history>
+          </div>
+          <input id="collection-tab" type="radio" name="side" />
+          <label for="collection-tab">Collections</label>
+          <div class="tab">
+            <pw-section class="yellow" label="Collections" ref="collections">
+              <collections />
+            </pw-section>
           </div>
         </section>
       </aside>

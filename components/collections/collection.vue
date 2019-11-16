@@ -9,30 +9,7 @@
           <span>{{ collection.name }}</span>
         </button>
       </div>
-      <div class="hide-on-small-screen">
-        <button
-          class="icon"
-          @click="removeCollection"
-          v-tooltip="'Delete collection'"
-        >
-          <i class="material-icons">delete</i>
-        </button>
-        <button
-          class="icon"
-          @click="$emit('edit-collection')"
-          v-tooltip="'Edit collection'"
-        >
-          <i class="material-icons">create</i>
-        </button>
-        <button
-          class="icon"
-          @click="$emit('add-folder')"
-          v-tooltip="'New Folder'"
-        >
-          <i class="material-icons">create_new_folder</i>
-        </button>
-      </div>
-      <v-popover class="hide-on-large-screen">
+      <v-popover>
         <button class="tooltip-target icon" v-tooltip="'More'">
           <i class="material-icons">more_vert</i>
         </button>
@@ -40,12 +17,11 @@
           <div>
             <button
               class="icon"
-              @click="removeCollection"
-              v-tooltip="'Delete collection'"
-              v-close-popover
+              @click="$emit('add-folder')"
+              v-tooltip="'New Folder'"
             >
-              <i class="material-icons">delete</i>
-              <span>Delete</span>
+              <i class="material-icons">create_new_folder</i>
+              <span>New folder</span>
             </button>
           </div>
           <div>
@@ -62,12 +38,12 @@
           <div>
             <button
               class="icon"
-              @click="$emit('add-folder')"
-              v-tooltip="'New Folder'"
+              @click="removeCollection"
+              v-tooltip="'Delete collection'"
               v-close-popover
             >
-              <i class="material-icons">create_new_folder</i>
-              <span>New folder</span>
+              <i class="material-icons">delete</i>
+              <span>Delete</span>
             </button>
           </div>
         </template>

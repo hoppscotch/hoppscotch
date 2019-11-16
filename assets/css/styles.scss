@@ -765,12 +765,14 @@ input[type="radio"]:checked + label + div.tab {
 .inner-left {
   display: flex;
   order: 1;
+  margin-right: 16px;
 }
 
 .inner-right {
   display: flex;
   width: 25%;
   order: 2;
+  height: calc(100vh - 80px)
 }
 
 @media (max-width: $responsiveWidth) {

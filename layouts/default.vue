@@ -137,16 +137,6 @@
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
-                <li>
-                  <a href="#collections" v-tooltip.right="'Collections'">
-                    <i class="material-icons">folder_special</i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#history" v-tooltip.right="'History'">
-                    <i class="material-icons">watch_later</i>
-                  </a>
-                </li>
               </ul>
             </nav>
           </div>
@@ -239,22 +229,22 @@
         <br />
         <div>
           <label>Send Request</label>
-          <kbd>Ctrl G</kbd>
+          <kbd>⌘ G</kbd>
         </div>
         <br />
         <div>
           <label>Save to Collections</label>
-          <kbd>Ctrl S</kbd>
+          <kbd>⌘ S</kbd>
         </div>
         <br />
         <div>
           <label>Copy Request Link</label>
-          <kbd>Ctrl K</kbd>
+          <kbd>⌘ K</kbd>
         </div>
         <br />
         <div>
           <label>Reset Request</label>
-          <kbd>Ctrl L</kbd>
+          <kbd>⌘ L</kbd>
         </div>
         <br />
       </div>

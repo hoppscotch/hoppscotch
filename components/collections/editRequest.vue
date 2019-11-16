@@ -127,7 +127,6 @@ export default {
       // pass data separately to don't depend on request's collection, folder fields
       // probably, they should be deprecated because they don't describe request itself
       this.$store.commit("postwoman/editRequest", {
-        requestOld: this.$props.request,
         requestOldCollectionIndex: this.$props.collectionIndex,
         requestOldFolderIndex: this.$props.folderIndex,
         requestOldIndex: this.$props.requestIndex,

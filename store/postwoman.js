@@ -169,7 +169,6 @@ export const mutations = {
 
   editRequest(state, payload) {
     const {
-      requestOld,
       requestOldCollectionIndex,
       requestOldFolderIndex,
       requestOldIndex,

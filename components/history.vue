@@ -11,7 +11,7 @@
       </li>
     </ul>
     <ul v-if="history.length !== 0" class="labels">
-      <div class="show-on-small-screen">
+      <div class="show-on-large-screen">
         <li>
           <button class="icon">
             <i class="material-icons">star_half</i>
@@ -64,7 +64,7 @@
           </ul>
         </li>
       </transition>
-      <div class="show-on-small-screen">
+      <div class="show-on-large-screen">
         <li>
           <button
             class="icon"
@@ -93,7 +93,7 @@
       :remain="Math.min(5, filteredHistory.length)"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
-        <div class="show-on-small-screen">
+        <div class="show-on-large-screen">
           <li>
             <button
               class="icon"
@@ -119,7 +119,7 @@
             </button>
           </li>
         </div>
-        <div class="show-on-small-screen">
+        <div class="show-on-large-screen">
           <li>
             <input
               aria-label="Label"
@@ -155,7 +155,7 @@
             >{{ entry.status }}</span
           >
         </li>
-        <div class="show-on-small-screen">
+        <div class="show-on-large-screen">
           <li>
             <input
               aria-label="URL"
@@ -176,7 +176,7 @@
           </li>
         </div>
         <transition name="smooth">
-          <div v-if="show" class="show-on-small-screen">
+          <div v-if="show" class="show-on-large-screen">
             <li>
               <input
                 aria-label="Duration"
@@ -197,7 +197,7 @@
             </li>
           </div>
         </transition>
-        <div class="show-on-small-screen">
+        <div class="show-on-large-screen">
           <li>
             <button
               v-tooltip="'Delete entry'"
@@ -302,6 +302,16 @@ label {
   color: #f8e81c !important;
 }
 
+ul,
+ol {
+  flex-direction: column;
+}
+
+ul li,
+ol li {
+  display: flex;
+}
+  
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;

@@ -78,7 +78,7 @@ a {
 
 header,
 footer {
-  &>div {
+  & > div {
     display: flex;
     padding: 16px;
     width: 100%;
@@ -127,7 +127,8 @@ footer {
   color: var(--ac-color);
 }
 
-.nav-first {
+.nav-first,
+.sticky-inner {
   display: flex;
   order: 1;
   flex-flow: column;
@@ -521,7 +522,7 @@ input[type="checkbox"] {
   display: none;
 
   &,
-  &+label {
+  & + label {
     vertical-align: middle;
     cursor: pointer;
 
@@ -540,7 +541,7 @@ input[type="checkbox"] {
     }
   }
 
-  &:checked+label:before {
+  &:checked + label:before {
     background-color: var(--ac-color);
     border-color: var(--ac-color);
     color: var(--act-color);
@@ -598,6 +599,10 @@ ol li {
 
 .hide-on-large-screen {
   display: none;
+}
+
+.show-on-large-screen {
+  display: inline-flex;
 }
 
 #installPWA {
@@ -717,7 +722,7 @@ div.tab {
   display: none;
 }
 
-input[type="radio"]+label {
+input[type="radio"] + label {
   padding: 8px 16px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
@@ -730,11 +735,11 @@ input[type="radio"]+label {
   }
 }
 
-input[type="radio"]:checked+label {
+input[type="radio"]:checked + label {
   border-color: var(--fg-color);
 }
 
-input[type="radio"]:checked+label+div.tab {
+input[type="radio"]:checked + label + div.tab {
   display: block;
 }
 
@@ -751,7 +756,28 @@ input[type="radio"]:checked+label+div.tab {
   color: inherit !important;
 }
 
+.page-columns {
+  display: flex;
+  flex: 1;
+  flex-flow: column;
+}
+
+.inner-left {
+  display: flex;
+  order: 1;
+}
+
+.inner-right {
+  display: flex;
+  width: 25%;
+  order: 2;
+}
+
 @media (max-width: $responsiveWidth) {
+  .content {
+    flex-flow: column;
+  }
+
   .columns {
     flex-flow: column;
   }
@@ -790,5 +816,10 @@ input[type="radio"]:checked+label+div.tab {
   .hide-on-large-screen,
   .show-on-small-screen {
     display: inline-flex;
+  }
+
+  .sticky-inner {
+    position: relative;
+    width: 100%;
   }
 }

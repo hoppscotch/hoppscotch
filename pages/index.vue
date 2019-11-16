@@ -1946,16 +1946,13 @@ export default {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.sendRequest();
-      }
-      else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.saveRequest();
-      }
-      else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.copyRequest();
-      }
-      else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.$refs.clearAll.click();
       }
@@ -1995,7 +1992,7 @@ export default {
     );
   },
   beforeDestroy() {
-    document.removeEventListener('keydown', this._keyListener);
+    document.removeEventListener("keydown", this._keyListener);
   }
 };
 </script>

@@ -92,11 +92,13 @@ ul {
 </style>
 
 <script>
+import collection from "./collection";
+
 export default {
   components: {
+    collection,
     addCollection: () => import("./addCollection"),
     addFolder: () => import("./addFolder"),
-    collection: () => import("./collection"),
     editCollection: () => import("./editCollection"),
     editFolder: () => import("./editFolder"),
     editRequest: () => import("./editRequest"),

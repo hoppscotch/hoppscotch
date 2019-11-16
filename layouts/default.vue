@@ -236,27 +236,27 @@
         </ul>
       </div>
       <div slot="body">
-        <br>
+        <br />
         <div>
           <label>Send Request</label>
           <kbd>Ctrl G</kbd>
         </div>
-        <br>
+        <br />
         <div>
           <label>Save to Collections</label>
           <kbd>Ctrl S</kbd>
         </div>
-        <br>
+        <br />
         <div>
           <label>Copy Request Link</label>
           <kbd>Ctrl K</kbd>
         </div>
-        <br>
+        <br />
         <div>
           <label>Reset Request</label>
           <kbd>Ctrl L</kbd>
         </div>
-        <br>
+        <br />
       </div>
       <div slot="footer"></div>
     </modal>

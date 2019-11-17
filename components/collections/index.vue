@@ -50,9 +50,8 @@ TODO:
         </button>
       </div>
       <div>
-        <button class="icon" @click="displayModalImportExport(true)">
+        <button class="icon" @click="displayModalImportExport(true)" v-tooltip="'Import / Export'">
           <i class="material-icons">import_export</i>
-          <span>Import / Export</span>
         </button>
         <a
           href="https://github.com/liyasthomas/postwoman/wiki/Collections"
@@ -66,25 +65,36 @@ TODO:
       </div>
     </div>
 
-    <ul>
-      <li v-for="(collection, index) in collections" :key="collection.name">
-        <collection
-          v-bind:collection-index="index"
-          v-bind:collection="collection"
-          v-on:edit-collection="editCollection(collection, index)"
-          v-on:add-folder="addFolder(collection, index)"
-          v-on:edit-folder="editFolder($event)"
-          v-on:edit-request="editRequest($event)"
-        ></collection>
-      </li>
-      <li v-if="collections.length === 0">
-        <label>Collections are empty</label>
-      </li>
-    </ul>
+    <virtual-list
+      class="virtual-list"
+      :class="{ filled: collections.length }"
+      :size="152"
+      :remain="Math.min(5, collections.length)"
+    >
+      <ul>
+        <li v-for="(collection, index) in collections" :key="collection.name">
+          <collection
+            v-bind:collection-index="index"
+            v-bind:collection="collection"
+            v-on:edit-collection="editCollection(collection, index)"
+            v-on:add-folder="addFolder(collection, index)"
+            v-on:edit-folder="editFolder($event)"
+            v-on:edit-request="editRequest($event)"
+          ></collection>
+        </li>
+        <li v-if="collections.length === 0">
+          <label>Collections are empty</label>
+        </li>
+      </ul>
+    </virtual-list>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.virtual-list {
+  max-height: calc(100vh - 220px);
+}
+
 ul {
   display: flex;
   flex-direction: column;
@@ -102,7 +112,8 @@ export default {
     editCollection: () => import("./editCollection"),
     editFolder: () => import("./editFolder"),
     editRequest: () => import("./editRequest"),
-    importExportCollections: () => import("./importExportCollections")
+    importExportCollections: () => import("./importExportCollections"),
+    VirtualList: () => import("vue-virtual-scroll-list")
   },
   data() {
     return {

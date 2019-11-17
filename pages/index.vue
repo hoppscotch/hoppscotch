@@ -636,8 +636,6 @@
             </li>
           </ul>
         </pw-section>
-
-        <br />
       </div>
 
       <aside class="sticky-inner inner-right">

@@ -751,14 +751,14 @@ input[type="radio"]:checked + label + .tab {
 
 .inner-left {
   display: flex;
-  order: 2;
-  margin-left: 16px;
+  order: 1;
+  margin-right: 16px;
 }
 
 .inner-right {
   display: flex;
   width: 25%;
-  order: 1;
+  order: 2;
 }
 
 @media (max-width: $responsiveWidth) {
@@ -813,6 +813,6 @@ input[type="radio"]:checked + label + .tab {
 
   .inner-left {
     order: 0;
-    margin-left: 0;
+    margin-right: 0;
   }
 }

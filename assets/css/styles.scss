@@ -1,4 +1,4 @@
-$responsiveWidth: 720px;
+$responsiveWidth: 768px;
 
 html {
   scroll-behavior: smooth;
@@ -751,15 +751,14 @@ input[type="radio"]:checked + label + .tab {
 
 .inner-left {
   display: flex;
-  order: 1;
-  margin-right: 16px;
+  order: 2;
+  margin-left: 16px;
 }
 
 .inner-right {
   display: flex;
   width: 25%;
-  order: 2;
-  height: calc(100vh - 80px);
+  order: 1;
 }
 
 @media (max-width: $responsiveWidth) {
@@ -813,6 +812,7 @@ input[type="radio"]:checked + label + .tab {
   }
 
   .inner-left {
-    margin-right: 0;
+    order: 0;
+    margin-left: 0;
   }
 }

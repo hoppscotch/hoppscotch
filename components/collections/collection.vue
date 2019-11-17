@@ -19,6 +19,7 @@
               class="icon"
               @click="$emit('add-folder')"
               v-tooltip="'New Folder'"
+              v-close-popover
             >
               <i class="material-icons">create_new_folder</i>
               <span>New folder</span>

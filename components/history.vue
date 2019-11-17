@@ -73,17 +73,15 @@
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-large-screen">
-          <li>
-            <button
-              class="icon"
-              :class="{ stared: entry.star }"
-              @click="toggleStar(index)"
-              v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star' }"
-            >
-              <i class="material-icons" v-if="entry.star">star</i>
-              <i class="material-icons" v-else>star_border</i>
-            </button>
-          </li>
+          <button
+            class="icon"
+            :class="{ stared: entry.star }"
+            @click="toggleStar(index)"
+            v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star' }"
+          >
+            <i class="material-icons" v-if="entry.star">star</i>
+            <i class="material-icons" v-else>star_border</i>
+          </button>
           <li>
             <input
               aria-label="Label"
@@ -109,11 +107,9 @@
           </li>
 -->
           <v-popover>
-            <li>
-              <button class="tooltip-target icon" v-tooltip="'More'">
-                <i class="material-icons">more_vert</i>
-              </button>
-            </li>
+            <button class="tooltip-target icon" v-tooltip="'More'">
+              <i class="material-icons">more_vert</i>
+            </button>
             <template slot="popover">
               <div>
                 <button

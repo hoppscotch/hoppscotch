@@ -1,110 +1,97 @@
 <template>
   <pw-section class="green" icon="history" label="History" ref="history">
     <ul>
-      <li id="filter-history">
-        <input
-          aria-label="Search"
-          type="text"
-          placeholder="search history"
-          v-model="filterText"
-        />
-      </li>
-    </ul>
-    <ul v-if="history.length !== 0" class="labels">
-      <div class="show-on-small-screen">
-        <li>
-          <button class="icon">
-            <i class="material-icons">star_half</i>
-          </button>
+      <div class="show-on-large-screen">
+        <li id="filter-history">
+          <input
+            aria-label="Search"
+            type="text"
+            placeholder="search history"
+            v-model="filterText"
+          />
         </li>
-        <li>
-          <button class="icon">
-            <i class="material-icons">history</i>
-          </button>
-        </li>
-      </div>
-      <li>
-        <button class="icon" @click="sort_by_label()">
-          Label
-        </button>
-      </li>
-      <li>
-        <button class="icon" @click="sort_by_time()">
-          Time
-        </button>
-      </li>
-      <li>
-        <button class="icon" @click="sort_by_status_code()">
-          Status
-        </button>
-      </li>
-      <li>
-        <button class="icon" @click="sort_by_url()">
-          URL
-        </button>
-      </li>
-      <li>
-        <button class="icon" @click="sort_by_path()">
-          Path
-        </button>
-      </li>
-      <transition name="smooth" v-if="show">
-        <li>
-          <ul>
-            <li>
-              <button class="icon" @click="sort_by_duration()">
-                Duration (ms)
+        <v-popover>
+            <button class="tooltip-target icon" v-tooltip="'More'">
+              <i class="material-icons">more_vert</i>
+            </button>
+          <template slot="popover">
+            <div>
+              <button class="icon" @click="sort_by_label()" v-close-popover>
+                <i class="material-icons">label</i>
+                <span>Sort by label</span>
               </button>
-            </li>
-            <li>
-              <button class="icon">
-                Pre-script
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_time()" v-close-popover>
+                <i class="material-icons">access_time</i>
+                <span>Sort by time</span>
               </button>
-            </li>
-          </ul>
-        </li>
-      </transition>
-      <div class="show-on-small-screen">
-        <li>
-          <button
-            class="icon"
-            @click="enableHistoryClearing"
-            v-tooltip="'Clear History'"
-          >
-            <i class="material-icons">clear_all</i>
-          </button>
-        </li>
-        <li>
-          <button
-            class="icon"
-            @click="toggleCollapse()"
-            v-tooltip="{ content: !show ? 'Show more' : 'Hide more' }"
-          >
-            <i class="material-icons" v-if="!show">first_page</i>
-            <i class="material-icons" v-else>last_page</i>
-          </button>
-        </li>
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_status_code()" v-close-popover>
+                <i class="material-icons">assistant</i>
+                <span>Sort by status</span>
+              </button>
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_url()" v-close-popover>
+                <i class="material-icons">language</i>
+                <span>Sort by url</span>
+              </button>
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_path()" v-close-popover>
+                <i class="material-icons">timeline</i>
+                <span>Sort by path</span>
+              </button>
+            </div>
+            <div v-if="showMore">
+              <button class="icon" @click="sort_by_duration()" v-close-popover>
+                <i class="material-icons">timer</i>
+                <span>Sort by duration</span>
+              </button>
+            </div>
+            <div>
+              <button
+                class="icon"
+                @click="toggleCollapse()"
+              >
+                <i class="material-icons" v-if="!showMore">first_page</i>
+                <i class="material-icons" v-else>last_page</i>
+                <span>{{ !showMore ? 'Show more' : 'Hide more' }}</span>
+              </button>
+            </div>
+          </template>
+        </v-popover>
       </div>
     </ul>
     <virtual-list
       class="virtual-list"
       :class="{ filled: filteredHistory.length }"
-      :size="56"
+      :size="185"
       :remain="Math.min(5, filteredHistory.length)"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
-        <div class="show-on-small-screen">
+        <div class="show-on-large-screen">
+          <button
+            class="icon"
+            :class="{ stared: entry.star }"
+            @click="toggleStar(index)"
+            v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star' }"
+          >
+            <i class="material-icons" v-if="entry.star">star</i>
+            <i class="material-icons" v-else>star_border</i>
+          </button>
           <li>
-            <button
-              class="icon"
-              :class="{ stared: entry.star }"
-              @click="toggleStar(index)"
-              v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star' }"
-            >
-              <i class="material-icons" v-if="entry.star">star</i>
-              <i class="material-icons" v-else>star_border</i>
-            </button>
+            <input
+              aria-label="Label"
+              type="text"
+              readonly
+              :value="entry.label"
+              placeholder="No label"
+            />
           </li>
+<!--
           <li>
             <button
               class="icon"
@@ -118,44 +105,58 @@
               <i class="material-icons" v-else>code</i>
             </button>
           </li>
+-->
+          <v-popover>
+            <button class="tooltip-target icon" v-tooltip="'More'">
+              <i class="material-icons">more_vert</i>
+            </button>
+            <template slot="popover">
+              <div>
+                <button
+                  class="icon"
+                  :id="'use-button#' + index"
+                  @click="useHistory(entry)"
+                  aria-label="Edit"
+                  v-close-popover
+                >
+                  <i class="material-icons">edit</i>
+                  <span>Use</span>
+                </button>
+              </div>
+               <div>
+                <button
+                  class="icon"
+                  :id="'delete-button#' + index"
+                  @click="deleteHistory(entry)"
+                  aria-label="Delete"
+                  v-close-popover
+                >
+                  <i class="material-icons">delete</i>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </template>
+          </v-popover>
         </div>
-        <div class="show-on-small-screen">
-          <li>
+        <div class="show-on-large-screen">
+          <li class="method-list-item">
             <input
-              aria-label="Label"
+              aria-label="Method"
               type="text"
               readonly
-              :value="entry.label"
-              placeholder="No label"
+              :value="entry.method"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
             />
-          </li>
-          <li>
-            <input
-              aria-label="Time"
-              type="text"
-              readonly
-              :value="entry.time"
-              v-tooltip="entry.date"
-            />
+            <span
+              class="entry-status-code"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
+              >{{ entry.status }}</span
+            >
           </li>
         </div>
-        <li class="method-list-item">
-          <input
-            aria-label="Method"
-            type="text"
-            readonly
-            :value="entry.method"
-            :class="findEntryStatus(entry).className"
-            :style="{ '--status-code': entry.status }"
-          />
-          <span
-            class="entry-status-code"
-            :class="findEntryStatus(entry).className"
-            :style="{ '--status-code': entry.status }"
-            >{{ entry.status }}</span
-          >
-        </li>
-        <div class="show-on-small-screen">
+        <div class="show-on-large-screen">
           <li>
             <input
               aria-label="URL"
@@ -176,7 +177,16 @@
           </li>
         </div>
         <transition name="smooth">
-          <div v-if="show" class="show-on-small-screen">
+          <div v-if="showMore" class="show-on-large-screen">
+            <li>
+              <input
+                aria-label="Time"
+                type="text"
+                readonly
+                :value="entry.time"
+                v-tooltip="entry.date"
+              />
+            </li>
             <li>
               <input
                 aria-label="Duration"
@@ -197,30 +207,6 @@
             </li>
           </div>
         </transition>
-        <div class="show-on-small-screen">
-          <li>
-            <button
-              v-tooltip="'Delete entry'"
-              class="icon"
-              :id="'delete-button#' + index"
-              @click="deleteHistory(entry)"
-              aria-label="Delete"
-            >
-              <i class="material-icons">delete</i>
-            </button>
-          </li>
-          <li>
-            <button
-              v-tooltip="'Edit entry'"
-              class="icon"
-              :id="'use-button#' + index"
-              @click="useHistory(entry)"
-              aria-label="Edit"
-            >
-              <i class="material-icons">edit</i>
-            </button>
-          </li>
-        </div>
       </ul>
     </virtual-list>
     <ul
@@ -274,7 +260,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  min-height: 90px;
+  max-height: calc(100vh - 284px);
 
   [readonly] {
     cursor: default;
@@ -302,6 +288,35 @@ label {
   color: #f8e81c !important;
 }
 
+ul,
+ol {
+  flex-direction: column;
+}
+
+ul li,
+ol li {
+  display: flex;
+}
+
+.method-list-item {
+  position: relative;
+
+  span {
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    font-family: 'Roboto Mono', monospace;
+    background-color: var(--bg-color);
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+}
+
+.entry {
+  border-bottom: 1px solid var(--brd-color);
+  padding: 16px 0;
+}
+
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;
@@ -309,10 +324,6 @@ label {
 
   .labels {
     display: none;
-  }
-
-  .entry {
-    border-bottom: 1px solid var(--brd-color);
   }
 }
 </style>
@@ -322,6 +333,7 @@ import { findStatusGroup } from "../pages/index";
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property));
+
 export default {
   components: {
     "pw-section": () => import("./section"),
@@ -341,7 +353,7 @@ export default {
       reverse_sort_status_code: false,
       reverse_sort_url: false,
       reverse_sort_path: false,
-      show: false
+      showMore: false
     };
   },
   computed: {
@@ -482,7 +494,7 @@ export default {
       this.reverse_sort_duration = !this.reverse_sort_duration;
     },
     toggleCollapse() {
-      this.show = !this.show;
+      this.showMore = !this.showMore;
     },
     toggleStar(index) {
       this.history[index]["star"] = !this.history[index]["star"];

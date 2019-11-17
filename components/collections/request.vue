@@ -6,34 +6,11 @@
         <span>{{ request.name }}</span>
       </button>
     </div>
-    <div class="hide-on-small-screen">
-      <button class="icon" @click="removeRequest" v-tooltip="'Delete request'">
-        <i class="material-icons">delete</i>
-      </button>
-      <button
-        class="icon"
-        @click="$emit('edit-request')"
-        v-tooltip="'Edit request'"
-      >
-        <i class="material-icons">edit</i>
-      </button>
-    </div>
-    <v-popover class="hide-on-large-screen">
+    <v-popover>
       <button class="tooltip-target icon" v-tooltip="'More'">
         <i class="material-icons">more_vert</i>
       </button>
       <template slot="popover">
-        <div>
-          <button
-            class="icon"
-            @click="removeRequest"
-            v-tooltip="'Delete request'"
-            v-close-popover
-          >
-            <i class="material-icons">delete</i>
-            <span>Delete</span>
-          </button>
-        </div>
         <div>
           <button
             class="icon"
@@ -43,6 +20,17 @@
           >
             <i class="material-icons">edit</i>
             <span>Edit</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="icon"
+            @click="removeRequest"
+            v-tooltip="'Delete request'"
+            v-close-popover
+          >
+            <i class="material-icons">delete</i>
+            <span>Delete</span>
           </button>
         </div>
       </template>

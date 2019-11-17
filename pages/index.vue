@@ -1,696 +1,706 @@
 <template>
   <div class="page">
-    <pw-section
-      v-if="showPreRequestScript"
-      class="orange"
-      label="Pre-Request"
-      ref="preRequest"
-    >
-      <ul>
-        <li>
-          <div class="flex-wrap">
-            <label for="generatedCode">JavaScript Code</label>
-            <div>
-              <a
-                href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
-                target="_blank"
-                rel="noopener"
-              >
-                <button class="icon" v-tooltip="'Wiki'">
-                  <i class="material-icons">help</i>
-                </button>
-              </a>
-            </div>
-          </div>
-          <textarea
-            id="preRequestScript"
-            @keydown="formatRawParams"
-            rows="8"
-            v-model="preRequestScript"
-            spellcheck="false"
-            placeholder="pw.env.set('variable', 'value');"
-          ></textarea>
-        </li>
-      </ul>
-    </pw-section>
-
-    <pw-section class="blue" label="Request" ref="request">
-      <ul>
-        <li>
-          <label for="method">Method</label>
-          <select id="method" v-model="method" @change="methodChange">
-            <option>GET</option>
-            <option>HEAD</option>
-            <option>POST</option>
-            <option>PUT</option>
-            <option>DELETE</option>
-            <option>OPTIONS</option>
-            <option>PATCH</option>
-          </select>
-        </li>
-        <li>
-          <label for="url">URL</label>
-          <input
-            :class="{ error: !isValidURL }"
-            @keyup.enter="isValidURL ? sendRequest() : null"
-            id="url"
-            name="url"
-            type="url"
-            v-model="url"
-          />
-        </li>
-        <li>
-          <label for="path">Path</label>
-          <input
-            @keyup.enter="isValidURL ? sendRequest() : null"
-            id="path"
-            name="path"
-            v-model="path"
-            @input="pathInputHandler"
-          />
-        </li>
-        <li>
-          <label for="label">Label</label>
-          <input
-            id="label"
-            name="label"
-            type="text"
-            v-model="label"
-            placeholder="(optional)"
-            list="preLabels"
-          />
-          <datalist id="preLabels">
-            <option value="Login"></option>
-            <option value="Logout"></option>
-            <option value="Bug"></option>
-            <option value="Users"></option>
-          </datalist>
-        </li>
-        <li>
-          <label class="hide-on-small-screen" for="send">&nbsp;</label>
-          <button
-            :disabled="!isValidURL"
-            @click="sendRequest"
-            id="send"
-            ref="sendButton"
-          >
-            Send
-            <span id="hidden-message">Again</span>
-            <span>
-              <i class="material-icons">send</i>
-            </span>
-          </button>
-        </li>
-      </ul>
-      <div
-        class="blue"
-        label="Request Body"
-        v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'"
-      >
-        <ul>
-          <li>
-            <label for="contentType">Content Type</label>
-            <autocomplete
-              :source="validContentTypes"
-              :spellcheck="false"
-              v-model="contentType"
-              >Content Type</autocomplete
-            >
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <div class="flex-wrap">
-              <span>
-                <pw-toggle :on="rawInput" @change="rawInput = $event"
-                  >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
-                >
-              </span>
-              <div>
-                <label for="payload">
-                  <button
-                    class="icon"
-                    @click="$refs.payload.click()"
-                    v-tooltip="'Upload file'"
+    <div class="content">
+      <div class="page-columns inner-left">
+        <pw-section
+          v-if="showPreRequestScript"
+          class="orange"
+          label="Pre-Request"
+          ref="preRequest"
+        >
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="generatedCode">JavaScript Code</label>
+                <div>
+                  <a
+                    href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
+                    target="_blank"
+                    rel="noopener"
                   >
-                    <i class="material-icons">attach_file</i>
-                  </button>
-                </label>
-                <input
-                  ref="payload"
-                  name="payload"
-                  type="file"
-                  @change="uploadPayload"
-                />
+                    <button class="icon" v-tooltip="'Wiki'">
+                      <i class="material-icons">help</i>
+                    </button>
+                  </a>
+                </div>
               </div>
-            </div>
-          </li>
-        </ul>
-        <div v-if="!rawInput">
-          <ul>
-            <li>
-              <label for="reqParamList">Parameter List</label>
               <textarea
-                id="reqParamList"
-                readonly
-                v-textarea-auto-height="rawRequestBody"
-                v-model="rawRequestBody"
-                placeholder="(add at least one parameter)"
-                rows="1"
-              ></textarea>
-            </li>
-          </ul>
-          <ul v-for="(param, index) in bodyParams" :key="index">
-            <li>
-              <input
-                :placeholder="'key ' + (index + 1)"
-                :name="'bparam' + index"
-                :value="param.key"
-                @change="
-                  $store.commit('setKeyBodyParams', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                @keyup.prevent="setRouteQueryState"
-                autofocus
-              />
-            </li>
-            <li>
-              <input
-                :placeholder="'value ' + (index + 1)"
-                :id="'bvalue' + index"
-                :name="'bvalue' + index"
-                :value="param.value"
-                @change="
-                  $store.commit('setValueBodyParams', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                @keyup.prevent="setRouteQueryState"
-              />
-            </li>
-            <div>
-              <li>
-                <button
-                  class="icon"
-                  @click="removeRequestBodyParam(index)"
-                  id="delParam"
-                >
-                  <i class="material-icons">delete</i>
-                </button>
-              </li>
-            </div>
-          </ul>
-          <ul>
-            <li>
-              <button
-                class="icon"
-                @click="addRequestBodyParam"
-                name="addrequest"
-              >
-                <i class="material-icons">add</i>
-                <span>Add New</span>
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div v-else>
-          <ul>
-            <li>
-              <label for="rawBody">Raw Request Body</label>
-              <textarea
-                id="rawBody"
+                id="preRequestScript"
                 @keydown="formatRawParams"
                 rows="8"
-                v-model="rawParams"
+                v-model="preRequestScript"
+                spellcheck="false"
+                placeholder="pw.env.set('variable', 'value');"
               ></textarea>
             </li>
           </ul>
-        </div>
-      </div>
-      <div class="flex-wrap">
-        <div style="text-align: center;">
-          <button
-            class="icon"
-            id="show-modal"
-            @click="showModal = true"
-            v-tooltip.bottom="'Import cURL'"
-          >
-            <i class="material-icons">import_export</i>
-          </button>
-          <button
-            class="icon"
-            id="code"
-            v-on:click="isHidden = !isHidden"
-            :disabled="!isValidURL"
-            v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code' }"
-          >
-            <i class="material-icons">flash_on</i>
-          </button>
-          <button
-            :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
-            id="preRequestScriptButton"
-            v-tooltip.bottom="{
-              content: !showPreRequestScript
-                ? 'Show Pre-Request Script'
-                : 'Hide Pre-Request Script'
-            }"
-            @click="showPreRequestScript = !showPreRequestScript"
-          >
-            <i
-              class="material-icons"
-              :class="showPreRequestScript"
-              v-if="!showPreRequestScript"
-              >code</i
-            >
-            <i class="material-icons" :class="showPreRequestScript" v-else
-              >close</i
-            >
-          </button>
-        </div>
-        <div style="text-align: center;">
-          <button
-            class="icon"
-            @click="copyRequest"
-            id="copyRequest"
-            ref="copyRequest"
-            :disabled="!isValidURL"
-            v-tooltip.bottom="'Copy Request URL'"
-          >
-            <i class="material-icons">file_copy</i>
-          </button>
+        </pw-section>
 
-          <button
-            class="icon"
-            @click="saveRequest"
-            id="saveRequest"
-            ref="saveRequest"
-            :disabled="!isValidURL"
-            v-tooltip.bottom="'Save to Collections'"
-          >
-            <i class="material-icons">save</i>
-          </button>
-          <button
-            class="icon"
-            @click="clearContent('', $event)"
-            v-tooltip.bottom="'Clear All'"
-            ref="clearAll"
-          >
-            <i class="material-icons">clear_all</i>
-          </button>
-        </div>
-      </div>
-    </pw-section>
-
-    <br />
-
-    <section id="options">
-      <input id="tab-one" type="radio" name="grp" checked="checked" />
-      <label for="tab-one">Authentication</label>
-      <div class="tab">
-        <br />
-
-        <pw-section class="cyan" label="Authentication" ref="authentication">
+        <pw-section class="blue" label="Request" ref="request">
           <ul>
             <li>
-              <div class="flex-wrap">
-                <label for="auth">Authentication Type</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="clearContent('auth', $event)"
-                    v-tooltip.bottom="'Clear'"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
-                </div>
-              </div>
-              <select id="auth" v-model="auth">
-                <option>None</option>
-                <option>Basic</option>
-                <option>Bearer Token</option>
+              <label for="method">Method</label>
+              <select id="method" v-model="method" @change="methodChange">
+                <option>GET</option>
+                <option>HEAD</option>
+                <option>POST</option>
+                <option>PUT</option>
+                <option>DELETE</option>
+                <option>OPTIONS</option>
+                <option>PATCH</option>
               </select>
             </li>
+            <li>
+              <label for="url">URL</label>
+              <input
+                :class="{ error: !isValidURL }"
+                @keyup.enter="isValidURL ? sendRequest() : null"
+                id="url"
+                name="url"
+                type="url"
+                v-model="url"
+              />
+            </li>
+            <li>
+              <label for="path">Path</label>
+              <input
+                @keyup.enter="isValidURL ? sendRequest() : null"
+                id="path"
+                name="path"
+                v-model="path"
+                @input="pathInputHandler"
+              />
+            </li>
+            <li>
+              <label for="label">Label</label>
+              <input
+                id="label"
+                name="label"
+                type="text"
+                v-model="label"
+                placeholder="(optional)"
+                list="preLabels"
+              />
+              <datalist id="preLabels">
+                <option value="Login"></option>
+                <option value="Logout"></option>
+                <option value="Bug"></option>
+                <option value="Users"></option>
+              </datalist>
+            </li>
+            <li>
+              <label class="hide-on-small-screen" for="send">&nbsp;</label>
+              <button
+                :disabled="!isValidURL"
+                @click="sendRequest"
+                id="send"
+                ref="sendButton"
+              >
+                Send
+                <span id="hidden-message">Again</span>
+                <span>
+                  <i class="material-icons">send</i>
+                </span>
+              </button>
+            </li>
           </ul>
-          <ul v-if="auth === 'Basic'">
-            <li>
-              <input
-                placeholder="User"
-                name="http_basic_user"
-                v-model="httpUser"
-              />
-            </li>
-            <li>
-              <input
-                placeholder="Password"
-                name="http_basic_passwd"
-                :type="passwordFieldType"
-                v-model="httpPassword"
-              />
-            </li>
-            <div>
+          <div
+            class="blue"
+            label="Request Body"
+            v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'"
+          >
+            <ul>
               <li>
-                <button
-                  class="icon"
-                  id="switchVisibility"
-                  ref="switchVisibility"
-                  @click="switchVisibility"
+                <label for="contentType">Content Type</label>
+                <autocomplete
+                  :source="validContentTypes"
+                  :spellcheck="false"
+                  v-model="contentType"
+                  >Content Type</autocomplete
                 >
-                  <i class="material-icons" v-if="passwordFieldType === 'text'"
-                    >visibility</i
-                  >
-                  <i class="material-icons" v-if="passwordFieldType !== 'text'"
-                    >visibility_off</i
-                  >
-                </button>
               </li>
+            </ul>
+            <ul>
+              <li>
+                <div class="flex-wrap">
+                  <span>
+                    <pw-toggle :on="rawInput" @change="rawInput = $event"
+                      >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
+                    >
+                  </span>
+                  <div>
+                    <label for="payload">
+                      <button
+                        class="icon"
+                        @click="$refs.payload.click()"
+                        v-tooltip="'Upload file'"
+                      >
+                        <i class="material-icons">attach_file</i>
+                      </button>
+                    </label>
+                    <input
+                      ref="payload"
+                      name="payload"
+                      type="file"
+                      @change="uploadPayload"
+                    />
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <div v-if="!rawInput">
+              <ul>
+                <li>
+                  <label for="reqParamList">Parameter List</label>
+                  <textarea
+                    id="reqParamList"
+                    readonly
+                    v-textarea-auto-height="rawRequestBody"
+                    v-model="rawRequestBody"
+                    placeholder="(add at least one parameter)"
+                    rows="1"
+                  ></textarea>
+                </li>
+              </ul>
+              <ul v-for="(param, index) in bodyParams" :key="index">
+                <li>
+                  <input
+                    :placeholder="'key ' + (index + 1)"
+                    :name="'bparam' + index"
+                    :value="param.key"
+                    @change="
+                      $store.commit('setKeyBodyParams', {
+                        index,
+                        value: $event.target.value
+                      })
+                    "
+                    @keyup.prevent="setRouteQueryState"
+                    autofocus
+                  />
+                </li>
+                <li>
+                  <input
+                    :placeholder="'value ' + (index + 1)"
+                    :id="'bvalue' + index"
+                    :name="'bvalue' + index"
+                    :value="param.value"
+                    @change="
+                      $store.commit('setValueBodyParams', {
+                        index,
+                        value: $event.target.value
+                      })
+                    "
+                    @keyup.prevent="setRouteQueryState"
+                  />
+                </li>
+                <div>
+                  <li>
+                    <button
+                      class="icon"
+                      @click="removeRequestBodyParam(index)"
+                      id="delParam"
+                    >
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </li>
+                </div>
+              </ul>
+              <ul>
+                <li>
+                  <button
+                    class="icon"
+                    @click="addRequestBodyParam"
+                    name="addrequest"
+                  >
+                    <i class="material-icons">add</i>
+                    <span>Add New</span>
+                  </button>
+                </li>
+              </ul>
             </div>
-          </ul>
-          <ul v-else-if="auth === 'Bearer Token'">
-            <li>
-              <input
-                placeholder="Token"
-                name="bearer_token"
-                v-model="bearerToken"
-              />
-            </li>
-          </ul>
-          <div class="flex-wrap">
-            <pw-toggle
-              :on="!urlExcludes.auth"
-              @change="setExclude('auth', !$event)"
-              >Include in URL</pw-toggle
-            >
+            <div v-else>
+              <ul>
+                <li>
+                  <label for="rawBody">Raw Request Body</label>
+                  <textarea
+                    id="rawBody"
+                    @keydown="formatRawParams"
+                    rows="8"
+                    v-model="rawParams"
+                  ></textarea>
+                </li>
+              </ul>
+            </div>
           </div>
-        </pw-section>
-      </div>
-      <input id="tab-two" type="radio" name="grp" />
-      <label for="tab-two">Headers</label>
-      <div class="tab">
-        <br />
-
-        <pw-section class="orange" label="Headers" ref="headers">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="headerList">Header List</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="clearContent('headers', $event)"
-                    v-tooltip.bottom="'Clear'"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
-                </div>
-              </div>
-              <textarea
-                id="headerList"
-                readonly
-                v-textarea-auto-height="headerString"
-                v-model="headerString"
-                placeholder="(add at least one header)"
-                rows="1"
-              ></textarea>
-            </li>
-          </ul>
-          <ul v-for="(header, index) in headers" :key="index">
-            <li>
-              <input
-                :placeholder="'header ' + (index + 1)"
-                :name="'header' + index"
-                :value="header.key"
-                @change="
-                  $store.commit('setKeyHeader', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                @keyup.prevent="setRouteQueryState"
-                autofocus
-              />
-            </li>
-            <li>
-              <input
-                :placeholder="'value ' + (index + 1)"
-                :name="'value' + index"
-                :value="header.value"
-                @change="
-                  $store.commit('setValueHeader', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                @keyup.prevent="setRouteQueryState"
-              />
-            </li>
-            <div>
-              <li>
-                <button
-                  class="icon"
-                  @click="removeRequestHeader(index)"
-                  id="header"
-                >
-                  <i class="material-icons">delete</i>
-                </button>
-              </li>
-            </div>
-          </ul>
-          <ul>
-            <li>
-              <button class="icon" @click="addRequestHeader">
-                <i class="material-icons">add</i>
-                <span>Add New</span>
-              </button>
-            </li>
-          </ul>
-        </pw-section>
-      </div>
-      <input id="tab-three" type="radio" name="grp" />
-      <label for="tab-three">Parameters</label>
-      <div class="tab">
-        <br />
-
-        <pw-section class="pink" label="Parameters" ref="parameters">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="paramList">Parameter List</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="clearContent('parameters', $event)"
-                    v-tooltip.bottom="'Clear'"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
-                </div>
-              </div>
-              <textarea
-                id="paramList"
-                readonly
-                v-textarea-auto-height="queryString"
-                v-model="queryString"
-                placeholder="(add at least one parameter)"
-                rows="1"
-              ></textarea>
-            </li>
-          </ul>
-          <ul v-for="(param, index) in params" :key="index">
-            <li>
-              <input
-                :placeholder="'parameter ' + (index + 1)"
-                :name="'param' + index"
-                :value="param.key"
-                @change="
-                  $store.commit('setKeyParams', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                autofocus
-              />
-            </li>
-            <li>
-              <input
-                :placeholder="'value ' + (index + 1)"
-                :name="'value' + index"
-                :value="param.value"
-                @change="
-                  $store.commit('setValueParams', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-              />
-            </li>
-            <div>
-              <li>
-                <button
-                  class="icon"
-                  @click="removeRequestParam(index)"
-                  id="param"
-                >
-                  <i class="material-icons">delete</i>
-                </button>
-              </li>
-            </div>
-          </ul>
-          <ul>
-            <li>
-              <button class="icon" @click="addRequestParam">
-                <i class="material-icons">add</i>
-                <span>Add New</span>
-              </button>
-            </li>
-          </ul>
-        </pw-section>
-      </div>
-    </section>
-
-    <br />
-
-    <pw-section class="purple" id="response" label="Response" ref="response">
-      <ul>
-        <li>
-          <label for="status">status</label>
-          <input
-            :class="statusCategory ? statusCategory.className : ''"
-            :value="response.status || '(waiting to send request)'"
-            ref="status"
-            id="status"
-            name="status"
-            readonly
-            type="text"
-          />
-        </li>
-      </ul>
-      <ul v-for="(value, key) in response.headers" :key="key">
-        <li>
-          <label :for="key">{{ key }}</label>
-          <input :id="key" :value="value" :name="key" readonly />
-        </li>
-      </ul>
-      <ul v-if="response.body">
-        <li>
           <div class="flex-wrap">
-            <label for="body">response</label>
-            <div>
+            <div style="text-align: center;">
               <button
                 class="icon"
-                @click="copyResponse"
-                ref="copyResponse"
-                v-if="response.body"
-                v-tooltip="'Copy response'"
+                id="show-modal"
+                @click="showModal = true"
+                v-tooltip.bottom="'Import cURL'"
+              >
+                <i class="material-icons">import_export</i>
+              </button>
+              <button
+                class="icon"
+                id="code"
+                v-on:click="isHidden = !isHidden"
+                :disabled="!isValidURL"
+                v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code' }"
+              >
+                <i class="material-icons">flash_on</i>
+              </button>
+              <button
+                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+                id="preRequestScriptButton"
+                v-tooltip.bottom="{
+                  content: !showPreRequestScript
+                    ? 'Show Pre-Request Script'
+                    : 'Hide Pre-Request Script'
+                }"
+                @click="showPreRequestScript = !showPreRequestScript"
+              >
+                <i
+                  class="material-icons"
+                  :class="showPreRequestScript"
+                  v-if="!showPreRequestScript"
+                  >code</i
+                >
+                <i class="material-icons" :class="showPreRequestScript" v-else
+                  >close</i
+                >
+              </button>
+            </div>
+            <div style="text-align: center;">
+              <button
+                class="icon"
+                @click="copyRequest"
+                id="copyRequest"
+                ref="copyRequest"
+                :disabled="!isValidURL"
+                v-tooltip.bottom="'Copy Request URL'"
               >
                 <i class="material-icons">file_copy</i>
               </button>
+
               <button
                 class="icon"
-                @click="downloadResponse"
-                ref="downloadResponse"
-                v-if="response.body"
-                v-tooltip="'Download file'"
+                @click="saveRequest"
+                id="saveRequest"
+                ref="saveRequest"
+                :disabled="!isValidURL"
+                v-tooltip.bottom="'Save to Collections'"
               >
-                <i class="material-icons">get_app</i>
+                <i class="material-icons">save</i>
+              </button>
+              <button
+                class="icon"
+                @click="clearContent('', $event)"
+                v-tooltip.bottom="'Clear All'"
+                ref="clearAll"
+              >
+                <i class="material-icons">clear_all</i>
               </button>
             </div>
           </div>
-          <div id="response-details-wrapper">
-            <ResponseBody
-              :value="responseBodyText"
-              :lang="responseBodyType"
-              :options="{
-                maxLines: '16',
-                minLines: '16',
-                fontSize: '16px',
-                autoScrollEditorIntoView: true,
-                readOnly: true,
-                showPrintMargin: false,
-                useWorker: false
-              }"
-            />
-            <iframe
-              :class="{ hidden: !previewEnabled }"
-              class="covers-response"
-              ref="previewFrame"
-              src="about:blank"
-            ></iframe>
+        </pw-section>
+
+        <br />
+
+        <section id="options">
+          <input id="tab-one" type="radio" name="options" checked="checked" />
+          <label for="tab-one">Authentication</label>
+          <div class="tab">
+            <br />
+
+            <pw-section class="cyan" label="Authentication" ref="authentication">
+              <ul>
+                <li>
+                  <div class="flex-wrap">
+                    <label for="auth">Authentication Type</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('auth', $event)"
+                        v-tooltip.bottom="'Clear'"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
+                  <select id="auth" v-model="auth">
+                    <option>None</option>
+                    <option>Basic</option>
+                    <option>Bearer Token</option>
+                  </select>
+                </li>
+              </ul>
+              <ul v-if="auth === 'Basic'">
+                <li>
+                  <input
+                    placeholder="User"
+                    name="http_basic_user"
+                    v-model="httpUser"
+                  />
+                </li>
+                <li>
+                  <input
+                    placeholder="Password"
+                    name="http_basic_passwd"
+                    :type="passwordFieldType"
+                    v-model="httpPassword"
+                  />
+                </li>
+                <div>
+                  <li>
+                    <button
+                      class="icon"
+                      id="switchVisibility"
+                      ref="switchVisibility"
+                      @click="switchVisibility"
+                    >
+                      <i class="material-icons" v-if="passwordFieldType === 'text'"
+                        >visibility</i
+                      >
+                      <i class="material-icons" v-if="passwordFieldType !== 'text'"
+                        >visibility_off</i
+                      >
+                    </button>
+                  </li>
+                </div>
+              </ul>
+              <ul v-else-if="auth === 'Bearer Token'">
+                <li>
+                  <input
+                    placeholder="Token"
+                    name="bearer_token"
+                    v-model="bearerToken"
+                  />
+                </li>
+              </ul>
+              <div class="flex-wrap">
+                <pw-toggle
+                  :on="!urlExcludes.auth"
+                  @change="setExclude('auth', !$event)"
+                  >Include in URL</pw-toggle
+                >
+              </div>
+            </pw-section>
           </div>
-          <div
-            class="align-right"
-            v-if="response.body && responseType === 'text/html'"
-          >
-            <button class="icon" @click.prevent="togglePreview">
-              <i class="material-icons" v-if="!previewEnabled">visibility</i>
-              <i class="material-icons" v-else>visibility_off</i>
-              <span>{{
-                previewEnabled ? "Hide Preview" : "Preview HTML"
-              }}</span>
-            </button>
+          <input id="tab-two" type="radio" name="options" />
+          <label for="tab-two">Headers</label>
+          <div class="tab">
+            <br />
+
+            <pw-section class="orange" label="Headers" ref="headers">
+              <ul>
+                <li>
+                  <div class="flex-wrap">
+                    <label for="headerList">Header List</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('headers', $event)"
+                        v-tooltip.bottom="'Clear'"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    id="headerList"
+                    readonly
+                    v-textarea-auto-height="headerString"
+                    v-model="headerString"
+                    placeholder="(add at least one header)"
+                    rows="1"
+                  ></textarea>
+                </li>
+              </ul>
+              <ul v-for="(header, index) in headers" :key="index">
+                <li>
+                  <input
+                    :placeholder="'header ' + (index + 1)"
+                    :name="'header' + index"
+                    :value="header.key"
+                    @change="
+                      $store.commit('setKeyHeader', {
+                        index,
+                        value: $event.target.value
+                      })
+                    "
+                    @keyup.prevent="setRouteQueryState"
+                    autofocus
+                  />
+                </li>
+                <li>
+                  <input
+                    :placeholder="'value ' + (index + 1)"
+                    :name="'value' + index"
+                    :value="header.value"
+                    @change="
+                      $store.commit('setValueHeader', {
+                        index,
+                        value: $event.target.value
+                      })
+                    "
+                    @keyup.prevent="setRouteQueryState"
+                  />
+                </li>
+                <div>
+                  <li>
+                    <button
+                      class="icon"
+                      @click="removeRequestHeader(index)"
+                      id="header"
+                    >
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </li>
+                </div>
+              </ul>
+              <ul>
+                <li>
+                  <button class="icon" @click="addRequestHeader">
+                    <i class="material-icons">add</i>
+                    <span>Add New</span>
+                  </button>
+                </li>
+              </ul>
+            </pw-section>
           </div>
-        </li>
-      </ul>
-    </pw-section>
+          <input id="tab-three" type="radio" name="options" />
+          <label for="tab-three">Parameters</label>
+          <div class="tab">
+            <br />
 
-    <br />
+            <pw-section class="pink" label="Parameters" ref="parameters">
+              <ul>
+                <li>
+                  <div class="flex-wrap">
+                    <label for="paramList">Parameter List</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('parameters', $event)"
+                        v-tooltip.bottom="'Clear'"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    id="paramList"
+                    readonly
+                    v-textarea-auto-height="queryString"
+                    v-model="queryString"
+                    placeholder="(add at least one parameter)"
+                    rows="1"
+                  ></textarea>
+                </li>
+              </ul>
+              <ul v-for="(param, index) in params" :key="index">
+                <li>
+                  <input
+                    :placeholder="'parameter ' + (index + 1)"
+                    :name="'param' + index"
+                    :value="param.key"
+                    @change="
+                      $store.commit('setKeyParams', {
+                        index,
+                        value: $event.target.value
+                      })
+                    "
+                    autofocus
+                  />
+                </li>
+                <li>
+                  <input
+                    :placeholder="'value ' + (index + 1)"
+                    :name="'value' + index"
+                    :value="param.value"
+                    @change="
+                      $store.commit('setValueParams', {
+                        index,
+                        value: $event.target.value
+                      })
+                    "
+                  />
+                </li>
+                <div>
+                  <li>
+                    <button
+                      class="icon"
+                      @click="removeRequestParam(index)"
+                      id="param"
+                    >
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </li>
+                </div>
+              </ul>
+              <ul>
+                <li>
+                  <button class="icon" @click="addRequestParam">
+                    <i class="material-icons">add</i>
+                    <span>Add New</span>
+                  </button>
+                </li>
+              </ul>
+            </pw-section>
+          </div>
+        </section>
 
-    <pw-section class="yellow" label="Collections" ref="collections">
-      <collections />
-    </pw-section>
+        <br />
 
-    <br />
-
-    <history @useHistory="handleUseHistory" ref="historyComponent"></history>
-
-    <save-request-as
-      v-bind:show="showRequestModal"
-      v-on:hide-model="hideRequestModal"
-      v-bind:editing-request="editRequest"
-    ></save-request-as>
-
-    <pw-modal v-if="showModal" @close="showModal = false">
-      <div slot="header">
-        <ul>
-          <li>
-            <div class="flex-wrap">
-              <h3 class="title">Import cURL</h3>
-              <div>
-                <button class="icon" @click="showModal = false">
-                  <i class="material-icons">close</i>
+        <pw-section class="purple" id="response" label="Response" ref="response">
+          <ul>
+            <li>
+              <label for="status">status</label>
+              <input
+                :class="statusCategory ? statusCategory.className : ''"
+                :value="response.status || '(waiting to send request)'"
+                ref="status"
+                id="status"
+                name="status"
+                readonly
+                type="text"
+              />
+            </li>
+          </ul>
+          <ul v-for="(value, key) in response.headers" :key="key">
+            <li>
+              <label :for="key">{{ key }}</label>
+              <input :id="key" :value="value" :name="key" readonly />
+            </li>
+          </ul>
+          <ul v-if="response.body">
+            <li>
+              <div class="flex-wrap">
+                <label for="body">response</label>
+                <div>
+                  <button
+                    class="icon"
+                    @click="copyResponse"
+                    ref="copyResponse"
+                    v-if="response.body"
+                    v-tooltip="'Copy response'"
+                  >
+                    <i class="material-icons">file_copy</i>
+                  </button>
+                  <button
+                    class="icon"
+                    @click="downloadResponse"
+                    ref="downloadResponse"
+                    v-if="response.body"
+                    v-tooltip="'Download file'"
+                  >
+                    <i class="material-icons">get_app</i>
+                  </button>
+                </div>
+              </div>
+              <div id="response-details-wrapper">
+                <ResponseBody
+                  :value="responseBodyText"
+                  :lang="responseBodyType"
+                  :options="{
+                    maxLines: '16',
+                    minLines: '16',
+                    fontSize: '16px',
+                    autoScrollEditorIntoView: true,
+                    readOnly: true,
+                    showPrintMargin: false,
+                    useWorker: false
+                  }"
+                />
+                <iframe
+                  :class="{ hidden: !previewEnabled }"
+                  class="covers-response"
+                  ref="previewFrame"
+                  src="about:blank"
+                ></iframe>
+              </div>
+              <div
+                class="align-right"
+                v-if="response.body && responseType === 'text/html'"
+              >
+                <button class="icon" @click.prevent="togglePreview">
+                  <i class="material-icons" v-if="!previewEnabled">visibility</i>
+                  <i class="material-icons" v-else>visibility_off</i>
+                  <span>{{
+                    previewEnabled ? "Hide Preview" : "Preview HTML"
+                  }}</span>
                 </button>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </pw-section>
       </div>
-      <div slot="body">
-        <ul>
-          <li>
-            <textarea
-              id="import-text"
-              autofocus
-              rows="8"
-              placeholder="Enter cURL"
-            ></textarea>
-          </li>
-        </ul>
-      </div>
-      <div slot="footer">
-        <ul>
-          <li>
-            <button class="icon" @click="handleImport">
-              <i class="material-icons">get_app</i>
-              <span>Import</span>
-            </button>
-          </li>
-        </ul>
-      </div>
-    </pw-modal>
 
-    <pw-modal v-if="!isHidden" @close="isHidden = true">
+      <aside class="sticky-inner inner-right">
+        <section>
+          <input id="history-tab" type="radio" name="side" checked="checked" />
+          <label for="history-tab">History</label>
+          <div class="tab">
+            <history @useHistory="handleUseHistory" ref="historyComponent"></history>
+          </div>
+          <input id="collection-tab" type="radio" name="side" />
+          <label for="collection-tab">Collections</label>
+          <div class="tab">
+            <pw-section class="yellow" label="Collections" ref="collections">
+              <collections />
+            </pw-section>
+          </div>
+        </section>
+      </aside>
+
+      <save-request-as
+        v-bind:show="showRequestModal"
+        v-on:hide-model="hideRequestModal"
+        v-bind:editing-request="editRequest"
+      ></save-request-as>
+
+      <pw-modal v-if="showModal" @close="showModal = false">
+        <div slot="header">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <h3 class="title">Import cURL</h3>
+                <div>
+                  <button class="icon" @click="showModal = false">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div slot="body">
+          <ul>
+            <li>
+              <textarea
+                id="import-text"
+                autofocus
+                rows="8"
+                placeholder="Enter cURL"
+              ></textarea>
+            </li>
+          </ul>
+        </div>
+        <div slot="footer">
+          <ul>
+            <li>
+              <button class="icon" @click="handleImport">
+                <i class="material-icons">get_app</i>
+                <span>Import</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </pw-modal>
+
+      <pw-modal v-if="!isHidden" @close="isHidden = true">
       <div slot="header">
         <ul>
           <li>
@@ -744,6 +754,7 @@
       </div>
       <div slot="footer"></div>
     </pw-modal>
+    </div>
   </div>
 </template>
 <script>

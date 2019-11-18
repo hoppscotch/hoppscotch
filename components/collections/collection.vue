@@ -18,7 +18,6 @@
             <button
               class="icon"
               @click="$emit('add-folder')"
-              v-tooltip="'New Folder'"
               v-close-popover
             >
               <i class="material-icons">create_new_folder</i>
@@ -29,7 +28,6 @@
             <button
               class="icon"
               @click="$emit('edit-collection')"
-              v-tooltip="'Edit collection'"
               v-close-popover
             >
               <i class="material-icons">create</i>
@@ -40,7 +38,6 @@
             <button
               class="icon"
               @click="removeCollection"
-              v-tooltip="'Delete collection'"
               v-close-popover
             >
               <i class="material-icons">delete</i>
@@ -126,7 +123,7 @@ export default {
       this.showChildren = !this.showChildren;
     },
     removeCollection() {
-      if (!confirm("Are you sure you want to remove this collection?")) return;
+      if (!confirm("Are you sure you want to remove this Collection?")) return;
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex
       });

@@ -4,28 +4,20 @@
       <ul>
         <li>
           <label for="url">URL</label>
-          <input 
-            id="url"
-            type="url"
-            v-model="url"
-            @keyup.enter="getSchema()"
-          />
+          <input id="url" type="url" v-model="url" @keyup.enter="getSchema()" />
         </li>
         <li>
           <label for="get" class="hide-on-small-screen">&nbsp;</label>
-          <button
-            id="get"
-            name="get"
-            @click="getSchema"
-          >
+          <button id="get" name="get" @click="getSchema">
             Get Schema
+            <span><i class="material-icons">send</i></span>
           </button>
         </li>
       </ul>
     </pw-section>
     <pw-section class="green" label="Schema" ref="schema">
-      <Editor 
-        :value="schemaString" 
+      <Editor
+        :value="schemaString"
         :lang="'graphqlschema'"
         :options="{
           maxLines: '16',
@@ -41,34 +33,48 @@
   </div>
 </template>
 
-<style>
-</style>
+<style></style>
 
 <script>
-import axios from 'axios';
-import * as gql from 'graphql';
-import AceEditor from '../components/ace-editor';
+import axios from "axios";
+import * as gql from "graphql";
+import AceEditor from "../components/ace-editor";
 
 export default {
   components: {
-    'pw-section': () => import('../components/section'),
+    "pw-section": () => import("../components/section"),
     Editor: AceEditor
   },
   data() {
     return {
       url: "https://rickandmortyapi.com/graphql",
-      schemaString: ''
-    }
+      schemaString: ""
+    };
   },
   methods: {
     getSchema() {
-      axios.post(this.url, {
-        query: gql.getIntrospectionQuery()
-      }).then((res) => {
-        const schema = gql.buildClientSchema(res.data.data);
-        this.schemaString = gql.printSchema(schema, { commentDescriptions: true });
-      });
+      const startTime = Date.now();
+
+      // Start showing the loading bar as soon as possible.
+      // The nuxt axios module will hide it when the request is made.
+      this.$nuxt.$loading.start();
+
+      axios
+        .post(this.url, {
+          query: gql.getIntrospectionQuery()
+        })
+        .then(res => {
+          const schema = gql.buildClientSchema(res.data.data);
+          this.schemaString = gql.printSchema(schema, {
+            commentDescriptions: true
+          });
+          this.$nuxt.$loading.finish();
+          const duration = Date.now() - startTime;
+          this.$toast.info(`Finished in ${duration}ms`, {
+            icon: "done"
+          });
+        });
     }
   }
-}
+};
 </script>

@@ -30,6 +30,36 @@
         }"
       />
     </pw-section>
+    <pw-section class="purple" label="Docs" ref="docs">
+      <section>
+
+        <input v-if="queryFields.length > 0" id="queries-tab" type="radio" name="side" checked="checked" />
+        <label v-if="queryFields.length > 0" for="queries-tab">Queries</label>
+        <div v-if="queryFields.length > 0" class="tab">
+          <div v-for="field in queryFields" :key="field.name">
+            <gql-field :gqlField="field" />
+          </div>
+        </div>
+
+
+        <input v-if="mutationFields.length > 0" id="mutations-tab" type="radio" name="side" checked="checked" />
+        <label v-if="mutationFields.length > 0" for="mutations-tab">Mutations</label>
+        <div v-if="mutationFields.length > 0" class="tab">
+          <div v-for="field in mutationFields" :key="field.name">
+            <gql-field :gqlField="field" />
+          </div>
+        </div>
+
+        <input v-if="subscriptionFields.length > 0" id="subscriptions-tab" type="radio" name="side" checked="checked" />
+        <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">Subscriptions</label>
+        <div v-if="subscriptionFields.length > 0" class="tab">
+          <div v-for="field in subscriptionFields" :key="field.name">
+            <gql-field :gqlField="field" />
+          </div>
+        </div>
+
+      </section>
+    </pw-section>
   </div>
 </template>
 
@@ -43,12 +73,16 @@ import AceEditor from "../components/ace-editor";
 export default {
   components: {
     "pw-section": () => import("../components/section"),
+    "gql-field": () => import("../components/graphql/field"),
     Editor: AceEditor
   },
   data() {
     return {
       url: "https://rickandmortyapi.com/graphql",
-      schemaString: ""
+      schemaString: "",
+      queryFields: [],
+      mutationFields: [],
+      subscriptionFields: []
     };
   },
   methods: {
@@ -69,6 +103,35 @@ export default {
           this.schemaString = gql.printSchema(schema, {
             commentDescriptions: true
           });
+
+          if (schema.getQueryType()) {
+            const fields = schema.getQueryType().getFields();
+            const qFields = [];
+            for (const field in fields) {
+              qFields.push(fields[field]);
+            }
+            this.queryFields = qFields;
+            console.log(this.queryFields);
+          }
+
+          if (schema.getMutationType()) {
+            const fields = schema.getMutationType().getFields();
+            const mFields = [];
+            for (const field in fields) {
+              mFields.push(fields[field]);
+            }
+            this.mutationFields = mFields;
+          }
+
+          if (schema.getSubscriptionType()) {
+            const fields = schema.getSubscriptionType().getFields();
+            const sFields = [];
+            for (const field in fields) {
+              sFields.push(fields[field]);
+            }
+            this.subscriptionFields = sFields;
+          }
+
           this.$nuxt.$loading.finish();
           const duration = Date.now() - startTime;
           this.$toast.info(`Finished in ${duration}ms`, {

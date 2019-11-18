@@ -15,11 +15,7 @@
         </button>
         <template slot="popover">
           <div>
-            <button
-              class="icon"
-              @click="$emit('add-folder')"
-              v-close-popover
-            >
+            <button class="icon" @click="$emit('add-folder')" v-close-popover>
               <i class="material-icons">create_new_folder</i>
               <span>New folder</span>
             </button>
@@ -35,11 +31,7 @@
             </button>
           </div>
           <div>
-            <button
-              class="icon"
-              @click="removeCollection"
-              v-close-popover
-            >
+            <button class="icon" @click="removeCollection" v-close-popover>
               <i class="material-icons">delete</i>
               <span>Delete</span>
             </button>

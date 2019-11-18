@@ -12,21 +12,13 @@
       </button>
       <template slot="popover">
         <div>
-          <button
-            class="icon"
-            @click="$emit('edit-request')"
-            v-close-popover
-          >
+          <button class="icon" @click="$emit('edit-request')" v-close-popover>
             <i class="material-icons">edit</i>
             <span>Edit</span>
           </button>
         </div>
         <div>
-          <button
-            class="icon"
-            @click="removeRequest"
-            v-close-popover
-          >
+          <button class="icon" @click="removeRequest" v-close-popover>
             <i class="material-icons">delete</i>
             <span>Delete</span>
           </button>

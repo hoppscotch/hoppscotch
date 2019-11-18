@@ -54,6 +54,7 @@ export default {
   methods: {
     getSchema() {
       const startTime = Date.now();
+      this.schemaString = "Loading...";
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
@@ -73,6 +74,14 @@ export default {
           this.$toast.info(`Finished in ${duration}ms`, {
             icon: "done"
           });
+        })
+        .catch(error => {
+          this.$nuxt.$loading.finish();
+          this.schemaString = error + ". Check console for details.";
+          this.$toast.error(error + " (F12 for details)", {
+            icon: "error"
+          });
+          console.log('Error', error);
         });
     }
   }

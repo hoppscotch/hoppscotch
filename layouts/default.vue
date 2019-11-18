@@ -111,6 +111,13 @@
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
+              to="/graphql"
+              :class="linkActive('/graphql')"
+              v-tooltip.right="'GraphQL'"
+            >
+              <i class="material-icons">cloud</i>
+            </nuxt-link>
+            <nuxt-link
               to="/settings"
               :class="linkActive('/settings')"
               v-tooltip.right="'Settings'"

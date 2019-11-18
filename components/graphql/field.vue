@@ -23,7 +23,7 @@
 
 .field-desc {
   opacity: 0.7;
-  margin-bottom: 0.5em;
+  margin-top: 0.5em;
 }
 </style>
 

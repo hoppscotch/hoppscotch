@@ -11,44 +11,44 @@
           />
         </li>
         <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'More'">
-              <i class="material-icons">more_vert</i>
+            <button class="tooltip-target icon" v-tooltip="'Sort'">
+              <i class="material-icons">sort</i>
             </button>
           <template slot="popover">
             <div>
               <button class="icon" @click="sort_by_label()" v-close-popover>
-                <i class="material-icons">label</i>
-                <span>Sort by label</span>
+                <i class="material-icons">sort_by_alpha</i>
+                <span>Label</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_time()" v-close-popover>
                 <i class="material-icons">access_time</i>
-                <span>Sort by time</span>
+                <span>Time</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_status_code()" v-close-popover>
                 <i class="material-icons">assistant</i>
-                <span>Sort by status</span>
+                <span>Status</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_url()" v-close-popover>
                 <i class="material-icons">language</i>
-                <span>Sort by url</span>
+                <span>URL</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_path()" v-close-popover>
                 <i class="material-icons">timeline</i>
-                <span>Sort by path</span>
+                <span>Path</span>
               </button>
             </div>
             <div v-if="showMore">
               <button class="icon" @click="sort_by_duration()" v-close-popover>
                 <i class="material-icons">timer</i>
-                <span>Sort by duration</span>
+                <span>Duration</span>
               </button>
             </div>
             <div>
@@ -107,7 +107,7 @@
           </li>
 -->
           <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'More'">
+            <button class="tooltip-target icon" v-tooltip="'Options'">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
@@ -119,8 +119,8 @@
                   aria-label="Edit"
                   v-close-popover
                 >
-                  <i class="material-icons">edit</i>
-                  <span>Use</span>
+                  <i class="material-icons">restore</i>
+                  <span>Restore</span>
                 </button>
               </div>
                <div>
@@ -241,15 +241,17 @@
               class="icon"
               id="confirm-clear-history-button"
               @click="clearHistory"
+               v-tooltip="'Yes'"
             >
-              Yes
+              <i class="material-icons">done</i>
             </button>
             <button
               class="icon"
               id="reject-clear-history-button"
               @click="disableHistoryClearing"
+               v-tooltip="'No'"
             >
-              No
+              <i class="material-icons">close</i>
             </button>
           </div>
         </div>
@@ -264,13 +266,6 @@
 
   [readonly] {
     cursor: default;
-  }
-}
-
-label {
-  &:hover {
-    cursor: pointer;
-    color: var(--fg-color);
   }
 }
 

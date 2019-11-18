@@ -103,7 +103,7 @@ export default {
   },
   data() {
     return {
-      defaultRequestName: "My New Request",
+      defaultRequestName: "My Request",
       requestData: {
         name: undefined,
         collectionIndex: undefined,

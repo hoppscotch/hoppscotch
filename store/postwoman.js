@@ -62,7 +62,7 @@ export const SETTINGS_KEYS = [
 export const state = () => ({
   settings: {},
   collections: [{
-    name: 'My First Collection',
+    name: 'My Collection',
     folders: [],
     requests: [],
   }],

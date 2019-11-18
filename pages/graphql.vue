@@ -58,6 +58,13 @@
           </div>
         </div>
 
+        <input v-if="gqlTypes.length > 0" id="gqltypes-tab" type="radio" name="side" checked="checked" />
+        <label v-if="gqlTypes.length > 0" for="gqltypes-tab">Types</label>
+        <div v-if="gqlTypes.length > 0" class="tab">
+          <div v-for="type in gqlTypes" :key="type.name">
+            <gql-type :gqlType="type" />
+          </div>
+        </div>
       </section>
     </pw-section>
   </div>
@@ -74,6 +81,7 @@ export default {
   components: {
     "pw-section": () => import("../components/section"),
     "gql-field": () => import("../components/graphql/field"),
+    "gql-type": () => import("../components/graphql/type"),
     Editor: AceEditor
   },
   data() {
@@ -82,7 +90,8 @@ export default {
       schemaString: "",
       queryFields: [],
       mutationFields: [],
-      subscriptionFields: []
+      subscriptionFields: [],
+      gqlTypes: []
     };
   },
   methods: {
@@ -131,6 +140,14 @@ export default {
             }
             this.subscriptionFields = sFields;
           }
+
+          const typeMap = schema.getTypeMap();
+          const types = [];
+          for (const type in typeMap) {
+            types.push(typeMap[type]);
+          }
+          this.gqlTypes = types;
+          console.log(this.gqlTypes);
 
           this.$nuxt.$loading.finish();
           const duration = Date.now() - startTime;

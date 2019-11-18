@@ -18,7 +18,6 @@
             <button
               class="icon"
               @click="editFolder"
-              v-tooltip="'Edit folder'"
               v-close-popover
             >
               <i class="material-icons">edit</i>
@@ -29,7 +28,6 @@
             <button
               class="icon"
               @click="removeFolder"
-              v-tooltip="'Delete folder'"
               v-close-popover
             >
               <i class="material-icons">delete</i>

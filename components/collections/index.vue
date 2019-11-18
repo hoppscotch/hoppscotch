@@ -50,7 +50,11 @@ TODO:
         </button>
       </div>
       <div>
-        <button class="icon" @click="displayModalImportExport(true)" v-tooltip="'Import / Export'">
+        <button
+          class="icon"
+          @click="displayModalImportExport(true)"
+          v-tooltip="'Import / Export'"
+        >
           <i class="material-icons">import_export</i>
         </button>
         <a

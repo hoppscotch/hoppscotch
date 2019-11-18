@@ -15,21 +15,13 @@
         </button>
         <template slot="popover">
           <div>
-            <button
-              class="icon"
-              @click="editFolder"
-              v-close-popover
-            >
+            <button class="icon" @click="editFolder" v-close-popover>
               <i class="material-icons">edit</i>
               <span>Edit</span>
             </button>
           </div>
           <div>
-            <button
-              class="icon"
-              @click="removeFolder"
-              v-close-popover
-            >
+            <button class="icon" @click="removeFolder" v-close-popover>
               <i class="material-icons">delete</i>
               <span>Delete</span>
             </button>

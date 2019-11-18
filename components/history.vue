@@ -11,9 +11,9 @@
           />
         </li>
         <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'Sort'">
-              <i class="material-icons">sort</i>
-            </button>
+          <button class="tooltip-target icon" v-tooltip="'Sort'">
+            <i class="material-icons">sort</i>
+          </button>
           <template slot="popover">
             <div>
               <button class="icon" @click="sort_by_label()" v-close-popover>
@@ -28,7 +28,11 @@
               </button>
             </div>
             <div>
-              <button class="icon" @click="sort_by_status_code()" v-close-popover>
+              <button
+                class="icon"
+                @click="sort_by_status_code()"
+                v-close-popover
+              >
                 <i class="material-icons">assistant</i>
                 <span>Status</span>
               </button>
@@ -52,13 +56,10 @@
               </button>
             </div>
             <div>
-              <button
-                class="icon"
-                @click="toggleCollapse()"
-              >
+              <button class="icon" @click="toggleCollapse()">
                 <i class="material-icons" v-if="!showMore">first_page</i>
                 <i class="material-icons" v-else>last_page</i>
-                <span>{{ !showMore ? 'Show more' : 'Hide more' }}</span>
+                <span>{{ !showMore ? "Show more" : "Hide more" }}</span>
               </button>
             </div>
           </template>
@@ -91,7 +92,7 @@
               placeholder="No label"
             />
           </li>
-<!--
+          <!--
           <li>
             <button
               class="icon"
@@ -123,7 +124,7 @@
                   <span>Restore</span>
                 </button>
               </div>
-               <div>
+              <div>
                 <button
                   class="icon"
                   :id="'delete-button#' + index"
@@ -241,7 +242,7 @@
               class="icon"
               id="confirm-clear-history-button"
               @click="clearHistory"
-               v-tooltip="'Yes'"
+              v-tooltip="'Yes'"
             >
               <i class="material-icons">done</i>
             </button>
@@ -249,7 +250,7 @@
               class="icon"
               id="reject-clear-history-button"
               @click="disableHistoryClearing"
-               v-tooltip="'No'"
+              v-tooltip="'No'"
             >
               <i class="material-icons">close</i>
             </button>
@@ -300,7 +301,7 @@ ol li {
     position: absolute;
     top: 10px;
     right: 8px;
-    font-family: 'Roboto Mono', monospace;
+    font-family: "Roboto Mono", monospace;
     background-color: var(--bg-color);
     padding: 2px 8px;
     border-radius: 8px;

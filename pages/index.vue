@@ -125,7 +125,8 @@
                 <div class="flex-wrap">
                   <span>
                     <pw-toggle :on="rawInput" @change="rawInput = $event"
-                      >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
+                      >Raw Input
+                      {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
                     >
                   </span>
                   <div>
@@ -247,7 +248,9 @@
                 id="code"
                 v-on:click="isHidden = !isHidden"
                 :disabled="!isValidURL"
-                v-tooltip.bottom="{ content: isHidden ? 'Show Code' : 'Hide Code' }"
+                v-tooltip.bottom="{
+                  content: isHidden ? 'Show Code' : 'Hide Code'
+                }"
               >
                 <i class="material-icons">flash_on</i>
               </button>
@@ -314,7 +317,11 @@
           <div class="tab">
             <br />
 
-            <pw-section class="cyan" label="Authentication" ref="authentication">
+            <pw-section
+              class="cyan"
+              label="Authentication"
+              ref="authentication"
+            >
               <ul>
                 <li>
                   <div class="flex-wrap">
@@ -360,10 +367,14 @@
                       ref="switchVisibility"
                       @click="switchVisibility"
                     >
-                      <i class="material-icons" v-if="passwordFieldType === 'text'"
+                      <i
+                        class="material-icons"
+                        v-if="passwordFieldType === 'text'"
                         >visibility</i
                       >
-                      <i class="material-icons" v-if="passwordFieldType !== 'text'"
+                      <i
+                        class="material-icons"
+                        v-if="passwordFieldType !== 'text'"
                         >visibility_off</i
                       >
                     </button>
@@ -554,7 +565,12 @@
 
         <br />
 
-        <pw-section class="purple" id="response" label="Response" ref="response">
+        <pw-section
+          class="purple"
+          id="response"
+          label="Response"
+          ref="response"
+        >
           <ul>
             <li>
               <label for="status">status</label>
@@ -626,7 +642,9 @@
                 v-if="response.body && responseType === 'text/html'"
               >
                 <button class="icon" @click.prevent="togglePreview">
-                  <i class="material-icons" v-if="!previewEnabled">visibility</i>
+                  <i class="material-icons" v-if="!previewEnabled"
+                    >visibility</i
+                  >
                   <i class="material-icons" v-else>visibility_off</i>
                   <span>{{
                     previewEnabled ? "Hide Preview" : "Preview HTML"
@@ -643,7 +661,10 @@
           <input id="history-tab" type="radio" name="side" checked="checked" />
           <label for="history-tab">History</label>
           <div class="tab">
-            <history @useHistory="handleUseHistory" ref="historyComponent"></history>
+            <history
+              @useHistory="handleUseHistory"
+              ref="historyComponent"
+            ></history>
           </div>
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">Collections</label>
@@ -701,59 +722,59 @@
       </pw-modal>
 
       <pw-modal v-if="!isHidden" @close="isHidden = true">
-      <div slot="header">
-        <ul>
-          <li>
-            <div class="flex-wrap">
-              <h3 class="title">Generate code</h3>
-              <div>
-                <button class="icon" @click="isHidden = true">
-                  <i class="material-icons">close</i>
-                </button>
+        <div slot="header">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <h3 class="title">Generate code</h3>
+                <div>
+                  <button class="icon" @click="isHidden = true">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
               </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div slot="body">
-        <ul>
-          <li>
-            <label for="requestType">Request Type</label>
-            <select id="requestType" v-model="requestType">
-              <option>JavaScript XHR</option>
-              <option>Fetch</option>
-              <option>cURL</option>
-            </select>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <div class="flex-wrap">
-              <label for="generatedCode">Generated Code</label>
-              <div>
-                <button
-                  class="icon"
-                  @click="copyRequestCode"
-                  id="copyRequestCode"
-                  ref="copyRequestCode"
-                  v-tooltip="'Copy code'"
-                >
-                  <i class="material-icons">file_copy</i>
-                </button>
+            </li>
+          </ul>
+        </div>
+        <div slot="body">
+          <ul>
+            <li>
+              <label for="requestType">Request Type</label>
+              <select id="requestType" v-model="requestType">
+                <option>JavaScript XHR</option>
+                <option>Fetch</option>
+                <option>cURL</option>
+              </select>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="generatedCode">Generated Code</label>
+                <div>
+                  <button
+                    class="icon"
+                    @click="copyRequestCode"
+                    id="copyRequestCode"
+                    ref="copyRequestCode"
+                    v-tooltip="'Copy code'"
+                  >
+                    <i class="material-icons">file_copy</i>
+                  </button>
+                </div>
               </div>
-            </div>
-            <textarea
-              id="generatedCode"
-              ref="generatedCode"
-              name="generatedCode"
-              rows="8"
-              v-model="requestCode"
-            ></textarea>
-          </li>
-        </ul>
-      </div>
-      <div slot="footer"></div>
-    </pw-modal>
+              <textarea
+                id="generatedCode"
+                ref="generatedCode"
+                name="generatedCode"
+                rows="8"
+                v-model="requestCode"
+              ></textarea>
+            </li>
+          </ul>
+        </div>
+        <div slot="footer"></div>
+      </pw-modal>
     </div>
   </div>
 </template>

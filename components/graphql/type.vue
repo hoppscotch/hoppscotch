@@ -41,7 +41,7 @@ export default {
     "gql-field": () => import("./field")
   },
   props: {
-    gqlType: Object
+    gqlType: {}
   }
 };
 </script>

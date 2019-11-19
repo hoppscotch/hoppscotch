@@ -22,6 +22,9 @@
             </li>
           </ul>
         </pw-section>
+
+        <br />
+
         <pw-section class="green" label="Schema" ref="schema">
           <Editor
             :value="schemaString"

@@ -4,6 +4,10 @@
     <div class="field-desc" v-if="gqlField.description">
       {{ gqlField.description }}
     </div>
+
+    <div class="field-deprecated" v-if="gqlField.isDeprecated">
+      DEPRECATED
+    </div>
   </div>
 </template>
 
@@ -18,6 +22,18 @@
   margin-bottom: 0.5em;
 }
 .field-title {
+  font-weight: bold;
+}
+
+.field-deprecated {
+  background-color: yellow;
+  color: black;
+  display: inline-block;
+  padding: 0.2em;
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  margin-top: 1em;
+  border-radius: 5px;
   font-weight: bold;
 }
 

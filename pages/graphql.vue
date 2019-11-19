@@ -6,7 +6,12 @@
           <ul>
             <li>
               <label for="url">URL</label>
-              <input id="url" type="url" v-model="url" @keyup.enter="getSchema()" />
+              <input
+                id="url"
+                type="url"
+                v-model="url"
+                @keyup.enter="getSchema()"
+              />
             </li>
             <li>
               <label for="get" class="hide-on-small-screen">&nbsp;</label>
@@ -43,7 +48,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="queryFields.length > 0" for="queries-tab">Queries</label>
+            <label v-if="queryFields.length > 0" for="queries-tab"
+              >Queries</label
+            >
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -102,7 +109,12 @@
   </div>
 </template>
 
-<style></style>
+<style scoped lang="scss">
+.tab {
+  max-height: calc(100vh - 172px);
+  overflow: auto;
+}
+</style>
 
 <script>
 import axios from "axios";

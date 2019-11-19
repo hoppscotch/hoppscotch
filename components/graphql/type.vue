@@ -1,8 +1,8 @@
 <template>
   <div class="type-box">
-    <div class="type-title">{{gqlType.name}}</div>
+    <div class="type-title">{{ gqlType.name }}</div>
     <div class="type-desc" v-if="gqlType.description">
-      {{gqlType.description}}
+      {{ gqlType.description }}
     </div>
 
     <div v-if="gqlType.getFields">
@@ -43,5 +43,5 @@ export default {
   props: {
     gqlType: Object
   }
-}
+};
 </script>

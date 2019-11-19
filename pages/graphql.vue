@@ -143,8 +143,15 @@ export default {
 
           const typeMap = schema.getTypeMap();
           const types = [];
+
+          const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : '';
+          const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : '';
+          const subscriptionTypeName = schema.getSubscriptionType() ? schema.getSubscriptionType().name : '';
+
           for (const type in typeMap) {
-            types.push(typeMap[type]);
+            if (!typeMap[type].name.startsWith("__") && !(([queryTypeName, mutationTypeName, subscriptionTypeName]).includes(typeMap[type].name)) && typeMap[type] instanceof gql.GraphQLObjectType) {
+              types.push(typeMap[type]);
+            }
           }
           this.gqlTypes = types;
           console.log(this.gqlTypes);

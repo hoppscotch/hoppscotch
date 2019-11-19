@@ -167,7 +167,6 @@ export default {
               qFields.push(fields[field]);
             }
             this.queryFields = qFields;
-            console.log(this.queryFields);
           }
 
           if (schema.getMutationType()) {
@@ -213,7 +212,6 @@ export default {
             }
           }
           this.gqlTypes = types;
-          console.log(this.gqlTypes);
 
           this.$nuxt.$loading.finish();
           const duration = Date.now() - startTime;

@@ -140,7 +140,7 @@ export default {
     };
   },
   methods: {
-    getSchema() {
+    async getSchema() {
       const startTime = Date.now();
       this.schemaString = "Loading...";
 
@@ -148,83 +148,82 @@ export default {
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start();
 
-      axios
-        .post(this.url, {
-          query: gql.getIntrospectionQuery()
+      try {
+        const res = await axios.post(this.url, {
+            query: gql.getIntrospectionQuery()
         })
-        .then(res => {
-          const schema = gql.buildClientSchema(res.data.data);
-          this.schemaString = gql.printSchema(schema, {
-            commentDescriptions: true
-          });
 
-          if (schema.getQueryType()) {
-            const fields = schema.getQueryType().getFields();
-            const qFields = [];
-            for (const field in fields) {
-              qFields.push(fields[field]);
-            }
-            this.queryFields = qFields;
+        const schema = gql.buildClientSchema(res.data.data);
+        this.schemaString = gql.printSchema(schema, {
+          commentDescriptions: true
+        });
+
+        if (schema.getQueryType()) {
+          const fields = schema.getQueryType().getFields();
+          const qFields = [];
+          for (const field in fields) {
+            qFields.push(fields[field]);
           }
+          this.queryFields = qFields;
+        }
 
-          if (schema.getMutationType()) {
-            const fields = schema.getMutationType().getFields();
-            const mFields = [];
-            for (const field in fields) {
-              mFields.push(fields[field]);
-            }
-            this.mutationFields = mFields;
+        if (schema.getMutationType()) {
+          const fields = schema.getMutationType().getFields();
+          const mFields = [];
+          for (const field in fields) {
+            mFields.push(fields[field]);
           }
+          this.mutationFields = mFields;
+        }
 
-          if (schema.getSubscriptionType()) {
-            const fields = schema.getSubscriptionType().getFields();
-            const sFields = [];
-            for (const field in fields) {
-              sFields.push(fields[field]);
-            }
-            this.subscriptionFields = sFields;
+        if (schema.getSubscriptionType()) {
+          const fields = schema.getSubscriptionType().getFields();
+          const sFields = [];
+          for (const field in fields) {
+            sFields.push(fields[field]);
           }
+          this.subscriptionFields = sFields;
+        }
 
-          const typeMap = schema.getTypeMap();
-          const types = [];
+        const typeMap = schema.getTypeMap();
+        const types = [];
 
-          const queryTypeName = schema.getQueryType()
-            ? schema.getQueryType().name
-            : "";
-          const mutationTypeName = schema.getMutationType()
-            ? schema.getMutationType().name
-            : "";
-          const subscriptionTypeName = schema.getSubscriptionType()
-            ? schema.getSubscriptionType().name
-            : "";
+        const queryTypeName = schema.getQueryType()
+          ? schema.getQueryType().name
+          : "";
+        const mutationTypeName = schema.getMutationType()
+          ? schema.getMutationType().name
+          : "";
+        const subscriptionTypeName = schema.getSubscriptionType()
+          ? schema.getSubscriptionType().name
+          : "";
 
-          for (const type in typeMap) {
-            if (
-              !typeMap[type].name.startsWith("__") &&
-              ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(
-                typeMap[type].name
-              ) &&
-              typeMap[type] instanceof gql.GraphQLObjectType
-            ) {
-              types.push(typeMap[type]);
-            }
+        for (const type in typeMap) {
+          if (
+            !typeMap[type].name.startsWith("__") &&
+            ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(
+              typeMap[type].name
+            ) &&
+            typeMap[type] instanceof gql.GraphQLObjectType
+          ) {
+            types.push(typeMap[type]);
           }
-          this.gqlTypes = types;
+        }
+        this.gqlTypes = types;
 
-          this.$nuxt.$loading.finish();
-          const duration = Date.now() - startTime;
-          this.$toast.info(`Finished in ${duration}ms`, {
-            icon: "done"
-          });
-        })
-        .catch(error => {
+        this.$nuxt.$loading.finish();
+        const duration = Date.now() - startTime;
+        this.$toast.info(`Finished in ${duration}ms`, {
+          icon: "done"
+        });
+      } catch(error) {
           this.$nuxt.$loading.finish();
           this.schemaString = error + ". Check console for details.";
           this.$toast.error(error + " (F12 for details)", {
             icon: "error"
           });
           console.log("Error", error);
-        });
+        }
     }
   }
 };

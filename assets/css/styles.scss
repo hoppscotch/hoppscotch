@@ -724,6 +724,7 @@ input[type="radio"] + label {
 
 input[type="radio"]:checked + label {
   border-color: var(--fg-color);
+  color: var(--fg-color);
 }
 
 input[type="radio"]:checked + label + .tab {

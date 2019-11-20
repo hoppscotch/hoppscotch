@@ -108,6 +108,13 @@
               :class="linkActive('/websocket')"
               v-tooltip.right="'WebSocket'"
             >
+              <i class="material-icons">settings_input_hdmi</i>
+            </nuxt-link>
+            <nuxt-link
+              to="/graphql"
+              :class="linkActive('/graphql')"
+              v-tooltip.right="'GraphQL'"
+            >
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
@@ -149,7 +156,23 @@
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Response'">
+                  <a href="#response" v-tooltip.right="'Communication'">
+                    <i class="material-icons">cloud_download</i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div v-else-if="['/graphql'].includes($route.path)">
+            <nav class="secondary-nav">
+              <ul>
+                <li>
+                  <a href="#endpoint" v-tooltip.right="'Endpoint'">
+                    <i class="material-icons">cloud_upload</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#schema" v-tooltip.right="'Schema'">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>

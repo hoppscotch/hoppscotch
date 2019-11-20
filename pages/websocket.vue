@@ -30,8 +30,6 @@
       </ul>
     </pw-section>
 
-    <br />
-
     <pw-section
       class="purple"
       label="Communication"

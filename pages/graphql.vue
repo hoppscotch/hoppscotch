@@ -216,7 +216,7 @@ export default {
         this.$toast.info(`Finished in ${duration}ms`, {
           icon: "done"
         });
-        } catch(err) {
+      } catch(error) {
           this.$nuxt.$loading.finish();
           this.schemaString = error + ". Check console for details.";
           this.$toast.error(error + " (F12 for details)", {

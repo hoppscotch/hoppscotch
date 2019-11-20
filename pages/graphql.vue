@@ -154,8 +154,8 @@ export default {
         })
 
         const schema = gql.buildClientSchema(res.data.data);
-          this.schemaString = gql.printSchema(schema, {
-            commentDescriptions: true
+        this.schemaString = gql.printSchema(schema, {
+          commentDescriptions: true
         });
 
         if (schema.getQueryType()) {

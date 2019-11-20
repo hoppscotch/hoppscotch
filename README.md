@@ -87,9 +87,14 @@ _Customized themes are also synced with local session storage_
  - Import cURL
  - Label requests
 
-🔌 **Web Socket**: Establish full-duplex communication channels over a single TCP connection.
+🔌 **WebSocket**: Establish full-duplex communication channels over a single TCP connection.
 
- -  Send and receive data
+ - Send and receive data
+
+🌍 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
+
+ - Set endpoint and get schemas
+ - Multi-column docs
 
 🔐 **Authentication**: Allows to identify the end user.
 
@@ -152,13 +157,11 @@ _Collections are synced with local session storage_
 
 _Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
 
-📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
+📜 **Pre-Request Scripts**: Snippets of code associated with a request that are executed before the request is sent.
 
 **Use-cases:**
  - Including the timestamp in the request headers
  - Sending a random alphanumeric string in the URL parameters
-
-_Pre-Request Scripts is an experimental feature and is in Public Beta testing_
 
 _Requests with Pre-Request Scripts are indicated in History entries_
 

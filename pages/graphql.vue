@@ -37,6 +37,13 @@
               useWorker: false
             }"
           />
+          <button
+            class="icon"
+            @click="copySchema"
+            v-tooltip="'Copy Schema'"
+          >
+            <i class="material-icons">file_copy</i>
+          </button>
         </pw-section>
       </div>
       <aside class="sticky-inner inner-right">
@@ -140,6 +147,19 @@ export default {
     };
   },
   methods: {
+
+    copySchema() {
+      const aux = document.createElement("textarea");
+      aux.innerText = this.schemaString;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
+      this.$toast.success("Copied to clipboard", {
+        icon: "done"
+      });
+    },
+
     async getSchema() {
       const startTime = Date.now();
       this.schemaString = "Loading...";

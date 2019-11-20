@@ -152,37 +152,38 @@ export default {
         const res = await axios.post(this.url, {
             query: gql.getIntrospectionQuery()
         })
-          const schema = gql.buildClientSchema(res.data.data);
+
+        const schema = gql.buildClientSchema(res.data.data);
           this.schemaString = gql.printSchema(schema, {
             commentDescriptions: true
-          });
+        });
 
-          if (schema.getQueryType()) {
-            const fields = schema.getQueryType().getFields();
-            const qFields = [];
-            for (const field in fields) {
-              qFields.push(fields[field]);
-            }
-            this.queryFields = qFields;
+        if (schema.getQueryType()) {
+          const fields = schema.getQueryType().getFields();
+          const qFields = [];
+          for (const field in fields) {
+            qFields.push(fields[field]);
           }
+          this.queryFields = qFields;
+        }
 
-          if (schema.getMutationType()) {
-            const fields = schema.getMutationType().getFields();
-            const mFields = [];
-            for (const field in fields) {
-              mFields.push(fields[field]);
-            }
-            this.mutationFields = mFields;
+        if (schema.getMutationType()) {
+          const fields = schema.getMutationType().getFields();
+          const mFields = [];
+          for (const field in fields) {
+            mFields.push(fields[field]);
           }
+          this.mutationFields = mFields;
+        }
 
-          if (schema.getSubscriptionType()) {
-            const fields = schema.getSubscriptionType().getFields();
-            const sFields = [];
-            for (const field in fields) {
-              sFields.push(fields[field]);
-            }
-            this.subscriptionFields = sFields;
+        if (schema.getSubscriptionType()) {
+          const fields = schema.getSubscriptionType().getFields();
+          const sFields = [];
+          for (const field in fields) {
+            sFields.push(fields[field]);
           }
+          this.subscriptionFields = sFields;
+        }
 
           const typeMap = schema.getTypeMap();
           const types = [];

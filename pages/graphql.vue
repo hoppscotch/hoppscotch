@@ -140,7 +140,7 @@ export default {
     };
   },
   methods: {
-    getSchema() {
+    async getSchema() {
       const startTime = Date.now();
       this.schemaString = "Loading...";
 
@@ -223,7 +223,7 @@ export default {
             icon: "error"
           });
           console.log("Error", error);
-        });
+        }
     }
   }
 };

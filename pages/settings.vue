@@ -56,8 +56,6 @@
       </ul>
     </pw-section>
 
-    <br />
-
     <pw-section class="blue" label="Proxy" ref="proxy">
       <ul>
         <li>

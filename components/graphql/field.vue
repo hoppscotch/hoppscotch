@@ -13,33 +13,27 @@
 
 <style>
 .field-box {
-  padding: 1em;
-  border-radius: 5px;
-  border-style: solid;
-  border-width: 0.01em;
-  border-color: var(--fg-color);
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  padding: 16px;
+  margin: 4px 0;
 }
+
 .field-title {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .field-deprecated {
   background-color: yellow;
   color: black;
   display: inline-block;
-  padding: 0.2em;
-  padding-left: 0.4em;
-  padding-right: 0.4em;
-  margin-top: 1em;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 4px 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+  font-weight: 700;
 }
 
 .field-desc {
-  opacity: 0.7;
-  margin-top: 0.5em;
+  color: var(--fg-light-color);
+  margin-top: 4px;
 }
 </style>
 

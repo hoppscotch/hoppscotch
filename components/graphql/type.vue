@@ -16,22 +16,17 @@
 
 <style>
 .type-box {
-  padding: 1em;
-  border-radius: 5px;
-  border-style: solid;
-  border-width: 0.01em;
-  border-color: var(--fg-color);
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  padding: 16px;
+  margin: 4px 0;
 }
 
 .type-desc {
-  opacity: 0.7;
-  margin-top: 0.5em;
+  color: var(--fg-light-color);
+  margin-top: 4px;
 }
 
 .type-title {
-  font-weight: bold;
+  font-weight: 700;
 }
 </style>
 

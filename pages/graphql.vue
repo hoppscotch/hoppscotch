@@ -209,13 +209,13 @@ export default {
             types.push(typeMap[type]);
           }
         }
-          this.gqlTypes = types;
+        this.gqlTypes = types;
 
-          this.$nuxt.$loading.finish();
-          const duration = Date.now() - startTime;
-          this.$toast.info(`Finished in ${duration}ms`, {
-            icon: "done"
-          });
+        this.$nuxt.$loading.finish();
+        const duration = Date.now() - startTime;
+        this.$toast.info(`Finished in ${duration}ms`, {
+          icon: "done"
+        });
         } catch(err) {
           this.$nuxt.$loading.finish();
           this.schemaString = error + ". Check console for details.";

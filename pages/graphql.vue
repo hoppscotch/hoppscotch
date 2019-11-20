@@ -148,11 +148,10 @@ export default {
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start();
 
-      axios
-        .post(this.url, {
-          query: gql.getIntrospectionQuery()
+      try {
+        const res = await axios.post(this.url, {
+            query: gql.getIntrospectionQuery()
         })
-        .then(res => {
           const schema = gql.buildClientSchema(res.data.data);
           this.schemaString = gql.printSchema(schema, {
             commentDescriptions: true
@@ -216,8 +215,7 @@ export default {
           this.$toast.info(`Finished in ${duration}ms`, {
             icon: "done"
           });
-        })
-        .catch(error => {
+        } catch(err) {
           this.$nuxt.$loading.finish();
           this.schemaString = error + ". Check console for details.";
           this.$toast.error(error + " (F12 for details)", {

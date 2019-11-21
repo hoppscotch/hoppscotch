@@ -175,11 +175,36 @@ export default {
       this.$nuxt.$loading.start();
 
       try {
-        const res = await axios.post(this.url, {
+
+        const query = JSON.stringify({
           query: gql.getIntrospectionQuery()
         });
 
-        const schema = gql.buildClientSchema(res.data.data);
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            "content-type": "application/json"
+          },
+          data: query
+        }
+
+        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? {
+            method: "post",
+            url: `https://postwoman.apollotv.xyz/`,
+            data: reqOptions
+          }
+          : reqOptions;
+
+
+        const res = await axios(reqConfig);
+
+        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? res.data
+          : res;
+
+        const schema = gql.buildClientSchema(data.data.data);
         this.schemaString = gql.printSchema(schema, {
           commentDescriptions: true
         });

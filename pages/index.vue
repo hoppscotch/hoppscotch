@@ -590,6 +590,20 @@
                 <div>
                   <button
                     class="icon"
+                    @click="ToggleExpandResponse"
+                    ref="ToggleExpandResponse"
+                    v-if="response.body"
+                    v-tooltip="{
+                      content: !expandResponse
+                        ? 'Expand response'
+                        : 'Collapse response'
+                    }"
+                  >
+                    <i class="material-icons" v-if="!expandResponse">unfold_more</i>
+                    <i class="material-icons" v-else>unfold_less</i>
+                  </button>
+                  <button
+                    class="icon"
                     @click="copyResponse"
                     ref="copyResponse"
                     v-if="response.body"
@@ -613,7 +627,7 @@
                   :value="responseBodyText"
                   :lang="responseBodyType"
                   :options="{
-                    maxLines: '16',
+                    maxLines: responseBodyMaxLines,
                     minLines: '16',
                     fontSize: '16px',
                     autoScrollEditorIntoView: true,
@@ -861,6 +875,7 @@ export default {
       },
       previewEnabled: false,
       paramsWatchEnabled: true,
+      expandResponse: false,
 
       /**
        * These are content types that can be automatically
@@ -887,7 +902,8 @@ export default {
 
       urlExcludes: {},
       responseBodyText: "",
-      responseBodyType: "text"
+      responseBodyType: "text",
+      responseBodyMaxLines: 16
     };
   },
   watch: {
@@ -1685,6 +1701,10 @@ export default {
         () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
         1000
       );
+    },
+    ToggleExpandResponse() {
+      this.expandResponse = !this.expandResponse;
+      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton;

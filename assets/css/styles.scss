@@ -46,7 +46,7 @@ body {
   background-color: var(--bg-color);
   color: var(--fg-color);
   font-weight: 500;
-  font-size: 16px;
+  font-size: 14px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
@@ -73,7 +73,6 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
-  font-weight: 700;
 }
 
 header,
@@ -152,7 +151,7 @@ footer {
   display: flex;
   width: 10%;
   order: 3;
-  // comment this to display
+  // comment below this to display
   display: none;
 }
 
@@ -254,6 +253,7 @@ h3 {
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 14px;
+    font-weight: 500;
   }
 
   .tooltip-arrow {
@@ -366,16 +366,15 @@ button {
   align-items: center;
   justify-content: center;
   margin: 4px;
-  padding: 0 16px;
+  padding: 6px 16px;
   border-radius: 20px;
   background-color: var(--ac-color);
   color: var(--act-color);
-  font-weight: 700;
   font-size: 16px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
+  font-weight: 700;
   transition: all 0.2s ease-in-out;
   fill: var(--act-color);
-  height: 40px;
   cursor: pointer;
 
   span {
@@ -485,11 +484,12 @@ pre {
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
   font-size: 16px;
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 400;
+  line-height: 1;
   transition: all 0.2s ease-in-out;
   user-select: text;
   width: calc(100% - 8px);
-  min-height: 40px;
   resize: vertical;
   text-overflow: ellipsis;
 
@@ -506,7 +506,8 @@ pre {
 }
 
 pre.ace_editor {
-  font-family: Roboto Mono, monospace;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 400;
   z-index: 0;
 }
 
@@ -517,7 +518,8 @@ code {
 
 select,
 option {
-  height: 40px;
+  height: 37px;
+  line-height: 37px;
   cursor: pointer;
 }
 
@@ -649,7 +651,8 @@ ol li {
 }
 
 .mono {
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Roboto Mono", monospace;
+  font-weight: 400;
 }
 
 #response-details-wrapper {
@@ -660,6 +663,7 @@ ol li {
   textarea {
     margin: 0;
     width: 100%;
+    line-height: 1;
   }
 
   .covers-response {
@@ -758,8 +762,12 @@ input[type="radio"]:checked + label + .tab {
 
 .inner-right {
   display: flex;
-  width: 25%;
+  width: 30%;
   order: 2;
+}
+
+.bg-color {
+  background-color: var(--bg-color);
 }
 
 @media (max-width: $responsiveWidth) {

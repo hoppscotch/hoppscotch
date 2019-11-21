@@ -55,7 +55,7 @@
       width: 100%;
       display: block;
       padding: 8px 16px;
-      font-size: 18px;
+      font-size: 16px;
       font-family: "Roboto Mono", monospace;
 
       &:last-child {

@@ -13,13 +13,15 @@
                 @keyup.enter="getSchema()"
               />
             </li>
-            <li>
-              <label for="get" class="hide-on-small-screen">&nbsp;</label>
-              <button id="get" name="get" @click="getSchema">
-                Get Schema
-                <span><i class="material-icons">send</i></span>
-              </button>
-            </li>
+            <div>
+              <li>
+                <label for="get" class="hide-on-small-screen">&nbsp;</label>
+                <button id="get" name="get" @click="getSchema">
+                  Get Schema
+                  <span><i class="material-icons">send</i></span>
+                </button>
+              </li>
+            </div>
           </ul>
         </pw-section>
 

@@ -12,21 +12,23 @@
             @keyup.enter="urlValid ? toggleConnection() : null"
           />
         </li>
-        <li>
-          <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-          <button
-            :disabled="!urlValid"
-            id="connect"
-            name="connect"
-            @click="toggleConnection"
-          >
-            {{ toggleConnectionVerb }}
-            <span>
-              <i class="material-icons" v-if="!connectionState">sync</i>
-              <i class="material-icons" v-if="connectionState">sync_disabled</i>
-            </span>
-          </button>
-        </li>
+        <div>
+          <li>
+            <label for="connect" class="hide-on-small-screen">&nbsp;</label>
+            <button
+              :disabled="!urlValid"
+              id="connect"
+              name="connect"
+              @click="toggleConnection"
+            >
+              {{ toggleConnectionVerb }}
+              <span>
+                <i class="material-icons" v-if="!connectionState">sync</i>
+                <i class="material-icons" v-if="connectionState">sync_disabled</i>
+              </span>
+            </button>
+          </li>
+        </div>
       </ul>
     </pw-section>
 
@@ -65,20 +67,22 @@
             @keyup.enter="connectionState ? sendMessage() : null"
           />
         </li>
-        <li>
-          <label for="send" class="hide-on-small-screen">&nbsp;</label>
-          <button
-            id="send"
-            name="send"
-            :disabled="!connectionState"
-            @click="sendMessage"
-          >
-            Send
-            <span>
-              <i class="material-icons">send</i>
-            </span>
-          </button>
-        </li>
+        <div>
+          <li>
+            <label for="send" class="hide-on-small-screen">&nbsp;</label>
+            <button
+              id="send"
+              name="send"
+              :disabled="!connectionState"
+              @click="sendMessage"
+            >
+              Send
+              <span>
+                <i class="material-icons">send</i>
+              </span>
+            </button>
+          </li>
+        </div>
       </ul>
     </pw-section>
   </div>
@@ -96,8 +100,9 @@ div.log {
 
   &,
   span {
-    font-size: 18px;
+    font-size: 16px;
     font-family: "Roboto Mono", monospace;
+    font-weight: 400;
   }
 
   span {

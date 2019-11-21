@@ -88,21 +88,23 @@
                 <option value="Users"></option>
               </datalist>
             </li>
-            <li>
-              <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button
-                :disabled="!isValidURL"
-                @click="sendRequest"
-                id="send"
-                ref="sendButton"
-              >
-                Send
-                <span id="hidden-message">Again</span>
-                <span>
-                  <i class="material-icons">send</i>
-                </span>
-              </button>
-            </li>
+            <div>
+              <li>
+                <label class="hide-on-small-screen" for="send">&nbsp;</label>
+                <button
+                  :disabled="!isValidURL"
+                  @click="sendRequest"
+                  id="send"
+                  ref="sendButton"
+                >
+                  Send
+                  <span id="hidden-message">Again</span>
+                  <span>
+                    <i class="material-icons">send</i>
+                  </span>
+                </button>
+              </li>
+            </div>
           </ul>
           <div
             class="blue"

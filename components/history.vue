@@ -90,6 +90,7 @@
               readonly
               :value="entry.label"
               placeholder="No label"
+              class="bg-color"
             />
           </li>
           <!--
@@ -263,7 +264,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 284px);
+  max-height: calc(100vh - 265px);
 
   [readonly] {
     cursor: default;
@@ -300,10 +301,10 @@ ol li {
   span {
     position: absolute;
     top: 10px;
-    right: 8px;
+    right: 10px;
     font-family: "Roboto Mono", monospace;
     background-color: var(--bg-color);
-    padding: 2px 8px;
+    padding: 2px 6px;
     border-radius: 8px;
   }
 }

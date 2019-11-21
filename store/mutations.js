@@ -3,6 +3,10 @@ export default {
     state.request[object.attribute] = object.value
   },
 
+  setGQLState(state, object) {
+    state.gql[object.attribute] = object.value;
+  },
+
   addHeaders(state, value) {
     state.request.headers.push(value);
   },

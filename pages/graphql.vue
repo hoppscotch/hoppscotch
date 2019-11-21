@@ -136,13 +136,22 @@ export default {
   },
   data() {
     return {
-      url: "https://rickandmortyapi.com/graphql",
       schemaString: "",
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: []
     };
+  },
+  computed: {
+    url: {
+      get() {
+        return this.$store.state.gql.url;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "url" });
+      }
+    }
   },
   methods: {
     copySchema() {

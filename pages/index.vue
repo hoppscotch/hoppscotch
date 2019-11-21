@@ -315,7 +315,6 @@
           <input id="tab-one" type="radio" name="options" checked="checked" />
           <label for="tab-one">Authentication</label>
           <div class="tab">
-
             <pw-section
               class="cyan"
               label="Authentication"
@@ -401,7 +400,6 @@
           <input id="tab-two" type="radio" name="options" />
           <label for="tab-two">Headers</label>
           <div class="tab">
-
             <pw-section class="orange" label="Headers" ref="headers">
               <ul>
                 <li>
@@ -482,7 +480,6 @@
           <input id="tab-three" type="radio" name="options" />
           <label for="tab-three">Parameters</label>
           <div class="tab">
-
             <pw-section class="pink" label="Parameters" ref="parameters">
               <ul>
                 <li>

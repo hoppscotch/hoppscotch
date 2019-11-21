@@ -24,7 +24,9 @@
               {{ toggleConnectionVerb }}
               <span>
                 <i class="material-icons" v-if="!connectionState">sync</i>
-                <i class="material-icons" v-if="connectionState">sync_disabled</i>
+                <i class="material-icons" v-if="connectionState"
+                  >sync_disabled</i
+                >
               </span>
             </button>
           </li>
@@ -47,9 +49,7 @@
                 v-for="(logEntry, index) in communication.log"
                 :style="{ color: logEntry.color }"
                 :key="index"
-                >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }}
-                {{ logEntry.payload }}</span
-              >
+              >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
             </span>
             <span v-else>(waiting for connection)</span>
           </div>

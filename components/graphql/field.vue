@@ -18,10 +18,6 @@
   border-bottom: 1px solid var(--brd-color);
 }
 
-.field-title {
-  font-weight: 700;
-}
-
 .field-deprecated {
   background-color: yellow;
   color: black;

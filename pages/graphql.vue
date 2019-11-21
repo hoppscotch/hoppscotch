@@ -39,11 +39,7 @@
               useWorker: false
             }"
           />
-          <button
-            class="icon"
-            @click="copySchema"
-            v-tooltip="'Copy Schema'"
-          >
+          <button class="icon" @click="copySchema" v-tooltip="'Copy Schema'">
             <i class="material-icons">file_copy</i>
           </button>
         </pw-section>
@@ -149,7 +145,6 @@ export default {
     };
   },
   methods: {
-
     copySchema() {
       const aux = document.createElement("textarea");
       aux.innerText = this.schemaString;
@@ -172,8 +167,8 @@ export default {
 
       try {
         const res = await axios.post(this.url, {
-            query: gql.getIntrospectionQuery()
-        })
+          query: gql.getIntrospectionQuery()
+        });
 
         const schema = gql.buildClientSchema(res.data.data);
         this.schemaString = gql.printSchema(schema, {
@@ -238,14 +233,14 @@ export default {
         this.$toast.info(`Finished in ${duration}ms`, {
           icon: "done"
         });
-      } catch(error) {
-          this.$nuxt.$loading.finish();
-          this.schemaString = error + ". Check console for details.";
-          this.$toast.error(error + " (F12 for details)", {
-            icon: "error"
-          });
-          console.log("Error", error);
-        }
+      } catch (error) {
+        this.$nuxt.$loading.finish();
+        this.schemaString = error + ". Check console for details.";
+        this.$toast.error(error + " (F12 for details)", {
+          icon: "error"
+        });
+        console.log("Error", error);
+      }
     }
   }
 };

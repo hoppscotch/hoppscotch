@@ -77,7 +77,7 @@ a {
 
 header,
 footer {
-  & > div {
+  &>div {
     display: flex;
     padding: 16px;
     width: 100%;
@@ -527,7 +527,7 @@ input[type="checkbox"] {
   display: none;
 
   &,
-  & + label {
+  &+label {
     vertical-align: middle;
     cursor: pointer;
 
@@ -546,7 +546,7 @@ input[type="checkbox"] {
     }
   }
 
-  &:checked + label:before {
+  &:checked+label:before {
     background-color: var(--ac-color);
     border-color: var(--ac-color);
     color: var(--act-color);
@@ -713,7 +713,7 @@ input[type="radio"],
   display: none;
 }
 
-input[type="radio"] + label {
+input[type="radio"]+label {
   padding: 8px 16px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
@@ -726,12 +726,12 @@ input[type="radio"] + label {
   }
 }
 
-input[type="radio"]:checked + label {
+input[type="radio"]:checked+label {
   border-color: var(--fg-color);
   color: var(--fg-color);
 }
 
-input[type="radio"]:checked + label + .tab {
+input[type="radio"]:checked+label+.tab {
   display: block;
 }
 

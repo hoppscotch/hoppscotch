@@ -22,6 +22,7 @@ export default () => {
   //*** If the PWA has not been installed, show the install PWA prompt.. ***//
   let deferredPrompt = null
   window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault()
     deferredPrompt = event
 
     // Show the install button if the prompt appeared.
@@ -31,7 +32,7 @@ export default () => {
   })
 
   // When the app is installed, remove install prompts.
-  window.addEventListener("appinstalled", event => {
+  window.addEventListener("appinstalled", () => {
     localStorage.setItem("pwaInstalled", "yes")
     pwaInstalled = true
     document.getElementById("installPWA").style.display = "none"
@@ -50,7 +51,6 @@ export default () => {
           "Postwoman could not be installed. (Installation rejected by user.)"
         )
       }
-      deferredPrompt = null
     }
   }
 }

@@ -16,7 +16,8 @@ export default {
     },
     theme: {
       type: String,
-      required: false
+      required: false,
+      default: DEFAULT_THEME
     },
     lang: {
       type: String,
@@ -24,7 +25,7 @@ export default {
     },
     options: {
       type: Object,
-      default: {}
+      default: () => ({})
     }
   },
 

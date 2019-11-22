@@ -48,6 +48,5 @@
         "prettier": "^1.19.1",
         "sass-loader": "^7.3.1",
         "start-server-and-test": "^1.10.6"
-    },
-    "precommit": "npm run lint"
+    }
 }

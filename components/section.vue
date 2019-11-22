@@ -5,8 +5,8 @@
   >
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
-      <i class="material-icons" v-if="isCollapsed">expand_more</i>
-      <i class="material-icons" v-if="!isCollapsed">expand_less</i>
+      <i v-if="isCollapsed" class="material-icons">expand_more</i>
+      <i v-if="!isCollapsed" class="material-icons">expand_less</i>
     </legend>
     <div class="collapsible" :class="{ hidden: collapsed }">
       <slot />
@@ -22,18 +22,6 @@ fieldset.no-colored-frames legend {
 
 <script>
 export default {
-  computed: {
-    frameColorsEnabled() {
-      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false;
-    }
-  },
-
-  data() {
-    return {
-      isCollapsed: false
-    };
-  },
-
   props: {
     label: {
       type: String,
@@ -44,12 +32,23 @@ export default {
     }
   },
 
+  data() {
+    return {
+      isCollapsed: false
+    }
+  },
+  computed: {
+    frameColorsEnabled() {
+      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
+    }
+  },
+
   methods: {
     collapse({ target }) {
-      const parent = target.parentNode.parentNode;
-      parent.querySelector(".collapsible").classList.toggle("hidden");
-      this.isCollapsed = !this.isCollapsed;
+      const parent = target.parentNode.parentNode
+      parent.querySelector(".collapsible").classList.toggle("hidden")
+      this.isCollapsed = !this.isCollapsed
     }
   }
-};
+}
 </script>

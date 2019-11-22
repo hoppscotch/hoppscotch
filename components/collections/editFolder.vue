@@ -4,7 +4,9 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">Edit Folder</h3>
+            <h3 class="title">
+              Edit Folder
+            </h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -18,9 +20,9 @@
       <ul>
         <li>
           <input
-            type="text"
             v-model="name"
-            v-bind:placeholder="folder.name"
+            type="text"
+            :placeholder="folder.name"
             @keyup.enter="editFolder"
           />
         </li>
@@ -41,6 +43,9 @@
 
 <script>
 export default {
+  components: {
+    modal: () => import("../../components/modal")
+  },
   props: {
     show: Boolean,
     collection: Object,
@@ -48,13 +53,10 @@ export default {
     folder: Object,
     folderIndex: Number
   },
-  components: {
-    modal: () => import("../../components/modal")
-  },
   data() {
     return {
       name: undefined
-    };
+    }
   },
   methods: {
     editFolder() {
@@ -62,12 +64,12 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folder: { ...this.$props.folder, name: this.$data.name },
         folderIndex: this.$props.folderIndex
-      });
-      this.hideModal();
+      })
+      this.hideModal()
     },
     hideModal() {
-      this.$emit("hide-modal");
+      this.$emit("hide-modal")
     }
   }
-};
+}
 </script>

@@ -1,11 +1,13 @@
 <template>
   <div class="field-box">
-    <div class="field-title">{{ fieldString }}</div>
-    <div class="field-desc" v-if="gqlField.description">
+    <div class="field-title">
+      {{ fieldString }}
+    </div>
+    <div v-if="gqlField.description" class="field-desc">
       {{ gqlField.description }}
     </div>
 
-    <div class="field-deprecated" v-if="gqlField.isDeprecated">
+    <div v-if="gqlField.isDeprecated" class="field-deprecated">
       DEPRECATED
     </div>
   </div>
@@ -49,14 +51,14 @@ export default {
           `${arg.name}: ${arg.type.toString()}${
             index !== this.gqlField.args.length - 1 ? ", " : ""
           }`
-        );
-      }, "");
-      const argsString = args.length > 0 ? `(${args})` : "";
+        )
+      }, "")
+      const argsString = args.length > 0 ? `(${args})` : ""
 
       return `${
         this.gqlField.name
-      }${argsString}: ${this.gqlField.type.toString()}`;
+      }${argsString}: ${this.gqlField.type.toString()}`
     }
   }
-};
+}
 </script>

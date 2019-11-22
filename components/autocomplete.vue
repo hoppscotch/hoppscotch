@@ -1,28 +1,28 @@
 <template>
   <div class="autocomplete-wrapper">
     <input
+      ref="acInput"
+      v-model="value"
       type="text"
       :placeholder="placeholder"
-      v-model="value"
+      :spellcheck="spellcheck"
+      :autocapitalize="spellcheck"
+      :autocorrect="spellcheck"
       @input="updateSuggestions"
       @keyup="updateSuggestions"
       @click="updateSuggestions"
       @keydown="handleKeystroke"
-      ref="acInput"
-      :spellcheck="spellcheck"
-      :autocapitalize="spellcheck"
-      :autocorrect="spellcheck"
     />
     <ul
-      class="suggestions"
       v-if="suggestions.length > 0 && suggestionsVisible"
+      class="suggestions"
       :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }"
     >
       <li
         v-for="(suggestion, index) in suggestions"
-        @click.prevent="forceSuggestion(suggestion)"
-        :class="{ active: currentSuggestionIndex === index }"
         :key="index"
+        :class="{ active: currentSuggestionIndex === index }"
+        @click.prevent="forceSuggestion(suggestion)"
       >
         {{ suggestion }}
       </li>
@@ -74,11 +74,11 @@
 </style>
 
 <script>
-const KEY_TAB = 9;
-const KEY_ESC = 27;
+const KEY_TAB = 9
+const KEY_ESC = 27
 
-const KEY_ARROW_UP = 38;
-const KEY_ARROW_DOWN = 40;
+const KEY_ARROW_UP = 38
+const KEY_ARROW_DOWN = 40
 
 export default {
   props: {
@@ -100,12 +100,6 @@ export default {
     }
   },
 
-  watch: {
-    value() {
-      this.$emit("input", this.value);
-    }
-  },
-
   data() {
     return {
       value: "application/json",
@@ -113,67 +107,6 @@ export default {
       suggestionsOffsetLeft: 0,
       currentSuggestionIndex: -1,
       suggestionsVisible: false
-    };
-  },
-
-  methods: {
-    updateSuggestions(event) {
-      // Hide suggestions if ESC pressed.
-      if (event.which && event.which === KEY_ESC) {
-        event.preventDefault();
-        this.suggestionsVisible = false;
-        this.currentSuggestionIndex = -1;
-        return;
-      }
-
-      // As suggestions is a reactive property, this implicitly
-      // causes suggestions to update.
-      this.selectionStart = this.$refs.acInput.selectionStart;
-      this.suggestionsOffsetLeft = 12 * this.selectionStart;
-      this.suggestionsVisible = true;
-    },
-
-    forceSuggestion(text) {
-      let input = this.value.substring(0, this.selectionStart);
-      this.value = input + text;
-
-      this.selectionStart = this.value.length;
-      this.suggestionsVisible = true;
-      this.currentSuggestionIndex = -1;
-    },
-
-    handleKeystroke(event) {
-      switch (event.which) {
-        case KEY_ARROW_UP:
-          event.preventDefault();
-          this.currentSuggestionIndex =
-            this.currentSuggestionIndex - 1 >= 0
-              ? this.currentSuggestionIndex - 1
-              : 0;
-          break;
-
-        case KEY_ARROW_DOWN:
-          event.preventDefault();
-          this.currentSuggestionIndex =
-            this.currentSuggestionIndex < this.suggestions.length - 1
-              ? this.currentSuggestionIndex + 1
-              : this.suggestions.length - 1;
-          break;
-
-        case KEY_TAB:
-          event.preventDefault();
-          let activeSuggestion = this.suggestions[
-            this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
-          ];
-          if (activeSuggestion) {
-            let input = this.value.substring(0, this.selectionStart);
-            this.value = input + activeSuggestion;
-          }
-          break;
-
-        default:
-          break;
-      }
     }
   },
 
@@ -184,7 +117,7 @@ export default {
      * @returns {default.props.source|{type, required}}
      */
     suggestions() {
-      let input = this.value.substring(0, this.selectionStart);
+      let input = this.value.substring(0, this.selectionStart)
 
       return (
         this.source
@@ -192,20 +125,87 @@ export default {
             return (
               entry.toLowerCase().startsWith(input.toLowerCase()) &&
               input.toLowerCase() !== entry.toLowerCase()
-            );
+            )
           })
           // Cut off the part that's already been typed.
           .map(entry => entry.substring(this.selectionStart))
           // We only want the top 6 suggestions.
           .slice(0, 6)
-      );
+      )
+    }
+  },
+
+  watch: {
+    value() {
+      this.$emit("input", this.value)
     }
   },
 
   mounted() {
     this.updateSuggestions({
       target: this.$refs.acInput
-    });
+    })
+  },
+
+  methods: {
+    updateSuggestions(event) {
+      // Hide suggestions if ESC pressed.
+      if (event.which && event.which === KEY_ESC) {
+        event.preventDefault()
+        this.suggestionsVisible = false
+        this.currentSuggestionIndex = -1
+        return
+      }
+
+      // As suggestions is a reactive property, this implicitly
+      // causes suggestions to update.
+      this.selectionStart = this.$refs.acInput.selectionStart
+      this.suggestionsOffsetLeft = 12 * this.selectionStart
+      this.suggestionsVisible = true
+    },
+
+    forceSuggestion(text) {
+      let input = this.value.substring(0, this.selectionStart)
+      this.value = input + text
+
+      this.selectionStart = this.value.length
+      this.suggestionsVisible = true
+      this.currentSuggestionIndex = -1
+    },
+
+    handleKeystroke(event) {
+      switch (event.which) {
+        case KEY_ARROW_UP:
+          event.preventDefault()
+          this.currentSuggestionIndex =
+            this.currentSuggestionIndex - 1 >= 0
+              ? this.currentSuggestionIndex - 1
+              : 0
+          break
+
+        case KEY_ARROW_DOWN:
+          event.preventDefault()
+          this.currentSuggestionIndex =
+            this.currentSuggestionIndex < this.suggestions.length - 1
+              ? this.currentSuggestionIndex + 1
+              : this.suggestions.length - 1
+          break
+
+        case KEY_TAB:
+          event.preventDefault()
+          let activeSuggestion = this.suggestions[
+            this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
+          ]
+          if (activeSuggestion) {
+            let input = this.value.substring(0, this.selectionStart)
+            this.value = input + activeSuggestion
+          }
+          break
+
+        default:
+          break
+      }
+    }
   }
-};
+}
 </script>

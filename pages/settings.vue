@@ -1,33 +1,37 @@
 <template>
   <div class="page">
-    <pw-section class="cyan" label="Theme" ref="theme">
+    <pw-section ref="theme" class="cyan" label="Theme">
       <ul>
         <li>
-          <h3 class="title">Background</h3>
+          <h3 class="title">
+            Background
+          </h3>
           <div class="backgrounds">
             <span
+              v-for="theme in themes"
               :key="theme.class"
               @click="applyTheme(theme)"
-              v-for="theme in themes"
             >
               <swatch
                 :active="settings.THEME_CLASS === theme.class"
                 :class="{ vibrant: theme.vibrant }"
                 :color="theme.color"
                 :name="theme.name"
-              ></swatch>
+              />
             </span>
           </div>
         </li>
       </ul>
       <ul>
         <li>
-          <h3 class="title">Color</h3>
+          <h3 class="title">
+            Color
+          </h3>
           <div class="colors">
             <span
+              v-for="entry in colors"
               :key="entry.color"
               @click.prevent="setActiveColor(entry.color, entry.vibrant)"
-              v-for="entry in colors"
             >
               <swatch
                 :active="settings.THEME_COLOR === entry.color.toUpperCase()"
@@ -41,7 +45,9 @@
       </ul>
       <ul>
         <li>
-          <h3 class="title">Labels</h3>
+          <h3 class="title">
+            Labels
+          </h3>
           <span>
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
@@ -49,14 +55,13 @@
               >Multi-color
               {{
                 settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled"
-              }}</pw-toggle
-            >
+              }}</pw-toggle>
           </span>
         </li>
       </ul>
     </pw-section>
 
-    <pw-section class="blue" label="Proxy" ref="proxy">
+    <pw-section ref="proxy" class="blue" label="Proxy">
       <ul>
         <li>
           <div class="flex-wrap">
@@ -65,15 +70,14 @@
                 :on="settings.PROXY_ENABLED"
                 @change="toggleSetting('PROXY_ENABLED')"
                 >Proxy
-                {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle
-              >
+                {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
             </span>
             <a
               href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
               target="_blank"
               rel="noopener"
             >
-              <button class="icon" v-tooltip="'Wiki'">
+              <button v-tooltip="'Wiki'" class="icon">
                 <i class="material-icons">help</i>
               </button>
             </a>
@@ -84,11 +88,9 @@
         <li>
           <p>
             Postwoman's Proxy is hosted by ApolloTV.
-            <br />
+            <br >
             Read the
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener"
-              >ApolloTV privacy policy</a
-            >.
+            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">ApolloTV privacy policy</a>.
           </p>
         </li>
       </ul>
@@ -219,63 +221,7 @@ export default {
         PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
       }
-    };
-  },
-
-  watch: {
-    proxySettings: {
-      deep: true,
-      handler(value) {
-        this.applySetting("PROXY_URL", value.url);
-        this.applySetting("PROXY_KEY", value.key);
-      }
     }
-  },
-
-  methods: {
-    applyTheme({ class: name, color, aceEditor }) {
-      this.applySetting("THEME_CLASS", name);
-      this.applySetting("THEME_ACE_EDITOR", aceEditor);
-      document
-        .querySelector("meta[name=theme-color]")
-        .setAttribute("content", color);
-      this.applySetting("THEME_TAB_COLOR", color);
-      document.documentElement.className = name;
-    },
-    setActiveColor(color, vibrant) {
-      // By default, the color is vibrant.
-      if (vibrant == null) vibrant = true;
-      document.documentElement.style.setProperty("--ac-color", color);
-      document.documentElement.style.setProperty(
-        "--act-color",
-        vibrant ? "rgb(37, 38, 40)" : "#f8f8f2"
-      );
-      this.applySetting("THEME_COLOR", color.toUpperCase());
-      this.applySetting("THEME_COLOR_VIBRANT", vibrant);
-    },
-    getActiveColor() {
-      // This strips extra spaces and # signs from the strings.
-      const strip = str => str.replace(/#/g, "").replace(/ /g, "");
-      return `#${strip(
-        window
-          .getComputedStyle(document.documentElement)
-          .getPropertyValue("--ac-color")
-      ).toUpperCase()}`;
-    },
-    applySetting(key, value) {
-      this.settings[key] = value;
-      this.$store.commit("postwoman/applySetting", [key, value]);
-    },
-    toggleSetting(key) {
-      this.settings[key] = !this.settings[key];
-      this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
-      this.$router.replace("/settings", {
-        force: true
-      });
-    }
-  },
-  beforeMount() {
-    this.settings.THEME_COLOR = this.getActiveColor();
   },
 
   computed: {
@@ -283,8 +229,64 @@ export default {
       return {
         url: this.settings.PROXY_URL,
         key: this.settings.PROXY_KEY
-      };
+      }
+    }
+  },
+
+  watch: {
+    proxySettings: {
+      deep: true,
+      handler(value) {
+        this.applySetting("PROXY_URL", value.url)
+        this.applySetting("PROXY_KEY", value.key)
+      }
+    }
+  },
+  beforeMount() {
+    this.settings.THEME_COLOR = this.getActiveColor()
+  },
+
+  methods: {
+    applyTheme({ class: name, color, aceEditor }) {
+      this.applySetting("THEME_CLASS", name)
+      this.applySetting("THEME_ACE_EDITOR", aceEditor)
+      document
+        .querySelector("meta[name=theme-color]")
+        .setAttribute("content", color)
+      this.applySetting("THEME_TAB_COLOR", color)
+      document.documentElement.className = name
+    },
+    setActiveColor(color, vibrant) {
+      // By default, the color is vibrant.
+      if (vibrant == null) vibrant = true
+      document.documentElement.style.setProperty("--ac-color", color)
+      document.documentElement.style.setProperty(
+        "--act-color",
+        vibrant ? "rgb(37, 38, 40)" : "#f8f8f2"
+      )
+      this.applySetting("THEME_COLOR", color.toUpperCase())
+      this.applySetting("THEME_COLOR_VIBRANT", vibrant)
+    },
+    getActiveColor() {
+      // This strips extra spaces and # signs from the strings.
+      const strip = str => str.replace(/#/g, "").replace(/ /g, "")
+      return `#${strip(
+        window
+          .getComputedStyle(document.documentElement)
+          .getPropertyValue("--ac-color")
+      ).toUpperCase()}`
+    },
+    applySetting(key, value) {
+      this.settings[key] = value
+      this.$store.commit("postwoman/applySetting", [key, value])
+    },
+    toggleSetting(key) {
+      this.settings[key] = !this.settings[key]
+      this.$store.commit("postwoman/applySetting", [key, this.settings[key]])
+      this.$router.replace("/settings", {
+        force: true
+      })
     }
   }
-};
+}
 </script>

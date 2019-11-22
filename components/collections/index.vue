@@ -5,42 +5,39 @@ TODO:
 
 <template>
   <div class="collections-wrapper">
-    <addCollection
-      v-bind:show="showModalAdd"
-      v-on:hide-modal="displayModalAdd(false)"
-    ></addCollection>
+    <addCollection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <editCollection
-      v-bind:show="showModalEdit"
-      v-bind:editingCollection="editingCollection"
-      v-bind:editingCollectionIndex="editingCollectionIndex"
-      v-on:hide-modal="displayModalEdit(false)"
-    ></editCollection>
+      :show="showModalEdit"
+      :editing-collection="editingCollection"
+      :editing-collection-index="editingCollectionIndex"
+      @hide-modal="displayModalEdit(false)"
+    />
     <addFolder
-      v-bind:show="showModalAddFolder"
-      v-bind:collection="editingCollection"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-on:hide-modal="displayModalAddFolder(false)"
-    ></addFolder>
+      :show="showModalAddFolder"
+      :collection="editingCollection"
+      :collection-index="editingCollectionIndex"
+      @hide-modal="displayModalAddFolder(false)"
+    />
     <editFolder
-      v-bind:show="showModalEditFolder"
-      v-bind:collection="editingCollection"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-bind:folder="editingFolder"
-      v-bind:folderIndex="editingFolderIndex"
-      v-on:hide-modal="displayModalEditFolder(false)"
-    ></editFolder>
+      :show="showModalEditFolder"
+      :collection="editingCollection"
+      :collection-index="editingCollectionIndex"
+      :folder="editingFolder"
+      :folder-index="editingFolderIndex"
+      @hide-modal="displayModalEditFolder(false)"
+    />
     <editRequest
-      v-bind:show="showModalEditRequest"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-bind:folderIndex="editingFolderIndex"
-      v-bind:request="editingRequest"
-      v-bind:requestIndex="editingRequestIndex"
-      v-on:hide-modal="displayModalEditRequest(false)"
-    ></editRequest>
+      :show="showModalEditRequest"
+      :collection-index="editingCollectionIndex"
+      :folder-index="editingFolderIndex"
+      :request="editingRequest"
+      :request-index="editingRequestIndex"
+      @hide-modal="displayModalEditRequest(false)"
+    />
     <importExportCollections
-      v-bind:show="showModalImportExport"
-      v-on:hide-modal="displayModalImportExport(false)"
-    ></importExportCollections>
+      :show="showModalImportExport"
+      @hide-modal="displayModalImportExport(false)"
+    />
 
     <div class="flex-wrap">
       <div>
@@ -51,9 +48,9 @@ TODO:
       </div>
       <div>
         <button
+          v-tooltip="'Import / Export'"
           class="icon"
           @click="displayModalImportExport(true)"
-          v-tooltip="'Import / Export'"
         >
           <i class="material-icons">import_export</i>
         </button>
@@ -62,7 +59,7 @@ TODO:
           target="_blank"
           rel="noopener"
         >
-          <button class="icon" v-tooltip="'Wiki'">
+          <button v-tooltip="'Wiki'" class="icon">
             <i class="material-icons">help</i>
           </button>
         </a>
@@ -78,13 +75,13 @@ TODO:
       <ul>
         <li v-for="(collection, index) in collections" :key="collection.name">
           <collection
-            v-bind:collection-index="index"
-            v-bind:collection="collection"
-            v-on:edit-collection="editCollection(collection, index)"
-            v-on:add-folder="addFolder(collection, index)"
-            v-on:edit-folder="editFolder($event)"
-            v-on:edit-request="editRequest($event)"
-          ></collection>
+            :collection-index="index"
+            :collection="collection"
+            @edit-collection="editCollection(collection, index)"
+            @add-folder="addFolder(collection, index)"
+            @edit-folder="editFolder($event)"
+            @edit-request="editRequest($event)"
+          />
         </li>
         <li v-if="collections.length === 0">
           <label>Collections are empty</label>
@@ -106,7 +103,7 @@ ul {
 </style>
 
 <script>
-import collection from "./collection";
+import collection from "./collection"
 
 export default {
   components: {
@@ -133,74 +130,74 @@ export default {
       editingFolderIndex: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined
-    };
+    }
   },
   computed: {
     collections() {
-      return this.$store.state.postwoman.collections;
+      return this.$store.state.postwoman.collections
     }
   },
   methods: {
     displayModalAdd(shouldDisplay) {
-      this.showModalAdd = shouldDisplay;
+      this.showModalAdd = shouldDisplay
     },
     displayModalEdit(shouldDisplay) {
-      this.showModalEdit = shouldDisplay;
+      this.showModalEdit = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalImportExport(shouldDisplay) {
-      this.showModalImportExport = shouldDisplay;
+      this.showModalImportExport = shouldDisplay
     },
     displayModalAddFolder(shouldDisplay) {
-      this.showModalAddFolder = shouldDisplay;
+      this.showModalAddFolder = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalEditFolder(shouldDisplay) {
-      this.showModalEditFolder = shouldDisplay;
+      this.showModalEditFolder = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalEditRequest(shouldDisplay) {
-      this.showModalEditRequest = shouldDisplay;
+      this.showModalEditRequest = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     editCollection(collection, collectionIndex) {
-      this.$data.editingCollection = collection;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.displayModalEdit(true);
+      this.$data.editingCollection = collection
+      this.$data.editingCollectionIndex = collectionIndex
+      this.displayModalEdit(true)
     },
     addFolder(collection, collectionIndex) {
-      this.$data.editingCollection = collection;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.displayModalAddFolder(true);
+      this.$data.editingCollection = collection
+      this.$data.editingCollectionIndex = collectionIndex
+      this.displayModalAddFolder(true)
     },
     editFolder(payload) {
-      const { collectionIndex, folder, folderIndex } = payload;
-      this.$data.editingCollection = collection;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.$data.editingFolder = folder;
-      this.$data.editingFolderIndex = folderIndex;
-      this.displayModalEditFolder(true);
+      const { collectionIndex, folder, folderIndex } = payload
+      this.$data.editingCollection = collection
+      this.$data.editingCollectionIndex = collectionIndex
+      this.$data.editingFolder = folder
+      this.$data.editingFolderIndex = folderIndex
+      this.displayModalEditFolder(true)
     },
     editRequest(payload) {
-      const { request, collectionIndex, folderIndex, requestIndex } = payload;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.$data.editingFolderIndex = folderIndex;
-      this.$data.editingRequest = request;
-      this.$data.editingRequestIndex = requestIndex;
-      this.displayModalEditRequest(true);
+      const { request, collectionIndex, folderIndex, requestIndex } = payload
+      this.$data.editingCollectionIndex = collectionIndex
+      this.$data.editingFolderIndex = folderIndex
+      this.$data.editingRequest = request
+      this.$data.editingRequestIndex = requestIndex
+      this.displayModalEditRequest(true)
     },
     resetSelectedData() {
-      this.$data.editingCollection = undefined;
-      this.$data.editingCollectionIndex = undefined;
-      this.$data.editingFolder = undefined;
-      this.$data.editingFolderIndex = undefined;
-      this.$data.editingRequest = undefined;
-      this.$data.editingRequestIndex = undefined;
+      this.$data.editingCollection = undefined
+      this.$data.editingCollectionIndex = undefined
+      this.$data.editingFolder = undefined
+      this.$data.editingFolderIndex = undefined
+      this.$data.editingRequest = undefined
+      this.$data.editingRequestIndex = undefined
     }
   }
-};
+}
 </script>

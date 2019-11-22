@@ -15,7 +15,10 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "dev:e2e": "start-server-and-test dev http://localhost:3000 e2e:open",
-        "test": "start-server-and-test dev http://localhost:3000 e2e"
+        "test": "start-server-and-test dev http://localhost:3000 e2e",
+        "lint": "eslint --ext .js,.vue --ignore-path .eslintignore .",
+        "lintfix": "eslint --fix --ext .js,.vue --ignore-path .eslintignore .",
+        "precommit": "npm run lint"
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.8.0",
@@ -35,8 +38,15 @@
         "yargs-parser": "^16.1.0"
     },
     "devDependencies": {
+        "babel-eslint": "^10.0.3",
         "cypress": "^3.6.1",
+        "eslint": "^6.6.0",
+        "eslint-config-prettier": "^6.7.0",
+        "eslint-loader": "^3.0.2",
+        "eslint-plugin-prettier": "^3.1.1",
+        "eslint-plugin-vue": "^6.0.1",
         "node-sass": "^4.13.0",
+        "prettier": "^1.19.1",
         "sass-loader": "^7.3.1",
         "start-server-and-test": "^1.10.6"
     }

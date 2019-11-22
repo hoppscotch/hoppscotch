@@ -4,11 +4,11 @@ export default {
   },
 
   setGQLState(state, object) {
-    state.gql[object.attribute] = object.value;
+    state.gql[object.attribute] = object.value
   },
 
   addHeaders(state, value) {
-    state.request.headers.push(value);
+    state.request.headers.push(value)
   },
 
   removeHeaders(state, index) {
@@ -24,7 +24,7 @@ export default {
   },
 
   addParams(state, value) {
-    state.request.params.push(value);
+    state.request.params.push(value)
   },
 
   removeParams(state, index) {
@@ -40,7 +40,7 @@ export default {
   },
 
   addBodyParams(state, value) {
-    state.request.bodyParams.push(value);
+    state.request.bodyParams.push(value)
   },
 
   removeBodyParams(state, index) {
@@ -53,5 +53,5 @@ export default {
 
   setValueBodyParams(state, object) {
     state.request.bodyParams[object.index].value = object.value
-  },
-};
+  }
+}

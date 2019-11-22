@@ -4,7 +4,9 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">New Collection</h3>
+            <h3 class="title">
+              New Collection
+            </h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +19,7 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" placeholder="My New Collection" />
+          <input v-model="name" type="text" placeholder="My New Collection" >
         </li>
       </ul>
     </div>
@@ -36,27 +38,27 @@
 
 <script>
 export default {
-  props: {
-    show: Boolean
-  },
   components: {
     modal: () => import("../../components/modal")
+  },
+  props: {
+    show: Boolean
   },
   data() {
     return {
       name: undefined
-    };
+    }
   },
   methods: {
     addNewCollection() {
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name
-      });
-      this.$emit("hide-modal");
+      })
+      this.$emit("hide-modal")
     },
     hideModal() {
-      this.$emit("hide-modal");
+      this.$emit("hide-modal")
     }
   }
-};
+}
 </script>

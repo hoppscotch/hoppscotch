@@ -3,35 +3,35 @@
     <div class="flex-wrap">
       <div>
         <button class="icon" @click="toggleShowChildren">
-          <i class="material-icons" v-show="!showChildren">arrow_right</i>
-          <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
+          <i v-show="!showChildren" class="material-icons">arrow_right</i>
+          <i v-show="showChildren" class="material-icons">arrow_drop_down</i>
           <i class="material-icons">folder</i>
           <span>{{ collection.name }}</span>
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="'More'">
+        <button v-tooltip="'More'" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
-            <button class="icon" @click="$emit('add-folder')" v-close-popover>
+            <button v-close-popover class="icon" @click="$emit('add-folder')">
               <i class="material-icons">create_new_folder</i>
               <span>New folder</span>
             </button>
           </div>
           <div>
             <button
+              v-close-popover
               class="icon"
               @click="$emit('edit-collection')"
-              v-close-popover
             >
               <i class="material-icons">create</i>
               <span>Edit</span>
             </button>
           </div>
           <div>
-            <button class="icon" @click="removeCollection" v-close-popover>
+            <button v-close-popover class="icon" @click="removeCollection">
               <i class="material-icons">delete</i>
               <span>Delete</span>
             </button>
@@ -44,11 +44,11 @@
       <ul>
         <li v-for="(folder, index) in collection.folders" :key="folder.name">
           <folder
-            v-bind:folder="folder"
-            v-bind:folderIndex="index"
-            v-bind:collection-index="collectionIndex"
-            v-on:edit-folder="editFolder(collectionIndex, folder, index)"
-            v-on:edit-request="$emit('edit-request', $event)"
+            :folder="folder"
+            :folder-index="index"
+            :collection-index="collectionIndex"
+            @edit-folder="editFolder(collectionIndex, folder, index)"
+            @edit-request="$emit('edit-request', $event)"
           />
         </li>
         <li
@@ -62,11 +62,11 @@
       <ul>
         <li v-for="(request, index) in collection.requests" :key="index">
           <request
-            v-bind:request="request"
-            v-bind:collection-index="collectionIndex"
-            v-bind:folder-index="-1"
-            v-bind:request-index="index"
-            v-on:edit-request="
+            :request="request"
+            :collection-index="collectionIndex"
+            :folder-index="-1"
+            :request-index="index"
+            @edit-request="
               $emit('edit-request', {
                 request,
                 collectionIndex,
@@ -74,7 +74,7 @@
                 requestIndex: index
               })
             "
-          ></request>
+          />
         </li>
       </ul>
     </div>
@@ -108,21 +108,21 @@ export default {
     return {
       showChildren: false,
       selectedFolder: {}
-    };
+    }
   },
   methods: {
     toggleShowChildren() {
-      this.showChildren = !this.showChildren;
+      this.showChildren = !this.showChildren
     },
     removeCollection() {
-      if (!confirm("Are you sure you want to remove this Collection?")) return;
+      if (!confirm("Are you sure you want to remove this Collection?")) return
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex
-      });
+      })
     },
     editFolder(collectionIndex, folder, folderIndex) {
-      this.$emit("edit-folder", { collectionIndex, folder, folderIndex });
+      this.$emit("edit-folder", { collectionIndex, folder, folderIndex })
     }
   }
-};
+}
 </script>

@@ -4,7 +4,9 @@
       <div class="flex-wrap">
         <div class="slide-in">
           <nuxt-link to="/">
-            <h1 class="logo">Postwoman</h1>
+            <h1 class="logo">
+              Postwoman
+            </h1>
           </nuxt-link>
         </div>
         <div class="flex-wrap">
@@ -14,7 +16,7 @@
             aria-label="GitHub"
             rel="noopener"
           >
-            <button class="icon" aria-label="GitHub" v-tooltip="'GitHub'">
+            <button v-tooltip="'GitHub'" class="icon" aria-label="GitHub">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -28,23 +30,23 @@
             </button>
           </a>
           <button
-            class="icon"
             id="installPWA"
-            @click.prevent="showInstallPrompt()"
             v-tooltip="'Install PWA'"
+            class="icon"
+            @click.prevent="showInstallPrompt()"
           >
             <i class="material-icons">offline_bolt</i>
           </button>
           <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'More'">
+            <button v-tooltip="'More'" class="tooltip-target icon">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
               <div>
                 <button
+                  v-close-popover
                   class="icon"
                   @click="showShortcuts = true"
-                  v-close-popover
                 >
                   <i class="material-icons">keyboard</i>
                   <span>Shortcuts</span>
@@ -52,10 +54,10 @@
               </div>
               <div>
                 <a
+                  v-close-popover
                   href="https://opencollective.com/postwoman"
                   target="_blank"
                   rel="noopener"
-                  v-close-popover
                 >
                   <button class="icon">
                     <i class="material-icons">favorite</i>
@@ -65,9 +67,9 @@
               </div>
               <div>
                 <button
+                  v-close-popover
                   class="icon"
                   onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
-                  v-close-popover
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -96,31 +98,31 @@
               seems to mess up the nuxt-link active class.
             -->
             <nuxt-link
+              v-tooltip.right="'Home'"
               to="/"
               :class="linkActive('/')"
-              v-tooltip.right="'Home'"
               aria-label="Home"
             >
-              <logo alt style="height: 24px;"></logo>
+              <logo alt style="height: 24px;" />
             </nuxt-link>
             <nuxt-link
+              v-tooltip.right="'WebSocket'"
               to="/websocket"
               :class="linkActive('/websocket')"
-              v-tooltip.right="'WebSocket'"
             >
               <i class="material-icons">settings_input_hdmi</i>
             </nuxt-link>
             <nuxt-link
+              v-tooltip.right="'GraphQL'"
               to="/graphql"
               :class="linkActive('/graphql')"
-              v-tooltip.right="'GraphQL'"
             >
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
+              v-tooltip.right="'Settings'"
               to="/settings"
               :class="linkActive('/settings')"
-              v-tooltip.right="'Settings'"
               aria-label="Settings"
             >
               <i class="material-icons">settings</i>
@@ -130,17 +132,17 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request" v-tooltip.right="'Request'">
+                  <a v-tooltip.right="'Request'" href="#request">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#options" v-tooltip.right="'Options'">
+                  <a v-tooltip.right="'Options'" href="#options">
                     <i class="material-icons">toc</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Response'">
+                  <a v-tooltip.right="'Response'" href="#response">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -151,12 +153,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request" v-tooltip.right="'Request'">
+                  <a v-tooltip.right="'Request'" href="#request">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Communication'">
+                  <a v-tooltip.right="'Communication'" href="#response">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -167,12 +169,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#endpoint" v-tooltip.right="'Endpoint'">
+                  <a v-tooltip.right="'Endpoint'" href="#endpoint">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#schema" v-tooltip.right="'Schema'">
+                  <a v-tooltip.right="'Schema'" href="#schema">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -183,12 +185,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#theme" v-tooltip.right="'Theme'">
+                  <a v-tooltip.right="'Theme'" href="#theme">
                     <i class="material-icons">brush</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#proxy" v-tooltip.right="'Proxy'">
+                  <a v-tooltip.right="'Proxy'" href="#proxy">
                     <i class="material-icons">public</i>
                   </a>
                 </li>
@@ -197,7 +199,7 @@
           </div>
         </aside>
         <nuxt id="main" class="main" />
-        <aside class="nav-second"></aside>
+        <aside class="nav-second" />
       </div>
     </div>
     <footer class="footer">
@@ -205,14 +207,13 @@
       <p class="align-center mono">
         <span v-if="version.name">
           <a
-            v-bind:href="
+            :href="
               'https://github.com/liyasthomas/postwoman/releases/tag/' +
                 version.name
             "
             target="_blank"
             rel="noopener"
-            >{{ version.name }}</a
-          >
+            >{{ version.name }}</a>
           <!-- <span v-if="version.hash">
             -
             <a
@@ -224,13 +225,9 @@
           <!-- <span v-if="version.variant">({{version.variant}})</span> -->
           &#x2022;
         </span>
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener"
-          >🦄</a
-        >
+        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">🦄</a>
         &#x2022;
-        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener"
-          >Subscribe</a
-        >
+        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener">Subscribe</a>
       </p>
     </footer>
     <modal v-if="showShortcuts" @close="showShortcuts = false">
@@ -238,7 +235,9 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">Shortcuts</h3>
+              <h3 class="title">
+                Shortcuts
+              </h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
                   <i class="material-icons">close</i>
@@ -249,29 +248,29 @@
         </ul>
       </div>
       <div slot="body">
-        <br />
+        <br >
         <div>
           <label>Send Request</label>
           <kbd>⌘ G</kbd>
         </div>
-        <br />
+        <br >
         <div>
           <label>Save to Collections</label>
           <kbd>⌘ S</kbd>
         </div>
-        <br />
+        <br >
         <div>
           <label>Copy Request Link</label>
           <kbd>⌘ K</kbd>
         </div>
-        <br />
+        <br >
         <div>
           <label>Reset Request</label>
           <kbd>⌘ L</kbd>
         </div>
-        <br />
+        <br >
       </div>
-      <div slot="footer"></div>
+      <div slot="footer" />
     </modal>
   </div>
 </template>
@@ -279,22 +278,13 @@
 <style lang="scss"></style>
 
 <script>
-import intializePwa from "../assets/js/pwa";
-import * as version from "../.postwoman/version.json";
+import intializePwa from "../assets/js/pwa"
+import * as version from "../.postwoman/version.json"
 
 export default {
   components: {
     logo: () => import("../components/logo"),
     modal: () => import("../components/modal")
-  },
-
-  methods: {
-    linkActive(path) {
-      return {
-        "nuxt-link-exact-active": this.$route.path === path,
-        "nuxt-link-active": this.$route.path === path
-      };
-    }
   },
 
   data() {
@@ -305,33 +295,39 @@ export default {
       showInstallPrompt: null,
       version: {},
       showShortcuts: false
-    };
+    }
+  },
+
+  watch: {
+    $route() {
+      this.$toast.clear()
+    }
   },
 
   beforeMount() {
     // Set version data
-    this.version = version.default;
+    this.version = version.default
 
     // Load theme settings
-    (() => {
+    ;(() => {
       // Apply theme from settings.
       document.documentElement.className =
-        this.$store.state.postwoman.settings.THEME_CLASS || "";
+        this.$store.state.postwoman.settings.THEME_CLASS || ""
       // Load theme color data from settings, or use default color.
-      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
-      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
-      if (vibrant == null) vibrant = true;
-      document.documentElement.style.setProperty("--ac-color", color);
+      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b"
+      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT
+      if (vibrant == null) vibrant = true
+      document.documentElement.style.setProperty("--ac-color", color)
       document.documentElement.style.setProperty(
         "--act-color",
         vibrant ? "rgb(37, 38, 40)" : "#ffffff"
-      );
-    })();
+      )
+    })()
   },
 
   mounted() {
     if (process.client) {
-      document.body.classList.add("afterLoad");
+      document.body.classList.add("afterLoad")
     }
 
     document
@@ -339,13 +335,13 @@ export default {
       .setAttribute(
         "content",
         this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628"
-      );
+      )
 
     // Initializes the PWA code - checks if the app is installed,
     // etc.
-    (async () => {
-      this.showInstallPrompt = await intializePwa();
-      let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
+    ;(async () => {
+      this.showInstallPrompt = await intializePwa()
+      let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes"
       if (!cookiesAllowed) {
         this.$toast.show("We use cookies", {
           icon: "info",
@@ -355,38 +351,41 @@ export default {
             {
               text: "Dismiss",
               onClick: (e, toastObject) => {
-                localStorage.setItem("cookiesAllowed", "yes");
-                toastObject.goAway(0);
+                localStorage.setItem("cookiesAllowed", "yes")
+                toastObject.goAway(0)
               }
             }
           ]
-        });
+        })
       }
-    })();
+    })()
 
     window.addEventListener("scroll", event => {
-      let mainNavLinks = document.querySelectorAll("nav ul li a");
-      let fromTop = window.scrollY;
+      let mainNavLinks = document.querySelectorAll("nav ul li a")
+      let fromTop = window.scrollY
       mainNavLinks.forEach(link => {
-        let section = document.querySelector(link.hash);
+        let section = document.querySelector(link.hash)
 
         if (
           section &&
           section.offsetTop <= fromTop &&
           section.offsetTop + section.offsetHeight > fromTop
         ) {
-          link.classList.add("current");
+          link.classList.add("current")
         } else {
-          link.classList.remove("current");
+          link.classList.remove("current")
         }
-      });
-    });
+      })
+    })
   },
 
-  watch: {
-    $route() {
-      this.$toast.clear();
+  methods: {
+    linkActive(path) {
+      return {
+        "nuxt-link-exact-active": this.$route.path === path,
+        "nuxt-link-active": this.$route.path === path
+      }
     }
   }
-};
+}
 </script>

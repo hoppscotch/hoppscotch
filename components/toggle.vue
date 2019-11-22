@@ -1,7 +1,7 @@
 <template>
   <div @click="toggle()">
-    <label class="toggle" :class="{ on: on }" ref="toggle">
-      <span class="handle"></span>
+    <label ref="toggle" class="toggle" :class="{ on: on }">
+      <span class="handle" />
     </label>
     <label class="caption">
       <slot />
@@ -90,9 +90,9 @@ export default {
 
   methods: {
     toggle() {
-      const containsOnClass = this.$refs.toggle.classList.toggle("on");
-      this.$emit("change", containsOnClass);
+      const containsOnClass = this.$refs.toggle.classList.toggle("on")
+      this.$emit("change", containsOnClass)
     }
   }
-};
+}
 </script>

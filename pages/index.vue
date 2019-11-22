@@ -4,9 +4,9 @@
       <div class="page-columns inner-left">
         <pw-section
           v-if="showPreRequestScript"
+          ref="preRequest"
           class="orange"
           label="Pre-Request"
-          ref="preRequest"
         >
           <ul>
             <li>
@@ -18,7 +18,7 @@
                     target="_blank"
                     rel="noopener"
                   >
-                    <button class="icon" v-tooltip="'Wiki'">
+                    <button v-tooltip="'Wiki'" class="icon">
                       <i class="material-icons">help</i>
                     </button>
                   </a>
@@ -26,17 +26,17 @@
               </div>
               <textarea
                 id="preRequestScript"
-                @keydown="formatRawParams"
-                rows="8"
                 v-model="preRequestScript"
+                rows="8"
                 spellcheck="false"
                 placeholder="pw.env.set('variable', 'value');"
-              ></textarea>
+                @keydown="formatRawParams"
+              />
             </li>
           </ul>
         </pw-section>
 
-        <pw-section class="blue" label="Request" ref="request">
+        <pw-section ref="request" class="blue" label="Request">
           <ul>
             <li>
               <label for="method">Method</label>
@@ -53,21 +53,21 @@
             <li>
               <label for="url">URL</label>
               <input
-                :class="{ error: !isValidURL }"
-                @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
+                v-model="url"
+                :class="{ error: !isValidURL }"
                 name="url"
                 type="url"
-                v-model="url"
+                @keyup.enter="isValidURL ? sendRequest() : null"
               />
             </li>
             <li>
               <label for="path">Path</label>
               <input
-                @keyup.enter="isValidURL ? sendRequest() : null"
                 id="path"
-                name="path"
                 v-model="path"
+                name="path"
+                @keyup.enter="isValidURL ? sendRequest() : null"
                 @input="pathInputHandler"
               />
             </li>
@@ -75,27 +75,27 @@
               <label for="label">Label</label>
               <input
                 id="label"
+                v-model="label"
                 name="label"
                 type="text"
-                v-model="label"
                 placeholder="(optional)"
                 list="preLabels"
               />
               <datalist id="preLabels">
-                <option value="Login"></option>
-                <option value="Logout"></option>
-                <option value="Bug"></option>
-                <option value="Users"></option>
+                <option value="Login" />
+                <option value="Logout" />
+                <option value="Bug" />
+                <option value="Users" />
               </datalist>
             </li>
             <div>
               <li>
                 <label class="hide-on-small-screen" for="send">&nbsp;</label>
                 <button
-                  :disabled="!isValidURL"
-                  @click="sendRequest"
                   id="send"
                   ref="sendButton"
+                  :disabled="!isValidURL"
+                  @click="sendRequest"
                 >
                   Send
                   <span id="hidden-message">Again</span>
@@ -107,36 +107,35 @@
             </div>
           </ul>
           <div
+            v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'"
             class="blue"
             label="Request Body"
-            v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'"
           >
             <ul>
               <li>
                 <label for="contentType">Content Type</label>
                 <autocomplete
+                  v-model="contentType"
                   :source="validContentTypes"
                   :spellcheck="false"
-                  v-model="contentType"
-                  >Content Type</autocomplete
                 >
+                  Content Type
+                </autocomplete>
               </li>
             </ul>
             <ul>
               <li>
                 <div class="flex-wrap">
                   <span>
-                    <pw-toggle :on="rawInput" @change="rawInput = $event"
-                      >Raw Input
-                      {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
-                    >
+                    <pw-toggle :on="rawInput" @change="rawInput = $event">Raw Input
+                      {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle>
                   </span>
                   <div>
                     <label for="payload">
                       <button
+                        v-tooltip="'Upload file'"
                         class="icon"
                         @click="$refs.payload.click()"
-                        v-tooltip="'Upload file'"
                       >
                         <i class="material-icons">attach_file</i>
                       </button>
@@ -157,12 +156,12 @@
                   <label for="reqParamList">Parameter List</label>
                   <textarea
                     id="reqParamList"
-                    readonly
-                    v-textarea-auto-height="rawRequestBody"
                     v-model="rawRequestBody"
+                    v-textarea-auto-height="rawRequestBody"
+                    readonly
                     placeholder="(add at least one parameter)"
                     rows="1"
-                  ></textarea>
+                  />
                 </li>
               </ul>
               <ul v-for="(param, index) in bodyParams" :key="index">
@@ -171,6 +170,7 @@
                     :placeholder="'key ' + (index + 1)"
                     :name="'bparam' + index"
                     :value="param.key"
+                    autofocus
                     @change="
                       $store.commit('setKeyBodyParams', {
                         index,
@@ -178,13 +178,12 @@
                       })
                     "
                     @keyup.prevent="setRouteQueryState"
-                    autofocus
                   />
                 </li>
                 <li>
                   <input
-                    :placeholder="'value ' + (index + 1)"
                     :id="'bvalue' + index"
+                    :placeholder="'value ' + (index + 1)"
                     :name="'bvalue' + index"
                     :value="param.value"
                     @change="
@@ -199,9 +198,9 @@
                 <div>
                   <li>
                     <button
+                      id="delParam"
                       class="icon"
                       @click="removeRequestBodyParam(index)"
-                      id="delParam"
                     >
                       <i class="material-icons">delete</i>
                     </button>
@@ -212,8 +211,8 @@
                 <li>
                   <button
                     class="icon"
-                    @click="addRequestBodyParam"
                     name="addrequest"
+                    @click="addRequestBodyParam"
                   >
                     <i class="material-icons">add</i>
                     <span>Add New</span>
@@ -227,10 +226,10 @@
                   <label for="rawBody">Raw Request Body</label>
                   <textarea
                     id="rawBody"
-                    @keydown="formatRawParams"
-                    rows="8"
                     v-model="rawParams"
-                  ></textarea>
+                    rows="8"
+                    @keydown="formatRawParams"
+                  />
                 </li>
               </ul>
             </div>
@@ -238,72 +237,70 @@
           <div class="flex-wrap">
             <div style="text-align: center;">
               <button
-                class="icon"
                 id="show-modal"
-                @click="showModal = true"
                 v-tooltip.bottom="'Import cURL'"
+                class="icon"
+                @click="showModal = true"
               >
                 <i class="material-icons">import_export</i>
               </button>
               <button
-                class="icon"
                 id="code"
-                v-on:click="isHidden = !isHidden"
-                :disabled="!isValidURL"
                 v-tooltip.bottom="{
                   content: isHidden ? 'Show Code' : 'Hide Code'
                 }"
+                class="icon"
+                :disabled="!isValidURL"
+                @click="isHidden = !isHidden"
               >
                 <i class="material-icons">flash_on</i>
               </button>
               <button
-                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
                 id="preRequestScriptButton"
                 v-tooltip.bottom="{
                   content: !showPreRequestScript
                     ? 'Show Pre-Request Script'
                     : 'Hide Pre-Request Script'
                 }"
+                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
                 @click="showPreRequestScript = !showPreRequestScript"
               >
                 <i
+                  v-if="!showPreRequestScript"
                   class="material-icons"
                   :class="showPreRequestScript"
-                  v-if="!showPreRequestScript"
-                  >code</i
-                >
-                <i class="material-icons" :class="showPreRequestScript" v-else
-                  >close</i
-                >
+                  >code</i>
+                <i v-else class="material-icons" :class="showPreRequestScript"
+                  >close</i>
               </button>
             </div>
             <div style="text-align: center;">
               <button
-                class="icon"
-                @click="copyRequest"
                 id="copyRequest"
                 ref="copyRequest"
-                :disabled="!isValidURL"
                 v-tooltip.bottom="'Copy Request URL'"
+                class="icon"
+                :disabled="!isValidURL"
+                @click="copyRequest"
               >
                 <i class="material-icons">file_copy</i>
               </button>
 
               <button
-                class="icon"
-                @click="saveRequest"
                 id="saveRequest"
                 ref="saveRequest"
-                :disabled="!isValidURL"
                 v-tooltip.bottom="'Save to Collections'"
+                class="icon"
+                :disabled="!isValidURL"
+                @click="saveRequest"
               >
                 <i class="material-icons">save</i>
               </button>
               <button
+                ref="clearAll"
+                v-tooltip.bottom="'Clear All'"
                 class="icon"
                 @click="clearContent('', $event)"
-                v-tooltip.bottom="'Clear All'"
-                ref="clearAll"
               >
                 <i class="material-icons">clear_all</i>
               </button>
@@ -312,13 +309,13 @@
         </pw-section>
 
         <section id="options">
-          <input id="tab-one" type="radio" name="options" checked="checked" />
+          <input id="tab-one" type="radio" name="options" checked="checked" >
           <label for="tab-one">Authentication</label>
           <div class="tab">
             <pw-section
+              ref="authentication"
               class="cyan"
               label="Authentication"
-              ref="authentication"
             >
               <ul>
                 <li>
@@ -326,9 +323,9 @@
                     <label for="auth">Authentication Type</label>
                     <div>
                       <button
+                        v-tooltip.bottom="'Clear'"
                         class="icon"
                         @click="clearContent('auth', $event)"
-                        v-tooltip.bottom="'Clear'"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
@@ -344,37 +341,35 @@
               <ul v-if="auth === 'Basic'">
                 <li>
                   <input
+                    v-model="httpUser"
                     placeholder="User"
                     name="http_basic_user"
-                    v-model="httpUser"
                   />
                 </li>
                 <li>
                   <input
+                    v-model="httpPassword"
                     placeholder="Password"
                     name="http_basic_passwd"
                     :type="passwordFieldType"
-                    v-model="httpPassword"
                   />
                 </li>
                 <div>
                   <li>
                     <button
-                      class="icon"
                       id="switchVisibility"
                       ref="switchVisibility"
+                      class="icon"
                       @click="switchVisibility"
                     >
                       <i
-                        class="material-icons"
                         v-if="passwordFieldType === 'text'"
-                        >visibility</i
-                      >
-                      <i
                         class="material-icons"
+                        >visibility</i>
+                      <i
                         v-if="passwordFieldType !== 'text'"
-                        >visibility_off</i
-                      >
+                        class="material-icons"
+                        >visibility_off</i>
                     </button>
                   </li>
                 </div>
@@ -382,9 +377,9 @@
               <ul v-else-if="auth === 'Bearer Token'">
                 <li>
                   <input
+                    v-model="bearerToken"
                     placeholder="Token"
                     name="bearer_token"
-                    v-model="bearerToken"
                   />
                 </li>
               </ul>
@@ -392,24 +387,25 @@
                 <pw-toggle
                   :on="!urlExcludes.auth"
                   @change="setExclude('auth', !$event)"
-                  >Include in URL</pw-toggle
                 >
+                  Include in URL
+                </pw-toggle>
               </div>
             </pw-section>
           </div>
-          <input id="tab-two" type="radio" name="options" />
+          <input id="tab-two" type="radio" name="options" >
           <label for="tab-two">Headers</label>
           <div class="tab">
-            <pw-section class="orange" label="Headers" ref="headers">
+            <pw-section ref="headers" class="orange" label="Headers">
               <ul>
                 <li>
                   <div class="flex-wrap">
                     <label for="headerList">Header List</label>
                     <div>
                       <button
+                        v-tooltip.bottom="'Clear'"
                         class="icon"
                         @click="clearContent('headers', $event)"
-                        v-tooltip.bottom="'Clear'"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
@@ -417,12 +413,12 @@
                   </div>
                   <textarea
                     id="headerList"
-                    readonly
-                    v-textarea-auto-height="headerString"
                     v-model="headerString"
+                    v-textarea-auto-height="headerString"
+                    readonly
                     placeholder="(add at least one header)"
                     rows="1"
-                  ></textarea>
+                  />
                 </li>
               </ul>
               <ul v-for="(header, index) in headers" :key="index">
@@ -431,6 +427,7 @@
                     :placeholder="'header ' + (index + 1)"
                     :name="'header' + index"
                     :value="header.key"
+                    autofocus
                     @change="
                       $store.commit('setKeyHeader', {
                         index,
@@ -438,7 +435,6 @@
                       })
                     "
                     @keyup.prevent="setRouteQueryState"
-                    autofocus
                   />
                 </li>
                 <li>
@@ -458,9 +454,9 @@
                 <div>
                   <li>
                     <button
+                      id="header"
                       class="icon"
                       @click="removeRequestHeader(index)"
-                      id="header"
                     >
                       <i class="material-icons">delete</i>
                     </button>
@@ -477,19 +473,19 @@
               </ul>
             </pw-section>
           </div>
-          <input id="tab-three" type="radio" name="options" />
+          <input id="tab-three" type="radio" name="options" >
           <label for="tab-three">Parameters</label>
           <div class="tab">
-            <pw-section class="pink" label="Parameters" ref="parameters">
+            <pw-section ref="parameters" class="pink" label="Parameters">
               <ul>
                 <li>
                   <div class="flex-wrap">
                     <label for="paramList">Parameter List</label>
                     <div>
                       <button
+                        v-tooltip.bottom="'Clear'"
                         class="icon"
                         @click="clearContent('parameters', $event)"
-                        v-tooltip.bottom="'Clear'"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
@@ -497,12 +493,12 @@
                   </div>
                   <textarea
                     id="paramList"
-                    readonly
-                    v-textarea-auto-height="queryString"
                     v-model="queryString"
+                    v-textarea-auto-height="queryString"
+                    readonly
                     placeholder="(add at least one parameter)"
                     rows="1"
-                  ></textarea>
+                  />
                 </li>
               </ul>
               <ul v-for="(param, index) in params" :key="index">
@@ -511,13 +507,13 @@
                     :placeholder="'parameter ' + (index + 1)"
                     :name="'param' + index"
                     :value="param.key"
+                    autofocus
                     @change="
                       $store.commit('setKeyParams', {
                         index,
                         value: $event.target.value
                       })
                     "
-                    autofocus
                   />
                 </li>
                 <li>
@@ -536,9 +532,9 @@
                 <div>
                   <li>
                     <button
+                      id="param"
                       class="icon"
                       @click="removeRequestParam(index)"
-                      id="param"
                     >
                       <i class="material-icons">delete</i>
                     </button>
@@ -558,19 +554,19 @@
         </section>
 
         <pw-section
-          class="purple"
           id="response"
-          label="Response"
           ref="response"
+          class="purple"
+          label="Response"
         >
           <ul>
             <li>
               <label for="status">status</label>
               <input
+                id="status"
+                ref="status"
                 :class="statusCategory ? statusCategory.className : ''"
                 :value="response.status || '(waiting to send request)'"
-                ref="status"
-                id="status"
                 name="status"
                 readonly
                 type="text"
@@ -580,7 +576,7 @@
           <ul v-for="(value, key) in response.headers" :key="key">
             <li>
               <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
+              <input :id="key" :value="value" :name="key" readonly >
             </li>
           </ul>
           <ul v-if="response.body">
@@ -589,34 +585,36 @@
                 <label for="body">response</label>
                 <div>
                   <button
-                    class="icon"
-                    @click="ToggleExpandResponse"
-                    ref="ToggleExpandResponse"
                     v-if="response.body"
+                    ref="ToggleExpandResponse"
                     v-tooltip="{
                       content: !expandResponse
                         ? 'Expand response'
                         : 'Collapse response'
                     }"
+                    class="icon"
+                    @click="ToggleExpandResponse"
                   >
-                    <i class="material-icons" v-if="!expandResponse">unfold_more</i>
-                    <i class="material-icons" v-else>unfold_less</i>
+                    <i v-if="!expandResponse" class="material-icons"
+                      >unfold_more</i
+                    >
+                    <i v-else class="material-icons">unfold_less</i>
                   </button>
                   <button
+                    v-if="response.body"
+                    ref="copyResponse"
+                    v-tooltip="'Copy response'"
                     class="icon"
                     @click="copyResponse"
-                    ref="copyResponse"
-                    v-if="response.body"
-                    v-tooltip="'Copy response'"
                   >
                     <i class="material-icons">file_copy</i>
                   </button>
                   <button
+                    v-if="response.body"
+                    ref="downloadResponse"
+                    v-tooltip="'Download file'"
                     class="icon"
                     @click="downloadResponse"
-                    ref="downloadResponse"
-                    v-if="response.body"
-                    v-tooltip="'Download file'"
                   >
                     <i class="material-icons">get_app</i>
                   </button>
@@ -637,21 +635,20 @@
                   }"
                 />
                 <iframe
+                  ref="previewFrame"
                   :class="{ hidden: !previewEnabled }"
                   class="covers-response"
-                  ref="previewFrame"
                   src="about:blank"
-                ></iframe>
+                />
               </div>
               <div
-                class="align-right"
                 v-if="response.body && responseType === 'text/html'"
+                class="align-right"
               >
                 <button class="icon" @click.prevent="togglePreview">
-                  <i class="material-icons" v-if="!previewEnabled"
-                    >visibility</i
-                  >
-                  <i class="material-icons" v-else>visibility_off</i>
+                  <i v-if="!previewEnabled" class="material-icons"
+                    >visibility</i>
+                  <i v-else class="material-icons">visibility_off</i>
                   <span>{{
                     previewEnabled ? "Hide Preview" : "Preview HTML"
                   }}</span>
@@ -664,18 +661,15 @@
 
       <aside class="sticky-inner inner-right">
         <section>
-          <input id="history-tab" type="radio" name="side" checked="checked" />
+          <input id="history-tab" type="radio" name="side" checked="checked" >
           <label for="history-tab">History</label>
           <div class="tab">
-            <history
-              @useHistory="handleUseHistory"
-              ref="historyComponent"
-            ></history>
+            <history ref="historyComponent" @useHistory="handleUseHistory" />
           </div>
-          <input id="collection-tab" type="radio" name="side" />
+          <input id="collection-tab" type="radio" name="side" >
           <label for="collection-tab">Collections</label>
           <div class="tab">
-            <pw-section class="yellow" label="Collections" ref="collections">
+            <pw-section ref="collections" class="yellow" label="Collections">
               <collections />
             </pw-section>
           </div>
@@ -683,17 +677,19 @@
       </aside>
 
       <save-request-as
-        v-bind:show="showRequestModal"
-        v-on:hide-model="hideRequestModal"
-        v-bind:editing-request="editRequest"
-      ></save-request-as>
+        :show="showRequestModal"
+        :editing-request="editRequest"
+        @hide-model="hideRequestModal"
+      />
 
       <pw-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">Import cURL</h3>
+                <h3 class="title">
+                  Import cURL
+                </h3>
                 <div>
                   <button class="icon" @click="showModal = false">
                     <i class="material-icons">close</i>
@@ -711,7 +707,7 @@
                 autofocus
                 rows="8"
                 placeholder="Enter cURL"
-              ></textarea>
+              />
             </li>
           </ul>
         </div>
@@ -732,7 +728,9 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">Generate code</h3>
+                <h3 class="title">
+                  Generate code
+                </h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
                     <i class="material-icons">close</i>
@@ -759,11 +757,11 @@
                 <label for="generatedCode">Generated Code</label>
                 <div>
                   <button
-                    class="icon"
-                    @click="copyRequestCode"
                     id="copyRequestCode"
                     ref="copyRequestCode"
                     v-tooltip="'Copy code'"
+                    class="icon"
+                    @click="copyRequestCode"
                   >
                     <i class="material-icons">file_copy</i>
                   </button>
@@ -772,27 +770,27 @@
               <textarea
                 id="generatedCode"
                 ref="generatedCode"
+                v-model="requestCode"
                 name="generatedCode"
                 rows="8"
-                v-model="requestCode"
-              ></textarea>
+              />
             </li>
           </ul>
         </div>
-        <div slot="footer"></div>
+        <div slot="footer" />
       </pw-modal>
     </div>
   </div>
 </template>
 <script>
-import section from "../components/section";
-import url from "url";
-import querystring from "querystring";
-import textareaAutoHeight from "../directives/textareaAutoHeight";
-import parseCurlCommand from "../assets/js/curlparser.js";
-import getEnvironmentVariablesFromScript from "../functions/preRequest";
-import parseTemplateString from "../functions/templating";
-import AceEditor from "../components/ace-editor";
+import section from "../components/section"
+import url from "url"
+import querystring from "querystring"
+import textareaAutoHeight from "../directives/textareaAutoHeight"
+import parseCurlCommand from "../assets/js/curlparser.js"
+import getEnvironmentVariablesFromScript from "../functions/preRequest"
+import parseTemplateString from "../functions/templating"
+import AceEditor from "../components/ace-editor"
 
 const statusCategories = [
   {
@@ -826,23 +824,23 @@ const statusCategories = [
     statusCodeRegex: new RegExp(/.*/),
     className: "missing-data-response"
   }
-];
+]
 const parseHeaders = xhr => {
   const headers = xhr
     .getAllResponseHeaders()
     .trim()
-    .split(/[\r\n]+/);
-  const headerMap = {};
+    .split(/[\r\n]+/)
+  const headerMap = {}
   headers.forEach(line => {
-    const parts = line.split(": ");
-    const header = parts.shift().toLowerCase();
-    const value = parts.join(": ");
-    headerMap[header] = value;
-  });
-  return headerMap;
-};
+    const parts = line.split(": ")
+    const header = parts.shift().toLowerCase()
+    const value = parts.join(": ")
+    headerMap[header] = value
+  })
+  return headerMap
+}
 export const findStatusGroup = responseStatus =>
-  statusCategories.find(status => status.statusCodeRegex.test(responseStatus));
+  statusCategories.find(status => status.statusCodeRegex.test(responseStatus))
 
 export default {
   directives: {
@@ -904,263 +902,177 @@ export default {
       responseBodyText: "",
       responseBodyType: "text",
       responseBodyMaxLines: 16
-    };
-  },
-  watch: {
-    urlExcludes: {
-      deep: true,
-      handler() {
-        this.$store.commit("postwoman/applySetting", [
-          "URL_EXCLUDES",
-          Object.assign({}, this.urlExcludes)
-        ]);
-      }
-    },
-    contentType(val) {
-      this.rawInput = !this.knownContentTypes.includes(val);
-    },
-    rawInput(status) {
-      if (status && this.rawParams === "") this.rawParams = "{}";
-      else this.setRouteQueryState();
-    },
-    "response.body": function(val) {
-      if (
-        this.response.body === "(waiting to send request)" ||
-        this.response.body === "Loading..."
-      ) {
-        this.responseBodyText = this.response.body;
-        this.responseBodyType = "text";
-      } else {
-        if (
-          this.responseType === "application/json" ||
-          this.responseType === "application/hal+json"
-        ) {
-          this.responseBodyText = JSON.stringify(this.response.body, null, 2);
-          this.responseBodyType = "json";
-        } else if (this.responseType === "text/html") {
-          this.responseBodyText = this.response.body;
-          this.responseBodyType = "html";
-        } else {
-          this.responseBodyText = this.response.body;
-          this.responseBodyType = "text";
-        }
-      }
-    },
-    params: {
-      handler: function(newValue) {
-        if (!this.paramsWatchEnabled) {
-          this.paramsWatchEnabled = true;
-          return;
-        }
-        let path = this.path;
-        let queryString = newValue
-          .filter(({ key }) => !!key)
-          .map(({ key, value }) => `${key}=${value}`)
-          .join("&");
-        queryString = queryString === "" ? "" : `?${queryString}`;
-        if (path.includes("?")) {
-          path = path.slice(0, path.indexOf("?")) + queryString;
-        } else {
-          path = path + queryString;
-        }
-
-        this.path = path;
-      },
-      deep: true
-    },
-    selectedRequest(newValue, oldValue) {
-      // @TODO: Convert all variables to single request variable
-      if (!newValue) return;
-      this.url = newValue.url;
-      this.path = newValue.path;
-      this.method = newValue.method;
-      this.auth = newValue.auth;
-      this.httpUser = newValue.httpUser;
-      this.httpPassword = newValue.httpPassword;
-      this.passwordFieldType = newValue.passwordFieldType;
-      this.bearerToken = newValue.bearerToken;
-      this.headers = newValue.headers;
-      this.params = newValue.params;
-      this.bodyParams = newValue.bodyParams;
-      this.rawParams = newValue.rawParams;
-      this.rawInput = newValue.rawInput;
-      this.contentType = newValue.contentType;
-      this.requestType = newValue.requestType;
-    },
-    editingRequest(newValue) {
-      this.editRequest = newValue;
-      this.showRequestModal = true;
     }
   },
   computed: {
     url: {
       get() {
-        return this.$store.state.request.url;
+        return this.$store.state.request.url
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "url" });
+        this.$store.commit("setState", { value, attribute: "url" })
       }
     },
     method: {
       get() {
-        return this.$store.state.request.method;
+        return this.$store.state.request.method
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "method" });
+        this.$store.commit("setState", { value, attribute: "method" })
       }
     },
     path: {
       get() {
-        return this.$store.state.request.path;
+        return this.$store.state.request.path
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "path" });
+        this.$store.commit("setState", { value, attribute: "path" })
       }
     },
     label: {
       get() {
-        return this.$store.state.request.label;
+        return this.$store.state.request.label
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "label" });
+        this.$store.commit("setState", { value, attribute: "label" })
       }
     },
     auth: {
       get() {
-        return this.$store.state.request.auth;
+        return this.$store.state.request.auth
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "auth" });
+        this.$store.commit("setState", { value, attribute: "auth" })
       }
     },
     httpUser: {
       get() {
-        return this.$store.state.request.httpUser;
+        return this.$store.state.request.httpUser
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "httpUser" });
+        this.$store.commit("setState", { value, attribute: "httpUser" })
       }
     },
     httpPassword: {
       get() {
-        return this.$store.state.request.httpPassword;
+        return this.$store.state.request.httpPassword
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "httpPassword" });
+        this.$store.commit("setState", { value, attribute: "httpPassword" })
       }
     },
     bearerToken: {
       get() {
-        return this.$store.state.request.bearerToken;
+        return this.$store.state.request.bearerToken
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "bearerToken" });
+        this.$store.commit("setState", { value, attribute: "bearerToken" })
       }
     },
     headers: {
       get() {
-        return this.$store.state.request.headers;
+        return this.$store.state.request.headers
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "headers" });
+        this.$store.commit("setState", { value, attribute: "headers" })
       }
     },
     params: {
       get() {
-        return this.$store.state.request.params;
+        return this.$store.state.request.params
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "params" });
+        this.$store.commit("setState", { value, attribute: "params" })
       }
     },
     bodyParams: {
       get() {
-        return this.$store.state.request.bodyParams;
+        return this.$store.state.request.bodyParams
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "bodyParams" });
+        this.$store.commit("setState", { value, attribute: "bodyParams" })
       }
     },
     rawParams: {
       get() {
-        return this.$store.state.request.rawParams;
+        return this.$store.state.request.rawParams
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "rawParams" });
+        this.$store.commit("setState", { value, attribute: "rawParams" })
       }
     },
     rawInput: {
       get() {
-        return this.$store.state.request.rawInput;
+        return this.$store.state.request.rawInput
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "rawInput" });
+        this.$store.commit("setState", { value, attribute: "rawInput" })
       }
     },
     requestType: {
       get() {
-        return this.$store.state.request.requestType;
+        return this.$store.state.request.requestType
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "requestType" });
+        this.$store.commit("setState", { value, attribute: "requestType" })
       }
     },
     contentType: {
       get() {
-        return this.$store.state.request.contentType;
+        return this.$store.state.request.contentType
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "contentType" });
+        this.$store.commit("setState", { value, attribute: "contentType" })
       }
     },
     passwordFieldType: {
       get() {
-        return this.$store.state.request.passwordFieldType;
+        return this.$store.state.request.passwordFieldType
       },
       set(value) {
         this.$store.commit("setState", {
           value,
           attribute: "passwordFieldType"
-        });
+        })
       }
     },
 
     selectedRequest() {
-      return this.$store.state.postwoman.selectedRequest;
+      return this.$store.state.postwoman.selectedRequest
     },
     editingRequest() {
-      return this.$store.state.postwoman.editingRequest;
+      return this.$store.state.postwoman.editingRequest
     },
     requestName() {
-      return this.label;
+      return this.label
     },
     statusCategory() {
-      return findStatusGroup(this.response.status);
+      return findStatusGroup(this.response.status)
     },
     isValidURL() {
       if (this.showPreRequestScript) {
         // we cannot determine if a URL is valid because the full string is not known ahead of time
-        return true;
+        return true
       }
-      const protocol = "^(https?:\\/\\/)?";
+      const protocol = "^(https?:\\/\\/)?"
       const validIP = new RegExp(
         protocol +
           "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
-      );
+      )
       const validHostname = new RegExp(
         protocol +
           "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$"
-      );
-      return validIP.test(this.url) || validHostname.test(this.url);
+      )
+      return validIP.test(this.url) || validHostname.test(this.url)
     },
     hasRequestBody() {
-      return ["POST", "PUT", "PATCH"].includes(this.method);
+      return ["POST", "PUT", "PATCH"].includes(this.method)
     },
     pathName() {
-      return this.path.match(/^([^?]*)\??/)[1];
+      return this.path.match(/^([^?]*)\??/)[1]
     },
     rawRequestBody() {
-      const { bodyParams } = this;
+      const { bodyParams } = this
       if (this.contentType === "application/json") {
         try {
           const obj = JSON.parse(
@@ -1172,44 +1084,44 @@ export default {
               `
               )
               .join()}}`
-          );
-          return JSON.stringify(obj);
+          )
+          return JSON.stringify(obj)
         } catch (ex) {
-          return "invalid";
+          return "invalid"
         }
       } else {
         return bodyParams
           .filter(({ key }) => !!key)
           .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
-          .join("&");
+          .join("&")
       }
     },
     headerString() {
       const result = this.headers
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n");
-      return result === "" ? "" : `${result}`;
+        .join(",\n")
+      return result === "" ? "" : `${result}`
     },
     queryString() {
       const result = this.params
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
-        .join("&");
-      return result === "" ? "" : `?${result}`;
+        .join("&")
+      return result === "" ? "" : `?${result}`
     },
     responseType() {
       return (this.response.headers["content-type"] || "")
         .split(";")[0]
-        .toLowerCase();
+        .toLowerCase()
     },
     requestCode() {
       if (this.requestType === "JavaScript XHR") {
-        var requestString = [];
-        requestString.push("const xhr = new XMLHttpRequest()");
-        const user = this.auth === "Basic" ? "'" + this.httpUser + "'" : null;
+        var requestString = []
+        requestString.push("const xhr = new XMLHttpRequest()")
+        const user = this.auth === "Basic" ? "'" + this.httpUser + "'" : null
         const pswd =
-          this.auth === "Basic" ? "'" + this.httpPassword + "'" : null;
+          this.auth === "Basic" ? "'" + this.httpPassword + "'" : null
         requestString.push(
           "xhr.open('" +
             this.method +
@@ -1222,13 +1134,13 @@ export default {
             ", " +
             pswd +
             ")"
-        );
+        )
         if (this.auth === "Bearer Token") {
           requestString.push(
             "xhr.setRequestHeader('Authorization', 'Bearer " +
               this.bearerToken +
               "')"
-          );
+          )
         }
         if (this.headers) {
           this.headers.forEach(function(element) {
@@ -1238,121 +1150,261 @@ export default {
                 "', '" +
                 element.value +
                 "')"
-            );
-          });
+            )
+          })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput
             ? this.rawParams
-            : this.rawRequestBody;
+            : this.rawRequestBody
           requestString.push(
             "xhr.setRequestHeader('Content-Length', " + requestBody.length + ")"
-          );
+          )
           requestString.push(
             "xhr.setRequestHeader('Content-Type', '" +
               this.contentType +
               "; charset=utf-8')"
-          );
-          requestString.push("xhr.send(" + requestBody + ")");
+          )
+          requestString.push("xhr.send(" + requestBody + ")")
         } else {
-          requestString.push("xhr.send()");
+          requestString.push("xhr.send()")
         }
-        return requestString.join("\n");
+        return requestString.join("\n")
       } else if (this.requestType == "Fetch") {
-        var requestString = [];
-        var headers = [];
+        var requestString = []
+        var headers = []
         requestString.push(
           'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
-        );
-        requestString.push('  method: "' + this.method + '",\n');
+        )
+        requestString.push('  method: "' + this.method + '",\n')
         if (this.auth === "Basic") {
-          var basic = this.httpUser + ":" + this.httpPassword;
+          var basic = this.httpUser + ":" + this.httpPassword
           headers.push(
             '    "Authorization": "Basic ' +
               window.btoa(unescape(encodeURIComponent(basic))) +
               '",\n'
-          );
+          )
         } else if (this.auth === "Bearer Token") {
           headers.push(
             '    "Authorization": "Bearer ' + this.bearerToken + '",\n'
-          );
+          )
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput
             ? this.rawParams
-            : this.rawRequestBody;
-          requestString.push("  body: " + requestBody + ",\n");
-          headers.push('    "Content-Length": ' + requestBody.length + ",\n");
+            : this.rawRequestBody
+          requestString.push("  body: " + requestBody + ",\n")
+          headers.push('    "Content-Length": ' + requestBody.length + ",\n")
           headers.push(
             '    "Content-Type": "' + this.contentType + '; charset=utf-8",\n'
-          );
+          )
         }
         if (this.headers) {
           this.headers.forEach(function(element) {
             headers.push(
               '    "' + element.key + '": "' + element.value + '",\n'
-            );
-          });
+            )
+          })
         }
-        headers = headers.join("").slice(0, -2);
-        requestString.push("  headers: {\n" + headers + "\n  },\n");
-        requestString.push('  credentials: "same-origin"\n');
-        requestString.push("}).then(function(response) {\n");
-        requestString.push("  response.status\n");
-        requestString.push("  response.statusText\n");
-        requestString.push("  response.headers\n");
-        requestString.push("  response.url\n\n");
-        requestString.push("  return response.text()\n");
-        requestString.push("}).catch(function(error) {\n");
-        requestString.push("  error.message\n");
-        requestString.push("})");
-        return requestString.join("");
+        headers = headers.join("").slice(0, -2)
+        requestString.push("  headers: {\n" + headers + "\n  },\n")
+        requestString.push('  credentials: "same-origin"\n')
+        requestString.push("}).then(function(response) {\n")
+        requestString.push("  response.status\n")
+        requestString.push("  response.statusText\n")
+        requestString.push("  response.headers\n")
+        requestString.push("  response.url\n\n")
+        requestString.push("  return response.text()\n")
+        requestString.push("}).catch(function(error) {\n")
+        requestString.push("  error.message\n")
+        requestString.push("})")
+        return requestString.join("")
       } else if (this.requestType === "cURL") {
-        var requestString = [];
-        requestString.push("curl -X " + this.method + " \\\n");
+        var requestString = []
+        requestString.push("curl -X " + this.method + " \\\n")
         requestString.push(
           "  '" + this.url + this.pathName + this.queryString + "' \\\n"
-        );
+        )
         if (this.auth === "Basic") {
-          var basic = this.httpUser + ":" + this.httpPassword;
+          var basic = this.httpUser + ":" + this.httpPassword
           requestString.push(
             "  -H 'Authorization: Basic " +
               window.btoa(unescape(encodeURIComponent(basic))) +
               "' \\\n"
-          );
+          )
         } else if (this.auth === "Bearer Token") {
           requestString.push(
             "  -H 'Authorization: Bearer " + this.bearerToken + "' \\\n"
-          );
+          )
         }
         if (this.headers) {
           this.headers.forEach(function(element) {
             requestString.push(
               "  -H '" + element.key + ": " + element.value + "' \\\n"
-            );
-          });
+            )
+          })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput
             ? this.rawParams
-            : this.rawRequestBody;
+            : this.rawRequestBody
           requestString.push(
             "  -H 'Content-Length: " + requestBody.length + "' \\\n"
-          );
+          )
           requestString.push(
             "  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n"
-          );
-          requestString.push("  -d '" + requestBody + "' \\\n");
+          )
+          requestString.push("  -d '" + requestBody + "' \\\n")
         }
-        return requestString.join("").slice(0, -3);
+        return requestString.join("").slice(0, -3)
       }
     }
+  },
+  watch: {
+    urlExcludes: {
+      deep: true,
+      handler() {
+        this.$store.commit("postwoman/applySetting", [
+          "URL_EXCLUDES",
+          Object.assign({}, this.urlExcludes)
+        ])
+      }
+    },
+    contentType(val) {
+      this.rawInput = !this.knownContentTypes.includes(val)
+    },
+    rawInput(status) {
+      if (status && this.rawParams === "") this.rawParams = "{}"
+      else this.setRouteQueryState()
+    },
+    "response.body": function(val) {
+      if (
+        this.response.body === "(waiting to send request)" ||
+        this.response.body === "Loading..."
+      ) {
+        this.responseBodyText = this.response.body
+        this.responseBodyType = "text"
+      } else {
+        if (
+          this.responseType === "application/json" ||
+          this.responseType === "application/hal+json"
+        ) {
+          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
+          this.responseBodyType = "json"
+        } else if (this.responseType === "text/html") {
+          this.responseBodyText = this.response.body
+          this.responseBodyType = "html"
+        } else {
+          this.responseBodyText = this.response.body
+          this.responseBodyType = "text"
+        }
+      }
+    },
+    params: {
+      handler: function(newValue) {
+        if (!this.paramsWatchEnabled) {
+          this.paramsWatchEnabled = true
+          return
+        }
+        let path = this.path
+        let queryString = newValue
+          .filter(({ key }) => !!key)
+          .map(({ key, value }) => `${key}=${value}`)
+          .join("&")
+        queryString = queryString === "" ? "" : `?${queryString}`
+        if (path.includes("?")) {
+          path = path.slice(0, path.indexOf("?")) + queryString
+        } else {
+          path = path + queryString
+        }
+
+        this.path = path
+      },
+      deep: true
+    },
+    selectedRequest(newValue, oldValue) {
+      // @TODO: Convert all variables to single request variable
+      if (!newValue) return
+      this.url = newValue.url
+      this.path = newValue.path
+      this.method = newValue.method
+      this.auth = newValue.auth
+      this.httpUser = newValue.httpUser
+      this.httpPassword = newValue.httpPassword
+      this.passwordFieldType = newValue.passwordFieldType
+      this.bearerToken = newValue.bearerToken
+      this.headers = newValue.headers
+      this.params = newValue.params
+      this.bodyParams = newValue.bodyParams
+      this.rawParams = newValue.rawParams
+      this.rawInput = newValue.rawInput
+      this.contentType = newValue.contentType
+      this.requestType = newValue.requestType
+    },
+    editingRequest(newValue) {
+      this.editRequest = newValue
+      this.showRequestModal = true
+    }
+  },
+  mounted() {
+    this.observeRequestButton()
+    this._keyListener = function(e) {
+      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        this.sendRequest()
+      } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        this.saveRequest()
+      } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        this.copyRequest()
+      } else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        this.$refs.clearAll.click()
+      }
+    }
+    document.addEventListener("keydown", this._keyListener.bind(this))
+  },
+  created() {
+    this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
+      // Exclude authentication by default for security reasons.
+      auth: true,
+      httpUser: true,
+      httpPassword: true,
+      bearerToken: true
+    }
+
+    if (Object.keys(this.$route.query).length)
+      this.setRouteQueries(this.$route.query)
+    this.$watch(
+      vm => [
+        vm.label,
+        vm.method,
+        vm.url,
+        vm.auth,
+        vm.path,
+        vm.httpUser,
+        vm.httpPassword,
+        vm.bearerToken,
+        vm.headers,
+        vm.params,
+        vm.bodyParams,
+        vm.contentType,
+        vm.rawParams
+      ],
+      val => {
+        this.setRouteQueryState()
+      }
+    )
+  },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth"
-      });
+      })
     },
     handleUseHistory({
       label,
@@ -1362,19 +1414,19 @@ export default {
       usesScripts,
       preRequestScript
     }) {
-      this.label = label;
-      this.method = method;
-      this.url = url;
-      this.path = path;
-      this.showPreRequestScript = usesScripts;
-      this.preRequestScript = preRequestScript;
-      this.scrollInto("request");
+      this.label = label
+      this.method = method
+      this.url = url
+      this.path = path
+      this.showPreRequestScript = usesScripts
+      this.preRequestScript = preRequestScript
+      this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
-        return {};
+        return {}
       }
-      return getEnvironmentVariablesFromScript(this.preRequestScript);
+      return getEnvironmentVariablesFromScript(this.preRequestScript)
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
@@ -1383,31 +1435,31 @@ export default {
         auth,
         headers,
         data: requestBody ? requestBody.toString() : null
-      };
+      }
       if (preRequestScript) {
         const environmentVariables = getEnvironmentVariablesFromScript(
           preRequestScript
-        );
+        )
         requestOptions.url = parseTemplateString(
           requestOptions.url,
           environmentVariables
-        );
+        )
         requestOptions.data = parseTemplateString(
           requestOptions.data,
           environmentVariables
-        );
+        )
         for (let k in requestOptions.headers) {
-          const kParsed = parseTemplateString(k, environmentVariables);
+          const kParsed = parseTemplateString(k, environmentVariables)
           const valParsed = parseTemplateString(
             requestOptions.headers[k],
             environmentVariables
-          );
-          delete requestOptions.headers[k];
-          requestOptions.headers[kParsed] = valParsed;
+          )
+          delete requestOptions.headers[k]
+          requestOptions.headers[kParsed] = valParsed
         }
       }
       if (typeof requestOptions.data === "string") {
-        requestOptions.data = parseTemplateString(requestOptions.data);
+        requestOptions.data = parseTemplateString(requestOptions.data)
       }
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
@@ -1415,34 +1467,34 @@ export default {
             url: `https://postwoman.apollotv.xyz/`,
             data: requestOptions
           }
-        : requestOptions;
+        : requestOptions
 
-      const response = await this.$axios(config);
+      const response = await this.$axios(config)
       return this.$store.state.postwoman.settings.PROXY_ENABLED
         ? response.data
-        : response;
+        : response
     },
     async sendRequest() {
-      this.$toast.clear();
-      this.scrollInto("response");
+      this.$toast.clear()
+      this.scrollInto("response")
 
       if (!this.isValidURL) {
         this.$toast.error("URL is not formatted properly", {
           icon: "error"
-        });
-        return;
+        })
+        return
       }
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
-      this.$nuxt.$loading.start();
+      this.$nuxt.$loading.start()
 
       if (this.$refs.response.$el.classList.contains("hidden")) {
-        this.$refs.response.$el.classList.toggle("hidden");
+        this.$refs.response.$el.classList.toggle("hidden")
       }
-      this.previewEnabled = false;
-      this.response.status = "Fetching...";
-      this.response.body = "Loading...";
+      this.previewEnabled = false
+      this.response.status = "Fetching..."
+      this.response.body = "Loading..."
 
       const auth =
         this.auth === "Basic"
@@ -1450,31 +1502,31 @@ export default {
               username: this.httpUser,
               password: this.httpPassword
             }
-          : null;
+          : null
 
-      let headers = {};
-      let headersObject = {};
+      let headers = {}
+      let headersObject = {}
 
       Object.keys(headers).forEach(id => {
-        headersObject[headers[id].key] = headers[id].value;
-      });
-      headers = headersObject;
+        headersObject[headers[id].key] = headers[id].value
+      })
+      headers = headersObject
 
       // If the request has a body, we want to ensure Content-Length and
       // Content-Type are sent.
-      let requestBody;
+      let requestBody
       if (this.hasRequestBody) {
-        requestBody = this.rawInput ? this.rawParams : this.rawRequestBody;
+        requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
 
         Object.assign(headers, {
           //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`
-        });
+        })
       }
 
       // If the request uses a token for auth, we want to make sure it's sent here.
       if (this.auth === "Bearer Token")
-        headers["Authorization"] = `Bearer ${this.bearerToken}`;
+        headers["Authorization"] = `Bearer ${this.bearerToken}`
 
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
@@ -1485,37 +1537,36 @@ export default {
         // that you can override the added headers if you
         // specify them.
         headers
-      );
+      )
 
       Object.keys(headers).forEach(id => {
-        headersObject[headers[id].key] = headers[id].value;
-      });
-      headers = headersObject;
+        headersObject[headers[id].key] = headers[id].value
+      })
+      headers = headersObject
 
       try {
-        const startTime = Date.now();
+        const startTime = Date.now()
 
         const payload = await this.makeRequest(
           auth,
           headers,
           requestBody,
           this.showPreRequestScript && this.preRequestScript
-        );
+        )
 
-        const duration = Date.now() - startTime;
+        const duration = Date.now() - startTime
         this.$toast.info(`Finished in ${duration}ms`, {
           icon: "done"
-        });
-
-        (() => {
-          const status = (this.response.status = payload.status);
-          const headers = (this.response.headers = payload.headers);
+        })
+        ;(() => {
+          const status = (this.response.status = payload.status)
+          const headers = (this.response.headers = payload.headers)
 
           // We don't need to bother parsing JSON, axios already handles it for us!
-          const body = (this.response.body = payload.data);
+          const body = (this.response.body = payload.data)
 
-          const date = new Date().toLocaleDateString();
-          const time = new Date().toLocaleTimeString();
+          const date = new Date().toLocaleDateString()
+          const time = new Date().toLocaleTimeString()
 
           // Addition of an entry to the history component.
           const entry = {
@@ -1530,15 +1581,15 @@ export default {
             preRequestScript: this.preRequestScript,
             duration,
             star: false
-          };
-          this.$refs.historyComponent.addEntry(entry);
-        })();
+          }
+          this.$refs.historyComponent.addEntry(entry)
+        })()
       } catch (error) {
-        console.error(error);
+        console.error(error)
         if (error.response) {
-          this.response.headers = error.response.headers;
-          this.response.status = error.response.status;
-          this.response.body = error.response.data;
+          this.response.headers = error.response.headers
+          this.response.status = error.response.status
+          this.response.body = error.response.data
 
           // Addition of an entry to the history component.
           const entry = {
@@ -1551,15 +1602,15 @@ export default {
             path: this.path,
             usesScripts: Boolean(this.preRequestScript),
             preRequestScript: this.preRequestScript
-          };
-          this.$refs.historyComponent.addEntry(entry);
-          return;
+          }
+          this.$refs.historyComponent.addEntry(entry)
+          return
         } else {
-          this.response.status = error.message;
-          this.response.body = error + ". Check console for details.";
+          this.response.status = error.message
+          this.response.body = error + ". Check console for details."
           this.$toast.error(error + " (F12 for details)", {
             icon: "error"
-          });
+          })
           if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
             this.$toast.info("Try enabling Proxy", {
               icon: "help",
@@ -1567,102 +1618,102 @@ export default {
               action: {
                 text: "Settings",
                 onClick: (e, toastObject) => {
-                  this.$router.push({ path: "/settings" });
+                  this.$router.push({ path: "/settings" })
                 }
               }
-            });
+            })
           }
         }
       }
     },
     getQueryStringFromPath() {
       let queryString,
-        pathParsed = url.parse(this.path);
-      return (queryString = pathParsed.query ? pathParsed.query : "");
+        pathParsed = url.parse(this.path)
+      return (queryString = pathParsed.query ? pathParsed.query : "")
     },
     queryStringToArray(queryString) {
-      let queryParsed = querystring.parse(queryString);
+      let queryParsed = querystring.parse(queryString)
       return Object.keys(queryParsed).map(key => ({
         key: key,
         value: queryParsed[key]
-      }));
+      }))
     },
     pathInputHandler() {
       let queryString = this.getQueryStringFromPath(),
-        params = this.queryStringToArray(queryString);
+        params = this.queryStringToArray(queryString)
 
-      this.paramsWatchEnabled = false;
-      this.params = params;
+      this.paramsWatchEnabled = false
+      this.params = params
     },
     addRequestHeader() {
       this.$store.commit("addHeaders", {
         key: "",
         value: ""
-      });
-      return false;
+      })
+      return false
     },
     removeRequestHeader(index) {
-      this.$store.commit("removeHeaders", index);
+      this.$store.commit("removeHeaders", index)
       this.$toast.error("Deleted", {
         icon: "delete"
-      });
+      })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "" });
-      return false;
+      this.$store.commit("addParams", { key: "", value: "" })
+      return false
     },
     removeRequestParam(index) {
-      this.$store.commit("removeParams", index);
+      this.$store.commit("removeParams", index)
       this.$toast.error("Deleted", {
         icon: "delete"
-      });
+      })
     },
     addRequestBodyParam() {
-      this.$store.commit("addBodyParams", { key: "", value: "" });
-      return false;
+      this.$store.commit("addBodyParams", { key: "", value: "" })
+      return false
     },
     removeRequestBodyParam(index) {
-      this.$store.commit("removeBodyParams", index);
+      this.$store.commit("removeBodyParams", index)
       this.$toast.error("Deleted", {
         icon: "delete"
-      });
+      })
     },
     formatRawParams(event) {
       if (event.which !== 13 && event.which !== 9) {
-        return;
+        return
       }
-      const textBody = event.target.value;
+      const textBody = event.target.value
       const textBeforeCursor = textBody.substring(
         0,
         event.target.selectionStart
-      );
-      const textAfterCursor = textBody.substring(event.target.selectionEnd);
+      )
+      const textAfterCursor = textBody.substring(event.target.selectionEnd)
       if (event.which === 13) {
-        event.preventDefault();
-        const oldSelectionStart = event.target.selectionStart;
-        const lastLine = textBeforeCursor.split("\n").slice(-1)[0];
-        const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
+        event.preventDefault()
+        const oldSelectionStart = event.target.selectionStart
+        const lastLine = textBeforeCursor.split("\n").slice(-1)[0]
+        const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || ""
         event.target.value =
-          textBeforeCursor + "\n" + rightPadding + textAfterCursor;
+          textBeforeCursor + "\n" + rightPadding + textAfterCursor
         setTimeout(
           () =>
             (event.target.selectionStart = event.target.selectionEnd =
               oldSelectionStart + rightPadding.length + 1),
           1
-        );
+        )
       } else if (event.which === 9) {
-        event.preventDefault();
-        const oldSelectionStart = event.target.selectionStart;
-        event.target.value = textBeforeCursor + "\xa0\xa0" + textAfterCursor;
+        event.preventDefault()
+        const oldSelectionStart = event.target.selectionStart
+        event.target.value = textBeforeCursor + "\xa0\xa0" + textAfterCursor
         event.target.selectionStart = event.target.selectionEnd =
-          oldSelectionStart + 2;
-        return false;
+          oldSelectionStart + 2
+        return false
       }
     },
     copyRequest() {
       if (navigator.share) {
-        let time = new Date().toLocaleTimeString();
-        let date = new Date().toLocaleDateString();
+        let time = new Date().toLocaleTimeString()
+        let date = new Date().toLocaleDateString()
         navigator
           .share({
             title: `Postwoman`,
@@ -1670,68 +1721,69 @@ export default {
             url: window.location.href
           })
           .then(() => {})
-          .catch(console.error);
+          .catch(console.error)
       } else {
-        var dummy = document.createElement("input");
-        document.body.appendChild(dummy);
-        dummy.value = window.location.href;
-        dummy.select();
-        document.execCommand("copy");
-        document.body.removeChild(dummy);
-        this.$refs.copyRequest.innerHTML = this.doneButton;
+        var dummy = document.createElement("input")
+        document.body.appendChild(dummy)
+        dummy.value = window.location.href
+        dummy.select()
+        document.execCommand("copy")
+        document.body.removeChild(dummy)
+        this.$refs.copyRequest.innerHTML = this.doneButton
         this.$toast.info("Copied to clipboard", {
           icon: "done"
-        });
+        })
         setTimeout(
           () =>
             (this.$refs.copyRequest.innerHTML =
               '<i class="material-icons">file_copy</i>'),
           1000
-        );
+        )
       }
     },
     copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML = this.doneButton;
+      this.$refs.copyRequestCode.innerHTML = this.doneButton
       this.$toast.success("Copied to clipboard", {
         icon: "done"
-      });
-      this.$refs.generatedCode.select();
-      document.execCommand("copy");
+      })
+      this.$refs.generatedCode.select()
+      document.execCommand("copy")
       setTimeout(
         () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
         1000
-      );
+      )
     },
     ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse;
-      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
+      this.expandResponse = !this.expandResponse
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines == Infinity ? 16 : Infinity
     },
     copyResponse() {
-      this.$refs.copyResponse.innerHTML = this.doneButton;
+      this.$refs.copyResponse.innerHTML = this.doneButton
       this.$toast.success("Copied to clipboard", {
         icon: "done"
-      });
-      var aux = document.createElement("textarea");
+      })
+      var aux = document.createElement("textarea")
       var copy =
         this.responseType == "application/json"
           ? JSON.stringify(this.response.body)
-          : this.response.body;
-      aux.innerText = copy;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+          : this.response.body
+      aux.innerText = copy
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       setTimeout(
         () => (this.$refs.copyResponse.innerHTML = this.copyButton),
         1000
-      );
+      )
     },
     downloadResponse() {
-      var dataToWrite = JSON.stringify(this.response.body, null, 2);
-      var file = new Blob([dataToWrite], { type: this.responseType });
+      var dataToWrite = JSON.stringify(this.response.body, null, 2)
+      var file = new Blob([dataToWrite], { type: this.responseType })
       var a = document.createElement("a"),
-        url = URL.createObjectURL(file);
-      a.href = url;
+        url = URL.createObjectURL(file)
+      a.href = url
       a.download = (
         this.url +
         this.path +
@@ -1739,21 +1791,21 @@ export default {
         this.method +
         "] on " +
         Date()
-      ).replace(".", "[dot]");
-      document.body.appendChild(a);
-      a.click();
-      this.$refs.downloadResponse.innerHTML = this.doneButton;
+      ).replace(".", "[dot]")
+      document.body.appendChild(a)
+      a.click()
+      this.$refs.downloadResponse.innerHTML = this.doneButton
       this.$toast.success("Download started", {
         icon: "done"
-      });
+      })
       setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        this.$refs.downloadResponse.innerHTML = this.downloadButton;
-      }, 1000);
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        this.$refs.downloadResponse.innerHTML = this.downloadButton
+      }, 1000)
     },
     togglePreview() {
-      this.previewEnabled = !this.previewEnabled;
+      this.previewEnabled = !this.previewEnabled
       if (this.previewEnabled) {
         // If you want to add 'preview' support for other response types,
         // just add them here.
@@ -1763,30 +1815,30 @@ export default {
             this.$refs.previewFrame.getAttribute("data-previewing-url") ===
             this.url
           )
-            return;
+            return
           // Use DOMParser to parse document HTML.
           const previewDocument = new DOMParser().parseFromString(
             this.response.body,
             this.responseType
-          );
+          )
           // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
           previewDocument.head.innerHTML =
-            `<base href="${this.url}">` + previewDocument.head.innerHTML;
+            `<base href="${this.url}">` + previewDocument.head.innerHTML
           // Finally, set the iframe source to the resulting HTML.
           this.$refs.previewFrame.srcdoc =
-            previewDocument.documentElement.outerHTML;
-          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url);
+            previewDocument.documentElement.outerHTML
+          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
         }
       }
     },
     setRouteQueryState() {
-      const flat = key => (this[key] !== "" ? `${key}=${this[key]}&` : "");
+      const flat = key => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = key => {
-        const haveItems = [...this[key]].length;
+        const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
-          return `${key}=${JSON.stringify(this[key])}&`;
-        } else return "";
-      };
+          return `${key}=${JSON.stringify(this[key])}&`
+        } else return ""
+      }
       let flats = [
         "method",
         "url",
@@ -1798,11 +1850,11 @@ export default {
         "contentType"
       ]
         .filter(item => item !== null)
-        .map(item => flat(item));
-      let deeps = ["headers", "params"].map(item => deep(item));
+        .map(item => flat(item))
+      let deeps = ["headers", "params"].map(item => deep(item))
       let bodyParams = this.rawInput
         ? [flat("rawParams")]
-        : [deep("bodyParams")];
+        : [deep("bodyParams")]
 
       this.$router.replace(
         "/?" +
@@ -1810,110 +1862,109 @@ export default {
             .concat(deeps, bodyParams)
             .join("")
             .slice(0, -1)
-      );
+      )
     },
     setRouteQueries(queries) {
       if (typeof queries !== "object")
-        throw new Error("Route query parameters must be a Object");
+        throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(queries[key]);
+          this[key] = JSON.parse(queries[key])
         if (key === "rawParams") {
-          this.rawInput = true;
-          this.rawParams = queries["rawParams"];
-        } else if (typeof this[key] === "string") this[key] = queries[key];
+          this.rawInput = true
+          this.rawParams = queries["rawParams"]
+        } else if (typeof this[key] === "string") this[key] = queries[key]
       }
     },
     observeRequestButton() {
-      const requestElement = this.$refs.request.$el;
-      const sendButtonElement = this.$refs.sendButton;
+      const requestElement = this.$refs.request.$el
+      const sendButtonElement = this.$refs.sendButton
       const observer = new IntersectionObserver(
         (entries, observer) => {
           entries.forEach(entry => {
-            if (entry.isIntersecting)
-              sendButtonElement.classList.remove("show");
+            if (entry.isIntersecting) sendButtonElement.classList.remove("show")
             // The button should float when it is no longer visible on screen.
             // This is done by adding the show class to the button.
-            else sendButtonElement.classList.add("show");
-          });
+            else sendButtonElement.classList.add("show")
+          })
         },
         {
           rootMargin: "0px",
           threshold: [0]
         }
-      );
-      observer.observe(requestElement);
+      )
+      observer.observe(requestElement)
     },
     handleImport() {
-      let textarea = document.getElementById("import-text");
-      let text = textarea.value;
+      let textarea = document.getElementById("import-text")
+      let text = textarea.value
       try {
-        let parsedCurl = parseCurlCommand(text);
-        this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "");
+        let parsedCurl = parseCurlCommand(text)
+        this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
         this.url =
-          this.url.slice(-1).pop() == "/" ? this.url.slice(0, -1) : this.url;
-        this.path = "";
-        this.headers = [];
+          this.url.slice(-1).pop() == "/" ? this.url.slice(0, -1) : this.url
+        this.path = ""
+        this.headers = []
         for (const key of Object.keys(parsedCurl.headers)) {
           this.$store.commit("addHeaders", {
             key: key,
             value: parsedCurl.headers[key]
-          });
+          })
         }
-        this.method = parsedCurl.method.toUpperCase();
+        this.method = parsedCurl.method.toUpperCase()
         if (parsedCurl["data"]) {
-          this.rawInput = true;
-          this.rawParams = parsedCurl["data"];
+          this.rawInput = true
+          this.rawParams = parsedCurl["data"]
         }
-        this.showModal = false;
+        this.showModal = false
       } catch (error) {
-        this.showModal = false;
+        this.showModal = false
         this.$toast.error("cURL is not formatted properly", {
           icon: "error"
-        });
+        })
       }
     },
     switchVisibility() {
       this.passwordFieldType =
-        this.passwordFieldType === "password" ? "text" : "password";
+        this.passwordFieldType === "password" ? "text" : "password"
     },
     clearContent(name, e) {
       switch (name) {
         case "auth":
-          this.auth = "None";
-          this.httpUser = "";
-          this.httpPassword = "";
-          this.bearerToken = "";
-          break;
+          this.auth = "None"
+          this.httpUser = ""
+          this.httpPassword = ""
+          this.bearerToken = ""
+          break
         case "headers":
-          this.headers = [];
-          break;
+          this.headers = []
+          break
         case "parameters":
-          this.params = [];
-          break;
+          this.params = []
+          break
         default:
-          (this.label = ""),
+          ;(this.label = ""),
             (this.method = "GET"),
             (this.url = "https://reqres.in"),
             (this.auth = "None"),
             (this.path = "/api/users"),
-            (this.auth = "None");
-          this.httpUser = "";
-          this.httpPassword = "";
-          this.bearerToken = "";
-          this.headers = [];
-          this.params = [];
-          this.bodyParams = [];
-          this.rawParams = "";
+            (this.auth = "None")
+          this.httpUser = ""
+          this.httpPassword = ""
+          this.bearerToken = ""
+          this.headers = []
+          this.params = []
+          this.bodyParams = []
+          this.rawParams = ""
       }
-      e.target.innerHTML = this.doneButton;
+      e.target.innerHTML = this.doneButton
       this.$toast.info("Cleared", {
         icon: "clear_all"
-      });
+      })
       setTimeout(
         () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
-      );
+      )
     },
     saveRequest() {
       this.editRequest = {
@@ -1932,111 +1983,57 @@ export default {
         rawInput: this.rawInput,
         contentType: this.contentType,
         requestType: this.requestType
-      };
+      }
 
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign(
           {},
           this.selectedRequest,
           this.editRequest
-        );
+        )
       }
 
-      this.showRequestModal = true;
+      this.showRequestModal = true
     },
     hideRequestModal() {
-      this.showRequestModal = false;
-      this.editRequest = {};
+      this.showRequestModal = false
+      this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
       if (excludedField === "auth") {
-        this.urlExcludes.auth = excluded;
-        this.urlExcludes.httpUser = excluded;
-        this.urlExcludes.httpPassword = excluded;
-        this.urlExcludes.bearerToken = excluded;
+        this.urlExcludes.auth = excluded
+        this.urlExcludes.httpUser = excluded
+        this.urlExcludes.httpPassword = excluded
+        this.urlExcludes.bearerToken = excluded
       } else {
-        this.urlExcludes[excludedField] = excluded;
+        this.urlExcludes[excludedField] = excluded
       }
-      this.setRouteQueryState();
+      this.setRouteQueryState()
     },
     methodChange() {
       // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
       this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
         ? "application/json"
-        : "";
+        : ""
     },
     uploadPayload() {
-      this.rawInput = true;
-      let file = this.$refs.payload.files[0];
+      this.rawInput = true
+      let file = this.$refs.payload.files[0]
       if (file != null) {
-        let reader = new FileReader();
+        let reader = new FileReader()
         reader.onload = e => {
-          this.rawParams = e.target.result;
-        };
-        reader.readAsText(file);
+          this.rawParams = e.target.result
+        }
+        reader.readAsText(file)
         this.$toast.info("File imported", {
           icon: "attach_file"
-        });
+        })
       } else {
         this.$toast.error("Choose a file", {
           icon: "attach_file"
-        });
+        })
       }
     }
-  },
-  mounted() {
-    this.observeRequestButton();
-    this._keyListener = function(e) {
-      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.sendRequest();
-      } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.saveRequest();
-      } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.copyRequest();
-      } else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.$refs.clearAll.click();
-      }
-    };
-    document.addEventListener("keydown", this._keyListener.bind(this));
-  },
-  created() {
-    this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
-      // Exclude authentication by default for security reasons.
-      auth: true,
-      httpUser: true,
-      httpPassword: true,
-      bearerToken: true
-    };
-
-    if (Object.keys(this.$route.query).length)
-      this.setRouteQueries(this.$route.query);
-    this.$watch(
-      vm => [
-        vm.label,
-        vm.method,
-        vm.url,
-        vm.auth,
-        vm.path,
-        vm.httpUser,
-        vm.httpPassword,
-        vm.bearerToken,
-        vm.headers,
-        vm.params,
-        vm.bodyParams,
-        vm.contentType,
-        vm.rawParams
-      ],
-      val => {
-        this.setRouteQueryState();
-      }
-    );
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener);
   }
-};
+}
 </script>

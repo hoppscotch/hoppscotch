@@ -4,7 +4,9 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">Edit Collection</h3>
+            <h3 class="title">
+              Edit Collection
+            </h3>
             <div>
               <button class="icon" @click="hideModel">
                 <i class="material-icons">close</i>
@@ -18,9 +20,9 @@
       <ul>
         <li>
           <input
-            type="text"
             v-model="name"
-            v-bind:placeholder="editingCollection.name"
+            type="text"
+            :placeholder="editingCollection.name"
             @keyup.enter="saveCollection"
           />
         </li>
@@ -41,34 +43,34 @@
 
 <script>
 export default {
+  components: {
+    modal: () => import("../../components/modal")
+  },
   props: {
     show: Boolean,
     editingCollection: Object,
     editingCollectionIndex: Number
   },
-  components: {
-    modal: () => import("../../components/modal")
-  },
   data() {
     return {
       name: undefined
-    };
+    }
   },
   methods: {
     saveCollection() {
       const collectionUpdated = {
         ...this.$props.editingCollection,
         name: this.$data.name
-      };
+      }
       this.$store.commit("postwoman/editCollection", {
         collection: collectionUpdated,
         collectionIndex: this.$props.editingCollectionIndex
-      });
-      this.$emit("hide-modal");
+      })
+      this.$emit("hide-modal")
     },
     hideModel() {
-      this.$emit("hide-modal");
+      this.$emit("hide-modal")
     }
   }
-};
+}
 </script>

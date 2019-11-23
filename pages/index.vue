@@ -88,7 +88,7 @@
                 <option value="Users"></option>
               </datalist>
             </li>
-            <div>
+            <ul>
               <li>
                 <label class="hide-on-small-screen" for="send">&nbsp;</label>
                 <button
@@ -104,7 +104,7 @@
                   </span>
                 </button>
               </li>
-            </div>
+            </ul>
           </ul>
           <div
             class="blue"

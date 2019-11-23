@@ -84,6 +84,10 @@
           </li>
         </div>
       </ul>
+
+<input type="text" name="" value="">
+<button type="button" name="button" @click="start()"></button>
+<div id="result"></div>
     </pw-section>
   </div>
 </template>
@@ -253,6 +257,16 @@ export default {
       if (Object.keys(sourceEmojis).includes(source))
         return sourceEmojis[source];
       return "";
+    },
+    start() {
+      if(typeof(EventSource) !== "undefined") {
+        var source = new EventSource("http://wgrothaus.ucc.ie/~frank/cs3513/server_event_source.php");
+        source.onmessage = function(event) {
+          document.getElementById("result").innerHTML += event.data + "<br>";
+        };
+      } else {
+        document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
+      }
     }
   },
   updated: function() {

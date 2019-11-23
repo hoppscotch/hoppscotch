@@ -10,9 +10,9 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  border-radius: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;
   background-color: var(--bg-dark-color);
   visibility: hidden;
 
@@ -24,7 +24,6 @@ html {
 ::-webkit-scrollbar-thumb {
   background-color: var(--fg-light-color);
   border-radius: 8px;
-  border: 2px solid var(--bg-color);
 
   &:hover {
     background-color: var(--fg-color);

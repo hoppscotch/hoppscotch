@@ -26,11 +26,45 @@
         </pw-section>
 
         <pw-section class="green" label="Schema" ref="schema">
+          <div class="flex-wrap">
+            <label>response</label>
+            <div>
+              <button
+                class="icon"
+                @click="ToggleExpandResponse"
+                ref="ToggleExpandResponse"
+                v-tooltip="{
+                  content: !expandResponse
+                    ? 'Expand response'
+                    : 'Collapse response'
+                }"
+              >
+                <i class="material-icons" v-if="!expandResponse">unfold_more</i>
+                <i class="material-icons" v-else>unfold_less</i>
+              </button>
+              <button
+                class="icon"
+                @click="downloadResponse"
+                ref="downloadResponse"
+                v-tooltip="'Download file'"
+              >
+                <i class="material-icons">get_app</i>
+              </button>
+              <button
+                class="icon"
+                ref="copySchemaCode"
+                @click="copySchema"
+                v-tooltip="'Copy Schema'"
+              >
+                <i class="material-icons">file_copy</i>
+              </button>
+            </div>
+          </div>
           <Editor
             :value="schemaString"
             :lang="'graphqlschema'"
             :options="{
-              maxLines: '16',
+              maxLines: responseBodyMaxLines,
               minLines: '16',
               fontSize: '16px',
               autoScrollEditorIntoView: true,
@@ -39,9 +73,6 @@
               useWorker: false
             }"
           />
-          <button class="icon" @click="copySchema" v-tooltip="'Copy Schema'">
-            <i class="material-icons">file_copy</i>
-          </button>
         </pw-section>
       </div>
       <aside class="sticky-inner inner-right">
@@ -140,7 +171,12 @@ export default {
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
-      gqlTypes: []
+      gqlTypes: [],
+      copyButton: '<i class="material-icons">file_copy</i>',
+      downloadButton: '<i class="material-icons">get_app</i>',
+      doneButton: '<i class="material-icons">done</i>',
+      expandResponse: false,
+      responseBodyMaxLines: 16
     };
   },
   computed: {
@@ -155,6 +191,7 @@ export default {
   },
   methods: {
     copySchema() {
+      this.$refs.copySchemaCode.innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
       aux.innerText = this.schemaString;
       document.body.appendChild(aux);
@@ -164,8 +201,11 @@ export default {
       this.$toast.success("Copied to clipboard", {
         icon: "done"
       });
+      setTimeout(
+        () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
+        1000
+      );
     },
-
     async getSchema() {
       const startTime = Date.now();
       this.schemaString = "Loading...";
@@ -275,6 +315,34 @@ export default {
         });
         console.log("Error", error);
       }
+    },
+    ToggleExpandResponse() {
+      this.expandResponse = !this.expandResponse;
+      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
+    },
+    downloadResponse() {
+      var dataToWrite = JSON.stringify(this.schemaString, null, 2);
+      var file = new Blob([dataToWrite], { type: "application/json" });
+      var a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = (
+        this.url +
+        " on " +
+        Date() +
+        ".graphql"
+      ).replace(".", "[dot]");
+      document.body.appendChild(a);
+      a.click();
+      this.$refs.downloadResponse.innerHTML = this.doneButton;
+      this.$toast.success("Download started", {
+        icon: "done"
+      });
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.$refs.downloadResponse.innerHTML = this.downloadButton;
+      }, 1000);
     }
   }
 };

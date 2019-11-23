@@ -604,21 +604,21 @@
                   </button>
                   <button
                     class="icon"
-                    @click="copyResponse"
-                    ref="copyResponse"
-                    v-if="response.body"
-                    v-tooltip="'Copy response'"
-                  >
-                    <i class="material-icons">file_copy</i>
-                  </button>
-                  <button
-                    class="icon"
                     @click="downloadResponse"
                     ref="downloadResponse"
                     v-if="response.body"
                     v-tooltip="'Download file'"
                   >
                     <i class="material-icons">get_app</i>
+                  </button>
+                  <button
+                    class="icon"
+                    @click="copyResponse"
+                    ref="copyResponse"
+                    v-if="response.body"
+                    v-tooltip="'Copy response'"
+                  >
+                    <i class="material-icons">file_copy</i>
                   </button>
                 </div>
               </div>
@@ -1683,9 +1683,7 @@ export default {
           icon: "done"
         });
         setTimeout(
-          () =>
-            (this.$refs.copyRequest.innerHTML =
-              '<i class="material-icons">file_copy</i>'),
+          () => (this.$refs.copyRequest.innerHTML = this.copyButton),
           1000
         );
       }

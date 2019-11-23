@@ -233,9 +233,13 @@ export const mutations = {
     const { request } = payload
 
     // Remove the old request from collection
-    if (request.hasOwnProperty("oldCollection") && request.oldCollection > -1) {
+    if (
+      Object.prototype.hasOwnProperty.call(request, "oldCollection") &&
+      request.oldCollection > -1
+    ) {
       const folder =
-        request.hasOwnProperty("oldFolder") && request.oldFolder >= -1
+        Object.prototype.hasOwnProperty.call(request, "oldFolder") &&
+        request.oldFolder >= -1
           ? request.oldFolder
           : request.folder
       if (folder > -1) {
@@ -249,7 +253,7 @@ export const mutations = {
         )
       }
     } else if (
-      request.hasOwnProperty("oldFolder") &&
+      Object.prototype.hasOwnProperty.call(request, "oldFolder") &&
       request.oldFolder !== -1
     ) {
       state.collections[request.collection].folders[folder].requests.splice(

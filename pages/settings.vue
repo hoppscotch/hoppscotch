@@ -52,10 +52,10 @@
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
               @change="toggleSetting('FRAME_COLORS_ENABLED')"
-              >Multi-color
-              {{
-                settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled"
-              }}</pw-toggle>
+            >
+              Multi-color
+              {{ settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled" }}
+            </pw-toggle>
           </span>
         </li>
       </ul>
@@ -70,7 +70,8 @@
                 :on="settings.PROXY_ENABLED"
                 @change="toggleSetting('PROXY_ENABLED')"
                 >Proxy
-                {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle>
+                {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}
+              </pw-toggle>
             </span>
             <a
               href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
@@ -90,7 +91,9 @@
             Postwoman's Proxy is hosted by ApolloTV.
             <br >
             Read the
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">ApolloTV privacy policy</a>.
+            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+              ApolloTV privacy policy</a
+            >.
           </p>
         </li>
       </ul>

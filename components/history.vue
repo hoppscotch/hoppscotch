@@ -154,7 +154,9 @@
               class="entry-status-code"
               :class="findEntryStatus(entry).className"
               :style="{ '--status-code': entry.status }"
-              >{{ entry.status }}</span>
+            >
+              {{ entry.status }}
+            </span>
           </li>
         </div>
         <div class="show-on-large-screen">

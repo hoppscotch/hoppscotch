@@ -24,8 +24,9 @@
               {{ toggleConnectionVerb }}
               <span>
                 <i v-if="!connectionState" class="material-icons">sync</i>
-                <i v-if="connectionState" class="material-icons"
-                  >sync_disabled</i>
+                <i v-if="connectionState" class="material-icons">
+                  sync_disabled
+                </i>
               </span>
             </button>
           </li>
@@ -48,8 +49,10 @@
                 v-for="(logEntry, index) in communication.log"
                 :key="index"
                 :style="{ color: logEntry.color }"
-              >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }}
-                {{ logEntry.payload }}</span>
+              >
+                @ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }}
+                {{ logEntry.payload }}
+              </span>
             </span>
             <span v-else>(waiting for connection)</span>
           </div>
@@ -170,7 +173,7 @@ export default {
       ]
       try {
         this.socket = new WebSocket(this.url)
-        this.socket.onopen = event => {
+        this.socket.onopen = () => {
           this.connectionState = true
           this.communication.log = [
             {
@@ -184,10 +187,10 @@ export default {
             icon: "sync"
           })
         }
-        this.socket.onerror = event => {
+        this.socket.onerror = () => {
           this.handleError()
         }
-        this.socket.onclose = event => {
+        this.socket.onclose = () => {
           this.connectionState = false
           this.communication.log.push({
             payload: `Disconnected from ${this.url}.`,

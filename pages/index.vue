@@ -127,8 +127,9 @@
               <li>
                 <div class="flex-wrap">
                   <span>
-                    <pw-toggle :on="rawInput" @change="rawInput = $event">Raw Input
-                      {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle>
+                    <pw-toggle :on="rawInput" @change="rawInput = $event">
+                      Raw Input {{ rawInput ? "Enabled" : "Disabled" }}
+                    </pw-toggle>
                   </span>
                   <div>
                     <label for="payload">
@@ -269,9 +270,12 @@
                   v-if="!showPreRequestScript"
                   class="material-icons"
                   :class="showPreRequestScript"
-                  >code</i>
-                <i v-else class="material-icons" :class="showPreRequestScript"
-                  >close</i>
+                >
+                  code
+                </i>
+                <i v-else class="material-icons" :class="showPreRequestScript">
+                  close
+                </i>
               </button>
             </div>
             <div style="text-align: center;">
@@ -365,11 +369,15 @@
                       <i
                         v-if="passwordFieldType === 'text'"
                         class="material-icons"
-                        >visibility</i>
+                      >
+                        visibility
+                      </i>
                       <i
                         v-if="passwordFieldType !== 'text'"
                         class="material-icons"
-                        >visibility_off</i>
+                      >
+                        visibility_off
+                      </i>
                     </button>
                   </li>
                 </div>
@@ -646,12 +654,13 @@
                 class="align-right"
               >
                 <button class="icon" @click.prevent="togglePreview">
-                  <i v-if="!previewEnabled" class="material-icons"
-                    >visibility</i>
+                  <i v-if="!previewEnabled" class="material-icons">
+                    visibility
+                  </i>
                   <i v-else class="material-icons">visibility_off</i>
-                  <span>{{
-                    previewEnabled ? "Hide Preview" : "Preview HTML"
-                  }}</span>
+                  <span>
+                    {{ previewEnabled ? "Hide Preview" : "Preview HTML" }}
+                  </span>
                 </button>
               </div>
             </li>
@@ -825,20 +834,6 @@ const statusCategories = [
     className: "missing-data-response"
   }
 ]
-const parseHeaders = xhr => {
-  const headers = xhr
-    .getAllResponseHeaders()
-    .trim()
-    .split(/[\r\n]+/)
-  const headerMap = {}
-  headers.forEach(line => {
-    const parts = line.split(": ")
-    const header = parts.shift().toLowerCase()
-    const value = parts.join(": ")
-    headerMap[header] = value
-  })
-  return headerMap
-}
 export const findStatusGroup = responseStatus =>
   statusCategories.find(status => status.statusCodeRegex.test(responseStatus))
 
@@ -1116,8 +1111,9 @@ export default {
         .toLowerCase()
     },
     requestCode() {
+      var requestString = []
+      var basic = this.httpUser + ":" + this.httpPassword
       if (this.requestType === "JavaScript XHR") {
-        var requestString = []
         requestString.push("const xhr = new XMLHttpRequest()")
         const user = this.auth === "Basic" ? "'" + this.httpUser + "'" : null
         const pswd =
@@ -1170,15 +1166,13 @@ export default {
           requestString.push("xhr.send()")
         }
         return requestString.join("\n")
-      } else if (this.requestType == "Fetch") {
-        var requestString = []
+      } else if (this.requestType === "Fetch") {
         var headers = []
         requestString.push(
           'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
         )
         requestString.push('  method: "' + this.method + '",\n')
         if (this.auth === "Basic") {
-          var basic = this.httpUser + ":" + this.httpPassword
           headers.push(
             '    "Authorization": "Basic ' +
               window.btoa(unescape(encodeURIComponent(basic))) +
@@ -1220,13 +1214,11 @@ export default {
         requestString.push("})")
         return requestString.join("")
       } else if (this.requestType === "cURL") {
-        var requestString = []
         requestString.push("curl -X " + this.method + " \\\n")
         requestString.push(
           "  '" + this.url + this.pathName + this.queryString + "' \\\n"
         )
         if (this.auth === "Basic") {
-          var basic = this.httpUser + ":" + this.httpPassword
           requestString.push(
             "  -H 'Authorization: Basic " +
               window.btoa(unescape(encodeURIComponent(basic))) +
@@ -1256,8 +1248,8 @@ export default {
           )
           requestString.push("  -d '" + requestBody + "' \\\n")
         }
-        return requestString.join("").slice(0, -3)
       }
+      return requestString.join("").slice(0, -3)
     }
   },
   watch: {
@@ -1277,7 +1269,7 @@ export default {
       if (status && this.rawParams === "") this.rawParams = "{}"
       else this.setRouteQueryState()
     },
-    "response.body": function(val) {
+    "response.body": function() {
       if (
         this.response.body === "(waiting to send request)" ||
         this.response.body === "Loading..."
@@ -1322,7 +1314,7 @@ export default {
       },
       deep: true
     },
-    selectedRequest(newValue, oldValue) {
+    selectedRequest(newValue) {
       // @TODO: Convert all variables to single request variable
       if (!newValue) return
       this.url = newValue.url
@@ -1392,7 +1384,7 @@ export default {
         vm.contentType,
         vm.rawParams
       ],
-      val => {
+      () => {
         this.setRouteQueryState()
       }
     )
@@ -1560,10 +1552,10 @@ export default {
         })
         ;(() => {
           const status = (this.response.status = payload.status)
-          const headers = (this.response.headers = payload.headers)
+          // const headers = (this.response.headers = payload.headers)
 
           // We don't need to bother parsing JSON, axios already handles it for us!
-          const body = (this.response.body = payload.data)
+          // const body = (this.response.body = payload.data)
 
           const date = new Date().toLocaleDateString()
           const time = new Date().toLocaleTimeString()
@@ -1617,7 +1609,7 @@ export default {
               duration: 8000,
               action: {
                 text: "Settings",
-                onClick: (e, toastObject) => {
+                onClick: () => {
                   this.$router.push({ path: "/settings" })
                 }
               }
@@ -1629,7 +1621,8 @@ export default {
     getQueryStringFromPath() {
       let queryString,
         pathParsed = url.parse(this.path)
-      return (queryString = pathParsed.query ? pathParsed.query : "")
+      queryString = pathParsed.query ? pathParsed.query : ""
+      return queryString
     },
     queryStringToArray(queryString) {
       let queryParsed = querystring.parse(queryString)
@@ -1880,7 +1873,7 @@ export default {
       const requestElement = this.$refs.request.$el
       const sendButtonElement = this.$refs.sendButton
       const observer = new IntersectionObserver(
-        (entries, observer) => {
+        entries => {
           entries.forEach(entry => {
             if (entry.isIntersecting) sendButtonElement.classList.remove("show")
             // The button should float when it is no longer visible on screen.

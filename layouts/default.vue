@@ -213,7 +213,9 @@
             "
             target="_blank"
             rel="noopener"
-            >{{ version.name }}</a>
+          >
+            {{ version.name }}
+          </a>
           <!-- <span v-if="version.hash">
             -
             <a
@@ -225,9 +227,17 @@
           <!-- <span v-if="version.variant">({{version.variant}})</span> -->
           &#x2022;
         </span>
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">🦄</a>
+        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">
+          🦄
+        </a>
         &#x2022;
-        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener">Subscribe</a>
+        <a
+          href="https://postwoman.launchaco.com"
+          target="_blank"
+          rel="noopener"
+        >
+          Subscribe
+        </a>
       </p>
     </footer>
     <modal v-if="showShortcuts" @close="showShortcuts = false">
@@ -360,7 +370,7 @@ export default {
       }
     })()
 
-    window.addEventListener("scroll", event => {
+    window.addEventListener("scroll", () => {
       let mainNavLinks = document.querySelectorAll("nav ul li a")
       let fromTop = window.scrollY
       mainNavLinks.forEach(link => {

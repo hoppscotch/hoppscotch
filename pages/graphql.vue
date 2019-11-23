@@ -54,7 +54,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="queryFields.length > 0" for="queries-tab">Queries</label>
+            <label v-if="queryFields.length > 0" for="queries-tab">
+              Queries
+            </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
                 <gql-field :gql-field="field" />
@@ -68,7 +70,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="mutationFields.length > 0" for="mutations-tab">Mutations</label>
+            <label v-if="mutationFields.length > 0" for="mutations-tab">
+              Mutations
+            </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
                 <gql-field :gql-field="field" />
@@ -82,7 +86,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">Subscriptions</label>
+            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">
+              Subscriptions
+            </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
                 <gql-field :gql-field="field" />

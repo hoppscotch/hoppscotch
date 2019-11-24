@@ -101,9 +101,9 @@
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
             <nuxt-link
-              to="/websocket"
-              :class="linkActive('/websocket')"
-              v-tooltip.right="'WebSocket'"
+              to="/realtime"
+              :class="linkActive('/realtime')"
+              v-tooltip.right="'Realtime'"
             >
               <i class="material-icons">settings_input_hdmi</i>
             </nuxt-link>
@@ -144,7 +144,7 @@
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/websocket'].includes($route.path)">
+          <div v-else-if="['/realtime'].includes($route.path)">
             <nav class="secondary-nav">
               <ul>
                 <li>

@@ -194,7 +194,7 @@ export default {
         input: ""
       },
       connectionSSEState: false,
-      server: "https://wgrothaus.ucc.ie/~frank/cs3513/server_event_source.php",
+      server: "https://express-eventsource.herokuapp.com/events",
       sse: null,
       events: {
         log: null,
@@ -227,7 +227,7 @@ export default {
           "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
           "((\\d{1,3}\\.){3}\\d{1,3}))" +
           "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
-          "(\\?[;&a-z\\d%_.~+=-]*)?" +
+          "(\\?[:\\;&a-z\\d%_.~+=-]*)?" +
           "(\\#[-a-z\\d_]*)?$",
         "i"
       );
@@ -429,7 +429,7 @@ export default {
         });
     },
     stop() {
-      if (this.sse !== null) this.sse.close();
+      this.sse.close();
     }
   },
   updated: function() {

@@ -1,94 +1,135 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Request" ref="request">
-      <ul>
-        <li>
-          <label for="url">URL</label>
-          <input
-            id="url"
-            type="url"
-            :class="{ error: !urlValid }"
-            v-model="url"
-            @keyup.enter="urlValid ? toggleConnection() : null"
-          />
-        </li>
-        <div>
-          <li>
-            <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button
-              :disabled="!urlValid"
-              id="connect"
-              name="connect"
-              @click="toggleConnection"
-            >
-              {{ toggleConnectionVerb }}
-              <span>
-                <i class="material-icons" v-if="!connectionState">sync</i>
-                <i class="material-icons" v-if="connectionState"
-                  >sync_disabled</i
+    <section id="options">
+      <input id="tab-one" type="radio" name="options" checked="checked" />
+      <label for="tab-one">WebSocket</label>
+      <div class="tab">
+        <pw-section class="blue" label="Request" ref="request">
+          <ul>
+            <li>
+              <label for="url">URL</label>
+              <input
+                id="url"
+                type="url"
+                :class="{ error: !urlValid }"
+                v-model="url"
+                @keyup.enter="urlValid ? toggleConnection() : null"
+              />
+            </li>
+            <div>
+              <li>
+                <label for="connect" class="hide-on-small-screen">&nbsp;</label>
+                <button
+                  :disabled="!urlValid"
+                  id="connect"
+                  name="connect"
+                  @click="toggleConnection"
                 >
-              </span>
-            </button>
-          </li>
-        </div>
-      </ul>
-    </pw-section>
-
-    <pw-section
-      class="purple"
-      label="Communication"
-      id="response"
-      ref="response"
-    >
-      <ul>
-        <li>
-          <label for="log">Log</label>
-          <div id="log" name="log" class="log">
-            <span v-if="communication.log">
-              <span
-                v-for="(logEntry, index) in communication.log"
-                :style="{ color: logEntry.color }"
-                :key="index"
-              >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
-            </span>
-            <span v-else>(waiting for connection)</span>
-          </div>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="message">Message</label>
-          <input
-            id="message"
-            name="message"
-            type="text"
-            v-model="communication.input"
-            :readonly="!connectionState"
-            @keyup.enter="connectionState ? sendMessage() : null"
-          />
-        </li>
-        <div>
-          <li>
-            <label for="send" class="hide-on-small-screen">&nbsp;</label>
-            <button
-              id="send"
-              name="send"
-              :disabled="!connectionState"
-              @click="sendMessage"
-            >
-              Send
-              <span>
-                <i class="material-icons">send</i>
-              </span>
-            </button>
-          </li>
-        </div>
-      </ul>
-
-<input type="text" name="" value="">
-<button type="button" name="button" @click="start()"></button>
-<div id="result"></div>
-    </pw-section>
+                  {{ toggleConnectionVerb }}
+                  <span>
+                    <i class="material-icons" v-if="!connectionState">sync</i>
+                    <i class="material-icons" v-if="connectionState"
+                      >sync_disabled</i
+                    >
+                  </span>
+                </button>
+              </li>
+            </div>
+          </ul>
+        </pw-section>
+        <pw-section
+          class="purple"
+          label="Communication"
+          id="response"
+          ref="response"
+        >
+          <ul>
+            <li>
+              <label for="log">Log</label>
+              <div id="log" name="log" class="log">
+                <span v-if="communication.log">
+                  <span
+                    v-for="(logEntry, index) in communication.log"
+                    :style="{ color: logEntry.color }"
+                    :key="index"
+                  >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+                </span>
+                <span v-else>(waiting for connection)</span>
+              </div>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <label for="message">Message</label>
+              <input
+                id="message"
+                name="message"
+                type="text"
+                v-model="communication.input"
+                :readonly="!connectionState"
+                @keyup.enter="connectionState ? sendMessage() : null"
+              />
+            </li>
+            <div>
+              <li>
+                <label for="send" class="hide-on-small-screen">&nbsp;</label>
+                <button
+                  id="send"
+                  name="send"
+                  :disabled="!connectionState"
+                  @click="sendMessage"
+                >
+                  Send
+                  <span>
+                    <i class="material-icons">send</i>
+                  </span>
+                </button>
+              </li>
+            </div>
+          </ul>
+        </pw-section>
+      </div>
+      <input id="tab-two" type="radio" name="options" />
+      <label for="tab-two">SSE</label>
+      <div class="tab">
+        <pw-section class="blue" label="Request" ref="request">
+          <ul>
+            <li>
+              <label for="server">Server</label>
+              <input
+                id="server"
+                type="url"
+                :class="{ error: !serverValid }"
+                v-model="server"
+                @keyup.enter="serverValid ? toggleSSEConnection() : null"
+              />
+            </li>
+            <div>
+              <li>
+                <label for="start" class="hide-on-small-screen">&nbsp;</label>
+                <button
+                  :disabled="!serverValid"
+                  id="start"
+                  name="start"
+                  @click="toggleSSEConnection"
+                >
+                  {{ toggleSSEConnectionVerb }}
+                  <span>
+                    <i class="material-icons" v-if="!connectionSSEState">sync</i>
+                    <i class="material-icons" v-if="connectionSSEState"
+                      >sync_disabled</i
+                    >
+                  </span>
+                </button>
+              </li>
+            </div>
+          </ul>
+        </pw-section>
+        <input type="text" name="" value="">
+        <button type="button" name="button" @click="start()"></button>
+        <div id="result"></div>
+      </div>
+    </section>
   </div>
 </template>
 <style lang="scss">
@@ -131,6 +172,13 @@ export default {
       communication: {
         log: null,
         input: ""
+      },
+      connectionSSEState: false,
+      server: "wss://echo.websocket.org",
+      sse: null,
+      events: {
+        log: null,
+        input: ""
       }
     };
   },
@@ -149,6 +197,21 @@ export default {
         "i"
       );
       return pattern.test(this.url);
+    },
+    toggleSSEConnectionVerb() {
+      return !this.connectionSSEState ? "Start" : "Stop";
+    },
+    serverValid() {
+      const pattern = new RegExp(
+        "^(wss?:\\/\\/)?" +
+          "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
+          "((\\d{1,3}\\.){3}\\d{1,3}))" +
+          "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
+          "(\\?[;&a-z\\d%_.~+=-]*)?" +
+          "(\\#[-a-z\\d_]*)?$",
+        "i"
+      );
+      return pattern.test(this.server);
     }
   },
   methods: {
@@ -258,6 +321,12 @@ export default {
         return sourceEmojis[source];
       return "";
     },
+    toggleSSEConnection() {
+      // If it is connecting:
+      if (!this.connectionSSEState) return this.start();
+      // Otherwise, it's disconnecting.
+      else return this.stop();
+    },
     start() {
       if(typeof(EventSource) !== "undefined") {
         var source = new EventSource("http://wgrothaus.ucc.ie/~frank/cs3513/server_event_source.php");
@@ -267,6 +336,9 @@ export default {
       } else {
         document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
       }
+    },
+    stop() {
+      if (this.sse != null) this.sse.close();
     }
   },
   updated: function() {

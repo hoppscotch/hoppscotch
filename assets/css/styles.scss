@@ -157,6 +157,7 @@ footer {
 nav.primary-nav {
   display: flex;
   flex-flow: column nowrap;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--brd-color);
 
   svg {
@@ -197,6 +198,7 @@ nav.primary-nav {
 
 nav.secondary-nav {
   display: flex;
+  margin-top: 16px;
 
   ul {
     display: flex;

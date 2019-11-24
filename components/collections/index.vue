@@ -57,7 +57,7 @@ TODO:
         >
           <i class="material-icons">import_export</i>
         </button>
-        <a
+        <!-- <a
           href="https://github.com/liyasthomas/postwoman/wiki/Collections"
           target="_blank"
           rel="noopener"
@@ -65,7 +65,7 @@ TODO:
           <button class="icon" v-tooltip="'Wiki'">
             <i class="material-icons">help</i>
           </button>
-        </a>
+        </a> -->
       </div>
     </div>
 

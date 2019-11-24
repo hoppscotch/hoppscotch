@@ -51,17 +51,14 @@
                 </button>
               </div>
               <div>
-                <a
-                  href="https://opencollective.com/postwoman"
-                  target="_blank"
-                  rel="noopener"
+                <button
+                  class="icon"
+                  @click="showSupport = true"
                   v-close-popover
                 >
-                  <button class="icon">
-                    <i class="material-icons">favorite</i>
-                    <span>Donate</span>
-                  </button>
-                </a>
+                  <i class="material-icons">favorite</i>
+                  <span>Support us</span>
+                </button>
               </div>
               <div>
                 <button
@@ -273,6 +270,61 @@
       </div>
       <div slot="footer"></div>
     </modal>
+    <modal v-if="showSupport" @close="showSupport = false">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <h3 class="title">Support us on</h3>
+              <div>
+                <button class="icon" @click="showSupport = false">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <div>
+          <a
+            href="https://opencollective.com/postwoman"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon">
+              <i class="material-icons">favorite</i>
+              <span>Open Collective</span>
+            </button>
+          </a>
+        </div>
+        <div>
+          <a
+            href="https://www.paypal.me/liyascthomas"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon">
+              <i class="material-icons">favorite</i>
+              <span>PayPal</span>
+            </button>
+          </a>
+        </div>
+        <div>
+          <a
+            href="https://www.patreon.com/liyasthomas"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon">
+              <i class="material-icons">favorite</i>
+              <span>Patreon</span>
+            </button>
+          </a>
+        </div>
+      </div>
+      <div slot="footer"></div>
+    </modal>
   </div>
 </template>
 
@@ -304,7 +356,8 @@ export default {
       // prompt.
       showInstallPrompt: null,
       version: {},
-      showShortcuts: false
+      showShortcuts: false,
+      showSupport: false
     };
   },
 

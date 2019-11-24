@@ -91,6 +91,10 @@ _Customized themes are also synced with local session storage_
 
  - Send and receive data
 
+📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
+
+  - Receive data
+
 🌍 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
  - Set endpoint and get schemas

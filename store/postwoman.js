@@ -73,15 +73,18 @@ export const state = () => ({
 export const mutations = {
 
   applySetting(state, setting) {
-    if (setting == null || !(setting instanceof Array) || setting.length !== 2)
+    if (setting == null || !(setting instanceof Array) || setting.length !== 2) {
       throw new Error("You must provide a setting (array in the form [key, value])");
+    }
 
     const [key, value] = setting;
     // Do not just remove this check.
     // Add your settings key to the SETTINGS_KEYS array at the
     // top of the file.
     // This is to ensure that application settings remain documented.
-    if (!SETTINGS_KEYS.includes(key)) throw new Error("The settings structure does not include the key " + key);
+    if (!SETTINGS_KEYS.includes(key)) {
+      throw new Error("The settings structure does not include the key " + key);
+    }
 
     state.settings[key] = value;
   },
@@ -182,17 +185,21 @@ export const mutations = {
     const changedPlace = changedCollection || changedFolder
 
     // set new request
-    if (requestNewFolderIndex !== undefined)
+    if (requestNewFolderIndex !== undefined) {
       Vue.set(state.collections[requestNewCollectionIndex].folders[requestNewFolderIndex].requests, requestOldIndex, requestNew)
-    else
+    }
+    else {
       Vue.set(state.collections[requestNewCollectionIndex].requests, requestOldIndex, requestNew)
+    }
 
     // remove old request
     if (changedPlace) {
-      if (requestOldFolderIndex !== undefined)
+      if (requestOldFolderIndex !== undefined) {
         state.collections[requestOldCollectionIndex].folders[requestOldFolderIndex].requests.splice(requestOldIndex, 1)
-      else
+      }
+      else {
         state.collections[requestOldCollectionIndex].requests.splice(requestOldIndex, 1)
+      }
     }
   },
 
@@ -208,8 +215,9 @@ export const mutations = {
     const specifiedFolder = folderIndex !== undefined
     const specifiedRequest = requestIndex !== undefined
 
-    if (specifiedCollection && specifiedFolder && specifiedRequest)
+    if (specifiedCollection && specifiedFolder && specifiedRequest) {
       Vue.set(state.collections[collectionIndex].folders[folderIndex].requests, requestIndex, request)
+    }
     else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
       const requests = state.collections[collectionIndex].folders[folderIndex].requests
       const lastRequestIndex = requests.length - 1;

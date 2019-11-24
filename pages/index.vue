@@ -88,21 +88,23 @@
                 <option value="Users"></option>
               </datalist>
             </li>
-            <li>
-              <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button
-                :disabled="!isValidURL"
-                @click="sendRequest"
-                id="send"
-                ref="sendButton"
-              >
-                Send
-                <span id="hidden-message">Again</span>
-                <span>
-                  <i class="material-icons">send</i>
-                </span>
-              </button>
-            </li>
+            <ul>
+              <li>
+                <label class="hide-on-small-screen" for="send">&nbsp;</label>
+                <button
+                  :disabled="!isValidURL"
+                  @click="sendRequest"
+                  id="send"
+                  ref="sendButton"
+                >
+                  Send
+                  <span id="hidden-message">Again</span>
+                  <span>
+                    <i class="material-icons">send</i>
+                  </span>
+                </button>
+              </li>
+            </ul>
           </ul>
           <div
             class="blue"
@@ -1735,7 +1737,7 @@ export default {
         this.method +
         "] on " +
         Date()
-      ).replace(".", "[dot]");
+      ).replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;

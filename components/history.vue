@@ -1,70 +1,14 @@
 <template>
   <pw-section class="green" icon="history" label="History" ref="history">
     <ul>
-      <div class="show-on-large-screen">
-        <li id="filter-history">
-          <input
-            aria-label="Search"
-            type="text"
-            placeholder="search history"
-            v-model="filterText"
-          />
-        </li>
-        <v-popover>
-          <button class="tooltip-target icon" v-tooltip="'Sort'">
-            <i class="material-icons">sort</i>
-          </button>
-          <template slot="popover">
-            <div>
-              <button class="icon" @click="sort_by_label()" v-close-popover>
-                <i class="material-icons">sort_by_alpha</i>
-                <span>Label</span>
-              </button>
-            </div>
-            <div>
-              <button class="icon" @click="sort_by_time()" v-close-popover>
-                <i class="material-icons">access_time</i>
-                <span>Time</span>
-              </button>
-            </div>
-            <div>
-              <button
-                class="icon"
-                @click="sort_by_status_code()"
-                v-close-popover
-              >
-                <i class="material-icons">assistant</i>
-                <span>Status</span>
-              </button>
-            </div>
-            <div>
-              <button class="icon" @click="sort_by_url()" v-close-popover>
-                <i class="material-icons">language</i>
-                <span>URL</span>
-              </button>
-            </div>
-            <div>
-              <button class="icon" @click="sort_by_path()" v-close-popover>
-                <i class="material-icons">timeline</i>
-                <span>Path</span>
-              </button>
-            </div>
-            <div v-if="showMore">
-              <button class="icon" @click="sort_by_duration()" v-close-popover>
-                <i class="material-icons">timer</i>
-                <span>Duration</span>
-              </button>
-            </div>
-            <div>
-              <button class="icon" @click="toggleCollapse()">
-                <i class="material-icons" v-if="!showMore">first_page</i>
-                <i class="material-icons" v-else>last_page</i>
-                <span>{{ !showMore ? "Show more" : "Hide more" }}</span>
-              </button>
-            </div>
-          </template>
-        </v-popover>
-      </div>
+      <li id="filter-history">
+        <input
+          aria-label="Search"
+          type="text"
+          placeholder="search history"
+          v-model="filterText"
+        />
+      </li>
     </ul>
     <virtual-list
       class="virtual-list"
@@ -223,8 +167,8 @@
         <label>History is empty</label>
       </li>
     </ul>
-    <ul v-if="history.length !== 0">
-      <li v-if="!isClearingHistory">
+    <div v-if="history.length !== 0">
+      <div class="flex-wrap" v-if="!isClearingHistory">
         <button
           class="icon"
           id="clear-history-button"
@@ -234,11 +178,64 @@
           <i class="material-icons">clear_all</i>
           <span>Clear All</span>
         </button>
-      </li>
-      <li v-else>
-        <div class="flex-wrap">
-          <label for="clear-history-button">Are you sure?</label>
-          <div>
+        <v-popover>
+          <button class="tooltip-target icon" v-tooltip="'Sort'">
+            <i class="material-icons">sort</i>
+          </button>
+          <template slot="popover">
+            <div>
+              <button class="icon" @click="sort_by_label()" v-close-popover>
+                <i class="material-icons">sort_by_alpha</i>
+                <span>Label</span>
+              </button>
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_time()" v-close-popover>
+                <i class="material-icons">access_time</i>
+                <span>Time</span>
+              </button>
+            </div>
+            <div>
+              <button
+                class="icon"
+                @click="sort_by_status_code()"
+                v-close-popover
+              >
+                <i class="material-icons">assistant</i>
+                <span>Status</span>
+              </button>
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_url()" v-close-popover>
+                <i class="material-icons">language</i>
+                <span>URL</span>
+              </button>
+            </div>
+            <div>
+              <button class="icon" @click="sort_by_path()" v-close-popover>
+                <i class="material-icons">timeline</i>
+                <span>Path</span>
+              </button>
+            </div>
+            <div v-if="showMore">
+              <button class="icon" @click="sort_by_duration()" v-close-popover>
+                <i class="material-icons">timer</i>
+                <span>Duration</span>
+              </button>
+            </div>
+            <div>
+              <button class="icon" @click="toggleCollapse()">
+                <i class="material-icons" v-if="!showMore">first_page</i>
+                <i class="material-icons" v-else>last_page</i>
+                <span>{{ !showMore ? "Show more" : "Hide more" }}</span>
+              </button>
+            </div>
+          </template>
+        </v-popover>
+      </div>
+      <div class="flex-wrap" v-else>
+        <label for="clear-history-button">Are you sure?</label>
+        <div>
             <button
               class="icon"
               id="confirm-clear-history-button"
@@ -256,9 +253,8 @@
               <i class="material-icons">close</i>
             </button>
           </div>
-        </div>
-      </li>
-    </ul>
+      </div>
+    </div>
   </pw-section>
 </template>
 

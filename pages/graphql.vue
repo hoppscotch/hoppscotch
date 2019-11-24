@@ -321,7 +321,7 @@ export default {
       this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
     },
     downloadResponse() {
-      var dataToWrite = JSON.stringify(this.schemaString, null, 2);
+      var dataToWrite = JSON.stringify(this.schemaString, null, 2)
       var file = new Blob([dataToWrite], { type: "application/json" });
       var a = document.createElement("a"),
         url = URL.createObjectURL(file);
@@ -331,7 +331,7 @@ export default {
         " on " +
         Date() +
         ".graphql"
-      ).replace(".", "[dot]");
+      ).replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;

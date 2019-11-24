@@ -125,9 +125,29 @@
             </div>
           </ul>
         </pw-section>
-        <input type="text" name="" value="">
-        <button type="button" name="button" @click="start()"></button>
-        <div id="result"></div>
+        <pw-section
+          class="purple"
+          label="Communication"
+          id="response"
+          ref="response"
+        >
+          <ul>
+            <li>
+              <label for="log">Events</label>
+              <div id="log" name="log" class="log">
+                <span v-if="events.log">
+                  <span
+                    v-for="(logEntry, index) in events.log"
+                    :style="{ color: logEntry.color }"
+                    :key="index"
+                  >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+                </span>
+                <span v-else>(waiting for connection)</span>
+              </div>
+              <div id="result"></div>
+            </li>
+          </ul>
+        </pw-section>
       </div>
     </section>
   </div>
@@ -174,7 +194,7 @@ export default {
         input: ""
       },
       connectionSSEState: false,
-      server: "wss://echo.websocket.org",
+      server: "https://wgrothaus.ucc.ie/~frank/cs3513/server_event_source.php",
       sse: null,
       events: {
         log: null,
@@ -203,7 +223,7 @@ export default {
     },
     serverValid() {
       const pattern = new RegExp(
-        "^(wss?:\\/\\/)?" +
+        "^(http(s)?:\\/\\/)?" +
           "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
           "((\\d{1,3}\\.){3}\\d{1,3}))" +
           "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
@@ -275,7 +295,7 @@ export default {
       }
     },
     disconnect() {
-      if (this.socket != null) this.socket.close();
+      if (this.socket !== null) this.socket.close();
     },
     handleError(error) {
       this.disconnect();
@@ -286,7 +306,7 @@ export default {
         color: "#ff5555",
         ts: new Date().toLocaleTimeString()
       });
-      if (error != null)
+      if (error !== null)
         this.communication.log.push({
           payload: error,
           source: "info",
@@ -328,17 +348,88 @@ export default {
       else return this.stop();
     },
     start() {
+      this.events.log = [
+        {
+          payload: `Connecting to ${this.server}...`,
+          source: "info",
+          color: "var(--ac-color)"
+        }
+      ];
       if(typeof(EventSource) !== "undefined") {
-        var source = new EventSource("http://wgrothaus.ucc.ie/~frank/cs3513/server_event_source.php");
-        source.onmessage = function(event) {
-          document.getElementById("result").innerHTML += event.data + "<br>";
-        };
+        try {
+          this.sse = new EventSource(this.server);
+          this.sse.onopen = event => {
+            this.connectionSSEState = true;
+            this.events.log = [
+              {
+                payload: `Connected to ${this.server}.`,
+                source: "info",
+                color: "var(--ac-color)",
+                ts: new Date().toLocaleTimeString()
+              }
+            ];
+            this.$toast.success("Connected", {
+              icon: "sync"
+            });
+          };
+          this.sse.onerror = event => {
+            this.handleSSEError();
+          };
+          this.sse.onclose = event => {
+            this.connectionSSEState = false;
+            this.events.log.push({
+              payload: `Disconnected from ${this.server}.`,
+              source: "info",
+              color: "#ff5555",
+              ts: new Date().toLocaleTimeString()
+            });
+            this.$toast.error("Disconnected", {
+              icon: "sync_disabled"
+            });
+          };
+          this.sse.onmessage = event => {
+            this.events.log.push({
+              payload: event.data,
+              source: "server",
+              ts: new Date().toLocaleTimeString()
+            });
+          };
+        } catch (ex) {
+          this.handleSSEError(ex);
+          this.$toast.error("Something went wrong!", {
+            icon: "error"
+          });
+        }
       } else {
-        document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
+        this.events.log = [
+          {
+            payload: `This browser doesn't seems to have Server Sent Events support.`,
+            source: "info",
+            color: "#ff5555",
+            ts: new Date().toLocaleTimeString()
+          }
+        ];
       }
     },
+    handleSSEError(error) {
+      this.stop();
+      this.connectionSSEState = false;
+      this.events.log.push({
+        payload: `An error has occurred.`,
+        source: "info",
+        color: "#ff5555",
+        ts: new Date().toLocaleTimeString()
+      });
+      if (error !== null)
+        this.events.log.push({
+          payload: error,
+          source: "info",
+          color: "#ff5555",
+          ts: new Date().toLocaleTimeString()
+        });
+    },
     stop() {
-      if (this.sse != null) this.sse.close();
+      if (this.sse !== null) this.sse.close();
     }
   },
   updated: function() {

@@ -1737,7 +1737,7 @@ export default {
         this.method +
         "] on " +
         Date()
-      ).replace(".", "[dot]");
+      ).replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;

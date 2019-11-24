@@ -43,8 +43,9 @@ try {
       runCommand("git", ["branch"])
       .split("* ")[1]
       .split(" ")[0] + (IS_DEV_MODE ? " - DEV MODE" : "");
-    if (["", "master"].includes(version.variant))
+    if (["", "master"].includes(version.variant)) {
       delete version.variant;
+    }
 
     // Write version data into a file
     fs.writeFileSync(

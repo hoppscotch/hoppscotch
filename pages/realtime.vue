@@ -295,7 +295,7 @@ export default {
       }
     },
     disconnect() {
-      if (this.socket !== null) this.socket.close();
+      this.socket.close();
     },
     handleError(error) {
       this.disconnect();

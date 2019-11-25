@@ -1231,7 +1231,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach(function(element) {
+          this.headers.forEach((element) => {
             requestString.push(
               "xhr.setRequestHeader('" +
                 element.key +
@@ -1288,7 +1288,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach(function(element) {
+          this.headers.forEach((element) => {
             headers.push(
               '    "' + element.key + '": "' + element.value + '",\n'
             );
@@ -1326,7 +1326,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach(function(element) {
+          this.headers.forEach((element) => {
             requestString.push(
               "  -H '" + element.key + ": " + element.value + "' \\\n"
             );
@@ -1966,7 +1966,7 @@ export default {
     uploadPayload() {
       this.rawInput = true;
       let file = this.$refs.payload.files[0];
-      if (file != null) {
+      if (file !== null) {
         let reader = new FileReader();
         reader.onload = e => {
           this.rawParams = e.target.result;

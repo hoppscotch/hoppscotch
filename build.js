@@ -28,7 +28,7 @@ try {
       version.name = (await axios
         .get("https://api.github.com/repos/liyasthomas/postwoman/releases")
         // If we can't get it from GitHub, we'll resort to getting it from package.json
-        .catch(ex => ({
+        .catch((ex) => ({
           data: [{
             tag_name: require("./package.json").version
           }]

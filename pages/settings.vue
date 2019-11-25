@@ -244,7 +244,7 @@ export default {
     },
     setActiveColor(color, vibrant) {
       // By default, the color is vibrant.
-      if (vibrant == null) vibrant = true;
+      if (vibrant === null) vibrant = true;
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",

@@ -373,7 +373,7 @@ export default {
       // Load theme color data from settings, or use default color.
       let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
       let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
-      if (vibrant === null) vibrant = true;
+      if (vibrant == null) vibrant = true;
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",

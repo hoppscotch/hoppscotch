@@ -7,6 +7,22 @@ export default {
     state.gql[object.attribute] = object.value;
   },
 
+  addGQLHeader(state, object) {
+    state.gql.headers.push(object);
+  },
+
+  removeGQLHeader(state, index) {
+    state.gql.headers.splice(index, 1);
+  },
+
+  setGQLHeaderKey(state, object) {
+    state.gql.headers[object.index].key = object.value;
+  },
+
+  setGQLHeaderValue(state, object) {
+    state.gql.headers[object.index].value = object.value;
+  },
+
   addHeaders(state, value) {
     state.request.headers.push(value);
   },

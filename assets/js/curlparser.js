@@ -7,7 +7,7 @@ import * as querystring from "querystring";
  * output this: 'msg1=value1&msg2=value2'
  * @param dataArguments
  */
-let joinDataArguments = (dataArguments) => {
+const joinDataArguments = (dataArguments) => {
   let data = "";
   dataArguments.forEach((argument, i) => {
     if (i === 0) {

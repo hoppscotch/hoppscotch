@@ -1412,7 +1412,7 @@ export default {
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
-            url: `https://postwoman.apollotv.xyz/`,
+            url: this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
             data: requestOptions
           }
         : requestOptions;

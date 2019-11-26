@@ -109,7 +109,7 @@
           <div
             class="blue"
             label="Request Body"
-            v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'"
+            v-if="['POST', 'PUT', 'PATCH'].includes(method)"
           >
             <ul>
               <li>

@@ -432,8 +432,8 @@ export default {
       this.sse.close();
     }
   },
-  updated: function() {
-    this.$nextTick(function() {
+  updated: ()=> {
+    this.$nextTick(()=> {
       const divLog = document.getElementById("log");
       divLog.scrollBy(0, divLog.scrollHeight + 100);
     });

@@ -923,7 +923,7 @@ export default {
       if (status && this.rawParams === "") this.rawParams = "{}";
       else this.setRouteQueryState();
     },
-    "response.body": function(val) {
+    "response.body": (val)=> {
       if (
         this.response.body === "(waiting to send request)" ||
         this.response.body === "Loading..."
@@ -947,7 +947,7 @@ export default {
       }
     },
     params: {
-      handler: function(newValue) {
+      handler: (newValue)=> {
         if (!this.paramsWatchEnabled) {
           this.paramsWatchEnabled = true;
           return;
@@ -1984,7 +1984,7 @@ export default {
   },
   mounted() {
     this.observeRequestButton();
-    this._keyListener = function(e) {
+    this._keyListener = (e)=> {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.sendRequest();

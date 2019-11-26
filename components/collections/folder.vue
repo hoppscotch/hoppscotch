@@ -45,8 +45,7 @@
                 folderIndex,
                 requestIndex: index
               })
-            "
-          ></request>
+            "/>
         </li>
         <li v-if="folder.requests.length === 0">
           <label>Folder is empty</label>

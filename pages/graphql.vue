@@ -25,6 +25,82 @@
           </ul>
         </pw-section>
 
+        <pw-section class="orange" label="Headers" ref="headers">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="headerList">Header List</label>
+                <div>
+                  <button
+                    class="icon"
+                    @click="headers = []"
+                    v-tooltip.bottom="'Clear'"
+                  >
+                    <i class="material-icons">clear_all</i>
+                  </button>
+                </div>
+              </div>
+              <textarea
+                id="headerList"
+                readonly
+                v-textarea-auto-height="headerString"
+                v-model="headerString"
+                placeholder="(add at least one header)"
+                rows="1"
+              ></textarea>
+            </li>
+          </ul>
+          <ul v-for="(header, index) in headers" :key="index">
+            <li>
+              <input
+                :placeholder="'header ' + (index + 1)"
+                :name="'header' + index"
+                :value="header.key"
+                @change="
+                  $store.commit('setGQLHeaderKey', {
+                    index,
+                    value: $event.target.value 
+                  })
+                "
+                autofocus
+              />
+            </li>
+            <li>
+              <input
+                :placeholder="'value ' + (index + 1)"
+                :name="'value' + index"
+                :value="header.value"
+                @change="
+                  $store.commit('setGQLHeaderValue', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
+                autofocus
+              />
+            </li>
+            <div>
+              <li>
+                <button
+                  class="icon"
+                  @click="removeRequestHeader(index)"
+                  id="header"
+                >
+                <i class="material-icons">delete</i>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <button class="icon" @click="addRequestHeader">
+                <i class="material-icons">add</i>
+                <span>Add New</span>
+              </button>
+            </li>
+          </ul>
+        </pw-section>
+
         <pw-section class="green" label="Schema" ref="schema">
           <div class="flex-wrap">
             <label>response</label>
@@ -156,9 +232,13 @@
 <script>
 import axios from "axios";
 import * as gql from "graphql";
+import textareaAutoHeight from '../directives/textareaAutoHeight';
 import AceEditor from "../components/ace-editor";
 
 export default {
+  directives: {
+    textareaAutoHeight
+  },
   components: {
     "pw-section": () => import("../components/section"),
     "gql-field": () => import("../components/graphql/field"),
@@ -187,6 +267,21 @@ export default {
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "url" });
       }
+    },
+    headers: {
+      get() {
+        return this.$store.state.gql.headers;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "headers" });
+      }
+    },
+    headerString() {
+      const result = this.headers
+        .filter(({ key }) => !!key)
+        .map(({ key, value }) => `${key}: ${value}`)
+        .join(",\n");
+      return result === "" ? "" : `${result}`;
     }
   },
   methods: {
@@ -224,6 +319,7 @@ export default {
           method: "post",
           url: this.url,
           headers: {
+            ...this.headers,
             "content-type": "application/json"
           },
           data: query
@@ -343,6 +439,19 @@ export default {
         window.URL.revokeObjectURL(url);
         this.$refs.downloadResponse.innerHTML = this.downloadButton;
       }, 1000);
+    },
+    addRequestHeader(index) {
+      this.$store.commit("addGQLHeader", {
+        key: "",
+        value: ""
+      });
+      return false;
+    },
+    removeRequestHeader(index) {
+      this.$store.commit("removeGQLHeader", index);
+      this.$toast.error("Deleted", {
+        icon: "delete"
+      });
     }
   }
 };

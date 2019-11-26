@@ -178,7 +178,19 @@
           ></textarea>
         </pw-section>
         <pw-section class="purple" label="Response" ref="response">
-          <label for="responseField"></label>
+          <div class="flex-wrap">
+            <label for="responseField">Response</label>
+            <div>
+              <button
+                class="icon"
+                @click="copyResponse"
+                ref="copyResponseButton"
+                v-tooltip="'Copy Response'"
+              >
+                <i class="material-icons">file_copy</i>
+              </button>
+            </div>
+          </div>
           <Editor
             :value="responseString"
             :lang="'json'"
@@ -366,6 +378,22 @@ export default {
       });
       setTimeout(
         () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
+        1000
+      );
+    },
+    copyResponse() {
+      this.$refs.copyResponseButton.innerHTML = this.doneButton;
+      const aux = document.createElement("textarea");
+      aux.innerText = this.responseString;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
+      this.$toast.success("Copied to clipboard", {
+        icon: "done"
+      });
+      setTimeout(
+        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
         1000
       );
     },

@@ -119,7 +119,7 @@ export default {
       this.$data.requestData.folderIndex = undefined;
       this.$data.requestData.requestIndex = undefined;
     },
-    "requestData.folderIndex": ()=> {
+    "requestData.folderIndex": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined;
     }
   },

@@ -93,7 +93,7 @@ export default {
     };
   },
   watch: {
-    "requestUpdateData.collectionIndex": ()=> { //resetFolderIndex Function
+    "requestUpdateData.collectionIndex":function resetFolderIndex() { //resetFolderIndex Function
       // if user choosen some folder, than selected other collection, which doesn't have any folders
       // than `requestUpdateData.folderIndex` won't be reseted
       this.$data.requestUpdateData.folderIndex = undefined;

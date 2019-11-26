@@ -315,15 +315,22 @@ export default {
           query: gql.getIntrospectionQuery()
         });
 
+        let headers = {};
+        this.headers.forEach((header) => {
+          headers[header.key] = header.value;
+        });
+
         const reqOptions = {
           method: "post",
           url: this.url,
           headers: {
-            ...this.headers,
+            ...headers,
             "content-type": "application/json"
           },
           data: query
         }
+
+        console.log(reqOptions);
 
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? {

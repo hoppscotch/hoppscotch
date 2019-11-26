@@ -150,6 +150,41 @@
             }"
           />
         </pw-section>
+        <pw-section class="cyan" label="Query" ref="query">
+          <div class="flex-wrap">
+            <label for="gqlQuery">Query</label>
+            <div>
+              <button
+                  class="icon"
+                  @click="runQuery()"
+                  v-tooltip.bottom="'Run Query'"
+              >
+                <i class="material-icons">play_arrow</i>
+              </button>
+            </div>
+          </div>
+          <textarea
+            id="gqlQuery"
+            rows="8"
+            v-model="gqlQueryString">
+          ></textarea>
+        </pw-section>
+        <pw-section class="purple" label="Response" ref="response">
+          <label for="responseField"></label>
+          <Editor
+            :value="responseString"
+            :lang="'json'"
+            :options="{
+              maxLines: responseBodyMaxLines,
+              minLines: '16',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              readOnly: true,
+              showPrintMargin: false,
+              useWorker: false
+            }"
+          />
+        </pw-section>
       </div>
       <aside class="sticky-inner inner-right">
         <pw-section class="purple" label="Docs" ref="docs">
@@ -252,6 +287,8 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
+      gqlQueryString: "",
+      responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -300,6 +337,60 @@ export default {
         () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
         1000
       );
+    },
+    async runQuery() {
+      const startTime = Date.now();
+
+      this.$nuxt.$loading.start();
+
+      try {
+        let headers = {};
+        this.headers.forEach(header => {
+          headers[header.key] = header.value;
+        });
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            ...headers,
+            "content-type": "application/json"
+          },
+          data: JSON.stringify({ query: this.gqlQueryString })
+        };
+
+        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? {
+              method: "post",
+              url:
+                this.$store.state.postwoman.settings.PROXY_URL ||
+                `https://postwoman.apollotv.xyz/`,
+              data: reqOptions
+            }
+          : reqOptions;
+
+        const res = await axios(reqConfig);
+
+        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? res.data
+          : res;
+
+        this.responseString = JSON.stringify(data.data, null, 2);
+        
+        this.$nuxt.$loading.finish();
+        const duration = Date.now() - startTime;
+        this.$toast.info(`Finished in ${duration}ms`, {
+          icon: "done"
+        });
+      } catch (error) {
+        this.$nuxt.$loading.finish();
+
+        this.$toast.error(error + " (F12 for details)", {
+          icon: "error"
+        });
+        console.log("Error", error);
+      }
+
     },
     async getSchema() {
       const startTime = Date.now();

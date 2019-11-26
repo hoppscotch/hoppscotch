@@ -59,7 +59,7 @@
                 @change="
                   $store.commit('setGQLHeaderKey', {
                     index,
-                    value: $event.target.value 
+                    value: $event.target.value
                   })
                 "
                 autofocus
@@ -424,9 +424,9 @@ export default {
       this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
     },
     downloadResponse() {
-      var dataToWrite = JSON.stringify(this.schemaString, null, 2)
-      var file = new Blob([dataToWrite], { type: "application/json" });
-      var a = document.createElement("a"),
+      const dataToWrite = JSON.stringify(this.schemaString, null, 2)
+      const file = new Blob([dataToWrite], { type: "application/json" });
+      const a = document.createElement("a"),
         url = URL.createObjectURL(file);
       a.href = url;
       a.download = (

@@ -599,7 +599,9 @@
                         : 'Collapse response'
                     }"
                   >
-                    <i class="material-icons" v-if="!expandResponse">unfold_more</i>
+                    <i class="material-icons" v-if="!expandResponse"
+                      >unfold_more</i
+                    >
                     <i class="material-icons" v-else>unfold_less</i>
                   </button>
                   <button
@@ -1231,7 +1233,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach((element) => {
+          this.headers.forEach(element => {
             requestString.push(
               "xhr.setRequestHeader('" +
                 element.key +
@@ -1288,7 +1290,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach((element) => {
+          this.headers.forEach(element => {
             headers.push(
               '    "' + element.key + '": "' + element.value + '",\n'
             );
@@ -1326,7 +1328,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach((element) => {
+          this.headers.forEach(element => {
             requestString.push(
               "  -H '" + element.key + ": " + element.value + "' \\\n"
             );
@@ -1412,7 +1414,9 @@ export default {
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
-            url: this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
+            url:
+              this.$store.state.postwoman.settings.PROXY_URL ||
+              "https://postwoman.apollotv.xyz/",
             data: requestOptions
           }
         : requestOptions;
@@ -1702,7 +1706,8 @@ export default {
     },
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse;
-      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines == Infinity ? 16 : Infinity;
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton;

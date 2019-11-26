@@ -236,23 +236,23 @@
       <div class="flex-wrap" v-else>
         <label for="clear-history-button">Are you sure?</label>
         <div>
-            <button
-              class="icon"
-              id="confirm-clear-history-button"
-              @click="clearHistory"
-              v-tooltip="'Yes'"
-            >
-              <i class="material-icons">done</i>
-            </button>
-            <button
-              class="icon"
-              id="reject-clear-history-button"
-              @click="disableHistoryClearing"
-              v-tooltip="'No'"
-            >
-              <i class="material-icons">close</i>
-            </button>
-          </div>
+          <button
+            class="icon"
+            id="confirm-clear-history-button"
+            @click="clearHistory"
+            v-tooltip="'Yes'"
+          >
+            <i class="material-icons">done</i>
+          </button>
+          <button
+            class="icon"
+            id="reject-clear-history-button"
+            @click="disableHistoryClearing"
+            v-tooltip="'No'"
+          >
+            <i class="material-icons">close</i>
+          </button>
+        </div>
       </div>
     </div>
   </pw-section>

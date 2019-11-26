@@ -52,7 +52,9 @@
                     v-for="(logEntry, index) in communication.log"
                     :style="{ color: logEntry.color }"
                     :key="index"
-                  >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+                    >@ {{ logEntry.ts }}{{ getSourcePrefix(logEntry.source)
+                    }}{{ logEntry.payload }}</span
+                  >
                 </span>
                 <span v-else>(waiting for connection)</span>
               </div>
@@ -115,7 +117,9 @@
                 >
                   {{ toggleSSEConnectionVerb }}
                   <span>
-                    <i class="material-icons" v-if="!connectionSSEState">sync</i>
+                    <i class="material-icons" v-if="!connectionSSEState"
+                      >sync</i
+                    >
                     <i class="material-icons" v-if="connectionSSEState"
                       >sync_disabled</i
                     >
@@ -140,7 +144,9 @@
                     v-for="(logEntry, index) in events.log"
                     :style="{ color: logEntry.color }"
                     :key="index"
-                  >@ {{ logEntry.ts }} {{ getSourcePrefix(logEntry.source) }} {{ logEntry.payload }}</span>
+                    >@ {{ logEntry.ts }}{{ getSourcePrefix(logEntry.source)
+                    }}{{ logEntry.payload }}</span
+                  >
                 </span>
                 <span v-else>(waiting for connection)</span>
               </div>
@@ -355,7 +361,7 @@ export default {
           color: "var(--ac-color)"
         }
       ];
-      if(typeof(EventSource) !== "undefined") {
+      if (typeof EventSource !== "undefined") {
         try {
           this.sse = new EventSource(this.server);
           this.sse.onopen = event => {

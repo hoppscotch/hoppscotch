@@ -157,9 +157,10 @@ _Collections are synced with local session storage_
 **Features:**
  - Hide your IP address
  - Fixes [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
- - Access APIs served in non-HTTPS (`http://`, `localhost`, etc.)
+ - Access APIs served in non-HTTPS (`http://`)
+ - Use custom Proxy URL
 
-_Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
+_Official Postwoman Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
 
 📜 **Pre-Request Scripts**: Snippets of code associated with a request that are executed before the request is sent.
 

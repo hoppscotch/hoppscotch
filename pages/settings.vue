@@ -82,7 +82,16 @@
       </ul>
       <ul>
         <li>
-          <label for="url">URL</label>
+          <div class="flex-wrap">
+            <label for="url">URL</label>
+            <button
+              class="icon"
+              @click="settings.PROXY_URL = `https://postwoman.apollotv.xyz/`"
+              v-tooltip.bottom="'Reset to default'"
+            >
+              <i class="material-icons">clear_all</i>
+            </button>
+          </div>
           <input id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
         </li>
       </ul>

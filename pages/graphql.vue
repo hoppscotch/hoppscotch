@@ -86,7 +86,7 @@
                   @click="removeRequestHeader(index)"
                   id="header"
                 >
-                <i class="material-icons">delete</i>
+                  <i class="material-icons">delete</i>
                 </button>
               </li>
             </div>
@@ -232,7 +232,7 @@
 <script>
 import axios from "axios";
 import * as gql from "graphql";
-import textareaAutoHeight from '../directives/textareaAutoHeight';
+import textareaAutoHeight from "../directives/textareaAutoHeight";
 import AceEditor from "../components/ace-editor";
 
 export default {
@@ -310,13 +310,12 @@ export default {
       this.$nuxt.$loading.start();
 
       try {
-
         const query = JSON.stringify({
           query: gql.getIntrospectionQuery()
         });
 
         let headers = {};
-        this.headers.forEach((header) => {
+        this.headers.forEach(header => {
           headers[header.key] = header.value;
         });
 
@@ -328,18 +327,19 @@ export default {
             "content-type": "application/json"
           },
           data: query
-        }
+        };
 
-        console.log(reqOptions);
+        // console.log(reqOptions);
 
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? {
-            method: "post",
-            url: `https://postwoman.apollotv.xyz/`,
-            data: reqOptions
-          }
+              method: "post",
+              url:
+                this.$store.state.postwoman.settings.PROXY_URL ||
+                `https://postwoman.apollotv.xyz/`,
+              data: reqOptions
+            }
           : reqOptions;
-
 
         const res = await axios(reqConfig);
 
@@ -421,20 +421,19 @@ export default {
     },
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse;
-      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines == Infinity ? 16 : Infinity;
     },
     downloadResponse() {
-      const dataToWrite = JSON.stringify(this.schemaString, null, 2)
+      const dataToWrite = JSON.stringify(this.schemaString, null, 2);
       const file = new Blob([dataToWrite], { type: "application/json" });
       const a = document.createElement("a"),
         url = URL.createObjectURL(file);
       a.href = url;
-      a.download = (
-        this.url +
-        " on " +
-        Date() +
-        ".graphql"
-      ).replace(/\./g, "[dot]");
+      a.download = (this.url + " on " + Date() + ".graphql").replace(
+        /\./g,
+        "[dot]"
+      );
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;

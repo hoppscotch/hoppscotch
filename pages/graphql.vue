@@ -155,11 +155,19 @@
             <label for="gqlQuery">Query</label>
             <div>
               <button
-                  class="icon"
-                  @click="runQuery()"
-                  v-tooltip.bottom="'Run Query'"
+                class="icon"
+                @click="runQuery()"
+                v-tooltip.bottom="'Run Query'"
               >
                 <i class="material-icons">play_arrow</i>
+              </button>
+              <button
+                class="icon"
+                @click="copyQuery"
+                ref="copyQueryButton"
+                v-tooltip="'Copy Query'"
+              >
+                <i class="material-icons">file_copy</i>
               </button>
             </div>
           </div>
@@ -342,6 +350,22 @@ export default {
       });
       setTimeout(
         () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
+        1000
+      );
+    },
+    copyQuery() {
+      this.$refs.copyQueryButton.innerHTML = this.doneButton;
+      const aux = document.createElement("textarea");
+      aux.innerText = this.gqlQueryString;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
+      this.$toast.success("Copied to clipboard", {
+        icon: "done"
+      });
+      setTimeout(
+        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
         1000
       );
     },

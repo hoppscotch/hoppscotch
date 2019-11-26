@@ -248,7 +248,7 @@
               <button
                 class="icon"
                 id="code"
-                v-on:click="isHidden = !isHidden"
+                @click="isHidden = !isHidden"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="{
                   content: isHidden ? 'Show Code' : 'Hide Code'

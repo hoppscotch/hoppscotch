@@ -372,7 +372,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 <p>
 
 ```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)
 ```
 </p>
 </details>

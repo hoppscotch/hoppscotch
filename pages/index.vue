@@ -1260,7 +1260,7 @@ export default {
         return requestString.join("\n");
       } else if (this.requestType == "Fetch") {
         const requestString = [];
-        const headers = [];
+        let headers = [];
         requestString.push(
           'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
         );

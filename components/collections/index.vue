@@ -8,19 +8,19 @@ TODO:
     <addCollection
       v-bind:show="showModalAdd"
       v-on:hide-modal="displayModalAdd(false)"
-    ></addCollection>
+    />
     <editCollection
       v-bind:show="showModalEdit"
       v-bind:editingCollection="editingCollection"
       v-bind:editingCollectionIndex="editingCollectionIndex"
       v-on:hide-modal="displayModalEdit(false)"
-    ></editCollection>
+    />
     <addFolder
       v-bind:show="showModalAddFolder"
       v-bind:collection="editingCollection"
       v-bind:collectionIndex="editingCollectionIndex"
       v-on:hide-modal="displayModalAddFolder(false)"
-    ></addFolder>
+    />
     <editFolder
       v-bind:show="showModalEditFolder"
       v-bind:collection="editingCollection"
@@ -28,7 +28,7 @@ TODO:
       v-bind:folder="editingFolder"
       v-bind:folderIndex="editingFolderIndex"
       v-on:hide-modal="displayModalEditFolder(false)"
-    ></editFolder>
+    />
     <editRequest
       v-bind:show="showModalEditRequest"
       v-bind:collectionIndex="editingCollectionIndex"
@@ -36,11 +36,11 @@ TODO:
       v-bind:request="editingRequest"
       v-bind:requestIndex="editingRequestIndex"
       v-on:hide-modal="displayModalEditRequest(false)"
-    ></editRequest>
+    />
     <importExportCollections
       v-bind:show="showModalImportExport"
       v-on:hide-modal="displayModalImportExport(false)"
-    ></importExportCollections>
+    />
 
     <div class="flex-wrap">
       <div>

@@ -434,7 +434,7 @@ export default {
   },
   updated: function() {
     this.$nextTick(function() {
-      var divLog = document.getElementById("log");
+      const divLog = document.getElementById("log");
       divLog.scrollBy(0, divLog.scrollHeight + 100);
     });
   }

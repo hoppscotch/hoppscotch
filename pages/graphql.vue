@@ -287,7 +287,6 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      gqlQueryString: "",
       responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
@@ -311,6 +310,14 @@ export default {
       },
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
+      }
+    },
+    gqlQueryString: {
+      get() {
+        return this.$store.state.gql.query;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "query" });
       }
     },
     headerString() {

@@ -150,6 +150,61 @@
             }"
           />
         </pw-section>
+        <pw-section class="cyan" label="Query" ref="query">
+          <div class="flex-wrap">
+            <label for="gqlQuery">Query</label>
+            <div>
+              <button
+                class="icon"
+                @click="runQuery()"
+                v-tooltip.bottom="'Run Query'"
+              >
+                <i class="material-icons">play_arrow</i>
+              </button>
+              <button
+                class="icon"
+                @click="copyQuery"
+                ref="copyQueryButton"
+                v-tooltip="'Copy Query'"
+              >
+                <i class="material-icons">file_copy</i>
+              </button>
+            </div>
+          </div>
+          <textarea
+            id="gqlQuery"
+            rows="8"
+            v-model="gqlQueryString">
+          ></textarea>
+        </pw-section>
+        <pw-section class="purple" label="Response" ref="response">
+          <div class="flex-wrap">
+            <label for="responseField">Response</label>
+            <div>
+              <button
+                class="icon"
+                @click="copyResponse"
+                ref="copyResponseButton"
+                v-tooltip="'Copy Response'"
+              >
+                <i class="material-icons">file_copy</i>
+              </button>
+            </div>
+          </div>
+          <Editor
+            :value="responseString"
+            :lang="'json'"
+            :options="{
+              maxLines: responseBodyMaxLines,
+              minLines: '16',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              readOnly: true,
+              showPrintMargin: false,
+              useWorker: false
+            }"
+          />
+        </pw-section>
       </div>
       <aside class="sticky-inner inner-right">
         <pw-section class="purple" label="Docs" ref="docs">
@@ -252,6 +307,7 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
+      responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -274,6 +330,14 @@ export default {
       },
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
+      }
+    },
+    gqlQueryString: {
+      get() {
+        return this.$store.state.gql.query;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "query" });
       }
     },
     headerString() {
@@ -300,6 +364,92 @@ export default {
         () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
         1000
       );
+    },
+    copyQuery() {
+      this.$refs.copyQueryButton.innerHTML = this.doneButton;
+      const aux = document.createElement("textarea");
+      aux.innerText = this.gqlQueryString;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
+      this.$toast.success("Copied to clipboard", {
+        icon: "done"
+      });
+      setTimeout(
+        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
+        1000
+      );
+    },
+    copyResponse() {
+      this.$refs.copyResponseButton.innerHTML = this.doneButton;
+      const aux = document.createElement("textarea");
+      aux.innerText = this.responseString;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
+      this.$toast.success("Copied to clipboard", {
+        icon: "done"
+      });
+      setTimeout(
+        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
+        1000
+      );
+    },
+    async runQuery() {
+      const startTime = Date.now();
+
+      this.$nuxt.$loading.start();
+
+      try {
+        let headers = {};
+        this.headers.forEach(header => {
+          headers[header.key] = header.value;
+        });
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            ...headers,
+            "content-type": "application/json"
+          },
+          data: JSON.stringify({ query: this.gqlQueryString })
+        };
+
+        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? {
+              method: "post",
+              url:
+                this.$store.state.postwoman.settings.PROXY_URL ||
+                `https://postwoman.apollotv.xyz/`,
+              data: reqOptions
+            }
+          : reqOptions;
+
+        const res = await axios(reqConfig);
+
+        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? res.data
+          : res;
+
+        this.responseString = JSON.stringify(data.data, null, 2);
+        
+        this.$nuxt.$loading.finish();
+        const duration = Date.now() - startTime;
+        this.$toast.info(`Finished in ${duration}ms`, {
+          icon: "done"
+        });
+      } catch (error) {
+        this.$nuxt.$loading.finish();
+
+        this.$toast.error(error + " (F12 for details)", {
+          icon: "error"
+        });
+        console.log("Error", error);
+      }
+
     },
     async getSchema() {
       const startTime = Date.now();
@@ -454,10 +604,22 @@ export default {
       return false;
     },
     removeRequestHeader(index) {
+      // .slice() is used so we get a separate array, rather than just a reference
+      const oldHeaders = this.headers.slice();
+
       this.$store.commit("removeGQLHeader", index);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete",
+        action: {
+          text: "Undo",
+          duration: 4000,
+          onClick: (e, toastObject) => {
+            this.headers = oldHeaders;
+            toastObject.remove();
+          }
+        }
       });
+      console.log(oldHeaders);
     }
   }
 };

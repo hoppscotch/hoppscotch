@@ -19,6 +19,7 @@ export default () => ({
   },
   gql: {
     url: 'https://rickandmortyapi.com/graphql',
-    headers: []
+    headers: [],
+    query: ""
   }
 });

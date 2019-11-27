@@ -47,7 +47,7 @@ const parseCurlCommand = (curlCommand) => {
   }
   let headers;
 
-  let parseHeaders = (headerFieldName) => {
+  const parseHeaders = (headerFieldName) => {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {};
@@ -102,7 +102,7 @@ const parseCurlCommand = (curlCommand) => {
     });
   }
   if (cookieString) {
-    let cookieParseOptions = {
+    const cookieParseOptions = {
       decode: s => s
     };
     // separate out cookie headers into separate data structure
@@ -172,7 +172,7 @@ const parseCurlCommand = (curlCommand) => {
   });
 
   urlObject.search = null; // Clean out the search/query portion.
-  let request = {
+  const request = {
     url,
     urlWithoutQuery: URL.format(urlObject)
   };

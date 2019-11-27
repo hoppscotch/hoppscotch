@@ -1606,9 +1606,19 @@ export default {
       return false;
     },
     removeRequestHeader(index) {
+      // .slice() gives us an entirely new array rather than giving us just the reference
+      const oldHeaders = this.headers.slice();
+
       this.$store.commit("removeHeaders", index);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete",
+        action: {
+          text: "Undo",
+          onClick: (e, toastObject) => {
+            this.headers = oldHeaders;
+            toastObject.remove();
+          }
+        }
       });
     },
     addRequestParam() {
@@ -1616,9 +1626,19 @@ export default {
       return false;
     },
     removeRequestParam(index) {
+      // .slice() gives us an entirely new array rather than giving us just the reference
+      const oldParams = this.params.slice();
+
       this.$store.commit("removeParams", index);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete",
+        action: {
+          text: "Undo",
+          onClick: (e, toastObject) => {
+            this.params = oldParams;
+            toastObject.remove();
+          }
+        }
       });
     },
     addRequestBodyParam() {
@@ -1626,9 +1646,19 @@ export default {
       return false;
     },
     removeRequestBodyParam(index) {
+      // .slice() gives us an entirely new array rather than giving us just the reference
+      const oldBodyParams = this.bodyParams.slice();
+
       this.$store.commit("removeBodyParams", index);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete",
+        action: {
+          text: "Undo",
+          onClick: (e, toastObject) => {
+            this.bodyParams = oldBodyParams;
+            toastObject.remove();
+          }
+        }
       });
     },
     formatRawParams(event) {

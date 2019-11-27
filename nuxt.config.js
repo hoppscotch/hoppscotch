@@ -290,7 +290,13 @@ export default {
         name: 'Español',
         iso: 'es-ES',
         file: 'es-ES.js'
-      }
+      },
+      {
+      code: 'fr',
+      name: 'Français',
+      iso: 'fr-FR',
+      file: 'fr-FR.js'
+    }
     ],
     defaultLocale: 'en',
     lazy: true,

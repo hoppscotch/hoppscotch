@@ -296,6 +296,12 @@ export default {
         name: 'Français',
         iso: 'fr-FR',
         file: 'fr-FR.js'
+      },
+      {
+        code: 'fa',
+        name: 'Farsi',
+        iso: 'fa-IR',
+        file: 'fa-IR.js'
       }
     ],
     defaultLocale: 'en',

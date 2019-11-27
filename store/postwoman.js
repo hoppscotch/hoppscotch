@@ -72,7 +72,7 @@ export const state = () => ({
 
 export const mutations = {
 
-  applySetting(state, setting) {
+  applySetting({settings}, setting) {
     if (setting == null || !(setting instanceof Array) || setting.length !== 2) {
       throw new Error("You must provide a setting (array in the form [key, value])");
     }
@@ -83,10 +83,10 @@ export const mutations = {
     // top of the file.
     // This is to ensure that application settings remain documented.
     if (!SETTINGS_KEYS.includes(key)) {
-      throw new Error("The settings structure does not include the key " + key);
+      throw new Error(`The settings structure does not include the key ${key}`);
     }
 
-    state.settings[key] = value;
+    settings[key] = value;
   },
 
   replaceCollections(state, collections) {
@@ -103,8 +103,8 @@ export const mutations = {
     }
   },
 
-  addNewCollection(state, collection) {
-    state.collections.push({
+  addNewCollection({collections}, collection) {
+    collections.push({
       name: '',
       folders: [],
       requests: [],
@@ -112,65 +112,65 @@ export const mutations = {
     })
   },
 
-  removeCollection(state, payload) {
+  removeCollection({collections}, payload) {
     const {
       collectionIndex
     } = payload;
-    state.collections.splice(collectionIndex, 1)
+    collections.splice(collectionIndex, 1)
   },
 
-  editCollection(state, payload) {
+  editCollection({collections}, payload) {
     const {
       collection,
       collectionIndex
     } = payload
-    state.collections[collectionIndex] = collection
+    collections[collectionIndex] = collection
   },
 
-  addNewFolder(state, payload) {
+  addNewFolder({collections}, payload) {
     const {
       collectionIndex,
       folder
     } = payload;
-    state.collections[collectionIndex].folders.push({
+    collections[collectionIndex].folders.push({
       name: '',
       requests: [],
       ...folder,
     });
   },
 
-  editFolder(state, payload) {
+  editFolder({collections}, payload) {
     const {
       collectionIndex,
       folder,
       folderIndex
     } = payload;
-    Vue.set(state.collections[collectionIndex].folders, folderIndex, folder)
+    Vue.set(collections[collectionIndex].folders, folderIndex, folder)
   },
 
-  removeFolder(state, payload) {
+  removeFolder({collections}, payload) {
     const {
       collectionIndex,
       folderIndex
     } = payload;
-    state.collections[collectionIndex].folders.splice(folderIndex, 1)
+    collections[collectionIndex].folders.splice(folderIndex, 1)
   },
 
-  addRequest(state, payload) {
+  addRequest({collections}, payload) {
     const {
       request
     } = payload;
 
     // Request that is directly attached to collection
     if (request.folder === -1) {
-      state.collections[request.collection].requests.push(request);
+      collections[request.collection].requests.push(request);
       return
     }
 
-    state.collections[request.collection].folders[request.folder].requests.push(request);
+    collections[request.collection].folders[request.folder].requests.push(request);
   },
 
-  editRequest(state, payload) {
+  editRequest({collections}, payload) {
     const {
       requestOldCollectionIndex,
       requestOldFolderIndex,
@@ -186,24 +186,24 @@ export const mutations = {
 
     // set new request
     if (requestNewFolderIndex !== undefined) {
-      Vue.set(state.collections[requestNewCollectionIndex].folders[requestNewFolderIndex].requests, requestOldIndex, requestNew)
+      Vue.set(collections[requestNewCollectionIndex].folders[requestNewFolderIndex].requests, requestOldIndex, requestNew)
     }
     else {
-      Vue.set(state.collections[requestNewCollectionIndex].requests, requestOldIndex, requestNew)
+      Vue.set(collections[requestNewCollectionIndex].requests, requestOldIndex, requestNew)
     }
 
     // remove old request
     if (changedPlace) {
       if (requestOldFolderIndex !== undefined) {
-        state.collections[requestOldCollectionIndex].folders[requestOldFolderIndex].requests.splice(requestOldIndex, 1)
+        collections[requestOldCollectionIndex].folders[requestOldFolderIndex].requests.splice(requestOldIndex, 1)
       }
       else {
-        state.collections[requestOldCollectionIndex].requests.splice(requestOldIndex, 1)
+        collections[requestOldCollectionIndex].requests.splice(requestOldIndex, 1)
       }
     }
   },
 
-  saveRequestAs(state, payload) {
+  saveRequestAs({collections}, payload) {
     const {
       request,
       collectionIndex,
@@ -216,24 +216,24 @@ export const mutations = {
     const specifiedRequest = requestIndex !== undefined
 
     if (specifiedCollection && specifiedFolder && specifiedRequest) {
-      Vue.set(state.collections[collectionIndex].folders[folderIndex].requests, requestIndex, request)
+      Vue.set(collections[collectionIndex].folders[folderIndex].requests, requestIndex, request)
     }
     else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
-      const requests = state.collections[collectionIndex].folders[folderIndex].requests
+      const requests = collections[collectionIndex].folders[folderIndex].requests
       const lastRequestIndex = requests.length - 1;
       Vue.set(requests, lastRequestIndex + 1, request)
     } else if (specifiedCollection && !specifiedFolder && specifiedRequest) {
-      const requests = state.collections[collectionIndex].requests
+      const requests = collections[collectionIndex].requests
       Vue.set(requests, requestIndex, request)
     } else if (specifiedCollection && !specifiedFolder && !specifiedRequest) {
-      const requests = state.collections[collectionIndex].requests
+      const requests = collections[collectionIndex].requests
       const lastRequestIndex = requests.length - 1;
       Vue.set(requests, lastRequestIndex + 1, request)
     }
 
   },
 
-  saveRequest(state, payload) {
+  saveRequest({collections}, payload) {
     const {
       request
     } = payload;
@@ -242,12 +242,12 @@ export const mutations = {
     if (request.hasOwnProperty('oldCollection') && request.oldCollection > -1) {
       const folder = request.hasOwnProperty('oldFolder') && request.oldFolder >= -1 ? request.oldFolder : request.folder;
       if (folder > -1) {
-        state.collections[request.oldCollection].folders[folder].requests.splice(request.requestIndex, 1)
+        collections[request.oldCollection].folders[folder].requests.splice(request.requestIndex, 1)
       } else {
-        state.collections[request.oldCollection].requests.splice(request.requestIndex, 1)
+        collections[request.oldCollection].requests.splice(request.requestIndex, 1)
       }
     } else if (request.hasOwnProperty('oldFolder') && request.oldFolder !== -1) {
-      state.collections[request.collection].folders[folder].requests.splice(request.requestIndex, 1)
+      collections[request.collection].folders[folder].requests.splice(request.requestIndex, 1)
     }
 
     delete request.oldCollection;
@@ -255,14 +255,14 @@ export const mutations = {
 
     // Request that is directly attached to collection
     if (request.folder === -1) {
-      Vue.set(state.collections[request.collection].requests, request.requestIndex, request)
+      Vue.set(collections[request.collection].requests, request.requestIndex, request)
       return
     }
 
-    Vue.set(state.collections[request.collection].folders[request.folder].requests, request.requestIndex, request)
+    Vue.set(collections[request.collection].folders[request.folder].requests, request.requestIndex, request)
   },
 
-  removeRequest(state, payload) {
+  removeRequest({collections}, payload) {
     const {
       collectionIndex,
       folderIndex,
@@ -271,15 +271,15 @@ export const mutations = {
 
     // Request that is directly attached to collection
     if (folderIndex === -1) {
-      state.collections[collectionIndex].requests.splice(requestIndex, 1)
+      collections[collectionIndex].requests.splice(requestIndex, 1)
       return
     }
 
-    state.collections[collectionIndex].folders[folderIndex].requests.splice(requestIndex, 1)
+    collections[collectionIndex].folders[folderIndex].requests.splice(requestIndex, 1)
   },
 
-  selectRequest(state, payload) {
-    state.selectedRequest = Object.assign({}, payload.request);
+  selectRequest(state, {request}) {
+    state.selectedRequest = Object.assign({}, request);
   },
 
 };

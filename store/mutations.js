@@ -1,73 +1,73 @@
 export default {
-  setState(state, object) {
-    state.request[object.attribute] = object.value
+  setState({request}, {attribute, value}) {
+    request[attribute] = value
   },
 
-  setGQLState(state, object) {
-    state.gql[object.attribute] = object.value;
+  setGQLState({gql}, {attribute, value}) {
+    gql[attribute] = value;
   },
 
-  addGQLHeader(state, object) {
-    state.gql.headers.push(object);
+  addGQLHeader({gql}, object) {
+    gql.headers.push(object);
   },
 
-  removeGQLHeader(state, index) {
-    state.gql.headers.splice(index, 1);
+  removeGQLHeader({gql}, index) {
+    gql.headers.splice(index, 1);
   },
 
-  setGQLHeaderKey(state, object) {
-    state.gql.headers[object.index].key = object.value;
+  setGQLHeaderKey({gql}, {index, value}) {
+    gql.headers[index].key = value;
   },
 
-  setGQLHeaderValue(state, object) {
-    state.gql.headers[object.index].value = object.value;
+  setGQLHeaderValue({gql}, {index, value}) {
+    gql.headers[index].value = value;
   },
 
-  addHeaders(state, value) {
-    state.request.headers.push(value);
+  addHeaders({request}, value) {
+    request.headers.push(value);
   },
 
-  removeHeaders(state, index) {
-    state.request.headers.splice(index, 1)
+  removeHeaders({request}, index) {
+    request.headers.splice(index, 1)
   },
 
-  setKeyHeader(state, object) {
-    state.request.headers[object.index].key = object.value
+  setKeyHeader({request}, {index, value}) {
+    request.headers[index].key = value
   },
 
-  setValueHeader(state, object) {
-    state.request.headers[object.index].value = object.value
+  setValueHeader({request}, {index, value}) {
+    request.headers[index].value = value
   },
 
-  addParams(state, value) {
-    state.request.params.push(value);
+  addParams({request}, value) {
+    request.params.push(value);
   },
 
-  removeParams(state, index) {
-    state.request.params.splice(index, 1)
+  removeParams({request}, index) {
+    request.params.splice(index, 1)
   },
 
-  setKeyParams(state, object) {
-    state.request.params[object.index].key = object.value
+  setKeyParams({request}, {index, value}) {
+    request.params[index].key = value
   },
 
-  setValueParams(state, object) {
-    state.request.params[object.index].value = object.value
+  setValueParams({request}, {index, value}) {
+    request.params[index].value = value
   },
 
-  addBodyParams(state, value) {
-    state.request.bodyParams.push(value);
+  addBodyParams({request}, value) {
+    request.bodyParams.push(value);
   },
 
-  removeBodyParams(state, index) {
-    state.request.bodyParams.splice(index, 1)
+  removeBodyParams({request}, index) {
+    request.bodyParams.splice(index, 1)
   },
 
-  setKeyBodyParams(state, object) {
-    state.request.bodyParams[object.index].key = object.value
+  setKeyBodyParams({request}, {index, value}) {
+    request.bodyParams[index].key = value
   },
 
-  setValueBodyParams(state, object) {
-    state.request.bodyParams[object.index].value = object.value
+  setValueBodyParams({request}, {index, value}) {
+    request.bodyParams[index].value = value
   },
 };

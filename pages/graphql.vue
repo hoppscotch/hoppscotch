@@ -279,7 +279,7 @@
 
 <style scoped lang="scss">
 .tab {
-  max-height: calc(100vh - 172px);
+  max-height: calc(100vh - 186px);
   overflow: auto;
 }
 </style>

@@ -435,6 +435,7 @@ export default {
         });
     },
     stop() {
+      this.sse.onclose();
       this.sse.close();
     }
   },

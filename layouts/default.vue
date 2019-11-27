@@ -36,7 +36,7 @@
             <i class="material-icons">offline_bolt</i>
           </button>
           <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'More'">
+            <button class="icon" v-tooltip="'More'">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
@@ -198,37 +198,69 @@
       </div>
     </div>
     <footer class="footer">
-      <!-- Bottom section of footer: version/author information -->
-      <p class="align-center mono">
-        <span v-if="version.name">
-          <a
-            v-bind:href="
-              'https://github.com/liyasthomas/postwoman/releases/tag/' +
-                version.name
-            "
-            target="_blank"
-            rel="noopener"
-            >{{ version.name }}</a
-          >
-          <!-- <span v-if="version.hash">
-            -
+      <div class="flex-wrap">
+        <!-- Bottom section of footer: version/author information -->
+        <div>
+          <span v-if="version.name" class="mono">
             <a
-              v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
+              v-bind:href="
+                'https://github.com/liyasthomas/postwoman/releases/tag/' +
+                  version.name
+              "
               target="_blank"
               rel="noopener"
-            >{{version.hash}}</a>
-          </span> -->
-          <!-- <span v-if="version.variant">({{version.variant}})</span> -->
-          &#x2022;
-        </span>
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener"
-          >🦄</a
-        >
-        &#x2022;
-        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener"
-          >Subscribe</a
-        >
-      </p>
+            >
+              {{ version.name }}
+            </a>
+            &#x2022;
+            <a
+              href="https://liyasthomas.web.app"
+              target="_blank"
+              rel="noopener"
+            >
+              🦄
+            </a>
+            <!-- <span v-if="version.hash">
+              -
+              <a
+                v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
+                target="_blank"
+                rel="noopener"
+              >{{version.hash}}</a>
+            </span> -->
+            <!-- <span v-if="version.variant">({{version.variant}})</span> -->
+          </span>
+        </div>
+        <div class="flex-wrap">
+          <a
+            href="https://postwoman.launchaco.com"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon" v-tooltip="'Subscribe'">
+              <i class="material-icons">email</i>
+            </button>
+          </a>
+          <v-popover>
+            <button class="icon" v-tooltip="'Choose Language'">
+              <i class="material-icons">translate</i>
+            </button>
+            <template slot="popover">
+              <nuxt-link
+                v-for="locale in availableLocales"
+                :key="locale.code"
+                :to="switchLocalePath(locale.code)"
+              >
+                <div>
+                  <button class="icon" v-close-popover>
+                    {{ locale.name }}
+                  </button>
+                </div>
+              </nuxt-link>
+            </template>
+          </v-popover>
+        </div>
+      </div>
     </footer>
     <modal v-if="showShortcuts" @close="showShortcuts = false">
       <div slot="header">
@@ -439,6 +471,12 @@ export default {
   watch: {
     $route() {
       this.$toast.clear();
+    }
+  },
+
+  computed: {
+    availableLocales() {
+      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
     }
   }
 };

@@ -228,7 +228,8 @@ export default {
     ['@nuxtjs/google-tag-manager', {
       id: process.env.GTM_ID || 'GTM-MXWD8NQ'
     }],
-    ['@nuxtjs/robots']
+    ['@nuxtjs/robots'],
+    ['nuxt-i18n']
   ],
   pwa: {
     manifest: {
@@ -276,6 +277,24 @@ export default {
     Disallow: '',
     Allow: '/',
     Sitemap: 'https://postwoman.io/sitemap.xml'
+  },
+  i18n: {
+    locales: [{
+        code: 'en',
+        name: 'English',
+        iso: 'en-US',
+        file: 'en-US.js'
+      },
+      {
+        code: 'es',
+        name: 'Español',
+        iso: 'es-ES',
+        file: 'es-ES.js'
+      }
+    ],
+    defaultLocale: 'en',
+    lazy: true,
+    langDir: 'lang/'
   },
   /*
    ** Build configuration

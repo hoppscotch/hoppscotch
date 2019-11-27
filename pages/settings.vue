@@ -92,7 +92,12 @@
               <i class="material-icons">clear_all</i>
             </button>
           </div>
-          <input id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
+          <input
+            id="url"
+            type="url"
+            v-model="settings.PROXY_URL"
+            :disabled="!settings.PROXY_ENABLED"
+          />
         </li>
       </ul>
       <ul class="info">
@@ -231,7 +236,9 @@ export default {
           this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED:
           this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
+        PROXY_URL:
+          this.$store.state.postwoman.settings.PROXY_URL ||
+          "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
       }
     };

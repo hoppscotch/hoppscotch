@@ -292,11 +292,11 @@ export default {
         file: 'es-ES.js'
       },
       {
-      code: 'fr',
-      name: 'Français',
-      iso: 'fr-FR',
-      file: 'fr-FR.js'
-    }
+        code: 'fr',
+        name: 'Français',
+        iso: 'fr-FR',
+        file: 'fr-FR.js'
+      }
     ],
     defaultLocale: 'en',
     lazy: true,

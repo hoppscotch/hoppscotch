@@ -1,8 +1,8 @@
 export default {
   name: "textareaAutoHeight",
-  update(element) {
-    if (element.scrollHeight !== element.clientHeight) {
-      element.style.minHeight = `${element.scrollHeight}px`;
+  update({scrollHeight, clientHeight, style}) {
+    if (scrollHeight !== clientHeight) {
+      style.minHeight = `${scrollHeight}px`;
     }
   }
 }

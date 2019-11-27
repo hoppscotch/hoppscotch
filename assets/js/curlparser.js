@@ -13,13 +13,13 @@ const joinDataArguments = (dataArguments) => {
     if (i === 0) {
       data += argument;
     } else {
-      data += "&" + argument;
+      data += `&${argument}`;
     }
   });
   return data;
 }
 
-function parseCurlCommand(curlCommand) {
+const parseCurlCommand = (curlCommand) => {
   let newlineFound = /\r|\n/.exec(curlCommand);
   if (newlineFound) {
     // remove newlines
@@ -47,7 +47,7 @@ function parseCurlCommand(curlCommand) {
   }
   let headers;
 
-  let parseHeaders = function (headerFieldName) {
+  let parseHeaders = (headerFieldName) => {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {};
@@ -103,9 +103,7 @@ function parseCurlCommand(curlCommand) {
   }
   if (cookieString) {
     let cookieParseOptions = {
-      decode: function (s) {
-        return s;
-      }
+      decode: s => s
     };
     // separate out cookie headers into separate data structure
     // note: cookie is case insensitive
@@ -175,7 +173,7 @@ function parseCurlCommand(curlCommand) {
 
   urlObject.search = null; // Clean out the search/query portion.
   let request = {
-    url: url,
+    url,
     urlWithoutQuery: URL.format(urlObject)
   };
   if (compressed) {

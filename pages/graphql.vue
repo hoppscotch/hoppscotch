@@ -604,10 +604,22 @@ export default {
       return false;
     },
     removeRequestHeader(index) {
+      // .slice() is used so we get a separate array, rather than just a reference
+      const oldHeaders = this.headers.slice();
+
       this.$store.commit("removeGQLHeader", index);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete",
+        action: {
+          text: "Undo",
+          duration: 4000,
+          onClick: (e, toastObject) => {
+            this.headers = oldHeaders;
+            toastObject.remove();
+          }
+        }
       });
+      console.log(oldHeaders);
     }
   }
 };

@@ -1488,7 +1488,7 @@ export default {
         // We make our temporary headers object the source so
         // that you can override the added headers if you
         // specify them.
-        headers
+        // headers
       );
 
       Object.keys(headers).forEach(id => {

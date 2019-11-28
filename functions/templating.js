@@ -3,5 +3,5 @@ export default function parseTemplateString(string, variables) {
     return string;
   }
   const searchTerm = /<<([^>]*)>>/g; // "<<myVariable>>"
-  return string.replace(searchTerm, (match, p1) => variables[p1] || '');
+  return string.replace(searchTerm, (match, p1) => variables[p1] || "");
 }

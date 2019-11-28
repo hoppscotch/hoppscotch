@@ -1,20 +1,18 @@
-import Vuex from 'vuex';
-import state from './state';
-import VuexPersist from 'vuex-persist'
+import Vuex from "vuex";
+import state from "./state";
+import VuexPersist from "vuex-persist";
 
 export default {
   install(Vue) {
     Vue.use(Vuex);
 
     const vuexLocalStorage = new VuexPersist({
-      key: 'vuex',
+      key: "vuex",
       storage: window.localStorage,
-      reducer: ({
-        ...request
-      }) => ({
+      reducer: ({ ...request }) => ({
         ...request
       })
-    })
+    });
 
     const store = new Vuex.Store({
       state,
@@ -22,5 +20,5 @@ export default {
     });
 
     Vue.prototype.$store = store;
-  },
+  }
 };

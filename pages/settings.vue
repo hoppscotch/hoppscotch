@@ -65,7 +65,9 @@
                 :on="settings.PROXY_ENABLED"
                 @change="toggleSetting('PROXY_ENABLED')"
                 >{{ $t("proxy") }}
-                {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}</pw-toggle
+                {{
+                  settings.PROXY_ENABLED ? $t("enabled") : $t("disabled")
+                }}</pw-toggle
               >
             </span>
             <a
@@ -106,7 +108,10 @@
             {{ $t("postwoman_official_proxy_hosting") }}
             <br />
             {{ $t("read_the") }}
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener"
+            <a
+              href="https://apollotv.xyz/legal"
+              target="_blank"
+              rel="noopener"
               >{{ $t("apollotv_privacy_policy") }}</a
             >.
           </p>

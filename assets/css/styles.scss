@@ -1,18 +1,22 @@
 // Layout transitions
-.layout-enter-active, .layout-leave-active {
+.layout-enter-active,
+.layout-leave-active {
   transition: opacity 0.5s;
 }
 
-.layout-enter, .layout-leave-active {
+.layout-enter,
+.layout-leave-active {
   opacity: 0;
 }
 
 // Page transitions
-.page-enter-active, .page-leave-active {
+.page-enter-active,
+.page-leave-active {
   transition: opacity 0.5s;
 }
 
-.page-enter, .page-leave-to {
+.page-enter,
+.page-leave-to {
   opacity: 0;
 }
 

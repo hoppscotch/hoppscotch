@@ -313,7 +313,7 @@
 
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
-          <label for="tab-one">{{ $t('authentication') }}</label>
+          <label for="tab-one">{{ $t("authentication") }}</label>
           <div class="tab">
             <pw-section
               class="cyan"
@@ -323,7 +323,7 @@
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="auth">{{ $t('authentication') }}</label>
+                    <label for="auth">{{ $t("authentication") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -392,19 +392,19 @@
                 <pw-toggle
                   :on="!urlExcludes.auth"
                   @change="setExclude('auth', !$event)"
-                  >{{ $t('include_in_url') }}</pw-toggle
+                  >{{ $t("include_in_url") }}</pw-toggle
                 >
               </div>
             </pw-section>
           </div>
           <input id="tab-two" type="radio" name="options" />
-          <label for="tab-two">{{ $t('headers') }}</label>
+          <label for="tab-two">{{ $t("headers") }}</label>
           <div class="tab">
             <pw-section class="orange" label="Headers" ref="headers">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="headerList">{{ $t('header_list') }}</label>
+                    <label for="headerList">{{ $t("header_list") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -471,20 +471,20 @@
                 <li>
                   <button class="icon" @click="addRequestHeader">
                     <i class="material-icons">add</i>
-                    <span>{{ $t('add_new') }}</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
             </pw-section>
           </div>
           <input id="tab-three" type="radio" name="options" />
-          <label for="tab-three">{{ $t('parameters') }}</label>
+          <label for="tab-three">{{ $t("parameters") }}</label>
           <div class="tab">
             <pw-section class="pink" label="Parameters" ref="parameters">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="paramList">{{ $t('parameter_list') }}</label>
+                    <label for="paramList">{{ $t("parameter_list") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -549,7 +549,7 @@
                 <li>
                   <button class="icon" @click="addRequestParam">
                     <i class="material-icons">add</i>
-                    <span>{{ $t('add_new') }}</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
@@ -565,7 +565,7 @@
         >
           <ul>
             <li>
-              <label for="status">{{ $t('status') }}</label>
+              <label for="status">{{ $t("status") }}</label>
               <input
                 :class="statusCategory ? statusCategory.className : ''"
                 :value="response.status || '(waiting to send request)'"
@@ -586,7 +586,7 @@
           <ul v-if="response.body">
             <li>
               <div class="flex-wrap">
-                <label for="body">{{ $t('response') }}</label>
+                <label for="body">{{ $t("response") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -655,7 +655,7 @@
                   >
                   <i class="material-icons" v-else>visibility_off</i>
                   <span>{{
-                    previewEnabled ? $t('hide_preview') : $t('preview_html')
+                    previewEnabled ? $t("hide_preview") : $t("preview_html")
                   }}</span>
                 </button>
               </div>
@@ -667,7 +667,7 @@
       <aside class="sticky-inner inner-right">
         <section>
           <input id="history-tab" type="radio" name="side" checked="checked" />
-          <label for="history-tab">{{ $t('history') }}</label>
+          <label for="history-tab">{{ $t("history") }}</label>
           <div class="tab">
             <history
               @useHistory="handleUseHistory"
@@ -675,7 +675,7 @@
             ></history>
           </div>
           <input id="collection-tab" type="radio" name="side" />
-          <label for="collection-tab">{{ $t('collections') }}</label>
+          <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
             <pw-section class="yellow" label="Collections" ref="collections">
               <collections />
@@ -695,7 +695,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">{{ $t('import_curl') }}</h3>
+                <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
                     <i class="material-icons">close</i>
@@ -722,7 +722,7 @@
             <li>
               <button class="icon" @click="handleImport">
                 <i class="material-icons">get_app</i>
-                <span>{{ $t('import') }}</span>
+                <span>{{ $t("import") }}</span>
               </button>
             </li>
           </ul>
@@ -734,7 +734,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">{{ $t('generate_code') }}</h3>
+                <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
                     <i class="material-icons">close</i>
@@ -747,7 +747,7 @@
         <div slot="body">
           <ul>
             <li>
-              <label for="requestType">{{ $t('request_type') }}</label>
+              <label for="requestType">{{ $t("request_type") }}</label>
               <select id="requestType" v-model="requestType">
                 <option>JavaScript XHR</option>
                 <option>Fetch</option>
@@ -758,7 +758,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="generatedCode">{{ $t('generated_code') }}</label>
+                <label for="generatedCode">{{ $t("generated_code") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -1483,7 +1483,7 @@ export default {
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
         // mutate it with the request headers added by default.
-        Object.assign({}, this.headers),
+        Object.assign({}, this.headers)
 
         // We make our temporary headers object the source so
         // that you can override the added headers if you

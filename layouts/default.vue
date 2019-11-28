@@ -47,7 +47,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">keyboard</i>
-                  <span>{{ $t('shortcuts') }}</span>
+                  <span>{{ $t("shortcuts") }}</span>
                 </button>
               </div>
               <div>
@@ -57,7 +57,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">favorite</i>
-                  <span>{{ $t('support_us') }}</span>
+                  <span>{{ $t("support_us") }}</span>
                 </button>
               </div>
               <div>
@@ -76,7 +76,7 @@
                       d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
                     />
                   </svg>
-                  <span>{{ $t('tweet') }}</span>
+                  <span>{{ $t("tweet") }}</span>
                 </button>
               </div>
             </template>
@@ -248,16 +248,13 @@
               <i class="material-icons">translate</i>
             </button>
             <template slot="popover">
-              <div v-for="locale in availableLocales"
-              :key="locale.code">
-              <nuxt-link
-                :to="switchLocalePath(locale.code)"
-              >
-                <button class="icon" v-close-popover>
-                  {{ locale.name }}
-                </button>
-              </nuxt-link>
-            </div>
+              <div v-for="locale in availableLocales" :key="locale.code">
+                <nuxt-link :to="switchLocalePath(locale.code)">
+                  <button class="icon" v-close-popover>
+                    {{ locale.name }}
+                  </button>
+                </nuxt-link>
+              </div>
             </template>
           </v-popover>
         </div>
@@ -268,7 +265,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">{{ $t('shortcuts') }}</h3>
+              <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
                   <i class="material-icons">close</i>
@@ -281,22 +278,22 @@
       <div slot="body">
         <br />
         <div>
-          <label>{{ $t('send_request') }}</label>
+          <label>{{ $t("send_request") }}</label>
           <kbd>⌘ G</kbd>
         </div>
         <br />
         <div>
-          <label>{{ $t('save_to_collections') }}</label>
+          <label>{{ $t("save_to_collections") }}</label>
           <kbd>⌘ S</kbd>
         </div>
         <br />
         <div>
-          <label>{{ $t('copy_request_link') }}</label>
+          <label>{{ $t("copy_request_link") }}</label>
           <kbd>⌘ K</kbd>
         </div>
         <br />
         <div>
-          <label>{{ $t('reset_request') }}</label>
+          <label>{{ $t("reset_request") }}</label>
           <kbd>⌘ L</kbd>
         </div>
         <br />
@@ -308,7 +305,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">{{ $t('support_us_on') }}</h3>
+              <h3 class="title">{{ $t("support_us_on") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
                   <i class="material-icons">close</i>
@@ -327,7 +324,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>{{ $t('open_collective') }}</span>
+              <span>{{ $t("open_collective") }}</span>
             </button>
           </a>
         </div>
@@ -339,7 +336,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>{{ $t('paypal') }}</span>
+              <span>{{ $t("paypal") }}</span>
             </button>
           </a>
         </div>
@@ -351,7 +348,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>{{ $t('patreon') }}</span>
+              <span>{{ $t("patreon") }}</span>
             </button>
           </a>
         </div>

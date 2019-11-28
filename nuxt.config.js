@@ -314,6 +314,12 @@ export default {
         name: '简体中文',
         iso: 'zh-CN',
         file: 'zh-CN.js'
+      },
+      {
+        code: 'id',
+        name: 'Bahasa Indonesia',
+        iso: 'id-ID',
+        file: 'id-ID.js'
       }
     ],
     defaultLocale: 'en',

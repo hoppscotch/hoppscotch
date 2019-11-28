@@ -2,12 +2,12 @@
   <div class="page">
     <section id="options">
       <input id="tab-one" type="radio" name="options" checked="checked" />
-      <label for="tab-one">WebSocket</label>
+      <label for="tab-one">{{ $t("websocket") }}</label>
       <div class="tab">
         <pw-section class="blue" label="Request" ref="request">
           <ul>
             <li>
-              <label for="url">URL</label>
+              <label for="url">{{ $t("url") }}</label>
               <input
                 id="url"
                 type="url"
@@ -56,13 +56,13 @@
                     }}{{ logEntry.payload }}</span
                   >
                 </span>
-                <span v-else>(waiting for connection)</span>
+                <span v-else>{{ $t("waiting_for_connection") }}</span>
               </div>
             </li>
           </ul>
           <ul>
             <li>
-              <label for="message">Message</label>
+              <label for="message">{{ $t("message") }}</label>
               <input
                 id="message"
                 name="message"
@@ -81,7 +81,7 @@
                   :disabled="!connectionState"
                   @click="sendMessage"
                 >
-                  Send
+                  {{ $t("send") }}
                   <span>
                     <i class="material-icons">send</i>
                   </span>
@@ -92,12 +92,12 @@
         </pw-section>
       </div>
       <input id="tab-two" type="radio" name="options" />
-      <label for="tab-two">SSE</label>
+      <label for="tab-two">{{ $t("sse") }}</label>
       <div class="tab">
         <pw-section class="blue" label="Request" ref="request">
           <ul>
             <li>
-              <label for="server">Server</label>
+              <label for="server">{{ $t("server") }}</label>
               <input
                 id="server"
                 type="url"
@@ -137,7 +137,7 @@
         >
           <ul>
             <li>
-              <label for="log">Events</label>
+              <label for="log">{{ $t("events") }}</label>
               <div id="log" name="log" class="log">
                 <span v-if="events.log">
                   <span
@@ -148,7 +148,7 @@
                     }}{{ logEntry.payload }}</span
                   >
                 </span>
-                <span v-else>(waiting for connection)</span>
+                <span v-else>{{ $t("waiting_for_connection") }}</span>
               </div>
               <div id="result"></div>
             </li>

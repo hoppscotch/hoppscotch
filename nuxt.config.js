@@ -308,6 +308,12 @@ export default {
         name: 'Português Brasileiro',
         iso: 'pt-BR',
         file: 'pt-BR.js'
+      },
+      {
+        code: 'cn',
+        name: '简体中文',
+        iso: 'zh-CN',
+        file: 'zh-CN.js'
       }
     ],
     defaultLocale: 'en',

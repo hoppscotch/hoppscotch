@@ -5,7 +5,7 @@
         <pw-section class="blue" label="Endpoint" ref="endpoint">
           <ul>
             <li>
-              <label for="url">URL</label>
+              <label for="url">{{ $t("url") }}</label>
               <input
                 id="url"
                 type="url"
@@ -17,7 +17,7 @@
               <li>
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
                 <button id="get" name="get" @click="getSchema">
-                  Get Schema
+                  {{ $t("get_schema") }}
                   <span><i class="material-icons">send</i></span>
                 </button>
               </li>
@@ -29,7 +29,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="headerList">Header List</label>
+                <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -95,7 +95,7 @@
             <li>
               <button class="icon" @click="addRequestHeader">
                 <i class="material-icons">add</i>
-                <span>Add New</span>
+                <span>{{ $t("add_new") }}</span>
               </button>
             </li>
           </ul>
@@ -103,7 +103,7 @@
 
         <pw-section class="green" label="Schema" ref="schema">
           <div class="flex-wrap">
-            <label>response</label>
+            <label>{{ $t("response") }}</label>
             <div>
               <button
                 class="icon"
@@ -152,7 +152,7 @@
         </pw-section>
         <pw-section class="cyan" label="Query" ref="query">
           <div class="flex-wrap">
-            <label for="gqlQuery">Query</label>
+            <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
                 class="icon"
@@ -179,7 +179,7 @@
         </pw-section>
         <pw-section class="purple" label="Response" ref="response">
           <div class="flex-wrap">
-            <label for="responseField">Response</label>
+            <label for="responseField">{{ $t("response") }}</label>
             <div>
               <button
                 class="icon"
@@ -217,7 +217,7 @@
               checked="checked"
             />
             <label v-if="queryFields.length > 0" for="queries-tab"
-              >Queries</label
+              >{{ $t("queries") }}</label
             >
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
@@ -233,7 +233,7 @@
               checked="checked"
             />
             <label v-if="mutationFields.length > 0" for="mutations-tab"
-              >Mutations</label
+              >{{ $t("mutations") }}</label
             >
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
@@ -249,7 +249,7 @@
               checked="checked"
             />
             <label v-if="subscriptionFields.length > 0" for="subscriptions-tab"
-              >Subscriptions</label
+              >{{ $t("subscriptions") }}</label
             >
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
@@ -264,7 +264,7 @@
               name="side"
               checked="checked"
             />
-            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">Types</label>
+            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">{{ $t("types") }}</label>
             <div v-if="gqlTypes.length > 0" class="tab">
               <div v-for="type in gqlTypes" :key="type.name">
                 <gql-type :gqlType="type" />

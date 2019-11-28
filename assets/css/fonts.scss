@@ -1,2 +1,63 @@
-@import url("https://fonts.googleapis.com/css?family=Poppins:500,700|Roboto+Mono:400&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons&display=swap");
+// @import url("https://fonts.googleapis.com/css?family=Poppins:500,700|Roboto+Mono:400&display=swap");
+// @import url("https://fonts.googleapis.com/icon?family=Material+Icons&display=swap");
+
+/* Material Design Icons */
+@font-face {
+  font-family: "Material Icons";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("~assets/fonts/material-icons-v48.woff2") format("woff2");
+}
+
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* poppins-500 - latin */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local("Poppins Medium"), local("Poppins-Medium"),
+    url("~assets/fonts/poppins-v9-latin-500.woff2") format("woff2"),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url("~assets/fonts/poppins-v9-latin-500.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* poppins-700 - latin */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Poppins Bold"), local("Poppins-Bold"),
+    url("~assets/fonts/poppins-v9-latin-700.woff2") format("woff2"),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url("~assets/fonts/poppins-v9-latin-700.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* roboto-mono-regular - latin */
+@font-face {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Roboto Mono"), local("RobotoMono-Regular"),
+    url("~assets/fonts/roboto-mono-v7-latin-regular.woff2") format("woff2"),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url("~assets/fonts/roboto-mono-v7-latin-regular.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}

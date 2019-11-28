@@ -7,7 +7,7 @@ import * as querystring from "querystring";
  * output this: 'msg1=value1&msg2=value2'
  * @param dataArguments
  */
-const joinDataArguments = (dataArguments) => {
+const joinDataArguments = dataArguments => {
   let data = "";
   dataArguments.forEach((argument, i) => {
     if (i === 0) {
@@ -17,9 +17,9 @@ const joinDataArguments = (dataArguments) => {
     }
   });
   return data;
-}
+};
 
-const parseCurlCommand = (curlCommand) => {
+const parseCurlCommand = curlCommand => {
   let newlineFound = /\r|\n/.exec(curlCommand);
   if (newlineFound) {
     // remove newlines
@@ -47,7 +47,7 @@ const parseCurlCommand = (curlCommand) => {
   }
   let headers;
 
-  const parseHeaders = (headerFieldName) => {
+  const parseHeaders = headerFieldName => {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {};
@@ -55,7 +55,7 @@ const parseCurlCommand = (curlCommand) => {
       if (!Array.isArray(parsedArguments[headerFieldName])) {
         parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]];
       }
-      parsedArguments[headerFieldName].forEach((header) => {
+      parsedArguments[headerFieldName].forEach(header => {
         if (header.includes("Cookie")) {
           // stupid javascript tricks: closure
           cookieString = header;
@@ -95,7 +95,7 @@ const parseCurlCommand = (curlCommand) => {
     if (!Array.isArray(parsedArguments.F)) {
       parsedArguments.F = [parsedArguments.F];
     }
-    parsedArguments.F.forEach((multipartArgument) => {
+    parsedArguments.F.forEach(multipartArgument => {
       // input looks like key=value. value could be json or a file path prepended with an @
       const [key, value] = multipartArgument.split("=", 2);
       multipartUploads[key] = value;
@@ -221,6 +221,6 @@ const parseCurlCommand = (curlCommand) => {
     request.insecure = true;
   }
   return request;
-}
+};
 
 export default parseCurlCommand;

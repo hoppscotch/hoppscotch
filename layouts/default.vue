@@ -3,7 +3,7 @@
     <header class="header">
       <div class="flex-wrap">
         <div class="slide-in">
-          <nuxt-link to="/">
+          <nuxt-link :to="localePath('index')">
             <h1 class="logo">Postwoman</h1>
           </nuxt-link>
         </div>
@@ -93,7 +93,7 @@
               seems to mess up the nuxt-link active class.
             -->
             <nuxt-link
-              to="/"
+              :to="localePath('index')"
               :class="linkActive('/')"
               v-tooltip.right="'Home'"
               aria-label="Home"
@@ -101,21 +101,21 @@
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
             <nuxt-link
-              to="/realtime"
+              :to="localePath('realtime')"
               :class="linkActive('/realtime')"
               v-tooltip.right="'Realtime'"
             >
               <i class="material-icons">settings_input_hdmi</i>
             </nuxt-link>
             <nuxt-link
-              to="/graphql"
+              :to="localePath('graphql')"
               :class="linkActive('/graphql')"
               v-tooltip.right="'GraphQL'"
             >
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
-              to="/settings"
+              :to="localePath('settings')"
               :class="linkActive('/settings')"
               v-tooltip.right="'Settings'"
               aria-label="Settings"
@@ -123,7 +123,7 @@
               <i class="material-icons">settings</i>
             </nuxt-link>
           </nav>
-          <div v-if="['/'].includes($route.path)">
+          <div v-if="$route.path === '/'">
             <nav class="secondary-nav">
               <ul>
                 <li>
@@ -144,7 +144,7 @@
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/realtime'].includes($route.path)">
+          <div v-else-if="$route.path === '/realtime'">
             <nav class="secondary-nav">
               <ul>
                 <li>
@@ -160,7 +160,7 @@
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/graphql'].includes($route.path)">
+          <div v-else-if="$route.path === '/graphql'">
             <nav class="secondary-nav">
               <ul>
                 <li>
@@ -176,7 +176,7 @@
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/settings'].includes($route.path)">
+          <div v-else-if="$route.path === '/settings'">
             <nav class="secondary-nav">
               <ul>
                 <li>
@@ -193,7 +193,9 @@
             </nav>
           </div>
         </aside>
-        <nuxt id="main" class="main" />
+        <transition name="layout" appear>
+          <nuxt id="main" class="main" />
+        </transition>
         <aside class="nav-second"></aside>
       </div>
     </div>
@@ -246,17 +248,16 @@
               <i class="material-icons">translate</i>
             </button>
             <template slot="popover">
+              <div v-for="locale in availableLocales"
+              :key="locale.code">
               <nuxt-link
-                v-for="locale in availableLocales"
-                :key="locale.code"
                 :to="switchLocalePath(locale.code)"
               >
-                <div>
-                  <button class="icon" v-close-popover>
-                    {{ locale.name }}
-                  </button>
-                </div>
+                <button class="icon" v-close-popover>
+                  {{ locale.name }}
+                </button>
               </nuxt-link>
+            </div>
             </template>
           </v-popover>
         </div>

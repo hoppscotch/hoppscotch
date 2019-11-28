@@ -4,9 +4,9 @@
 /* Material Design Icons */
 @font-face {
   font-family: "Material Icons";
-  font-display: swap;
   font-style: normal;
   font-weight: 400;
+  font-display: swap;
   src: url("~assets/fonts/material-icons-v48.woff2") format("woff2");
 }
 
@@ -31,6 +31,7 @@
   font-family: "Poppins";
   font-style: normal;
   font-weight: 500;
+  font-display: swap;
   src: local("Poppins Medium"), local("Poppins-Medium"),
     url("~assets/fonts/poppins-v9-latin-500.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */
@@ -42,6 +43,7 @@
   font-family: "Poppins";
   font-style: normal;
   font-weight: 700;
+  font-display: swap;
   src: local("Poppins Bold"), local("Poppins-Bold"),
     url("~assets/fonts/poppins-v9-latin-700.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */
@@ -53,6 +55,7 @@
   font-family: "Roboto Mono";
   font-style: normal;
   font-weight: 400;
+  font-display: swap;
   src: local("Roboto Mono"), local("RobotoMono-Regular"),
     url("~assets/fonts/roboto-mono-v7-latin-regular.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */

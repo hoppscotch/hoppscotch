@@ -4,7 +4,7 @@ LABEL maintainer="Liyas Thomas (liyascthomas@gmail.com)"
 
 # Add git as the prebuild target requires it to parse version information
 RUN apk add --update --no-cache \
-    git
+  git
 
 WORKDIR /app
 

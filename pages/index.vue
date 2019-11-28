@@ -11,7 +11,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="generatedCode">JavaScript Code</label>
+                <label for="generatedCode">{{ $t("javascript_code") }}</label>
                 <div>
                   <a
                     href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
@@ -39,7 +39,7 @@
         <pw-section class="blue" label="Request" ref="request">
           <ul>
             <li>
-              <label for="method">Method</label>
+              <label for="method">{{ $t("method") }}</label>
               <select id="method" v-model="method" @change="methodChange">
                 <option>GET</option>
                 <option>HEAD</option>
@@ -51,7 +51,7 @@
               </select>
             </li>
             <li>
-              <label for="url">URL</label>
+              <label for="url">{{ $t("url") }}</label>
               <input
                 :class="{ error: !isValidURL }"
                 @keyup.enter="isValidURL ? sendRequest() : null"
@@ -62,7 +62,7 @@
               />
             </li>
             <li>
-              <label for="path">Path</label>
+              <label for="path">{{ $t("path") }}</label>
               <input
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="path"
@@ -72,7 +72,7 @@
               />
             </li>
             <li>
-              <label for="label">Label</label>
+              <label for="label">{{ $t("label") }}</label>
               <input
                 id="label"
                 name="label"
@@ -98,7 +98,7 @@
                   ref="sendButton"
                 >
                   {{ $t("send") }}
-                  <span id="hidden-message">Again</span>
+                  <span id="hidden-message">{{ $t("again") }}</span>
                   <span>
                     <i class="material-icons">send</i>
                   </span>
@@ -113,7 +113,7 @@
           >
             <ul>
               <li>
-                <label for="contentType">Content Type</label>
+                <label for="contentType">{{ $t("content_type") }}</label>
                 <autocomplete
                   :source="validContentTypes"
                   :spellcheck="false"
@@ -127,8 +127,8 @@
                 <div class="flex-wrap">
                   <span>
                     <pw-toggle :on="rawInput" @change="rawInput = $event"
-                      >Raw Input
-                      {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
+                      >{{ $t("raw_input") }}
+                      {{ rawInput ? $t("enabled") : $t("disabled") }}</pw-toggle
                     >
                   </span>
                   <div>
@@ -154,7 +154,7 @@
             <div v-if="!rawInput">
               <ul>
                 <li>
-                  <label for="reqParamList">Parameter List</label>
+                  <label for="reqParamList">{{ $t("parameter_list") }}</label>
                   <textarea
                     id="reqParamList"
                     readonly
@@ -216,7 +216,7 @@
                     name="addrequest"
                   >
                     <i class="material-icons">add</i>
-                    <span>Add New</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
@@ -224,7 +224,7 @@
             <div v-else>
               <ul>
                 <li>
-                  <label for="rawBody">Raw Request Body</label>
+                  <label for="rawBody">{{ $t("raw_request_body") }}</label>
                   <textarea
                     id="rawBody"
                     @keydown="formatRawParams"
@@ -251,7 +251,7 @@
                 @click="isHidden = !isHidden"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="{
-                  content: isHidden ? 'Show Code' : 'Hide Code'
+                  content: isHidden ? $t('show_code') : $t('hide_code')
                 }"
               >
                 <i class="material-icons">flash_on</i>
@@ -261,8 +261,8 @@
                 id="preRequestScriptButton"
                 v-tooltip.bottom="{
                   content: !showPreRequestScript
-                    ? 'Show Pre-Request Script'
-                    : 'Hide Pre-Request Script'
+                    ? $t('show_prerequest_script')
+                    : $t('hide_prerequest_script')
                 }"
                 @click="showPreRequestScript = !showPreRequestScript"
               >
@@ -313,7 +313,7 @@
 
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
-          <label for="tab-one">Authentication</label>
+          <label for="tab-one">{{ $t("authentication") }}</label>
           <div class="tab">
             <pw-section
               class="cyan"
@@ -323,7 +323,7 @@
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="auth">Authentication Type</label>
+                    <label for="auth">{{ $t("authentication") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -392,19 +392,19 @@
                 <pw-toggle
                   :on="!urlExcludes.auth"
                   @change="setExclude('auth', !$event)"
-                  >Include in URL</pw-toggle
+                  >{{ $t("include_in_url") }}</pw-toggle
                 >
               </div>
             </pw-section>
           </div>
           <input id="tab-two" type="radio" name="options" />
-          <label for="tab-two">Headers</label>
+          <label for="tab-two">{{ $t("headers") }}</label>
           <div class="tab">
             <pw-section class="orange" label="Headers" ref="headers">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="headerList">Header List</label>
+                    <label for="headerList">{{ $t("header_list") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -471,20 +471,20 @@
                 <li>
                   <button class="icon" @click="addRequestHeader">
                     <i class="material-icons">add</i>
-                    <span>Add New</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
             </pw-section>
           </div>
           <input id="tab-three" type="radio" name="options" />
-          <label for="tab-three">Parameters</label>
+          <label for="tab-three">{{ $t("parameters") }}</label>
           <div class="tab">
             <pw-section class="pink" label="Parameters" ref="parameters">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="paramList">Parameter List</label>
+                    <label for="paramList">{{ $t("parameter_list") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -549,7 +549,7 @@
                 <li>
                   <button class="icon" @click="addRequestParam">
                     <i class="material-icons">add</i>
-                    <span>Add New</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
@@ -565,7 +565,7 @@
         >
           <ul>
             <li>
-              <label for="status">status</label>
+              <label for="status">{{ $t("status") }}</label>
               <input
                 :class="statusCategory ? statusCategory.className : ''"
                 :value="response.status || '(waiting to send request)'"
@@ -586,7 +586,7 @@
           <ul v-if="response.body">
             <li>
               <div class="flex-wrap">
-                <label for="body">response</label>
+                <label for="body">{{ $t("response") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -595,8 +595,8 @@
                     v-if="response.body"
                     v-tooltip="{
                       content: !expandResponse
-                        ? 'Expand response'
-                        : 'Collapse response'
+                        ? $t('expand_response')
+                        : $t('collapse_response')
                     }"
                   >
                     <i class="material-icons" v-if="!expandResponse"
@@ -655,7 +655,7 @@
                   >
                   <i class="material-icons" v-else>visibility_off</i>
                   <span>{{
-                    previewEnabled ? "Hide Preview" : "Preview HTML"
+                    previewEnabled ? $t("hide_preview") : $t("preview_html")
                   }}</span>
                 </button>
               </div>
@@ -667,7 +667,7 @@
       <aside class="sticky-inner inner-right">
         <section>
           <input id="history-tab" type="radio" name="side" checked="checked" />
-          <label for="history-tab">History</label>
+          <label for="history-tab">{{ $t("history") }}</label>
           <div class="tab">
             <history
               @useHistory="handleUseHistory"
@@ -675,7 +675,7 @@
             ></history>
           </div>
           <input id="collection-tab" type="radio" name="side" />
-          <label for="collection-tab">Collections</label>
+          <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
             <pw-section class="yellow" label="Collections" ref="collections">
               <collections />
@@ -695,7 +695,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">Import cURL</h3>
+                <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
                     <i class="material-icons">close</i>
@@ -722,7 +722,7 @@
             <li>
               <button class="icon" @click="handleImport">
                 <i class="material-icons">get_app</i>
-                <span>Import</span>
+                <span>{{ $t("import") }}</span>
               </button>
             </li>
           </ul>
@@ -734,7 +734,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">Generate code</h3>
+                <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
                     <i class="material-icons">close</i>
@@ -747,7 +747,7 @@
         <div slot="body">
           <ul>
             <li>
-              <label for="requestType">Request Type</label>
+              <label for="requestType">{{ $t("request_type") }}</label>
               <select id="requestType" v-model="requestType">
                 <option>JavaScript XHR</option>
                 <option>Fetch</option>
@@ -758,7 +758,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="generatedCode">Generated Code</label>
+                <label for="generatedCode">{{ $t("generated_code") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -1483,7 +1483,7 @@ export default {
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
         // mutate it with the request headers added by default.
-        Object.assign({}, this.headers),
+        Object.assign({}, this.headers)
 
         // We make our temporary headers object the source so
         // that you can override the added headers if you

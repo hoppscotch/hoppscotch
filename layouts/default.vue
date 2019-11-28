@@ -31,7 +31,7 @@
             class="icon"
             id="installPWA"
             @click.prevent="showInstallPrompt()"
-            v-tooltip="'Install PWA'"
+            v-tooltip="$t('install_pwa')"
           >
             <i class="material-icons">offline_bolt</i>
           </button>
@@ -47,7 +47,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">keyboard</i>
-                  <span>Shortcuts</span>
+                  <span>{{ $t('shortcuts') }}</span>
                 </button>
               </div>
               <div>
@@ -57,7 +57,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">favorite</i>
-                  <span>Support us</span>
+                  <span>{{ $t('support_us') }}</span>
                 </button>
               </div>
               <div>
@@ -76,7 +76,7 @@
                       d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
                     />
                   </svg>
-                  <span>Tweet</span>
+                  <span>{{ $t('tweet') }}</span>
                 </button>
               </div>
             </template>
@@ -95,7 +95,7 @@
             <nuxt-link
               :to="localePath('index')"
               :class="linkActive('/')"
-              v-tooltip.right="'Home'"
+              v-tooltip.right="$t('home')"
               aria-label="Home"
             >
               <logo alt style="height: 24px;"></logo>
@@ -103,21 +103,21 @@
             <nuxt-link
               :to="localePath('realtime')"
               :class="linkActive('/realtime')"
-              v-tooltip.right="'Realtime'"
+              v-tooltip.right="$t('realtime')"
             >
               <i class="material-icons">settings_input_hdmi</i>
             </nuxt-link>
             <nuxt-link
               :to="localePath('graphql')"
               :class="linkActive('/graphql')"
-              v-tooltip.right="'GraphQL'"
+              v-tooltip.right="$t('graphql')"
             >
               <i class="material-icons">cloud</i>
             </nuxt-link>
             <nuxt-link
               :to="localePath('settings')"
               :class="linkActive('/settings')"
-              v-tooltip.right="'Settings'"
+              v-tooltip.right="$t('settings')"
               aria-label="Settings"
             >
               <i class="material-icons">settings</i>
@@ -127,17 +127,17 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request" v-tooltip.right="'Request'">
+                  <a href="#request" v-tooltip.right="$t('request')">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#options" v-tooltip.right="'Options'">
+                  <a href="#options" v-tooltip.right="$t('options')">
                     <i class="material-icons">toc</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Response'">
+                  <a href="#response" v-tooltip.right="$t('response')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -148,12 +148,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request" v-tooltip.right="'Request'">
+                  <a href="#request" v-tooltip.right="$t('request')">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Communication'">
+                  <a href="#response" v-tooltip.right="$t('communication')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -164,12 +164,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#endpoint" v-tooltip.right="'Endpoint'">
+                  <a href="#endpoint" v-tooltip.right="$t('endpoint')">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#schema" v-tooltip.right="'Schema'">
+                  <a href="#schema" v-tooltip.right="$t('schema')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
@@ -180,12 +180,12 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#theme" v-tooltip.right="'Theme'">
+                  <a href="#theme" v-tooltip.right="$t('theme')">
                     <i class="material-icons">brush</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#proxy" v-tooltip.right="'Proxy'">
+                  <a href="#proxy" v-tooltip.right="$t('proxy')">
                     <i class="material-icons">public</i>
                   </a>
                 </li>
@@ -239,12 +239,12 @@
             target="_blank"
             rel="noopener"
           >
-            <button class="icon" v-tooltip="'Subscribe'">
+            <button class="icon" v-tooltip="$t('subscribe')">
               <i class="material-icons">email</i>
             </button>
           </a>
           <v-popover>
-            <button class="icon" v-tooltip="'Choose Language'">
+            <button class="icon" v-tooltip="$t('choose_language')">
               <i class="material-icons">translate</i>
             </button>
             <template slot="popover">
@@ -268,7 +268,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">Shortcuts</h3>
+              <h3 class="title">{{ $t('shortcuts') }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
                   <i class="material-icons">close</i>
@@ -281,22 +281,22 @@
       <div slot="body">
         <br />
         <div>
-          <label>Send Request</label>
+          <label>{{ $t('send_request') }}</label>
           <kbd>⌘ G</kbd>
         </div>
         <br />
         <div>
-          <label>Save to Collections</label>
+          <label>{{ $t('save_to_collections') }}</label>
           <kbd>⌘ S</kbd>
         </div>
         <br />
         <div>
-          <label>Copy Request Link</label>
+          <label>{{ $t('copy_request_link') }}</label>
           <kbd>⌘ K</kbd>
         </div>
         <br />
         <div>
-          <label>Reset Request</label>
+          <label>{{ $t('reset_request') }}</label>
           <kbd>⌘ L</kbd>
         </div>
         <br />
@@ -308,7 +308,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">Support us on</h3>
+              <h3 class="title">{{ $t('support_us_on') }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
                   <i class="material-icons">close</i>
@@ -327,7 +327,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>Open Collective</span>
+              <span>{{ $t('open_collective') }}</span>
             </button>
           </a>
         </div>
@@ -339,7 +339,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>PayPal</span>
+              <span>{{ $t('paypal') }}</span>
             </button>
           </a>
         </div>
@@ -351,7 +351,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>Patreon</span>
+              <span>{{ $t('patreon') }}</span>
             </button>
           </a>
         </div>

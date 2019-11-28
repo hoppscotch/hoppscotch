@@ -197,9 +197,9 @@ export default {
    ** Global CSS
    */
   css: [
-    '@/assets/css/themes.scss',
-    '@/assets/css/fonts.scss',
-    '@/assets/css/styles.scss'
+    '~/assets/css/styles.scss',
+    '~/assets/css/themes.scss',
+    '~/assets/css/fonts.scss'
   ],
   /*
    ** Plugins to load before mounting the App
@@ -290,6 +290,30 @@ export default {
         name: 'Español',
         iso: 'es-ES',
         file: 'es-ES.js'
+      },
+      {
+        code: 'fr',
+        name: 'Français',
+        iso: 'fr-FR',
+        file: 'fr-FR.js'
+      },
+      {
+        code: 'fa',
+        name: 'Farsi',
+        iso: 'fa-IR',
+        file: 'fa-IR.js'
+      },
+      {
+        code: 'pt',
+        name: 'Português Brasileiro',
+        iso: 'pt-BR',
+        file: 'pt-BR.js'
+      },
+      {
+        code: 'cn',
+        name: '简体中文',
+        iso: 'zh-CN',
+        file: 'zh-CN.js'
       }
     ],
     defaultLocale: 'en',

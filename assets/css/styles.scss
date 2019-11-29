@@ -194,11 +194,13 @@ nav.primary-nav {
     border-radius: 50%;
     background-color: var(--brd-color);
     color: var(--fg-light-color);
+    fill: var(--fg-light-color);
     margin: 8px;
     transition: all 0.2s ease-in-out;
 
     &:hover {
       color: var(--fg-color);
+      fill: var(--fg-color);
 
       svg {
         fill: var(--fg-color);
@@ -208,6 +210,7 @@ nav.primary-nav {
     &.nuxt-link-exact-active {
       background-color: var(--ac-color);
       color: var(--act-color);
+      fill: var(--act-color);
       border-radius: 16px;
 
       svg {

@@ -26,6 +26,7 @@
   direction: ltr;
   -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "liga";
 }
 
 /* poppins-500 - latin */
@@ -37,7 +38,8 @@
   src: local("Poppins Medium"), local("Poppins-Medium"),
     url("~assets/fonts/poppins-v9-latin-500.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */
-      url("~assets/fonts/poppins-v9-latin-500.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+      url("~assets/fonts/poppins-v9-latin-500.woff") format("woff");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 
 /* poppins-700 - latin */
@@ -49,7 +51,8 @@
   src: local("Poppins Bold"), local("Poppins-Bold"),
     url("~assets/fonts/poppins-v9-latin-700.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */
-      url("~assets/fonts/poppins-v9-latin-700.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+      url("~assets/fonts/poppins-v9-latin-700.woff") format("woff");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 
 /* roboto-mono-regular - latin */
@@ -61,5 +64,6 @@
   src: local("Roboto Mono"), local("RobotoMono-Regular"),
     url("~assets/fonts/roboto-mono-v7-latin-regular.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */
-      url("~assets/fonts/roboto-mono-v7-latin-regular.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+      url("~assets/fonts/roboto-mono-v7-latin-regular.woff") format("woff");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }

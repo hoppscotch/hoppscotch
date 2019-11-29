@@ -33,7 +33,7 @@
   @include darkTheme;
 }
 
-@media(prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
   :root.auto {
     @include darkTheme;
   }
@@ -65,7 +65,7 @@
   @include lightTheme;
 }
 
-@media(prefers-color-scheme: light) {
+@media (prefers-color-scheme: light) {
   :root.auto {
     @include lightTheme;
   }

@@ -126,10 +126,10 @@
               <li>
                 <div class="flex-wrap">
                   <span>
-                    <pw-toggle :on="rawInput" @change="rawInput = $event"
-                      >{{ $t("raw_input") }}
-                      {{ rawInput ? $t("enabled") : $t("disabled") }}</pw-toggle
-                    >
+                    <pw-toggle :on="rawInput" @change="rawInput = $event">
+                      {{ $t("raw_input") }}
+                      {{ rawInput ? $t("enabled") : $t("disabled") }}
+                    </pw-toggle>
                   </span>
                   <div>
                     <label for="payload">
@@ -392,8 +392,9 @@
                 <pw-toggle
                   :on="!urlExcludes.auth"
                   @change="setExclude('auth', !$event)"
-                  >{{ $t("include_in_url") }}</pw-toggle
                 >
+                  {{ $t("include_in_url") }}
+                </pw-toggle>
               </div>
             </pw-section>
           </div>

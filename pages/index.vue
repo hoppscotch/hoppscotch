@@ -2030,7 +2030,7 @@ export default {
       } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.copyRequest();
-      } else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.$refs.clearAll.click();
       }

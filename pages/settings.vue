@@ -46,11 +46,12 @@
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
               @change="toggleSetting('FRAME_COLORS_ENABLED')"
-              >{{ $t("multi_color") }}
+            >
+              {{ $t("multi_color") }}
               {{
                 settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled")
-              }}</pw-toggle
-            >
+              }}
+            </pw-toggle>
           </span>
         </li>
       </ul>
@@ -64,11 +65,10 @@
               <pw-toggle
                 :on="settings.PROXY_ENABLED"
                 @change="toggleSetting('PROXY_ENABLED')"
-                >{{ $t("proxy") }}
-                {{
-                  settings.PROXY_ENABLED ? $t("enabled") : $t("disabled")
-                }}</pw-toggle
               >
+                {{ $t("proxy") }}
+                {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
+              </pw-toggle>
             </span>
             <a
               href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
@@ -108,11 +108,8 @@
             {{ $t("postwoman_official_proxy_hosting") }}
             <br />
             {{ $t("read_the") }}
-            <a
-              href="https://apollotv.xyz/legal"
-              target="_blank"
-              rel="noopener"
-              >{{ $t("apollotv_privacy_policy") }}</a
+            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+              {{ $t("apollotv_privacy_policy") }} </a
             >.
           </p>
         </li>

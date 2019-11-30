@@ -24,14 +24,18 @@
                   </a>
                 </div>
               </div>
-              <textarea
-                id="preRequestScript"
-                @keydown="formatRawParams"
-                rows="8"
+              <Editor
                 v-model="preRequestScript"
-                spellcheck="false"
-                placeholder="pw.env.set('variable', 'value');"
-              ></textarea>
+                :lang="'javascript'"
+                :options="{
+                  maxLines: responseBodyMaxLines,
+                  minLines: '16',
+                  fontSize: '16px',
+                  autoScrollEditorIntoView: true,
+                  showPrintMargin: false,
+                  useWorker: false
+                }"
+              />
             </li>
           </ul>
         </pw-section>
@@ -126,10 +130,10 @@
               <li>
                 <div class="flex-wrap">
                   <span>
-                    <pw-toggle :on="rawInput" @change="rawInput = $event"
-                      >{{ $t("raw_input") }}
-                      {{ rawInput ? $t("enabled") : $t("disabled") }}</pw-toggle
-                    >
+                    <pw-toggle :on="rawInput" @change="rawInput = $event">
+                      {{ $t("raw_input") }}
+                      {{ rawInput ? $t("enabled") : $t("disabled") }}
+                    </pw-toggle>
                   </span>
                   <div>
                     <label for="payload">
@@ -392,8 +396,9 @@
                 <pw-toggle
                   :on="!urlExcludes.auth"
                   @change="setExclude('auth', !$event)"
-                  >{{ $t("include_in_url") }}</pw-toggle
                 >
+                  {{ $t("include_in_url") }}
+                </pw-toggle>
               </div>
             </pw-section>
           </div>
@@ -625,7 +630,7 @@
                 </div>
               </div>
               <div id="response-details-wrapper">
-                <ResponseBody
+                <Editor
                   :value="responseBodyText"
                   :lang="responseBodyType"
                   :options="{
@@ -859,13 +864,13 @@ export default {
     autocomplete: () => import("../components/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    ResponseBody: AceEditor
+    Editor: AceEditor
   },
   data() {
     return {
       showModal: false,
       showPreRequestScript: false,
-      preRequestScript: "",
+      preRequestScript: "// pw.env.set('variable', 'value');",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -2029,7 +2034,7 @@ export default {
       } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.copyRequest();
-      } else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.$refs.clearAll.click();
       }

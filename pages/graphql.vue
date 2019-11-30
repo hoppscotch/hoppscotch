@@ -171,11 +171,17 @@
               </button>
             </div>
           </div>
-          <textarea
-            id="gqlQuery"
-            rows="8"
-            v-model="gqlQueryString">
-          ></textarea>
+          <Editor
+            v-model="gqlQueryString"
+            :options="{
+              maxLines: responseBodyMaxLines,
+              minLines: '16',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              showPrintMargin: false,
+              useWorker: false
+            }"
+          />
         </pw-section>
         <pw-section class="purple" label="Response" ref="response">
           <div class="flex-wrap">
@@ -216,9 +222,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="queryFields.length > 0" for="queries-tab"
-              >{{ $t("queries") }}</label
-            >
+            <label v-if="queryFields.length > 0" for="queries-tab">
+              {{ $t("queries") }}
+            </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -232,9 +238,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="mutationFields.length > 0" for="mutations-tab"
-              >{{ $t("mutations") }}</label
-            >
+            <label v-if="mutationFields.length > 0" for="mutations-tab">
+              {{ $t("mutations") }}
+            </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -248,9 +254,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab"
-              >{{ $t("subscriptions") }}</label
-            >
+            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">
+              {{ $t("subscriptions") }}
+            </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -264,7 +270,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">{{ $t("types") }}</label>
+            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">
+              {{ $t("types") }}
+            </label>
             <div v-if="gqlTypes.length > 0" class="tab">
               <div v-for="type in gqlTypes" :key="type.name">
                 <gql-type :gqlType="type" />
@@ -435,7 +443,7 @@ export default {
           : res;
 
         this.responseString = JSON.stringify(data.data, null, 2);
-        
+
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
@@ -449,7 +457,6 @@ export default {
         });
         console.log("Error", error);
       }
-
     },
     async getSchema() {
       const startTime = Date.now();

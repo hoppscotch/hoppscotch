@@ -1,22 +1,14 @@
-// Layout transitions
+.page-enter-active,
+.page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  transition: opacity 0.5s;
-}
-
-.layout-enter,
-.layout-leave-active {
-  opacity: 0;
-}
-
-// Page transitions
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.5s;
+  transition: all 0.2s ease-in-out;
 }
 
 .page-enter,
-.page-leave-to {
+.page-leave-active,
+.layout-enter,
+.layout-leave-active {
   opacity: 0;
 }
 
@@ -79,7 +71,6 @@ body {
 
 // Make theme transition smoother.
 body.afterLoad {
-
   &,
   & * {
     transition: background-color 0.2s ease-in-out, border 0.2s ease-in-out;
@@ -98,7 +89,7 @@ a {
 
 header,
 footer {
-  &>div {
+  & > div {
     display: flex;
     padding: 16px;
     width: 100%;
@@ -194,11 +185,13 @@ nav.primary-nav {
     border-radius: 50%;
     background-color: var(--brd-color);
     color: var(--fg-light-color);
+    fill: var(--fg-light-color);
     margin: 8px;
     transition: all 0.2s ease-in-out;
 
     &:hover {
       color: var(--fg-color);
+      fill: var(--fg-color);
 
       svg {
         fill: var(--fg-color);
@@ -208,6 +201,7 @@ nav.primary-nav {
     &.nuxt-link-exact-active {
       background-color: var(--ac-color);
       color: var(--act-color);
+      fill: var(--act-color);
       border-radius: 16px;
 
       svg {
@@ -548,7 +542,7 @@ input[type="checkbox"] {
   display: none;
 
   &,
-  &+label {
+  & + label {
     vertical-align: middle;
     cursor: pointer;
 
@@ -567,7 +561,7 @@ input[type="checkbox"] {
     }
   }
 
-  &:checked+label:before {
+  &:checked + label:before {
     background-color: var(--ac-color);
     border-color: var(--ac-color);
     color: var(--act-color);
@@ -734,7 +728,7 @@ input[type="radio"],
   display: none;
 }
 
-input[type="radio"]+label {
+input[type="radio"] + label {
   padding: 8px 16px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
@@ -747,12 +741,12 @@ input[type="radio"]+label {
   }
 }
 
-input[type="radio"]:checked+label {
+input[type="radio"]:checked + label {
   border-color: var(--fg-color);
   color: var(--fg-color);
 }
 
-input[type="radio"]:checked+label+.tab {
+input[type="radio"]:checked + label + .tab {
   display: block;
 }
 

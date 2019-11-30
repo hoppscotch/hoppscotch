@@ -181,19 +181,19 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 🌎 **i18n**: Internationalization β.
 
  - Add a new locale in `lang/`
-  - Ex: `lang/es-ES.js`
+ Ex: `lang/es-ES.js`
  - Mention `code`, `name`, `iso` and `file` in `nuxt.config.js`
-
-  ```
-  i18n: {
-    locales: [{
+ Ex:
+    ```
+    i18n: {
+      locales: [{
         code: 'es',
         name: 'Español',
         iso: 'es-ES',
         file: 'es-ES.js'
       }]
-  }
-  ```
+    }
+    ```
 
 _**All contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
 

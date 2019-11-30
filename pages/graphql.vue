@@ -171,7 +171,17 @@
               </button>
             </div>
           </div>
-          <textarea id="gqlQuery" rows="8" v-model="gqlQueryString"></textarea>
+          <Editor
+            v-model="gqlQueryString"
+            :options="{
+              maxLines: responseBodyMaxLines,
+              minLines: '16',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              showPrintMargin: false,
+              useWorker: false
+            }"
+          />
         </pw-section>
         <pw-section class="purple" label="Response" ref="response">
           <div class="flex-wrap">

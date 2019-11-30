@@ -24,14 +24,18 @@
                   </a>
                 </div>
               </div>
-              <textarea
-                id="preRequestScript"
-                @keydown="formatRawParams"
-                rows="8"
+              <Editor
                 v-model="preRequestScript"
-                spellcheck="false"
-                placeholder="pw.env.set('variable', 'value');"
-              ></textarea>
+                :lang="'javascript'"
+                :options="{
+                  maxLines: responseBodyMaxLines,
+                  minLines: '16',
+                  fontSize: '16px',
+                  autoScrollEditorIntoView: true,
+                  showPrintMargin: false,
+                  useWorker: false
+                }"
+              />
             </li>
           </ul>
         </pw-section>
@@ -626,7 +630,7 @@
                 </div>
               </div>
               <div id="response-details-wrapper">
-                <ResponseBody
+                <Editor
                   :value="responseBodyText"
                   :lang="responseBodyType"
                   :options="{
@@ -860,13 +864,13 @@ export default {
     autocomplete: () => import("../components/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    ResponseBody: AceEditor
+    Editor: AceEditor
   },
   data() {
     return {
       showModal: false,
       showPreRequestScript: false,
-      preRequestScript: "",
+      preRequestScript: "// pw.env.set('variable', 'value');",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',

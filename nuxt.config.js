@@ -151,7 +151,7 @@ export default {
       },
       {
         name: "twitter:image",
-        content: `${routerBase.router.base}logo.jpg`
+        content: "https://postwoman.io/logo.jpg"
       }
     ],
     link: [

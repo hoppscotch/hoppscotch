@@ -301,9 +301,7 @@
             </nav>
           </div>
         </aside>
-        <transition name="layout" appear>
-          <nuxt id="main" class="main" />
-        </transition>
+        <nuxt id="main" class="main" />
         <aside class="nav-second"></aside>
       </div>
     </div>

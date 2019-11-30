@@ -36,7 +36,7 @@
         "yargs-parser": "^16.1.0"
     },
     "devDependencies": {
-        "cypress": "^3.6.1",
+        "cypress": "^3.7.0",
         "node-sass": "^4.13.0",
         "sass-loader": "^7.3.1",
         "start-server-and-test": "^1.10.6"

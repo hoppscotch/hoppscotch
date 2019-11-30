@@ -273,11 +273,21 @@
               <ul>
                 <li>
                   <a href="#endpoint" v-tooltip.right="$t('endpoint')">
-                    <i class="material-icons">cloud_upload</i>
+                    <i class="material-icons">cloud</i>
                   </a>
                 </li>
                 <li>
                   <a href="#schema" v-tooltip.right="$t('schema')">
+                    <i class="material-icons">assignment_returned</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#query" v-tooltip.right="$t('query')">
+                    <i class="material-icons">cloud_upload</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#response" v-tooltip.right="$t('response')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>

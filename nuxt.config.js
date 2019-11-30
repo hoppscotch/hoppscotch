@@ -333,6 +333,12 @@ export default {
         name: "Bahasa Indonesia",
         iso: "id-ID",
         file: "id-ID.js"
+      },
+      {
+        code: "tr",
+        name: "Türkçe",
+        iso: "tr-TR",
+        file: "tr-TR.js"
       }
     ],
     defaultLocale: "en",

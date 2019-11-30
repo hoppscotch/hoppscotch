@@ -60,10 +60,16 @@ export default {
       ...this.options
     });
 
-    editor.setValue(this.value);
+    if (this.value) editor.setValue(this.value, 1);
 
     this.editor = editor;
     this.cacheValue = this.value;
+    
+    editor.on('change', () => {
+      const content = editor.getValue();
+      this.$emit("input", content);
+      this.cacheValue = content;
+    });
   },
 
   methods: {

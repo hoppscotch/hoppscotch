@@ -870,7 +870,7 @@ export default {
     return {
       showModal: false,
       showPreRequestScript: false,
-      preRequestScript: "",
+      preRequestScript: "// pw.env.set('variable', 'value');",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',

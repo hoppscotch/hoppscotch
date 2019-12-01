@@ -352,6 +352,8 @@ h3 {
       padding: 4px;
       border-radius: 8px;
       box-shadow: 0 5px 30px rgba(black, 0.1);
+      max-height: 256px;
+      overflow: auto;
     }
 
     .popover-arrow {

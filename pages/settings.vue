@@ -3,7 +3,7 @@
     <pw-section class="cyan" label="Theme" ref="theme">
       <ul>
         <li>
-          <h3 class="title">{{ $t("background") }}</h3>
+          <label>{{ $t("background") }}</label>
           <div class="backgrounds">
             <span
               :key="theme.class"
@@ -15,6 +15,7 @@
                 :class="{ vibrant: theme.vibrant }"
                 :color="theme.color"
                 :name="theme.name"
+                class="bg"
               ></swatch>
             </span>
           </div>
@@ -22,7 +23,7 @@
       </ul>
       <ul>
         <li>
-          <h3 class="title">{{ $t("color") }}</h3>
+          <label>{{ $t("color") }}</label>
           <div class="colors">
             <span
               :key="entry.color"
@@ -34,6 +35,7 @@
                 :class="{ vibrant: entry.vibrant }"
                 :color="entry.color"
                 :name="entry.name"
+                class="fg"
               />
             </span>
           </div>
@@ -41,7 +43,6 @@
       </ul>
       <ul>
         <li>
-          <h3 class="title">{{ $t("color") }}</h3>
           <span>
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"

@@ -122,7 +122,7 @@
             />
           </li>
         </div>
-        <transition name="smooth">
+        <transition name="page" appear>
           <div v-if="showMore" class="show-on-large-screen">
             <li>
               <input
@@ -265,16 +265,6 @@
   [readonly] {
     cursor: default;
   }
-}
-
-.smooth-enter-active,
-.smooth-leave-active {
-  transition: all 0.2s;
-}
-
-.smooth-enter,
-.smooth-leave-to {
-  opacity: 0;
 }
 
 .stared {

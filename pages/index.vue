@@ -560,6 +560,12 @@
               </ul>
             </pw-section>
           </div>
+          <div class="flex-wrap" style="display: flex; flex-grow: 1;">
+            <span></span>
+            <button class="icon" @click="activeSidebar = !activeSidebar" v-tooltip="{ content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar' }">
+              <i class="material-icons">{{activeSidebar ? 'chevron_right' : 'chevron_left'}}</i>
+            </button>
+          </div>
         </section>
 
         <pw-section
@@ -668,8 +674,7 @@
           </ul>
         </pw-section>
       </div>
-
-      <aside class="sticky-inner inner-right">
+      <aside v-if="activeSidebar" class="sticky-inner inner-right">
         <section>
           <input id="history-tab" type="radio" name="side" checked="checked" />
           <label for="history-tab">{{ $t("history") }}</label>
@@ -910,7 +915,8 @@ export default {
       urlExcludes: {},
       responseBodyText: "",
       responseBodyType: "text",
-      responseBodyMaxLines: 16
+      responseBodyMaxLines: 16,
+      activeSidebar: true
     };
   },
   watch: {

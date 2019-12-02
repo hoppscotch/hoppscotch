@@ -2,7 +2,7 @@
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s;
 }
 
 .page-enter,
@@ -267,8 +267,9 @@ h3 {
     color: white;
     border-radius: 8px;
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
+    box-shadow: 0 4px 24px rgba(black, 0.1);
   }
 
   .tooltip-arrow {
@@ -774,13 +775,13 @@ input[type="radio"]:checked + label + .tab {
 .inner-left {
   display: flex;
   order: 1;
-  margin-right: 16px;
 }
 
 .inner-right {
   display: flex;
   width: 30%;
   order: 2;
+  margin-left: 16px;
 }
 
 .bg-color {
@@ -839,6 +840,9 @@ input[type="radio"]:checked + label + .tab {
 
   .inner-left {
     order: 0;
-    margin-right: 0;
+  }
+
+  .inner-right {
+    margin-left: 0;
   }
 }

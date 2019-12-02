@@ -2,7 +2,7 @@
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s;
 }
 
 .page-enter,
@@ -181,7 +181,7 @@ nav.primary-nav {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    padding: 16px;
+    padding: 14px;
     border-radius: 50%;
     background-color: var(--brd-color);
     color: var(--fg-light-color);
@@ -226,7 +226,7 @@ nav.secondary-nav {
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        padding: 16px;
+        padding: 14px;
         border-radius: 50%;
         background-color: var(--bg-dark-color);
         color: var(--fg-light-color);
@@ -267,8 +267,9 @@ h3 {
     color: white;
     border-radius: 8px;
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
+    box-shadow: 0 4px 24px rgba(black, 0.1);
   }
 
   .tooltip-arrow {
@@ -613,6 +614,15 @@ ol li {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-grow: 1;
+  flex-direction: row;
+
+  * {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .show-on-small-screen {
@@ -774,13 +784,13 @@ input[type="radio"]:checked + label + .tab {
 .inner-left {
   display: flex;
   order: 1;
-  margin-right: 16px;
 }
 
 .inner-right {
   display: flex;
   width: 30%;
   order: 2;
+  margin-left: 16px;
 }
 
 .bg-color {
@@ -839,6 +849,9 @@ input[type="radio"]:checked + label + .tab {
 
   .inner-left {
     order: 0;
-    margin-right: 0;
+  }
+
+  .inner-right {
+    margin-left: 0;
   }
 }

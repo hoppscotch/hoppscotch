@@ -2,12 +2,12 @@
   <div class="wrapper">
     <header class="header">
       <div class="flex-wrap">
-        <div class="slide-in">
+        <span class="slide-in">
           <nuxt-link :to="localePath('index')">
             <h1 class="logo">Postwoman</h1>
           </nuxt-link>
-        </div>
-        <div class="flex-wrap">
+        </span>
+        <span>
           <a
             href="https://github.com/liyasthomas/postwoman"
             target="_blank"
@@ -81,7 +81,7 @@
               </div>
             </template>
           </v-popover>
-        </div>
+        </span>
       </div>
     </header>
     <div class="content">
@@ -317,39 +317,37 @@
     </div>
     <footer class="footer">
       <div class="flex-wrap">
-        <!-- Bottom section of footer: version/author information -->
-        <div>
-          <span v-if="version.name" class="mono">
+        <span v-if="version.name" class="mono">
+          <a
+            v-bind:href="
+              'https://github.com/liyasthomas/postwoman/releases/tag/' +
+                version.name
+            "
+            target="_blank"
+            rel="noopener"
+          >
+            {{ version.name }}
+          </a>
+          <!-- <span v-if="version.hash">
+            -
             <a
-              v-bind:href="
-                'https://github.com/liyasthomas/postwoman/releases/tag/' +
-                  version.name
-              "
+              v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
               target="_blank"
               rel="noopener"
-            >
-              {{ version.name }}
-            </a>
-            &#x2022;
-            <a
-              href="https://liyasthomas.web.app"
-              target="_blank"
-              rel="noopener"
-            >
+            >{{version.hash}}</a>
+          </span> -->
+          <!-- <span v-if="version.variant">({{version.variant}})</span> -->
+        </span>
+        <span>
+          <a
+            href="https://liyasthomas.web.app"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon" v-tooltip="'Liyas Thomas'">
               🦄
-            </a>
-            <!-- <span v-if="version.hash">
-              -
-              <a
-                v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
-                target="_blank"
-                rel="noopener"
-              >{{version.hash}}</a>
-            </span> -->
-            <!-- <span v-if="version.variant">({{version.variant}})</span> -->
-          </span>
-        </div>
-        <div class="flex-wrap">
+            </button>
+          </a>
           <a
             href="https://postwoman.launchaco.com"
             target="_blank"
@@ -373,7 +371,7 @@
               </div>
             </template>
           </v-popover>
-        </div>
+        </span>
       </div>
     </footer>
     <modal v-if="showShortcuts" @close="showShortcuts = false">

@@ -560,7 +560,7 @@
               </ul>
             </pw-section>
           </div>
-          <div class="flex-wrap" style="display: flex; flex-grow: 1;">
+          <div class="flex-wrap">
             <span></span>
             <button class="icon" @click="activeSidebar = !activeSidebar" v-tooltip="{ content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar' }">
               <i class="material-icons">{{activeSidebar ? 'chevron_right' : 'chevron_left'}}</i>

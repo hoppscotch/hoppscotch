@@ -122,7 +122,7 @@
             />
           </li>
         </div>
-        <transition name="page" appear>
+        <transition name="fade">
           <div v-if="showMore" class="show-on-large-screen">
             <li>
               <input
@@ -266,6 +266,15 @@
     cursor: default;
   }
 }
+
+.fade-enter-active,	
+.fade-leave-active {	
+  transition: all 0.2s;	
+}	
+.fade-enter,	
+.fade-leave-to {	
+  opacity: 0;	
+}	
 
 .stared {
   color: #f8e81c !important;

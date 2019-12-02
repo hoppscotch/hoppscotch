@@ -563,7 +563,7 @@
           <div class="flex-wrap">
             <span></span>
             <button
-              class="icon"
+              class="icon hide-on-small-screen"
               @click="activeSidebar = !activeSidebar"
               v-tooltip="{
                 content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar'

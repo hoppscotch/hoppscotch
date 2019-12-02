@@ -240,7 +240,7 @@
             </div>
           </div>
           <div class="flex-wrap">
-            <div style="text-align: center;">
+            <span>
               <button
                 class="icon"
                 id="show-modal"
@@ -280,8 +280,8 @@
                   >close</i
                 >
               </button>
-            </div>
-            <div style="text-align: center;">
+            </span>
+            <span>
               <button
                 class="icon"
                 @click="copyRequest"
@@ -311,7 +311,7 @@
               >
                 <i class="material-icons">clear_all</i>
               </button>
-            </div>
+            </span>
           </div>
         </pw-section>
 
@@ -562,8 +562,16 @@
           </div>
           <div class="flex-wrap">
             <span></span>
-            <button class="icon" @click="activeSidebar = !activeSidebar" v-tooltip="{ content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar' }">
-              <i class="material-icons">{{activeSidebar ? 'chevron_right' : 'chevron_left'}}</i>
+            <button
+              class="icon"
+              @click="activeSidebar = !activeSidebar"
+              v-tooltip="{
+                content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar'
+              }"
+            >
+              <i class="material-icons">
+                {{ activeSidebar ? "last_page" : "first_page" }}
+              </i>
             </button>
           </div>
         </section>
@@ -610,10 +618,9 @@
                         : $t('collapse_response')
                     }"
                   >
-                    <i class="material-icons" v-if="!expandResponse"
-                      >unfold_more</i
-                    >
-                    <i class="material-icons" v-else>unfold_less</i>
+                    <i class="material-icons">
+                      {{ !expandResponse ? "unfold_more" : "unfold_less" }}
+                    </i>
                   </button>
                   <button
                     class="icon"
@@ -661,10 +668,9 @@
                 v-if="response.body && responseType === 'text/html'"
               >
                 <button class="icon" @click.prevent="togglePreview">
-                  <i class="material-icons" v-if="!previewEnabled"
-                    >visibility</i
-                  >
-                  <i class="material-icons" v-else>visibility_off</i>
+                  <i class="material-icons">
+                    {{ !previewEnabled ? "visibility" : "visibility_off" }}
+                  </i>
                   <span>{{
                     previewEnabled ? $t("hide_preview") : $t("preview_html")
                   }}</span>

@@ -27,10 +27,9 @@
                 >
                   {{ toggleConnectionVerb }}
                   <span>
-                    <i class="material-icons" v-if="!connectionState">sync</i>
-                    <i class="material-icons" v-if="connectionState"
-                      >sync_disabled</i
-                    >
+                    <i class="material-icons">
+                      {{ connectionState ? "sync" : "sync_disabled" }}
+                    </i>
                   </span>
                 </button>
               </li>
@@ -117,12 +116,9 @@
                 >
                   {{ toggleSSEConnectionVerb }}
                   <span>
-                    <i class="material-icons" v-if="!connectionSSEState"
-                      >sync</i
-                    >
-                    <i class="material-icons" v-if="connectionSSEState"
-                      >sync_disabled</i
-                    >
+                    <i class="material-icons">
+                      {{ !connectionSSEState ? "sync" : "sync_disabled" }}
+                    </i>
                   </span>
                 </button>
               </li>

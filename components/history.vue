@@ -24,8 +24,9 @@
             @click="toggleStar(index)"
             v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star' }"
           >
-            <i class="material-icons" v-if="entry.star">star</i>
-            <i class="material-icons" v-else>star_border</i>
+            <i class="material-icons">
+              {{ entry.star ? "star" : "star_border" }}
+            </i>
           </button>
           <li>
             <input
@@ -37,8 +38,7 @@
               class="bg-color"
             />
           </li>
-          <!--
-          <li>
+          <!-- <li>
             <button
               class="icon"
               v-tooltip="{
@@ -47,11 +47,11 @@
                   : 'Used pre-request script'
               }"
             >
-              <i class="material-icons" v-if="!entry.usesScripts">http</i>
-              <i class="material-icons" v-else>code</i>
+              <i class="material-icons">
+                {{ !entry.usesScripts ? "http" : "code" }}
+              </i>
             </button>
-          </li>
--->
+          </li> -->
           <v-popover>
             <button class="tooltip-target icon" v-tooltip="'Options'">
               <i class="material-icons">more_vert</i>
@@ -225,8 +225,9 @@
             </div>
             <div>
               <button class="icon" @click="toggleCollapse()">
-                <i class="material-icons" v-if="!showMore">first_page</i>
-                <i class="material-icons" v-else>last_page</i>
+                <i class="material-icons">{{
+                  !showMore ? "first_page" : "last_page"
+                }}</i>
                 <span>{{ !showMore ? "Show more" : "Hide more" }}</span>
               </button>
             </div>
@@ -267,14 +268,14 @@
   }
 }
 
-.fade-enter-active,	
-.fade-leave-active {	
-  transition: all 0.2s;	
-}	
-.fade-enter,	
-.fade-leave-to {	
-  opacity: 0;	
-}	
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 
 .stared {
   color: #f8e81c !important;

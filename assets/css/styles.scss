@@ -615,6 +615,14 @@ ol li {
   align-items: center;
   justify-content: space-between;
   flex-grow: 1;
+  flex-direction: row;
+
+  * {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .show-on-small-screen {

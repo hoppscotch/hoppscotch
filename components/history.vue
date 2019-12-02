@@ -225,9 +225,9 @@
             </div>
             <div>
               <button class="icon" @click="toggleCollapse()">
-                <i class="material-icons">{{
-                  !showMore ? "first_page" : "last_page"
-                }}</i>
+                <i class="material-icons">
+                  {{ !showMore ? "first_page" : "last_page" }}
+                </i>
                 <span>{{ !showMore ? "Show more" : "Hide more" }}</span>
               </button>
             </div>
@@ -272,6 +272,7 @@
 .fade-leave-active {
   transition: all 0.2s;
 }
+
 .fade-enter,
 .fade-leave-to {
   opacity: 0;

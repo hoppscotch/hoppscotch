@@ -3,7 +3,7 @@ describe('Methods', () => {
   methods.forEach((method) => {
       it(`Change the default method GET to ${method} with url query`, () => {
         cy.visit(`/?method=${method}`)
-          .get('#method').contains(method)
+          .get('#method').should('have.value', method)
       })
   })
 })

@@ -44,7 +44,28 @@
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
-              <select id="method" v-model="method" @change="methodChange">
+              <input
+                id="method"
+                name="method"
+                type="text"
+                v-model="method"
+                @change="methodChange"
+                value="GET"
+                placeholder="GET"
+                list="preMethods"
+              />
+              <datalist id="preMethods">
+                <option value="GET">GET</option>
+                <option value="HEAD">HEAD</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="CONNECT">CONNECT</option>
+                <option value="OPTIONS">OPTIONS</option>
+                <option value="TRACE">TRACE</option>
+                <option value="PATCH">PATCH</option>
+              </datalist>
+              <!-- <select id="method" v-model="method" @change="methodChange">
                 <option>GET</option>
                 <option>HEAD</option>
                 <option>POST</option>
@@ -52,7 +73,8 @@
                 <option>DELETE</option>
                 <option>OPTIONS</option>
                 <option>PATCH</option>
-              </select>
+                <option>LIST</option>
+              </select> -->
             </li>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -102,7 +124,7 @@
                   ref="sendButton"
                 >
                   {{ $t("send") }}
-                  <span id="hidden-message">{{ $t("again") }}</span>
+                  <!-- <span id="hidden-message">{{ $t("again") }}</span> -->
                   <span>
                     <i class="material-icons">send</i>
                   </span>

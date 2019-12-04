@@ -124,7 +124,7 @@
                   ref="sendButton"
                 >
                   {{ $t("send") }}
-                  <span id="hidden-message">{{ $t("again") }}</span>
+                  <!-- <span id="hidden-message">{{ $t("again") }}</span> -->
                   <span>
                     <i class="material-icons">send</i>
                   </span>

@@ -706,9 +706,9 @@ ol li {
 }
 
 #send {
-  #hidden-message {
-    display: none;
-  }
+  // #hidden-message {
+  //   display: none;
+  // }
 
   &.show {
     display: flex;
@@ -717,10 +717,10 @@ ol li {
     right: 12px;
     z-index: 2;
 
-    #hidden-message {
-      display: block;
-      margin-left: 4px;
-    }
+    // #hidden-message {
+    //   display: block;
+    //   margin-left: 4px;
+    // }
   }
 }
 

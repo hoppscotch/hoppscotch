@@ -362,12 +362,14 @@
               <i class="material-icons">translate</i>
             </button>
             <template slot="popover">
-              <div v-for="locale in availableLocales" :key="locale.code">
-                <nuxt-link :to="switchLocalePath(locale.code)">
-                  <button class="icon" v-close-popover>
-                    {{ locale.name }}
-                  </button>
-                </nuxt-link>
+              <div
+                v-for="locale in availableLocales"
+                :key="locale.code"
+                @click="switchLang(locale.code)"
+              >
+                <button class="icon" v-close-popover>
+                  {{ locale.name }}
+                </button>
               </div>
             </template>
           </v-popover>
@@ -490,6 +492,10 @@ export default {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
       };
+    },
+
+    switchLang(langCode) {
+      location.replace(this.switchLocalePath(langCode));
     }
   },
 

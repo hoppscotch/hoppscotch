@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 // Center the error page in the viewport.
 .page-error {
   display: flex;

@@ -472,7 +472,7 @@
   </div>
 </template>
 
-<style lang="scss"></style>
+<style scoped lang="scss"></style>
 
 <script>
 import intializePwa from "../assets/js/pwa";

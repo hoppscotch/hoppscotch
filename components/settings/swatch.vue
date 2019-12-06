@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 .color {
   display: inline-flex;
   align-items: center;

@@ -30,7 +30,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .autocomplete-wrapper {
   position: relative;
 

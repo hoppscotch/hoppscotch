@@ -134,7 +134,7 @@
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .info {
   margin-left: 4px;
   color: var(--fg-light-color);

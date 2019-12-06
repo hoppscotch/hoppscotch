@@ -17,7 +17,7 @@
     </div>
   </transition>
 </template>
-<style scoped>
+<style scoped lang="scss">
 .modal-backdrop {
   position: fixed;
   z-index: 998;

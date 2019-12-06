@@ -81,7 +81,7 @@
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 ul {
   display: flex;
   flex-direction: column;

@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 $useBorder: false;
 $borderColor: var(--fg-light-color);
 $activeColor: var(--ac-color);

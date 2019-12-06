@@ -154,7 +154,7 @@
     </section>
   </div>
 </template>
-<style lang="scss">
+<style scoped lang="scss">
 div.log {
   margin: 4px;
   padding: 8px 16px;
@@ -208,10 +208,10 @@ export default {
     urlValid() {
       const pattern = new RegExp(
         "^(wss?:\\/\\/)?" +
-          "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
+          "((([a-z\\d]([a-z\\d-]*[a-z:@\\d])*)\\.)+[a-z]{2,}|" +
           "((\\d{1,3}\\.){3}\\d{1,3}))" +
           "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
-          "(\\?[;&a-z\\d%_.~+=-]*)?" +
+          "(\\?[:\\;&a-z\\d%_.~+=-]*)?" +
           "(\\#[-a-z\\d_]*)?$",
         "i"
       );

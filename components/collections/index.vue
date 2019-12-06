@@ -94,7 +94,7 @@ TODO:
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .virtual-list {
   max-height: calc(100vh - 232px);
 }

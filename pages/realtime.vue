@@ -25,12 +25,11 @@
                   name="connect"
                   @click="toggleConnection"
                 >
-                  {{ toggleConnectionVerb }}
+                  {{ !connectionState ? "Connect" : "Disconnect" }}
                   <span>
-                    <i class="material-icons" v-if="!connectionState">sync</i>
-                    <i class="material-icons" v-if="connectionState"
-                      >sync_disabled</i
-                    >
+                    <i class="material-icons">
+                      {{ !connectionState ? "sync" : "sync_disabled" }}
+                    </i>
                   </span>
                 </button>
               </li>
@@ -115,14 +114,11 @@
                   name="start"
                   @click="toggleSSEConnection"
                 >
-                  {{ toggleSSEConnectionVerb }}
+                  {{ !connectionSSEState ? "Start" : "Stop" }}
                   <span>
-                    <i class="material-icons" v-if="!connectionSSEState"
-                      >sync</i
-                    >
-                    <i class="material-icons" v-if="connectionSSEState"
-                      >sync_disabled</i
-                    >
+                    <i class="material-icons">
+                      {{ !connectionSSEState ? "sync" : "sync_disabled" }}
+                    </i>
                   </span>
                 </button>
               </li>
@@ -209,9 +205,6 @@ export default {
     };
   },
   computed: {
-    toggleConnectionVerb() {
-      return !this.connectionState ? "Connect" : "Disconnect";
-    },
     urlValid() {
       const pattern = new RegExp(
         "^(wss?:\\/\\/)?" +
@@ -223,9 +216,6 @@ export default {
         "i"
       );
       return pattern.test(this.url);
-    },
-    toggleSSEConnectionVerb() {
-      return !this.connectionSSEState ? "Start" : "Stop";
     },
     serverValid() {
       const pattern = new RegExp(

@@ -115,8 +115,9 @@
                     : 'Collapse response'
                 }"
               >
-                <i class="material-icons" v-if="!expandResponse">unfold_more</i>
-                <i class="material-icons" v-else>unfold_less</i>
+                <i class="material-icons">
+                  {{ !expandResponse ? "unfold_more" : "unfold_less" }}
+                </i>
               </button>
               <button
                 class="icon"

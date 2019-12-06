@@ -5,8 +5,9 @@
   >
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
-      <i class="material-icons" v-if="isCollapsed">expand_more</i>
-      <i class="material-icons" v-if="!isCollapsed">expand_less</i>
+      <i class="material-icons">
+        {{ isCollapsed ? "expand_more" : "expand_less" }}
+      </i>
     </legend>
     <div class="collapsible" :class="{ hidden: collapsed }">
       <slot />

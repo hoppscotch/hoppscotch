@@ -1,9 +1,8 @@
 <template>
-  <div class="color" :data-color="color">
+  <div class="color" :data-color="color" :class="{ active: active }" v-tooltip="{ content: name || color }">
     <span :style="{ backgroundColor: color }" class="preview">
       <i v-if="active" class="material-icons activeTick">done</i>
     </span>
-    {{ name || color }}
   </div>
 </template>
 
@@ -12,23 +11,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px 0 4px;
-  margin: 4px;
-  background-color: var(--bg-dark-color);
-  color: var(--fg-color);
-  border-radius: 20px;
+  margin: 8px;
+  border-radius: 100%;
+  border: 3px solid var(--bg-dark-color);
   cursor: pointer;
-  height: 40px;
+
+  &.fg {
+    color: var(--act-color);
+  }
 
   &.active {
-    background-color: var(--bg-dark-color);
+    border: 3px solid var(--ac-color);
+  }
+
+  &.fg.active {
+    border: 3px solid var(--fg-color);
   }
 
   .preview {
     vertical-align: middle;
     display: inline-block;
     border-radius: 100%;
-    margin-right: 8px;
     padding: 16px;
     position: relative;
 
@@ -37,14 +40,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #ffffff;
     }
-  }
-}
-
-.color.vibrant {
-  .preview .activeTick {
-    color: var(--act-color);
   }
 }
 </style>

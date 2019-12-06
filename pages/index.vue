@@ -265,7 +265,7 @@
                 class="icon"
                 id="show-modal"
                 @click="showModal = true"
-                v-tooltip.bottom="'Import cURL'"
+                v-tooltip.bottom="$t('import_curl')"
               >
                 <i class="material-icons">import_export</i>
               </button>
@@ -308,7 +308,7 @@
                 id="copyRequest"
                 ref="copyRequest"
                 :disabled="!isValidURL"
-                v-tooltip.bottom="'Copy Request URL'"
+                v-tooltip.bottom="$t('copy_request_link')"
               >
                 <i class="material-icons">file_copy</i>
               </button>
@@ -319,7 +319,7 @@
                 id="saveRequest"
                 ref="saveRequest"
                 :disabled="!isValidURL"
-                v-tooltip.bottom="'Save to Collections'"
+                v-tooltip.bottom="$t('save_to_collections')"
               >
                 <i class="material-icons">save</i>
               </button>

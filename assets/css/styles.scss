@@ -426,6 +426,22 @@ button {
   }
 }
 
+@keyframes beat {
+  30% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.material-icons:active {
+  animation: beat 0.5s forwards 1;
+}
+
 fieldset {
   margin: 16px 0;
   border: 1px solid var(--brd-color);

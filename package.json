@@ -28,7 +28,7 @@
         "ace-builds": "^1.4.7",
         "graphql": "^14.5.8",
         "nuxt": "^2.10.2",
-        "nuxt-i18n": "^6.4.0",
+        "nuxt-i18n": "^6.4.1",
         "v-tooltip": "^2.0.2",
         "vue-virtual-scroll-list": "^1.4.4",
         "vuejs-auto-complete": "^0.9.0",

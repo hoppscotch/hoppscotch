@@ -1,5 +1,10 @@
 <template>
-  <div class="color" :data-color="color" :class="{ active: active }" v-tooltip="{ content: name || color }">
+  <div
+    class="color"
+    :data-color="color"
+    :class="{ active: active }"
+    v-tooltip="{ content: name || color }"
+  >
     <span :style="{ backgroundColor: color }" class="preview">
       <i v-if="active" class="material-icons activeTick">done</i>
     </span>
@@ -15,6 +20,7 @@
   border-radius: 100%;
   border: 3px solid var(--bg-dark-color);
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 
   &.fg {
     color: var(--act-color);

@@ -71,10 +71,7 @@ body {
 
 // Make theme transition smoother.
 body.afterLoad {
-  &,
-  & * {
-    transition: background-color 0.2s ease-in-out, border 0.2s ease-in-out;
-  }
+  transition: all 0.2s ease-in-out;
 }
 
 body.sticky-footer footer {
@@ -450,7 +447,7 @@ fieldset {
   margin: 16px 0;
   border: 1px solid var(--brd-color);
   border-radius: 8px;
-  background-color: var(--bg-color);
+  transition: all 0.2s ease-in-out;
 }
 
 legend {
@@ -813,10 +810,6 @@ input[type="radio"]:checked + label + .tab {
   margin-left: 16px;
 }
 
-.bg-color {
-  background-color: var(--bg-color);
-}
-
 @media (max-width: $responsiveWidth) {
   .content {
     flex-flow: column;
@@ -832,6 +825,7 @@ input[type="radio"]:checked + label + .tab {
     bottom: 0;
     width: 100%;
     background-color: var(--bg-color);
+    transition: all 0.2s ease-in-out;
   }
 
   nav.primary-nav {

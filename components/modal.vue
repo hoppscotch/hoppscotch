@@ -45,11 +45,11 @@
   flex-grow: 1;
   flex-direction: column;
   margin: 8px;
-  padding: 12px;
+  padding: 16px;
   transition: all 0.2s ease;
   background-color: var(--bg-color);
   border-radius: 8px;
-  box-shadow: rgba(0, 0, 0, 0.5) 0px 16px 70px;
+  box-shadow: 0px 16px 70px rgba(0, 0, 0, 0.5);
 }
 
 /*

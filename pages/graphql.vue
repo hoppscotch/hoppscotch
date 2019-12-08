@@ -410,6 +410,7 @@ export default {
       const startTime = Date.now();
 
       this.$nuxt.$loading.start();
+      this.scrollInto("response");
 
       try {
         let headers = {};
@@ -462,6 +463,7 @@ export default {
     async getSchema() {
       const startTime = Date.now();
       this.schemaString = "Loading...";
+      this.scrollInto("schema");
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
@@ -628,6 +630,11 @@ export default {
         }
       });
       console.log(oldHeaders);
+    },
+    scrollInto(view) {
+      this.$refs[view].$el.scrollIntoView({
+        behavior: "smooth"
+      });
     }
   }
 };

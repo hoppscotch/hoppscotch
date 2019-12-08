@@ -879,7 +879,7 @@ input[type="radio"]:checked + label + .tab {
     margin-left: 0;
   }
 
-  .toasted {
+  .toasted:last-child {
     margin-bottom: 68px;
   }
 }

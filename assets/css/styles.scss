@@ -85,6 +85,7 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
+  transition: all 0.2s ease-in-out;
 }
 
 header,
@@ -135,7 +136,10 @@ footer {
 
 .logo {
   font-size: 22px;
-  color: var(--ac-color);
+
+  &:hover {
+    color: var(--ac-color);
+  }
 }
 
 .nav-first,

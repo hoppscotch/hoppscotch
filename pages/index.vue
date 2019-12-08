@@ -44,7 +44,17 @@
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
-              <select id="method" v-model="method" @change="methodChange">
+              <input
+                id="method"
+                name="method"
+                type="text"
+                v-model="method"
+                @change="methodChange"
+                value="GET"
+                placeholder="GET"
+                list="preMethods"
+              />
+              <datalist id="preMethods">
                 <option value="GET">GET</option>
                 <option value="HEAD">HEAD</option>
                 <option value="POST">POST</option>
@@ -54,7 +64,17 @@
                 <option value="OPTIONS">OPTIONS</option>
                 <option value="TRACE">TRACE</option>
                 <option value="PATCH">PATCH</option>
-              </select>
+              </datalist>
+              <!-- <select id="method" v-model="method" @change="methodChange">
+                <option>GET</option>
+                <option>HEAD</option>
+                <option>POST</option>
+                <option>PUT</option>
+                <option>DELETE</option>
+                <option>OPTIONS</option>
+                <option>PATCH</option>
+                <option>LIST</option>
+              </select> -->
             </li>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -85,7 +105,14 @@
                 type="text"
                 v-model="label"
                 placeholder="(optional)"
+                list="preLabels"
               />
+              <datalist id="preLabels">
+                <option value="Login"></option>
+                <option value="Logout"></option>
+                <option value="Bug"></option>
+                <option value="Users"></option>
+              </datalist>
             </li>
             <li>
               <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -1360,6 +1387,11 @@ export default {
     }
   },
   methods: {
+    checkCollections() {
+      const checkCollectionAvailability = 
+        this.$store.state.postwoman.collections && this.$store.state.postwoman.collections.length > 0 ;
+      return checkCollectionAvailability;
+    },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth"
@@ -1958,6 +1990,13 @@ export default {
       );
     },
     saveRequest() {
+      if (!this.checkCollections()) {
+        this.$toast.error("Create a Collection", {
+          icon: "error"
+        });
+        return;
+      }
+      
       this.editRequest = {
         url: this.url,
         path: this.path,

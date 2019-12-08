@@ -91,7 +91,7 @@ header,
 footer {
   & > div {
     display: flex;
-    padding: 16px;
+    padding: 16px 8px;
     width: 100%;
     align-items: center;
     justify-content: space-between;
@@ -170,7 +170,6 @@ footer {
 nav.primary-nav {
   display: flex;
   flex-flow: column nowrap;
-  border-bottom: 1px solid var(--brd-color);
 
   svg {
     fill: var(--fg-light-color);
@@ -213,6 +212,7 @@ nav.primary-nav {
 
 nav.secondary-nav {
   display: flex;
+  border-top: 1px solid var(--brd-color);
 
   ul {
     display: flex;
@@ -823,20 +823,24 @@ input[type="radio"]:checked + label + .tab {
   }
 
   .nav-first {
+    position: fixed;
+    top: auto;
+    bottom: 0;
     width: 100%;
     background-color: var(--bg-color);
   }
 
   nav.primary-nav {
-    flex-flow: row;
+    flex-flow: row nowrap;
+    overflow: auto;
+    justify-content: space-around;
   }
-
   nav.secondary-nav {
     display: none;
   }
 
   .main {
-    padding: 0 8px;
+    padding: 0 8px 68px;
   }
 
   ul,

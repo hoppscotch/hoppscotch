@@ -27,12 +27,7 @@ html {
   width: 4px;
   height: 4px;
   border-radius: 4px;
-  background-color: var(--bg-dark-color);
-  visibility: hidden;
-
-  &:hover {
-    visibility: visible;
-  }
+  background-color: var(--bg-light-color);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -158,6 +153,7 @@ footer {
   order: 2;
   position: relative;
   padding: 0 16px;
+  background-color: var(--bg-light-color);
 }
 
 .nav-second {
@@ -183,7 +179,7 @@ nav.primary-nav {
     flex-shrink: 0;
     padding: 14px;
     border-radius: 50%;
-    background-color: var(--brd-color);
+    background-color: var(--bg-light-color);
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
     margin: 8px;
@@ -213,7 +209,7 @@ nav.primary-nav {
 
 nav.secondary-nav {
   display: flex;
-  border-top: 1px solid var(--brd-color);
+  border-top: 1px dashed var(--brd-color);
 
   ul {
     display: flex;
@@ -445,9 +441,10 @@ button {
 
 fieldset {
   margin: 16px 0;
-  border: 1px solid var(--brd-color);
-  border-radius: 8px;
+  // border: 1px solid var(--brd-color);
+  border-radius: 16px;
   transition: all 0.2s ease-in-out;
+  background-color: var(--bg-dark-color);
 }
 
 legend {
@@ -832,7 +829,22 @@ input[type="radio"]:checked + label + .tab {
     flex-flow: row nowrap;
     overflow: auto;
     justify-content: space-around;
+
+    a {
+      background-color: transparent;
+
+      &.nuxt-link-exact-active {
+        background-color: transparent;
+        color: var(--ac-color);
+        fill: var(--ac-color);
+
+        svg {
+          fill: var(--ac-color);
+        }
+      }
+    }
   }
+
   nav.secondary-nav {
     display: none;
   }

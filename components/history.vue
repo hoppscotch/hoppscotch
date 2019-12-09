@@ -300,7 +300,7 @@ ol li {
     top: 10px;
     right: 10px;
     font-family: "Roboto Mono", monospace;
-    background-color: var(--bg-color);
+    background-color: transparent;
     padding: 2px 6px;
     border-radius: 8px;
   }
@@ -312,7 +312,7 @@ ol li {
 }
 
 .bg-color {
-  background-color: var(--bg-color);
+  background-color: transparent;
 }
 
 @media (max-width: 720px) {

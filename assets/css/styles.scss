@@ -507,7 +507,6 @@ fieldset.yellow legend {
 kbd,
 select,
 input,
-option,
 textarea,
 pre {
   margin: 4px;
@@ -548,11 +547,15 @@ code {
   border-radius: 8px;
 }
 
-select,
-option {
+select {
   height: 37px;
   line-height: 37px;
+  background-color: var(--bg-dark-color);
   cursor: pointer;
+}
+
+option {
+  background-color: var(--bg-color);
 }
 
 input[type="checkbox"] {

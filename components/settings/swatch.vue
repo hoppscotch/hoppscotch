@@ -20,7 +20,6 @@
   border-radius: 100%;
   border: 3px solid var(--bg-dark-color);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
 
   &.fg {
     color: var(--act-color);

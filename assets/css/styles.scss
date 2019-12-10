@@ -2,7 +2,7 @@
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  transition: all 0.2s;
+  transition: opacity 0.2s;
 }
 
 .page-enter,
@@ -13,10 +13,6 @@
 }
 
 $responsiveWidth: 768px;
-
-html {
-  scroll-behavior: smooth;
-}
 
 ::selection {
   background-color: var(--ac-color);
@@ -50,6 +46,7 @@ html {
   border: 0;
 }
 
+html,
 body {
   background-color: var(--bg-color);
   color: var(--fg-color);
@@ -62,11 +59,12 @@ body {
   user-select: none;
   padding: 0;
   margin: 0;
+  scroll-behavior: smooth;
 }
 
 // Make theme transition smoother.
 body.afterLoad {
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
 
 body.sticky-footer footer {
@@ -97,8 +95,8 @@ footer {
   flex-direction: column;
 }
 
-.wrapper .content {
-  min-height: 100vh;
+.wrapper .page {
+  min-height: calc(100vh - 153px);
 }
 
 .header,
@@ -149,11 +147,14 @@ footer {
 }
 
 .main {
+  display: flex;
+  flex-flow: column;
   flex: 1;
   order: 2;
   position: relative;
   padding: 0 16px;
   background-color: var(--bg-light-color);
+  height: 100%;
 }
 
 .nav-second {

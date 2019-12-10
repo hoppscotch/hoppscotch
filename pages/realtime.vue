@@ -154,6 +154,7 @@
     </section>
   </div>
 </template>
+
 <style scoped lang="scss">
 div.log {
   margin: 4px;

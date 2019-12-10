@@ -349,6 +349,7 @@ export default {
       }
     ],
     defaultLocale: "en",
+    detectBrowserLanguage: false,
     lazy: true,
     langDir: "lang/"
   },

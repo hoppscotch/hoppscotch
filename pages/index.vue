@@ -1361,6 +1361,11 @@ export default {
     }
   },
   methods: {
+    checkCollections() {
+      const checkCollectionAvailability = 
+        this.$store.state.postwoman.collections && this.$store.state.postwoman.collections.length > 0 ;
+      return checkCollectionAvailability;
+    },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth"
@@ -1963,6 +1968,13 @@ export default {
       );
     },
     saveRequest() {
+      if (!this.checkCollections()) {
+        this.$toast.error("Create a Collection", {
+          icon: "error"
+        });
+        return;
+      }
+      
       this.editRequest = {
         url: this.url,
         path: this.path,

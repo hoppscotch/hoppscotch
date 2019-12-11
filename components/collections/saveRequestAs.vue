@@ -121,7 +121,11 @@ export default {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
-
+      
+      const noCollectionAvailable = 
+        this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !== undefined;
+      if (!noCollectionAvailable) return [];
+      
       return this.$store.state.postwoman.collections[
         this.$data.requestData.collectionIndex
       ].folders;
@@ -144,6 +148,10 @@ export default {
         const collection = this.$store.state.postwoman.collections[
           this.$data.requestData.collectionIndex
         ];
+        const noCollectionAvailable = 
+          this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !== undefined;
+        if (!noCollectionAvailable) return [];
+
         const requests = collection.requests;
         return requests;
       }

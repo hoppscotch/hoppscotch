@@ -1847,12 +1847,16 @@ export default {
         ? [flat("rawParams")]
         : [deep("bodyParams")];
 
-      this.$router.replace(
+      history.replaceState(
+        window.location.href,
+        "",
         "/?" +
-          flats
-            .concat(deeps, bodyParams)
-            .join("")
-            .slice(0, -1)
+          encodeURIComponent(
+            flats
+              .concat(deeps, bodyParams)
+              .join("")
+              .slice(0, -1)
+          )
       );
     },
     setRouteQueries(queries) {

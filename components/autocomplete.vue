@@ -3,7 +3,7 @@
     <input
       type="text"
       :placeholder="placeholder"
-      v-model="value"
+      v-model="text"
       @input="updateSuggestions"
       @keyup="updateSuggestions"
       @click="updateSuggestions"
@@ -97,18 +97,24 @@ export default {
     source: {
       type: Array,
       required: true
+    },
+
+    value: {
+      type: String,
+      default: "",
+      required: false
     }
   },
 
   watch: {
-    value() {
-      this.$emit("input", this.value);
+    text() {
+      this.$emit("input", this.text);
     }
   },
 
   data() {
     return {
-      value: "application/json",
+      text: this.value,
       selectionStart: 0,
       suggestionsOffsetLeft: 0,
       currentSuggestionIndex: -1,
@@ -134,10 +140,10 @@ export default {
     },
 
     forceSuggestion(text) {
-      let input = this.value.substring(0, this.selectionStart);
-      this.value = input + text;
+      let input = this.text.substring(0, this.selectionStart);
+      this.text = input + text;
 
-      this.selectionStart = this.value.length;
+      this.selectionStart = this.text.length;
       this.suggestionsVisible = true;
       this.currentSuggestionIndex = -1;
     },
@@ -166,8 +172,8 @@ export default {
             this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
           ];
           if (activeSuggestion) {
-            let input = this.value.substring(0, this.selectionStart);
-            this.value = input + activeSuggestion;
+            let input = this.text.substring(0, this.selectionStart);
+            this.text = input + activeSuggestion;
           }
           break;
 
@@ -184,7 +190,7 @@ export default {
      * @returns {default.props.source|{type, required}}
      */
     suggestions() {
-      let input = this.value.substring(0, this.selectionStart);
+      let input = this.text.substring(0, this.selectionStart);
 
       return (
         this.source

@@ -90,7 +90,7 @@ export default {
 
     placeholder: {
       type: String,
-      default: "Start typing...",
+      default: "",
       required: false
     },
 

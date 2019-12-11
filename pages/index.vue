@@ -44,17 +44,7 @@
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
-              <input
-                id="method"
-                name="method"
-                type="text"
-                v-model="method"
-                @change="methodChange"
-                value="GET"
-                placeholder="GET"
-                list="preMethods"
-              />
-              <datalist id="preMethods">
+              <select id="method" v-model="method" @change="methodChange">
                 <option value="GET">GET</option>
                 <option value="HEAD">HEAD</option>
                 <option value="POST">POST</option>
@@ -64,17 +54,7 @@
                 <option value="OPTIONS">OPTIONS</option>
                 <option value="TRACE">TRACE</option>
                 <option value="PATCH">PATCH</option>
-              </datalist>
-              <!-- <select id="method" v-model="method" @change="methodChange">
-                <option>GET</option>
-                <option>HEAD</option>
-                <option>POST</option>
-                <option>PUT</option>
-                <option>DELETE</option>
-                <option>OPTIONS</option>
-                <option>PATCH</option>
-                <option>LIST</option>
-              </select> -->
+              </select>
             </li>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -105,14 +85,7 @@
                 type="text"
                 v-model="label"
                 placeholder="(optional)"
-                list="preLabels"
               />
-              <datalist id="preLabels">
-                <option value="Login"></option>
-                <option value="Logout"></option>
-                <option value="Bug"></option>
-                <option value="Users"></option>
-              </datalist>
             </li>
             <li>
               <label class="hide-on-small-screen" for="send">&nbsp;</label>

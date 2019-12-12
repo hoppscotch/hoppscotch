@@ -8,10 +8,12 @@
 
 // Dark is the default theme variant.
 @mixin darkTheme {
-  // Dark Background color
-  --bg-dark-color: rgb(41, 42, 45);
   // Background color
   --bg-color: rgb(37, 38, 40);
+  // Light Background color
+  --bg-light-color: rgba(255, 255, 255, 0.05);
+  //Dark Background color
+  --bg-dark-color: rgba(0, 0, 0, 0.1);
   // Auto-complete color
   --atc-color: rgb(49, 49, 55);
   // Text color
@@ -21,26 +23,20 @@
   // Border color
   --brd-color: rgb(48, 47, 55);
   // Error color
-  --err-color: rgb(41, 42, 45);
+  --err-color: rgba(255, 255, 255, 0.05);
   // Acent color
   --ac-color: #50fa7b;
   // Active text color
   --act-color: rgb(37, 38, 40);
 }
 
-:root {
-  @include darkTheme;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root.auto {
-    @include darkTheme;
-  }
-}
-
 @mixin lightTheme {
   // Dark Background color
   --bg-dark-color: #eeeeee;
+  // Light Background color
+  --bg-light-color: rgba(0, 0, 0, 0.02);
+  //Dark Background color
+  --bg-dark-color: rgba(0, 0, 0, 0.05);
   // Background color
   --bg-color: #ffffff;
   // Auto-complete color
@@ -52,26 +48,20 @@
   // Border color
   --brd-color: #eeeeed;
   // Error color
-  --err-color: #eeeeee;
+  --err-color: rgba(0, 0, 0, 0.02);
   // Acent color
   --ac-color: #57b5f9;
   // Active text color
   --act-color: #ffffff;
 }
 
-:root.light {
-  @include lightTheme;
-}
-
-@media (prefers-color-scheme: light) {
-  :root.auto {
-    @include lightTheme;
-  }
-}
-
 @mixin blackTheme {
   // Dark Background color
   --bg-dark-color: rgb(8, 8, 8);
+  // Light Background color
+  --bg-light-color: rgba(255, 255, 255, 0.02);
+  //Dark Background color
+  --bg-dark-color: rgba(255, 255, 255, 0.02);
   // Background color
   --bg-color: #000000;
   // Auto-complete color
@@ -83,13 +73,33 @@
   // Border color
   --brd-color: rgb(16, 16, 16);
   // Error color
-  --err-color: rgb(8, 8, 8);
+  --err-color: rgba(255, 255, 255, 0.02);
   // Acent color
   --ac-color: #50fa7b;
   // Active text color
   --act-color: #000000;
 }
 
+:root {
+  @include darkTheme;
+}
+
+:root.light {
+  @include lightTheme;
+}
+
 :root.black {
   @include blackTheme;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.auto {
+    @include darkTheme;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root.auto {
+    @include lightTheme;
+  }
 }

@@ -38,11 +38,9 @@
 
 ### Features ✨
 
-❤️ **Lightweight**: Crafted with minimalistic UI design. Simple design is the best design.
+❤️ **Lightweight**: Crafted with minimalistic UI design - simple design is the best design.
 
- - Faster, lighter, cleaner, minimal & responsive
-
-⚡️ **Fast**: Send requests and get/copy responses in real-time! Fast software is the best software.
+⚡️ **Fast**: Send requests and get/copy responses in real-time - fast software is the best software.
 
 **Methods:**
  - `GET` - Retrieve information about the REST API resource
@@ -50,21 +48,22 @@
  - `POST` - Create a REST API resource
  - `PUT` - Update a REST API resource
  - `DELETE` - Delete a REST API resource or related component
+ - `CONNECT` - Establishes a tunnel to the server identified by the target resource
  - `OPTIONS` - Describe the communication options for the target resource
+ - `TRACE` - Performs a message loop-back test along the path to the target resource
  - `PATCH` - Apply partial modifications to a REST API resource
+ - `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
-_History entries are synced with local session storage_
-
-🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization === freedom. [Customize now ✨](https://postwoman.io/settings).
+🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization is freedom. [Customize now ✨](https://postwoman.io/settings).
 
 **Customizations:**
  - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
  - Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
- - Toggle multi-colored frames
+ - Toggle multi-colored headings
 
-_Customized themes are also synced with local session storage_
+_Customized themes are synced with local session storage_
 
-🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) (100/100 Lighthouse score) on your device.
+🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
 **Features:**
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
@@ -74,31 +73,34 @@ _Customized themes are also synced with local session storage_
  - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
  - ([full features](https://developers.google.com/web/progressive-web-apps))
 
-🚀 **Request**: Retrieve data from a URL without having to do a full page refresh.
+🚀 **Request**: Retrieve response from endpoint instantly.
 
  - Choose `method`
- - Enter `URL`
- - Enter `Path`
+ - Enter `URL` and `Path`
+ - Send
 
 **Features:**
  - Copy/share public "Share URL"
- - Generate request code for JavaScript XHR, Fetch and cURL
+ - Generate request code for `JavaScript XHR`, `Fetch` and `cURL`
  - Copy generated request code to clipboard
- - Import cURL
+ - Import `cURL`
  - Label requests
 
 🔌 **WebSocket**: Establish full-duplex communication channels over a single TCP connection.
 
  - Send and receive data
+ - Basic authentication using username and password
+ - Token based authentication
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
-
-  - Receive data
 
 🌍 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
  - Set endpoint and get schemas
  - Multi-column docs
+ - Set custom request headers
+ - Query schema
+ - Get query response
 
 🔐 **Authentication**: Allows to identify the end user.
 
@@ -116,27 +118,28 @@ _Customized themes are also synced with local session storage_
 📃 **Request Body**: Used to send and receive data via the REST API.
 
 **Options:**
- - Set Content Type
+ - Set `Content Type`
  - Add or remove Parameter list
  - Toggle between key-value and RAW input Parameter list
 
 👋 **Responses**: Contains the status line, headers and the message/response body.
 
  - Copy response to clipboard
- - Download response to a local file
- - View preview for HTML responses
-
-_HTML responses have "Preview HTML" feature_
+ - Download response to as a file
+ - View preview of HTML responses
 
 ⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
 **Fields:**
+ - Star
  - Label
- - Timestamp
  - Method
  - Status code
  - URL
  - Path
+ - Timestamp
+ - Duration
+ - Pre-request script
 
 _History entries can be sorted by any fields_
 
@@ -147,8 +150,6 @@ _Histories can be deleted one-by-one or all together_
 **Options:**
  - Create infinite collections, folders and requests
  - Edit, delete, move, export, import and replace
-
-_Export, import and replace collections with JSON files_
 
 _Collections are synced with local session storage_
 
@@ -165,8 +166,8 @@ _Official Postwoman Proxy is hosted by ApolloTV - [Privacy policy](https://apoll
 📜 **Pre-Request Scripts**: Snippets of code associated with a request that are executed before the request is sent.
 
 **Use-cases:**
- - Including the timestamp in the request headers
- - Sending a random alphanumeric string in the URL parameters
+ - Include timestamp in the request headers
+ - Send a random alphanumeric string in the URL parameters
 
 _Requests with Pre-Request Scripts are indicated in History entries_
 
@@ -181,9 +182,11 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 🌎 **i18n**: Internationalization β.
 
  - Add a new locale in `lang/`
- Ex: `lang/es-ES.js`
+
+   Example: `lang/es-ES.js`
  - Mention `code`, `name`, `iso` and `file` in `nuxt.config.js`
- Ex:
+
+   Example:
     ```
     i18n: {
       locales: [{
@@ -195,7 +198,7 @@ _Requests with Pre-Request Scripts are indicated in History entries_
     }
     ```
 
-_**All contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
+_**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 
@@ -205,11 +208,10 @@ _**All contributions are welcome to `i18n` [branch](https://github.com/liyasthom
 
 ## Usage 💡
 
-1. Specify your request method
-2. Type in your API URL
-3. Add API path
-4. Send request
-5. Get response!
+1. Specify your request `method`
+2. Type in your API `URL` and `path`
+3. Send request
+4. Get response
 
 You're done!
 

@@ -64,8 +64,8 @@ export default {
 
     this.editor = editor;
     this.cacheValue = this.value;
-    
-    editor.on('change', () => {
+
+    editor.on("change", () => {
       const content = editor.getValue();
       this.$emit("input", content);
       this.cacheValue = content;

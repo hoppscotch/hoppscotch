@@ -44,17 +44,7 @@
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
-              <input
-                id="method"
-                name="method"
-                type="text"
-                v-model="method"
-                @change="methodChange"
-                value="GET"
-                placeholder="GET"
-                list="preMethods"
-              />
-              <datalist id="preMethods">
+              <select id="method" v-model="method" @change="methodChange">
                 <option value="GET">GET</option>
                 <option value="HEAD">HEAD</option>
                 <option value="POST">POST</option>
@@ -64,17 +54,7 @@
                 <option value="OPTIONS">OPTIONS</option>
                 <option value="TRACE">TRACE</option>
                 <option value="PATCH">PATCH</option>
-              </datalist>
-              <!-- <select id="method" v-model="method" @change="methodChange">
-                <option>GET</option>
-                <option>HEAD</option>
-                <option>POST</option>
-                <option>PUT</option>
-                <option>DELETE</option>
-                <option>OPTIONS</option>
-                <option>PATCH</option>
-                <option>LIST</option>
-              </select> -->
+              </select>
             </li>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -105,14 +85,7 @@
                 type="text"
                 v-model="label"
                 placeholder="(optional)"
-                list="preLabels"
               />
-              <datalist id="preLabels">
-                <option value="Login"></option>
-                <option value="Logout"></option>
-                <option value="Bug"></option>
-                <option value="Users"></option>
-              </datalist>
             </li>
             <li>
               <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -312,7 +285,6 @@
               >
                 <i class="material-icons">file_copy</i>
               </button>
-
               <button
                 class="icon"
                 @click="saveRequest"
@@ -452,14 +424,15 @@
               </ul>
               <ul v-for="(header, index) in headers" :key="index">
                 <li>
-                  <input
+                  <autocomplete
                     :placeholder="'header ' + (index + 1)"
-                    :name="'header' + index"
+                    :source="commonHeaders"
+                    :spellcheck="false"
                     :value="header.key"
-                    @change="
+                    @input="
                       $store.commit('setKeyHeader', {
                         index,
-                        value: $event.target.value
+                        value: $event
                       })
                     "
                     @keyup.prevent="setRouteQueryState"
@@ -580,7 +553,7 @@
               </ul>
             </pw-section>
           </div>
-          <div class="flex-wrap">
+          <!-- <div class="flex-wrap">
             <span></span>
             <button
               class="icon hide-on-small-screen"
@@ -593,7 +566,7 @@
                 {{ activeSidebar ? "last_page" : "first_page" }}
               </i>
             </button>
-          </div>
+          </div> -->
         </section>
 
         <pw-section
@@ -822,6 +795,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import section from "../components/section";
 import url from "url";
@@ -934,6 +908,131 @@ export default {
         "application/x-www-form-urlencoded",
         "text/html",
         "text/plain"
+      ],
+
+      commonHeaders: [
+        "WWW-Authenticate",
+        "Authorization",
+        "Proxy-Authenticate",
+        "Proxy-Authorization",
+        "Age",
+        "Cache-Control",
+        "Clear-Site-Data",
+        "Expires",
+        "Pragma",
+        "Warning",
+        "Accept-CH",
+        "Accept-CH-Lifetime",
+        "Early-Data",
+        "Content-DPR",
+        "DPR",
+        "Device-Memory",
+        "Save-Data",
+        "Viewport-Width",
+        "Width",
+        "Last-Modified",
+        "ETag",
+        "If-Match",
+        "If-None-Match",
+        "If-Modified-Since",
+        "If-Unmodified-Since",
+        "Vary",
+        "Connection",
+        "Keep-Alive",
+        "Accept",
+        "Accept-Charset",
+        "Accept-Encoding",
+        "Accept-Language",
+        "Expect",
+        "Max-Forwards",
+        "Cookie",
+        "Set-Cookie",
+        "Cookie2",
+        "Set-Cookie2",
+        "Access-Control-Allow-Origin",
+        "Access-Control-Allow-Credentials",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Methods",
+        "Access-Control-Expose-Headers",
+        "Access-Control-Max-Age",
+        "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Origin",
+        "Service-Worker-Allowed",
+        "Timing-Allow-Origin",
+        "X-Permitted-Cross-Domain-Policies",
+        "DNT",
+        "Tk",
+        "Content-Disposition",
+        "Content-Length",
+        "Content-Type",
+        "Content-Encoding",
+        "Content-Language",
+        "Content-Location",
+        "Forwarded",
+        "X-Forwarded-For",
+        "X-Forwarded-Host",
+        "X-Forwarded-Proto",
+        "Via",
+        "Location",
+        "From",
+        "Host",
+        "Referer",
+        "Referrer-Policy",
+        "User-Agent",
+        "Allow",
+        "Server",
+        "Accept-Ranges",
+        "Range",
+        "If-Range",
+        "Content-Range",
+        "Cross-Origin-Opener-Policy",
+        "Cross-Origin-Resource-Policy",
+        "Content-Security-Policy",
+        "Content-Security-Policy-Report-Only",
+        "Expect-CT",
+        "Feature-Policy",
+        "Public-Key-Pins",
+        "Public-Key-Pins-Report-Only",
+        "Strict-Transport-Security",
+        "Upgrade-Insecure-Requests",
+        "X-Content-Type-Options",
+        "X-Download-Options",
+        "X-Frame-Options",
+        "X-Powered-By",
+        "X-XSS-Protection",
+        "Last-Event-ID",
+        "NEL",
+        "Ping-From",
+        "Ping-To",
+        "Report-To",
+        "Transfer-Encoding",
+        "TE",
+        "Trailer",
+        "Sec-WebSocket-Key",
+        "Sec-WebSocket-Extensions",
+        "Sec-WebSocket-Accept",
+        "Sec-WebSocket-Protocol",
+        "Sec-WebSocket-Version",
+        "Accept-Push-Policy",
+        "Accept-Signature",
+        "Alt-Svc",
+        "Date",
+        "Large-Allocation",
+        "Link",
+        "Push-Policy",
+        "Retry-After",
+        "Signature",
+        "Signed-Headers",
+        "Server-Timing",
+        "SourceMap",
+        "Upgrade",
+        "X-DNS-Prefetch-Control",
+        "X-Firefox-Spdy",
+        "X-Pingback",
+        "X-Requested-With",
+        "X-Robots-Tag",
+        "X-UA-Compatible"
       ],
       showRequestModal: false,
       editRequest: {},
@@ -1388,6 +1487,11 @@ export default {
     }
   },
   methods: {
+    checkCollections() {
+      const checkCollectionAvailability = 
+        this.$store.state.postwoman.collections && this.$store.state.postwoman.collections.length > 0 ;
+      return checkCollectionAvailability;
+    },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth"
@@ -1874,12 +1978,16 @@ export default {
         ? [flat("rawParams")]
         : [deep("bodyParams")];
 
-      this.$router.replace(
+      history.replaceState(
+        window.location.href,
+        "",
         "/?" +
-          flats
-            .concat(deeps, bodyParams)
-            .join("")
-            .slice(0, -1)
+          encodeURIComponent(
+            flats
+              .concat(deeps, bodyParams)
+              .join("")
+              .slice(0, -1)
+          )
       );
     },
     setRouteQueries(queries) {
@@ -1986,6 +2094,13 @@ export default {
       );
     },
     saveRequest() {
+      if (!this.checkCollections()) {
+        this.$toast.error("Create a Collection", {
+          icon: "error"
+        });
+        return;
+      }
+      
       this.editRequest = {
         url: this.url,
         path: this.path,

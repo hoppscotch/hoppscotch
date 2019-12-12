@@ -24,14 +24,7 @@
             v-model="requestData.name"
             v-bind:placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
-            list="preCollectionLabels"
           />
-          <datalist id="preCollectionLabels">
-            <option value="Login"></option>
-            <option value="Logout"></option>
-            <option value="Bug"></option>
-            <option value="Users"></option>
-          </datalist>
           <label for="selectCollection">Collection</label>
           <select
             type="text"
@@ -128,7 +121,11 @@ export default {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
-
+      
+      const noCollectionAvailable = 
+        this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !== undefined;
+      if (!noCollectionAvailable) return [];
+      
       return this.$store.state.postwoman.collections[
         this.$data.requestData.collectionIndex
       ].folders;
@@ -151,6 +148,10 @@ export default {
         const collection = this.$store.state.postwoman.collections[
           this.$data.requestData.collectionIndex
         ];
+        const noCollectionAvailable = 
+          this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !== undefined;
+        if (!noCollectionAvailable) return [];
+
         const requests = collection.requests;
         return requests;
       }

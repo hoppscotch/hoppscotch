@@ -294,9 +294,6 @@ export default {
     toggleSetting(key) {
       this.settings[key] = !this.settings[key];
       this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
-      this.$router.replace("/settings", {
-        force: true
-      });
     }
   },
   beforeMount() {

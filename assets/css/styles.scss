@@ -2,7 +2,7 @@
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  transition: all 0.2s;
+  transition: opacity 0.2s;
 }
 
 .page-enter,
@@ -14,10 +14,6 @@
 
 $responsiveWidth: 768px;
 
-html {
-  scroll-behavior: smooth;
-}
-
 ::selection {
   background-color: var(--ac-color);
   color: var(--act-color);
@@ -27,12 +23,7 @@ html {
   width: 4px;
   height: 4px;
   border-radius: 4px;
-  background-color: var(--bg-dark-color);
-  visibility: hidden;
-
-  &:hover {
-    visibility: visible;
-  }
+  background-color: var(--bg-light-color);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -55,6 +46,7 @@ html {
   border: 0;
 }
 
+html,
 body {
   background-color: var(--bg-color);
   color: var(--fg-color);
@@ -67,14 +59,12 @@ body {
   user-select: none;
   padding: 0;
   margin: 0;
+  scroll-behavior: smooth;
 }
 
 // Make theme transition smoother.
 body.afterLoad {
-  &,
-  & * {
-    transition: background-color 0.2s ease-in-out, border 0.2s ease-in-out;
-  }
+  transition: background-color 0.2s ease-in-out;
 }
 
 body.sticky-footer footer {
@@ -85,13 +75,14 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
+  transition: all 0.2s ease-in-out;
 }
 
 header,
 footer {
   & > div {
     display: flex;
-    padding: 16px;
+    padding: 16px 8px;
     width: 100%;
     align-items: center;
     justify-content: space-between;
@@ -104,8 +95,8 @@ footer {
   flex-direction: column;
 }
 
-.wrapper .content {
-  min-height: 100vh;
+.wrapper .page {
+  min-height: calc(100vh - 153px);
 }
 
 .header,
@@ -135,7 +126,10 @@ footer {
 
 .logo {
   font-size: 22px;
-  color: var(--ac-color);
+
+  &:hover {
+    color: var(--ac-color);
+  }
 }
 
 .nav-first,
@@ -153,10 +147,14 @@ footer {
 }
 
 .main {
+  display: flex;
+  flex-flow: column;
   flex: 1;
   order: 2;
   position: relative;
   padding: 0 16px;
+  background-color: var(--bg-light-color);
+  height: 100%;
 }
 
 .nav-second {
@@ -170,7 +168,6 @@ footer {
 nav.primary-nav {
   display: flex;
   flex-flow: column nowrap;
-  border-bottom: 1px solid var(--brd-color);
 
   svg {
     fill: var(--fg-light-color);
@@ -183,7 +180,7 @@ nav.primary-nav {
     flex-shrink: 0;
     padding: 14px;
     border-radius: 50%;
-    background-color: var(--brd-color);
+    background-color: var(--bg-light-color);
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
     margin: 8px;
@@ -213,6 +210,7 @@ nav.primary-nav {
 
 nav.secondary-nav {
   display: flex;
+  border-top: 1px dashed var(--brd-color);
 
   ul {
     display: flex;
@@ -426,11 +424,28 @@ button {
   }
 }
 
+@keyframes beat {
+  30% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.material-icons:active {
+  animation: beat 0.5s forwards 1;
+}
+
 fieldset {
   margin: 16px 0;
-  border: 1px solid var(--brd-color);
-  border-radius: 8px;
-  background-color: var(--bg-color);
+  // border: 1px solid var(--brd-color);
+  border-radius: 16px;
+  transition: all 0.2s ease-in-out;
+  background-color: var(--bg-dark-color);
 }
 
 legend {
@@ -493,7 +508,6 @@ fieldset.yellow legend {
 kbd,
 select,
 input,
-option,
 textarea,
 pre {
   margin: 4px;
@@ -534,11 +548,15 @@ code {
   border-radius: 8px;
 }
 
-select,
-option {
+select {
   height: 37px;
   line-height: 37px;
+  background-color: var(--bg-dark-color);
   cursor: pointer;
+}
+
+option {
+  background-color: var(--bg-color);
 }
 
 input[type="checkbox"] {
@@ -793,10 +811,6 @@ input[type="radio"]:checked + label + .tab {
   margin-left: 16px;
 }
 
-.bg-color {
-  background-color: var(--bg-color);
-}
-
 @media (max-width: $responsiveWidth) {
   .content {
     flex-flow: column;
@@ -807,12 +821,32 @@ input[type="radio"]:checked + label + .tab {
   }
 
   .nav-first {
+    position: fixed;
+    top: auto;
+    bottom: 0;
     width: 100%;
     background-color: var(--bg-color);
+    transition: all 0.2s ease-in-out;
   }
 
   nav.primary-nav {
-    flex-flow: row;
+    flex-flow: row nowrap;
+    overflow: auto;
+    justify-content: space-around;
+
+    a {
+      background-color: transparent;
+
+      &.nuxt-link-exact-active {
+        background-color: transparent;
+        color: var(--ac-color);
+        fill: var(--ac-color);
+
+        svg {
+          fill: var(--ac-color);
+        }
+      }
+    }
   }
 
   nav.secondary-nav {
@@ -820,7 +854,7 @@ input[type="radio"]:checked + label + .tab {
   }
 
   .main {
-    padding: 0 8px;
+    padding: 0 8px 68px;
   }
 
   ul,
@@ -853,5 +887,9 @@ input[type="radio"]:checked + label + .tab {
 
   .inner-right {
     margin-left: 0;
+  }
+
+  .toasted:last-child {
+    margin-bottom: 68px;
   }
 }

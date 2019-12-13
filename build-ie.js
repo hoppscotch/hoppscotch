@@ -33,7 +33,7 @@ const runTask = (task, doingText, doneText) => new Promise((resolve, reject) => 
   }), "Building", "Done building");
 
   await runTask(new Promise((resolve, reject) => {
-    exec("babel dist/_nuxt/ --out-dir dist/_nuxt_transp --minified --presets=@babel/preset-env").on('close', (code) => {
+    exec("npx babel dist/_nuxt/ --out-dir dist/_nuxt_transp --minified --presets=@babel/preset-env").on('close', (code) => {
       if (code == 0) resolve();
       else reject(code);
     });

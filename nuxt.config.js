@@ -192,6 +192,11 @@ export default {
         sizes: "192x192",
         href: `${routerBase.router.base}icons/icon-192x192.png`
       }
+    ],
+    script: [
+      {
+        src: "https://polyfill.io/v3/polyfill.min.js?features=NodeList.prototype.forEach%2CIntersectionObserver%2Csmoothscroll%2Cdocument%2CWindow"
+      }
     ]
   },
   /*

@@ -37,6 +37,8 @@
         "yargs-parser": "^16.1.0"
     },
     "devDependencies": {
+        "@babel/cli": "^7.7.5",
+        "@babel/core": "^7.7.5",
         "cypress": "^3.7.0",
         "node-sass": "^4.13.0",
         "ora": "^4.0.3",

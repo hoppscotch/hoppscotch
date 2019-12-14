@@ -525,7 +525,7 @@ export default {
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
-        vibrant ? "rgb(18, 18, 18)" : "#ffffff"
+        vibrant ? "rgba(18, 18, 18, 1)" : "rgba(255, 255, 255, 1)"
       );
     })();
   },

@@ -307,7 +307,7 @@ ol li {
 }
 
 .entry {
-  border-bottom: 1px solid var(--brd-color);
+  border-bottom: 1px dashed var(--brd-color);
   padding: 16px 0;
 }
 

@@ -50,6 +50,7 @@
     border-radius: 0 0 8px 8px;
     z-index: 9999;
     transition: transform 0.2s ease-out;
+    box-shadow: 0 5px 30px rgba(black, 0.1);
 
     li {
       width: 100%;

@@ -144,6 +144,8 @@ footer {
 
 .nav-first {
   z-index: 1;
+  height: 100vh;
+  padding: 0 8px;
 }
 
 .main {
@@ -183,7 +185,7 @@ nav.primary-nav {
     background-color: var(--bg-light-color);
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
-    margin: 8px;
+    margin: 8px 0;
     transition: all 0.2s ease-in-out;
 
     &:hover {
@@ -228,7 +230,7 @@ nav.secondary-nav {
         border-radius: 50%;
         background-color: var(--bg-dark-color);
         color: var(--fg-light-color);
-        margin: 8px;
+        margin: 8px 0;
 
         &:hover {
           color: var(--fg-color);
@@ -255,7 +257,7 @@ h3 {
 }
 
 .tooltip {
-  $bgcolor: var(--brd-color);
+  $bgcolor: var(--bg-color);
   $fgcolor: var(--fg-color);
   display: block !important;
   z-index: 10000;
@@ -787,6 +789,7 @@ input[type="radio"]:checked + label + .tab {
 .toasted.info {
   background-color: var(--ac-color) !important;
   color: var(--act-color) !important;
+  font-weight: 700 !important;
 }
 
 .toasted.bubble .action {
@@ -824,6 +827,8 @@ input[type="radio"]:checked + label + .tab {
     position: fixed;
     top: auto;
     bottom: 0;
+    height: auto;
+    padding: 0;
     width: 100%;
     background-color: var(--bg-color);
     transition: all 0.2s ease-in-out;
@@ -836,6 +841,7 @@ input[type="radio"]:checked + label + .tab {
 
     a {
       background-color: transparent;
+      margin: 8px;
 
       &.nuxt-link-exact-active {
         background-color: transparent;
@@ -889,7 +895,7 @@ input[type="radio"]:checked + label + .tab {
     margin-left: 0;
   }
 
-  .toasted:last-child {
+  .toasted-container {
     margin-bottom: 68px;
   }
 }

@@ -9,75 +9,71 @@
 // Dark is the default theme variant.
 @mixin darkTheme {
   // Background color
-  --bg-color: rgb(37, 38, 40);
+  --bg-color: rgba(18, 18, 18, 1);
   // Light Background color
-  --bg-light-color: rgba(255, 255, 255, 0.05);
-  //Dark Background color
+  --bg-light-color: rgba(255, 255, 255, 0.02);
+  // Dark Background color
   --bg-dark-color: rgba(0, 0, 0, 0.1);
-  // Auto-complete color
-  --atc-color: rgb(49, 49, 55);
   // Text color
-  --fg-color: rgb(247, 248, 248);
+  --fg-color: rgba(255, 255, 255, 1);
   // Light Text color
-  --fg-light-color: rgb(150, 155, 160);
+  --fg-light-color: rgba(255, 255, 255, 0.5);
   // Border color
-  --brd-color: rgb(48, 47, 55);
+  --brd-color: rgba(255, 255, 255, 0.05);
   // Error color
   --err-color: rgba(255, 255, 255, 0.05);
   // Acent color
-  --ac-color: #50fa7b;
+  --ac-color: rgba(80, 250, 123, 1);
   // Active text color
-  --act-color: rgb(37, 38, 40);
+  --act-color: rgba(18, 18, 18, 1);
+  // Auto-complete color
+  --atc-color: rgba(18, 18, 18, 1);
 }
 
 @mixin lightTheme {
-  // Dark Background color
-  --bg-dark-color: #eeeeee;
+  // Background color
+  --bg-color: rgba(255, 255, 255, 1);
   // Light Background color
   --bg-light-color: rgba(0, 0, 0, 0.02);
-  //Dark Background color
-  --bg-dark-color: rgba(0, 0, 0, 0.05);
-  // Background color
-  --bg-color: #ffffff;
-  // Auto-complete color
-  --atc-color: #ebebeb;
+  // Dark Background color
+  --bg-dark-color: rgba(0, 0, 0, 0.02);
   // Text color
-  --fg-color: #525252;
+  --fg-color: rgba(0, 0, 0, 1);
   // Light Text color
-  --fg-light-color: rgb(150, 155, 160);
+  --fg-light-color: rgba(0, 0, 0, 0.6);
   // Border color
-  --brd-color: #eeeeed;
+  --brd-color: rgba(0, 0, 0, 0.1);
   // Error color
-  --err-color: rgba(0, 0, 0, 0.02);
+  --err-color: rgba(0, 0, 0, 0.1);
   // Acent color
-  --ac-color: #57b5f9;
+  --ac-color: rgba(80, 250, 123, 1);
   // Active text color
-  --act-color: #ffffff;
+  --act-color: rgba(255, 255, 255, 1);
+  // Auto-complete color
+  --atc-color: rgba(255, 255, 255, 1);
 }
 
 @mixin blackTheme {
-  // Dark Background color
-  --bg-dark-color: rgb(8, 8, 8);
-  // Light Background color
-  --bg-light-color: rgba(255, 255, 255, 0.02);
-  //Dark Background color
-  --bg-dark-color: rgba(255, 255, 255, 0.02);
   // Background color
-  --bg-color: #000000;
-  // Auto-complete color
-  --atc-color: rgb(18, 18, 18);
+  --bg-color: rgba(0, 0, 0, 1);
+  // Light Background color
+  --bg-light-color: rgba(255, 255, 255, 0);
+  // Dark Background color
+  --bg-dark-color: rgba(255, 255, 255, 0.02);
   // Text color
-  --fg-color: rgb(250, 250, 250);
+  --fg-color: rgba(255, 255, 255, 1);
   // Light Text color
-  --fg-light-color: rgb(100, 100, 100);
+  --fg-light-color: rgba(255, 255, 255, 0.5);
   // Border color
-  --brd-color: rgb(16, 16, 16);
+  --brd-color: rgba(255, 255, 255, 0.05);
   // Error color
-  --err-color: rgba(255, 255, 255, 0.02);
+  --err-color: rgba(255, 255, 255, 0.05);
   // Acent color
-  --ac-color: #50fa7b;
+  --ac-color: rgba(80, 250, 123, 1);
   // Active text color
-  --act-color: #000000;
+  --act-color: rgba(0, 0, 0, 1);
+  // Auto-complete color
+  --atc-color: rgba(0, 0, 0, 1);
 }
 
 :root {

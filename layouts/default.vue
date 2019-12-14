@@ -525,7 +525,7 @@ export default {
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
-        vibrant ? "rgb(37, 38, 40)" : "#ffffff"
+        vibrant ? "rgba(18, 18, 18, 1)" : "rgba(255, 255, 255, 1)"
       );
     })();
   },
@@ -539,7 +539,7 @@ export default {
       .querySelector("meta[name=theme-color]")
       .setAttribute(
         "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#252628"
+        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#121212"
       );
 
     // Initializes the PWA code - checks if the app is installed,

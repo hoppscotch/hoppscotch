@@ -550,11 +550,31 @@ code {
   border-radius: 8px;
 }
 
+.select-wrapper {
+  position: relative;
+
+  &:after {
+    display: inline-block;
+    position: absolute;
+    pointer-events: none;
+    content: "\e313";
+    font-family: "Material Icons";
+    top: 14px;
+    right: 14px;
+  }
+}
+
 select {
   height: 37px;
-  line-height: 37px;
   background-color: var(--bg-dark-color);
   cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  &::-ms-expand {
+    display: none;
+  }
 }
 
 option {

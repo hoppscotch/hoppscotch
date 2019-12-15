@@ -682,10 +682,7 @@
           <input id="history-tab" type="radio" name="side" checked="checked" />
           <label for="history-tab">{{ $t("history") }}</label>
           <div class="tab">
-            <history
-              @useHistory="handleUseHistory"
-              ref="historyComponent"
-            />
+            <history @useHistory="handleUseHistory" ref="historyComponent" />
           </div>
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>

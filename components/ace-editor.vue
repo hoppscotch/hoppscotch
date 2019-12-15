@@ -3,7 +3,7 @@
 </template>
 
 <script>
-const DEFAULT_THEME = "dracula";
+const DEFAULT_THEME = "twilight";
 
 import ace from "ace-builds";
 import "ace-builds/webpack-resolver";

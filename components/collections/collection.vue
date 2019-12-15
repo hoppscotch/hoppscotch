@@ -47,8 +47,8 @@
             v-bind:folder="folder"
             v-bind:folderIndex="index"
             v-bind:collection-index="collectionIndex"
-            v-on:edit-folder="editFolder(collectionIndex, folder, index)"
-            v-on:edit-request="$emit('edit-request', $event)"
+            @edit-folder="editFolder(collectionIndex, folder, index)"
+            @edit-request="$emit('edit-request', $event)"
           />
         </li>
         <li
@@ -66,7 +66,7 @@
             v-bind:collection-index="collectionIndex"
             v-bind:folder-index="-1"
             v-bind:request-index="index"
-            v-on:edit-request="
+            @edit-request="
               $emit('edit-request', {
                 request,
                 collectionIndex,

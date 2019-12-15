@@ -7,19 +7,19 @@ TODO:
   <div class="collections-wrapper">
     <addCollection
       v-bind:show="showModalAdd"
-      v-on:hide-modal="displayModalAdd(false)"
+      @hide-modal="displayModalAdd(false)"
     />
     <editCollection
       v-bind:show="showModalEdit"
       v-bind:editingCollection="editingCollection"
       v-bind:editingCollectionIndex="editingCollectionIndex"
-      v-on:hide-modal="displayModalEdit(false)"
+      @hide-modal="displayModalEdit(false)"
     />
     <addFolder
       v-bind:show="showModalAddFolder"
       v-bind:collection="editingCollection"
       v-bind:collectionIndex="editingCollectionIndex"
-      v-on:hide-modal="displayModalAddFolder(false)"
+      @hide-modal="displayModalAddFolder(false)"
     />
     <editFolder
       v-bind:show="showModalEditFolder"
@@ -27,7 +27,7 @@ TODO:
       v-bind:collectionIndex="editingCollectionIndex"
       v-bind:folder="editingFolder"
       v-bind:folderIndex="editingFolderIndex"
-      v-on:hide-modal="displayModalEditFolder(false)"
+      @hide-modal="displayModalEditFolder(false)"
     />
     <editRequest
       v-bind:show="showModalEditRequest"
@@ -35,11 +35,11 @@ TODO:
       v-bind:folderIndex="editingFolderIndex"
       v-bind:request="editingRequest"
       v-bind:requestIndex="editingRequestIndex"
-      v-on:hide-modal="displayModalEditRequest(false)"
+      @hide-modal="displayModalEditRequest(false)"
     />
     <importExportCollections
       v-bind:show="showModalImportExport"
-      v-on:hide-modal="displayModalImportExport(false)"
+      @hide-modal="displayModalImportExport(false)"
     />
 
     <div class="flex-wrap">
@@ -80,10 +80,10 @@ TODO:
           <collection
             v-bind:collection-index="index"
             v-bind:collection="collection"
-            v-on:edit-collection="editCollection(collection, index)"
-            v-on:add-folder="addFolder(collection, index)"
-            v-on:edit-folder="editFolder($event)"
-            v-on:edit-request="editRequest($event)"
+            @edit-collection="editCollection(collection, index)"
+            @add-folder="addFolder(collection, index)"
+            @edit-folder="editFolder($event)"
+            @edit-request="editRequest($event)"
           ></collection>
         </li>
         <li v-if="collections.length === 0">

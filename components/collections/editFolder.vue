@@ -20,7 +20,7 @@
           <input
             type="text"
             v-model="name"
-            v-bind:placeholder="folder.name"
+            :placeholder="folder.name"
             @keyup.enter="editFolder"
           />
         </li>

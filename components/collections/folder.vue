@@ -34,11 +34,11 @@
       <ul>
         <li v-for="(request, index) in folder.requests" :key="index">
           <request
-            v-bind:request="request"
-            v-bind:collection-index="collectionIndex"
-            v-bind:folder-index="folderIndex"
-            v-bind:request-index="index"
-            v-on:edit-request="
+            :request="request"
+            :collection-index="collectionIndex"
+            :folder-index="folderIndex"
+            :request-index="index"
+            @edit-request="
               $emit('edit-request', {
                 request,
                 collectionIndex,

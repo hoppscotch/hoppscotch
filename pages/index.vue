@@ -699,7 +699,7 @@
 
       <save-request-as
         v-bind:show="showRequestModal"
-        v-on:hide-model="hideRequestModal"
+        @hide-model="hideRequestModal"
         v-bind:editing-request="editRequest"
       />
 

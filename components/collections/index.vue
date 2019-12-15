@@ -6,39 +6,39 @@ TODO:
 <template>
   <div class="collections-wrapper">
     <addCollection
-      v-bind:show="showModalAdd"
+      :show="showModalAdd"
       @hide-modal="displayModalAdd(false)"
     />
     <editCollection
-      v-bind:show="showModalEdit"
-      v-bind:editingCollection="editingCollection"
-      v-bind:editingCollectionIndex="editingCollectionIndex"
+      :show="showModalEdit"
+      :editingCollection="editingCollection"
+      :editingCollectionIndex="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
     <addFolder
-      v-bind:show="showModalAddFolder"
-      v-bind:collection="editingCollection"
-      v-bind:collectionIndex="editingCollectionIndex"
+      :show="showModalAddFolder"
+      :collection="editingCollection"
+      :collectionIndex="editingCollectionIndex"
       @hide-modal="displayModalAddFolder(false)"
     />
     <editFolder
-      v-bind:show="showModalEditFolder"
-      v-bind:collection="editingCollection"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-bind:folder="editingFolder"
-      v-bind:folderIndex="editingFolderIndex"
+      :show="showModalEditFolder"
+      :collection="editingCollection"
+      :collectionIndex="editingCollectionIndex"
+      :folder="editingFolder"
+      :folderIndex="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
     <editRequest
-      v-bind:show="showModalEditRequest"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-bind:folderIndex="editingFolderIndex"
-      v-bind:request="editingRequest"
-      v-bind:requestIndex="editingRequestIndex"
+      :show="showModalEditRequest"
+      :collectionIndex="editingCollectionIndex"
+      :folderIndex="editingFolderIndex"
+      :request="editingRequest"
+      :requestIndex="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
     <importExportCollections
-      v-bind:show="showModalImportExport"
+      :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
 
@@ -78,8 +78,8 @@ TODO:
       <ul>
         <li v-for="(collection, index) in collections" :key="collection.name">
           <collection
-            v-bind:collection-index="index"
-            v-bind:collection="collection"
+            :collection-index="index"
+            :collection="collection"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder(collection, index)"
             @edit-folder="editFolder($event)"

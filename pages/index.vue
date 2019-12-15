@@ -698,9 +698,9 @@
       </aside>
 
       <save-request-as
-        v-bind:show="showRequestModal"
+        :show="showRequestModal"
         @hide-model="hideRequestModal"
-        v-bind:editing-request="editRequest"
+        :editing-request="editRequest"
       />
 
       <pw-modal v-if="showModal" @close="showModal = false">

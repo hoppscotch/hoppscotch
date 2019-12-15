@@ -38,7 +38,7 @@
             v-bind:collection-index="collectionIndex"
             v-bind:folder-index="folderIndex"
             v-bind:request-index="index"
-            v-on:edit-request="
+            @edit-request="
               $emit('edit-request', {
                 request,
                 collectionIndex,

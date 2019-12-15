@@ -44,9 +44,9 @@
       <ul>
         <li v-for="(folder, index) in collection.folders" :key="folder.name">
           <folder
-            v-bind:folder="folder"
-            v-bind:folderIndex="index"
-            v-bind:collection-index="collectionIndex"
+            :folder="folder"
+            :folderIndex="index"
+            :collection-index="collectionIndex"
             @edit-folder="editFolder(collectionIndex, folder, index)"
             @edit-request="$emit('edit-request', $event)"
           />
@@ -62,10 +62,10 @@
       <ul>
         <li v-for="(request, index) in collection.requests" :key="index">
           <request
-            v-bind:request="request"
-            v-bind:collection-index="collectionIndex"
-            v-bind:folder-index="-1"
-            v-bind:request-index="index"
+            :request="request"
+            :collection-index="collectionIndex"
+            :folder-index="-1"
+            :request-index="index"
             @edit-request="
               $emit('edit-request', {
                 request,

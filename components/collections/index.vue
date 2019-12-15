@@ -84,7 +84,7 @@ TODO:
             @add-folder="addFolder(collection, index)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
-          ></collection>
+          />
         </li>
         <li v-if="collections.length === 0">
           <label>Collections are empty</label>

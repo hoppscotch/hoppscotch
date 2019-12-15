@@ -196,6 +196,9 @@ export default {
     script: [
       {
         src: "https://polyfill.io/v3/polyfill.min.js?features=NodeList.prototype.forEach%2CIntersectionObserver%2Csmoothscroll%2Cdocument%2CWindow"
+      },
+      {
+        src: "/polyfill-ie-css.js"
       }
     ]
   },

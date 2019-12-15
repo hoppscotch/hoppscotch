@@ -39,7 +39,7 @@
     "devDependencies": {
         "@babel/cli": "^7.7.5",
         "@babel/core": "^7.7.5",
-        "cypress": "^3.7.0",
+        "cypress": "^3.8.0",
         "node-sass": "^4.13.0",
         "ora": "^4.0.3",
         "rimraf": "^3.0.0",

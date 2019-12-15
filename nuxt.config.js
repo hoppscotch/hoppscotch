@@ -100,7 +100,7 @@ export default {
       },
       {
         name: "msapplication-TileColor",
-        content: "#252628"
+        content: "#121212"
       },
       {
         name: "msapplication-tap-highlight",
@@ -265,14 +265,14 @@ export default {
 
       display: "standalone",
 
-      theme_color: "#252628",
-      background_color: "#252628",
+      theme_color: "#121212",
+      background_color: "#121212",
       start_url: `${routerBase.router.base}`
     },
 
     meta: {
       description: meta.shortDescription,
-      theme_color: "#252628"
+      theme_color: "#121212"
     },
 
     icons: (sizes => {
@@ -360,6 +360,12 @@ export default {
         name: "Deutsch",
         iso: "de-DE",
         file: "de-DE.js"
+      },
+      {
+        code: "ja",
+        name: "日本語",
+        iso: "ja-JP",
+        file: "ja-JP.js"
       }
     ],
     defaultLocale: "en",

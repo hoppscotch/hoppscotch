@@ -685,7 +685,7 @@
             <history
               @useHistory="handleUseHistory"
               ref="historyComponent"
-            ></history>
+            />
           </div>
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>

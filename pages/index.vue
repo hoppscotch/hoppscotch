@@ -701,7 +701,7 @@
         v-bind:show="showRequestModal"
         v-on:hide-model="hideRequestModal"
         v-bind:editing-request="editRequest"
-      ></save-request-as>
+      />
 
       <pw-modal v-if="showModal" @close="showModal = false">
         <div slot="header">

@@ -803,7 +803,7 @@ input[type="radio"]:checked + label + .tab {
 }
 
 .toasted-container .toasted {
-  justify-content: start !important;
+  justify-content: flex-start !important;
 }
 
 .toasted.info {
@@ -814,6 +814,10 @@ input[type="radio"]:checked + label + .tab {
 
 .toasted.bubble .action {
   color: inherit !important;
+}
+
+.toasted .action {
+  margin-left: auto !important;
 }
 
 .page-columns {

@@ -682,10 +682,7 @@
           <input id="history-tab" type="radio" name="side" checked="checked" />
           <label for="history-tab">{{ $t("history") }}</label>
           <div class="tab">
-            <history
-              @useHistory="handleUseHistory"
-              ref="historyComponent"
-            ></history>
+            <history @useHistory="handleUseHistory" ref="historyComponent" />
           </div>
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
@@ -698,10 +695,10 @@
       </aside>
 
       <save-request-as
-        v-bind:show="showRequestModal"
-        v-on:hide-model="hideRequestModal"
-        v-bind:editing-request="editRequest"
-      ></save-request-as>
+        :show="showRequestModal"
+        @hide-model="hideRequestModal"
+        :editing-request="editRequest"
+      />
 
       <pw-modal v-if="showModal" @close="showModal = false">
         <div slot="header">

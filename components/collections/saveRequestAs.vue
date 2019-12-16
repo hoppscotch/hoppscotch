@@ -22,7 +22,7 @@
             type="text"
             id="selectLabel"
             v-model="requestData.name"
-            v-bind:placeholder="defaultRequestName"
+            :placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
           />
           <label for="selectCollection">Collection</label>

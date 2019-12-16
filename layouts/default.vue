@@ -327,7 +327,7 @@
                   </button>
                 </a>
                 <a
-                  v-bind:href="
+                  :href="
                     'https://github.com/liyasthomas/postwoman/releases/tag/' +
                       version.name
                   "
@@ -340,7 +340,7 @@
                 <!-- <span v-if="version.hash">
                   -
                   <a
-                    v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
+                    :href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
                     target="_blank"
                     rel="noopener"
                   >{{version.hash}}</a>

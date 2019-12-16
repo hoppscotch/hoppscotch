@@ -6,40 +6,40 @@ TODO:
 <template>
   <div class="collections-wrapper">
     <addCollection
-      v-bind:show="showModalAdd"
-      v-on:hide-modal="displayModalAdd(false)"
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
     />
     <editCollection
-      v-bind:show="showModalEdit"
-      v-bind:editingCollection="editingCollection"
-      v-bind:editingCollectionIndex="editingCollectionIndex"
-      v-on:hide-modal="displayModalEdit(false)"
+      :show="showModalEdit"
+      :editingCollection="editingCollection"
+      :editingCollectionIndex="editingCollectionIndex"
+      @hide-modal="displayModalEdit(false)"
     />
     <addFolder
-      v-bind:show="showModalAddFolder"
-      v-bind:collection="editingCollection"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-on:hide-modal="displayModalAddFolder(false)"
+      :show="showModalAddFolder"
+      :collection="editingCollection"
+      :collectionIndex="editingCollectionIndex"
+      @hide-modal="displayModalAddFolder(false)"
     />
     <editFolder
-      v-bind:show="showModalEditFolder"
-      v-bind:collection="editingCollection"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-bind:folder="editingFolder"
-      v-bind:folderIndex="editingFolderIndex"
-      v-on:hide-modal="displayModalEditFolder(false)"
+      :show="showModalEditFolder"
+      :collection="editingCollection"
+      :collectionIndex="editingCollectionIndex"
+      :folder="editingFolder"
+      :folderIndex="editingFolderIndex"
+      @hide-modal="displayModalEditFolder(false)"
     />
     <editRequest
-      v-bind:show="showModalEditRequest"
-      v-bind:collectionIndex="editingCollectionIndex"
-      v-bind:folderIndex="editingFolderIndex"
-      v-bind:request="editingRequest"
-      v-bind:requestIndex="editingRequestIndex"
-      v-on:hide-modal="displayModalEditRequest(false)"
+      :show="showModalEditRequest"
+      :collectionIndex="editingCollectionIndex"
+      :folderIndex="editingFolderIndex"
+      :request="editingRequest"
+      :requestIndex="editingRequestIndex"
+      @hide-modal="displayModalEditRequest(false)"
     />
     <importExportCollections
-      v-bind:show="showModalImportExport"
-      v-on:hide-modal="displayModalImportExport(false)"
+      :show="showModalImportExport"
+      @hide-modal="displayModalImportExport(false)"
     />
 
     <div class="flex-wrap">
@@ -78,13 +78,13 @@ TODO:
       <ul>
         <li v-for="(collection, index) in collections" :key="collection.name">
           <collection
-            v-bind:collection-index="index"
-            v-bind:collection="collection"
-            v-on:edit-collection="editCollection(collection, index)"
-            v-on:add-folder="addFolder(collection, index)"
-            v-on:edit-folder="editFolder($event)"
-            v-on:edit-request="editRequest($event)"
-          ></collection>
+            :collection-index="index"
+            :collection="collection"
+            @edit-collection="editCollection(collection, index)"
+            @add-folder="addFolder(collection, index)"
+            @edit-folder="editFolder($event)"
+            @edit-request="editRequest($event)"
+          />
         </li>
         <li v-if="collections.length === 0">
           <label>Collections are empty</label>

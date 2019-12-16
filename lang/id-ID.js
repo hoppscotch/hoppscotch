@@ -77,7 +77,13 @@ export default {
   enabled: "diaktifkan",
   disabled: "dinonaktifkan",
   proxy: "Proksi",
-  postwoman_official_proxy_hosting: "Proksi Resmi Postwoman dalam penginangan ApolloTV.",
+  postwoman_official_proxy_hosting:
+    "Proksi Resmi Postwoman dalam penginangan ApolloTV.",
   read_the: "Bacalah",
-  apollotv_privacy_policy: "kebijakan privasi ApolloTV"
+  apollotv_privacy_policy: "kebijakan privasi ApolloTV",
+  contact_us: "Hubungi kami",
+  connect: "Menghubungkan",
+  disconnect: "Memutuskan",
+  start: "Mulai",
+  stop: "Berhenti"
 };

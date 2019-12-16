@@ -80,5 +80,10 @@ export default {
   postwoman_official_proxy_hosting:
     "Postwomanの公式プロキシは、Apollo TVがホストしています。",
   read_the: "プライバシーポリシー",
-  apollotv_privacy_policy: "を読む"
+  apollotv_privacy_policy: "を読む",
+  contact_us: "お問い合わせ",
+  connect: "つなぐ",
+  disconnect: "切断する",
+  start: "開始",
+  stop: "やめる"
 };

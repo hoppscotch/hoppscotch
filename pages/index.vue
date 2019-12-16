@@ -1985,13 +1985,10 @@ export default {
       history.replaceState(
         window.location.href,
         "",
-        "/?" +
-          encodeURIComponent(
-            flats
+        "/?" + flats
               .concat(deeps, bodyParams)
               .join("")
               .slice(0, -1)
-          )
       );
     },
     setRouteQueries(queries) {

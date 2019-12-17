@@ -25,7 +25,7 @@
                   name="connect"
                   @click="toggleConnection"
                 >
-                  {{ !connectionState ? "Connect" : "Disconnect" }}
+                  {{ !connectionState ? $t("connect") : $t("disconnect") }}
                   <span>
                     <i class="material-icons">
                       {{ !connectionState ? "sync" : "sync_disabled" }}
@@ -114,7 +114,7 @@
                   name="start"
                   @click="toggleSSEConnection"
                 >
-                  {{ !connectionSSEState ? "Start" : "Stop" }}
+                  {{ !connectionSSEState ? $t("start") : $t("stop") }}
                   <span>
                     <i class="material-icons">
                       {{ !connectionSSEState ? "sync" : "sync_disabled" }}

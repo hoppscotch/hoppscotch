@@ -56,7 +56,7 @@ export default {
   websocket: "Websocket",
   waiting_for_connection: "（等待连接）",
   message: "消息内容",
-  sse: "sse",
+  sse: "SSE",
   server: "Server",
   events: "事件",
   url: "地址",
@@ -79,5 +79,10 @@ export default {
   proxy: "代理",
   postwoman_official_proxy_hosting: "Postwoman的官方代理由ApolloTV托管",
   read_the: "阅读",
-  apollotv_privacy_policy: "ApolloTV隐私政策"
+  apollotv_privacy_policy: "ApolloTV隐私政策",
+  contact_us: "联系我们",
+  connect: "连接",
+  disconnect: "断开",
+  start: "开始",
+  stop: "停止"
 };

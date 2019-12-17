@@ -358,6 +358,12 @@ export default {
         name: "日本語",
         iso: "ja-JP",
         file: "ja-JP.js"
+      },
+      {
+        code: "my",
+        name: "မြန်မာ",
+        iso: "my-MM",
+        file: "my-MM.js"
       }
     ],
     defaultLocale: "en",

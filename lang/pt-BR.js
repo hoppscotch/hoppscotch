@@ -77,7 +77,12 @@ export default {
   enabled: "Ativado",
   disabled: "Desativado",
   proxy: "Proxy",
-  postwoman_official_proxy_hosting: "postwoman_official_proxy_hosting",
-  read_the: "read_the",
-  apollotv_privacy_policy: "apollotv_privacy_policy"
+  postwoman_official_proxy_hosting: "Postwoman's alojamento proxy oficial",
+  read_the: "Leia o",
+  apollotv_privacy_policy: "ApolloTV Política de Privacidade",
+  contact_us: "Contate-Nos",
+  connect: "Conectar",
+  disconnect: "Desconectar",
+  start: "Começar",
+  stop: "Pare"
 };

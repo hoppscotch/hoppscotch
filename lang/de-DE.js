@@ -80,5 +80,10 @@ export default {
   postwoman_official_proxy_hosting:
     "Postwomans offizieller Proxy wird durch ApolloTV bereitgestellt.",
   read_the: "Lies die",
-  apollotv_privacy_policy: "ApolloTV Datenschutzerklärung"
+  apollotv_privacy_policy: "ApolloTV Datenschutzerklärung",
+  contact_us: "Kontaktiere uns",
+  connect: "Verbinden",
+  disconnect: "Trennen",
+  start: "Start",
+  stop: "Halt"
 };

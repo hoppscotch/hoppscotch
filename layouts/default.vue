@@ -349,11 +349,11 @@
               </span>
               <span>
                 <a
-                  href="https://postwoman.launchaco.com"
+                  href="mailto:liyascthomas@gmail.com"
                   target="_blank"
                   rel="noopener"
                 >
-                  <button class="icon" v-tooltip="$t('subscribe')">
+                  <button class="icon" v-tooltip="$t('contact_us')">
                     <i class="material-icons">email</i>
                   </button>
                 </a>

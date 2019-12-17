@@ -728,14 +728,17 @@
           </ul>
         </div>
         <div slot="footer">
-          <ul>
-            <li>
-              <button class="icon" @click="handleImport">
-                <i class="material-icons">get_app</i>
-                <span>{{ $t("import") }}</span>
+          <div class="flex-wrap">
+            <span></span>
+            <span>
+              <button class="icon" @click="showModal = false">
+                Cancel
               </button>
-            </li>
-          </ul>
+              <button class="icon primary" @click="handleImport">
+                {{ $t("import") }}
+              </button>
+            </span>
+          </div>
         </div>
       </pw-modal>
 

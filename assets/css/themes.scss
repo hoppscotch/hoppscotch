@@ -9,13 +9,13 @@
 // Dark is the default theme variant.
 @mixin darkTheme {
   // Background color
-  --bg-color: rgba(18, 18, 18, 1);
+  --bg-color: rgba(32, 33, 36, 1);
   // Light Background color
   --bg-light-color: rgba(255, 255, 255, 0.02);
   // Dark Background color
   --bg-dark-color: rgba(0, 0, 0, 0.1);
   // Text color
-  --fg-color: rgba(255, 255, 255, 1);
+  --fg-color: rgba(255, 255, 255, 0.9);
   // Light Text color
   --fg-light-color: rgba(255, 255, 255, 0.5);
   // Border color
@@ -25,9 +25,11 @@
   // Acent color
   --ac-color: rgba(80, 250, 123, 1);
   // Active text color
-  --act-color: rgba(18, 18, 18, 1);
+  --act-color: rgba(32, 33, 36, 1);
   // Auto-complete color
-  --atc-color: rgba(18, 18, 18, 1);
+  --atc-color: rgba(32, 33, 36, 1);
+  // Tooltip color
+  --tt-color: rgba(53, 53, 53, 1);
 }
 
 @mixin lightTheme {
@@ -38,7 +40,7 @@
   // Dark Background color
   --bg-dark-color: rgba(0, 0, 0, 0.02);
   // Text color
-  --fg-color: rgba(0, 0, 0, 1);
+  --fg-color: rgba(0, 0, 0, 0.9);
   // Light Text color
   --fg-light-color: rgba(0, 0, 0, 0.6);
   // Border color
@@ -51,17 +53,19 @@
   --act-color: rgba(255, 255, 255, 1);
   // Auto-complete color
   --atc-color: rgba(255, 255, 255, 1);
+  // Tooltip color
+  --tt-color: rgba(220, 220, 220, 1);
 }
 
 @mixin blackTheme {
   // Background color
   --bg-color: rgba(0, 0, 0, 1);
   // Light Background color
-  --bg-light-color: rgba(255, 255, 255, 0);
+  --bg-light-color: rgba(255, 255, 255, 0.02);
   // Dark Background color
   --bg-dark-color: rgba(255, 255, 255, 0.02);
   // Text color
-  --fg-color: rgba(255, 255, 255, 1);
+  --fg-color: rgba(255, 255, 255, 0.9);
   // Light Text color
   --fg-light-color: rgba(255, 255, 255, 0.5);
   // Border color
@@ -74,6 +78,8 @@
   --act-color: rgba(0, 0, 0, 1);
   // Auto-complete color
   --atc-color: rgba(0, 0, 0, 1);
+  // Tooltip color
+  --tt-color: rgba(18, 18, 18, 1);
 }
 
 :root {

@@ -1,12 +1,12 @@
 <template>
-  <modal v-if="show" @close="hideModel">
+  <modal v-if="show" @close="hideModal">
     <div slot="header">
       <ul>
         <li>
           <div class="flex-wrap">
             <h3 class="title">Edit Collection</h3>
             <div>
-              <button class="icon" @click="hideModel">
+              <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
               </button>
             </div>
@@ -27,14 +27,17 @@
       </ul>
     </div>
     <div slot="footer">
-      <ul>
-        <li>
-          <button class="icon" @click="saveCollection">
-            <i class="material-icons">save</i>
-            <span>Save</span>
+      <div class="flex-wrap">
+        <span></span>
+        <span>
+          <button class="icon" @click="hideModal">
+            Cancel
           </button>
-        </li>
-      </ul>
+          <button class="icon primary" @click="saveCollection">
+            Save
+          </button>
+        </span>
+      </div>
     </div>
   </modal>
 </template>
@@ -66,7 +69,7 @@ export default {
       });
       this.$emit("hide-modal");
     },
-    hideModel() {
+    hideModal() {
       this.$emit("hide-modal");
     }
   }

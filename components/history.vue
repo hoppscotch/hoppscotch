@@ -308,7 +308,7 @@ ol li {
 
 .entry {
   border-bottom: 1px dashed var(--brd-color);
-  padding: 16px 0;
+  padding: 0 0 8px;
 }
 
 .bg-color {

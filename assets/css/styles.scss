@@ -144,6 +144,8 @@ footer {
 
 .nav-first {
   z-index: 1;
+  height: 100vh;
+  padding: 0 8px;
 }
 
 .main {
@@ -183,7 +185,7 @@ nav.primary-nav {
     background-color: var(--bg-light-color);
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
-    margin: 8px;
+    margin: 8px 0;
     transition: all 0.2s ease-in-out;
 
     &:hover {
@@ -228,7 +230,7 @@ nav.secondary-nav {
         border-radius: 50%;
         background-color: var(--bg-dark-color);
         color: var(--fg-light-color);
-        margin: 8px;
+        margin: 8px 0;
 
         &:hover {
           color: var(--fg-color);
@@ -255,7 +257,7 @@ h3 {
 }
 
 .tooltip {
-  $bgcolor: var(--brd-color);
+  $bgcolor: var(--bg-color);
   $fgcolor: var(--fg-color);
   display: block !important;
   z-index: 10000;
@@ -548,11 +550,31 @@ code {
   border-radius: 8px;
 }
 
+.select-wrapper {
+  position: relative;
+
+  &:after {
+    display: inline-block;
+    position: absolute;
+    pointer-events: none;
+    content: "\e313";
+    font-family: "Material Icons";
+    top: 14px;
+    right: 14px;
+  }
+}
+
 select {
   height: 37px;
-  line-height: 37px;
   background-color: var(--bg-dark-color);
   cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  &::-ms-expand {
+    display: none;
+  }
 }
 
 option {
@@ -781,16 +803,21 @@ input[type="radio"]:checked + label + .tab {
 }
 
 .toasted-container .toasted {
-  justify-content: start !important;
+  justify-content: flex-start !important;
 }
 
 .toasted.info {
   background-color: var(--ac-color) !important;
   color: var(--act-color) !important;
+  font-weight: 700 !important;
 }
 
 .toasted.bubble .action {
   color: inherit !important;
+}
+
+.toasted .action {
+  margin-left: auto !important;
 }
 
 .page-columns {
@@ -824,6 +851,8 @@ input[type="radio"]:checked + label + .tab {
     position: fixed;
     top: auto;
     bottom: 0;
+    height: auto;
+    padding: 0;
     width: 100%;
     background-color: var(--bg-color);
     transition: all 0.2s ease-in-out;
@@ -836,6 +865,7 @@ input[type="radio"]:checked + label + .tab {
 
     a {
       background-color: transparent;
+      margin: 8px;
 
       &.nuxt-link-exact-active {
         background-color: transparent;
@@ -889,7 +919,7 @@ input[type="radio"]:checked + label + .tab {
     margin-left: 0;
   }
 
-  .toasted:last-child {
+  .toasted-container {
     margin-bottom: 68px;
   }
 }

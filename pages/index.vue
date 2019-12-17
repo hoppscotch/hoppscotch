@@ -44,17 +44,19 @@
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
-              <select id="method" v-model="method" @change="methodChange">
-                <option value="GET">GET</option>
-                <option value="HEAD">HEAD</option>
-                <option value="POST">POST</option>
-                <option value="PUT">PUT</option>
-                <option value="DELETE">DELETE</option>
-                <option value="CONNECT">CONNECT</option>
-                <option value="OPTIONS">OPTIONS</option>
-                <option value="TRACE">TRACE</option>
-                <option value="PATCH">PATCH</option>
-              </select>
+              <span class="select-wrapper">
+                <select id="method" v-model="method" @change="methodChange">
+                  <option value="GET">GET</option>
+                  <option value="HEAD">HEAD</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                  <option value="CONNECT">CONNECT</option>
+                  <option value="OPTIONS">OPTIONS</option>
+                  <option value="TRACE">TRACE</option>
+                  <option value="PATCH">PATCH</option>
+                </select>
+              </span>
             </li>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -330,11 +332,13 @@
                       </button>
                     </div>
                   </div>
-                  <select id="auth" v-model="auth">
-                    <option>None</option>
-                    <option>Basic</option>
-                    <option>Bearer Token</option>
-                  </select>
+                  <span class="select-wrapper">
+                    <select id="auth" v-model="auth">
+                      <option>None</option>
+                      <option>Basic</option>
+                      <option>Bearer Token</option>
+                    </select>
+                  </span>
                 </li>
               </ul>
               <ul v-if="auth === 'Basic'">
@@ -678,10 +682,7 @@
           <input id="history-tab" type="radio" name="side" checked="checked" />
           <label for="history-tab">{{ $t("history") }}</label>
           <div class="tab">
-            <history
-              @useHistory="handleUseHistory"
-              ref="historyComponent"
-            ></history>
+            <history @useHistory="handleUseHistory" ref="historyComponent" />
           </div>
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
@@ -694,10 +695,10 @@
       </aside>
 
       <save-request-as
-        v-bind:show="showRequestModal"
-        v-on:hide-model="hideRequestModal"
-        v-bind:editing-request="editRequest"
-      ></save-request-as>
+        :show="showRequestModal"
+        @hide-model="hideRequestModal"
+        :editing-request="editRequest"
+      />
 
       <pw-modal v-if="showModal" @close="showModal = false">
         <div slot="header">
@@ -757,11 +758,13 @@
           <ul>
             <li>
               <label for="requestType">{{ $t("request_type") }}</label>
-              <select id="requestType" v-model="requestType">
-                <option>JavaScript XHR</option>
-                <option>Fetch</option>
-                <option>cURL</option>
-              </select>
+              <span class="select-wrapper">
+                <select id="requestType" v-model="requestType">
+                  <option>JavaScript XHR</option>
+                  <option>Fetch</option>
+                  <option>cURL</option>
+                </select>
+              </span>
             </li>
           </ul>
           <ul>
@@ -1488,8 +1491,9 @@ export default {
   },
   methods: {
     checkCollections() {
-      const checkCollectionAvailability = 
-        this.$store.state.postwoman.collections && this.$store.state.postwoman.collections.length > 0 ;
+      const checkCollectionAvailability =
+        this.$store.state.postwoman.collections &&
+        this.$store.state.postwoman.collections.length > 0;
       return checkCollectionAvailability;
     },
     scrollInto(view) {
@@ -2100,7 +2104,7 @@ export default {
         });
         return;
       }
-      
+
       this.editRequest = {
         url: this.url,
         path: this.path,

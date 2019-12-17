@@ -22,53 +22,68 @@
             type="text"
             id="selectLabel"
             v-model="requestData.name"
-            v-bind:placeholder="defaultRequestName"
+            :placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
           />
           <label for="selectCollection">Collection</label>
-          <select
-            type="text"
-            id="selectCollection"
-            v-model="requestData.collectionIndex"
-          >
-            <option :key="undefined" :value="undefined" hidden disabled selected
-              >Select a Collection</option
+          <span class="select-wrapper">
+            <select
+              type="text"
+              id="selectCollection"
+              v-model="requestData.collectionIndex"
             >
-            <option
-              v-for="(collection, index) in $store.state.postwoman.collections"
-              :key="index"
-              :value="index"
-              >{{ collection.name }}</option
-            >
-          </select>
+              <option
+                :key="undefined"
+                :value="undefined"
+                hidden
+                disabled
+                selected
+                >Select a Collection</option
+              >
+              <option
+                v-for="(collection, index) in $store.state.postwoman
+                  .collections"
+                :key="index"
+                :value="index"
+              >
+                {{ collection.name }}
+              </option>
+            </select>
+          </span>
           <label for="selectFolder">Folder</label>
-          <select
-            type="text"
-            id="selectFolder"
-            v-model="requestData.folderIndex"
-          >
-            <option :key="undefined" :value="undefined">/</option>
-            <option
-              v-for="(folder, index) in folders"
-              :key="index"
-              :value="index"
-              >{{ folder.name }}</option
+          <span class="select-wrapper">
+            <select
+              type="text"
+              id="selectFolder"
+              v-model="requestData.folderIndex"
             >
-          </select>
+              <option :key="undefined" :value="undefined">/</option>
+              <option
+                v-for="(folder, index) in folders"
+                :key="index"
+                :value="index"
+              >
+                {{ folder.name }}
+              </option>
+            </select>
+          </span>
           <label for="selectRequest">Request</label>
-          <select
-            type="text"
-            id="selectRequest"
-            v-model="requestData.requestIndex"
-          >
-            <option :key="undefined" :value="undefined">/</option>
-            <option
-              v-for="(folder, index) in requests"
-              :key="index"
-              :value="index"
-              >{{ folder.name }}</option
+          <span class="select-wrapper">
+            <select
+              type="text"
+              id="selectRequest"
+              v-model="requestData.requestIndex"
             >
-          </select>
+              <option :key="undefined" :value="undefined">/</option>
+              <option
+                v-for="(folder, index) in requests"
+                :key="index"
+                :value="index"
+              >
+                {{ folder.name }}
+              </option>
+            </select>
+          </span>
         </li>
       </ul>
     </div>
@@ -121,11 +136,13 @@ export default {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
-      
-      const noCollectionAvailable = 
-        this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !== undefined;
+
+      const noCollectionAvailable =
+        this.$store.state.postwoman.collections[
+          this.$data.requestData.collectionIndex
+        ] !== undefined;
       if (!noCollectionAvailable) return [];
-      
+
       return this.$store.state.postwoman.collections[
         this.$data.requestData.collectionIndex
       ].folders;
@@ -148,8 +165,10 @@ export default {
         const collection = this.$store.state.postwoman.collections[
           this.$data.requestData.collectionIndex
         ];
-        const noCollectionAvailable = 
-          this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !== undefined;
+        const noCollectionAvailable =
+          this.$store.state.postwoman.collections[
+            this.$data.requestData.collectionIndex
+          ] !== undefined;
         if (!noCollectionAvailable) return [];
 
         const requests = collection.requests;

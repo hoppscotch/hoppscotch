@@ -20,7 +20,7 @@
           <input
             type="text"
             v-model="name"
-            v-bind:placeholder="editingCollection.name"
+            :placeholder="editingCollection.name"
             @keyup.enter="saveCollection"
           />
         </li>

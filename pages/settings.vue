@@ -156,17 +156,17 @@ export default {
       //        set the relevant values.
       themes: [
         {
-          color: "#252628",
+          color: "#121212",
           name: "Kinda Dark",
           class: "",
-          aceEditor: "dracula"
+          aceEditor: "twilight"
         },
         {
           color: "#ffffff",
           name: "Clearly White",
           vibrant: true,
           class: "light",
-          aceEditor: "xcode"
+          aceEditor: "iplastic"
         },
         {
           color: "#000000",
@@ -180,8 +180,8 @@ export default {
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
           class: "auto",
           aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches
-            ? "xcode"
-            : "dracula"
+            ? "iplastic"
+            : "twilight"
         }
       ],
       // You can define a new color here! It will simply store the color value.
@@ -273,7 +273,7 @@ export default {
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
-        vibrant ? "rgb(37, 38, 40)" : "#f8f8f2"
+        vibrant ? "rgba(18, 18, 18, 1)" : "rgba(255, 255, 255, 1)"
       );
       this.applySetting("THEME_COLOR", color.toUpperCase());
       this.applySetting("THEME_COLOR_VIBRANT", vibrant);

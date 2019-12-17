@@ -15,7 +15,7 @@
 .field-box {
   padding: 16px;
   margin: 4px;
-  border-bottom: 1px solid var(--brd-color);
+  border-bottom: 1px dashed var(--brd-color);
 }
 
 .field-deprecated {

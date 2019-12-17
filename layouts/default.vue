@@ -441,7 +441,7 @@
             rel="noopener"
           >
             <button class="icon">
-              <i class="material-icons">favorite</i>
+              <i class="material-icons">donut_large</i>
               <span>{{ $t("open_collective") }}</span>
             </button>
           </a>
@@ -453,7 +453,7 @@
             rel="noopener"
           >
             <button class="icon">
-              <i class="material-icons">favorite</i>
+              <i class="material-icons">payment</i>
               <span>{{ $t("paypal") }}</span>
             </button>
           </a>
@@ -465,7 +465,7 @@
             rel="noopener"
           >
             <button class="icon">
-              <i class="material-icons">favorite</i>
+              <i class="material-icons">local_parking</i>
               <span>{{ $t("patreon") }}</span>
             </button>
           </a>
@@ -525,7 +525,7 @@ export default {
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
-        vibrant ? "rgba(18, 18, 18, 1)" : "rgba(255, 255, 255, 1)"
+        vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
       );
     })();
   },
@@ -539,7 +539,7 @@ export default {
       .querySelector("meta[name=theme-color]")
       .setAttribute(
         "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#121212"
+        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
       );
 
     // Initializes the PWA code - checks if the app is installed,

@@ -88,14 +88,17 @@
       </ul>
     </div>
     <div slot="footer">
-      <ul>
-        <li>
-          <button class="icon" @click="saveRequestAs">
-            <i class="material-icons">save</i>
-            <span>Save</span>
+      <div class="flex-wrap">
+        <span></span>
+        <span>
+          <button class="icon" @click="hideModal">
+            Cancel
           </button>
-        </li>
-      </ul>
+          <button class="icon primary" @click="saveRequestAs">
+            Save
+          </button>
+        </span>
+      </div>
     </div>
   </modal>
 </template>

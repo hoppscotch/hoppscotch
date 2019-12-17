@@ -1,12 +1,12 @@
 <template>
-  <modal v-if="show" @close="hideModel">
+  <modal v-if="show" @close="hideModal">
     <div slot="header">
       <ul>
         <li>
           <div class="flex-wrap">
             <h3 class="title">Import / Export Collections</h3>
             <div>
-              <button class="icon" @click="hideModel">
+              <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
               </button>
             </div>
@@ -18,8 +18,8 @@
       <textarea v-model="collectionJson" rows="8"></textarea>
     </div>
     <div slot="footer">
-      <ul>
-        <li>
+      <div class="flex-wrap">
+        <span>
           <button
             class="icon"
             @click="openDialogChooseFileToReplaceWith"
@@ -34,8 +34,6 @@
               ref="inputChooseFileToReplaceWith"
             />
           </button>
-        </li>
-        <li>
           <button
             class="icon"
             @click="openDialogChooseFileToImportFrom"
@@ -50,14 +48,24 @@
               ref="inputChooseFileToImportFrom"
             />
           </button>
-        </li>
-        <li>
-          <button class="icon" @click="exportJSON" v-tooltip="'Download file'">
-            <i class="material-icons">get_app</i>
-            <span>Export to JSON</span>
+        </span>
+        <span></span>
+      </div>
+      <div class="flex-wrap">
+        <span></span>
+        <span>
+          <button class="icon" @click="hideModal">
+            Cancel
           </button>
-        </li>
-      </ul>
+          <button
+            class="icon primary"
+            @click="exportJSON"
+            v-tooltip="'Download file'"
+          >
+            Export
+          </button>
+        </span>
+      </div>
     </div>
   </modal>
 </template>
@@ -76,7 +84,7 @@ export default {
     }
   },
   methods: {
-    hideModel() {
+    hideModal() {
       this.$emit("hide-modal");
     },
     openDialogChooseFileToReplaceWith() {

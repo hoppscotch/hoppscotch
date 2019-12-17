@@ -156,7 +156,7 @@ export default {
       //        set the relevant values.
       themes: [
         {
-          color: "#121212",
+          color: "#202124",
           name: "Kinda Dark",
           class: "",
           aceEditor: "twilight"
@@ -273,7 +273,7 @@ export default {
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
-        vibrant ? "rgba(18, 18, 18, 1)" : "rgba(255, 255, 255, 1)"
+        vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
       );
       this.applySetting("THEME_COLOR", color.toUpperCase());
       this.applySetting("THEME_COLOR_VIBRANT", vibrant);

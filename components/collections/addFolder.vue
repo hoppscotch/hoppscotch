@@ -22,14 +22,17 @@
       </ul>
     </div>
     <div slot="footer">
-      <ul>
-        <li>
-          <button class="icon" @click="addNewFolder">
-            <i class="material-icons">add</i>
-            <span>Create</span>
+      <div class="flex-wrap">
+        <span></span>
+        <span>
+          <button class="icon" @click="hideModal">
+            Cancel
           </button>
-        </li>
-      </ul>
+          <button class="icon primary" @click="addNewFolder">
+            Save
+          </button>
+        </span>
+      </div>
     </div>
   </modal>
 </template>

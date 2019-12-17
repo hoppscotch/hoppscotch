@@ -360,13 +360,13 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 <p>
 
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-121212?logo=Postwoman)](https://postwoman.io)
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)
 <details>
 <summary>Default</summary>
 <p>
 
 ```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-121212?logo=Postwoman)](https://postwoman.io)
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)
 ```
 </p>
 </details>

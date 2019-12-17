@@ -53,7 +53,7 @@
           <ul v-for="(header, index) in headers" :key="index">
             <li>
               <autocomplete
-                :placeholder="'index ' + (index + 1)"
+                :placeholder="'header ' + (index + 1)"
                 :source="commonHeaders"
                 :spellcheck="false"
                 :value="header.key"

@@ -1986,7 +1986,7 @@ export default {
         window.location.href,
         "",
         "/?" +
-          encodeURIComponent(
+          encodeURI(
             flats
               .concat(deeps, bodyParams)
               .join("")
@@ -1999,7 +1999,7 @@ export default {
         throw new Error("Route query parameters must be a Object");
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(queries[key]);
+          this[key] = JSON.parse(decodeURI(queries[key]));
         if (key === "rawParams") {
           this.rawInput = true;
           this.rawParams = queries["rawParams"];

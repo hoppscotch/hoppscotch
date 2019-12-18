@@ -52,6 +52,7 @@ export default {
   request_type: "Jenis permintaan",
   generated_code: "Kode yang dihasilkan",
   status: "Status",
+  status_message: "(waiting to send request)",
   headers: "Header",
   websocket: "WebSocket",
   waiting_for_connection: "(Menunggu sambungan)",

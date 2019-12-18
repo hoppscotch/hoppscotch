@@ -52,6 +52,7 @@ export default {
   request_type: "တောင်းဆိုမှု အမျိုးအစား",
   generated_code: "ထုတ်ပီးသော ကုဒ်များ",
   status: "အခြေအနေများ",
+  status_message: "(waiting to send request)",
   headers: "ခေါင်းစဉ်များ",
   websocket: "ဝက်ဘ် Socket",
   waiting_for_connection: "(ချိတ်ဆက်မှုကို စောင့်နေသည်)",

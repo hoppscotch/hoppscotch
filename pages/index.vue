@@ -584,7 +584,7 @@
               <label for="status">{{ $t("status") }}</label>
               <input
                 :class="statusCategory ? statusCategory.className : ''"
-                :value="response.status || '(waiting to send request)'"
+                :value="response.status || $t('status_message')"
                 ref="status"
                 id="status"
                 name="status"

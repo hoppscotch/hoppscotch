@@ -52,6 +52,7 @@ export default {
   request_type: "リクエストタイプ",
   generated_code: "生成されたコード",
   status: "ステータス",
+  status_message: "(waiting to send request)",
   headers: "ヘッダー",
   websocket: "ウェブソケット",
   waiting_for_connection: "(接続待ち)",

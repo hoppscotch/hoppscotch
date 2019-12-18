@@ -52,6 +52,7 @@ export default {
   request_type: "请求类型",
   generated_code: "生成的代码",
   status: "状态码",
+  status_message: "(waiting to send request)",
   headers: "请求头",
   websocket: "Websocket",
   waiting_for_connection: "（等待连接）",

@@ -52,6 +52,7 @@ export default {
   request_type: "Request tipi",
   generated_code: "Üretilen Kod",
   status: "Durum",
+  status_message: "(waiting to send request)",
   headers: "Headers",
   websocket: "WebSocket",
   waiting_for_connection: "(esperando por conexión)",

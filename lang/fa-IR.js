@@ -52,6 +52,7 @@ export default {
   request_type: "Request type",
   generated_code: "کد تولید شده",
   status: "Status",
+  status_message: "(waiting to send request)",
   headers: "Headers",
   websocket: "WebSocket",
   waiting_for_connection: "(منتظر برقراری اتصال)",

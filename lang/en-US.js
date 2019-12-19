@@ -85,5 +85,16 @@ export default {
   connect: "Connect",
   disconnect: "Disconnect",
   start: "Start",
-  stop: "Stop"
+  stop: "Stop",
+  key: "Key",
+  leave_key_blank_if_not_required: "If the Proxy does not require a key, you can leave this blank.",
+  local_proxy_detected: "Local Proxy Detected...",
+  local_proxy_detected_description: "A local instance of the Postwoman Proxy server has been detected running at:",
+  local_proxy_detected_prompt: "Would you like Postwoman to use this proxy server to make requests?",
+  local_proxy_protected: "The proxy server requires an access token to use it. Please enter it to use this proxy server:",
+  yes: "Yes",
+  no: "No",
+  continue: "Continue...",
+  cancel: "Cancel",
+  proxy_authentication_error: "Proxy authentication failed. Please check the access token and try again."
 };

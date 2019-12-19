@@ -103,6 +103,27 @@
           />
         </li>
       </ul>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <label for="key">{{ $t("key") }}</label>
+            <button
+              class="icon"
+              @click="settings.PROXY_KEY = ``"
+              v-tooltip.bottom="'Reset to default'"
+            >
+              <i class="material-icons">clear_all</i>
+            </button>
+          </div>
+          <input
+            id="key"
+            type="text"
+            v-model="settings.PROXY_KEY"
+            :disabled="!settings.PROXY_ENABLED"
+          />
+          <p class="info"><i class="material-icons inline-icon">info</i> {{ $t("leave_key_blank_if_not_required") }}</p>
+        </li>
+      </ul>
       <ul class="info">
         <li>
           <p>

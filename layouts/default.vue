@@ -473,6 +473,64 @@
       </div>
       <div slot="footer"></div>
     </modal>
+    <modal v-if="proxyDetection.showModal" @close="proxyDetection.showModal = false">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="flex-wrap">
+              <h3 class="title">{{ $t("local_proxy_detected") }}</h3>
+              <div>
+                <button class="icon" @click="proxyDetection.showModal = false">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <div v-if="proxyDetection.modalStage === 1">
+          <p class="info">{{ $t("local_proxy_detected_description") }}</p>
+          <!--
+            Currently, auto-detection is as simple as checking if there is
+            a proxy running on the standard host and port and that we're able
+            to access it.
+            -->
+          <p class="align-center"><a class="mono" target="_blank" href="https://127.0.0.1:9159">https://127.0.0.1:9159</a></p>
+          <p class="info">{{ $t("local_proxy_detected_prompt") }}</p>
+        </div>
+        <div v-else>
+          <p class="info">{{ $t("local_proxy_protected") }}</p>
+          <p class="info error align-center" v-if="proxyDetection.authError">{{ $t("proxy_authentication_error") }}</p>
+
+          <ul>
+            <li>
+              <input
+                id="key"
+                type="text"
+                v-model="proxyDetection.settings.PROXY_KEY"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div slot="footer">
+        <div class="flex-wrap">
+          <span></span>
+          <span>
+          <button class="icon" @click="proxyDetection.showModal = false">
+            {{ proxyDetection.modalStage === 1 ? $t("no") : $t("cancel") }}
+          </button>
+          <button v-if="!proxyDetection.hasSecondStage || proxyDetection.modalStage > 1" class="icon primary" @click="attemptProxySetup">
+            {{ proxyDetection.modalStage === 1 ? $t("yes") : $t("connect") }}
+          </button>
+          <button v-else class="icon primary" @click="proxyDetection.modalStage++">
+            {{ $t("continue") }}
+          </button>
+        </span>
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -494,6 +552,38 @@ export default {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
       };
+    },
+
+    async attemptProxySetup () {
+      let proxyCheckPayload = await this.$axios.$post(this.proxyDetection.settings.PROXY_URL, {
+        accessToken: this.proxyDetection.settings.PROXY_KEY,
+        url: "https://static.apollotv.xyz/generate_204",
+        method: "GET",
+        headers: {}
+      }).catch(() => {});
+
+      let proxyValid = proxyCheckPayload.success && proxyCheckPayload.status === 204;
+
+
+      if(proxyValid){
+        // We're done
+        this.proxyDetection.authError = false;
+        this.proxyDetection.showModal = false;
+
+        for(let key in this.proxyDetection.settings){
+          let value = this.proxyDetection.settings[key];
+          this.$store.commit('postwoman/applySetting', [key, value]);
+
+          // This seems to be the cleanest way to force the settings page to update
+          // if you're on it.
+          if(this.$route.path === "/settings"){
+            window.location.reload();
+          }
+        }
+      }else{
+        // An error occurred.
+        this.proxyDetection.authError = true;
+      }
     }
   },
 
@@ -505,7 +595,20 @@ export default {
       showInstallPrompt: null,
       version: {},
       showShortcuts: false,
-      showSupport: false
+      showSupport: false,
+
+      proxyDetection: {
+        modalStage: 1,
+        showModal: false,
+        hasSecondStage: false,
+        authError: false,
+
+        settings: {
+          PROXY_ENABLED: true,
+          PROXY_URL: "https://127.0.0.1:9159",
+          PROXY_KEY: ""
+        }
+      }
     };
   },
 
@@ -533,6 +636,36 @@ export default {
   mounted() {
     if (process.client) {
       document.body.classList.add("afterLoad");
+
+      (async () => {
+        // Check current proxy settings.
+        let currentProxySufficient = false;
+
+        // If the current proxy connects and returns the proper response for a known-good 204 request,
+        // there's no need to show the dialog as they're already using a good proxy.
+        try {
+          if (this.$store.state.postwoman.settings.PROXY_ENABLED) {
+            let currentProxyCheckPayload = await this.$axios.$post(this.$store.state.postwoman.settings.PROXY_URL, {
+              accessToken: this.$store.state.postwoman.settings.PROXY_KEY,
+              url: "https://static.apollotv.xyz/generate_204",
+              method: "GET",
+              headers: {}
+            }).catch(() => {});
+            currentProxySufficient = currentProxyCheckPayload.success && currentProxyCheckPayload.status === 204;
+          }
+        }catch(ex){}
+        if(currentProxySufficient) return;
+
+        // Otherwise, auto-detect proxies on the standard host/port.
+        let proxyData = await this.$axios.$get("https://127.0.0.1:9159").catch(() => {});
+        if(!proxyData || !proxyData.success) return;
+
+        if(proxyData.data.isProtected) this.proxyDetection.hasSecondStage = true;
+
+        // If we have a proxy on the standard host and port that's working, we'll make a recommendation
+        // to the user that they use that instead.
+        this.proxyDetection.showModal = true;
+      })();
     }
 
     document

@@ -1559,13 +1559,16 @@ export default {
       if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data);
       }
+
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
             url:
               this.$store.state.postwoman.settings.PROXY_URL ||
               "https://postwoman.apollotv.xyz/",
-            data: requestOptions
+            data: Object.assign(requestOptions, {
+              accessToken: this.$store.state.postwoman.settings.PROXY_KEY || null
+            })
           }
         : requestOptions;
 

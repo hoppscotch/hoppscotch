@@ -582,6 +582,9 @@ export default {
         }
       });
     });
+
+    console.log("%cWe ❤︎ open source!", "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;")
+    console.log("%cContribute: https://github.com/liyasthomas/postwoman", "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;text-decoration:none;")
   },
 
   watch: {

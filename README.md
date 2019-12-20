@@ -210,7 +210,6 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
 
 📦 **Add-ons**: Official add-ons for Postwoman.
 
-**Add-ons:**
  - **[Postwoman Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
  - **[Postwoman CLI β](https://github.com/postwoman-io/postwoman-proxy)** - A CLI solution for Postwoman
 
@@ -378,75 +377,34 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Badges
 
-<p>
-
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)
-<details>
-<summary>Default</summary>
-<p>
-
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)
-```
-</p>
-</details>
-</p>
-<p>
-
----
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)
-<details>
-<summary>Success</summary>
-<p>
-
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)
-```
-</p>
-</details>
-</p>
-<p>
-
----
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)
-<details>
-<summary>Critical</summary>
-<p>
-
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)
-```
-</p>
-</details>
-</p>
-<p>
-
----
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)
-<details>
-<summary>Custom</summary>
-<p>
-
-```
-[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)
-```
-</p>
-</details>
-</p>
-<p>
-
----
-[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)
-<details>
-<summary>Customize</summary>
-<p>
-
-```
-[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)
-```
-</p>
-</details>
-</p>
+<table>
+<tr>
+<th>Badge</th>
+<th>Code</th>
+</tr>
+<tbody>
+<tr>
+<td align="center"><a href="https://postwoman.io"><img src="https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman"/></td>
+<td width="70%"><pre><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)</code></pre></td>
+</tr>
+<tr>
+<td align="center"><a href="https://postwoman.io"><img src="https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman"/></td>
+<td width="70%"><pre><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)</code></pre></td>
+</tr>
+<tr>
+<td align="center"><a href="https://postwoman.io"><img src="https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman"/></td>
+<td width="70%"><pre><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)</code></pre></td>
+</tr>
+<tr>
+<td align="center"><a href="https://postwoman.io"><img src="https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman"/></td>
+<td width="70%"><pre><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)</code></pre></td>
+</tr>
+<tr>
+<td align="center"><a href="https://postwoman.io"><img src="https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman"/></td>
+<td width="70%"><pre><code>[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)</code></pre></td>
+</tr>
+</tbody>
+</table>
 
 <div align="center">
   <br>

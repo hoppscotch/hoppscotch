@@ -224,12 +224,19 @@
               <ul>
                 <li>
                   <label for="rawBody">{{ $t("raw_request_body") }}</label>
-                  <textarea
-                    id="rawBody"
-                    @keydown="formatRawParams"
-                    rows="8"
+                  <Editor
                     v-model="rawParams"
-                  ></textarea>
+                    :lang="'json'"
+                    @keydown="formatRawParams"
+                    :options="{
+                      maxLines: '16',
+                      minLines: '8',
+                      fontSize: '16px',
+                      autoScrollEditorIntoView: true,
+                      showPrintMargin: false,
+                      useWorker: false
+                    }"
+                  />
                 </li>
               </ul>
             </div>
@@ -2160,7 +2167,7 @@ export default {
     uploadPayload() {
       this.rawInput = true;
       let file = this.$refs.payload.files[0];
-      if (file !== null) {
+      if (file !== undefined && file !== null) {
         let reader = new FileReader();
         reader.onload = e => {
           this.rawParams = e.target.result;

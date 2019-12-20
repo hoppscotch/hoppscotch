@@ -94,7 +94,7 @@ _Customized themes are synced with local session storage_
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
 
-🌍 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
+🔮 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
  - Set endpoint and get schemas
  - Multi-column docs
@@ -161,9 +161,9 @@ _Collections are synced with local session storage_
  - Access APIs served in non-HTTPS (`http://`)
  - Use custom Proxy URL
 
-_Official Postwoman Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
+_Official Postwoman Proxy is hosted by ApolloTV - **[Privacy policy](https://apollotv.xyz/legal)**_
 
-📜 **Pre-Request Scripts**: Snippets of code associated with a request that are executed before the request is sent.
+📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
 
 **Use-cases:**
  - Include timestamp in the request headers
@@ -179,7 +179,15 @@ _Requests with Pre-Request Scripts are indicated in History entries_
  - Copy Request Link <kbd>Ctrl</kbd> + <kbd>K</kbd>
  - Reset Request <kbd>Ctrl</kbd> + <kbd>L</kbd>
 
-🌎 **i18n**: Internationalization β.
+🌎 **i18n β**: Experience the app in your own language.
+
+ 1. Scroll down to the footer
+ 2. Click "Choose Language" button
+ 3. Select your language from the menu
+
+_Keep in mind translations aren't available for all source and target language combinations_
+
+**To provide a localized experience for users around the world, you can add you own translations.**
 
  - Add a new locale in `lang/`
 
@@ -200,11 +208,23 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 
 _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
 
+📦 **Add-ons**: Official add-ons for Postwoman.
+
+**Add-ons:**
+ - **[Postwoman Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
+ - **[Postwoman CLI β](https://github.com/postwoman-io/postwoman-proxy)** - A CLI solution for Postwoman
+
+_Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**_
+
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 
 ## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io)
 
-[https://postwoman.io](https://postwoman.io)
+[postwoman.io](https://postwoman.io)
+
+<a href="https://www.netlify.com">
+  <img src="https://www.netlify.com/img/global/badges/netlify-light.svg"/>
+</a>
 
 ## Usage 💡
 

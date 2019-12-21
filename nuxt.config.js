@@ -364,6 +364,12 @@ export default {
         name: "မြန်မာ",
         iso: "my-MM",
         file: "my-MM.js"
+      },
+      {
+        code: "bn",
+        name: "বাংলা",
+        iso: "bn-BD",
+        file: "bn-BD.js"
       }
     ],
     defaultLocale: "en",

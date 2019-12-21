@@ -273,7 +273,8 @@ export default {
         icons.push({
           src: `${routerBase.router.base}icons/icon-${size}x${size}.png`,
           type: "image/png",
-          sizes: `${size}x${size}`
+          sizes: `${size}x${size}`,
+          purpose: "maskable any"
         });
       }
       return icons;

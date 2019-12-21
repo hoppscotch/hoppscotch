@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Collection" ref="collection">
+    <pw-section class="blue" label="Import Collection" ref="collections">
       <ul>
         <li>
           <label for="collectionUpload">
@@ -23,7 +23,7 @@
       </ul>
       <ul>
         <li>
-          <label for="rawBody">{{ $t("raw_request_body") }}</label>
+          <label for="rawBody">{{ $t("collections") }}</label>
           <Editor
             v-model="collectionJSON"
             :lang="'json'"

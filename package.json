@@ -18,7 +18,7 @@
         "test": "start-server-and-test dev http://localhost:3000 e2e"
     },
     "dependencies": {
-        "@nuxtjs/axios": "^5.8.0",
+        "@nuxtjs/axios": "^5.9.0",
         "@nuxtjs/google-analytics": "^2.2.2",
         "@nuxtjs/google-tag-manager": "^2.3.1",
         "@nuxtjs/pwa": "^3.0.0-beta.19",
@@ -27,7 +27,7 @@
         "@nuxtjs/toast": "^3.3.0",
         "ace-builds": "^1.4.7",
         "graphql": "^14.5.8",
-        "nuxt": "^2.10.2",
+        "nuxt": "^2.11.0",
         "nuxt-i18n": "^6.4.1",
         "v-tooltip": "^2.0.2",
         "vue-virtual-scroll-list": "^1.4.4",

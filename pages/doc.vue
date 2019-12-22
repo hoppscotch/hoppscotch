@@ -131,7 +131,16 @@ export default {
     },
 
     getDoc() {
-      this.items = JSON.parse(this.collectionJSON);
+      try {
+        this.items = JSON.parse(this.collectionJSON);
+        this.$toast.info("Documentation generated", {
+          icon: "book"
+        });
+      } catch (e) {
+        this.$toast.error(e, {
+          icon: "code"
+        });
+      }
     }
   }
 };

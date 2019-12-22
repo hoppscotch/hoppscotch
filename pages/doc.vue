@@ -98,8 +98,24 @@ export default {
 
     getDoc() {
       let json = this.collectionJSON;
-      let html;
-      this.items = html;
+      let collections = JSON.parse(json);
+      for (let i = 0; i < collections.length; i++) {
+        console.log("Collection", i + 1, collections[i].name);
+        let folders = collections[i].folders;
+        for (let i = 0; i < folders.length; i++) {
+          console.log("Folder", i + 1, folders[i].name);
+          let requests = collections[i].requests;
+          for (let i = 0; i < requests.length; i++) {
+            console.log("Request", i + 1, requests[i].name);
+          }
+        }
+        let requests = collections[i].requests;
+        for (let i = 0; i < requests.length; i++) {
+          console.log("Request", i + 1, requests[i].name);
+        }
+      }
+      // let html = this.obj2htmltable(json);
+      // this.items = html;
     }
   }
 };

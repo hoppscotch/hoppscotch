@@ -1,6 +1,13 @@
 <template>
   <div class="page">
     <pw-section class="blue" label="Collections" ref="collections">
+      <ul class="info">
+        <li>
+          <p>
+            Import any Postwoman Collection to Generate Documentation on-the-go.
+          </p>
+        </li>
+      </ul>
       <ul>
         <li>
           <label for="collectionUpload">
@@ -78,6 +85,11 @@
               </h4>
               <p class="doc-desc">
                 <span>
+                  URL: <code>{{ request.url || "None" }}</code>
+                </span>
+              </p>
+              <p class="doc-desc">
+                <span>
                   Path: <code>{{ request.path || "None" }}</code>
                 </span>
               </p>
@@ -94,7 +106,7 @@
               </p>
               <p class="doc-desc">
                 <span>
-                  Uername: <code>{{ request.httpUser || "None" }}</code>
+                  Username: <code>{{ request.httpUser || "None" }}</code>
                 </span>
               </p>
               <p class="doc-desc">
@@ -162,6 +174,11 @@
             </h4>
             <p class="doc-desc">
               <span>
+                URL: <code>{{ request.url || "None" }}</code>
+              </span>
+            </p>
+            <p class="doc-desc">
+              <span>
                 Path: <code>{{ request.path || "None" }}</code>
               </span>
             </p>
@@ -178,7 +195,7 @@
             </p>
             <p class="doc-desc">
               <span>
-                Uername: <code>{{ request.httpUser || "None" }}</code>
+                Username: <code>{{ request.httpUser || "None" }}</code>
               </span>
             </p>
             <p class="doc-desc">

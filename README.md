@@ -171,6 +171,13 @@ _Official Postwoman Proxy is hosted by ApolloTV - **[Privacy policy](https://apo
 
 _Requests with Pre-Request Scripts are indicated in History entries_
 
+📄 **API Documentation**: Create and share dynamic API documentation easily, quickly.
+
+**Use-cases:**
+ 1. Add your requests to Collections and Folders
+ 2. Export Collections and easily share your APIs with the rest of your team
+ 3. Import Collections and Generate Documentation on-the-go
+
 ⌨️ **Keyboard Shortcuts**: Optimized for efficiency.
 
 **Shortcuts:**

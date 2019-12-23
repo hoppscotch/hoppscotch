@@ -251,7 +251,10 @@ nav.secondary-nav {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
+  display: flex;
+  align-items: center;
   margin: 0;
   font-weight: 700;
 }
@@ -377,6 +380,11 @@ h3 {
 
 h3.title {
   margin: 4px;
+}
+
+.info {
+  margin-left: 4px;
+  color: var(--fg-light-color);
 }
 
 button {
@@ -526,7 +534,9 @@ kbd,
 select,
 input,
 textarea,
-pre {
+pre,
+code {
+  display: inline-flex;
   margin: 4px;
   padding: 8px;
   border-radius: 8px;
@@ -560,9 +570,10 @@ pre.ace_editor {
   z-index: 0;
 }
 
-code {
-  height: 336px;
-  border-radius: 8px;
+kbd,
+code,
+pre {
+  width: auto;
 }
 
 .select-wrapper {
@@ -663,6 +674,7 @@ ol li {
   display: inline-flex;
   flex-direction: column;
   flex-grow: 1;
+  justify-content: center;
 }
 
 .flex-wrap {

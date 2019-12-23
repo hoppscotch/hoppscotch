@@ -165,7 +165,7 @@
           </span>
           <span
             class="request"
-            v-for="(request, index) in collection.folders"
+            v-for="(request, index) in collection.requests"
             :key="`request-${index}`"
           >
             <h4>

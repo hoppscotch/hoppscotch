@@ -173,7 +173,7 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 
 📄 **API Documentation**: Create and share dynamic API documentation easily, quickly.
 
-**Use-cases:**
+**Usage:**
  1. Add your requests to Collections and Folders
  2. Export Collections and easily share your APIs with the rest of your team
  3. Import Collections and Generate Documentation on-the-go
@@ -218,7 +218,7 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
 📦 **Add-ons**: Official add-ons for Postwoman.
 
  - **[Postwoman Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
- - **[Postwoman CLI β](https://github.com/postwoman-io/postwoman-proxy)** - A CLI solution for Postwoman
+ - **[Postwoman CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
 
 _Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**_
 

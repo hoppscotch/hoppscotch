@@ -155,12 +155,7 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.info {
-  margin-left: 4px;
-  color: var(--fg-light-color);
-}
-</style>
+<style scoped lang="scss"></style>
 
 <script>
 export default {

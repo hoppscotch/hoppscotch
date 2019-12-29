@@ -5,10 +5,7 @@ TODO:
 
 <template>
   <div class="collections-wrapper">
-    <addCollection
-      :show="showModalAdd"
-      @hide-modal="displayModalAdd(false)"
-    />
+    <addCollection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <editCollection
       :show="showModalEdit"
       :editingCollection="editingCollection"
@@ -68,7 +65,9 @@ TODO:
         </a> -->
       </div>
     </div>
-
+    <p v-if="collections.length === 0" class="info">
+      Create new collection
+    </p>
     <virtual-list
       class="virtual-list"
       :class="{ filled: collections.length }"

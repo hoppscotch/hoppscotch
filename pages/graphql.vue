@@ -152,6 +152,7 @@
             }"
           />
         </pw-section>
+
         <pw-section class="cyan" label="Query" ref="query">
           <div class="flex-wrap">
             <label for="gqlQuery">{{ $t("query") }}</label>
@@ -185,6 +186,7 @@
             }"
           />
         </pw-section>
+
         <pw-section class="purple" label="Response" ref="response">
           <div class="flex-wrap">
             <label for="responseField">{{ $t("response") }}</label>
@@ -281,7 +283,19 @@
               </div>
             </div>
           </section>
-        </pw-section>
+
+          <p
+            v-if="
+              queryFields.length === 0 &&
+                mutationFields.length === 0 &&
+                subscriptionFields.length === 0 &&
+                gqlTypes.length === 0
+            "
+            class="info"
+          >
+            Send a request first
+          </p></pw-section
+        >
       </aside>
     </div>
   </div>

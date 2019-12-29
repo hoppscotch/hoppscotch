@@ -1,9 +1,9 @@
 <template>
   <div class="page">
     <pw-section class="blue" label="Collections" ref="collections">
-      <ul class="info">
+      <ul>
         <li>
-          <p>
+          <p class="info">
             Import any Postwoman Collection to Generate Documentation on-the-go.
           </p>
         </li>
@@ -17,7 +17,7 @@
               v-tooltip="'JSON'"
             >
               <i class="material-icons">folder</i>
-              <span>Import Collections</span>
+              <span>Import collections</span>
             </button>
           </label>
           <input
@@ -55,6 +55,9 @@
     </pw-section>
 
     <pw-section class="green" label="Documentation" ref="documentation">
+      <p v-if="this.items.length === 0" class="info">
+        Generate documentation first
+      </p>
       <div>
         <span
           class="collection"
@@ -111,7 +114,8 @@
               </p>
               <p class="doc-desc" v-if="request.httpPassword">
                 <span>
-                  Password: <code>{{ request.httpPassword || "None" }}</code>
+                  Password:
+                  <code>{{ request.httpPassword || "None" }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.bearerToken">
@@ -165,12 +169,14 @@
               </p>
               <p class="doc-desc" v-if="request.contentType">
                 <span>
-                  Content Type: <code>{{ request.contentType || "None" }}</code>
+                  Content Type:
+                  <code>{{ request.contentType || "None" }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.requestType">
                 <span>
-                  Request Type: <code>{{ request.requestType || "None" }}</code>
+                  Request Type:
+                  <code>{{ request.requestType || "None" }}</code>
                 </span>
               </p>
             </span>
@@ -266,12 +272,14 @@
             </p>
             <p class="doc-desc" v-if="request.contentType">
               <span>
-                Content Type: <code>{{ request.contentType || "None" }}</code>
+                Content Type:
+                <code>{{ request.contentType || "None" }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.requestType">
               <span>
-                Request Type: <code>{{ request.requestType || "None" }}</code>
+                Request Type:
+                <code>{{ request.requestType || "None" }}</code>
               </span>
             </p>
           </span>

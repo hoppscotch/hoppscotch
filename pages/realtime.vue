@@ -36,6 +36,7 @@
             </div>
           </ul>
         </pw-section>
+
         <pw-section
           class="purple"
           label="Communication"
@@ -125,6 +126,7 @@
             </div>
           </ul>
         </pw-section>
+
         <pw-section
           class="purple"
           label="Communication"

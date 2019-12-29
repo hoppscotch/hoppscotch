@@ -1408,7 +1408,7 @@ export default {
           requestString.push("xhr.send()");
         }
         return requestString.join("\n");
-      } else if (this.requestType == "Fetch") {
+      } else if (this.requestType === "Fetch") {
         const requestString = [];
         let headers = [];
         requestString.push(
@@ -1868,7 +1868,7 @@ export default {
       });
       const aux = document.createElement("textarea");
       const copy =
-        this.responseType == "application/json"
+        this.responseType === "application/json"
           ? JSON.stringify(this.response.body)
           : this.response.body;
       aux.innerText = copy;
@@ -2010,7 +2010,7 @@ export default {
         let parsedCurl = parseCurlCommand(text);
         this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "");
         this.url =
-          this.url.slice(-1).pop() == "/" ? this.url.slice(0, -1) : this.url;
+          this.url.slice(-1).pop() === "/" ? this.url.slice(0, -1) : this.url;
         this.path = "";
         this.headers = [];
         for (const key of Object.keys(parsedCurl.headers)) {

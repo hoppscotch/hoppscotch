@@ -226,6 +226,12 @@ You're done!
 
 ## Developing 👷
 
+#### Use a browser based development environment:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/zadam/trilium)
+
+#### Or, with local development environment:
+
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
 3. Start the development server with `npm run dev`.

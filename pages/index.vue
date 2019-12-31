@@ -224,12 +224,18 @@
               <ul>
                 <li>
                   <label for="rawBody">{{ $t("raw_request_body") }}</label>
-                  <textarea
-                    id="rawBody"
-                    @keydown="formatRawParams"
-                    rows="8"
+                  <Editor
                     v-model="rawParams"
-                  ></textarea>
+                    :lang="'json'"
+                    :options="{
+                      maxLines: '16',
+                      minLines: '8',
+                      fontSize: '16px',
+                      autoScrollEditorIntoView: true,
+                      showPrintMargin: false,
+                      useWorker: false
+                    }"
+                  />
                 </li>
               </ul>
             </div>
@@ -728,14 +734,17 @@
           </ul>
         </div>
         <div slot="footer">
-          <ul>
-            <li>
-              <button class="icon" @click="handleImport">
-                <i class="material-icons">get_app</i>
-                <span>{{ $t("import") }}</span>
+          <div class="flex-wrap">
+            <span></span>
+            <span>
+              <button class="icon" @click="showModal = false">
+                Cancel
               </button>
-            </li>
-          </ul>
+              <button class="icon primary" @click="handleImport">
+                {{ $t("import") }}
+              </button>
+            </span>
+          </div>
         </div>
       </pw-modal>
 
@@ -1399,7 +1408,7 @@ export default {
           requestString.push("xhr.send()");
         }
         return requestString.join("\n");
-      } else if (this.requestType == "Fetch") {
+      } else if (this.requestType === "Fetch") {
         const requestString = [];
         let headers = [];
         requestString.push(
@@ -1806,38 +1815,6 @@ export default {
         }
       });
     },
-    formatRawParams(event) {
-      if (event.which !== 13 && event.which !== 9) {
-        return;
-      }
-      const textBody = event.target.value;
-      const textBeforeCursor = textBody.substring(
-        0,
-        event.target.selectionStart
-      );
-      const textAfterCursor = textBody.substring(event.target.selectionEnd);
-      if (event.which === 13) {
-        event.preventDefault();
-        const oldSelectionStart = event.target.selectionStart;
-        const lastLine = textBeforeCursor.split("\n").slice(-1)[0];
-        const rightPadding = lastLine.match(/([\s\t]*).*/)[1] || "";
-        event.target.value =
-          textBeforeCursor + "\n" + rightPadding + textAfterCursor;
-        setTimeout(
-          () =>
-            (event.target.selectionStart = event.target.selectionEnd =
-              oldSelectionStart + rightPadding.length + 1),
-          1
-        );
-      } else if (event.which === 9) {
-        event.preventDefault();
-        const oldSelectionStart = event.target.selectionStart;
-        event.target.value = textBeforeCursor + "\xa0\xa0" + textAfterCursor;
-        event.target.selectionStart = event.target.selectionEnd =
-          oldSelectionStart + 2;
-        return false;
-      }
-    },
     copyRequest() {
       if (navigator.share) {
         let time = new Date().toLocaleTimeString();
@@ -1891,7 +1868,7 @@ export default {
       });
       const aux = document.createElement("textarea");
       const copy =
-        this.responseType == "application/json"
+        this.responseType === "application/json"
           ? JSON.stringify(this.response.body)
           : this.response.body;
       aux.innerText = copy;
@@ -1986,7 +1963,7 @@ export default {
         window.location.href,
         "",
         "/?" +
-          encodeURIComponent(
+          encodeURI(
             flats
               .concat(deeps, bodyParams)
               .join("")
@@ -1999,7 +1976,7 @@ export default {
         throw new Error("Route query parameters must be a Object");
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(queries[key]);
+          this[key] = JSON.parse(decodeURI(queries[key]));
         if (key === "rawParams") {
           this.rawInput = true;
           this.rawParams = queries["rawParams"];
@@ -2033,7 +2010,7 @@ export default {
         let parsedCurl = parseCurlCommand(text);
         this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "");
         this.url =
-          this.url.slice(-1).pop() == "/" ? this.url.slice(0, -1) : this.url;
+          this.url.slice(-1).pop() === "/" ? this.url.slice(0, -1) : this.url;
         this.path = "";
         this.headers = [];
         for (const key of Object.keys(parsedCurl.headers)) {
@@ -2157,7 +2134,7 @@ export default {
     uploadPayload() {
       this.rawInput = true;
       let file = this.$refs.payload.files[0];
-      if (file !== null) {
+      if (file !== undefined && file !== null) {
         let reader = new FileReader();
         reader.onload = e => {
           this.rawParams = e.target.result;

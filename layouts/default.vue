@@ -139,6 +139,14 @@
               </svg>
             </nuxt-link>
             <nuxt-link
+              :to="localePath('doc')"
+              :class="linkActive('/doc')"
+              v-tooltip.right="'Documentation'"
+              aria-label="Documentation"
+            >
+              <i class="material-icons">books</i>
+            </nuxt-link>
+            <nuxt-link
               :to="localePath('settings')"
               :class="linkActive('/settings')"
               v-tooltip.right="$t('settings')"
@@ -205,6 +213,22 @@
                 <li>
                   <a href="#response" v-tooltip.right="$t('response')">
                     <i class="material-icons">cloud_download</i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div v-else-if="$route.path === '/doc'">
+            <nav class="secondary-nav">
+              <ul>
+                <li>
+                  <a href="#collections" v-tooltip.right="$t('collections')">
+                    <i class="material-icons">folder</i>
+                  </a>
+                </li>
+                <li>
+                  <a href="#documentation" v-tooltip.right="'Documentation'">
+                    <i class="material-icons">insert_drive_file</i>
                   </a>
                 </li>
               </ul>
@@ -441,7 +465,7 @@
             rel="noopener"
           >
             <button class="icon">
-              <i class="material-icons">favorite</i>
+              <i class="material-icons">donut_large</i>
               <span>{{ $t("open_collective") }}</span>
             </button>
           </a>
@@ -453,7 +477,7 @@
             rel="noopener"
           >
             <button class="icon">
-              <i class="material-icons">favorite</i>
+              <i class="material-icons">payment</i>
               <span>{{ $t("paypal") }}</span>
             </button>
           </a>
@@ -465,7 +489,7 @@
             rel="noopener"
           >
             <button class="icon">
-              <i class="material-icons">favorite</i>
+              <i class="material-icons">local_parking</i>
               <span>{{ $t("patreon") }}</span>
             </button>
           </a>
@@ -525,7 +549,7 @@ export default {
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
-        vibrant ? "rgba(18, 18, 18, 1)" : "rgba(255, 255, 255, 1)"
+        vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
       );
     })();
   },
@@ -539,7 +563,7 @@ export default {
       .querySelector("meta[name=theme-color]")
       .setAttribute(
         "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#121212"
+        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
       );
 
     // Initializes the PWA code - checks if the app is installed,
@@ -582,6 +606,9 @@ export default {
         }
       });
     });
+
+    console.log("%cWe ❤︎ open source!", "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;")
+    console.log("%cContribute: https://github.com/liyasthomas/postwoman", "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;")
   },
 
   watch: {

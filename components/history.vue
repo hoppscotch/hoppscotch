@@ -162,11 +162,9 @@
         <label>Nothing found "{{ filterText }}"</label>
       </li>
     </ul>
-    <ul v-if="history.length === 0">
-      <li>
-        <label>History is empty</label>
-      </li>
-    </ul>
+    <p v-if="history.length === 0" class="info">
+      History is empty
+    </p>
     <div v-if="history.length !== 0">
       <div class="flex-wrap" v-if="!isClearingHistory">
         <button
@@ -308,7 +306,7 @@ ol li {
 
 .entry {
   border-bottom: 1px dashed var(--brd-color);
-  padding: 16px 0;
+  padding: 0 0 8px;
 }
 
 .bg-color {
@@ -450,8 +448,8 @@ export default {
       let byUrl = this.history.slice(0);
       byUrl.sort((a, b) => {
         if (this.reverse_sort_url)
-          return a.url == b.url ? 0 : +(a.url < b.url) || -1;
-        else return a.url == b.url ? 0 : +(a.url > b.url) || -1;
+          return a.url === b.url ? 0 : +(a.url < b.url) || -1;
+        else return a.url === b.url ? 0 : +(a.url > b.url) || -1;
       });
       this.history = byUrl;
       this.reverse_sort_url = !this.reverse_sort_url;
@@ -460,8 +458,8 @@ export default {
       let byLabel = this.history.slice(0);
       byLabel.sort((a, b) => {
         if (this.reverse_sort_label)
-          return a.label == b.label ? 0 : +(a.label < b.label) || -1;
-        else return a.label == b.label ? 0 : +(a.label > b.label) || -1;
+          return a.label === b.label ? 0 : +(a.label < b.label) || -1;
+        else return a.label === b.label ? 0 : +(a.label > b.label) || -1;
       });
       this.history = byLabel;
       this.reverse_sort_label = !this.reverse_sort_label;
@@ -470,8 +468,8 @@ export default {
       let byPath = this.history.slice(0);
       byPath.sort((a, b) => {
         if (this.reverse_sort_path)
-          return a.path == b.path ? 0 : +(a.path < b.path) || -1;
-        else return a.path == b.path ? 0 : +(a.path > b.path) || -1;
+          return a.path === b.path ? 0 : +(a.path < b.path) || -1;
+        else return a.path === b.path ? 0 : +(a.path > b.path) || -1;
       });
       this.history = byPath;
       this.reverse_sort_path = !this.reverse_sort_path;
@@ -480,11 +478,11 @@ export default {
       let byDuration = this.history.slice(0);
       byDuration.sort((a, b) => {
         if (this.reverse_sort_duration)
-          return a.duration == b.duration
+          return a.duration === b.duration
             ? 0
             : +(a.duration < b.duration) || -1;
         else
-          return a.duration == b.duration
+          return a.duration === b.duration
             ? 0
             : +(a.duration > b.duration) || -1;
       });

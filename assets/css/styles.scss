@@ -146,6 +146,7 @@ footer {
   z-index: 1;
   height: 100vh;
   padding: 0 8px;
+  background-color: var(--bg-light-color);
 }
 
 .main {
@@ -155,7 +156,6 @@ footer {
   order: 2;
   position: relative;
   padding: 0 16px;
-  background-color: var(--bg-light-color);
   height: 100%;
 }
 
@@ -251,20 +251,23 @@ nav.secondary-nav {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
+  display: flex;
+  align-items: center;
   margin: 0;
   font-weight: 700;
 }
 
 .tooltip {
-  $bgcolor: var(--bg-color);
+  $bgcolor: var(--tt-color);
   $fgcolor: var(--fg-color);
   display: block !important;
   z-index: 10000;
 
   .tooltip-inner {
-    background: black;
-    color: white;
+    background: $bgcolor;
+    color: $fgcolor;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 12px;
@@ -278,7 +281,7 @@ h3 {
     border-style: solid;
     position: absolute;
     margin: 5px;
-    border-color: black;
+    border-color: $bgcolor;
     z-index: 1;
   }
 
@@ -379,6 +382,11 @@ h3.title {
   margin: 4px;
 }
 
+.info {
+  margin-left: 4px;
+  color: var(--fg-light-color);
+}
+
 button {
   display: inline-flex;
   align-items: center;
@@ -424,6 +432,17 @@ button {
       transition: all 0.2s ease-in-out;
     }
   }
+
+  &.primary {
+    color: var(--ac-color);
+
+    &:not([disabled]):hover,
+    &:not([disabled]):active,
+    &:not([disabled]):focus {
+      background-color: var(--ac-color);
+      color: var(--act-color);
+    }
+  }
 }
 
 @keyframes beat {
@@ -444,7 +463,6 @@ button {
 
 fieldset {
   margin: 16px 0;
-  // border: 1px solid var(--brd-color);
   border-radius: 16px;
   transition: all 0.2s ease-in-out;
   background-color: var(--bg-dark-color);
@@ -503,6 +521,11 @@ fieldset.yellow legend {
   color: #f1fa8c;
 }
 
+input[type="file"],
+input[type="radio"],
+.tab,
+.hide-on-large-screen,
+#installPWA,
 .hidden {
   display: none;
 }
@@ -511,7 +534,9 @@ kbd,
 select,
 input,
 textarea,
-pre {
+pre,
+code {
+  display: inline-flex;
   margin: 4px;
   padding: 8px;
   border-radius: 8px;
@@ -545,9 +570,10 @@ pre.ace_editor {
   z-index: 0;
 }
 
-code {
-  height: 336px;
-  border-radius: 8px;
+kbd,
+code,
+pre {
+  width: auto;
 }
 
 .select-wrapper {
@@ -648,6 +674,7 @@ ol li {
   display: inline-flex;
   flex-direction: column;
   flex-grow: 1;
+  justify-content: center;
 }
 
 .flex-wrap {
@@ -669,16 +696,8 @@ ol li {
   display: flex;
 }
 
-.hide-on-large-screen {
-  display: none;
-}
-
 .show-on-large-screen {
   display: inline-flex;
-}
-
-#installPWA {
-  display: none;
 }
 
 .info-response {
@@ -774,12 +793,6 @@ section {
   order: 1;
 }
 
-input[type="file"],
-input[type="radio"],
-.tab {
-  display: none;
-}
-
 input[type="radio"] + label {
   padding: 8px 16px;
   border-bottom: 2px solid transparent;
@@ -856,6 +869,7 @@ input[type="radio"]:checked + label + .tab {
     width: 100%;
     background-color: var(--bg-color);
     transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
   }
 
   nav.primary-nav {

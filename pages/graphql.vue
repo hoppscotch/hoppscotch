@@ -190,7 +190,7 @@
             <div>
               <button
                 class="icon"
-                @click="headers = []"
+                @click="variables = []"
                 v-tooltip.bottom="'Clear'"
               >
                 <i class="material-icons">clear_all</i>
@@ -210,7 +210,7 @@
                   })
                 "
                 autofocus
-                />
+              />
             </li>
             <li>
               <input
@@ -228,10 +228,7 @@
             </li>
             <div>
               <li>
-                <button
-                  class="icon"
-                  @click="removeQueryVariable(index)"
-                >
+                <button class="icon" @click="removeQueryVariable(index)">
                   <i class="material-icons">delete</i>
                 </button>
               </li>
@@ -855,7 +852,7 @@ export default {
           }
         }
       });
-      console.log(oldHeaders);
+      // console.log(oldHeaders);
     },
     addQueryVariable(index) {
       this.$store.commit("addGQLVariable", {
@@ -879,7 +876,7 @@ export default {
           }
         }
       });
-      console.log(oldVariables);
+      // console.log(oldVariables);
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({

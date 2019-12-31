@@ -233,7 +233,7 @@
         </v-popover>
       </div>
       <div class="flex-wrap" v-else>
-        <label for="clear-history-button">Are you sure?</label>
+        <label for="clear-history-button" class="info">Are you sure?</label>
         <div>
           <button
             class="icon"

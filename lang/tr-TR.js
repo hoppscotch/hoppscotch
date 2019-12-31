@@ -66,6 +66,7 @@ export default {
   response: "Cevap",
   query: "Sorgu",
   queries: "Sorgular",
+  query_variables: "Değişkenler",
   mutations: "Değişimler",
   subscriptions: "Aboneler",
   types: "Tipler",

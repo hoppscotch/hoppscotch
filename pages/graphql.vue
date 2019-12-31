@@ -185,6 +185,66 @@
               useWorker: false
             }"
           />
+          <div class="flex-wrap">
+            <label>{{ $t("query_variables") }}</label>
+            <div>
+              <button
+                class="icon"
+                @click="headers = []"
+                v-tooltip.bottom="'Clear'"
+              >
+                <i class="material-icons">clear_all</i>
+              </button>
+            </div>
+          </div>
+          <ul v-for="(variable, index) in variables" :key="index">
+            <li>
+              <input
+                :placeholder="'variable ' + (index + 1)"
+                :name="'variable_key_' + index"
+                :value="variable.key"
+                @change="
+                  $store.commit('setGQLVariableKey', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
+                autofocus
+                />
+            </li>
+            <li>
+              <input
+                :placeholder="'value ' + (index + 1)"
+                :name="'variable_value_' + index"
+                :value="variable.value"
+                @change="
+                  $store.commit('setGQLVariableValue', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
+                autofocus
+              />
+            </li>
+            <div>
+              <li>
+                <button
+                  class="icon"
+                  @click="removeQueryVariable(index)"
+                >
+                  <i class="material-icons">delete</i>
+                </button>
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <button class="icon" @click="addQueryVariable">
+                <i class="material-icons">add</i>
+                <span>{{ $t("add_new") }}</span>
+              </button>
+            </li>
+          </ul>
         </pw-section>
 
         <pw-section class="purple" label="Response" ref="response">
@@ -294,8 +354,8 @@
             class="info"
           >
             Send a request first
-          </p></pw-section
-        >
+          </p>
+        </pw-section>
       </aside>
     </div>
   </div>
@@ -481,6 +541,14 @@ export default {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
       }
     },
+    variables: {
+      get() {
+        return this.$store.state.gql.variables;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "variables" });
+      }
+    },
     gqlQueryString: {
       get() {
         return this.$store.state.gql.query;
@@ -558,6 +626,24 @@ export default {
           headers[header.key] = header.value;
         });
 
+        let variables = {};
+        const gqlQueryString = this.gqlQueryString;
+        this.variables.forEach(variable => {
+          // todo: better variable type validation
+          const intRex = new RegExp(`\$${variable.key}\: Int`);
+          intRex.compile();
+          const floatRex = new RegExp(`\$${variable.key}\: Float`);
+          floatRex.compile();
+
+          if (intRex.test(gqlQueryString)) {
+            variables[variable.key] = parseInt(variable.value);
+          } else if (floatRex.test(gqlQueryString)) {
+            variables[variable.key] = parseFloat(variable.value);
+          } else {
+            variables[variable.key] = variable.value;
+          }
+        });
+
         const reqOptions = {
           method: "post",
           url: this.url,
@@ -565,7 +651,7 @@ export default {
             ...headers,
             "content-type": "application/json"
           },
-          data: JSON.stringify({ query: this.gqlQueryString })
+          data: JSON.stringify({ query: gqlQueryString, variables })
         };
 
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
@@ -770,6 +856,30 @@ export default {
         }
       });
       console.log(oldHeaders);
+    },
+    addQueryVariable(index) {
+      this.$store.commit("addGQLVariable", {
+        key: "",
+        value: ""
+      });
+      return false;
+    },
+    removeQueryVariable(index) {
+      const oldVariables = this.variables.slice();
+
+      this.$store.commit("removeGQLVariable", index);
+      this.$toast.error("Deleted", {
+        icon: "delete",
+        action: {
+          text: "Undo",
+          duration: 4000,
+          onClick: (e, toastObject) => {
+            this.variables = oldVariables;
+            toastObject.remove();
+          }
+        }
+      });
+      console.log(oldVariables);
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({

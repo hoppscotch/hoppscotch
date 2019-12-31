@@ -66,6 +66,7 @@ export default {
   response: "Balasan",
   query: "Kueri",
   queries: "Kueri",
+  query_variables: "Variables",
   mutations: "Mutasi",
   subscriptions: "Langganan",
   types: "Jenis",

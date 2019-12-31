@@ -66,6 +66,7 @@ export default {
   response: "レスポンス",
   query: "クエリ",
   queries: "クエリ",
+  query_variables: "変数 (へんすう)",
   mutations: "ミューテーション",
   subscriptions: "サブスクリプション",
   types: "タイプ",

@@ -66,6 +66,7 @@ export default {
   response: "Response",
   query: "Query",
   queries: "Queries",
+  query_variables: "Variables",
   mutations: "Mutations",
   subscriptions: "Subscriptions",
   types: "Types",

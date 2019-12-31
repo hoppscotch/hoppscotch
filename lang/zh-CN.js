@@ -66,6 +66,7 @@ export default {
   response: "响应",
   query: "查询",
   queries: "查询",
+  query_variables: "变数",
   mutations: "Mutations",
   subscriptions: "订阅",
   types: "种类",

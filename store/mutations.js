@@ -23,6 +23,22 @@ export default {
     gql.headers[index].value = value;
   },
 
+  addGQLVariable({ gql }, object) {
+    gql.variables.push(object);
+  },
+
+  removeGQLVariable({ gql }, index) {
+    gql.variables.splice(index, 1);
+  },
+
+  setGQLVariableKey({ gql }, { index, value }) {
+    gql.variables[index].key = value;
+  },
+
+  setGQLVariableValue({ gql }, { index, value }) {
+    gql.variables[index].value = value;
+  },
+
   addHeaders({ request }, value) {
     request.headers.push(value);
   },

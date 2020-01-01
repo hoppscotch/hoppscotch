@@ -21,7 +21,7 @@ describe('Url and path', () => {
 
 describe('Authentication', () => {
   it(`Change default auth 'None' to 'Basic' and set httpUser and httpPassword with url query`, () => {
-    cy.visit(`?&auth=Basic&httpUser=foo&httpPassword=bar`, { retryOnStatusCodeFailure: true })
+    cy.visit(`?&auth=Basic Auth&httpUser=foo&httpPassword=bar`, { retryOnStatusCodeFailure: true })
       .get('#authentication').contains('Authentication').click()
         .then(() => {
           cy.get('input[name="http_basic_user"]', { timeout: 500 })

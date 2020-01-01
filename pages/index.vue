@@ -341,13 +341,14 @@
                   <span class="select-wrapper">
                     <select id="auth" v-model="auth">
                       <option>None</option>
-                      <option>Basic</option>
+                      <option>Basic Auth</option>
                       <option>Bearer Token</option>
+                      <option>OAuth 2.0</option>
                     </select>
                   </span>
                 </li>
               </ul>
-              <ul v-if="auth === 'Basic'">
+              <ul v-if="auth === 'Basic Auth'">
                 <li>
                   <input
                     placeholder="User"
@@ -385,7 +386,7 @@
                   </li>
                 </div>
               </ul>
-              <ul v-else-if="auth === 'Bearer Token'">
+              <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
                 <li>
                   <input
                     placeholder="Token"
@@ -1357,9 +1358,10 @@ export default {
       if (this.requestType === "JavaScript XHR") {
         const requestString = [];
         requestString.push("const xhr = new XMLHttpRequest()");
-        const user = this.auth === "Basic" ? "'" + this.httpUser + "'" : null;
+        const user =
+          this.auth === "Basic Auth" ? "'" + this.httpUser + "'" : null;
         const pswd =
-          this.auth === "Basic" ? "'" + this.httpPassword + "'" : null;
+          this.auth === "Basic Auth" ? "'" + this.httpPassword + "'" : null;
         requestString.push(
           "xhr.open('" +
             this.method +
@@ -1373,7 +1375,7 @@ export default {
             pswd +
             ")"
         );
-        if (this.auth === "Bearer Token") {
+        if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(
             "xhr.setRequestHeader('Authorization', 'Bearer " +
               this.bearerToken +
@@ -1415,14 +1417,14 @@ export default {
           'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
         );
         requestString.push('  method: "' + this.method + '",\n');
-        if (this.auth === "Basic") {
+        if (this.auth === "Basic Auth") {
           const basic = this.httpUser + ":" + this.httpPassword;
           headers.push(
             '    "Authorization": "Basic ' +
               window.btoa(unescape(encodeURIComponent(basic))) +
               '",\n'
           );
-        } else if (this.auth === "Bearer Token") {
+        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           headers.push(
             '    "Authorization": "Bearer ' + this.bearerToken + '",\n'
           );
@@ -1463,14 +1465,14 @@ export default {
         requestString.push(
           "  '" + this.url + this.pathName + this.queryString + "' \\\n"
         );
-        if (this.auth === "Basic") {
+        if (this.auth === "Basic Auth") {
           const basic = this.httpUser + ":" + this.httpPassword;
           requestString.push(
             "  -H 'Authorization: Basic " +
               window.btoa(unescape(encodeURIComponent(basic))) +
               "' \\\n"
           );
-        } else if (this.auth === "Bearer Token") {
+        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(
             "  -H 'Authorization: Bearer " + this.bearerToken + "' \\\n"
           );
@@ -1603,7 +1605,7 @@ export default {
       this.response.body = "Loading...";
 
       const auth =
-        this.auth === "Basic"
+        this.auth === "Basic Auth"
           ? {
               username: this.httpUser,
               password: this.httpPassword
@@ -1631,7 +1633,7 @@ export default {
       }
 
       // If the request uses a token for auth, we want to make sure it's sent here.
-      if (this.auth === "Bearer Token")
+      if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0")
         headers["Authorization"] = `Bearer ${this.bearerToken}`;
 
       headers = Object.assign(

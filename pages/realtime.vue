@@ -209,28 +209,28 @@ export default {
   },
   computed: {
     urlValid() {
-      const pattern = new RegExp(
-        "^(wss?:\\/\\/)?" +
-          "((([a-z\\d]([a-z\\d-]*[a-z:@\\d])*)\\.)+[a-z]{2,}|" +
-          "((\\d{1,3}\\.){3}\\d{1,3}))" +
-          "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
-          "(\\?[:\\;&a-z\\d%_.~+=-]*)?" +
-          "(\\#[-a-z\\d_]*)?$",
-        "i"
+      const protocol = "^(wss?:\\/\\/)?";
+      const validIP = new RegExp(
+        protocol +
+          "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
       );
-      return pattern.test(this.url);
+      const validHostname = new RegExp(
+        protocol +
+          "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$"
+      );
+      return validIP.test(this.url) || validHostname.test(this.url);
     },
     serverValid() {
-      const pattern = new RegExp(
-        "^(http(s)?:\\/\\/)?" +
-          "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
-          "((\\d{1,3}\\.){3}\\d{1,3}))" +
-          "(\\:\\d+)?(\\/[-a-z\\d%_.~+@]*)*" +
-          "(\\?[:\\;&a-z\\d%_.~+=-]*)?" +
-          "(\\#[-a-z\\d_]*)?$",
-        "i"
+      const protocol = "^(https?:\\/\\/)?";
+      const validIP = new RegExp(
+        protocol +
+          "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
       );
-      return pattern.test(this.server);
+      const validHostname = new RegExp(
+        protocol +
+          "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$"
+      );
+      return validIP.test(this.server) || validHostname.test(this.server);
     }
   },
   methods: {

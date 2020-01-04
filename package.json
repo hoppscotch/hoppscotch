@@ -18,7 +18,7 @@
         "test": "start-server-and-test dev http://localhost:3000 e2e"
     },
     "dependencies": {
-        "@nuxtjs/axios": "^5.9.0",
+        "@nuxtjs/axios": "^5.9.2",
         "@nuxtjs/google-analytics": "^2.2.2",
         "@nuxtjs/google-tag-manager": "^2.3.1",
         "@nuxtjs/pwa": "^3.0.0-beta.19",

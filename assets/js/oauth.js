@@ -30,6 +30,23 @@ const parseQueryString = string => {
   segments.forEach(s => queryString[s[0]] = s[1]);
   return queryString;
 }
+// Get OAuth configuration from OpenID Discovery endpoint
+const getTokenConfiguration = async endpoint => {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json'
+    }
+  }
+  try {
+    const response = await fetch(endpoint, options);
+    const config = await response.json();
+    return config;
+  } catch (err) {
+    console.error('Request failed', err);
+    throw err;
+  }
+}
 
 //////////////////////////////////////////////////////////////////////
 // PKCE HELPER FUNCTIONS
@@ -67,12 +84,20 @@ const pkceChallengeFromVerifier = async(v) => {
 
 // Initiate PKCE Auth Code flow when requested
 const tokenRequest = async({
+  oidcDiscoveryUrl,
   grantType,
   authUrl,
   accessTokenUrl,
   clientId,
   scope
 }) => {
+
+  // Check configuration URLs
+  if (oidcDiscoveryUrl !== '') {
+    const { authorization_endpoint, token_endpoint } = await getTokenConfiguration(oidcDiscoveryUrl);
+    authUrl = authorization_endpoint;
+    accessTokenUrl = token_endpoint;
+  }
 
   // Store oauth information
   localStorage.setItem('token_endpoint', accessTokenUrl);

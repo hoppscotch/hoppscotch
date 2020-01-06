@@ -2455,8 +2455,7 @@ export default {
           authUrl: this.authUrl,
           accessTokenUrl: this.accessTokenUrl,
           clientId: this.clientId,
-          scope: this.scope,
-          clientAuth: this.clientAuth
+          scope: this.scope
         };
         await tokenRequest(tokenReqParams);
       } catch (e) {

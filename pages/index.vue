@@ -469,6 +469,7 @@
                 <li>
                   <label for="oidc-discovery-url">{{ $t("oidc_discovery_url") }}</label>
                   <input
+                    :disabled="this.authUrl !== '' || this.accessTokenUrl !== ''"
                     id="oidc-discovery-url"
                     name="oidc_discovery_url"
                     type="url"
@@ -481,6 +482,7 @@
                 <li>
                   <label for="auth-url">{{ $t("auth_url") }}</label>
                   <input
+                    :disabled="this.oidcDiscoveryUrl !== ''"
                     id="auth-url"
                     name="auth_url"
                     type="url"
@@ -493,6 +495,7 @@
                 <li>
                   <label for="access-token-url">{{ $t("access_token_url") }}</label>
                   <input
+                    :disabled="this.oidcDiscoveryUrl !== ''"
                     id="access-token-url"
                     name="access_token_url"
                     type="url"
@@ -2439,17 +2442,28 @@ export default {
       }
     },
     async handleAccessTokenRequest(){
-      const tokenReqParams = {
-        grantType: "code",
-        oidcDiscoveryUrl: this.oidcDiscoveryUrl,
-        authUrl: this.authUrl,
-        accessTokenUrl: this.accessTokenUrl,
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
-        scope: this.scope,
-        clientAuth: this.clientAuth
-      };
-      await tokenRequest(tokenReqParams);
+      if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
+        this.$toast.error("Please complete configuration urls.", {
+          icon: "error"
+        });
+        return;
+      }
+      try {
+        const tokenReqParams = {
+          grantType: "code",
+          oidcDiscoveryUrl: this.oidcDiscoveryUrl,
+          authUrl: this.authUrl,
+          accessTokenUrl: this.accessTokenUrl,
+          clientId: this.clientId,
+          scope: this.scope,
+          clientAuth: this.clientAuth
+        };
+        await tokenRequest(tokenReqParams);
+      } catch (e) {
+        this.$toast.error(e, {
+          icon: "code"
+        });
+      }
     },
     async oauthRedirectReq() {
       let tokenInfo = await oauthRedirect();

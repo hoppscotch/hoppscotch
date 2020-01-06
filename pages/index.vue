@@ -388,11 +388,29 @@
               </ul>
               <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
                 <li>
-                  <input
-                    placeholder="Token"
-                    name="bearer_token"
-                    v-model="bearerToken"
-                  />
+                  <div class="flex-wrap">
+                    <input
+                      placeholder="Token"
+                      name="bearer_token"
+                      v-model="bearerToken"
+                    />
+                    <button 
+                      v-if="auth === 'OAuth 2.0'"
+                      class="icon"
+                      @click="showTokenList = !showTokenList"
+                      v-tooltip.bottom="$t('use_token')"
+                    >
+                      <i class="material-icons">input</i>
+                    </button>
+                    <button
+                      v-if="auth === 'OAuth 2.0'"
+                      class="icon"
+                      @click="showTokenRequest = !showTokenRequest"
+                      v-tooltip.bottom="$t('get_token')"
+                    >
+                      <i class="material-icons">vpn_key</i>
+                    </button>
+                  </div>
                 </li>
               </ul>
               <div class="flex-wrap">
@@ -403,6 +421,118 @@
                   {{ $t("include_in_url") }}
                 </pw-toggle>
               </div>
+            </pw-section>
+            <pw-section
+              v-if="showTokenRequest"
+              class="red"
+              label="Access Token Request"
+              ref="accessTokenRequest"
+            >
+              <ul>
+                <li>
+                  <div class="flex-wrap">
+                    <label for="token-name">{{ $t("token_name") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="showTokenRequestList = true"
+                        v-tooltip.bottom="$t('save_token_request')"
+                      >
+                        <i class="material-icons">library_add</i>
+                      </button>
+                      <button
+                        class="icon"
+                        @click="clearContent('access_token', $event)"
+                        v-tooltip.bottom="'Clear'"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                      <button
+                        class="icon"
+                        @click="showTokenRequest = false"
+                        v-tooltip.bottom="'Close'"
+                      >
+                        <i class="material-icons">close</i>
+                      </button>
+                    </div>
+                  </div>
+                  <input
+                    id="token-name"
+                    placeholder="Enter a token name..."
+                    name="token_name"
+                    v-model="accessTokenName"
+                    type="text"
+                  />
+                </li>
+              </ul>
+              <ul>
+                <li>
+                  <label for="oidc-discovery-url">{{ $t("oidc_discovery_url") }}</label>
+                  <input
+                    id="oidc-discovery-url"
+                    name="oidc_discovery_url"
+                    type="url"
+                    v-model="oidcDiscoveryUrl"
+                    placeholder="https://example.com/.well-known/openid-configuration"
+                  />
+                </li>
+              </ul>
+              <ul>
+                <li>
+                  <label for="auth-url">{{ $t("auth_url") }}</label>
+                  <input
+                    id="auth-url"
+                    name="auth_url"
+                    type="url"
+                    v-model="authUrl"
+                    placeholder="https://example.com/login/oauth/authorize"
+                  />
+                </li>
+              </ul>
+              <ul>
+                <li>
+                  <label for="access-token-url">{{ $t("access_token_url") }}</label>
+                  <input
+                    id="access-token-url"
+                    name="access_token_url"
+                    type="url"
+                    v-model="accessTokenUrl"
+                    placeholder="https://example.com/login/oauth/access_token"
+                  />
+                </li>
+              </ul>
+              <ul>
+                <li>
+                  <label for="client-id">{{ $t("client_id") }}</label>
+                  <input
+                    id="client-id"
+                    name="client_id"
+                    type="text"
+                    v-model="clientId"
+                    placeholder="Client ID"
+                  />
+                </li>
+              </ul>
+              <ul>
+                <li>
+                  <label for="scope">{{ $t("scope") }}</label>
+                  <input
+                    id="scope"
+                    name="scope"
+                    type="text"
+                    v-model="scope"
+                    placeholder="e.g. read:org"
+                  />
+                </li>
+              </ul>
+              <ul>
+                <li>
+                  <button class="icon" @click="handleAccessTokenRequest">
+                    <i class="material-icons">vpn_key</i>
+                    <span>{{ $t("request_token") }}</span>
+                  </button>
+                </li>
+              </ul>
             </pw-section>
           </div>
           <input id="tab-two" type="radio" name="options" />
@@ -805,6 +935,86 @@
         </div>
         <div slot="footer"></div>
       </pw-modal>
+
+      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+        <div slot="header">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <h3 class="title">{{ $t("save_token_request") }}</h3>
+                <div>
+                  <button class="icon" @click="showTokenRequestList = false">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div slot="body">
+          <ul>
+            <li>
+              <textarea
+                rows="8"
+                placeholder="Enter request list"
+              ></textarea>
+            </li>
+          </ul>
+        </div>
+        <div slot="footer">
+          <div class="flex-wrap">
+            <span></span>
+            <span>
+              <button class="icon" @click="showTokenRequestList = false">
+                Cancel
+              </button>
+              <button class="icon primary" @click="saveTokenRequest">
+                {{ $t("save_token_request") }}
+              </button>
+            </span>
+          </div>
+        </div>
+      </pw-modal>
+
+      <pw-modal v-if="showTokenList" @close="showTokenList = false">
+        <div slot="header">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <h3 class="title">{{ $t("manage_token") }}</h3>
+                <div>
+                  <button class="icon" @click="showTokenList = false">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div slot="body">
+          <ul>
+            <li>
+              <textarea
+                rows="8"
+                placeholder="Token list"
+              ></textarea>
+            </li>
+          </ul>
+        </div>
+        <div slot="footer">
+          <div class="flex-wrap">
+            <span></span>
+            <span>
+              <button class="icon" @click="showTokenList = false">
+                Cancel
+              </button>
+              <button class="icon primary" @click="saveToken">
+                {{ $t("save_token") }}
+              </button>
+            </span>
+          </div>
+        </div>
+      </pw-modal>
     </div>
   </div>
 </template>
@@ -901,6 +1111,9 @@ export default {
       previewEnabled: false,
       paramsWatchEnabled: true,
       expandResponse: false,
+      showTokenList: false,
+      showTokenRequest: false,
+      showTokenRequestList: false,
 
       /**
        * These are content types that can be automatically
@@ -1206,6 +1419,70 @@ export default {
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "bearerToken" });
+      }
+    },
+    token: {
+      get() {
+        return this.$store.oauth2.token;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "token" });
+      }
+    },
+    accessTokenName: {
+      get() {
+        return this.$store.state.oauth2.accessTokenName;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "accessTokenName" });
+      }
+    },
+    oidcDiscoveryUrl: {
+      get() {
+        return this.$store.state.oauth2.oidcDiscoveryUrl;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "oidcDiscoveryUrl" });
+      }
+    },
+    authUrl: {
+      get() {
+        return this.$store.state.oauth2.authUrl;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "authUrl" });
+      }
+    },
+    accessTokenUrl: {
+      get() {
+        return this.$store.state.oauth2.accessTokenUrl;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "accessTokenUrl" });
+      }
+    },
+    clientId: {
+      get() {
+        return this.$store.state.oauth2.clientId;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "clientId" });
+      }
+    },
+    scope: {
+      get() {
+        return this.$store.state.oauth2.scope;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "scope" });
+      }
+    },
+    state: {
+      get() {
+        return this.$store.state.oauth2.state;
+      },
+      set(value) {
+        this.$store.commit("setOauth2", { value, attribute: "state" });
       }
     },
     headers: {
@@ -2045,12 +2322,21 @@ export default {
           this.httpUser = "";
           this.httpPassword = "";
           this.bearerToken = "";
+          this.showTokenRequest = false;
           break;
         case "headers":
           this.headers = [];
           break;
         case "parameters":
           this.params = [];
+          break;
+        case "access_token":
+          this.accessTokenName = "";
+          this.oidcDiscoveryUrl = "";
+          this.authUrl = "";
+          this.accessTokenUrl = "";
+          this.clientId = "";
+          this.scope = "";
           break;
         default:
           (this.label = ""),
@@ -2148,6 +2434,45 @@ export default {
       } else {
         this.$toast.error("Choose a file", {
           icon: "attach_file"
+        });
+      }
+    },
+    async handleAccessTokenRequest(){
+      const tokenReqParams = {
+        grantType: "code",
+        oidcDiscoveryUrl: this.oidcDiscoveryUrl,
+        authUrl: this.authUrl,
+        accessTokenUrl: this.accessTokenUrl,
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+        scope: this.scope,
+        clientAuth: this.clientAuth
+      };
+      await tokenRequest(tokenReqParams);
+    },
+    async oauthRedirectReq() {
+      let tokenInfo = await oauthRedirect();
+      if(tokenInfo.hasOwnProperty('access_token')) {
+        this.accessToken = tokenInfo.access_token;
+      }
+    },
+    saveToken(){
+      try {
+        this.$toast.info("Access token saved");
+        this.showTokenList = false;
+      } catch (e) {
+        this.$toast.error(e, {
+          icon: "code"
+        });
+      }
+    },
+    saveTokenRequest(){
+      try {
+        this.$toast.info("Token request saved");
+        this.showTokenRequestList = false;
+      } catch (e) {
+        this.$toast.error(e, {
+          icon: "code"
         });
       }
     }

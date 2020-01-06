@@ -85,5 +85,9 @@ export default {
 
   setValueBodyParams({ request }, { index, value }) {
     request.bodyParams[index].value = value;
+  },
+
+  setOauth2({ oauth2 }, { attribute, value }) {
+    oauth2[attribute] = value;
   }
 };

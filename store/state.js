@@ -30,7 +30,6 @@ export default () => ({
     authUrl: "",
     accessTokenUrl: "",
     clientId: "",
-    scope: "",
-    state: "",
+    scope: ""
   }
 });

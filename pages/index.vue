@@ -1028,6 +1028,7 @@ import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
+import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
 
 const statusCategories = [
   {
@@ -2477,7 +2478,7 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
     this.observeRequestButton();
     this._keyListener = function(e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
@@ -2495,6 +2496,7 @@ export default {
       }
     };
     document.addEventListener("keydown", this._keyListener.bind(this));
+    await this.oauthRedirectReq();
   },
   created() {
     this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {

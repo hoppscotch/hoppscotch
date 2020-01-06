@@ -92,7 +92,7 @@ const tokenRequest = async({
   scope
 }) => {
 
-  // Check configuration URLs
+  // Check oauth configuration
   if (oidcDiscoveryUrl !== '') {
     const { authorization_endpoint, token_endpoint } = await getTokenConfiguration(oidcDiscoveryUrl);
     authUrl = authorization_endpoint;

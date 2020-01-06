@@ -2454,7 +2454,7 @@ export default {
     async oauthRedirectReq() {
       let tokenInfo = await oauthRedirect();
       if(tokenInfo.hasOwnProperty('access_token')) {
-        this.accessToken = tokenInfo.access_token;
+        this.bearerToken = tokenInfo.access_token;
       }
     },
     saveToken(){

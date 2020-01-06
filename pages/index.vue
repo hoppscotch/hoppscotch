@@ -994,13 +994,50 @@
             </li>
           </ul>
         </div>
-        <div slot="body">
+        <div slot="body" ref="tokens">
+          <ul v-for="(token, index) in tokens" :key="index">
+            <li>
+              <input
+                :placeholder="'name ' + (index + 1)"
+                :value="token.name"
+                @change="
+                  $store.commit('setOAuthTokenName', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
+              />
+            </li>
+            <li>
+              <input
+                :placeholder="'value ' + (index + 1)"
+                :name="'value' + index"
+                :value="token.value"
+                @change="
+                  $store.commit('setOAuthTokenValue', {
+                    index,
+                    value: $event.target.value
+                  })
+                "
+              />
+            </li>
+            <div>
+              <li>
+                <button
+                  class="icon"
+                  @click="removeOAuthToken(index)"
+                >
+                  <i class="material-icons">delete</i>
+                </button>
+              </li>
+            </div>
+          </ul>
           <ul>
             <li>
-              <textarea
-                rows="8"
-                placeholder="Token list"
-              ></textarea>
+              <button class="icon" @click="addOAuthToken">
+                <i class="material-icons">add</i>
+                <span>{{ $t("add_new") }}</span>
+              </button>
             </li>
           </ul>
         </div>
@@ -1425,12 +1462,12 @@ export default {
         this.$store.commit("setState", { value, attribute: "bearerToken" });
       }
     },
-    token: {
+    tokens: {
       get() {
-        return this.$store.oauth2.token;
+        return this.$store.state.oauth2.tokens;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "token" });
+        this.$store.commit("setOAuth2", { value, attribute: "tokens" });
       }
     },
     accessTokenName: {
@@ -1438,7 +1475,7 @@ export default {
         return this.$store.state.oauth2.accessTokenName;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "accessTokenName" });
+        this.$store.commit("setOAuth2", { value, attribute: "accessTokenName" });
       }
     },
     oidcDiscoveryUrl: {
@@ -1446,7 +1483,7 @@ export default {
         return this.$store.state.oauth2.oidcDiscoveryUrl;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "oidcDiscoveryUrl" });
+        this.$store.commit("setOAuth2", { value, attribute: "oidcDiscoveryUrl" });
       }
     },
     authUrl: {
@@ -1454,7 +1491,7 @@ export default {
         return this.$store.state.oauth2.authUrl;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "authUrl" });
+        this.$store.commit("setOAuth2", { value, attribute: "authUrl" });
       }
     },
     accessTokenUrl: {
@@ -1462,7 +1499,7 @@ export default {
         return this.$store.state.oauth2.accessTokenUrl;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "accessTokenUrl" });
+        this.$store.commit("setOAuth2", { value, attribute: "accessTokenUrl" });
       }
     },
     clientId: {
@@ -1470,7 +1507,7 @@ export default {
         return this.$store.state.oauth2.clientId;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "clientId" });
+        this.$store.commit("setOAuth2", { value, attribute: "clientId" });
       }
     },
     scope: {
@@ -1478,7 +1515,7 @@ export default {
         return this.$store.state.oauth2.scope;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "scope" });
+        this.$store.commit("setOAuth2", { value, attribute: "scope" });
       }
     },
     state: {
@@ -1486,7 +1523,7 @@ export default {
         return this.$store.state.oauth2.state;
       },
       set(value) {
-        this.$store.commit("setOauth2", { value, attribute: "state" });
+        this.$store.commit("setOAuth2", { value, attribute: "state" });
       }
     },
     headers: {
@@ -2469,6 +2506,29 @@ export default {
       if(tokenInfo.hasOwnProperty('access_token')) {
         this.bearerToken = tokenInfo.access_token;
       }
+    },
+    addOAuthToken() {
+      this.$store.commit("addOAuthToken", {
+        name: "",
+        value: ""
+      });
+      return false;
+    },
+    removeOAuthToken(index) {
+      // .slice() gives us an entirely new array rather than giving us just the reference
+      const oldTokens = this.tokens.slice();
+
+      this.$store.commit("removeOAuthToken", index);
+      this.$toast.error("Deleted", {
+        icon: "delete",
+        action: {
+          text: "Undo",
+          onClick: (e, toastObject) => {
+            this.tokens = oldTokens;
+            toastObject.remove();
+          }
+        }
+      });
     },
     saveToken(){
       try {

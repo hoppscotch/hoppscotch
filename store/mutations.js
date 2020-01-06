@@ -87,7 +87,24 @@ export default {
     request.bodyParams[index].value = value;
   },
 
-  setOauth2({ oauth2 }, { attribute, value }) {
+  setOAuth2({ oauth2 }, { attribute, value }) {
     oauth2[attribute] = value;
-  }
+  },
+
+  addOAuthToken({ oauth2 }, value) {
+    oauth2.tokens.push(value);
+  },
+
+  removeOAuthToken({ oauth2 }, index) {
+    oauth2.tokens.splice(index, 1);
+  },
+
+  setOAuthTokenName({ oauth2 }, { index, value }) {
+    oauth2.tokens[index].name = value;
+  },
+
+  setOAuthTokenValue({ oauth2 }, { index, value }) {
+    oauth2.tokens[index].value = value;
+  },
+
 };

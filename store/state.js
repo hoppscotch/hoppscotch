@@ -24,7 +24,7 @@ export default () => ({
     query: ""
   },
   oauth2: {
-    token: [],
+    tokens: [],
     accessTokenName: "",
     oidcDiscoveryUrl: "",
     authUrl: "",

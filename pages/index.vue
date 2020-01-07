@@ -2404,10 +2404,9 @@ export default {
       let text = textarea.value;
       try {
         let parsedCurl = parseCurlCommand(text);
-        this.url = parsedCurl.url.replace(/"/g, "").replace(/'/g, "");
-        this.url =
-          this.url.slice(-1).pop() === "/" ? this.url.slice(0, -1) : this.url;
-        this.path = "";
+        let url = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""));
+        this.url = url.origin;
+        this.path = url.pathname;
         this.headers = [];
         for (const key of Object.keys(parsedCurl.headers)) {
           this.$store.commit("addHeaders", {

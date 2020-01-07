@@ -502,7 +502,7 @@
 
 <style scoped lang="scss"></style>
 
-<script>
+<script lang="ts">
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 
@@ -555,6 +555,9 @@ export default {
   },
 
   mounted() {
+    var greet: string = "Hello world";
+    console.log(greet);
+
     if (process.client) {
       document.body.classList.add("afterLoad");
     }
@@ -615,9 +618,6 @@ export default {
       "%cContribute: https://github.com/liyasthomas/postwoman",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     );
-
-    var greet: string = "Hello world";
-    console.log(greet);
   },
 
   watch: {

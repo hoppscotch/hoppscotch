@@ -400,7 +400,7 @@
                       @click="showTokenList = !showTokenList"
                       v-tooltip.bottom="$t('use_token')"
                     >
-                      <i class="material-icons">input</i>
+                      <i class="material-icons">open_in_new</i>
                     </button>
                     <button
                       v-if="auth === 'OAuth 2.0'"
@@ -995,7 +995,23 @@
           </ul>
         </div>
         <div slot="body" ref="tokens">
-          <ul v-for="(token, index) in tokens" :key="index">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="token-list">{{ $t("token_list") }}</label>
+                <div>
+                  <button
+                    class="icon"
+                    @click="clearContent('tokens', $event)"
+                    v-tooltip.bottom="'Clear'"
+                  >
+                    <i class="material-icons">clear_all</i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <ul id="token-list" v-for="(token, index) in tokens" :key="index">
             <li>
               <input
                 :placeholder="'name ' + (index + 1)"
@@ -1009,51 +1025,31 @@
               />
             </li>
             <li>
-              <input
-                :placeholder="'value ' + (index + 1)"
-                :name="'value' + index"
-                :value="token.value"
-                @change="
-                  $store.commit('setOAuthTokenValue', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-              />
+              <input :value="token.value" readonly>
             </li>
-            <div>
+            <div class="flex-wrap">
+              <li>
+                <button
+                  class="icon"
+                  @click="useOAuthToken(token.value)"
+                  v-tooltip.bottom="$t('use_token')"
+                >
+                  <i class="material-icons">input</i>
+                </button>
+              </li>
               <li>
                 <button
                   class="icon"
                   @click="removeOAuthToken(index)"
+                  v-tooltip.bottom="'Delete'"
                 >
                   <i class="material-icons">delete</i>
                 </button>
               </li>
             </div>
           </ul>
-          <ul>
-            <li>
-              <button class="icon" @click="addOAuthToken">
-                <i class="material-icons">add</i>
-                <span>{{ $t("add_new") }}</span>
-              </button>
-            </li>
-          </ul>
         </div>
-        <div slot="footer">
-          <div class="flex-wrap">
-            <span></span>
-            <span>
-              <button class="icon" @click="showTokenList = false">
-                Cancel
-              </button>
-              <button class="icon primary" @click="saveToken">
-                {{ $t("save_token") }}
-              </button>
-            </span>
-          </div>
-        </div>
+        <div slot="footer"></div>
       </pw-modal>
     </div>
   </div>
@@ -2364,6 +2360,7 @@ export default {
           this.httpPassword = "";
           this.bearerToken = "";
           this.showTokenRequest = false;
+          this.tokens = [];
           break;
         case "headers":
           this.headers = [];
@@ -2379,6 +2376,9 @@ export default {
           this.clientId = "";
           this.scope = "";
           break;
+        case "tokens":
+          this.tokens = [];
+          break;
         default:
           (this.label = ""),
             (this.method = "GET"),
@@ -2393,6 +2393,14 @@ export default {
           this.params = [];
           this.bodyParams = [];
           this.rawParams = "";
+          this.showTokenRequest = false;
+          this.tokens = [];
+          this.accessTokenName = "";
+          this.oidcDiscoveryUrl = "";
+          this.authUrl = "";
+          this.accessTokenUrl = "";
+          this.clientId = "";
+          this.scope = "";
       }
       e.target.innerHTML = this.doneButton;
       this.$toast.info("Cleared", {
@@ -2478,7 +2486,7 @@ export default {
         });
       }
     },
-    async handleAccessTokenRequest(){
+    async handleAccessTokenRequest() {
       if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
         this.$toast.error("Please complete configuration urls.", {
           icon: "error"
@@ -2505,12 +2513,16 @@ export default {
       let tokenInfo = await oauthRedirect();
       if(tokenInfo.hasOwnProperty('access_token')) {
         this.bearerToken = tokenInfo.access_token;
+        this.addOAuthToken({ 
+          name: this.accessTokenName, 
+          value: tokenInfo.access_token 
+        });
       }
     },
-    addOAuthToken() {
+    addOAuthToken({name, value}) {
       this.$store.commit("addOAuthToken", {
-        name: "",
-        value: ""
+        name,
+        value
       });
       return false;
     },
@@ -2530,17 +2542,11 @@ export default {
         }
       });
     },
-    saveToken(){
-      try {
-        this.$toast.info("Access token saved");
-        this.showTokenList = false;
-      } catch (e) {
-        this.$toast.error(e, {
-          icon: "code"
-        });
-      }
+    useOAuthToken(value) {
+      this.bearerToken = value;
+      this.showTokenList = false;
     },
-    saveTokenRequest(){
+    saveTokenRequest() {
       try {
         this.$toast.info("Token request saved");
         this.showTokenRequestList = false;

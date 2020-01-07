@@ -88,6 +88,7 @@ export default {
   start: "Start",
   stop: "Stop",
   access_token: "Access Token",
+  token_list: "Token List",
   get_token: "Get New Token",
   manage_token: "Manage Access Token",
   save_token: "Save Access Token",

@@ -101,10 +101,6 @@ export default {
 
   setOAuthTokenName({ oauth2 }, { index, value }) {
     oauth2.tokens[index].name = value;
-  },
-
-  setOAuthTokenValue({ oauth2 }, { index, value }) {
-    oauth2.tokens[index].value = value;
-  },
+  }
 
 };

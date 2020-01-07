@@ -1461,26 +1461,26 @@ export default {
         return requestString.join("");
       } else if (this.requestType === "cURL") {
         const requestString = [];
-        requestString.push("curl -X " + this.method + " \\\n");
+        requestString.push("curl -X " + this.method + " \n");
         requestString.push(
-          "  '" + this.url + this.pathName + this.queryString + "' \\\n"
+          "  '" + this.url + this.pathName + this.queryString + "' \n"
         );
         if (this.auth === "Basic Auth") {
           const basic = this.httpUser + ":" + this.httpPassword;
           requestString.push(
             "  -H 'Authorization: Basic " +
               window.btoa(unescape(encodeURIComponent(basic))) +
-              "' \\\n"
+              "' \n"
           );
         } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(
-            "  -H 'Authorization: Bearer " + this.bearerToken + "' \\\n"
+            "  -H 'Authorization: Bearer " + this.bearerToken + "' \n"
           );
         }
         if (this.headers) {
           this.headers.forEach(element => {
             requestString.push(
-              "  -H '" + element.key + ": " + element.value + "' \\\n"
+              "  -H '" + element.key + ": " + element.value + "' \n"
             );
           });
         }
@@ -1489,14 +1489,14 @@ export default {
             ? this.rawParams
             : this.rawRequestBody;
           requestString.push(
-            "  -H 'Content-Length: " + requestBody.length + "' \\\n"
+            "  -H 'Content-Length: " + requestBody.length + "' \n"
           );
           requestString.push(
-            "  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \\\n"
+            "  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \n"
           );
-          requestString.push("  -d '" + requestBody + "' \\\n");
+          requestString.push("  -d '" + requestBody + "' \n");
         }
-        return requestString.join("").slice(0, -3);
+        return requestString.join("").slice(0, -2);
       }
     }
   },
@@ -2015,11 +2015,13 @@ export default {
         this.url = url.origin;
         this.path = url.pathname;
         this.headers = [];
-        for (const key of Object.keys(parsedCurl.headers)) {
-          this.$store.commit("addHeaders", {
-            key: key,
-            value: parsedCurl.headers[key]
-          });
+        if (parsedCurl.headers) {
+          for (const key of Object.keys(parsedCurl.headers)) {
+            this.$store.commit("addHeaders", {
+              key: key,
+              value: parsedCurl.headers[key]
+            });
+          }
         }
         this.method = parsedCurl.method.toUpperCase();
         if (parsedCurl["data"]) {

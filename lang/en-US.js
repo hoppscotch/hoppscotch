@@ -94,7 +94,11 @@ export default {
   save_token: "Save Access Token",
   use_token: "Use Saved Token",
   request_token: "Request Token",
-  save_token_request: "Save Token Request",
+  save_token_req: "Save Token Request",
+  manage_token_req: "Manage Token Request",
+  use_token_req: "Use Token Request",
+  token_req_name: "Request Name",
+  token_req_details: "Request Details",
   token_name: "Token Name",
   oidc_discovery_url: "OIDC Discovery URL",
   auth_url: "Auth URL",
@@ -102,4 +106,5 @@ export default {
   client_id: "Client ID",
   scope: "Scope",
   state: "State",
+  token_req_list: "Token Request List"
 };

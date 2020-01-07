@@ -436,7 +436,7 @@
                       <button
                         class="icon"
                         @click="showTokenRequestList = true"
-                        v-tooltip.bottom="$t('save_token_request')"
+                        v-tooltip.bottom="$t('manage_token_req')"
                       >
                         <i class="material-icons">library_add</i>
                       </button>
@@ -939,46 +939,6 @@
         <div slot="footer"></div>
       </pw-modal>
 
-      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <h3 class="title">{{ $t("save_token_request") }}</h3>
-                <div>
-                  <button class="icon" @click="showTokenRequestList = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <textarea
-                rows="8"
-                placeholder="Enter request list"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-        <div slot="footer">
-          <div class="flex-wrap">
-            <span></span>
-            <span>
-              <button class="icon" @click="showTokenRequestList = false">
-                Cancel
-              </button>
-              <button class="icon primary" @click="saveTokenRequest">
-                {{ $t("save_token_request") }}
-              </button>
-            </span>
-          </div>
-        </div>
-      </pw-modal>
-
       <pw-modal v-if="showTokenList" @close="showTokenList = false">
         <div slot="header">
           <ul>
@@ -994,7 +954,7 @@
             </li>
           </ul>
         </div>
-        <div slot="body" ref="tokens">
+        <div slot="body">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -1051,6 +1011,91 @@
         </div>
         <div slot="footer"></div>
       </pw-modal>
+
+      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+        <div slot="header">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <h3 class="title">{{ $t("manage_token_req") }}</h3>
+                <div>
+                  <button class="icon" @click="showTokenRequestList = false">
+                    <i class="material-icons">close</i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div slot="body">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="token-req-list">{{ $t("token_req_list") }}</label>
+                <div>
+                  <button
+                    :disabled="this.tokenReqs.length === 0"
+                    class="icon"
+                    @click="showTokenRequestList = false"
+                    v-tooltip.bottom="$t('use_token_req')"
+                  >
+                    <i class="material-icons">input</i>
+                  </button>
+                  <button 
+                    :disabled="this.tokenReqs.length === 0" 
+                    class="icon" 
+                    @click="removeOAuthTokenReq"
+                  >
+                    <i class="material-icons">delete</i>
+                  </button>
+                </div>
+              </div>
+              <span class="select-wrapper">
+                <select 
+                  id="token-req-list" 
+                  v-model="tokenReqSelect"
+                  :disabled="this.tokenReqs.length === 0"
+                  @change="tokenReqChange($event)">
+                  <option 
+                    v-for="(req, index) in tokenReqs" 
+                    :key="index" 
+                    :value="req.name">
+                    {{ req.name }}
+                    </option>
+                </select>
+              </span>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <label for="token-req-name">{{ $t("token_req_name") }}</label>
+              <input v-model="tokenReqName">
+            </li>            
+          </ul>
+          <ul>
+            <li>
+              <label for="token-req-details">{{ $t("token_req_details") }}</label>
+              <textarea
+                id="token-req-details"
+                readonly
+                rows="7"
+                v-model="tokenReqDetails"
+              ></textarea>
+            </li>
+          </ul>
+        </div>
+        <div slot="footer">
+          <div class="flex-wrap">
+            <span></span>
+            <span>
+              <button class="icon primary" @click="addOAuthTokenReq">
+                {{ $t("save_token_req") }}
+              </button>
+            </span>
+          </div>
+        </div>
+      </pw-modal>
+
     </div>
   </div>
 </template>
@@ -1466,6 +1511,30 @@ export default {
         this.$store.commit("setOAuth2", { value, attribute: "tokens" });
       }
     },
+    tokenReqs: {
+      get() {
+        return this.$store.state.oauth2.tokenReqs;
+      },
+      set(value) {
+        this.$store.commit("setOAuth2", { value, attribute: "tokenReqs" });
+      }
+    },
+    tokenReqSelect: {
+      get() {
+        return this.$store.state.oauth2.tokenReqSelect;
+      },
+      set(value) {
+        this.$store.commit("setOAuth2", { value, attribute: "tokenReqSelect" });
+      }
+    },
+    tokenReqName: {
+      get() {
+        return this.$store.state.oauth2.tokenReqName;
+      },
+      set(value) {
+        this.$store.commit("setOAuth2", { value, attribute: "tokenReqName" });
+      }
+    },
     accessTokenName: {
       get() {
         return this.$store.state.oauth2.accessTokenName;
@@ -1812,6 +1881,16 @@ export default {
         }
         return requestString.join("").slice(0, -3);
       }
+    },
+    tokenReqDetails() {
+      const details = {
+        oidcDiscoveryUrl: this.oidcDiscoveryUrl,
+        authUrl: this.authUrl,
+        accessTokenUrl: this.accessTokenUrl,
+        clientId: this.clientId,
+        scope: this.scope
+      };
+      return JSON.stringify(details, null, 2);
     }
   },
   methods: {
@@ -2361,6 +2440,7 @@ export default {
           this.bearerToken = "";
           this.showTokenRequest = false;
           this.tokens = [];
+          this.tokenReqs = [];
           break;
         case "headers":
           this.headers = [];
@@ -2379,6 +2459,8 @@ export default {
         case "tokens":
           this.tokens = [];
           break;
+        case "tokenReqs":
+          this.tokenReqs = [];
         default:
           (this.label = ""),
             (this.method = "GET"),
@@ -2395,6 +2477,7 @@ export default {
           this.rawParams = "";
           this.showTokenRequest = false;
           this.tokens = [];
+          this.tokenReqs = [];
           this.accessTokenName = "";
           this.oidcDiscoveryUrl = "";
           this.authUrl = "";
@@ -2527,9 +2610,7 @@ export default {
       return false;
     },
     removeOAuthToken(index) {
-      // .slice() gives us an entirely new array rather than giving us just the reference
       const oldTokens = this.tokens.slice();
-
       this.$store.commit("removeOAuthToken", index);
       this.$toast.error("Deleted", {
         icon: "delete",
@@ -2546,8 +2627,14 @@ export default {
       this.bearerToken = value;
       this.showTokenList = false;
     },
-    saveTokenRequest() {
+    addOAuthTokenReq() {
       try {
+        const name = this.tokenReqName;
+        const details = JSON.parse(this.tokenReqDetails);
+        this.$store.commit("addOAuthTokenReq", {
+          name,
+          details
+        });
         this.$toast.info("Token request saved");
         this.showTokenRequestList = false;
       } catch (e) {
@@ -2555,6 +2642,38 @@ export default {
           icon: "code"
         });
       }
+    },
+    removeOAuthTokenReq(index) {
+      const oldTokenReqs = this.tokenReqs.slice();
+      let targetReqIndex = this.tokenReqs.findIndex(tokenReq => tokenReq.name === this.tokenReqName);
+      if (targetReqIndex < 0) return;
+      this.$store.commit("removeOAuthTokenReq", targetReqIndex);
+      this.$toast.error("Deleted", {
+        icon: "delete",
+        action: {
+          text: "Undo",
+          onClick: (e, toastObject) => {
+            this.tokenReqs = oldTokenReqs;
+            toastObject.remove();
+          }
+        }
+      });
+    },
+    tokenReqChange(event) {
+      let targetReq = this.tokenReqs.find(tokenReq => tokenReq.name === event.target.value);
+      let { 
+        oidcDiscoveryUrl, 
+        authUrl, 
+        accessTokenUrl, 
+        clientId, 
+        scope
+      } = targetReq.details;
+      this.tokenReqName = targetReq.name;
+      this.oidcDiscoveryUrl = oidcDiscoveryUrl;
+      this.authUrl = authUrl;
+      this.accessTokenUrl = accessTokenUrl;
+      this.clientId = clientId;
+      this.scope = scope;
     }
   },
   async mounted() {

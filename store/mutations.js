@@ -101,6 +101,13 @@ export default {
 
   setOAuthTokenName({ oauth2 }, { index, value }) {
     oauth2.tokens[index].name = value;
-  }
+  },
 
+  addOAuthTokenReq({ oauth2 }, value) {
+    oauth2.tokenReqs.push(value);
+  },
+
+  removeOAuthTokenReq({ oauth2 }, index) {
+    oauth2.tokenReqs.splice(index, 1);
+  }
 };

@@ -25,6 +25,9 @@ export default () => ({
   },
   oauth2: {
     tokens: [],
+    tokenReqs: [],
+    tokenReqSelect: "",
+    tokenReqName: "",
     accessTokenName: "",
     oidcDiscoveryUrl: "",
     authUrl: "",

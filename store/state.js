@@ -22,5 +22,17 @@ export default () => ({
     headers: [],
     variables: [],
     query: ""
+  },
+  oauth2: {
+    tokens: [],
+    tokenReqs: [],
+    tokenReqSelect: "",
+    tokenReqName: "",
+    accessTokenName: "",
+    oidcDiscoveryUrl: "",
+    authUrl: "",
+    accessTokenUrl: "",
+    clientId: "",
+    scope: ""
   }
 });

@@ -1933,7 +1933,8 @@ export default {
         url: this.url + this.pathName + this.queryString,
         auth,
         headers,
-        data: requestBody ? requestBody.toString() : null
+        data: requestBody ? requestBody.toString() : null,
+        credentials: true
       };
       if (preRequestScript) {
         const environmentVariables = getEnvironmentVariablesFromScript(

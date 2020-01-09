@@ -394,7 +394,7 @@
                       name="bearer_token"
                       v-model="bearerToken"
                     />
-                    <button 
+                    <button
                       v-if="auth === 'OAuth 2.0'"
                       class="icon"
                       @click="showTokenList = !showTokenList"
@@ -458,7 +458,7 @@
                   </div>
                   <input
                     id="token-name"
-                    placeholder="Enter a token name..."
+                    placeholder="(optional)"
                     name="token_name"
                     v-model="accessTokenName"
                     type="text"
@@ -467,9 +467,13 @@
               </ul>
               <ul>
                 <li>
-                  <label for="oidc-discovery-url">{{ $t("oidc_discovery_url") }}</label>
+                  <label for="oidc-discovery-url">
+                    {{ $t("oidc_discovery_url") }}
+                  </label>
                   <input
-                    :disabled="this.authUrl !== '' || this.accessTokenUrl !== ''"
+                    :disabled="
+                      this.authUrl !== '' || this.accessTokenUrl !== ''
+                    "
                     id="oidc-discovery-url"
                     name="oidc_discovery_url"
                     type="url"
@@ -493,7 +497,9 @@
               </ul>
               <ul>
                 <li>
-                  <label for="access-token-url">{{ $t("access_token_url") }}</label>
+                  <label for="access-token-url">
+                    {{ $t("access_token_url") }}
+                  </label>
                   <input
                     :disabled="this.oidcDiscoveryUrl !== ''"
                     id="access-token-url"
@@ -808,9 +814,11 @@
                   <i class="material-icons">
                     {{ !previewEnabled ? "visibility" : "visibility_off" }}
                   </i>
-                  <span>{{
-                    previewEnabled ? $t("hide_preview") : $t("preview_html")
-                  }}</span>
+                  <span>
+                    {{
+                      previewEnabled ? $t("hide_preview") : $t("preview_html")
+                    }}
+                  </span>
                 </button>
               </div>
             </li>
@@ -959,7 +967,7 @@
             <li>
               <div class="flex-wrap">
                 <label for="token-list">{{ $t("token_list") }}</label>
-                <div>
+                <div v-if="tokens.length != 0">
                   <button
                     class="icon"
                     @click="clearContent('tokens', $event)"
@@ -985,7 +993,7 @@
               />
             </li>
             <li>
-              <input :value="token.value" readonly>
+              <input :value="token.value" readonly />
             </li>
             <div class="flex-wrap">
               <li>
@@ -1008,11 +1016,17 @@
               </li>
             </div>
           </ul>
+          <p v-if="tokens.length === 0" class="info">
+            Empty
+          </p>
         </div>
         <div slot="footer"></div>
       </pw-modal>
 
-      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+      <pw-modal
+        v-if="showTokenRequestList"
+        @close="showTokenRequestList = false"
+      >
         <div slot="header">
           <ul>
             <li>
@@ -1041,27 +1055,30 @@
                   >
                     <i class="material-icons">input</i>
                   </button>
-                  <button 
-                    :disabled="this.tokenReqs.length === 0" 
-                    class="icon" 
+                  <button
+                    :disabled="this.tokenReqs.length === 0"
+                    class="icon"
                     @click="removeOAuthTokenReq"
+                    v-tooltip.bottom="'Delete'"
                   >
                     <i class="material-icons">delete</i>
                   </button>
                 </div>
               </div>
               <span class="select-wrapper">
-                <select 
-                  id="token-req-list" 
+                <select
+                  id="token-req-list"
                   v-model="tokenReqSelect"
                   :disabled="this.tokenReqs.length === 0"
-                  @change="tokenReqChange($event)">
-                  <option 
-                    v-for="(req, index) in tokenReqs" 
-                    :key="index" 
-                    :value="req.name">
+                  @change="tokenReqChange($event)"
+                >
+                  <option
+                    v-for="(req, index) in tokenReqs"
+                    :key="index"
+                    :value="req.name"
+                  >
                     {{ req.name }}
-                    </option>
+                  </option>
                 </select>
               </span>
             </li>
@@ -1069,12 +1086,14 @@
           <ul>
             <li>
               <label for="token-req-name">{{ $t("token_req_name") }}</label>
-              <input v-model="tokenReqName">
-            </li>            
+              <input v-model="tokenReqName" />
+            </li>
           </ul>
           <ul>
             <li>
-              <label for="token-req-details">{{ $t("token_req_details") }}</label>
+              <label for="token-req-details">
+                {{ $t("token_req_details") }}
+              </label>
               <textarea
                 id="token-req-details"
                 readonly
@@ -1095,7 +1114,6 @@
           </div>
         </div>
       </pw-modal>
-
     </div>
   </div>
 </template>
@@ -1540,7 +1558,10 @@ export default {
         return this.$store.state.oauth2.accessTokenName;
       },
       set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "accessTokenName" });
+        this.$store.commit("setOAuth2", {
+          value,
+          attribute: "accessTokenName"
+        });
       }
     },
     oidcDiscoveryUrl: {
@@ -1548,7 +1569,10 @@ export default {
         return this.$store.state.oauth2.oidcDiscoveryUrl;
       },
       set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "oidcDiscoveryUrl" });
+        this.$store.commit("setOAuth2", {
+          value,
+          attribute: "oidcDiscoveryUrl"
+        });
       }
     },
     authUrl: {
@@ -2572,7 +2596,10 @@ export default {
       }
     },
     async handleAccessTokenRequest() {
-      if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
+      if (
+        this.oidcDiscoveryUrl === "" &&
+        (this.authUrl === "" || this.accessTokenUrl === "")
+      ) {
         this.$toast.error("Please complete configuration urls.", {
           icon: "error"
         });
@@ -2596,15 +2623,15 @@ export default {
     },
     async oauthRedirectReq() {
       let tokenInfo = await oauthRedirect();
-      if(tokenInfo.hasOwnProperty('access_token')) {
+      if (tokenInfo.hasOwnProperty("access_token")) {
         this.bearerToken = tokenInfo.access_token;
-        this.addOAuthToken({ 
-          name: this.accessTokenName, 
-          value: tokenInfo.access_token 
+        this.addOAuthToken({
+          name: this.accessTokenName,
+          value: tokenInfo.access_token
         });
       }
     },
-    addOAuthToken({name, value}) {
+    addOAuthToken({ name, value }) {
       this.$store.commit("addOAuthToken", {
         name,
         value
@@ -2647,7 +2674,9 @@ export default {
     },
     removeOAuthTokenReq(index) {
       const oldTokenReqs = this.tokenReqs.slice();
-      let targetReqIndex = this.tokenReqs.findIndex(tokenReq => tokenReq.name === this.tokenReqName);
+      let targetReqIndex = this.tokenReqs.findIndex(
+        tokenReq => tokenReq.name === this.tokenReqName
+      );
       if (targetReqIndex < 0) return;
       this.$store.commit("removeOAuthTokenReq", targetReqIndex);
       this.$toast.error("Deleted", {
@@ -2662,12 +2691,14 @@ export default {
       });
     },
     tokenReqChange(event) {
-      let targetReq = this.tokenReqs.find(tokenReq => tokenReq.name === event.target.value);
-      let { 
-        oidcDiscoveryUrl, 
-        authUrl, 
-        accessTokenUrl, 
-        clientId, 
+      let targetReq = this.tokenReqs.find(
+        tokenReq => tokenReq.name === event.target.value
+      );
+      let {
+        oidcDiscoveryUrl,
+        authUrl,
+        accessTokenUrl,
+        clientId,
         scope
       } = targetReq.details;
       this.tokenReqName = targetReq.name;

@@ -8,7 +8,7 @@
     <div v-if="gqlType.getFields">
       <h5>FIELDS</h5>
       <div v-for="field in gqlType.getFields()" :key="field.name">
-        <gql-field :gqlField="field" />
+        <gql-field :gqlField="field" :jumpTypeCallback="jumpTypeCallback" />
       </div>
     </div>
   </div>
@@ -36,7 +36,9 @@ export default {
     "gql-field": () => import("./field")
   },
   props: {
-    gqlType: {}
+    gqlType: {},
+
+    jumpTypeCallback: Function
   }
 };
 </script>

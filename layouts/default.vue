@@ -503,17 +503,21 @@
 <style scoped lang="scss"></style>
 
 <script lang="ts">
+import Vue from 'vue';
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
+import logo from "../components/logo.vue";
+import modal from "../components/modal.vue";
+import { NuxtVueI18n } from 'nuxt-i18n';
 
-export default {
+export default Vue.extend({
   components: {
-    logo: () => import("../components/logo"),
-    modal: () => import("../components/modal")
+    logo: logo,
+    modal: modal
   },
 
   methods: {
-    linkActive(path) {
+    linkActive(path: string) {
       return {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
@@ -526,7 +530,7 @@ export default {
       // Once the PWA code is initialized, this holds a method
       // that can be called to show the user the installation
       // prompt.
-      showInstallPrompt: null,
+      showInstallPrompt: (null as ((() => Promise<void>) | null)),
       version: {},
       showShortcuts: false,
       showSupport: false
@@ -534,8 +538,7 @@ export default {
   },
 
   beforeMount() {
-    // Set version data
-    this.version = version.default;
+    this.version = version;
 
     // Load theme settings
     (() => {
@@ -562,21 +565,22 @@ export default {
       document.body.classList.add("afterLoad");
     }
 
-    document
-      .querySelector("meta[name=theme-color]")
-      .setAttribute(
-        "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
-      );
+    const meta = document.querySelector("meta[name=theme-color]");
+
+    if (meta) meta.setAttribute(
+      "content",
+      this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
+    );
 
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     (async () => {
       this.showInstallPrompt = await intializePwa();
+
       let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
       if (!cookiesAllowed) {
         this.$toast.show("We use cookies", {
-          icon: "info",
+          icon: () => "info",
           duration: 5000,
           theme: "toasted-primary",
           action: [
@@ -596,7 +600,7 @@ export default {
       let mainNavLinks = document.querySelectorAll("nav ul li a");
       let fromTop = window.scrollY;
       mainNavLinks.forEach(link => {
-        let section = document.querySelector(link.hash);
+        let section = document.querySelector((link as any).hash);
 
         if (
           section &&
@@ -627,9 +631,13 @@ export default {
   },
 
   computed: {
-    availableLocales() {
-      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
+    availableLocales(): NuxtVueI18n.Options.LocaleObject[] {
+      const locales = this.$i18n.locales as Array<NuxtVueI18n.Options.LocaleObject>;
+      if (locales) {
+        return locales.filter(i => i.code !== this.$i18n.locale);
+      } else return [];
     }
   }
-};
+});
+
 </script>

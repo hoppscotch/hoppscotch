@@ -75,7 +75,7 @@ export const state = () => ({
 export const mutations = {
   applySetting({ settings }, setting) {
     if (
-      setting == null ||
+      setting === null ||
       !(setting instanceof Array) ||
       setting.length !== 2
     ) {

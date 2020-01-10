@@ -72,3 +72,7 @@
   transition: all 0.2s ease-in-out;
 }
 </style>
+<script lang="ts">
+export default {
+};
+</script>

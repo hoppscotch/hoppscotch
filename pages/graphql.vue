@@ -594,7 +594,7 @@ export default {
     },
     resolveRootType(type) {
       let t = type;
-      while (t.ofType !== null) t = t.ofType;
+      while (t.ofType != null) t = t.ofType;
       return t;
     },
     copySchema() {

@@ -35,9 +35,9 @@ export default {
   components: {
     "gql-field": () => import("./field")
   },
+
   props: {
     gqlType: {},
-
     jumpTypeCallback: Function
   }
 };

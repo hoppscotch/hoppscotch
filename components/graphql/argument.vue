@@ -4,18 +4,14 @@
       {{ argName }}
     </span>
     :
-    <typelink 
-      :type="argType"
-      :jumpTypeCallback="jumpCallback"
-    />
+    <typelink :type="argType" :jumpTypeCallback="jumpCallback" />
   </span>
 </template>
 
-<style>
-</style>
+<style></style>
 
 <script>
-import typelink from './typelink';
+import typelink from "./typelink";
 
 export default {
   components: {
@@ -36,9 +32,7 @@ export default {
   },
 
   methods: {
-    jumpCallback(typeName) {
-
-    }
+    jumpCallback(typeName) {}
   }
-}
+};
 </script>

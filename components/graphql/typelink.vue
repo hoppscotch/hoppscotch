@@ -3,16 +3,18 @@
 </template>
 
 <style>
-  .typelink {
-    color: red
-  }
+.typelink {
+  color: var(--ac-color);
+  font-family: "Roboto Mono", monospace;
+  font-weight: 400;
+  cursor: pointer;
+}
 </style>
 
 <script>
 export default {
   props: {
     gqlType: null,
-
     // (typeName: string) => void
     jumpTypeCallback: Function
   },
@@ -28,6 +30,5 @@ export default {
       this.jumpTypeCallback(this.gqlType);
     }
   }
-}
+};
 </script>
-

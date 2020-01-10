@@ -298,6 +298,7 @@ ol li {
     top: 10px;
     right: 10px;
     font-family: "Roboto Mono", monospace;
+    font-weight: 400;
     background-color: transparent;
     padding: 2px 6px;
     border-radius: 8px;

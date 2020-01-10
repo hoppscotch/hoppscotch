@@ -4,14 +4,19 @@
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
         (
-          <span v-for="(field, index) in fieldArgs" :key="index">
-            {{ field.name }}: <typelink :gqlType="field.type" :jumpTypeCallback="jumpTypeCallback" />
-            <span v-if="index !== fieldArgs.length - 1">
-              ,
-            </span>
+        <span v-for="(field, index) in fieldArgs" :key="index">
+          {{ field.name }}:
+          <typelink
+            :gqlType="field.type"
+            :jumpTypeCallback="jumpTypeCallback"
+          />
+          <span v-if="index !== fieldArgs.length - 1">
+            ,
           </span>
-        )
-      </span>: <typelink :gqlType="gqlField.type" :jumpTypeCallback="jumpTypeCallback" />
+        </span>
+        ) </span
+      >:
+      <typelink :gqlType="gqlField.type" :jumpTypeCallback="jumpTypeCallback" />
     </div>
     <div class="field-desc" v-if="gqlField.description">
       {{ gqlField.description }}
@@ -20,7 +25,6 @@
     <div class="field-deprecated" v-if="gqlField.isDeprecated">
       DEPRECATED
     </div>
-
   </div>
 </template>
 
@@ -49,7 +53,7 @@
 </style>
 
 <script>
-import typelink from './typelink';
+import typelink from "./typelink";
 
 export default {
   components: {
@@ -58,7 +62,6 @@ export default {
 
   props: {
     gqlField: Object,
-
     jumpTypeCallback: Function
   },
 
@@ -73,7 +76,6 @@ export default {
         );
       }, "");
       const argsString = args.length > 0 ? `(${args})` : "";
-
       return `${
         this.gqlField.name
       }${argsString}: ${this.gqlField.type.toString()}`;

@@ -34,7 +34,7 @@ const sendPostRequest = async (url, params) => {
 /**
  * Parse a query string into an object
  *
- * @param {String} string - The query string
+ * @param {String} searchQuery - The search query params
  * @returns {Object}
  */
 

@@ -185,11 +185,15 @@ const tokenRequest = async ({
   window.location = buildUrl();
 };
 
-//////////////////////////////////////////////////////////////////////
 // OAUTH REDIRECT HANDLING
 
-// Handle the redirect back from the authorization server and
-// get an access token from the token endpoint
+/**
+ * Handle the redirect back from the authorization server and
+ * get an access token from the token endpoint
+ *
+ * @returns {Object}
+ */
+
 const oauthRedirect = async () => {
   let tokenResponse = "";
   let q = parseQueryString(window.location.search.substring(1));

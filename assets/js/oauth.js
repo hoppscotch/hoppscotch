@@ -1,9 +1,15 @@
 const redirectUri = `${window.location.origin}/`;
 
-//////////////////////////////////////////////////////////////////////
 // GENERAL HELPER FUNCTIONS
 
-// Make a POST request and parse the response as JSON
+/**
+ * Makes a POST request and parse the response as JSON
+ *
+ * @param {String} url - The resource
+ * @param {Object} params - Configuration options
+ * @returns {Object}
+ */
+
 const sendPostRequest = async (url, params) => {
   const body = Object.keys(params)
     .map(key => `${key}=${params[key]}`)
@@ -24,17 +30,32 @@ const sendPostRequest = async (url, params) => {
     throw err;
   }
 };
-// Parse a query string into an object
-const parseQueryString = string => {
-  if (string === "") {
+
+/**
+ * Parse a query string into an object
+ *
+ * @param {String} searchQuery - The search query params
+ * @returns {Object}
+ */
+
+const parseQueryString = searchQuery => {
+  if (searchQuery === "") {
     return {};
   }
-  const segments = string.split("&").map(s => s.split("="));
-  const queryString = {};
-  segments.forEach(s => (queryString[s[0]] = s[1]));
+  const segments = searchQuery.split("&").map(s => s.split("="));
+  const queryString = segments.reduce(
+    (obj, el) => ({ ...obj, [el[0]]: el[1] }),
+    {}
+  );
   return queryString;
 };
-// Get OAuth configuration from OpenID Discovery endpoint
+
+/**
+ * Get OAuth configuration from OpenID Discovery endpoint
+ *
+ * @returns {Object}
+ */
+
 const getTokenConfiguration = async endpoint => {
   const options = {
     method: "GET",
@@ -52,25 +73,41 @@ const getTokenConfiguration = async endpoint => {
   }
 };
 
-//////////////////////////////////////////////////////////////////////
 // PKCE HELPER FUNCTIONS
 
-// Generate a secure random string using the browser crypto functions
+/**
+ * Generates a secure random string using the browser crypto functions
+ *
+ * @returns {Object}
+ */
+
 const generateRandomString = () => {
   const array = new Uint32Array(28);
   window.crypto.getRandomValues(array);
   return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join("");
 };
-// Calculate the SHA256 hash of the input text.
-// Returns a promise that resolves to an ArrayBuffer
+
+/**
+ * Calculate the SHA256 hash of the input text
+ *
+ * @returns {Promise<ArrayBuffer>}
+ */
+
 const sha256 = plain => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
   return window.crypto.subtle.digest("SHA-256", data);
 };
-// Base64-urlencodes the input string
+
+/**
+ * Encodes the input string into Base64 format
+ *
+ * @param {String} str - The string to be converted
+ * @returns {Promise<ArrayBuffer>}
+ */
+
 const base64urlencode = (
-  str // Convert the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
+  str // Converts the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
 ) =>
   // btoa accepts chars only within ascii 0-255 and base64 encodes them.
   // Then convert the base64 encoded to base64url encoded
@@ -79,16 +116,28 @@ const base64urlencode = (
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
-// Return the base64-urlencoded sha256 hash for the PKCE challenge
+
+/**
+ * Return the base64-urlencoded sha256 hash for the PKCE challenge
+ *
+ * @param {String} v - The randomly generated string
+ * @returns {String}
+ */
+
 const pkceChallengeFromVerifier = async v => {
   const hashed = await sha256(v);
   return base64urlencode(hashed);
 };
 
-//////////////////////////////////////////////////////////////////////
 // OAUTH REQUEST
 
-// Initiate PKCE Auth Code flow when requested
+/**
+ * Initiates PKCE Auth Code flow when requested
+ *
+ * @param {Object} - The necessary params
+ * @returns {Void}
+ */
+
 const tokenRequest = async ({
   oidcDiscoveryUrl,
   grantType,
@@ -138,11 +187,15 @@ const tokenRequest = async ({
   window.location = buildUrl();
 };
 
-//////////////////////////////////////////////////////////////////////
 // OAUTH REDIRECT HANDLING
 
-// Handle the redirect back from the authorization server and
-// get an access token from the token endpoint
+/**
+ * Handle the redirect back from the authorization server and
+ * get an access token from the token endpoint
+ *
+ * @returns {Object}
+ */
+
 const oauthRedirect = async () => {
   let tokenResponse = "";
   let q = parseQueryString(window.location.search.substring(1));

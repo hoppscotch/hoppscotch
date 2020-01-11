@@ -30,7 +30,14 @@ const sendPostRequest = async (url, params) => {
     throw err;
   }
 };
-// Parse a query string into an object
+
+/**
+ * Parse a query string into an object
+ *
+ * @param {String} string - The query string
+ * @returns {Object}
+ */
+
 const parseQueryString = string => {
   if (string === "") {
     return {};

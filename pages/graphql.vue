@@ -365,21 +365,26 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
 import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
-import AceEditor from "../components/ace-editor";
+import AceEditor from "../components/ace-editor.vue";
+import section from "../components/section.vue";
+import field from "../components/graphql/field.vue";
+import gqltype from "../components/graphql/type.vue";
+import autocomplete from "../components/autocomplete.vue";
 
-export default {
+export default Vue.extend({
   directives: {
     textareaAutoHeight
   },
   components: {
-    "pw-section": () => import("../components/section"),
-    "gql-field": () => import("../components/graphql/field"),
-    "gql-type": () => import("../components/graphql/type"),
-    autocomplete: () => import("../components/autocomplete"),
+    "pw-section": section,
+    "gql-field": field,
+    "gql-type": gqltype,
+    autocomplete: autocomplete,
     Editor: AceEditor
   },
   data() {
@@ -509,10 +514,10 @@ export default {
         "X-Robots-Tag",
         "X-UA-Compatible"
       ],
-      queryFields: [],
-      mutationFields: [],
-      subscriptionFields: [],
-      gqlTypes: [],
+      queryFields: [] as any[],
+      mutationFields: [] as any[],
+      subscriptionFields: [] as any[],
+      gqlTypes: [] as any[],
       responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
@@ -523,39 +528,39 @@ export default {
   },
   computed: {
     url: {
-      get() {
+      get(): string {
         return this.$store.state.gql.url;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setGQLState", { value, attribute: "url" });
       }
     },
     headers: {
-      get() {
+      get(): ({ key: string, value: string })[] {
         return this.$store.state.gql.headers;
       },
-      set(value) {
+      set(value: ({ key: string, value: string })[]) {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
       }
     },
     variables: {
-      get() {
+      get(): any[] {
         return this.$store.state.gql.variables;
       },
-      set(value) {
+      set(value: any[]) {
         this.$store.commit("setGQLState", { value, attribute: "variables" });
       }
     },
     gqlQueryString: {
-      get() {
+      get(): string {
         return this.$store.state.gql.query;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setGQLState", { value, attribute: "query" });
       }
     },
-    headerString() {
-      const result = this.headers
+    headerString(): string {
+      const result = (this.headers as Array<{ key: string, value: string }>)
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}: ${value}`)
         .join(",\n");
@@ -564,7 +569,7 @@ export default {
   },
   methods: {
     copySchema() {
-      this.$refs.copySchemaCode.innerHTML = this.doneButton;
+      (this.$refs.copySchemaCode as Element).innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
       aux.innerText = this.schemaString;
       document.body.appendChild(aux);
@@ -572,15 +577,15 @@ export default {
       document.execCommand("copy");
       document.body.removeChild(aux);
       this.$toast.success("Copied to clipboard", {
-        icon: "done"
+        icon: "done" as any
       });
       setTimeout(
-        () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
+        () => ((this.$refs.copySchemaCode as Element).innerHTML = this.copyButton),
         1000
       );
     },
     copyQuery() {
-      this.$refs.copyQueryButton.innerHTML = this.doneButton;
+      (this.$refs.copyQueryButton as Element).innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
       aux.innerText = this.gqlQueryString;
       document.body.appendChild(aux);
@@ -588,15 +593,15 @@ export default {
       document.execCommand("copy");
       document.body.removeChild(aux);
       this.$toast.success("Copied to clipboard", {
-        icon: "done"
+        icon: "done" as any
       });
       setTimeout(
-        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
+        () => ((this.$refs.copyQueryButton as Element).innerHTML = this.copyButton),
         1000
       );
     },
     copyResponse() {
-      this.$refs.copyResponseButton.innerHTML = this.doneButton;
+      (this.$refs.copyResponseButton as Element).innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
       aux.innerText = this.responseString;
       document.body.appendChild(aux);
@@ -604,10 +609,10 @@ export default {
       document.execCommand("copy");
       document.body.removeChild(aux);
       this.$toast.success("Copied to clipboard", {
-        icon: "done"
+        icon: "done" as any
       });
       setTimeout(
-        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
+        () => ((this.$refs.copyResponseButton as Element).innerHTML = this.copyButton),
         1000
       );
     },
@@ -618,14 +623,14 @@ export default {
       this.scrollInto("response");
 
       try {
-        let headers = {};
-        this.headers.forEach(header => {
+        let headers: any = {};
+        (this.headers as Array<{ key: string, value: string }>).forEach(header => {
           headers[header.key] = header.value;
         });
 
-        let variables = {};
+        let variables: any = {};
         const gqlQueryString = this.gqlQueryString;
-        this.variables.forEach(variable => {
+        this.variables.forEach((variable: any) => {
           // todo: better variable type validation
           const intRex = new RegExp(`\$${variable.key}\: Int`);
           intRex.compile();
@@ -661,7 +666,7 @@ export default {
             }
           : reqOptions;
 
-        const res = await axios(reqConfig);
+        const res = await axios(reqConfig as any);
 
         const data = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? res.data
@@ -672,13 +677,13 @@ export default {
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
-          icon: "done"
+          icon: "done" as any
         });
       } catch (error) {
         this.$nuxt.$loading.finish();
 
         this.$toast.error(error + " (F12 for details)", {
-          icon: "error"
+          icon: "error" as any
         });
         console.log("Error", error);
       }
@@ -697,8 +702,8 @@ export default {
           query: gql.getIntrospectionQuery()
         });
 
-        let headers = {};
-        this.headers.forEach(header => {
+        let headers: any = {};
+        (this.headers as Array<{ key: string, value: string }>).forEach(header => {
           headers[header.key] = header.value;
         });
 
@@ -724,7 +729,7 @@ export default {
             }
           : reqOptions;
 
-        const res = await axios(reqConfig);
+        const res = await axios(reqConfig as any);
 
         const data = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? res.data
@@ -735,8 +740,10 @@ export default {
           commentDescriptions: true
         });
 
-        if (schema.getQueryType()) {
-          const fields = schema.getQueryType().getFields();
+        const queryType = schema.getQueryType();
+
+        if (queryType) {
+          const fields = queryType.getFields();
           const qFields = [];
           for (const field in fields) {
             qFields.push(fields[field]);
@@ -744,8 +751,10 @@ export default {
           this.queryFields = qFields;
         }
 
-        if (schema.getMutationType()) {
-          const fields = schema.getMutationType().getFields();
+        const mutationType = schema.getMutationType();
+
+        if (mutationType) {
+          const fields = mutationType.getFields();
           const mFields = [];
           for (const field in fields) {
             mFields.push(fields[field]);
@@ -753,8 +762,10 @@ export default {
           this.mutationFields = mFields;
         }
 
-        if (schema.getSubscriptionType()) {
-          const fields = schema.getSubscriptionType().getFields();
+        const subsType = schema.getSubscriptionType();
+
+        if (subsType) {
+          const fields = subsType.getFields();
           const sFields = [];
           for (const field in fields) {
             sFields.push(fields[field]);
@@ -765,14 +776,14 @@ export default {
         const typeMap = schema.getTypeMap();
         const types = [];
 
-        const queryTypeName = schema.getQueryType()
-          ? schema.getQueryType().name
+        const queryTypeName = queryType 
+          ? queryType.name
           : "";
-        const mutationTypeName = schema.getMutationType()
-          ? schema.getMutationType().name
+        const mutationTypeName = mutationType 
+          ? mutationType.name
           : "";
-        const subscriptionTypeName = schema.getSubscriptionType()
-          ? schema.getSubscriptionType().name
+        const subscriptionTypeName = subsType 
+          ? subsType.name
           : "";
 
         for (const type in typeMap) {
@@ -791,13 +802,13 @@ export default {
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
-          icon: "done"
+          icon: "done" as any
         });
       } catch (error) {
         this.$nuxt.$loading.finish();
         this.schemaString = error + ". Check console for details.";
         this.$toast.error(error + " (F12 for details)", {
-          icon: "error"
+          icon: "error" as any
         });
         console.log("Error", error);
       }
@@ -819,70 +830,70 @@ export default {
       );
       document.body.appendChild(a);
       a.click();
-      this.$refs.downloadResponse.innerHTML = this.doneButton;
+      (this.$refs.downloadResponse as Element).innerHTML = this.doneButton;
       this.$toast.success("Download started", {
-        icon: "done"
+        icon: "done" as any
       });
       setTimeout(() => {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        this.$refs.downloadResponse.innerHTML = this.downloadButton;
+        (this.$refs.downloadResponse as Element).innerHTML = this.downloadButton;
       }, 1000);
     },
-    addRequestHeader(index) {
+    addRequestHeader(index: number) {
       this.$store.commit("addGQLHeader", {
         key: "",
         value: ""
       });
       return false;
     },
-    removeRequestHeader(index) {
+    removeRequestHeader(index: number) {
       // .slice() is used so we get a separate array, rather than just a reference
       const oldHeaders = this.headers.slice();
 
       this.$store.commit("removeGQLHeader", index);
       this.$toast.error("Deleted", {
-        icon: "delete",
+        icon: "delete" as any,
+        duration: 4000,
         action: {
           text: "Undo",
-          duration: 4000,
           onClick: (e, toastObject) => {
             this.headers = oldHeaders;
-            toastObject.remove();
+            toastObject.goAway();
           }
         }
       });
       // console.log(oldHeaders);
     },
-    addQueryVariable(index) {
+    addQueryVariable(index: number) {
       this.$store.commit("addGQLVariable", {
         key: "",
         value: ""
       });
       return false;
     },
-    removeQueryVariable(index) {
+    removeQueryVariable(index: number) {
       const oldVariables = this.variables.slice();
 
       this.$store.commit("removeGQLVariable", index);
       this.$toast.error("Deleted", {
-        icon: "delete",
+        icon: "delete" as any,
+        duration: 4000,
         action: {
           text: "Undo",
-          duration: 4000,
           onClick: (e, toastObject) => {
             this.variables = oldVariables;
-            toastObject.remove();
+            toastObject.goAway();
           }
         }
       });
       // console.log(oldVariables);
     },
-    scrollInto(view) {
-      this.$refs[view].$el.scrollIntoView({
+    scrollInto(view: any) {
+      (this.$refs[view] as Vue).$el.scrollIntoView({
         behavior: "smooth"
       });
     }
   }
-};
+});
 </script>

@@ -184,31 +184,42 @@ div.log {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+import section from "../components/section.vue";
+
+interface CommLog {
+  payload: string; 
+  source: string;
+  color?: string; 
+  ts?: string 
+}
+
+export default Vue.extend({
   components: {
-    "pw-section": () => import("../components/section")
+    "pw-section": section
   },
   data() {
     return {
       connectionState: false,
       url: "wss://echo.websocket.org",
-      socket: null,
+      socket: null as WebSocket | null,
       communication: {
-        log: null,
+        log: [] as CommLog[],
         input: ""
       },
       connectionSSEState: false,
       server: "https://express-eventsource.herokuapp.com/events",
-      sse: null,
+      sse: null as EventSource | null,
       events: {
-        log: null,
+        log: [] as CommLog[],
         input: ""
       }
     };
   },
   computed: {
-    urlValid() {
+    urlValid(): boolean {
       const protocol = "^(wss?:\\/\\/)?";
       const validIP = new RegExp(
         protocol +
@@ -220,7 +231,7 @@ export default {
       );
       return validIP.test(this.url) || validHostname.test(this.url);
     },
-    serverValid() {
+    serverValid(): boolean {
       const protocol = "^(https?:\\/\\/)?";
       const validIP = new RegExp(
         protocol +
@@ -261,7 +272,7 @@ export default {
             }
           ];
           this.$toast.success("Connected", {
-            icon: "sync"
+            icon: "sync" as any
           });
         };
         this.socket.onerror = event => {
@@ -276,7 +287,7 @@ export default {
             ts: new Date().toLocaleTimeString()
           });
           this.$toast.error("Disconnected", {
-            icon: "sync_disabled"
+            icon: "sync_disabled" as any
           });
         };
         this.socket.onmessage = event => {
@@ -289,14 +300,14 @@ export default {
       } catch (ex) {
         this.handleError(ex);
         this.$toast.error("Something went wrong!", {
-          icon: "error"
+          icon: "error" as any
         });
       }
     },
     disconnect() {
-      this.socket.close();
+      if (this.socket) this.socket.close();
     },
-    handleError(error) {
+    handleError(error?: any) {
       this.disconnect();
       this.connectionState = false;
       this.communication.log.push({
@@ -315,7 +326,7 @@ export default {
     },
     sendMessage() {
       const message = this.communication.input;
-      this.socket.send(message);
+      if (this.socket) this.socket.send(message);
       this.communication.log.push({
         payload: message,
         source: "client",
@@ -323,11 +334,11 @@ export default {
       });
       this.communication.input = "";
     },
-    collapse({ target }) {
+    collapse({ target }: { target: any }) {
       const el = target.parentNode.className;
       document.getElementsByClassName(el)[0].classList.toggle("hidden");
     },
-    getSourcePrefix(source) {
+    getSourcePrefix(source: string) {
       const sourceEmojis = {
         // Source used for info messages.
         info: "\tℹ️ [INFO]:\t",
@@ -335,7 +346,7 @@ export default {
         client: "\t👽 [SENT]:\t",
         // Source used for server to client messages.
         server: "\t📥 [RECEIVED]:\t"
-      };
+      } as any;
       if (Object.keys(sourceEmojis).includes(source))
         return sourceEmojis[source];
       return "";
@@ -368,13 +379,13 @@ export default {
               }
             ];
             this.$toast.success("Connected", {
-              icon: "sync"
+              icon: "sync" as any
             });
           };
           this.sse.onerror = event => {
             this.handleSSEError();
           };
-          this.sse.onclose = event => {
+          (this.sse as any).onclose = (event: any) => {
             this.connectionSSEState = false;
             this.events.log.push({
               payload: `Disconnected from ${this.server}.`,
@@ -383,7 +394,7 @@ export default {
               ts: new Date().toLocaleTimeString()
             });
             this.$toast.error("Disconnected", {
-              icon: "sync_disabled"
+              icon: "sync_disabled" as any
             });
           };
           this.sse.onmessage = event => {
@@ -396,7 +407,7 @@ export default {
         } catch (ex) {
           this.handleSSEError(ex);
           this.$toast.error("Something went wrong!", {
-            icon: "error"
+            icon: "error" as any
           });
         }
       } else {
@@ -410,7 +421,7 @@ export default {
         ];
       }
     },
-    handleSSEError(error) {
+    handleSSEError(error?: any) {
       this.stop();
       this.connectionSSEState = false;
       this.events.log.push({
@@ -428,15 +439,17 @@ export default {
         });
     },
     stop() {
-      this.sse.onclose();
-      this.sse.close();
+      if (this.sse) {
+        (this.sse as any).onclose();
+        this.sse.close();
+      }
     }
   },
   updated: function() {
     this.$nextTick(function() {
-      const divLog = document.getElementById("log");
+      const divLog = document.getElementById("log") as Element;
       divLog.scrollBy(0, divLog.scrollHeight + 100);
     });
   }
-};
+});
 </script>

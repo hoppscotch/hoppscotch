@@ -334,18 +334,21 @@
 }
 </style>
 
-<script>
-import AceEditor from "../components/ace-editor";
+<script lang="ts">
+import Vue from 'vue';
+import AceEditor from "../components/ace-editor.vue";
+import section from '../components/section.vue';
 
-export default {
+export default Vue.extend({
   components: {
-    "pw-section": () => import("../components/section"),
+    "pw-section": section,
     Editor: AceEditor
   },
 
   data() {
     return {
-      collectionJSON: "[]",
+      rawInput: false,
+      collectionJSON: ("[]" as (string | ArrayBuffer | null)),
       items: []
     };
   },
@@ -353,35 +356,37 @@ export default {
   methods: {
     uploadCollection() {
       this.rawInput = true;
-      let file = this.$refs.collectionUpload.files[0];
+      const el = this.$refs.collectionUpload as HTMLInputElement;
+      let file = (el.files) ? el.files[0] : null;
+
       if (file !== undefined && file !== null) {
         let reader = new FileReader();
         reader.onload = e => {
-          this.collectionJSON = e.target.result;
+          this.collectionJSON = e.target ? e.target.result : null;
         };
         reader.readAsText(file);
         this.$toast.info("File imported", {
-          icon: "attach_file"
+          icon: "attach_file" as any
         });
       } else {
         this.$toast.error("Choose a file", {
-          icon: "attach_file"
+          icon: "attach_file" as any
         });
       }
     },
 
     getDoc() {
       try {
-        this.items = JSON.parse(this.collectionJSON);
+        this.items = JSON.parse(this.collectionJSON as string);
         this.$toast.info("Documentation generated", {
-          icon: "book"
+          icon: "book" as any
         });
       } catch (e) {
         this.$toast.error(e, {
-          icon: "code"
+          icon: "code" as any
         });
       }
     }
   }
-};
+});
 </script>

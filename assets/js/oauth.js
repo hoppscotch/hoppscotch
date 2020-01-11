@@ -5,7 +5,7 @@ const redirectUri = `${window.location.origin}/`;
 
 // Make a POST request and parse the response as JSON
 const sendPostRequest = async (url, params) => {
-  let body = Object.keys(params)
+  const body = Object.keys(params)
     .map(key => `${key}=${params[key]}`)
     .join("&");
   const options = {

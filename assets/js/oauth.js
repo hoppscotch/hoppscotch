@@ -84,8 +84,13 @@ const generateRandomString = () => {
   window.crypto.getRandomValues(array);
   return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join("");
 };
-// Calculate the SHA256 hash of the input text.
-// Returns a promise that resolves to an ArrayBuffer
+
+/**
+ * Calculate the SHA256 hash of the input text
+ *
+ * @returns {Promise<ArrayBuffer>}
+ */
+
 const sha256 = plain => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);

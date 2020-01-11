@@ -47,7 +47,13 @@ const parseQueryString = searchQuery => {
   segments.forEach(s => (queryString[s[0]] = s[1]));
   return queryString;
 };
-// Get OAuth configuration from OpenID Discovery endpoint
+
+/**
+ * Get OAuth configuration from OpenID Discovery endpoint
+ *
+ * @returns {Object}
+ */
+
 const getTokenConfiguration = async endpoint => {
   const options = {
     method: "GET",

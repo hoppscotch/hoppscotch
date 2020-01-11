@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.9.2",
-        "@nuxtjs/google-analytics": "^2.2.2",
+        "@nuxtjs/google-analytics": "^2.2.3",
         "@nuxtjs/google-tag-manager": "^2.3.1",
         "@nuxtjs/pwa": "^3.0.0-beta.19",
         "@nuxtjs/robots": "^2.4.2",
@@ -36,9 +36,9 @@
         "yargs-parser": "^16.1.0"
     },
     "devDependencies": {
-        "cypress": "^3.8.1",
+        "cypress": "^3.8.2",
         "node-sass": "^4.13.0",
-        "sass-loader": "^8.0.0",
+        "sass-loader": "^8.0.1",
         "start-server-and-test": "^1.10.6"
     }
 }

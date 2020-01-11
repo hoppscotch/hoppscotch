@@ -38,11 +38,11 @@ const sendPostRequest = async (url, params) => {
  * @returns {Object}
  */
 
-const parseQueryString = string => {
-  if (string === "") {
+const parseQueryString = searchQuery => {
+  if (searchQuery === "") {
     return {};
   }
-  const segments = string.split("&").map(s => s.split("="));
+  const segments = searchQuery.split("&").map(s => s.split("="));
   const queryString = {};
   segments.forEach(s => (queryString[s[0]] = s[1]));
   return queryString;

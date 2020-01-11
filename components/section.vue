@@ -21,8 +21,10 @@ fieldset.no-colored-frames legend {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   computed: {
     frameColorsEnabled() {
       return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false;
@@ -46,11 +48,11 @@ export default {
   },
 
   methods: {
-    collapse({ target }) {
+    collapse({ target }: { target: any }) {
       const parent = target.parentNode.parentNode;
       parent.querySelector(".collapsible").classList.toggle("hidden");
       this.isCollapsed = !this.isCollapsed;
     }
   }
-};
+});
 </script>

@@ -35,15 +35,17 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   props: {
     gqlField: Object
   },
 
   computed: {
-    fieldString() {
-      const args = (this.gqlField.args || []).reduce((acc, arg, index) => {
+    fieldString(): string {
+      const args = (this.gqlField.args || []).reduce((acc: any, arg: any, index: number) => {
         return (
           acc +
           `${arg.name}: ${arg.type.toString()}${
@@ -58,5 +60,5 @@ export default {
       }${argsString}: ${this.gqlField.type.toString()}`;
     }
   }
-};
+});
 </script>

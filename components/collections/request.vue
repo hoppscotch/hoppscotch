@@ -41,8 +41,10 @@ ul li {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   props: {
     request: Object,
     collectionIndex: Number,
@@ -62,5 +64,5 @@ export default {
       });
     }
   }
-};
+});
 </script>

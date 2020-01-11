@@ -324,23 +324,42 @@ ol li {
 }
 </style>
 
-<script>
-import { findStatusGroup } from "../pages/index";
+<script lang="ts">
+import Vue from "vue";
+import { findStatusGroup } from "../pages/index.vue";
+import section from "./section.vue";
+import VirtualList from "vue-virtual-scroll-list";
 
-const updateOnLocalStorage = (propertyName, property) =>
+const updateOnLocalStorage = (propertyName: string, property: any) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property));
 
-export default {
+interface HistoryEntry {
+  label: string;
+  status: number;
+  date: string;
+  time: string;
+  method: string;
+  url: string;
+  path: string;
+  usesScripts: boolean;
+  preRequestScript: string;
+  duration: number;
+  star: boolean;
+
+  [x: string]: any
+}
+
+export default Vue.extend({
   components: {
-    "pw-section": () => import("./section"),
-    VirtualList: () => import("vue-virtual-scroll-list")
+    "pw-section": section,
+    VirtualList: VirtualList 
   },
   data() {
     const localStorageHistory = JSON.parse(
-      window.localStorage.getItem("history")
+      window.localStorage.getItem("history") as string
     );
     return {
-      history: localStorageHistory || [],
+      history: (localStorageHistory || []) as HistoryEntry[],
       filterText: "",
       showFilter: false,
       isClearingHistory: false,
@@ -349,11 +368,12 @@ export default {
       reverse_sort_status_code: false,
       reverse_sort_url: false,
       reverse_sort_path: false,
+      reverse_sort_duration: false,
       showMore: false
     };
   },
   computed: {
-    filteredHistory() {
+    filteredHistory(): HistoryEntry[] {
       return this.history.filter(entry => {
         const filterText = this.filterText.toLowerCase();
         return Object.keys(entry).some(key => {
@@ -371,13 +391,13 @@ export default {
       this.disableHistoryClearing();
       updateOnLocalStorage("history", this.history);
       this.$toast.error("History Deleted", {
-        icon: "delete"
+        icon: "delete" as any
       });
     },
-    useHistory(entry) {
+    useHistory(entry: HistoryEntry) {
       this.$emit("useHistory", entry);
     },
-    findEntryStatus(entry) {
+    findEntryStatus(entry: HistoryEntry) {
       const foundStatusGroup = findStatusGroup(entry.status);
       return (
         foundStatusGroup || {
@@ -385,17 +405,17 @@ export default {
         }
       );
     },
-    deleteHistory(entry) {
+    deleteHistory(entry: HistoryEntry) {
       this.history.splice(this.history.indexOf(entry), 1);
       if (this.history.length === 0) {
         this.filterText = "";
       }
       updateOnLocalStorage("history", this.history);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete" as any
       });
     },
-    addEntry(entry) {
+    addEntry(entry: HistoryEntry) {
       this.history.push(entry);
       updateOnLocalStorage("history", this.history);
     },
@@ -414,23 +434,23 @@ export default {
         let time_a = a.time.split(":");
         let time_b = b.time.split(":");
         let final_a = new Date(
-          date_a[2],
-          date_a[1],
-          date_a[0],
-          time_a[0],
-          time_a[1],
-          time_a[2]
+          parseInt(date_a[2]),
+          parseInt(date_a[1]),
+          parseInt(date_a[0]),
+          parseInt(time_a[0]),
+          parseInt(time_a[1]),
+          parseInt(time_a[2])
         );
         let final_b = new Date(
-          date_b[2],
-          date_b[1],
-          date_b[0],
-          time_b[0],
-          time_b[1],
-          time_b[2]
+          parseInt(date_b[2]),
+          parseInt(date_b[1]),
+          parseInt(date_b[0]),
+          parseInt(time_b[0]),
+          parseInt(time_b[1]),
+          parseInt(time_b[2])
         );
-        if (this.reverse_sort_time) return final_b - final_a;
-        else return final_a - final_b;
+        if (this.reverse_sort_time) return (final_b as any) - (final_a as any);
+        else return (final_a as any) - (final_b as any);
       });
       this.history = byDate;
       this.reverse_sort_time = !this.reverse_sort_time;
@@ -492,10 +512,10 @@ export default {
     toggleCollapse() {
       this.showMore = !this.showMore;
     },
-    toggleStar(index) {
+    toggleStar(index: number) {
       this.history[index]["star"] = !this.history[index]["star"];
       updateOnLocalStorage("history", this.history);
     }
   }
-};
+});
 </script>

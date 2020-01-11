@@ -86,8 +86,17 @@
   </modal>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+import Modal from "../../components/modal.vue";
+
+interface RequestUpdateData {
+  name?: string;
+  collectionIndex?: number;
+  folderIndex?: number;
+}
+
+export default Vue.extend({
   props: {
     show: Boolean,
     collectionIndex: Number,
@@ -96,14 +105,14 @@ export default {
     requestIndex: Number
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: Modal 
   },
   data() {
-    return {
+    return <{ requestUpdateData: RequestUpdateData }>{
       requestUpdateData: {
-        name: undefined,
-        collectionIndex: undefined,
-        folderIndex: undefined
+        name: (undefined as string | undefined),
+        collectionIndex: (undefined as number | undefined),
+        folderIndex: (undefined as number | undefined)
       }
     };
   },
@@ -115,7 +124,7 @@ export default {
     }
   },
   computed: {
-    folders() {
+    folders(): any[] {
       const userSelectedAnyCollection =
         this.$data.requestUpdateData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
@@ -156,5 +165,5 @@ export default {
       this.$emit("hide-modal");
     }
   }
-};
+});
 </script>

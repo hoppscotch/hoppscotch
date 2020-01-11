@@ -103,23 +103,26 @@
   </modal>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+import Modal from "../../components/modal.vue";
+
+export default Vue.extend({
   props: {
     show: Boolean,
     editingRequest: Object
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: Modal 
   },
   data() {
     return {
       defaultRequestName: "My Request",
       requestData: {
-        name: undefined,
-        collectionIndex: undefined,
-        folderIndex: undefined,
-        requestIndex: undefined
+        name: undefined as string | undefined,
+        collectionIndex: undefined as number | undefined,
+        folderIndex: undefined as number | undefined,
+        requestIndex: undefined as number | undefined
       }
     };
   },
@@ -135,7 +138,7 @@ export default {
     }
   },
   computed: {
-    folders() {
+    folders(): any[] {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
@@ -150,7 +153,7 @@ export default {
         this.$data.requestData.collectionIndex
       ].folders;
     },
-    requests() {
+    requests(): any[] {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
@@ -185,7 +188,7 @@ export default {
         this.$data.requestData.collectionIndex === undefined;
       if (userDidntSpecifyCollection) {
         this.$toast.error("Select a Collection", {
-          icon: "error"
+          icon: "error" as any
         });
         return;
       }
@@ -210,5 +213,5 @@ export default {
       this.$emit("hide-model"); // for backward compatibility  // TODO: use fixed event
     }
   }
-};
+});
 </script>

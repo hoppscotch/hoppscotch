@@ -130,7 +130,7 @@ const pkceChallengeFromVerifier = async v => {
 // OAUTH REQUEST
 
 /**
- * Initiate PKCE Auth Code flow when requested
+ * Initiates PKCE Auth Code flow when requested
  *
  * @param {Object} - The necessary params
  * @returns {Void}

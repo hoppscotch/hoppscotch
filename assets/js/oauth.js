@@ -127,10 +127,15 @@ const pkceChallengeFromVerifier = async v => {
   return base64urlencode(hashed);
 };
 
-//////////////////////////////////////////////////////////////////////
 // OAUTH REQUEST
 
-// Initiate PKCE Auth Code flow when requested
+/**
+ * Initiate PKCE Auth Code flow when requested
+ *
+ * @param {Object} - The necessary params
+ * @returns {Void}
+ */
+
 const tokenRequest = async ({
   oidcDiscoveryUrl,
   grantType,

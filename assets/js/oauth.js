@@ -29,8 +29,8 @@ const parseQueryString = string => {
   if (string === "") {
     return {};
   }
-  let segments = string.split("&").map(s => s.split("="));
-  let queryString = {};
+  const segments = string.split("&").map(s => s.split("="));
+  const queryString = {};
   segments.forEach(s => (queryString[s[0]] = s[1]));
   return queryString;
 };

@@ -23,7 +23,7 @@ const parseCurlCommand = curlCommand => {
   let newlineFound = /\r|\n/.exec(curlCommand);
   if (newlineFound) {
     // remove newlines
-    curlCommand = curlCommand.replace(/\\\r|\\\n/g, "");
+    curlCommand = curlCommand.replace(/\r|\n/g, "");
   }
   // yargs parses -XPOST as separate arguments. just prescreen for it.
   curlCommand = curlCommand.replace(/ -XPOST/, " -X POST");

@@ -1,4 +1,4 @@
-import { RequestState, GQLState, KeyValuePair } from "~/store/state";
+import { RequestState, GQLState, KeyValuePair, OAuth2State } from "~/store/state";
 
 export default {
   setState({ request }: { request: RequestState }, { attribute, value }: { attribute: string, value: any }) {
@@ -87,5 +87,29 @@ export default {
 
   setValueBodyParams({ request }: { request: RequestState }, { index, value }: { index: number, value: string }) {
     request.bodyParams[index].value = value;
+  },
+
+  setOAuth2({ oauth2 }: { oauth2: OAuth2State }, { attribute, value }: { attribute: string, value: any }) {
+    oauth2[attribute] = value;
+  },
+
+  addOAuthToken({ oauth2 }: { oauth2: OAuth2State }, value: any) {
+    oauth2.tokens.push(value);
+  },
+
+  removeOAuthToken({ oauth2 }: { oauth2: OAuth2State }, index: number) {
+    oauth2.tokens.splice(index, 1);
+  },
+
+  setOAuthTokenName({ oauth2 }: { oauth2: OAuth2State }, { index, value }: { index: number, value: any }) {
+    oauth2.tokens[index].name = value;
+  },
+
+  addOAuthTokenReq({ oauth2 }: { oauth2: OAuth2State }, value: any) {
+    oauth2.tokenReqs.push(value);
+  },
+
+  removeOAuthTokenReq({ oauth2 }: { oauth2: OAuth2State }, index: number) {
+    oauth2.tokenReqs.splice(index, 1);
   }
 };

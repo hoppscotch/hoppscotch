@@ -87,7 +87,7 @@ export const state = () => (<CollectionState>{
 export const mutations = {
   applySetting({ settings }: { settings: any }, setting: any) {
     if (
-      setting == null ||
+      setting === null ||
       !(setting instanceof Array) ||
       setting.length !== 2
     ) {

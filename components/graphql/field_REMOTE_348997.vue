@@ -52,11 +52,10 @@
 }
 </style>
 
-<script lang="ts">
-import Vue from "vue";
-import typelink from "./typelink.vue";
+<script>
+import typelink from "./typelink";
 
-export default Vue.extend({
+export default {
   components: {
     typelink: typelink
   },
@@ -67,8 +66,8 @@ export default Vue.extend({
   },
 
   computed: {
-    fieldString(): string {
-      const args = (this.gqlField.args || []).reduce((acc: any, arg: any, index: number) => {
+    fieldString() {
+      const args = (this.gqlField.args || []).reduce((acc, arg, index) => {
         return (
           acc +
           `${arg.name}: ${arg.type.toString()}${
@@ -90,5 +89,5 @@ export default Vue.extend({
       return this.gqlField.args || [];
     }
   }
-});
+};
 </script>

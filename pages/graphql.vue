@@ -288,7 +288,10 @@
             </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
-                <gql-field :gqlField="field" />
+                <gql-field
+                  :gqlField="field"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
 
@@ -304,7 +307,10 @@
             </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
-                <gql-field :gqlField="field" />
+                <gql-field
+                  :gqlField="field"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
 
@@ -320,7 +326,10 @@
             </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
-                <gql-field :gqlField="field" />
+                <gql-field
+                  :gqlField="field"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
 
@@ -335,8 +344,15 @@
               {{ $t("types") }}
             </label>
             <div v-if="gqlTypes.length > 0" class="tab">
-              <div v-for="type in gqlTypes" :key="type.name">
-                <gql-type :gqlType="type" />
+              <div
+                v-for="type in gqlTypes"
+                :key="type.name"
+                :id="`type_${type.name}`"
+              >
+                <gql-type
+                  :gqlType="type"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
           </section>
@@ -568,6 +584,24 @@ export default Vue.extend({
     }
   },
   methods: {
+    handleJumpToType(type: gql.GraphQLType) {
+      const typesTab = document.getElementById("gqltypes-tab") as HTMLInputElement;
+      typesTab.checked = true;
+
+      const rootTypeName = this.resolveRootType(type).name;
+
+      const target = document.getElementById(`type_${rootTypeName}`);
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth"
+        });
+      }
+    },
+    resolveRootType(type: any): any {
+      let t = type;
+      while (t.ofType && t.ofType != null) t = t.ofType;
+      return t;
+    },
     copySchema() {
       (this.$refs.copySchemaCode as Element).innerHTML = this.doneButton;
       const aux = document.createElement("textarea");

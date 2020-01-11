@@ -23,6 +23,20 @@ export interface RequestState {
   [key: string]: any;
 }
 
+export interface OAuth2State {
+  tokens: any[];
+  tokenReqs: any[];
+  tokenReqSelect: string;
+  accessTokenName: string;
+  oidcDiscoveryUrl: string;
+  authUrl: string;
+  accessTokenUrl: string;
+  clientId: string;
+  scope: string;
+
+  [key: string]: any;
+}
+
 export interface GQLState {
   url: string;
   headers: KeyValuePair<string, string>[];
@@ -33,8 +47,9 @@ export interface GQLState {
 }
 
 interface EditorState {
-  request: RequestState,
-  gql: GQLState
+  request: RequestState;
+  gql: GQLState;
+  oauth2: OAuth2State;
 }
 
 
@@ -62,5 +77,17 @@ export default () => (<EditorState>{
     headers: [],
     variables: [],
     query: ""
+  },
+  oauth2: {
+    tokens: [],
+    tokenReqs: [],
+    tokenReqSelect: "",
+    tokenReqName: "",
+    accessTokenName: "",
+    oidcDiscoveryUrl: "",
+    authUrl: "",
+    accessTokenUrl: "",
+    clientId: "",
+    scope: ""
   }
 });

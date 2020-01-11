@@ -418,27 +418,22 @@
         </ul>
       </div>
       <div slot="body">
-        <br />
         <div>
           <label>{{ $t("send_request") }}</label>
           <kbd>⌘ G</kbd>
         </div>
-        <br />
         <div>
           <label>{{ $t("save_to_collections") }}</label>
           <kbd>⌘ S</kbd>
         </div>
-        <br />
         <div>
           <label>{{ $t("copy_request_link") }}</label>
           <kbd>⌘ K</kbd>
         </div>
-        <br />
         <div>
           <label>{{ $t("reset_request") }}</label>
           <kbd>⌘ L</kbd>
         </div>
-        <br />
       </div>
       <div slot="footer"></div>
     </modal>
@@ -458,11 +453,19 @@
         </ul>
       </div>
       <div slot="body">
+        <p class="info">
+          If you have enjoyed the productivity of using Postwoman, consider
+          donating as a sign of appreciation.
+        </p>
+        <p class="info">
+          You can support Postwoman development via the following methods:
+        </p>
         <div>
           <a
             href="https://opencollective.com/postwoman"
             target="_blank"
             rel="noopener"
+            v-tooltip.right="'One-time or recurring'"
           >
             <button class="icon">
               <i class="material-icons">donut_large</i>
@@ -475,6 +478,7 @@
             href="https://www.paypal.me/liyascthomas"
             target="_blank"
             rel="noopener"
+            v-tooltip.right="'One-time'"
           >
             <button class="icon">
               <i class="material-icons">payment</i>
@@ -487,6 +491,7 @@
             href="https://www.patreon.com/liyasthomas"
             target="_blank"
             rel="noopener"
+            v-tooltip.right="'Recurring'"
           >
             <button class="icon">
               <i class="material-icons">local_parking</i>
@@ -547,8 +552,8 @@ export default Vue.extend({
         this.$store.state.postwoman.settings.THEME_CLASS || "";
       // Load theme color data from settings, or use default color.
       let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
-      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
-      if (vibrant == null) vibrant = true;
+      let vibrant =
+        this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true;
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",

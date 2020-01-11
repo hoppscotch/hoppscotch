@@ -74,7 +74,7 @@ const getTokenConfiguration = async endpoint => {
 // PKCE HELPER FUNCTIONS
 
 /**
- * Generate a secure random string using the browser crypto functions
+ * Generates a secure random string using the browser crypto functions
  *
  * @returns {Object}
  */

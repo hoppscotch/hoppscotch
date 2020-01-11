@@ -10,7 +10,6 @@ const redirectUri = `${window.location.origin}/`;
  * @returns {Object}
  */
 
-// 
 const sendPostRequest = async (url, params) => {
   const body = Object.keys(params)
     .map(key => `${key}=${params[key]}`)

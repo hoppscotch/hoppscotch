@@ -38,7 +38,7 @@
     "devDependencies": {
         "cypress": "^3.8.1",
         "node-sass": "^4.13.0",
-        "sass-loader": "^8.0.0",
+        "sass-loader": "^8.0.1",
         "start-server-and-test": "^1.10.6"
     }
 }

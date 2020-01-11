@@ -44,7 +44,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Modal from "../../components/modal.vue";
 
 export default Vue.extend({
   props: {
@@ -55,7 +54,7 @@ export default Vue.extend({
     folderIndex: Number
   },
   components: {
-    modal: Modal 
+    modal: () => import("../../components/modal.vue")
   },
   data() {
     return {

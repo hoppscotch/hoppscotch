@@ -139,15 +139,11 @@
 <script lang="ts">
 import Vue from "vue";
 
-import section from "../components/section.vue";
-import toggle from "../components/toggle.vue";
-import swatch from "../components/settings/swatch.vue";
-
 export default Vue.extend({
   components: {
-    "pw-section": section,
-    "pw-toggle": toggle,
-    swatch: swatch
+    "pw-section": () => import("../components/section.vue"),
+    "pw-toggle": () => import("../components/toggle.vue"),
+    swatch: () => import("../components/settings/swatch.vue")
   },
 
   data() {

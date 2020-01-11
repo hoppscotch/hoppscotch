@@ -328,8 +328,6 @@ ol li {
 <script lang="ts">
 import Vue from "vue";
 import { findStatusGroup } from "../pages/index.vue";
-import section from "./section.vue";
-import VirtualList from "vue-virtual-scroll-list";
 
 const updateOnLocalStorage = (propertyName: string, property: any) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property));
@@ -352,8 +350,8 @@ interface HistoryEntry {
 
 export default Vue.extend({
   components: {
-    "pw-section": section,
-    VirtualList: VirtualList 
+    "pw-section": () => import("./section.vue"),
+    VirtualList: () => import("vue-virtual-scroll-list")
   },
   data() {
     const localStorageHistory = JSON.parse(

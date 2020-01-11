@@ -511,14 +511,12 @@
 import Vue from 'vue';
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
-import logo from "../components/logo.vue";
-import modal from "../components/modal.vue";
 import { NuxtVueI18n } from 'nuxt-i18n';
 
 export default Vue.extend({
   components: {
-    logo: logo,
-    modal: modal
+    logo: () => import("../components/logo.vue"),
+    modal: () => import("../components/modal.vue")
   },
 
   methods: {

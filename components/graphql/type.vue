@@ -32,11 +32,10 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Field from "./field.vue";
 
 export default Vue.extend({
   components: {
-    "gql-field": Field 
+    "gql-field": () => import("./field.vue")
   },
 
   props: {

@@ -187,8 +187,6 @@ div.log {
 <script lang="ts">
 import Vue from "vue";
 
-import section from "../components/section.vue";
-
 interface CommLog {
   payload: string; 
   source: string;
@@ -198,7 +196,7 @@ interface CommLog {
 
 export default Vue.extend({
   components: {
-    "pw-section": section
+    "pw-section": () => import("../components/section.vue")
   },
   data() {
     return {

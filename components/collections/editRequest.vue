@@ -88,7 +88,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Modal from "../../components/modal.vue";
 
 interface RequestUpdateData {
   name?: string;
@@ -105,7 +104,7 @@ export default Vue.extend({
     requestIndex: Number
   },
   components: {
-    modal: Modal 
+    modal: () => import("../../components/modal.vue")
   },
   data() {
     return <{ requestUpdateData: RequestUpdateData }>{

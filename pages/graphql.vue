@@ -387,20 +387,16 @@ import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import AceEditor from "../components/ace-editor.vue";
-import section from "../components/section.vue";
-import field from "../components/graphql/field.vue";
-import gqltype from "../components/graphql/type.vue";
-import autocomplete from "../components/autocomplete.vue";
 
 export default Vue.extend({
   directives: {
     textareaAutoHeight
   },
   components: {
-    "pw-section": section,
-    "gql-field": field,
-    "gql-type": gqltype,
-    autocomplete: autocomplete,
+    "pw-section": () => import("../components/section.vue"),
+    "gql-field": () => import("../components/graphql/field.vue"),
+    "gql-type": () => import("../components/graphql/type.vue"),
+    autocomplete: () => import("../components/autocomplete.vue"),
     Editor: AceEditor
   },
   data() {

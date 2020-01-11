@@ -71,7 +71,6 @@ ul li {
 
 <script lang="ts">
 import Vue from "vue";
-import Request from "./request.vue";
 
 export default Vue.extend({
   props: {
@@ -80,7 +79,7 @@ export default Vue.extend({
     folderIndex: Number
   },
   components: {
-    request: Request 
+    request: () => import("./request.vue")
   },
   data() {
     return {

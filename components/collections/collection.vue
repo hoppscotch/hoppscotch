@@ -96,13 +96,11 @@ ul li {
 
 <script lang="ts">
 import Vue from "vue";
-import Folder from './folder.vue';
-import Request from './request.vue';
 
 export default Vue.extend({
   components: {
-    folder: Folder,
-    request: Request 
+    folder: () => import("./folder.vue"),
+    request: () => import("./request.vue")
   },
   props: {
     collectionIndex: Number,

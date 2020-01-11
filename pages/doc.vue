@@ -337,11 +337,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import AceEditor from "../components/ace-editor.vue";
-import section from '../components/section.vue';
 
 export default Vue.extend({
   components: {
-    "pw-section": section,
+    "pw-section": () => import("../components/section.vue"),
     Editor: AceEditor
   },
 

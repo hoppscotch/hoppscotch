@@ -106,27 +106,19 @@ ul {
 
 <script lang="ts">
 import Vue from "vue";
-import { Collection } from "../../store/postwoman";
-
 import collection from "./collection.vue";
-import addCollection from "./addCollection.vue";
-import addFolder from "./addFolder.vue";
-import editCollection from "./editCollection.vue";
-import editFolder from "./editFolder.vue";
-import editRequest from "./editRequest.vue";
-import importExportCollections from "./importExportCollections.vue";
-import VirtualList from "vue-virtual-scroll-list";
+import { Collection } from "../../store/postwoman";
 
 export default Vue.extend({
   components: {
     collection,
-    addCollection: addCollection,
-    addFolder: addFolder,
-    editCollection: editCollection,
-    editFolder: editFolder,
-    editRequest: editRequest,
-    importExportCollections: importExportCollections,
-    VirtualList: VirtualList 
+    addCollection: () => import("./addCollection.vue"),
+    addFolder: () => import("./addFolder.vue"),
+    editCollection: () => import("./editCollection.vue"),
+    editFolder: () => import("./editFolder.vue"),
+    editRequest: () => import("./editRequest.vue"),
+    importExportCollections: () => import("./importExportCollections.vue"),
+    VirtualList: () => import("vue-virtual-scroll-list")
   },
   data() {
     return {

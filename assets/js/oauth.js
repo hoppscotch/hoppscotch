@@ -73,7 +73,12 @@ const getTokenConfiguration = async endpoint => {
 
 // PKCE HELPER FUNCTIONS
 
-// Generate a secure random string using the browser crypto functions
+/**
+ * Generate a secure random string using the browser crypto functions
+ *
+ * @returns {Object}
+ */
+
 const generateRandomString = () => {
   const array = new Uint32Array(28);
   window.crypto.getRandomValues(array);

@@ -43,7 +43,10 @@ const parseQueryString = searchQuery => {
     return {};
   }
   const segments = searchQuery.split("&").map(s => s.split("="));
-  const queryString = segments.reduce((obj, el) => ({ ...obj, [el[0]]: el[1] }), {});
+  const queryString = segments.reduce(
+    (obj, el) => ({ ...obj, [el[0]]: el[1] }),
+    {}
+  );
   return queryString;
 };
 

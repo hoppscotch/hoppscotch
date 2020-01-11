@@ -98,14 +98,14 @@ const sha256 = plain => {
 };
 
 /**
- * Base64-urlencodes the input string
+ * Encodes the input string into Base64 format
  *
  * @param {String} str - The string to be converted
  * @returns {Promise<ArrayBuffer>}
  */
 
 const base64urlencode = (
-  str // Convert the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
+  str // Converts the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
 ) =>
   // btoa accepts chars only within ascii 0-255 and base64 encodes them.
   // Then convert the base64 encoded to base64url encoded

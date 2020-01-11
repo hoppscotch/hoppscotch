@@ -5,7 +5,7 @@ const redirectUri = `${window.location.origin}/`;
 
 // Make a POST request and parse the response as JSON
 const sendPostRequest = async (url, params) => {
-  let body = Object.keys(params)
+  const body = Object.keys(params)
     .map(key => `${key}=${params[key]}`)
     .join("&");
   const options = {
@@ -29,8 +29,8 @@ const parseQueryString = string => {
   if (string === "") {
     return {};
   }
-  let segments = string.split("&").map(s => s.split("="));
-  let queryString = {};
+  const segments = string.split("&").map(s => s.split("="));
+  const queryString = {};
   segments.forEach(s => (queryString[s[0]] = s[1]));
   return queryString;
 };
@@ -70,7 +70,7 @@ const sha256 = plain => {
 };
 // Base64-urlencodes the input string
 const base64urlencode = (
-  str // Convert the ArrayBuffer to string using Uint8 array to conver to what btoa accepts.
+  str // Convert the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
 ) =>
   // btoa accepts chars only within ascii 0-255 and base64 encodes them.
   // Then convert the base64 encoded to base64url encoded
@@ -81,7 +81,7 @@ const base64urlencode = (
     .replace(/=+$/, "");
 // Return the base64-urlencoded sha256 hash for the PKCE challenge
 const pkceChallengeFromVerifier = async v => {
-  let hashed = await sha256(v);
+  const hashed = await sha256(v);
   return base64urlencode(hashed);
 };
 

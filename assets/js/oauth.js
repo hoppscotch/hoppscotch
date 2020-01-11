@@ -114,7 +114,14 @@ const base64urlencode = (
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
-// Return the base64-urlencoded sha256 hash for the PKCE challenge
+
+/**
+ * Return the base64-urlencoded sha256 hash for the PKCE challenge
+ *
+ * @param {String} v - The randomly generated string
+ * @returns {String}
+ */
+
 const pkceChallengeFromVerifier = async v => {
   const hashed = await sha256(v);
   return base64urlencode(hashed);

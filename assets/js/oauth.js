@@ -96,7 +96,14 @@ const sha256 = plain => {
   const data = encoder.encode(plain);
   return window.crypto.subtle.digest("SHA-256", data);
 };
-// Base64-urlencodes the input string
+
+/**
+ * Base64-urlencodes the input string
+ *
+ * @param {String} str - The string to be converted
+ * @returns {Promise<ArrayBuffer>}
+ */
+
 const base64urlencode = (
   str // Convert the ArrayBuffer to string using Uint8 array to convert to what btoa accepts.
 ) =>

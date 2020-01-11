@@ -3,7 +3,7 @@ const redirectUri = `${window.location.origin}/`;
 // GENERAL HELPER FUNCTIONS
 
 /**
- * Makes a POST request and parses the response as JSON
+ * Makes a POST request and parse the response as JSON
  *
  * @param {String} url - The resource
  * @param {Object} params - Configuration options

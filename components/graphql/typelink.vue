@@ -11,17 +11,19 @@
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   props: {
-    gqlType: null,
+    gqlType: null as any,
     // (typeName: string) => void
     jumpTypeCallback: Function
   },
 
   computed: {
-    typeString() {
-      return this.gqlType.toString();
+    typeString(): string {
+      return (this.gqlType as any).toString();
     }
   },
 
@@ -30,5 +32,5 @@ export default {
       this.jumpTypeCallback(this.gqlType);
     }
   }
-};
+});
 </script>

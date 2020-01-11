@@ -81,7 +81,7 @@ const base64urlencode = (
     .replace(/=+$/, "");
 // Return the base64-urlencoded sha256 hash for the PKCE challenge
 const pkceChallengeFromVerifier = async v => {
-  let hashed = await sha256(v);
+  const hashed = await sha256(v);
   return base64urlencode(hashed);
 };
 

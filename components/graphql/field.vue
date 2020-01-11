@@ -82,11 +82,11 @@ export default Vue.extend({
       }${argsString}: ${this.gqlField.type.toString()}`;
     },
 
-    fieldName() {
+    fieldName(): string {
       return this.gqlField.name;
     },
 
-    fieldArgs() {
+    fieldArgs(): string[] {
       return this.gqlField.args || [];
     }
   }

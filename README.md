@@ -89,8 +89,7 @@ _Customized themes are synced with local session storage_
 🔌 **WebSocket**: Establish full-duplex communication channels over a single TCP connection.
 
  - Send and receive data
- - Basic authentication using username and password
- - Token based authentication
+ - Basic and Bearer Token authentication
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
 
@@ -106,8 +105,10 @@ _Customized themes are synced with local session storage_
 
 **Types:**
  - None
- - Basic authentication using username and password
- - Token based authentication
+ - Basic
+ - Bearer Token
+ - OAuth 2.0
+ - OIDC Access Token/PKCE (Proof Key for Code Exchange)
 
 📢 **Headers**: Describes the format the body of your request is being sent as.
 

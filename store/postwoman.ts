@@ -59,7 +59,19 @@ export const SETTINGS_KEYS = [
   "URL_EXCLUDES"
 ];
 
-export const state = () => ({
+export interface Collection {
+    name: string;
+    folders: any[]; 
+    requests: any[];
+}
+export interface CollectionState {
+  settings: any;
+  collections: Collection[];
+  selectedRequest: any;
+  editingRequest: any;
+}
+
+export const state = () => (<CollectionState>{
   settings: {},
   collections: [
     {
@@ -73,9 +85,9 @@ export const state = () => ({
 });
 
 export const mutations = {
-  applySetting({ settings }, setting) {
+  applySetting({ settings }: { settings: any }, setting: any) {
     if (
-      setting == null ||
+      setting === null ||
       !(setting instanceof Array) ||
       setting.length !== 2
     ) {
@@ -96,11 +108,11 @@ export const mutations = {
     settings[key] = value;
   },
 
-  replaceCollections(state, collections) {
+  replaceCollections(state: CollectionState, collections: any[]) {
     state.collections = collections;
   },
 
-  importCollections(state, collections) {
+  importCollections(state: CollectionState, collections: any[]) {
     state.collections = [...state.collections, ...collections];
 
     let index = 0;
@@ -110,7 +122,7 @@ export const mutations = {
     }
   },
 
-  addNewCollection({ collections }, collection) {
+  addNewCollection({ collections }: { collections: Collection[] }, collection: Collection) {
     collections.push({
       name: "",
       folders: [],
@@ -119,17 +131,17 @@ export const mutations = {
     });
   },
 
-  removeCollection({ collections }, payload) {
+  removeCollection({ collections }: { collections: Collection[] }, payload: { collectionIndex: number }) {
     const { collectionIndex } = payload;
     collections.splice(collectionIndex, 1);
   },
 
-  editCollection({ collections }, payload) {
+  editCollection({ collections }: { collections: Collection[] }, payload: { collection: Collection, collectionIndex: number }) {
     const { collection, collectionIndex } = payload;
     collections[collectionIndex] = collection;
   },
 
-  addNewFolder({ collections }, payload) {
+  addNewFolder({ collections }: { collections: Collection[] }, payload: { collectionIndex: number, folder: any }) {
     const { collectionIndex, folder } = payload;
     collections[collectionIndex].folders.push({
       name: "",
@@ -138,17 +150,17 @@ export const mutations = {
     });
   },
 
-  editFolder({ collections }, payload) {
+  editFolder({ collections }: { collections: Collection[] }, payload: { collectionIndex: number, folder: any, folderIndex: number }) {
     const { collectionIndex, folder, folderIndex } = payload;
     Vue.set(collections[collectionIndex].folders, folderIndex, folder);
   },
 
-  removeFolder({ collections }, payload) {
+  removeFolder({ collections }: { collections: Collection[] }, payload: { collectionIndex: number, folderIndex: number }) {
     const { collectionIndex, folderIndex } = payload;
     collections[collectionIndex].folders.splice(folderIndex, 1);
   },
 
-  addRequest({ collections }, payload) {
+  addRequest({ collections }: { collections: Collection[] }, payload: { request: any }) {
     const { request } = payload;
 
     // Request that is directly attached to collection
@@ -162,7 +174,14 @@ export const mutations = {
     );
   },
 
-  editRequest({ collections }, payload) {
+  editRequest({ collections }: { collections: Collection[] }, payload: { 
+    requestOldCollectionIndex: number, 
+    requestOldFolderIndex: number, 
+    requestOldIndex: number,
+    requestNew: any,
+    requestNewCollectionIndex: number,
+    requestNewFolderIndex: number
+  }) {
     const {
       requestOldCollectionIndex,
       requestOldFolderIndex,
@@ -208,7 +227,12 @@ export const mutations = {
     }
   },
 
-  saveRequestAs({ collections }, payload) {
+  saveRequestAs({ collections }: { collections: Collection[] }, payload: {
+    request: any;
+    collectionIndex: number;
+    folderIndex: number;
+    requestIndex: number;
+  }) {
     const { request, collectionIndex, folderIndex, requestIndex } = payload;
 
     const specifiedCollection = collectionIndex !== undefined;
@@ -236,15 +260,15 @@ export const mutations = {
     }
   },
 
-  saveRequest({ collections }, payload) {
+  saveRequest({ collections }: { collections: Collection[] }, payload: { request: any }) {
     const { request } = payload;
 
     // Remove the old request from collection
+    const folder =
+      request.hasOwnProperty("oldFolder") && request.oldFolder >= -1
+        ? request.oldFolder
+        : request.folder;
     if (request.hasOwnProperty("oldCollection") && request.oldCollection > -1) {
-      const folder =
-        request.hasOwnProperty("oldFolder") && request.oldFolder >= -1
-          ? request.oldFolder
-          : request.folder;
       if (folder > -1) {
         collections[request.oldCollection].folders[folder].requests.splice(
           request.requestIndex,
@@ -286,7 +310,7 @@ export const mutations = {
     );
   },
 
-  removeRequest({ collections }, payload) {
+  removeRequest({ collections }: { collections: Collection[] }, payload: { collectionIndex: number, folderIndex: number, requestIndex: number }) {
     const { collectionIndex, folderIndex, requestIndex } = payload;
 
     // Request that is directly attached to collection
@@ -301,7 +325,7 @@ export const mutations = {
     );
   },
 
-  selectRequest(state, { request }) {
+  selectRequest(state: CollectionState, { request }: { request: any }) {
     state.selectedRequest = Object.assign({}, request);
   }
 };

@@ -2,13 +2,14 @@
   <pre ref="editor"></pre>
 </template>
 
-<script>
-const DEFAULT_THEME = "twilight";
-
+<script lang="ts">
+import Vue from "vue";
 import ace from "ace-builds";
 import "ace-builds/webpack-resolver";
 
-export default {
+const DEFAULT_THEME = "twilight";
+
+export default Vue.extend({
   props: {
     value: {
       type: String,
@@ -30,31 +31,31 @@ export default {
 
   data() {
     return {
-      editor: null,
+      editor: null as ace.Ace.Editor | null,
       cacheValue: ""
     };
   },
 
   watch: {
     value(value) {
-      if (value !== this.cacheValue) {
-        this.editor.session.setValue(value, 1);
+      if (this.editor && value !== this.cacheValue) {
+        this.editor.session.setValue(value);
         this.cacheValue = value;
       }
     },
     theme() {
-      this.editor.setTheme("ace/theme/" + this.defineTheme());
+      if (this.editor) this.editor.setTheme("ace/theme/" + this.defineTheme());
     },
     lang(value) {
-      this.editor.getSession().setMode("ace/mode/" + value);
+      if (this.editor) this.editor.getSession().setMode("ace/mode/" + value);
     },
     options(value) {
-      this.editor.setOptions(value);
+      if (this.editor) this.editor.setOptions(value);
     }
   },
 
   mounted() {
-    const editor = ace.edit(this.$refs.editor, {
+    const editor = ace.edit(this.$refs.editor as Element, {
       theme: "ace/theme/" + this.defineTheme(),
       mode: "ace/mode/" + this.lang,
       ...this.options
@@ -85,8 +86,10 @@ export default {
   },
 
   beforeDestroy() {
-    this.editor.destroy();
-    this.editor.container.remove();
+    if (this.editor) {
+      this.editor.destroy();
+      this.editor.container.remove();
+    }
   }
-};
+});
 </script>

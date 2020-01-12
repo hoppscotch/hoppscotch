@@ -29,9 +29,13 @@
 }
 </style>
 
-<script>
-export default {
-  props: ["error"],
+<script lang="ts">
+import Vue from 'vue';
+
+export default Vue.extend({
+  props: {
+    error: Object
+  },
 
   methods: {
     reloadApplication() {
@@ -46,5 +50,5 @@ export default {
       }
     };
   }
-};
+});
 </script>

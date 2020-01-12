@@ -58,6 +58,7 @@
       padding: 8px 16px;
       font-size: 16px;
       font-family: "Roboto Mono", monospace;
+      font-weight: 400;
 
       &:last-child {
         border-radius: 0 0 8px 8px;
@@ -74,14 +75,16 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
+
 const KEY_TAB = 9;
 const KEY_ESC = 27;
 
 const KEY_ARROW_UP = 38;
 const KEY_ARROW_DOWN = 40;
 
-export default {
+export default Vue.extend({
   props: {
     spellcheck: {
       type: Boolean,
@@ -109,7 +112,7 @@ export default {
 
   watch: {
     text() {
-      this.$emit("input", this.text);
+      (this.$emit as any)("input", this.text);
     }
   },
 
@@ -124,7 +127,7 @@ export default {
   },
 
   methods: {
-    updateSuggestions(event) {
+    updateSuggestions(event: InputEvent) {
       // Hide suggestions if ESC pressed.
       if (event.which && event.which === KEY_ESC) {
         event.preventDefault();
@@ -135,12 +138,12 @@ export default {
 
       // As suggestions is a reactive property, this implicitly
       // causes suggestions to update.
-      this.selectionStart = this.$refs.acInput.selectionStart;
+      this.selectionStart = (this.$refs.acInput as HTMLInputElement).selectionStart as number;
       this.suggestionsOffsetLeft = 12 * this.selectionStart;
       this.suggestionsVisible = true;
     },
 
-    forceSuggestion(text) {
+    forceSuggestion(text: string) {
       let input = this.text.substring(0, this.selectionStart);
       this.text = input + text;
 
@@ -149,7 +152,7 @@ export default {
       this.currentSuggestionIndex = -1;
     },
 
-    handleKeystroke(event) {
+    handleKeystroke(event: InputEvent) {
       switch (event.which) {
         case KEY_ARROW_UP:
           event.preventDefault();
@@ -190,11 +193,11 @@ export default {
      *
      * @returns {default.props.source|{type, required}}
      */
-    suggestions() {
+    suggestions(): string[] {
       let input = this.text.substring(0, this.selectionStart);
 
       return (
-        this.source
+        (this.source as string[])
           .filter(entry => {
             return (
               entry.toLowerCase().startsWith(input.toLowerCase()) &&
@@ -212,7 +215,7 @@ export default {
   mounted() {
     this.updateSuggestions({
       target: this.$refs.acInput
-    });
+    } as any);
   }
-};
+});
 </script>

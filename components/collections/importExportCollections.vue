@@ -70,16 +70,18 @@
   </modal>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   props: {
     show: Boolean
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal.vue")
   },
   computed: {
-    collectionJson() {
+    collectionJson(): string {
       return JSON.stringify(this.$store.state.postwoman.collections, null, 2);
     }
   },
@@ -88,28 +90,36 @@ export default {
       this.$emit("hide-modal");
     },
     openDialogChooseFileToReplaceWith() {
-      this.$refs.inputChooseFileToReplaceWith.click();
+      (this.$refs.inputChooseFileToReplaceWith as HTMLInputElement).click();
     },
     openDialogChooseFileToImportFrom() {
-      this.$refs.inputChooseFileToImportFrom.click();
+      (this.$refs.inputChooseFileToImportFrom as HTMLInputElement).click();
     },
     replaceWithJSON() {
       let reader = new FileReader();
       reader.onload = event => {
-        let content = event.target.result;
-        let collections = JSON.parse(content);
-        this.$store.commit("postwoman/replaceCollections", collections);
+        if (event && event.target) {
+          let content = event.target.result;
+          if (content) {
+            let collections = JSON.parse(content as string);
+            this.$store.commit("postwoman/replaceCollections", collections);
+          }
+        }
       };
-      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
+      reader.readAsText((this.$refs.inputChooseFileToReplaceWith as any).files[0] as File);
     },
     importFromJSON() {
       let reader = new FileReader();
       reader.onload = event => {
-        let content = event.target.result;
-        let collections = JSON.parse(content);
-        this.$store.commit("postwoman/importCollections", collections);
+        if (event && event.target) {
+          let content = event.target.result;
+          if (content) {
+            let collections = JSON.parse(content as string);
+            this.$store.commit("postwoman/importCollections", collections);
+          }
+        }
       };
-      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
+      reader.readAsText((this.$refs.inputChooseFileToImportFrom as any).files[0]);
     },
     exportJSON() {
       let text = this.collectionJson;
@@ -127,5 +137,5 @@ export default {
       document.body.removeChild(anchor);
     }
   }
-};
+});
 </script>

@@ -386,6 +386,7 @@ import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import AceEditor from "../components/ace-editor";
+import { sendNetworkRequest } from "../functions/network";
 
 export default {
   directives: {
@@ -685,21 +686,7 @@ export default {
           data: JSON.stringify({ query: gqlQueryString, variables })
         };
 
-        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? {
-              method: "post",
-              url:
-                this.$store.state.postwoman.settings.PROXY_URL ||
-                `https://postwoman.apollotv.xyz/`,
-              data: reqOptions
-            }
-          : reqOptions;
-
-        const res = await axios(reqConfig);
-
-        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? res.data
-          : res;
+        const data = await sendNetworkRequest(reqOptions, this.$store);
 
         this.responseString = JSON.stringify(data.data, null, 2);
 

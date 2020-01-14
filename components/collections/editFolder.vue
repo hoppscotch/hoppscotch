@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">Edit Folder</h3>
+            <h3 class="title">{{ $t("edit_folder") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -31,10 +31,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="editFolder">
-            Save
+            {{ $t("save") }}
           </button>
         </span>
       </div>

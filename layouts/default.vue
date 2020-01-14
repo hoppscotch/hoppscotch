@@ -12,7 +12,7 @@
               :to="localePath('index')"
               :class="linkActive('/')"
               v-tooltip.right="$t('home')"
-              aria-label="Home"
+              :aria-label="$t('home')"
             >
               <logo alt class="material-icons" style="height: 24px;"></logo>
             </nuxt-link>
@@ -27,7 +27,7 @@
               :to="localePath('graphql')"
               :class="linkActive('/graphql')"
               v-tooltip.right="$t('graphql')"
-              aria-label="GraphQL"
+              :aria-label="$t('graphql')"
             >
               <svg
                 class="material-icons"
@@ -141,8 +141,8 @@
             <nuxt-link
               :to="localePath('doc')"
               :class="linkActive('/doc')"
-              v-tooltip.right="'Documentation'"
-              aria-label="Documentation"
+              v-tooltip.right="$t('documentation')"
+              :aria-label="$t('documentation')"
             >
               <i class="material-icons">books</i>
             </nuxt-link>
@@ -150,7 +150,7 @@
               :to="localePath('settings')"
               :class="linkActive('/settings')"
               v-tooltip.right="$t('settings')"
-              aria-label="Settings"
+              :aria-label="$t('settings')"
             >
               <i class="material-icons">settings</i>
             </nuxt-link>
@@ -289,7 +289,7 @@
                   <i class="material-icons">offline_bolt</i>
                 </button>
                 <v-popover>
-                  <button class="icon" v-tooltip="'More'">
+                  <button class="icon" v-tooltip="$t('more')">
                     <i class="material-icons">more_vert</i>
                   </button>
                   <template slot="popover">
@@ -454,18 +454,17 @@
       </div>
       <div slot="body">
         <p class="info">
-          If you have enjoyed the productivity of using Postwoman, consider
-          donating as a sign of appreciation.
+          {{ $t("donate_info1") }}
         </p>
         <p class="info">
-          You can support Postwoman development via the following methods:
+          {{ $t("donate_info2") }}
         </p>
         <div>
           <a
             href="https://opencollective.com/postwoman"
             target="_blank"
             rel="noopener"
-            v-tooltip.right="'One-time or recurring'"
+            v-tooltip.right="$t('one_time_recurring')"
           >
             <button class="icon">
               <i class="material-icons">donut_large</i>
@@ -478,7 +477,7 @@
             href="https://www.paypal.me/liyascthomas"
             target="_blank"
             rel="noopener"
-            v-tooltip.right="'One-time'"
+            v-tooltip.right="$t('one_time')"
           >
             <button class="icon">
               <i class="material-icons">payment</i>
@@ -491,7 +490,7 @@
             href="https://www.patreon.com/liyasthomas"
             target="_blank"
             rel="noopener"
-            v-tooltip.right="'Recurring'"
+            v-tooltip.right="$t('recurring')"
           >
             <button class="icon">
               <i class="material-icons">local_parking</i>
@@ -577,13 +576,13 @@ export default {
       this.showInstallPrompt = await intializePwa();
       let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
       if (!cookiesAllowed) {
-        this.$toast.show("We use cookies", {
+        this.$toast.show(this.$t("we_use_cookies"), {
           icon: "info",
           duration: 5000,
           theme: "toasted-primary",
           action: [
             {
-              text: "Dismiss",
+              text: this.$t("dismiss"),
               onClick: (e, toastObject) => {
                 localStorage.setItem("cookiesAllowed", "yes");
                 toastObject.goAway(0);

@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">New Folder</h3>
+            <h3 class="title">{{ $t("new_folder") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" placeholder="My New Folder" />
+          <input type="text" v-model="name" :placeholder="$t('my_new_folder')" />
         </li>
       </ul>
     </div>
@@ -26,10 +26,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="addNewFolder">
-            Save
+            {{ $t("save") }}
           </button>
         </span>
       </div>

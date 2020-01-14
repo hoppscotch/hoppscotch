@@ -23,7 +23,7 @@
     </div>
 
     <div class="field-deprecated" v-if="gqlField.isDeprecated">
-      DEPRECATED
+      {{ $t("deprecated") }}
     </div>
   </div>
 </template>

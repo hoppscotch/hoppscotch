@@ -18,7 +18,7 @@
                     target="_blank"
                     rel="noopener"
                   >
-                    <button class="icon" v-tooltip="'Wiki'">
+                    <button class="icon" v-tooltip="$t('wiki')">
                       <i class="material-icons">help</i>
                     </button>
                   </a>
@@ -40,7 +40,11 @@
           </ul>
         </pw-section>
 
-        <pw-section class="blue" label="Request" ref="request">
+        <pw-section
+          class="blue"
+          :label="$t('request')"
+          ref="request"
+        >
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
@@ -86,7 +90,7 @@
                 name="label"
                 type="text"
                 v-model="label"
-                placeholder="(optional)"
+                :placeholder="$t('optional')"
               />
             </li>
             <li>
@@ -135,7 +139,7 @@
                       <button
                         class="icon"
                         @click="$refs.payload.click()"
-                        v-tooltip="'Upload file'"
+                        v-tooltip="$t('upload_file')"
                       >
                         <i class="material-icons">attach_file</i>
                       </button>
@@ -159,7 +163,7 @@
                     readonly
                     v-textarea-auto-height="rawRequestBody"
                     v-model="rawRequestBody"
-                    placeholder="(add at least one parameter)"
+                    :placeholder="$t('add_one_parameter')"
                     rows="1"
                   ></textarea>
                 </li>
@@ -200,6 +204,7 @@
                     <button
                       class="icon"
                       @click="removeRequestBodyParam(index)"
+                      v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
                       <i class="material-icons">delete</i>
@@ -306,7 +311,7 @@
               <button
                 class="icon"
                 @click="clearContent('', $event)"
-                v-tooltip.bottom="'Clear All'"
+                v-tooltip.bottom="$t('clear_all')"
                 ref="clearAll"
               >
                 <i class="material-icons">clear_all</i>
@@ -321,7 +326,7 @@
           <div class="tab">
             <pw-section
               class="cyan"
-              label="Authentication"
+              :label="$t('authentication')"
               ref="authentication"
             >
               <ul>
@@ -332,7 +337,7 @@
                       <button
                         class="icon"
                         @click="clearContent('auth', $event)"
-                        v-tooltip.bottom="'Clear'"
+                        v-tooltip.bottom="$t('clear')"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
@@ -443,14 +448,14 @@
                       <button
                         class="icon"
                         @click="clearContent('access_token', $event)"
-                        v-tooltip.bottom="'Clear'"
+                        v-tooltip.bottom="$t('clear')"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
                       <button
                         class="icon"
                         @click="showTokenRequest = false"
-                        v-tooltip.bottom="'Close'"
+                        v-tooltip.bottom="$t('close')"
                       >
                         <i class="material-icons">close</i>
                       </button>
@@ -458,7 +463,7 @@
                   </div>
                   <input
                     id="token-name"
-                    placeholder="(optional)"
+                    :placeholder="$t('optional')"
                     name="token_name"
                     v-model="accessTokenName"
                     type="text"
@@ -556,7 +561,7 @@
                       <button
                         class="icon"
                         @click="clearContent('headers', $event)"
-                        v-tooltip.bottom="'Clear'"
+                        v-tooltip.bottom="$t('clear')"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
@@ -567,7 +572,7 @@
                     readonly
                     v-textarea-auto-height="headerString"
                     v-model="headerString"
-                    placeholder="(add at least one header)"
+                    :placeholder="$t('add_one_header')"
                     rows="1"
                   ></textarea>
                 </li>
@@ -575,7 +580,7 @@
               <ul v-for="(header, index) in headers" :key="index">
                 <li>
                   <autocomplete
-                    :placeholder="'header ' + (index + 1)"
+                    :placeholder="$t('header_count', { count: index + 1 })"
                     :source="commonHeaders"
                     :spellcheck="false"
                     :value="header.key"
@@ -591,7 +596,7 @@
                 </li>
                 <li>
                   <input
-                    :placeholder="'value ' + (index + 1)"
+                    :placeholder="$t('value_count', { count: index + 1 })"
                     :name="'value' + index"
                     :value="header.value"
                     @change="
@@ -608,6 +613,7 @@
                     <button
                       class="icon"
                       @click="removeRequestHeader(index)"
+                      v-tooltip.bottom="$t('delete')"
                       id="header"
                     >
                       <i class="material-icons">delete</i>
@@ -637,7 +643,7 @@
                       <button
                         class="icon"
                         @click="clearContent('parameters', $event)"
-                        v-tooltip.bottom="'Clear'"
+                        v-tooltip.bottom="$t('clear')"
                       >
                         <i class="material-icons">clear_all</i>
                       </button>
@@ -648,7 +654,7 @@
                     readonly
                     v-textarea-auto-height="queryString"
                     v-model="queryString"
-                    placeholder="(add at least one parameter)"
+                    :placeholder="$t('add_one_parameter')"
                     rows="1"
                   ></textarea>
                 </li>
@@ -656,7 +662,7 @@
               <ul v-for="(param, index) in params" :key="index">
                 <li>
                   <input
-                    :placeholder="'parameter ' + (index + 1)"
+                    :placeholder="$t('parameter_count', { count: index + 1 })"
                     :name="'param' + index"
                     :value="param.key"
                     @change="
@@ -670,7 +676,7 @@
                 </li>
                 <li>
                   <input
-                    :placeholder="'value ' + (index + 1)"
+                    :placeholder="$t('value_count', { count: index + 1 })"
                     :name="'value' + index"
                     :value="param.value"
                     @change="
@@ -686,6 +692,7 @@
                     <button
                       class="icon"
                       @click="removeRequestParam(index)"
+                      v-tooltip.bottom="$t('delete')"
                       id="param"
                     >
                       <i class="material-icons">delete</i>
@@ -722,7 +729,7 @@
         <pw-section
           class="purple"
           id="response"
-          label="Response"
+          :label="$t('response')"
           ref="response"
         >
           <ul>
@@ -730,7 +737,7 @@
               <label for="status">{{ $t("status") }}</label>
               <input
                 :class="statusCategory ? statusCategory.className : ''"
-                :value="response.status || '(waiting to send request)'"
+                :value="response.status || $t('waiting_send_req')"
                 ref="status"
                 id="status"
                 name="status"
@@ -770,7 +777,7 @@
                     @click="downloadResponse"
                     ref="downloadResponse"
                     v-if="response.body"
-                    v-tooltip="'Download file'"
+                    v-tooltip="$t('download_file')"
                   >
                     <i class="material-icons">get_app</i>
                   </button>
@@ -779,7 +786,7 @@
                     @click="copyResponse"
                     ref="copyResponse"
                     v-if="response.body"
-                    v-tooltip="'Copy response'"
+                    v-tooltip="$t('copy_response')"
                   >
                     <i class="material-icons">file_copy</i>
                   </button>
@@ -835,7 +842,7 @@
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
-            <pw-section class="yellow" label="Collections" ref="collections">
+            <pw-section class="yellow" :label="$t('collections')" ref="collections">
               <collections />
             </pw-section>
           </div>
@@ -870,7 +877,7 @@
                 id="import-text"
                 autofocus
                 rows="8"
-                placeholder="Enter cURL"
+                :placeholder="$t('enter_curl')"
               ></textarea>
             </li>
           </ul>
@@ -880,7 +887,7 @@
             <span></span>
             <span>
               <button class="icon" @click="showModal = false">
-                Cancel
+                {{ $t("cancel") }}
               </button>
               <button class="icon primary" @click="handleImport">
                 {{ $t("import") }}
@@ -928,7 +935,7 @@
                     @click="copyRequestCode"
                     id="copyRequestCode"
                     ref="copyRequestCode"
-                    v-tooltip="'Copy code'"
+                    v-tooltip="$t('copy_code')"
                   >
                     <i class="material-icons">file_copy</i>
                   </button>
@@ -971,7 +978,7 @@
                   <button
                     class="icon"
                     @click="clearContent('tokens', $event)"
-                    v-tooltip.bottom="'Clear'"
+                    v-tooltip.bottom="$t('clear')"
                   >
                     <i class="material-icons">clear_all</i>
                   </button>
@@ -1009,7 +1016,7 @@
                 <button
                   class="icon"
                   @click="removeOAuthToken(index)"
-                  v-tooltip.bottom="'Delete'"
+                  v-tooltip.bottom="$t('delete')"
                 >
                   <i class="material-icons">delete</i>
                 </button>
@@ -1017,7 +1024,7 @@
             </div>
           </ul>
           <p v-if="tokens.length === 0" class="info">
-            Empty
+            {{ $t("empty") }}
           </p>
         </div>
         <div slot="footer"></div>
@@ -1059,7 +1066,7 @@
                     :disabled="this.tokenReqs.length === 0"
                     class="icon"
                     @click="removeOAuthTokenReq"
-                    v-tooltip.bottom="'Delete'"
+                    v-tooltip.bottom="$t('delete')"
                   >
                     <i class="material-icons">delete</i>
                   </button>
@@ -1390,8 +1397,8 @@ export default {
     },
     "response.body": function(val) {
       if (
-        this.response.body === "(waiting to send request)" ||
-        this.response.body === "Loading..."
+        this.response.body === this.$t("waiting_send_req") ||
+        this.response.body === this.$t("loading")
       ) {
         this.responseBodyText = this.response.body;
         this.responseBodyType = "text";
@@ -1994,7 +2001,7 @@ export default {
       this.scrollInto("response");
 
       if (!this.isValidURL) {
-        this.$toast.error("URL is not formatted properly", {
+        this.$toast.error(this.$t("url_invalid_format"), {
           icon: "error"
         });
         return;
@@ -2008,8 +2015,8 @@ export default {
         this.$refs.response.$el.classList.toggle("hidden");
       }
       this.previewEnabled = false;
-      this.response.status = "Fetching...";
-      this.response.body = "Loading...";
+      this.response.status = this.$t("fetching");
+      this.response.body = this.$t("loading");
 
       const auth =
         this.auth === "Basic Auth"
@@ -2070,7 +2077,7 @@ export default {
         );
 
         const duration = Date.now() - startTime;
-        this.$toast.info(`Finished in ${duration}ms`, {
+        this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done"
         });
 
@@ -2123,12 +2130,12 @@ export default {
           return;
         } else {
           this.response.status = error.message;
-          this.response.body = error + ". Check console for details.";
-          this.$toast.error(error + " (F12 for details)", {
+          this.response.body = `${error}. ${this.$t("check_console_details")}`;
+          this.$toast.error(`${error} ${this.$t("f12_details")}`, {
             icon: "error"
           });
           if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
-            this.$toast.info("Try enabling Proxy", {
+            this.$toast.info(this.$t("enable_proxy"), {
               icon: "help",
               duration: 8000,
               action: {
@@ -2173,10 +2180,10 @@ export default {
       const oldHeaders = this.headers.slice();
 
       this.$store.commit("removeHeaders", index);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.headers = oldHeaders;
             toastObject.remove();
@@ -2193,10 +2200,10 @@ export default {
       const oldParams = this.params.slice();
 
       this.$store.commit("removeParams", index);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.params = oldParams;
             toastObject.remove();
@@ -2213,10 +2220,10 @@ export default {
       const oldBodyParams = this.bodyParams.slice();
 
       this.$store.commit("removeBodyParams", index);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.bodyParams = oldBodyParams;
             toastObject.remove();
@@ -2244,7 +2251,7 @@ export default {
         document.execCommand("copy");
         document.body.removeChild(dummy);
         this.$refs.copyRequest.innerHTML = this.doneButton;
-        this.$toast.info("Copied to clipboard", {
+        this.$toast.info(this.$t("copied_to_clipboard"), {
           icon: "done"
         });
         setTimeout(
@@ -2255,7 +2262,7 @@ export default {
     },
     copyRequestCode() {
       this.$refs.copyRequestCode.innerHTML = this.doneButton;
-      this.$toast.success("Copied to clipboard", {
+      this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done"
       });
       this.$refs.generatedCode.select();
@@ -2272,7 +2279,7 @@ export default {
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton;
-      this.$toast.success("Copied to clipboard", {
+      this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done"
       });
       const aux = document.createElement("textarea");
@@ -2307,7 +2314,7 @@ export default {
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;
-      this.$toast.success("Download started", {
+      this.$toast.success(this.$t("download_started"), {
         icon: "done"
       });
       setTimeout(() => {
@@ -2437,7 +2444,7 @@ export default {
         this.showModal = false;
       } catch (error) {
         this.showModal = false;
-        this.$toast.error("cURL is not formatted properly", {
+        this.$toast.error(this.$t("curl_invalid_format"), {
           icon: "error"
         });
       }
@@ -2501,7 +2508,7 @@ export default {
           this.scope = "";
       }
       e.target.innerHTML = this.doneButton;
-      this.$toast.info("Cleared", {
+      this.$toast.info(this.$t("cleared"), {
         icon: "clear_all"
       });
       setTimeout(
@@ -2511,7 +2518,7 @@ export default {
     },
     saveRequest() {
       if (!this.checkCollections()) {
-        this.$toast.error("Create a Collection", {
+        this.$toast.error(this.$t("create_collection"), {
           icon: "error"
         });
         return;
@@ -2575,11 +2582,11 @@ export default {
           this.rawParams = e.target.result;
         };
         reader.readAsText(file);
-        this.$toast.info("File imported", {
+        this.$toast.info(this.$t("file_imported"), {
           icon: "attach_file"
         });
       } else {
-        this.$toast.error("Choose a file", {
+        this.$toast.error(this.$t("choose_file"), {
           icon: "attach_file"
         });
       }
@@ -2589,7 +2596,7 @@ export default {
         this.oidcDiscoveryUrl === "" &&
         (this.authUrl === "" || this.accessTokenUrl === "")
       ) {
-        this.$toast.error("Please complete configuration urls.", {
+        this.$toast.error(this.$t("complete_config_urls"), {
           icon: "error"
         });
         return;
@@ -2630,10 +2637,10 @@ export default {
     removeOAuthToken(index) {
       const oldTokens = this.tokens.slice();
       this.$store.commit("removeOAuthToken", index);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.tokens = oldTokens;
             toastObject.remove();
@@ -2653,7 +2660,7 @@ export default {
           name,
           details
         });
-        this.$toast.info("Token request saved");
+        this.$toast.info(this.$t("token_request_saved"));
         this.showTokenRequestList = false;
       } catch (e) {
         this.$toast.error(e, {
@@ -2668,10 +2675,10 @@ export default {
       );
       if (targetReqIndex < 0) return;
       this.$store.commit("removeOAuthTokenReq", targetReqIndex);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.tokenReqs = oldTokenReqs;
             toastObject.remove();

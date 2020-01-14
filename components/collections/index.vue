@@ -43,14 +43,14 @@ TODO:
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
-          <span>New</span>
+          <span>{{ $t("new") }}</span>
         </button>
       </div>
       <div>
         <button
           class="icon"
           @click="displayModalImportExport(true)"
-          v-tooltip="'Import / Export'"
+          v-tooltip="$t('import_export')"
         >
           <i class="material-icons">import_export</i>
         </button>

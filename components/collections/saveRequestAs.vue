@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">Save Request As</h3>
+            <h3 class="title">{{ $t("save_request_as") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <label for="selectLabel">Label</label>
+          <label for="selectLabel">{{ $t("label") }}</label>
           <input
             type="text"
             id="selectLabel"
@@ -25,7 +25,7 @@
             :placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
           />
-          <label for="selectCollection">Collection</label>
+          <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
             <select
               type="text"
@@ -38,7 +38,7 @@
                 hidden
                 disabled
                 selected
-                >Select a Collection</option
+                >{{ $t("select_collection") }}</option
               >
               <option
                 v-for="(collection, index) in $store.state.postwoman
@@ -50,7 +50,7 @@
               </option>
             </select>
           </span>
-          <label for="selectFolder">Folder</label>
+          <label for="selectFolder">{{ $t("folder") }}</label>
           <span class="select-wrapper">
             <select
               type="text"
@@ -67,7 +67,7 @@
               </option>
             </select>
           </span>
-          <label for="selectRequest">Request</label>
+          <label for="selectRequest">{{ $t("request") }}</label>
           <span class="select-wrapper">
             <select
               type="text"
@@ -92,10 +92,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="saveRequestAs">
-            Save
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -184,7 +184,7 @@ export default {
       const userDidntSpecifyCollection =
         this.$data.requestData.collectionIndex === undefined;
       if (userDidntSpecifyCollection) {
-        this.$toast.error("Select a Collection", {
+        this.$toast.error(this.$t("select_collection"), {
           icon: "error"
         });
         return;

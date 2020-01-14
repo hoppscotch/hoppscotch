@@ -361,6 +361,9 @@ export default {
       }
     ],
     defaultLocale: "en",
+    vueI18n: {
+      fallbackLocale: "en"
+    },
     lazy: true,
     langDir: "lang/"
   },

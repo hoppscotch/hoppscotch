@@ -10,20 +10,20 @@
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="'More'">
+        <button class="tooltip-target icon" v-tooltip="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button class="icon" @click="editFolder" v-close-popover>
               <i class="material-icons">edit</i>
-              <span>Edit</span>
+              <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
             <button class="icon" @click="removeFolder" v-close-popover>
               <i class="material-icons">delete</i>
-              <span>Delete</span>
+              <span>{{ $t("delete") }}</span>
             </button>
           </div>
         </template>
@@ -49,7 +49,7 @@
           />
         </li>
         <li v-if="folder.requests.length === 0">
-          <label>Folder is empty</label>
+          <label>{{ $t("folder_empty") }}</label>
         </li>
       </ul>
     </div>

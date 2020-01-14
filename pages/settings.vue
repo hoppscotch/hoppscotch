@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="cyan" label="Theme" ref="theme">
+    <pw-section class="cyan" :label="$t('theme')" ref="theme">
       <ul>
         <li>
           <label>{{ $t("background") }}</label>
@@ -58,7 +58,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="blue" label="Proxy" ref="proxy">
+    <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
           <div class="flex-wrap">
@@ -76,7 +76,7 @@
               target="_blank"
               rel="noopener"
             >
-              <button class="icon" v-tooltip="'Wiki'">
+              <button class="icon" v-tooltip="$t('wiki')">
                 <i class="material-icons">help</i>
               </button>
             </a>
@@ -90,7 +90,7 @@
             <button
               class="icon"
               @click="settings.PROXY_URL = `https://postwoman.apollotv.xyz/`"
-              v-tooltip.bottom="'Reset to default'"
+              v-tooltip.bottom="$t('reset_default')"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -152,26 +152,26 @@ export default {
       themes: [
         {
           color: "#202124",
-          name: "Kinda Dark",
+          name: this.$t("kinda_dark"),
           class: "",
           aceEditor: "twilight"
         },
         {
           color: "#ffffff",
-          name: "Clearly White",
+          name: this.$t("clearly_white"),
           vibrant: true,
           class: "light",
           aceEditor: "iplastic"
         },
         {
           color: "#000000",
-          name: "Just Black",
+          name: this.$t("just_black"),
           class: "black",
           aceEditor: "vibrant_ink"
         },
         {
           color: "var(--bg-color)",
-          name: "Auto (system)",
+          name: this.$t("auto_system"),
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
           class: "auto",
           aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches
@@ -184,42 +184,42 @@ export default {
         // If the color is vibrant, black is used as the active foreground color.
         {
           color: "#50fa7b",
-          name: "Green",
+          name: this.$t("green"),
           vibrant: true
         },
         {
           color: "#f1fa8c",
-          name: "Yellow",
+          name: this.$t("yellow"),
           vibrant: true
         },
         {
           color: "#ff79c6",
-          name: "Pink",
+          name: this.$t("pink"),
           vibrant: true
         },
         {
           color: "#ff5555",
-          name: "Red",
+          name: this.$t("red"),
           vibrant: false
         },
         {
           color: "#bd93f9",
-          name: "Purple",
+          name: this.$t("purple"),
           vibrant: true
         },
         {
           color: "#ffb86c",
-          name: "Orange",
+          name: this.$t("orange"),
           vibrant: true
         },
         {
           color: "#8be9fd",
-          name: "Cyan",
+          name: this.$t("cyan"),
           vibrant: true
         },
         {
           color: "#57b5f9",
-          name: "Blue",
+          name: this.$t("blue"),
           vibrant: false
         }
       ],

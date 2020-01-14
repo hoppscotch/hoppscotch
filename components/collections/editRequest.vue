@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">Edit Request</h3>
+            <h3 class="title">{{ $t("edit_request") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <label for="selectLabel">Label</label>
+          <label for="selectLabel">{{ $t("label") }}</label>
           <input
             type="text"
             id="selectLabel"
@@ -25,7 +25,7 @@
             @keyup.enter="saveRequest"
             :placeholder="request.name"
           />
-          <label for="selectCollection">Collection</label>
+          <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
             <select
               type="text"
@@ -38,7 +38,7 @@
                 hidden
                 disabled
                 selected
-                >Current Collection</option
+                >{{ $t("current_collection") }}</option
               >
               <option
                 v-for="(collection, index) in $store.state.postwoman
@@ -50,7 +50,7 @@
               </option>
             </select>
           </span>
-          <label for="selectFolder">Folder</label>
+          <label for="selectFolder">{{ $t("folder") }}</label>
           <span class="select-wrapper">
             <select
               type="text"
@@ -75,10 +75,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="saveRequest">
-            Save
+            {{ $t("save") }}
           </button>
         </span>
       </div>

@@ -1,15 +1,15 @@
 <template>
   <div class="page page-error">
-    <img src="~static/icons/error.svg" alt="Error" class="error_banner" />
+    <img src="~static/icons/error.svg" :alt="$t('error')" class="error_banner" />
     <h2>{{ error.statusCode }}</h2>
     <h3>{{ error.message }}</h3>
     <p>
       <nuxt-link to="/">
-        <button>Go Home</button>
+        <button>{{ $t("go_home") }}</button>
       </nuxt-link>
     </p>
     <p>
-      <a href @click.prevent="reloadApplication">Reload</a>
+      <a href @click.prevent="reloadApplication">{{ $t("reload") }}</a>
     </p>
   </div>
 </template>

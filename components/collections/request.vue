@@ -1,26 +1,26 @@
 <template>
   <div class="flex-wrap">
     <div>
-      <button class="icon" @click="selectRequest()" v-tooltip="'Use request'">
+      <button class="icon" @click="selectRequest()" v-tooltip="$t('use_request')">
         <i class="material-icons">insert_drive_file</i>
         <span>{{ request.name }}</span>
       </button>
     </div>
     <v-popover>
-      <button class="tooltip-target icon" v-tooltip="'More'">
+      <button class="tooltip-target icon" v-tooltip="$t('more')">
         <i class="material-icons">more_vert</i>
       </button>
       <template slot="popover">
         <div>
           <button class="icon" @click="$emit('edit-request')" v-close-popover>
             <i class="material-icons">edit</i>
-            <span>Edit</span>
+            <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div>
           <button class="icon" @click="removeRequest" v-close-popover>
             <i class="material-icons">delete</i>
-            <span>Delete</span>
+            <span>{{ $t("delete") }}</span>
           </button>
         </div>
       </template>

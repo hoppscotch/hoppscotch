@@ -1128,6 +1128,7 @@ import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
+import { sendNetworkRequest } from "../functions/network";
 
 const statusCategories = [
   {
@@ -1985,20 +1986,8 @@ export default {
       if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data);
       }
-      const config = this.$store.state.postwoman.settings.PROXY_ENABLED
-        ? {
-            method: "POST",
-            url:
-              this.$store.state.postwoman.settings.PROXY_URL ||
-              "https://postwoman.apollotv.xyz/",
-            data: requestOptions
-          }
-        : requestOptions;
 
-      const response = await this.$axios(config);
-      return this.$store.state.postwoman.settings.PROXY_ENABLED
-        ? response.data
-        : response;
+      return await sendNetworkRequest(requestOptions, this.$store);
     },
     async sendRequest() {
       this.$toast.clear();

@@ -154,7 +154,8 @@ export default {
   disconnected_from: "Disconnected from {name}",
   something_went_wrong: "Something went wrong!",
   error_occurred: "An error has occurred.",
-  browser_support_sse: "This browser doesn't seems to have Server Sent Events support.",
+  browser_support_sse:
+    "This browser doesn't seems to have Server Sent Events support.",
   log: "Log",
   no_url: "No URL",
   run_query: "Run Query",
@@ -207,7 +208,8 @@ export default {
   value_count: "value {count}",
   send_request_first: "Send a request first",
   generate_docs: "Generate Documentation",
-  generate_docs_message: "Import any Postwoman Collection to Generate Documentation on-the-go.",
+  generate_docs_message:
+    "Import any Postwoman Collection to Generate Documentation on-the-go.",
   generate_docs_first: "Generate documentation first",
   docs_generated: "Documentation generated",
   import_collections: "Import collections",
@@ -231,8 +233,10 @@ export default {
   enable_proxy: "Try enabling Proxy",
   complete_config_urls: "Please complete configuration urls.",
   token_request_saved: "Token request saved",
-  donate_info1: "If you have enjoyed the productivity of using Postwoman, consider donating as a sign of appreciation.",
-  donate_info2: "You can support Postwoman development via the following methods:",
+  donate_info1:
+    "If you have enjoyed the productivity of using Postwoman, consider donating as a sign of appreciation.",
+  donate_info2:
+    "You can support Postwoman development via the following methods:",
   one_time_recurring: "One-time or recurring",
   one_time: "One-time",
   recurring: "Recurring",

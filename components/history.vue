@@ -1,10 +1,5 @@
 <template>
-  <pw-section
-    class="green"
-    icon="history"
-    :label="$t('history')"
-    ref="history"
-  >
+  <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <ul>
       <li id="filter-history">
         <input
@@ -27,7 +22,9 @@
             class="icon"
             :class="{ stared: entry.star }"
             @click="toggleStar(index)"
-            v-tooltip="{ content: !entry.star ? $t('add_star') : $t('remove_star') }"
+            v-tooltip="{
+              content: !entry.star ? $t('add_star') : $t('remove_star')
+            }"
           >
             <i class="material-icons">
               {{ entry.star ? "star" : "star_border" }}
@@ -238,7 +235,9 @@
         </v-popover>
       </div>
       <div class="flex-wrap" v-else>
-        <label for="clear-history-button" class="info">{{ $t("are_you_sure") }}</label>
+        <label for="clear-history-button" class="info">
+          {{ $t("are_you_sure") }}
+        </label>
         <div>
           <button
             class="icon"

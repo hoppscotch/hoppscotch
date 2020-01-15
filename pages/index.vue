@@ -40,11 +40,7 @@
           </ul>
         </pw-section>
 
-        <pw-section
-          class="blue"
-          :label="$t('request')"
-          ref="request"
-        >
+        <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
@@ -842,7 +838,11 @@
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
-            <pw-section class="yellow" :label="$t('collections')" ref="collections">
+            <pw-section
+              class="yellow"
+              :label="$t('collections')"
+              ref="collections"
+            >
               <collections />
             </pw-section>
           </div>

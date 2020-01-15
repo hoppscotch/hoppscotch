@@ -17,7 +17,11 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" :placeholder="$t('my_new_collection')" />
+          <input
+            type="text"
+            v-model="name"
+            :placeholder="$t('my_new_collection')"
+          />
         </li>
       </ul>
     </div>

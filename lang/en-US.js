@@ -245,5 +245,8 @@ export default {
   go_home: "Go Home",
   reload: "Reload",
   enter_curl: "Enter cURL",
-  empty: "Empty"
+  empty: "Empty",
+  extensions: "Extensions",
+  extensions_info1: "Browser extension that simplifies access to Postwoman",
+  extensions_info2: "Get Postwoman browser extension!"
 };

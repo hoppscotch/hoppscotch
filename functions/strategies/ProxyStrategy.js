@@ -6,7 +6,6 @@ const proxyStrategy = async (req, store) => {
       "https://postwoman.apollotv.xyz/",
     req
   );
-  window.$nuxt.$loading.finish();
   return data;
 };
 

@@ -93,12 +93,14 @@
               </p>
               <p class="doc-desc" v-if="request.path">
                 <span>
-                  {{ $t("path") }}: <code>{{ request.path || $t("none") }}</code>
+                  {{ $t("path") }}:
+                  <code>{{ request.path || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.method">
                 <span>
-                  {{ $t("method") }}: <code>{{ request.method || $t("none") }}</code>
+                  {{ $t("method") }}:
+                  <code>{{ request.method || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.auth">
@@ -109,7 +111,8 @@
               </p>
               <p class="doc-desc" v-if="request.httpUser">
                 <span>
-                  {{ $t("username") }}: <code>{{ request.httpUser || $t("none") }}</code>
+                  {{ $t("username") }}:
+                  <code>{{ request.httpUser || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.httpPassword">
@@ -120,16 +123,17 @@
               </p>
               <p class="doc-desc" v-if="request.bearerToken">
                 <span>
-                  {{ $t("token") }}: <code>{{ request.bearerToken || $t("none") }}</code>
+                  {{ $t("token") }}:
+                  <code>{{ request.bearerToken || $t("none") }}</code>
                 </span>
               </p>
               <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
-              <span
-                v-if="request.headers"
-                v-for="header in request.headers"
-                :key="header.key"
-              >
-                <p class="doc-desc">
+              <span v-if="request.headers">
+                <p
+                  v-for="header in request.headers"
+                  :key="header.key"
+                  class="doc-desc"
+                >
                   <span>
                     {{ header.key || $t("none") }}:
                     <code>{{ header.value || $t("none") }}</code>
@@ -137,12 +141,12 @@
                 </p>
               </span>
               <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
-              <span
-                v-if="request.params"
-                v-for="parameter in request.params"
-                :key="parameter.key"
-              >
-                <p class="doc-desc">
+              <span v-if="request.params">
+                <p
+                  v-for="parameter in request.params"
+                  :key="parameter.key"
+                  class="doc-desc"
+                >
                   <span>
                     {{ parameter.key || $t("none") }}:
                     <code>{{ parameter.value || $t("none") }}</code>
@@ -150,12 +154,12 @@
                 </p>
               </span>
               <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-              <span
-                v-if="request.bodyParam"
-                v-for="payload in request.bodyParam"
-                :key="payload.key"
-              >
-                <p class="doc-desc">
+              <span v-if="request.bodyParam">
+                <p
+                  v-for="payload in request.bodyParam"
+                  :key="payload.key"
+                  class="doc-desc"
+                >
                   <span>
                     {{ payload.key || $t("none") }}:
                     <code>{{ payload.value || $t("none") }}</code>
@@ -164,7 +168,8 @@
               </span>
               <p class="doc-desc" v-if="request.rawParams">
                 <span>
-                  {{ $t("parameters") }}: <code>{{ request.rawParams || $t("none") }}</code>
+                  {{ $t("parameters") }}:
+                  <code>{{ request.rawParams || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.contentType">
@@ -202,7 +207,8 @@
             </p>
             <p class="doc-desc" v-if="request.method">
               <span>
-                {{ $t("method") }}: <code>{{ request.method || $t("none") }}</code>
+                {{ $t("method") }}:
+                <code>{{ request.method || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.auth">
@@ -213,26 +219,29 @@
             </p>
             <p class="doc-desc" v-if="request.httpUser">
               <span>
-                {{ $t("username") }}: <code>{{ request.httpUser || $t("none") }}</code>
+                {{ $t("username") }}:
+                <code>{{ request.httpUser || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.httpPassword">
               <span>
-                {{ $t("password") }}: <code>{{ request.httpPassword || $t("none") }}</code>
+                {{ $t("password") }}:
+                <code>{{ request.httpPassword || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.bearerToken">
               <span>
-                {{ $t("token") }}: <code>{{ request.bearerToken || $t("none") }}</code>
+                {{ $t("token") }}:
+                <code>{{ request.bearerToken || $t("none") }}</code>
               </span>
             </p>
             <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
-            <span
-              v-if="request.headers"
-              v-for="header in request.headers"
-              :key="header.key"
-            >
-              <p class="doc-desc">
+            <span v-if="request.headers">
+              <p
+                v-for="header in request.headers"
+                :key="header.key"
+                class="doc-desc"
+              >
                 <span>
                   {{ header.key || $t("none") }}:
                   <code>{{ header.value || $t("none") }}</code>
@@ -240,12 +249,12 @@
               </p>
             </span>
             <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
-            <span
-              v-if="request.params"
-              v-for="parameter in request.params"
-              :key="parameter.key"
-            >
-              <p class="doc-desc">
+            <span v-if="request.params">
+              <p
+                v-for="parameter in request.params"
+                :key="parameter.key"
+                class="doc-desc"
+              >
                 <span>
                   {{ parameter.key || $t("none") }}:
                   <code>{{ parameter.value || $t("none") }}</code>
@@ -253,12 +262,12 @@
               </p>
             </span>
             <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-            <span
-              v-if="request.bodyParam"
-              v-for="payload in request.bodyParam"
-              :key="payload.key"
-            >
-              <p class="doc-desc">
+            <span v-if="request.bodyParam">
+              <p
+                v-for="payload in request.bodyParam"
+                :key="payload.key"
+                class="doc-desc"
+              >
                 <span>
                   {{ payload.key || $t("none") }}:
                   <code>{{ payload.value || $t("none") }}</code>
@@ -267,7 +276,8 @@
             </span>
             <p class="doc-desc" v-if="request.rawParams">
               <span>
-                {{ $t("parameters") }}: <code>{{ request.rawParams || $t("none") }}</code>
+                {{ $t("parameters") }}:
+                <code>{{ request.rawParams || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.contentType">
@@ -303,9 +313,6 @@
   .material-icons {
     margin-right: 16px;
   }
-}
-
-.collection {
 }
 
 .folder {

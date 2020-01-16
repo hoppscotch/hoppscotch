@@ -220,9 +220,9 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
 
  - **[Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
  - **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
- - **[Browser Extensions](https://github.com/postwoman-io/postwoman-cli)** - Browser extensions that simplifies access to Postwoman
+ - **[Browser Extensions](https://github.com/AndrewBastin/postwoman-firefox)** - Browser extensions that simplifies access to Postwoman
 
- [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_24x24.png) **Firefox**]() &nbsp;|&nbsp; ![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_24x24.png) **Chrome (coming soon)**
+ > [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; ![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome (coming soon)**
 
 _Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**_
 

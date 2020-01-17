@@ -1,5 +1,4 @@
 import AxiosStrategy from "./strategies/AxiosStrategy";
-import ProxyStrategy from "./strategies/ProxyStrategy";
 import FirefoxStrategy from "./strategies/FirefoxStrategy";
 
 
@@ -8,10 +7,6 @@ const runAppropriateStrategy = (req, store) => {
   // If that is available, then we can use the FirefoxStrategy
   if (window.firefoxExtSendRequest) {
     return FirefoxStrategy(req, store); 
-  }
-
-  if (store.state.postwoman.settings.PROXY_ENABLED) {
-    return ProxyStrategy(req, store);
   }
 
   return AxiosStrategy(req, store);

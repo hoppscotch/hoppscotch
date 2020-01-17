@@ -672,7 +672,6 @@ export default {
           } else if (gqlQueryString.indexOf(`\$${variable.key}: Float`) > -1) {
             variables[variable.key] = parseFloat(variable.value);
           } else {
-            console.log(variable);
             variables[variable.key] = variable.value;
           }
         });

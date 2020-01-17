@@ -248,5 +248,6 @@ export default {
   empty: "Empty",
   extensions: "Extensions",
   extensions_info1: "Browser extension that simplifies access to Postwoman",
-  extensions_info2: "Get Postwoman browser extension!"
+  extensions_info2: "Get Postwoman browser extension!",
+  installed: "Installed"
 };

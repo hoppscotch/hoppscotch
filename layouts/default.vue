@@ -450,6 +450,13 @@
                 />
               </svg>
               <span>Firefox</span>
+              <span
+                class="icon"
+                v-if="firefoxExtInstalled"
+                v-tooltip="$t('installed')"
+              >
+                <i class="material-icons">done</i>
+              </span>
             </button>
           </a>
         </div>
@@ -467,6 +474,13 @@
               />
             </svg>
             <span>Chrome (coming soon)</span>
+            <span
+              class="icon"
+              v-if="chromeExtInstalled"
+              v-tooltip="$t('installed')"
+            >
+              <i class="material-icons">done</i>
+            </span>
           </button>
         </div>
       </div>
@@ -604,7 +618,9 @@ export default {
       version: {},
       showExtensions: false,
       showShortcuts: false,
-      showSupport: false
+      showSupport: false,
+      firefoxExtInstalled: window.firefoxExtSendRequest,
+      chromeExtInstalled: false
     };
   },
 
@@ -687,7 +703,7 @@ export default {
               }
             ]
           });
-        }, 10000);
+        }, 15000);
       }
     })();
 

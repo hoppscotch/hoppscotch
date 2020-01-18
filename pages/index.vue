@@ -359,7 +359,7 @@
                 </div>
               </div>
               <Editor
-                v-model="postRequestTests"
+                v-model="testScript"
                 :lang="'javascript'"
                 :options="{
                   maxLines: responseBodyMaxLines,
@@ -1190,6 +1190,7 @@
   import textareaAutoHeight from "../directives/textareaAutoHeight";
   import parseCurlCommand from "../assets/js/curlparser.js";
   import getEnvironmentVariablesFromScript from "../functions/preRequest";
+  import runTestScriptWitVariables from '../functions/postWomanTesting';
   import parseTemplateString from "../functions/templating";
   import AceEditor from "../components/ace-editor";
   import {tokenRequest, oauthRedirect} from "../assets/js/oauth";
@@ -1266,7 +1267,7 @@
         showPreRequestScript: false,
         testsEnabled: false,
         preRequestScript: "// pw.env.set('variable', 'value');",
-        postRequestTests: "// pw.expect('variable').toBe('value);",
+        testScript: "// pw.expect('variable').toBe('value');",
         copyButton: '<i class="material-icons">file_copy</i>',
         downloadButton: '<i class="material-icons">get_app</i>',
         doneButton: '<i class="material-icons">done</i>',
@@ -2141,6 +2142,9 @@
             icon: "done"
           });
 
+          // tests
+          const testResults = runTestScriptWitVariables(this.testScript, {});
+
           (() => {
             const status = (this.response.status = payload.status);
             const headers = (this.response.headers = payload.headers);
@@ -2184,7 +2188,8 @@
               url: this.url,
               path: this.path,
               usesScripts: Boolean(this.preRequestScript),
-              preRequestScript: this.preRequestScript
+              preRequestScript: this.preRequestScript,
+              testCode: this.testCode
             };
             this.$refs.historyComponent.addEntry(entry);
             return;

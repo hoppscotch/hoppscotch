@@ -1,11 +1,14 @@
 import {parse} from "graphql";
+const PASS = 'PASS',
+  FAIL = 'FAIL',
+  ERROR = 'ERROR';
 
 export default function runTestScriptWitVariables(script, variables) {
-
   let pw = {
     _errors: [],
+    _testResults: [],
     _report: '',
-    expect,
+    expect: function(value) { return expect(value, this._testResults) },
     test
     // globals that the script is allowed to have access to.
   };
@@ -17,9 +20,10 @@ export default function runTestScriptWitVariables(script, variables) {
     new Function("pw", script)(pw);
   }
   catch (e) {
+    debugger;
     errors = e;
   }
-  return errors;
+  return {report: pw._report, errors: pw._errors, testResults: pw._testResults};
 }
 
 function test(descriptor, func) {
@@ -29,6 +33,7 @@ function test(descriptor, func) {
     testReports.push({descriptor: true, message: descriptor});
     func();
   };
+  //TODO shadow pw object to override _testReports
   let xit = (descriptor, func) => {
     testReports.push({descriptor: true, message: `⊖ ${descriptor} [skipped]`})
   };
@@ -39,8 +44,8 @@ function test(descriptor, func) {
   // add checkmark or x depending on if each testReport is pass=true or pass=false
 }
 
-function expect(expectValue) {
-  return new Expectation(expectValue);
+function expect(expectValue, _testReports) {
+  return new Expectation(expectValue, null, _testReports);
 }
 
 class Expectation {
@@ -73,18 +78,10 @@ class Expectation {
     }
   }
   _fail(message) {
-    if (this._testReports) {
-      this._testReports.push({pass: false, message})
-    } else {
-      throw {message}
-    }
+    this._testReports.push({result: FAIL, message})
   }
   _pass(message) {
-    if (this._testReports) {
-      this._testReports.push({pass: true, message});
-    } else {
-      return true;
-    }
+    this._testReports.push({result: PASS});
   }
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)

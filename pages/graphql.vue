@@ -667,14 +667,9 @@ export default {
         const gqlQueryString = this.gqlQueryString;
         this.variables.forEach(variable => {
           // todo: better variable type validation
-          const intRex = new RegExp(`\$${variable.key}\: Int`);
-          intRex.compile();
-          const floatRex = new RegExp(`\$${variable.key}\: Float`);
-          floatRex.compile();
-
-          if (intRex.test(gqlQueryString)) {
+          if (gqlQueryString.indexOf(`\$${variable.key}: Int`) > -1) {
             variables[variable.key] = parseInt(variable.value);
-          } else if (floatRex.test(gqlQueryString)) {
+          } else if (gqlQueryString.indexOf(`\$${variable.key}: Float`) > -1) {
             variables[variable.key] = parseFloat(variable.value);
           } else {
             variables[variable.key] = variable.value;

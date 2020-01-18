@@ -1,13 +1,14 @@
 import * as cookie from "cookie";
 import * as URL from "url";
 import * as querystring from "querystring";
+import yargs from "yargs-parser";
 
 /**
  * given this: [ 'msg1=value1', 'msg2=value2' ]
  * output this: 'msg1=value1&msg2=value2'
  * @param dataArguments
  */
-const joinDataArguments = dataArguments => {
+const joinDataArguments = (dataArguments: string[]) => {
   let data = "";
   dataArguments.forEach((argument, i) => {
     if (i === 0) {
@@ -19,7 +20,7 @@ const joinDataArguments = dataArguments => {
   return data;
 };
 
-const parseCurlCommand = curlCommand => {
+const parseCurlCommand = (curlCommand: string) => {
   let newlineFound = /\r|\n/.exec(curlCommand);
   if (newlineFound) {
     // remove newlines
@@ -32,7 +33,7 @@ const parseCurlCommand = curlCommand => {
   curlCommand = curlCommand.replace(/ -XPATCH/, " -X PATCH");
   curlCommand = curlCommand.replace(/ -XDELETE/, " -X DELETE");
   curlCommand = curlCommand.trim();
-  let parsedArguments = require("yargs-parser")(curlCommand);
+  let parsedArguments = yargs(curlCommand);
   let cookieString;
   let cookies;
   let url = parsedArguments._[1];
@@ -45,9 +46,12 @@ const parseCurlCommand = curlCommand => {
       }
     }
   }
-  let headers;
 
-  const parseHeaders = headerFieldName => {
+  let headers: {
+    [key: string]: string;
+  } = {};
+
+  const parseHeaders = (headerFieldName: string) => {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {};
@@ -55,7 +59,7 @@ const parseCurlCommand = curlCommand => {
       if (!Array.isArray(parsedArguments[headerFieldName])) {
         parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]];
       }
-      parsedArguments[headerFieldName].forEach(header => {
+      parsedArguments[headerFieldName].forEach((header: string) => {
         if (header.includes("Cookie")) {
           // stupid javascript tricks: closure
           cookieString = header;
@@ -73,12 +77,12 @@ const parseCurlCommand = curlCommand => {
   parseHeaders("header");
   if (parsedArguments.A) {
     if (!headers) {
-      headers = [];
+      headers = {};
     }
     headers["User-Agent"] = parsedArguments.A;
   } else if (parsedArguments["user-agent"]) {
     if (!headers) {
-      headers = [];
+      headers = {};
     }
     headers["User-Agent"] = parsedArguments["user-agent"];
   }
@@ -89,20 +93,23 @@ const parseCurlCommand = curlCommand => {
   if (parsedArguments.cookie) {
     cookieString = parsedArguments.cookie;
   }
-  let multipartUploads;
+
+  let multipartUploads: {
+    [key: string]: string;
+  } = {};
   if (parsedArguments.F) {
     multipartUploads = {};
     if (!Array.isArray(parsedArguments.F)) {
       parsedArguments.F = [parsedArguments.F];
     }
-    parsedArguments.F.forEach(multipartArgument => {
+    parsedArguments.F.forEach((multipartArgument: string) => {
       // input looks like key=value. value could be json or a file path prepended with an @
       const [key, value] = multipartArgument.split("=", 2);
       multipartUploads[key] = value;
     });
   }
   if (cookieString) {
-    const cookieParseOptions = {
+    const cookieParseOptions: cookie.CookieParseOptions = {
       decode: s => s
     };
     // separate out cookie headers into separate data structure
@@ -167,12 +174,31 @@ const parseCurlCommand = curlCommand => {
       delete parsedArguments[option];
     }
   }
-  let query = querystring.parse(urlObject.query, null, null, {
-    maxKeys: 10000
-  });
+  let query: querystring.ParsedUrlQuery | null = null;
+  if (urlObject.query) {
+    query = querystring.parse(urlObject.query, undefined, undefined, {
+      maxKeys: 10000
+    });
+  }
 
   urlObject.search = null; // Clean out the search/query portion.
-  const request = {
+  type Request = {
+    url: string;
+    urlWithoutQuery: string;
+    compressed?: boolean;
+    query?: querystring.ParsedUrlQuery;
+    headers?: typeof headers;
+    method?: string;
+    cookies?: typeof cookies;
+    cookieString?: string;
+    multipartUploads?: typeof multipartUploads;
+    data?: string | string[];
+    dataArray?: string[];
+    isDataBinary?: boolean;
+    auth?: string;
+    insecure?: boolean;
+  };
+  const request: Request = {
     url,
     urlWithoutQuery: URL.format(urlObject)
   };
@@ -180,7 +206,7 @@ const parseCurlCommand = curlCommand => {
     request["compressed"] = true;
   }
 
-  if (Object.keys(query).length > 0) {
+  if (!!query && Object.keys(query).length > 0) {
     request.query = query;
   }
   if (headers) {
@@ -212,7 +238,7 @@ const parseCurlCommand = curlCommand => {
   if (parsedArguments["user"]) {
     request.auth = parsedArguments["user"];
   }
-  if (Array.isArray(request.data)) {
+  if (typeof request.data !== "string" && !!request.data) {
     request.dataArray = request.data;
     request.data = joinDataArguments(request.data);
   }

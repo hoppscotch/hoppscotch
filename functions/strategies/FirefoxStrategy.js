@@ -30,8 +30,9 @@ const firefoxWithoutProxy = (req, _store) => new Promise((resolve, reject) => {
 });
 
 const firefoxStrategy = (req, store) => {
-  if (store.state.postwoman.settings.PROXY_ENABLED)
+  if (store.state.postwoman.settings.PROXY_ENABLED) {
     return firefoxWithProxy(req, store);
+  }
   else return firefoxWithoutProxy(req, store);
 }
 

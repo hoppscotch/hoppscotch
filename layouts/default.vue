@@ -619,7 +619,8 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
-      firefoxExtInstalled: window.firefoxExtSendRequest,
+      firefoxExtInstalled:
+        window.firefoxExtSendRequest !== undefined ? true : false,
       chromeExtInstalled: false
     };
   },
@@ -680,7 +681,11 @@ export default {
       }
       let showExtensionsToast =
         localStorage.getItem("showExtensionsToast") === "yes";
-      if (!showExtensionsToast) {
+      if (
+        !this.firefoxExtInstalled &&
+        !this.chromeExtInstalled &&
+        !showExtensionsToast
+      ) {
         setTimeout(() => {
           this.$toast.show(this.$t("extensions_info2"), {
             icon: "extension",

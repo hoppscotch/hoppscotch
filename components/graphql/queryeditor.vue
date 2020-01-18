@@ -93,21 +93,14 @@ export default {
 
     parseContents: debounce(function (content) {
       try {
-        console.log(this.editor.session);
-        console.log(gql.parse(content));
-        console.log("Parse Success");
+        gql.parse(content);
       } catch (e) {
-        console.log(e);
-        console.log("Parse Failed");
-
         this.editor.session.setAnnotations([{
           row: e.locations[0].line - 1,
           column: e.locations[0].column - 1,
           text: e.message,
           type: "error"
         }]);
-        console.log("Annotated");
-        console.log(this.editor.session.getAnnotations());
       }
     }, 2000)
   },

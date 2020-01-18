@@ -76,6 +76,8 @@ export default {
 
       this.cacheValue = content;
     });
+
+    this.parseContents(this.value);
   },
 
   methods: {

@@ -14,19 +14,43 @@ export default () => {
   }
 
   // Step 3: Check if the navigator is in standalone mode. (Again, only permitted for PWAs.)
-  if (!pwaInstalled && window.navigator.standalone === true) {
+  interface CustomNavigotor extends Navigator {
+    standalone?: boolean;
+  }
+  const navigator: CustomNavigotor = window.navigator;
+  if (!pwaInstalled && navigator.standalone === true) {
     localStorage.setItem("pwaInstalled", "yes");
     pwaInstalled = true;
   }
 
   //*** If the PWA has not been installed, show the install PWA prompt.. ***//
-  let deferredPrompt = null;
+  interface DeferredPromptEvent extends Event {
+    readonly platforms: Array<string>;
+    readonly userChoice: Promise<{
+      outcome: "accepted" | "dismissed";
+      platform: string;
+    }>;
+    prompt(): Promise<void>;
+  }
+
+  function isDeferredPromptEventEvent(
+    event: Event
+  ): event is DeferredPromptEvent {
+    return "prompt" in event;
+  }
+
+  let deferredPrompt: DeferredPromptEvent | null = null;
   window.addEventListener("beforeinstallprompt", event => {
-    deferredPrompt = event;
+    if (isDeferredPromptEventEvent(event)) {
+      deferredPrompt = event;
+    }
 
     // Show the install button if the prompt appeared.
     if (!pwaInstalled) {
-      document.querySelector("#installPWA").style.display = "inline-flex";
+      const installPWAElement = document.getElementById("installPWA");
+      if (installPWAElement !== null) {
+        installPWAElement!.style.display = "inline-flex";
+      }
     }
   });
 
@@ -34,16 +58,19 @@ export default () => {
   window.addEventListener("appinstalled", event => {
     localStorage.setItem("pwaInstalled", "yes");
     pwaInstalled = true;
-    document.getElementById("installPWA").style.display = "none";
+    const installPWAElement = document.getElementById("installPWA");
+    if (installPWAElement !== null) {
+      installPWAElement.style.display = "none";
+    }
   });
 
   // When the app is uninstalled, add the prompts back
   return async () => {
-    if (deferredPrompt) {
+    if (deferredPrompt !== null) {
       deferredPrompt.prompt();
-      let outcome = await deferredPrompt.userChoice;
+      const userChoice = await deferredPrompt.userChoice;
 
-      if (outcome === "accepted") {
+      if (userChoice.outcome === "accepted") {
         console.log("Postwoman was installed successfully.");
       } else {
         console.log(

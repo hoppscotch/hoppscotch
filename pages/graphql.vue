@@ -175,7 +175,8 @@
               </button>
             </div>
           </div>
-          <Editor
+          <QueryEditor
+            ref="queryEditor"
             v-model="gqlQueryString"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -391,6 +392,7 @@ import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import AceEditor from "../components/ace-editor";
+import QueryEditor from "../components/graphql/queryeditor";
 import { sendNetworkRequest } from "../functions/network";
 
 export default {
@@ -402,7 +404,8 @@ export default {
     "gql-field": () => import("../components/graphql/field"),
     "gql-type": () => import("../components/graphql/type"),
     autocomplete: () => import("../components/autocomplete"),
-    Editor: AceEditor
+    Editor: AceEditor,
+    QueryEditor: QueryEditor
   },
   data() {
     return {
@@ -543,6 +546,7 @@ export default {
       responseBodyMaxLines: 16
     };
   },
+
   computed: {
     url: {
       get() {

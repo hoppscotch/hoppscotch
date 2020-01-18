@@ -18,7 +18,7 @@ const axiosStrategy = (req, store) => {
   if (store.state.postwoman.settings.PROXY_ENABLED) {
     return axiosWithProxy(req, store);
   }
-  else return axiosWithoutProxy(req, store);
+  return axiosWithoutProxy(req, store);
 }
 
 export default axiosStrategy;

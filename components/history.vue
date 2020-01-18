@@ -1,11 +1,11 @@
 <template>
-  <pw-section class="green" icon="history" label="History" ref="history">
+  <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <ul>
       <li id="filter-history">
         <input
           aria-label="Search"
           type="text"
-          placeholder="search history"
+          :placeholder="$t('search_history')"
           v-model="filterText"
         />
       </li>
@@ -22,7 +22,9 @@
             class="icon"
             :class="{ stared: entry.star }"
             @click="toggleStar(index)"
-            v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star' }"
+            v-tooltip="{
+              content: !entry.star ? $t('add_star') : $t('remove_star')
+            }"
           >
             <i class="material-icons">
               {{ entry.star ? "star" : "star_border" }}
@@ -30,11 +32,11 @@
           </button>
           <li>
             <input
-              aria-label="Label"
+              :aria-label="$t('label')"
               type="text"
               readonly
               :value="entry.label"
-              placeholder="No label"
+              :placeholder="$t('no_label')"
               class="bg-color"
             />
           </li>
@@ -53,7 +55,7 @@
             </button>
           </li> -->
           <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'Options'">
+            <button class="tooltip-target icon" v-tooltip="$t('options')">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
@@ -62,11 +64,11 @@
                   class="icon"
                   :id="'use-button#' + index"
                   @click="useHistory(entry)"
-                  aria-label="Edit"
+                  :aria-label="$t('edit')"
                   v-close-popover
                 >
                   <i class="material-icons">restore</i>
-                  <span>Restore</span>
+                  <span>{{ $t("restore") }}</span>
                 </button>
               </div>
               <div>
@@ -74,11 +76,11 @@
                   class="icon"
                   :id="'delete-button#' + index"
                   @click="deleteHistory(entry)"
-                  aria-label="Delete"
+                  :aria-label="$t('delete')"
                   v-close-popover
                 >
                   <i class="material-icons">delete</i>
-                  <span>Delete</span>
+                  <span>{{ $t("delete") }}</span>
                 </button>
               </div>
             </template>
@@ -87,7 +89,7 @@
         <div class="show-on-large-screen">
           <li class="method-list-item">
             <input
-              aria-label="Method"
+              :aria-label="$t('method')"
               type="text"
               readonly
               :value="entry.method"
@@ -105,20 +107,20 @@
         <div class="show-on-large-screen">
           <li>
             <input
-              aria-label="URL"
+              :aria-label="$t('url')"
               type="text"
               readonly
               :value="entry.url"
-              placeholder="No URL"
+              :placeholder="$t('no_url')"
             />
           </li>
           <li>
             <input
-              aria-label="Path"
+              :aria-label="$t('path')"
               type="text"
               readonly
               :value="entry.path"
-              placeholder="No path"
+              :placeholder="$t('no_path')"
             />
           </li>
         </div>
@@ -126,7 +128,7 @@
           <div v-if="showMore" class="show-on-large-screen">
             <li>
               <input
-                aria-label="Time"
+                :aria-label="$t('time')"
                 type="text"
                 readonly
                 :value="entry.time"
@@ -135,20 +137,20 @@
             </li>
             <li>
               <input
-                aria-label="Duration"
+                :aria-label="$t('duration')"
                 type="text"
                 readonly
                 :value="entry.duration"
-                placeholder="No duration"
+                :placeholder="$t('no_duration')"
               />
             </li>
             <li>
               <input
-                aria-label="Pre Request Script"
+                :aria-label="$t('prerequest_script')"
                 type="text"
                 readonly
                 :value="entry.preRequestScript"
-                placeholder="No pre request script"
+                :placeholder="$t('no_prerequest_script')"
               />
             </li>
           </div>
@@ -159,11 +161,11 @@
       :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }"
     >
       <li>
-        <label>Nothing found "{{ filterText }}"</label>
+        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
     </ul>
     <p v-if="history.length === 0" class="info">
-      History is empty
+      {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
       <div class="flex-wrap" v-if="!isClearingHistory">
@@ -174,23 +176,23 @@
           @click="enableHistoryClearing"
         >
           <i class="material-icons">clear_all</i>
-          <span>Clear All</span>
+          <span>{{ $t("clear_all") }}</span>
         </button>
         <v-popover>
-          <button class="tooltip-target icon" v-tooltip="'Sort'">
+          <button class="tooltip-target icon" v-tooltip="$t('sort')">
             <i class="material-icons">sort</i>
           </button>
           <template slot="popover">
             <div>
               <button class="icon" @click="sort_by_label()" v-close-popover>
                 <i class="material-icons">sort_by_alpha</i>
-                <span>Label</span>
+                <span>{{ $t("label") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_time()" v-close-popover>
                 <i class="material-icons">access_time</i>
-                <span>Time</span>
+                <span>{{ $t("time") }}</span>
               </button>
             </div>
             <div>
@@ -200,25 +202,25 @@
                 v-close-popover
               >
                 <i class="material-icons">assistant</i>
-                <span>Status</span>
+                <span>{{ $t("status") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_url()" v-close-popover>
                 <i class="material-icons">language</i>
-                <span>URL</span>
+                <span>{{ $t("url") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_path()" v-close-popover>
                 <i class="material-icons">timeline</i>
-                <span>Path</span>
+                <span>{{ $t("path") }}</span>
               </button>
             </div>
             <div v-if="showMore">
               <button class="icon" @click="sort_by_duration()" v-close-popover>
                 <i class="material-icons">timer</i>
-                <span>Duration</span>
+                <span>{{ $t("duration") }}</span>
               </button>
             </div>
             <div>
@@ -226,20 +228,22 @@
                 <i class="material-icons">
                   {{ !showMore ? "first_page" : "last_page" }}
                 </i>
-                <span>{{ !showMore ? "Show more" : "Hide more" }}</span>
+                <span>{{ !showMore ? $t("show_more") : $t("hide_more") }}</span>
               </button>
             </div>
           </template>
         </v-popover>
       </div>
       <div class="flex-wrap" v-else>
-        <label for="clear-history-button" class="info">Are you sure?</label>
+        <label for="clear-history-button" class="info">
+          {{ $t("are_you_sure") }}
+        </label>
         <div>
           <button
             class="icon"
             id="confirm-clear-history-button"
             @click="clearHistory"
-            v-tooltip="'Yes'"
+            v-tooltip="$t('yes')"
           >
             <i class="material-icons">done</i>
           </button>
@@ -247,7 +251,7 @@
             class="icon"
             id="reject-clear-history-button"
             @click="disableHistoryClearing"
-            v-tooltip="'No'"
+            v-tooltip="$t('no')"
           >
             <i class="material-icons">close</i>
           </button>
@@ -371,7 +375,7 @@ export default {
       this.filterText = "";
       this.disableHistoryClearing();
       updateOnLocalStorage("history", this.history);
-      this.$toast.error("History Deleted", {
+      this.$toast.error(this.$t("history_deleted"), {
         icon: "delete"
       });
     },
@@ -392,7 +396,7 @@ export default {
         this.filterText = "";
       }
       updateOnLocalStorage("history", this.history);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete"
       });
     },

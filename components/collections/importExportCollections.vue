@@ -23,10 +23,10 @@
           <button
             class="icon"
             @click="openDialogChooseFileToReplaceWith"
-            v-tooltip="'Replace current'"
+            v-tooltip="$t('replace_current')"
           >
             <i class="material-icons">create_new_folder</i>
-            <span>Replace with JSON</span>
+            <span>{{ $t("replace_json") }}</span>
             <input
               type="file"
               @change="replaceWithJSON"
@@ -37,10 +37,10 @@
           <button
             class="icon"
             @click="openDialogChooseFileToImportFrom"
-            v-tooltip="'Preserve current'"
+            v-tooltip="$t('preserve_current')"
           >
             <i class="material-icons">folder_shared</i>
-            <span>Import from JSON</span>
+            <span>{{ $t("import_json") }}</span>
             <input
               type="file"
               @change="importFromJSON"
@@ -55,14 +55,14 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button
             class="icon primary"
             @click="exportJSON"
-            v-tooltip="'Download file'"
+            v-tooltip="$t('download_file')"
           >
-            Export
+            {{ $t("export") }}
           </button>
         </span>
       </div>

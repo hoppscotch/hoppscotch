@@ -1,10 +1,10 @@
 <template>
   <div class="page">
-    <pw-section class="blue" label="Collections" ref="collections">
+    <pw-section class="blue" :label="$t('collections')" ref="collections">
       <ul>
         <li>
           <p class="info">
-            Import any Postwoman Collection to Generate Documentation on-the-go.
+            {{ $t("generate_docs_message") }}
           </p>
         </li>
       </ul>
@@ -14,10 +14,10 @@
             <button
               class="icon"
               @click="$refs.collectionUpload.click()"
-              v-tooltip="'JSON'"
+              v-tooltip="$t('json')"
             >
               <i class="material-icons">folder</i>
-              <span>Import collections</span>
+              <span>{{ $t("import_collections") }}</span>
             </button>
           </label>
           <input
@@ -48,7 +48,7 @@
         <li>
           <button class="icon" @click="getDoc">
             <i class="material-icons">book</i>
-            <span>Generate Documentation</span>
+            <span>{{ $t("generate_docs") }}</span>
           </button>
         </li>
       </ul>
@@ -56,7 +56,7 @@
 
     <pw-section class="green" label="Documentation" ref="documentation">
       <p v-if="this.items.length === 0" class="info">
-        Generate documentation first
+        {{ $t("generate_docs_first") }}
       </p>
       <div>
         <span
@@ -66,7 +66,7 @@
         >
           <h2>
             <i class="material-icons">folder</i>
-            {{ collection.name || "None" }}
+            {{ collection.name || $t("none") }}
           </h2>
           <span
             class="folder"
@@ -75,7 +75,7 @@
           >
             <h3>
               <i class="material-icons">folder_open</i>
-              {{ folder.name || "None" }}
+              {{ folder.name || $t("none") }}
             </h3>
             <span
               class="request"
@@ -84,99 +84,104 @@
             >
               <h4>
                 <i class="material-icons">insert_drive_file</i>
-                {{ request.name || "None" }}
+                {{ request.name || $t("none") }}
               </h4>
               <p class="doc-desc" v-if="request.url">
                 <span>
-                  URL: <code>{{ request.url || "None" }}</code>
+                  {{ $t("url") }}: <code>{{ request.url || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.path">
                 <span>
-                  Path: <code>{{ request.path || "None" }}</code>
+                  {{ $t("path") }}:
+                  <code>{{ request.path || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.method">
                 <span>
-                  Method: <code>{{ request.method || "None" }}</code>
+                  {{ $t("method") }}:
+                  <code>{{ request.method || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.auth">
                 <span>
-                  Authentication:
-                  <code>{{ request.auth || "None" }}</code>
+                  {{ $t("authentication") }}:
+                  <code>{{ request.auth || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.httpUser">
                 <span>
-                  Username: <code>{{ request.httpUser || "None" }}</code>
+                  {{ $t("username") }}:
+                  <code>{{ request.httpUser || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.httpPassword">
                 <span>
-                  Password:
-                  <code>{{ request.httpPassword || "None" }}</code>
+                  {{ $t("password") }}:
+                  <code>{{ request.httpPassword || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.bearerToken">
                 <span>
-                  Token: <code>{{ request.bearerToken || "None" }}</code>
+                  {{ $t("token") }}:
+                  <code>{{ request.bearerToken || $t("none") }}</code>
                 </span>
               </p>
-              <h4 v-if="request.headers.length > 0">Headers</h4>
-              <span
-                v-if="request.headers"
-                v-for="header in request.headers"
-                :key="header.key"
-              >
-                <p class="doc-desc">
+              <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
+              <span v-if="request.headers">
+                <p
+                  v-for="header in request.headers"
+                  :key="header.key"
+                  class="doc-desc"
+                >
                   <span>
-                    {{ header.key || "None" }}:
-                    <code>{{ header.value || "None" }}</code>
+                    {{ header.key || $t("none") }}:
+                    <code>{{ header.value || $t("none") }}</code>
                   </span>
                 </p>
               </span>
-              <h4 v-if="request.params.length > 0">Parameters</h4>
-              <span
-                v-if="request.params"
-                v-for="parameter in request.params"
-                :key="parameter.key"
-              >
-                <p class="doc-desc">
+              <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
+              <span v-if="request.params">
+                <p
+                  v-for="parameter in request.params"
+                  :key="parameter.key"
+                  class="doc-desc"
+                >
                   <span>
-                    {{ parameter.key || "None" }}:
-                    <code>{{ parameter.value || "None" }}</code>
+                    {{ parameter.key || $t("none") }}:
+                    <code>{{ parameter.value || $t("none") }}</code>
                   </span>
                 </p>
               </span>
-              <h4 v-if="request.bodyParam">Payload</h4>
-              <span
-                v-if="request.bodyParam"
-                v-for="payload in request.bodyParam"
-                :key="payload.key"
-              >
-                <p class="doc-desc">
+              <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
+              <span v-if="request.bodyParam">
+                <p
+                  v-for="payload in request.bodyParam"
+                  :key="payload.key"
+                  class="doc-desc"
+                >
                   <span>
-                    {{ payload.key || "None" }}:
-                    <code>{{ payload.value || "None" }}</code>
+                    {{ payload.key || $t("none") }}:
+                    <code>{{ payload.value || $t("none") }}</code>
                   </span>
                 </p>
               </span>
               <p class="doc-desc" v-if="request.rawParams">
                 <span>
-                  Parameters: <code>{{ request.rawParams || "None" }}</code>
+                  {{ $t("parameters") }}:
+                  <code>{{ request.rawParams || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.contentType">
                 <span>
-                  Content Type:
-                  <code>{{ request.contentType || "None" }}</code>
+                  {{ $t("content_type") }}:
+                  <code>{{ request.contentType || $t("none") }}</code>
                 </span>
               </p>
               <p class="doc-desc" v-if="request.requestType">
                 <span>
-                  Request Type:
-                  <code>{{ request.requestType || "None" }}</code>
+                  {{ $t("request_type") }}:
+                  <code>{{ request.requestType || $t("none") }}</code>
                 </span>
               </p>
             </span>
@@ -188,98 +193,103 @@
           >
             <h4>
               <i class="material-icons">insert_drive_file</i>
-              {{ request.name || "None" }}
+              {{ request.name || $t("none") }}
             </h4>
             <p class="doc-desc" v-if="request.url">
               <span>
-                URL: <code>{{ request.url || "None" }}</code>
+                {{ $t("url") }}: <code>{{ request.url || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.path">
               <span>
-                Path: <code>{{ request.path || "None" }}</code>
+                {{ $t("path") }}: <code>{{ request.path || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.method">
               <span>
-                Method: <code>{{ request.method || "None" }}</code>
+                {{ $t("method") }}:
+                <code>{{ request.method || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.auth">
               <span>
-                Authentication:
-                <code>{{ request.auth || "None" }}</code>
+                {{ $t("authentication") }}:
+                <code>{{ request.auth || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.httpUser">
               <span>
-                Username: <code>{{ request.httpUser || "None" }}</code>
+                {{ $t("username") }}:
+                <code>{{ request.httpUser || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.httpPassword">
               <span>
-                Password: <code>{{ request.httpPassword || "None" }}</code>
+                {{ $t("password") }}:
+                <code>{{ request.httpPassword || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.bearerToken">
               <span>
-                Token: <code>{{ request.bearerToken || "None" }}</code>
+                {{ $t("token") }}:
+                <code>{{ request.bearerToken || $t("none") }}</code>
               </span>
             </p>
-            <h4 v-if="request.headers.length > 0">Headers</h4>
-            <span
-              v-if="request.headers"
-              v-for="header in request.headers"
-              :key="header.key"
-            >
-              <p class="doc-desc">
+            <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
+            <span v-if="request.headers">
+              <p
+                v-for="header in request.headers"
+                :key="header.key"
+                class="doc-desc"
+              >
                 <span>
-                  {{ header.key || "None" }}:
-                  <code>{{ header.value || "None" }}</code>
+                  {{ header.key || $t("none") }}:
+                  <code>{{ header.value || $t("none") }}</code>
                 </span>
               </p>
             </span>
-            <h4 v-if="request.params.length > 0">Parameters</h4>
-            <span
-              v-if="request.params"
-              v-for="parameter in request.params"
-              :key="parameter.key"
-            >
-              <p class="doc-desc">
+            <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
+            <span v-if="request.params">
+              <p
+                v-for="parameter in request.params"
+                :key="parameter.key"
+                class="doc-desc"
+              >
                 <span>
-                  {{ parameter.key || "None" }}:
-                  <code>{{ parameter.value || "None" }}</code>
+                  {{ parameter.key || $t("none") }}:
+                  <code>{{ parameter.value || $t("none") }}</code>
                 </span>
               </p>
             </span>
-            <h4 v-if="request.bodyParam">Payload</h4>
-            <span
-              v-if="request.bodyParam"
-              v-for="payload in request.bodyParam"
-              :key="payload.key"
-            >
-              <p class="doc-desc">
+            <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
+            <span v-if="request.bodyParam">
+              <p
+                v-for="payload in request.bodyParam"
+                :key="payload.key"
+                class="doc-desc"
+              >
                 <span>
-                  {{ payload.key || "None" }}:
-                  <code>{{ payload.value || "None" }}</code>
+                  {{ payload.key || $t("none") }}:
+                  <code>{{ payload.value || $t("none") }}</code>
                 </span>
               </p>
             </span>
             <p class="doc-desc" v-if="request.rawParams">
               <span>
-                Parameters: <code>{{ request.rawParams || "None" }}</code>
+                {{ $t("parameters") }}:
+                <code>{{ request.rawParams || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.contentType">
               <span>
-                Content Type:
-                <code>{{ request.contentType || "None" }}</code>
+                {{ $t("content_type") }}:
+                <code>{{ request.contentType || $t("none") }}</code>
               </span>
             </p>
             <p class="doc-desc" v-if="request.requestType">
               <span>
-                Request Type:
-                <code>{{ request.requestType || "None" }}</code>
+                {{ $t("request_type") }}:
+                <code>{{ request.requestType || $t("none") }}</code>
               </span>
             </p>
           </span>
@@ -303,9 +313,6 @@
   .material-icons {
     margin-right: 16px;
   }
-}
-
-.collection {
 }
 
 .folder {
@@ -360,11 +367,11 @@ export default {
           this.collectionJSON = e.target.result;
         };
         reader.readAsText(file);
-        this.$toast.info("File imported", {
+        this.$toast.info(this.$t("file_imported"), {
           icon: "attach_file"
         });
       } else {
-        this.$toast.error("Choose a file", {
+        this.$toast.error(this.$t("choose_file"), {
           icon: "attach_file"
         });
       }
@@ -373,7 +380,7 @@ export default {
     getDoc() {
       try {
         this.items = JSON.parse(this.collectionJSON);
-        this.$toast.info("Documentation generated", {
+        this.$toast.info(this.$t("docs_generated"), {
           icon: "book"
         });
       } catch (e) {

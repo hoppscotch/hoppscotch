@@ -43,16 +43,12 @@ TODO:
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
-          <span>New</span>
+          <span>{{ $t("new") }}</span>
         </button>
       </div>
       <div>
-        <button
-          class="icon"
-          @click="displayModalImportExport(true)"
-          v-tooltip="'Import / Export'"
-        >
-          <i class="material-icons">import_export</i>
+        <button class="icon" @click="displayModalImportExport(true)">
+          {{ $t("import_export") }}
         </button>
         <!-- <a
           href="https://github.com/liyasthomas/postwoman/wiki/Collections"
@@ -90,12 +86,18 @@ TODO:
         </li>
       </ul>
     </virtual-list>
+    <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
+      <button class="icon">
+        <i class="material-icons">books</i>
+        <span>{{ $t("generate_docs") }}</span>
+      </button>
+    </nuxt-link>
   </div>
 </template>
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 232px);
+  max-height: calc(100vh - 276px);
 }
 
 ul {

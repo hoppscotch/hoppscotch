@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">New Collection</h3>
+            <h3 class="title">{{ $t("new_collection") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,11 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" placeholder="My New Collection" />
+          <input
+            type="text"
+            v-model="name"
+            :placeholder="$t('my_new_collection')"
+          />
         </li>
       </ul>
     </div>
@@ -26,10 +30,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="addNewCollection">
-            Save
+            {{ $t("save") }}
           </button>
         </span>
       </div>

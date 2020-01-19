@@ -619,8 +619,7 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
-      firefoxExtInstalled:
-        window.firefoxExtSendRequest !== undefined ? true : false,
+      firefoxExtInstalled: window.firefoxExtSendRequest,
       chromeExtInstalled: false
     };
   },

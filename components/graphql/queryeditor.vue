@@ -7,9 +7,8 @@ const DEFAULT_THEME = "twilight";
 
 import ace from "ace-builds";
 import * as gql from "graphql";
-
 import "ace-builds/webpack-resolver";
-import debounce from '../../functions/utils/debounce';
+import debounce from "../../functions/utils/debounce";
 
 export default {
   props: {
@@ -71,9 +70,7 @@ export default {
     editor.on("change", () => {
       const content = editor.getValue();
       this.$emit("input", content);
-      
-      this.parseContents(content)
-
+      this.parseContents(content);
       this.cacheValue = content;
     });
 
@@ -91,16 +88,18 @@ export default {
       }
     },
 
-    parseContents: debounce(function (content) {
+    parseContents: debounce(function(content) {
       try {
         gql.parse(content);
       } catch (e) {
-        this.editor.session.setAnnotations([{
-          row: e.locations[0].line - 1,
-          column: e.locations[0].column - 1,
-          text: e.message,
-          type: "error"
-        }]);
+        this.editor.session.setAnnotations([
+          {
+            row: e.locations[0].line - 1,
+            column: e.locations[0].column - 1,
+            text: e.message,
+            type: "error"
+          }
+        ]);
       }
     }, 2000)
   },

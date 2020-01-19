@@ -1,13 +1,12 @@
 import axios from "axios";
 
-const axiosWithProxy = async (req, store) => {
+const axiosWithProxy = async (req, { state }) => {
   const { data } = await axios.post(
-    store.state.postwoman.settings.PROXY_URL ||
-    "https://postwoman.apollotv.xyz/",
+    state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
     req
   );
   return data;
-}
+};
 
 const axiosWithoutProxy = async (req, _store) => {
   const res = await axios(req);
@@ -19,6 +18,6 @@ const axiosStrategy = (req, store) => {
     return axiosWithProxy(req, store);
   }
   return axiosWithoutProxy(req, store);
-}
+};
 
 export default axiosStrategy;

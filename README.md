@@ -69,8 +69,8 @@ _Customized themes are synced with local session storage_
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
  - Offline support
  - Low RAM/memory and CPU usage
- - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
- - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
+ - Add to Home Screen
+ - Desktop PWA
  - ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve response from endpoint instantly.

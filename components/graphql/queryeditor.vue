@@ -33,7 +33,8 @@ export default {
   data() {
     return {
       editor: null,
-      cacheValue: ""
+      cacheValue: "",
+      validationSchema: null 
     };
   },
 
@@ -87,10 +88,29 @@ export default {
         );
       }
     },
+    
+    setValidationSchema(schema) {
+      this.validationSchema = schema;
+      this.parseContents(this.cacheValue);
+    },
 
     parseContents: debounce(function(content) {
       try {
-        gql.parse(content);
+        const doc = gql.parse(content);
+
+        if (this.validationSchema) {
+          this.editor.session.setAnnotations(
+            gql.validate(this.validationSchema, doc)
+              .map((err) => {
+                return {
+                  row: err.locations[0].line - 1,
+                  column: err.locations[0].column - 1,
+                  text: err.message,
+                  type: "error"
+                }
+              })
+          )
+        }
       } catch (e) {
         this.editor.session.setAnnotations([
           {

@@ -6,12 +6,19 @@ const PASS = 'PASS',
 //TODO: probably have to use a more global state for `test`
 
 export default function runTestScriptWitVariables(script, variables) {
+  console.log(script);
+  console.log('start of the thing');
   let pw = {
     _errors: [],
     _testReports: [],
     _report: '',
     expect: function(value) {
-      return expect(value, this._testReports, arguments) },
+      try {
+        return expect(value, this._testReports, arguments);
+      } catch (e) {
+        pw._testReports.push({result: ERROR, message: e});
+      }
+    },
     test: (descriptor, func) => test(descriptor, func, pw._testReports)
     // globals that the script is allowed to have access to.
   };
@@ -19,18 +26,18 @@ export default function runTestScriptWitVariables(script, variables) {
 
   // run pre-request script within this function so that it has access to the pw object.
   let errors = null;
-  try {
-    new Function("pw", script)(pw);
-  }
-  catch (e) {
-    errors = e;
-  }
+  new Function("pw", script)(pw);
+  //
   return {report: pw._report, errors: pw._errors, testResults: pw._testReports};
 }
 
 function test(descriptor, func, _testReports) {
   _testReports.push({startBlock: descriptor});
-  func();
+  try {
+    func();
+  } catch (e) {
+    _testReports.push({result: ERROR, message: e});
+  }
   _testReports.push({endBlock: true});
 
   // TODO: Organieze and generate text report of each {descriptor: true} section in testReports.

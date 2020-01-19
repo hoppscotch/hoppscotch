@@ -2141,10 +2141,7 @@
           this.$toast.info(this.$t("finished_in", {duration}), {
             icon: "done"
           });
-
           // tests
-          const testResults = runTestScriptWitVariables(this.testScript, {});
-
           (() => {
             const status = (this.response.status = payload.status);
             const headers = (this.response.headers = payload.headers);
@@ -2171,6 +2168,17 @@
             };
             this.$refs.historyComponent.addEntry(entry);
           })();
+
+          const syntheticResponse = {
+            status: this.response.status,
+            body: this.response.body,
+            headers: this.response.headers
+          };
+          console.log(syntheticResponse);
+          debugger;
+          const testResults = runTestScriptWitVariables(this.testScript, {response: syntheticResponse});
+          console.log('$$$', testResults);
+
         } catch (error) {
           console.error(error);
           if (error.response) {

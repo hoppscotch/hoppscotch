@@ -95,31 +95,35 @@ export default {
     },
 
     parseContents: debounce(function(content) {
-      try {
-        const doc = gql.parse(content);
+      if (content !== "") {
+        try {
+          const doc = gql.parse(content);
 
-        if (this.validationSchema) {
-          this.editor.session.setAnnotations(
-            gql.validate(this.validationSchema, doc)
-              .map((err) => {
-                return {
-                  row: err.locations[0].line - 1,
-                  column: err.locations[0].column - 1,
-                  text: err.message,
-                  type: "error"
-                }
-              })
-          )
-        }
-      } catch (e) {
-        this.editor.session.setAnnotations([
-          {
-            row: e.locations[0].line - 1,
-            column: e.locations[0].column - 1,
-            text: e.message,
-            type: "error"
+          if (this.validationSchema) {
+            this.editor.session.setAnnotations(
+              gql.validate(this.validationSchema, doc)
+                .map((err) => {
+                  return {
+                    row: err.locations[0].line - 1,
+                    column: err.locations[0].column - 1,
+                    text: err.message,
+                    type: "error"
+                  }
+                })
+            )
           }
-        ]);
+        } catch (e) {
+          this.editor.session.setAnnotations([
+            {
+              row: e.locations[0].line - 1,
+              column: e.locations[0].column - 1,
+              text: e.message,
+              type: "error"
+            }
+          ]);
+        }
+      } else {
+        this.editor.session.setAnnotations([]);
       }
     }, 2000)
   },

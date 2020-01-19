@@ -812,6 +812,8 @@ export default {
           }
         }
         this.gqlTypes = types;
+        
+        this.$refs.queryEditor.setValidationSchema(schema);
 
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;

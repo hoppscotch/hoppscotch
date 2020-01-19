@@ -3,13 +3,16 @@ const PASS = 'PASS',
   FAIL = 'FAIL',
   ERROR = 'ERROR';
 
+//TODO: probably have to use a more global state for `test`
+
 export default function runTestScriptWitVariables(script, variables) {
   let pw = {
     _errors: [],
-    _testResults: [],
+    _testReports: [],
     _report: '',
-    expect: function(value) { return expect(value, this._testResults) },
-    test
+    expect: function(value) {
+      return expect(value, this._testReports, arguments) },
+    test: (descriptor, func) => test(descriptor, func, pw._testReports)
     // globals that the script is allowed to have access to.
   };
   Object.assign(pw, variables);
@@ -20,25 +23,15 @@ export default function runTestScriptWitVariables(script, variables) {
     new Function("pw", script)(pw);
   }
   catch (e) {
-    debugger;
     errors = e;
   }
-  return {report: pw._report, errors: pw._errors, testResults: pw._testResults};
+  return {report: pw._report, errors: pw._errors, testResults: pw._testReports};
 }
 
-function test(descriptor, func) {
-  let testReports = [];
-  let expect = (expectValue) => new Expectation(expectValue, undefined, testReports);
-  let it = (descriptor, func) => {
-    testReports.push({descriptor: true, message: descriptor});
-    func();
-  };
-  //TODO shadow pw object to override _testReports
-  let xit = (descriptor, func) => {
-    testReports.push({descriptor: true, message: `⊖ ${descriptor} [skipped]`})
-  };
-
+function test(descriptor, func, _testReports) {
+  _testReports.push({startBlock: descriptor});
   func();
+  _testReports.push({endBlock: true});
 
   // TODO: Organieze and generate text report of each {descriptor: true} section in testReports.
   // add checkmark or x depending on if each testReport is pass=true or pass=false

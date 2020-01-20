@@ -846,6 +846,14 @@
               <collections />
             </pw-section>
           </div>
+          <span v-if="store.currentUser">
+            <input id="auth-tab" type="radio" name="side" />
+            <label for="auth-tab">{{ $t("history") }}</label>
+            <div class="tab">
+              <inputform />
+              <ballsfeed />
+            </div>
+          </span>
         </section>
       </aside>
 
@@ -1136,6 +1144,7 @@ import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
 import { sendNetworkRequest } from "../functions/network";
+import { store } from "../functions/store";
 
 const statusCategories = [
   {
@@ -1200,7 +1209,9 @@ export default {
     autocomplete: () => import("../components/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    Editor: AceEditor
+    Editor: AceEditor,
+    inputform: () => import("../components/firebase/inputform"),
+    ballsfeed: () => import("../components/firebase/feeds")
   },
   data() {
     return {
@@ -1370,12 +1381,12 @@ export default {
       ],
       showRequestModal: false,
       editRequest: {},
-
       urlExcludes: {},
       responseBodyText: "",
       responseBodyType: "text",
       responseBodyMaxLines: 16,
-      activeSidebar: true
+      activeSidebar: true,
+      store
     };
   },
   watch: {

@@ -52,12 +52,10 @@ ballsCollection
       ball.id = doc.id;
       balls.push(ball);
     });
-    console.log("Received Balls feed:", balls);
     store.ballsInFeed = balls;
   });
 
 // When a user logs in or out, save that in the store
 firebase.auth().onAuthStateChanged(user => {
-  console.log("Logged in as:", user);
   store.currentUser = user;
 });

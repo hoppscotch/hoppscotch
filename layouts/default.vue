@@ -345,6 +345,17 @@
                   </template>
                 </v-popover>
               </span>
+
+
+
+    <Login v-if="!store.currentUser" />
+    <div v-else>
+      <button @click="logout">Log out</button>
+      <InputForm />
+      <BallsFeed />
+    </div>
+
+
             </div>
           </header>
           <nuxt />
@@ -620,10 +631,22 @@ import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
 
+
+import firebase from 'firebase/app';
+import 'firebase/auth';
+
+import { store } from '../functions/store';
+import Login from '../components/Login';
+import InputForm from '../components/InputForm';
+import BallsFeed from '../components/BallsFeed';
+
+
 export default {
   components: {
     logo: () => import("../components/logo"),
-    modal: () => import("../components/modal")
+    modal: () => import("../components/modal"),
+
+    Login, InputForm, BallsFeed
   },
 
   methods: {
@@ -632,7 +655,13 @@ export default {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
       };
-    }
+    },
+
+
+    logout() {
+      firebase.auth().signOut()
+        .catch((err) => alert(err.message || err));
+    },
   },
 
   data() {

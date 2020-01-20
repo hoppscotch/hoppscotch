@@ -346,16 +346,12 @@
                 </v-popover>
               </span>
 
-
-
-    <Login v-if="!store.currentUser" />
-    <div v-else>
-      <button @click="logout">Log out</button>
-      <InputForm />
-      <BallsFeed />
-    </div>
-
-
+              <login v-if="!store.currentUser" />
+              <div v-else>
+                <button @click="logout">Log out</button>
+                <inputform />
+                <ballsfeed />
+              </div>
             </div>
           </header>
           <nuxt />
@@ -645,8 +641,9 @@ export default {
   components: {
     logo: () => import("../components/logo"),
     modal: () => import("../components/modal"),
-
-    Login, InputForm, BallsFeed
+    login: () => import("../components/firebase/login"),
+    inputform: () => import("../components/firebase/inputform"),
+    ballsfeed: () => import("../components/firebase/feeds")
   },
 
   methods: {
@@ -657,11 +654,12 @@ export default {
       };
     },
 
-
     logout() {
-      firebase.auth().signOut()
-        .catch((err) => alert(err.message || err));
-    },
+      firebase
+        .auth()
+        .signOut()
+        .catch(err => alert(err.message || err));
+    }
   },
 
   data() {

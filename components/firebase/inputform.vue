@@ -1,12 +1,12 @@
 <template>
   <form @submit.prevent="formPost">
     <input type="text" autofocus ref="inputMessage" v-model="message" />
-    <input type="submit" value="DUNK!" />
+    <input :disabled="!this.message" type="submit" value="DUNK!" />
   </form>
 </template>
 
 <script>
-import { store } from "../functions/store";
+import { store } from "../../functions/store";
 
 export default {
   data() {

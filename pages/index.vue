@@ -846,14 +846,14 @@
               <collections />
             </pw-section>
           </div>
-          <span v-if="store.currentUser">
-            <input id="auth-tab" type="radio" name="side" />
-            <label for="auth-tab">{{ $t("history") }}</label>
-            <div class="tab">
+          <input id="auth-tab" type="radio" name="side" />
+          <label for="auth-tab">Auth</label>
+          <div class="tab" v-if="store.currentUser">
+            <pw-section class="pink" label="Auth" ref="auth">
               <inputform />
               <ballsfeed />
-            </div>
-          </span>
+            </pw-section>
+          </div>
         </section>
       </aside>
 

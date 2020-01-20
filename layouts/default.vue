@@ -288,6 +288,12 @@
                 >
                   <i class="material-icons">offline_bolt</i>
                 </button>
+                <login v-if="!store.currentUser" />
+                <span v-if="store.currentUser">
+                  <button class="icon" @click="logout" v-tooltip="$t('logout')">
+                    <i class="material-icons">exit_to_app</i>
+                  </button>
+                </span>
                 <v-popover>
                   <button class="icon" v-tooltip="$t('more')">
                     <i class="material-icons">more_vert</i>
@@ -345,13 +351,6 @@
                   </template>
                 </v-popover>
               </span>
-
-              <login v-if="!store.currentUser" />
-              <div v-else>
-                <button @click="logout">Log out</button>
-                <inputform />
-                <ballsfeed />
-              </div>
             </div>
           </header>
           <nuxt />
@@ -607,9 +606,7 @@ export default {
   components: {
     logo: () => import("../components/logo"),
     modal: () => import("../components/modal"),
-    login: () => import("../components/firebase/login"),
-    inputform: () => import("../components/firebase/inputform"),
-    ballsfeed: () => import("../components/firebase/feeds")
+    login: () => import("../components/firebase/login")
   },
 
   methods: {
@@ -624,7 +621,14 @@ export default {
       firebase
         .auth()
         .signOut()
-        .catch(err => alert(err.message || err));
+        .catch(err => {
+          this.$toast.show(err.message || err, {
+            icon: "error"
+          });
+        });
+      this.$toast.info(this.$t("logged_out"), {
+        icon: "vpn_key"
+      });
     }
   },
 
@@ -640,7 +644,6 @@ export default {
       showSupport: false,
       firefoxExtInstalled: window.firefoxExtSendRequest,
       chromeExtInstalled: false,
-
       store
     };
   },

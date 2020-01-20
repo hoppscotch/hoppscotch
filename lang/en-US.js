@@ -249,5 +249,8 @@ export default {
   extensions: "Extensions",
   extensions_info1: "Browser extension that simplifies access to Postwoman",
   extensions_info2: "Get Postwoman browser extension!",
-  installed: "Installed"
+  installed: "Installed",
+  login_with: "Login with",
+  logged_out: "Logged out",
+  logout: "Logout"
 };

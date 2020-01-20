@@ -4,7 +4,7 @@ import "firebase/firestore";
 import "firebase/auth";
 
 // Initialize Firebase, copied from cloud console
-var config = {
+const firebaseConfig = {
   apiKey: "AIzaSyCMsFreESs58-hRxTtiqQrIcimh4i1wbsM",
   authDomain: "postwoman-api.firebaseapp.com",
   databaseURL: "https://postwoman-api.firebaseio.com",
@@ -14,7 +14,7 @@ var config = {
   appId: "1:421993993223:web:ec0baa8ee8c02ffa1fc6a2",
   measurementId: "G-ERJ6025CEB"
 };
-firebase.initializeApp(config);
+firebase.initializeApp(firebaseConfig);
 
 // a reference to the Balls collection
 const ballsCollection = firebase.firestore().collection("balls");

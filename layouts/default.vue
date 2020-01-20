@@ -346,16 +346,12 @@
                 </v-popover>
               </span>
 
-
-
-    <Login v-if="!store.currentUser" />
-    <div v-else>
-      <button @click="logout">Log out</button>
-      <InputForm />
-      <BallsFeed />
-    </div>
-
-
+              <login v-if="!store.currentUser" />
+              <div v-else>
+                <button @click="logout">Log out</button>
+                <inputform />
+                <ballsfeed />
+              </div>
             </div>
           </header>
           <nuxt />
@@ -604,23 +600,16 @@
 <script>
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
-
-
-import firebase from 'firebase/app';
-import 'firebase/auth';
-
-import { store } from '../functions/store';
-import Login from '../components/Login';
-import InputForm from '../components/InputForm';
-import BallsFeed from '../components/BallsFeed';
-
+import firebase from "firebase/app";
+import { store } from "../functions/store";
 
 export default {
   components: {
     logo: () => import("../components/logo"),
     modal: () => import("../components/modal"),
-
-    Login, InputForm, BallsFeed
+    login: () => import("../components/firebase/login"),
+    inputform: () => import("../components/firebase/inputform"),
+    ballsfeed: () => import("../components/firebase/feeds")
   },
 
   methods: {
@@ -631,11 +620,12 @@ export default {
       };
     },
 
-
     logout() {
-      firebase.auth().signOut()
-        .catch((err) => alert(err.message || err));
-    },
+      firebase
+        .auth()
+        .signOut()
+        .catch(err => alert(err.message || err));
+    }
   },
 
   data() {

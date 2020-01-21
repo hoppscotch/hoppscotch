@@ -288,20 +288,20 @@
                 >
                   <i class="material-icons">offline_bolt</i>
                 </button>
-                <login v-if="!store.currentUser" />
-                <span v-if="store.currentUser">
+                <login v-if="!fb.currentUser" />
+                <span v-if="fb.currentUser">
                   <v-popover>
                     <button
                       class="icon"
                       v-tooltip="
-                        (store.currentUser.displayName || '<label><i>Name not found</i></label>') +
+                        (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
                           '<br>' +
-                          (store.currentUser.email || '<label><i>Email not found</i></label>')
+                          (fb.currentUser.email || '<label><i>Email not found</i></label>')
                       "
                     >
                       <img
-                        v-if="store.currentUser.photoURL"
-                        :src="store.currentUser.photoURL"
+                        v-if="fb.currentUser.photoURL"
+                        :src="fb.currentUser.photoURL"
                         class="material-icons"
                       />
                       <i v-else class="material-icons">account_circle</i>
@@ -632,7 +632,7 @@
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 import firebase from "firebase/app";
-import { store } from "../functions/store";
+import { fb } from "../functions/fb";
 
 export default {
   components: {
@@ -676,7 +676,7 @@ export default {
       showSupport: false,
       firefoxExtInstalled: window.firefoxExtSendRequest,
       chromeExtInstalled: false,
-      store
+      fb
     };
   },
 

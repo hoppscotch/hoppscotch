@@ -252,5 +252,7 @@ export default {
   installed: "Installed",
   login_with: "Login with",
   logged_out: "Logged out",
-  logout: "Logout"
+  logout: "Logout",
+  account: "Account",
+  sync: "Sync"
 };

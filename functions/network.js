@@ -1,7 +1,6 @@
 import AxiosStrategy from "./strategies/AxiosStrategy";
 import FirefoxStrategy from "./strategies/FirefoxStrategy";
 
-
 const runAppropriateStrategy = (req, store) => {
   // The firefox plugin injects a function to send requests through it
   // If that is available, then we can use the FirefoxStrategy

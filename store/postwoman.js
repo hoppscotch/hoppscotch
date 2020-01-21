@@ -115,6 +115,7 @@ export const mutations = {
     const duplicateCollection = collections.some(item => item.name === name)
     if (duplicateCollection) {
       this.$toast.info('Duplicate collection');
+      return;
     }
     collections.push({
       name: "",

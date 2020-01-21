@@ -16,15 +16,15 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-// a reference to the Balls collection
-const ballsCollection = firebase.firestore().collection("balls");
+// a reference to the Feeds collection
+const feedsCollection = firebase.firestore().collection("feeds");
 
 // the shared state object that any vue component
 // can get access to
 export const store = {
-  ballsInFeed: null,
-  currentUser: null,
-  writeBall: message => {
+  feedsInFeed: [],
+  currentUser: {},
+  writeFeed: message => {
     const dt = {
       createdOn: new Date(),
       author: store.currentUser.uid,
@@ -32,9 +32,15 @@ export const store = {
       author_image: store.currentUser.photoURL,
       message
     };
-    return ballsCollection
+    return feedsCollection
       .add(dt)
       .catch(e => console.error("error inserting", dt, e));
+  },
+  deleteFeed: id => {
+    return feedsCollection
+      .doc(id)
+      .delete()
+      .catch(e => console.error("error deleting", dt, e));
   }
 };
 
@@ -42,17 +48,17 @@ export const store = {
 // in the underlying firestore collection changes
 // It will get passed an array of references to
 // the documents that match your query
-ballsCollection
+feedsCollection
   .orderBy("createdOn", "desc")
-  .limit(5)
-  .onSnapshot(ballsRef => {
-    const balls = [];
-    ballsRef.forEach(doc => {
-      const ball = doc.data();
-      ball.id = doc.id;
-      balls.push(ball);
+  // .limit(0)
+  .onSnapshot(feedsRef => {
+    const feeds = [];
+    feedsRef.forEach(doc => {
+      const feed = doc.data();
+      feed.id = doc.id;
+      feeds.push(feed);
     });
-    store.ballsInFeed = balls;
+    store.feedsInFeed = feeds;
   });
 
 // When a user logs in or out, save that in the store

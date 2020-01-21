@@ -1,4 +1,3 @@
-import Vue from "vue";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
@@ -18,29 +17,47 @@ firebase.initializeApp(firebaseConfig);
 
 // a reference to the Feeds collection
 const feedsCollection = firebase.firestore().collection("feeds");
+const settingsCollection = firebase.firestore().collection("settings");
 
 // the shared state object that any vue component
 // can get access to
-export const store = {
+export const fb = {
   feedsInFeed: [],
   currentUser: {},
-  writeFeed: message => {
+  currentSettings: [],
+  writeFeed: async message => {
     const dt = {
       createdOn: new Date(),
-      author: store.currentUser.uid,
-      author_name: store.currentUser.displayName,
-      author_image: store.currentUser.photoURL,
+      author: fb.currentUser.uid,
+      author_name: fb.currentUser.displayName,
+      author_image: fb.currentUser.photoURL,
       message
     };
-    return feedsCollection
-      .add(dt)
-      .catch(e => console.error("error inserting", dt, e));
+    try {
+      return feedsCollection.add(dt);
+    } catch (e) {
+      return console.error("error inserting", dt, e);
+    }
   },
-  deleteFeed: id => {
-    return feedsCollection
+  deleteFeed: id =>
+    feedsCollection
       .doc(id)
       .delete()
-      .catch(e => console.error("error deleting", dt, e));
+      .catch(e => console.error("error deleting", dt, e)),
+  writeSettings: async (settings, value) => {
+    const st = {
+      updatedOn: new Date(),
+      author: fb.currentUser.uid,
+      author_name: fb.currentUser.displayName,
+      author_image: fb.currentUser.photoURL,
+      settings,
+      value
+    };
+    try {
+      return settingsCollection.doc(settings).set(st);
+    } catch (e) {
+      return console.error("error updating", dt, e);
+    }
   }
 };
 
@@ -58,10 +75,23 @@ feedsCollection
       feed.id = doc.id;
       feeds.push(feed);
     });
-    store.feedsInFeed = feeds;
+    fb.feedsInFeed = feeds;
+  });
+
+settingsCollection
+  .orderBy("createdOn", "desc")
+  .limit(2)
+  .onSnapshot(settingsRef => {
+    const settings = [];
+    settingsRef.forEach(doc => {
+      const setting = doc.data();
+      setting.id = doc.id;
+      settings.push(setting);
+    });
+    fb.currentSettings = settings;
   });
 
 // When a user logs in or out, save that in the store
 firebase.auth().onAuthStateChanged(user => {
-  store.currentUser = user;
+  fb.currentUser = user;
 });

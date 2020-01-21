@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { store } from "../../functions/store";
+import { fb } from "../../functions/fb";
 
 export default {
   data() {
@@ -16,9 +16,8 @@ export default {
   },
   methods: {
     formPost() {
-      store.writeFeed(this.message);
+      fb.writeFeed(this.message);
       this.message = null;
-      this.$refs.inputMessage.focus();
     }
   }
 };

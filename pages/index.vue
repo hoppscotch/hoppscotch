@@ -848,7 +848,7 @@
           </div>
           <input id="auth-tab" type="radio" name="side" />
           <label for="auth-tab">Auth</label>
-          <div class="tab" v-if="store.currentUser">
+          <div class="tab" v-if="fb.currentUser">
             <pw-section class="pink" label="Auth" ref="auth">
               <inputform />
               <ballsfeed />
@@ -1144,7 +1144,7 @@ import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
 import { sendNetworkRequest } from "../functions/network";
-import { store } from "../functions/store";
+import { fb } from "../functions/fb";
 
 const statusCategories = [
   {
@@ -1386,7 +1386,7 @@ export default {
       responseBodyType: "text",
       responseBodyMaxLines: 16,
       activeSidebar: true,
-      store
+      fb
     };
   },
   watch: {

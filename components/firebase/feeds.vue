@@ -1,11 +1,11 @@
 <template>
   <virtual-list
     class="virtual-list"
-    :class="{ filled: store.feedsInFeed.length }"
+    :class="{ filled: fb.feedsInFeed.length }"
     :size="56"
-    :remain="Math.min(5, store.feedsInFeed.length)"
+    :remain="Math.min(5, fb.feedsInFeed.length)"
   >
-    <ul v-for="feed in store.feedsInFeed" :key="feed.id">
+    <ul v-for="feed in fb.feedsInFeed" :key="feed.id">
       <li>{{ feed.message }}</li>
       <button class="icon" @click="deleteFeed(feed)">
         <i class="material-icons">delete</i>
@@ -21,7 +21,7 @@
 </style>
 
 <script>
-import { store } from "../../functions/store";
+import { fb } from "../../functions/fb";
 
 export default {
   components: {
@@ -29,12 +29,12 @@ export default {
   },
   data() {
     return {
-      store
+      fb
     };
   },
   methods: {
     deleteFeed(feed) {
-      store.deleteFeed(feed.id);
+      fb.deleteFeed(feed.id);
     }
   }
 };

@@ -1123,7 +1123,7 @@ import section from "../components/section";
 import url from "url";
 import querystring from "querystring";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
-import parseCurlCommand from "../assets/js/curlparser.js";
+import parseCurlCommand from "../assets/js/curlparser";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";

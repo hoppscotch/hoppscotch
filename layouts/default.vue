@@ -290,9 +290,41 @@
                 </button>
                 <login v-if="!store.currentUser" />
                 <span v-if="store.currentUser">
-                  <button class="icon" @click="logout" v-tooltip="$t('logout')">
-                    <i class="material-icons">exit_to_app</i>
-                  </button>
+                  <v-popover>
+                    <button
+                      class="icon"
+                      v-tooltip="
+                        (store.currentUser.displayName || '<label><i>Name not found</i></label>') +
+                          '<br>' +
+                          (store.currentUser.email || '<label><i>Email not found</i></label>')
+                      "
+                    >
+                      <img
+                        v-if="store.currentUser.photoURL"
+                        :src="store.currentUser.photoURL"
+                        class="material-icons"
+                      />
+                      <i v-else class="material-icons">account_circle</i>
+                    </button>
+                    <template slot="popover">
+                      <div>
+                        <nuxt-link :to="localePath('settings')" v-close-popover>
+                          <button class="icon">
+                            <i class="material-icons">settings</i>
+                            <span>
+                              {{ $t("settings") }}
+                            </span>
+                          </button>
+                        </nuxt-link>
+                      </div>
+                      <div>
+                        <button class="icon" @click="logout" v-close-popover>
+                          <i class="material-icons">exit_to_app</i>
+                          <span>{{ $t("logout") }}</span>
+                        </button>
+                      </div>
+                    </template>
+                  </v-popover>
                 </span>
                 <v-popover>
                   <button class="icon" v-tooltip="$t('more')">

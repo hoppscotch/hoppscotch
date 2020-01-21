@@ -44,19 +44,19 @@ export const fb = {
       .doc(id)
       .delete()
       .catch(e => console.error("error deleting", dt, e)),
-  writeSettings: async (settings, value) => {
+  writeSettings: async (setting, value) => {
     const st = {
       updatedOn: new Date(),
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      settings,
+      name: setting,
       value
     };
     try {
-      return settingsCollection.doc(settings).set(st);
+      return settingsCollection.doc(setting).set(st);
     } catch (e) {
-      return console.error("error updating", dt, e);
+      return console.error("error updating", st, e);
     }
   }
 };
@@ -79,8 +79,8 @@ feedsCollection
   });
 
 settingsCollection
-  .orderBy("createdOn", "desc")
-  .limit(2)
+  // .orderBy("updatedOn", "desc")
+  // .limit(2)
   .onSnapshot(settingsRef => {
     const settings = [];
     settingsRef.forEach(doc => {

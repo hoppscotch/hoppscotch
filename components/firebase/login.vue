@@ -42,14 +42,39 @@
 
 <script>
 import firebase from "firebase/app";
+import { fb } from "../../functions/fb";
 
 export default {
+  data() {
+    return {
+      fb
+    };
+  },
+
   methods: {
     signInWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase
         .auth()
         .signInWithPopup(provider)
+        .then(res => {
+          if (res.additionalUserInfo.isNewUser) {
+            this.$toast.info($t("turn_on") + " " + $t("sync"), {
+              icon: "sync",
+              duration: null,
+              closeOnSwipe: false,
+              action: {
+                text: this.$t("yes"),
+                onClick: (e, toastObject) => {
+                  fb.writeSettings("syncHistory", false);
+                  fb.writeSettings("syncCollections", true);
+                  this.$router.push({ path: "/settings" });
+                  toastObject.remove();
+                }
+              }
+            });
+          }
+        })
         .catch(err => {
           this.$toast.show(err.message || err, {
             icon: "error"
@@ -61,6 +86,24 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
+        .then(res => {
+          if (res.additionalUserInfo.isNewUser) {
+            this.$toast.info($t("turn_on") + " " + $t("sync"), {
+              icon: "sync",
+              duration: null,
+              closeOnSwipe: false,
+              action: {
+                text: this.$t("yes"),
+                onClick: (e, toastObject) => {
+                  fb.writeSettings("syncHistory", false);
+                  fb.writeSettings("syncCollections", true);
+                  this.$router.push({ path: "/settings" });
+                  toastObject.remove();
+                }
+              }
+            });
+          }
+        })
         .catch(err => {
           this.$toast.show(err.message || err, {
             icon: "error"

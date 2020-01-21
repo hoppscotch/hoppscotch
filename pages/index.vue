@@ -846,8 +846,8 @@
               <collections />
             </pw-section>
           </div>
-          <input id="auth-tab" type="radio" name="side" />
-          <label for="auth-tab">Auth</label>
+          <input id="sync-tab" type="radio" name="side" />
+          <label for="sync-tab">{{ $t("sync") }}</label>
           <div class="tab" v-if="fb.currentUser">
             <pw-section class="pink" label="Auth" ref="auth">
               <inputform />
@@ -2150,7 +2150,7 @@ export default {
               icon: "help",
               duration: 8000,
               action: {
-                text: "Settings",
+                text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   this.$router.push({ path: "/settings" });
                 }

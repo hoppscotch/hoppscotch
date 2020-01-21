@@ -238,6 +238,11 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
+                  <a href="#account" v-tooltip.right="$t('account')">
+                    <i class="material-icons">perm_identity</i>
+                  </a>
+                </li>
+                <li>
                   <a href="#theme" v-tooltip.right="$t('theme')">
                     <i class="material-icons">brush</i>
                   </a>
@@ -294,9 +299,11 @@
                     <button
                       class="icon"
                       v-tooltip="
-                        (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
+                        (fb.currentUser.displayName ||
+                          '<label><i>Name not found</i></label>') +
                           '<br>' +
-                          (fb.currentUser.email || '<label><i>Email not found</i></label>')
+                          (fb.currentUser.email ||
+                            '<label><i>Email not found</i></label>')
                       "
                     >
                       <img
@@ -797,7 +804,7 @@ export default {
 
   watch: {
     $route() {
-      this.$toast.clear();
+      // this.$toast.clear();
     }
   },
 

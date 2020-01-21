@@ -257,5 +257,6 @@ export default {
   sync: "Sync",
   syncHistory: "History",
   syncCollections: "Collections",
-  turn_on: "Turn on"
+  turn_on: "Turn on",
+  login_first: "Login first"
 };

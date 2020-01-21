@@ -848,10 +848,22 @@
           </div>
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("sync") }}</label>
-          <div class="tab" v-if="fb.currentUser">
-            <pw-section class="pink" label="Auth" ref="auth">
+          <div class="tab">
+            <pw-section
+              v-if="fb.currentUser"
+              class="pink"
+              label="Sync"
+              ref="sync"
+            >
               <inputform />
               <ballsfeed />
+            </pw-section>
+            <pw-section v-else>
+              <ul>
+                <li>
+                  <label>{{ $t("login_first") }}</label>
+                </li>
+              </ul>
             </pw-section>
           </div>
         </section>

@@ -254,5 +254,8 @@ export default {
   logged_out: "Logged out",
   logout: "Logout",
   account: "Account",
-  sync: "Sync"
+  sync: "Sync",
+  syncHistory: "History",
+  syncCollections: "Collections",
+  turn_on: "Turn on"
 };

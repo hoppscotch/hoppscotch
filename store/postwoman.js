@@ -111,7 +111,8 @@ export const mutations = {
   },
 
   addNewCollection({ collections }, collection) {
-    const duplicateCollection = collections.some(item => item.name === collection.name)
+    const { name } = collection
+    const duplicateCollection = collections.some(item => item.name === name)
     if (duplicateCollection) {
       alert('Duplicate collection');
       return;

@@ -16,7 +16,7 @@ export default {
   },
   methods: {
     formPost() {
-      store.writeBall(this.message);
+      store.writeFeed(this.message);
       this.message = null;
       this.$refs.inputMessage.focus();
     }

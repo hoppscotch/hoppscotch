@@ -46,7 +46,6 @@ export const fb = {
       .delete()
       .catch(e => console.error("error deleting", dt, e)),
   writeSettings: async (setting, value) => {
-    console.log(value);
     const st = {
       updatedOn: new Date(),
       author: fb.currentUser.uid,

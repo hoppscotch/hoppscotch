@@ -59,7 +59,7 @@ export default {
         .signInWithPopup(provider)
         .then(res => {
           if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info($t("turn_on") + " " + $t("sync"), {
+            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,
@@ -88,7 +88,7 @@ export default {
         .signInWithPopup(provider)
         .then(res => {
           if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info($t("turn_on") + " " + $t("sync"), {
+            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,

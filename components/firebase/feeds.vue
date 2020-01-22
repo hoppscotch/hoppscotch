@@ -59,13 +59,12 @@ export default {
   methods: {
     deleteFeed(feed) {
       fb.deleteFeed(feed.id);
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete"
+      });
     },
     saveFeed(feed) {
-      const dataToWrite = JSON.stringify(
-        eval("(" + feed.message + ")"),
-        null,
-        2
-      );
+      const dataToWrite = JSON.stringify(feed.message, null, 2);
       const file = new Blob([dataToWrite], { type: "application/json" });
       const a = document.createElement("a"),
         url = URL.createObjectURL(file);

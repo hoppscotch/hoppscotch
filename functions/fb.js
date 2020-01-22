@@ -40,11 +40,12 @@ export const fb = {
       return console.error("error inserting", dt, e);
     }
   },
-  deleteFeed: id =>
+  deleteFeed: id => {
     feedsCollection
       .doc(id)
       .delete()
-      .catch(e => console.error("error deleting", dt, e)),
+      .catch(e => console.error("error deleting", dt, e));
+  },
   writeSettings: async (setting, value) => {
     const st = {
       updatedOn: new Date(),

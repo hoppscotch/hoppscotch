@@ -1,6 +1,6 @@
 import AxiosStrategy from "./strategies/AxiosStrategy";
 import FirefoxStrategy from "./strategies/FirefoxStrategy";
-import ChromeStrategy, { hasChromeExtensionInstalled } from "~/functions/strategies/ChromeStrategy";
+import ChromeStrategy, { hasChromeExtensionInstalled } from "./strategies/ChromeStrategy";
 
 const runAppropriateStrategy = (req, store) => {
   // Chrome Provides a chrome object for scripts to access

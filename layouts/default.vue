@@ -352,15 +352,7 @@
             <div class="flex-wrap">
               <span v-if="version.name" class="mono">
                 <a
-                  href="https://liyasthomas.web.app"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <button class="icon" v-tooltip="'Liyas Thomas'">
-                    🦄
-                  </button>
-                </a>
-                <a
+                  class="link"
                   :href="
                     'https://github.com/liyasthomas/postwoman/releases/tag/' +
                       version.name
@@ -370,6 +362,14 @@
                   v-tooltip="'GitHub'"
                 >
                   {{ version.name }}
+                </a>
+                <a
+                  class="link"
+                  href="https://www.netlify.com"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Powered by Netlify
                 </a>
                 <!-- <span v-if="version.hash">
                   -
@@ -382,6 +382,15 @@
                 <!-- <span v-if="version.variant">({{version.variant}})</span> -->
               </span>
               <span>
+                <a
+                  href="https://liyasthomas.web.app"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <button class="icon" v-tooltip="'Liyas Thomas'">
+                    🦄
+                  </button>
+                </a>
                 <a
                   href="mailto:liyascthomas@gmail.com"
                   target="_blank"
@@ -588,7 +597,17 @@
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.link {
+  margin: 8px 16px;
+}
+@media (max-width: 768px) {
+  .link {
+    display: flex;
+    flex: 1;
+  }
+}
+</style>
 
 <script>
 import intializePwa from "../assets/js/pwa";

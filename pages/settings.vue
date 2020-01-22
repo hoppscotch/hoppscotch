@@ -6,7 +6,7 @@
           <div v-if="!fb.currentUser">
             <label>{{ $t("login_with") }}</label>
             <p>
-              <button class="icon" @click="signInWithGoogle" v-close-popover>
+              <button class="icon" @click="signInWithGoogle">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -21,7 +21,7 @@
                 <span>Google</span>
               </button>
               <br />
-              <button class="icon" @click="signInWithGithub" v-close-popover>
+              <button class="icon" @click="signInWithGithub">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -57,12 +57,12 @@
               </span>
             </button>
             <br />
-            <button class="icon" @click="logout" v-close-popover>
+            <button class="icon" @click="logout">
               <i class="material-icons">exit_to_app</i>
               <span>{{ $t("logout") }}</span>
             </button>
             <br />
-            <p v-for="setting in fb.currentSettings">
+            <p v-for="setting in fb.currentSettings" :key="setting.id">
               <pw-toggle
                 :key="setting.name"
                 :on="setting.value"

@@ -258,5 +258,6 @@ export default {
   syncHistory: "History",
   syncCollections: "Collections",
   turn_on: "Turn on",
-  login_first: "Login first"
+  login_first: "Login first",
+  paste_a_collection: "Paste a Collection"
 };

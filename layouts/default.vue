@@ -239,7 +239,7 @@
               <ul>
                 <li>
                   <a href="#account" v-tooltip.right="$t('account')">
-                    <i class="material-icons">perm_identity</i>
+                    <i class="material-icons">person</i>
                   </a>
                 </li>
                 <li>

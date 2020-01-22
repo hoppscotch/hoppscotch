@@ -25,13 +25,14 @@ export const fb = {
   feedsInFeed: [],
   currentUser: {},
   currentSettings: [],
-  writeFeed: async message => {
+  writeFeed: async (message, label) => {
     const dt = {
       createdOn: new Date(),
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      message
+      message,
+      label
     };
     try {
       return feedsCollection.add(dt);
@@ -45,6 +46,7 @@ export const fb = {
       .delete()
       .catch(e => console.error("error deleting", dt, e)),
   writeSettings: async (setting, value) => {
+    console.log(value);
     const st = {
       updatedOn: new Date(),
       author: fb.currentUser.uid,

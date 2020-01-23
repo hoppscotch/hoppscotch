@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     addNewCollection() {
-      if (this.$data.name !== undefined) {
+      if (!this.$data.name) {
         return;
       }
       this.$store.commit("postwoman/addNewCollection", {

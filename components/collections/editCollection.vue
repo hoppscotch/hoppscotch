@@ -59,6 +59,10 @@ export default {
   },
   methods: {
     saveCollection() {
+      if (!this.$data.name) {
+        this.$toast.info('Please provide a valid name for the collection');
+        return;
+      }
       const collectionUpdated = {
         ...this.$props.editingCollection,
         name: this.$data.name

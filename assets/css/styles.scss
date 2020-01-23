@@ -853,10 +853,7 @@ input[type="radio"]:checked + label + .tab {
 }
 
 @media (max-width: $responsiveWidth) {
-  .content {
-    flex-flow: column;
-  }
-
+  .content,
   .columns {
     flex-flow: column;
   }

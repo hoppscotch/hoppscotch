@@ -665,15 +665,8 @@ import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
 
-
 import firebase from 'firebase/app';
-import 'firebase/auth';
-
-import { store } from '../functions/store';
-import Login from '../components/Login';
-import InputForm from '../components/InputForm';
-import BallsFeed from '../components/BallsFeed';
-
+import { fb } from '../functions/fb';
 
 export default {
   components: {
@@ -716,7 +709,8 @@ export default {
       showShortcuts: false,
       showSupport: false,
       firefoxExtInstalled: window.firefoxExtSendRequest,
-      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled()
+      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled(),
+      fb
     };
   },
 

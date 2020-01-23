@@ -6,7 +6,7 @@ const firefoxWithProxy = (req, { state }) =>
       if (event.detail.error) {
         reject(JSON.parse(event.detail.error));
       } else {
-        resolve(JSON.parse(event.detail.response));
+        resolve(JSON.parse(event.detail.response).data);
       }
     };
 

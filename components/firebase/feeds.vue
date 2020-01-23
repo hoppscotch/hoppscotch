@@ -1,12 +1,12 @@
 <template>
   <virtual-list
-    v-if="fb.feedsInFeed.length !== 0"
+    v-if="fb.currentFeeds.length !== 0"
     class="virtual-list"
-    :class="{ filled: fb.feedsInFeed.length }"
+    :class="{ filled: fb.currentFeeds.length }"
     :size="56"
-    :remain="Math.min(8, fb.feedsInFeed.length)"
+    :remain="Math.min(8, fb.currentFeeds.length)"
   >
-    <ul v-for="feed in fb.feedsInFeed" :key="feed.id">
+    <ul v-for="feed in fb.currentFeeds" :key="feed.id">
       <div class="show-on-large-screen">
         <li>
           <input

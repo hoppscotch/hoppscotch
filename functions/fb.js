@@ -21,10 +21,11 @@ const usersCollection = firebase.firestore().collection("users");
 // the shared state object that any vue component
 // can get access to
 export const fb = {
-  feedsInFeed: [],
   currentUser: {},
+  currentFeeds: [],
   currentSettings: [],
-  writeFeed: async (message, label) => {
+  currentHistory: [],
+  writeFeeds: async (message, label) => {
     const dt = {
       createdOn: new Date(),
       author: fb.currentUser.uid,
@@ -48,7 +49,7 @@ export const fb = {
       .collection("feeds")
       .doc(id)
       .delete()
-      .catch(e => console.error("error deleting", dt, e));
+      .catch(e => console.error("error deleting", id, e));
   },
   writeSettings: async (setting, value) => {
     const st = {
@@ -63,10 +64,39 @@ export const fb = {
       return usersCollection
         .doc(fb.currentUser.uid)
         .collection("settings")
-        .doc(setting).set(st);
+        .doc(setting)
+        .set(st);
     } catch (e) {
       return console.error("error updating", st, e);
     }
+  },
+  writeHistory: async entry => {
+    const hs = entry;
+    try {
+      return usersCollection
+        .doc(fb.currentUser.uid)
+        .collection("history")
+        .add(hs);
+    } catch (e) {
+      return console.error("error inserting", hs, e);
+    }
+  },
+  deleteHistory: entry => {
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("history")
+      .doc(entry.id)
+      .delete()
+      .catch(e => console.error("error deleting", entry, e));
+  },
+  clearHistory: () => {
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("history")
+      .get()
+      .then(({ docs }) => {
+        docs.forEach(e => fb.deleteHistory(e));
+      });
   }
 };
 
@@ -101,21 +131,34 @@ firebase.auth().onAuthStateChanged(user => {
           feed.id = doc.id;
           feeds.push(feed);
         });
-        fb.feedsInFeed = feeds;
+        fb.currentFeeds = feeds;
       });
 
-      usersCollection
-        .doc(fb.currentUser.uid)
-        .collection("settings")
-        .onSnapshot(settingsRef => {
-          const settings = [];
-          settingsRef.forEach(doc => {
-            const setting = doc.data();
-            setting.id = doc.id;
-            settings.push(setting);
-          });
-          fb.currentSettings = settings;
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("settings")
+      .onSnapshot(settingsRef => {
+        const settings = [];
+        settingsRef.forEach(doc => {
+          const setting = doc.data();
+          setting.id = doc.id;
+          settings.push(setting);
         });
+        fb.currentSettings = settings;
+      });
+
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("history")
+      .onSnapshot(historyRef => {
+        const history = [];
+        historyRef.forEach(doc => {
+          const entry = doc.data();
+          entry.id = doc.id;
+          history.push(entry);
+        });
+        fb.currentHistory = history;
+      });
   } else {
     fb.currentUser = null;
   }

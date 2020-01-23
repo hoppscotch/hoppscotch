@@ -2129,6 +2129,11 @@ export default {
             star: false
           };
           this.$refs.historyComponent.addEntry(entry);
+          if (fb.currentUser !== null) {
+            if (fb.currentSettings[1].value) {
+              fb.writeHistory(entry);
+            }
+          }
         })();
       } catch (error) {
         console.error(error);
@@ -2150,6 +2155,11 @@ export default {
             preRequestScript: this.preRequestScript
           };
           this.$refs.historyComponent.addEntry(entry);
+          if (fb.currentUser !== null) {
+            if (fb.currentSettings[1].value) {
+              fb.writeHistory(entry);
+            }
+          }
           return;
         } else {
           this.response.status = error.message;

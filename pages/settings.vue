@@ -379,6 +379,7 @@ export default {
       this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
     },
     logout() {
+      fb.currentUser = null;
       firebase
         .auth()
         .signOut()

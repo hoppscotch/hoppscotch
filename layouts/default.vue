@@ -684,6 +684,7 @@ export default {
     },
 
     logout() {
+      fb.currentUser = null;
       firebase
         .auth()
         .signOut()

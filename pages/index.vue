@@ -846,6 +846,26 @@
               <collections />
             </pw-section>
           </div>
+          <input id="sync-tab" type="radio" name="side" />
+          <label for="sync-tab">{{ $t("sync") }}</label>
+          <div class="tab">
+            <pw-section
+              v-if="fb.currentUser"
+              class="pink"
+              label="Sync"
+              ref="sync"
+            >
+              <inputform />
+              <ballsfeed />
+            </pw-section>
+            <pw-section v-else>
+              <ul>
+                <li>
+                  <label>{{ $t("login_first") }}</label>
+                </li>
+              </ul>
+            </pw-section>
+          </div>
         </section>
       </aside>
 
@@ -1136,6 +1156,7 @@ import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
 import { sendNetworkRequest } from "../functions/network";
+import { fb } from "../functions/fb";
 
 const statusCategories = [
   {
@@ -1200,7 +1221,9 @@ export default {
     autocomplete: () => import("../components/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    Editor: AceEditor
+    Editor: AceEditor,
+    inputform: () => import("../components/firebase/inputform"),
+    ballsfeed: () => import("../components/firebase/feeds")
   },
   data() {
     return {
@@ -1370,12 +1393,12 @@ export default {
       ],
       showRequestModal: false,
       editRequest: {},
-
       urlExcludes: {},
       responseBodyText: "",
       responseBodyType: "text",
       responseBodyMaxLines: 16,
-      activeSidebar: true
+      activeSidebar: true,
+      fb
     };
   },
   watch: {
@@ -2106,6 +2129,11 @@ export default {
             star: false
           };
           this.$refs.historyComponent.addEntry(entry);
+          if (fb.currentUser !== null) {
+            if (fb.currentSettings[1].value) {
+              fb.writeHistory(entry);
+            }
+          }
         })();
       } catch (error) {
         console.error(error);
@@ -2127,6 +2155,11 @@ export default {
             preRequestScript: this.preRequestScript
           };
           this.$refs.historyComponent.addEntry(entry);
+          if (fb.currentUser !== null) {
+            if (fb.currentSettings[1].value) {
+              fb.writeHistory(entry);
+            }
+          }
           return;
         } else {
           this.response.status = error.message;
@@ -2139,7 +2172,7 @@ export default {
               icon: "help",
               duration: 8000,
               action: {
-                text: "Settings",
+                text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   this.$router.push({ path: "/settings" });
                 }

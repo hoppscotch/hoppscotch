@@ -238,6 +238,11 @@
             <nav class="secondary-nav">
               <ul>
                 <li>
+                  <a href="#account" v-tooltip.right="$t('account')">
+                    <i class="material-icons">person</i>
+                  </a>
+                </li>
+                <li>
                   <a href="#theme" v-tooltip.right="$t('theme')">
                     <i class="material-icons">brush</i>
                   </a>
@@ -288,6 +293,46 @@
                 >
                   <i class="material-icons">offline_bolt</i>
                 </button>
+                <login v-if="!fb.currentUser" />
+                <span v-if="fb.currentUser">
+                  <v-popover>
+                    <button
+                      class="icon"
+                      v-tooltip="
+                        (fb.currentUser.displayName ||
+                          '<label><i>Name not found</i></label>') +
+                          '<br>' +
+                          (fb.currentUser.email ||
+                            '<label><i>Email not found</i></label>')
+                      "
+                    >
+                      <img
+                        v-if="fb.currentUser.photoURL"
+                        :src="fb.currentUser.photoURL"
+                        class="material-icons"
+                      />
+                      <i v-else class="material-icons">account_circle</i>
+                    </button>
+                    <template slot="popover">
+                      <div>
+                        <nuxt-link :to="localePath('settings')" v-close-popover>
+                          <button class="icon">
+                            <i class="material-icons">settings</i>
+                            <span>
+                              {{ $t("settings") }}
+                            </span>
+                          </button>
+                        </nuxt-link>
+                      </div>
+                      <div>
+                        <button class="icon" @click="logout" v-close-popover>
+                          <i class="material-icons">exit_to_app</i>
+                          <span>{{ $t("logout") }}</span>
+                        </button>
+                      </div>
+                    </template>
+                  </v-popover>
+                </span>
                 <v-popover>
                   <button class="icon" v-tooltip="$t('more')">
                     <i class="material-icons">more_vert</i>
@@ -620,10 +665,14 @@ import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
 
+import firebase from 'firebase/app';
+import { fb } from '../functions/fb';
+
 export default {
   components: {
     logo: () => import("../components/logo"),
-    modal: () => import("../components/modal")
+    modal: () => import("../components/modal"),
+    login: () => import("../components/firebase/login")
   },
 
   methods: {
@@ -632,6 +681,21 @@ export default {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
       };
+    },
+
+    logout() {
+      fb.currentUser = null;
+      firebase
+        .auth()
+        .signOut()
+        .catch(err => {
+          this.$toast.show(err.message || err, {
+            icon: "error"
+          });
+        });
+      this.$toast.info(this.$t("logged_out"), {
+        icon: "vpn_key"
+      });
     }
   },
 
@@ -646,7 +710,8 @@ export default {
       showShortcuts: false,
       showSupport: false,
       firefoxExtInstalled: window.firefoxExtSendRequest,
-      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled()
+      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled(),
+      fb
     };
   },
 
@@ -767,7 +832,7 @@ export default {
 
   watch: {
     $route() {
-      this.$toast.clear();
+      // this.$toast.clear();
     }
   },
 

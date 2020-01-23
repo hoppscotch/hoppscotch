@@ -57,7 +57,7 @@ export default {
   methods: {
     addNewCollection() {
       if (!this.$data.name) {
-        alert('Please provide a name')
+        this.$toast.info('Please provide a name')
         return;
       }
       this.$store.commit("postwoman/addNewCollection", {

@@ -15,9 +15,8 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-// a reference to the Feeds collection
-const feedsCollection = firebase.firestore().collection("feeds");
-const settingsCollection = firebase.firestore().collection("settings");
+// a reference to the users collection
+const usersCollection = firebase.firestore().collection("users");
 
 // the shared state object that any vue component
 // can get access to
@@ -35,13 +34,18 @@ export const fb = {
       label
     };
     try {
-      return feedsCollection.add(dt);
+      return usersCollection
+        .doc(fb.currentUser.uid)
+        .collection("feeds")
+        .add(dt);
     } catch (e) {
       return console.error("error inserting", dt, e);
     }
   },
   deleteFeed: id => {
-    feedsCollection
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("feeds")
       .doc(id)
       .delete()
       .catch(e => console.error("error deleting", dt, e));
@@ -56,44 +60,63 @@ export const fb = {
       value
     };
     try {
-      return settingsCollection.doc(setting).set(st);
+      return usersCollection
+        .doc(fb.currentUser.uid)
+        .collection("settings")
+        .doc(setting).set(st);
     } catch (e) {
       return console.error("error updating", st, e);
     }
   }
 };
 
-// onSnapshot is executed every time the data
-// in the underlying firestore collection changes
-// It will get passed an array of references to
-// the documents that match your query
-feedsCollection
-  .orderBy("createdOn", "desc")
-  // .limit(0)
-  .onSnapshot(feedsRef => {
-    const feeds = [];
-    feedsRef.forEach(doc => {
-      const feed = doc.data();
-      feed.id = doc.id;
-      feeds.push(feed);
-    });
-    fb.feedsInFeed = feeds;
-  });
-
-settingsCollection
-  // .orderBy("updatedOn", "desc")
-  // .limit(2)
-  .onSnapshot(settingsRef => {
-    const settings = [];
-    settingsRef.forEach(doc => {
-      const setting = doc.data();
-      setting.id = doc.id;
-      settings.push(setting);
-    });
-    fb.currentSettings = settings;
-  });
-
 // When a user logs in or out, save that in the store
 firebase.auth().onAuthStateChanged(user => {
-  fb.currentUser = user;
+  if (user) {
+    fb.currentUser = user;
+    fb.currentUser.providerData.forEach(profile => {
+      let us = {
+        updatedOn: new Date(),
+        provider: profile.providerId,
+        name: profile.displayName,
+        email: profile.email,
+        photoUrl: profile.photoURL,
+        uid: profile.uid
+      };
+      try {
+        usersCollection.doc(fb.currentUser.uid).set(us);
+      } catch (e) {
+        console.error("error updating", us, e);
+      }
+    });
+
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("feeds")
+      .orderBy("createdOn", "desc")
+      .onSnapshot(feedsRef => {
+        const feeds = [];
+        feedsRef.forEach(doc => {
+          const feed = doc.data();
+          feed.id = doc.id;
+          feeds.push(feed);
+        });
+        fb.feedsInFeed = feeds;
+      });
+
+      usersCollection
+        .doc(fb.currentUser.uid)
+        .collection("settings")
+        .onSnapshot(settingsRef => {
+          const settings = [];
+          settingsRef.forEach(doc => {
+            const setting = doc.data();
+            setting.id = doc.id;
+            settings.push(setting);
+          });
+          fb.currentSettings = settings;
+        });
+  } else {
+    fb.currentUser = null;
+  }
 });

@@ -347,7 +347,7 @@
                 <label for="generatedCode">{{ $t("javascript_code") }}</label>
                 <div>
                   <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Request-Tests"
+                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
                     target="_blank"
                     rel="noopener"
                   >

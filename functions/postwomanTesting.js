@@ -2,6 +2,13 @@ const PASS = 'PASS',
   FAIL = 'FAIL',
   ERROR = 'ERROR';
 
+const styles = {
+  [PASS]: {icon: 'check', class: 'success-response'},
+  [FAIL]: {icon: 'close', class: 'cl-error-response'},
+  [ERROR]: {icon: 'close', class: 'cl-error-response'},
+  none: {icon: '', class: ''}
+};
+
 //TODO: probably have to use a more global state for `test`
 
 export default function runTestScriptWitVariables(script, variables) {
@@ -25,7 +32,15 @@ export default function runTestScriptWitVariables(script, variables) {
   let errors = null;
   new Function("pw", script)(pw);
   //
-  return {report: pw._report, errors: pw._errors, testResults: pw._testReports};
+  const report = pw._report.map(item => {
+    if (item.status) {
+      item.styles = styles[status];
+    } else {
+      item.styles = styles.none;
+    }
+    return item;
+  });
+  return {report, errors: pw._errors, testResults: pw._testReports};
 }
 
 function test(descriptor, func, _testReports) {

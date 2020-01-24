@@ -97,6 +97,14 @@ export const fb = {
       .then(({ docs }) => {
         docs.forEach(e => fb.deleteHistory(e));
       });
+  },
+  toggleStar: (entry, value) => {
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("history")
+      .doc(entry.id)
+      .update({ star: value })
+      .catch(e => console.error("error deleting", entry, e));
   }
 };
 

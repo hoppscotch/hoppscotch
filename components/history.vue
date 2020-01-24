@@ -21,7 +21,7 @@
           <button
             class="icon"
             :class="{ stared: entry.star }"
-            @click="toggleStar(index)"
+            @click="toggleStar(entry)"
             v-tooltip="{
               content: !entry.star ? $t('add_star') : $t('remove_star')
             }"
@@ -508,8 +508,11 @@ export default {
     toggleCollapse() {
       this.showMore = !this.showMore;
     },
-    toggleStar(index) {
-      this.history[index]["star"] = !this.history[index]["star"];
+    toggleStar(entry) {
+      if (fb.currentUser !== null) {
+        fb.toggleStar(entry, !entry.star);
+      }
+      entry.star = !entry.star;
       updateOnLocalStorage("history", this.history);
     }
   }

@@ -2174,10 +2174,7 @@
             body: this.response.body,
             headers: this.response.headers
           };
-          console.log(syntheticResponse);
-          debugger;
           const testResults = runTestScriptWitVariables(this.testScript, {response: syntheticResponse});
-          console.log('$$$', testResults);
 
         } catch (error) {
           console.error(error);

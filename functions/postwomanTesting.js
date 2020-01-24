@@ -6,8 +6,6 @@ const PASS = 'PASS',
 //TODO: probably have to use a more global state for `test`
 
 export default function runTestScriptWitVariables(script, variables) {
-  console.log(script);
-  console.log('start of the thing');
   let pw = {
     _errors: [],
     _testReports: [],

@@ -283,7 +283,7 @@
                 >
               </button>
               <button
-                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+                :class="'icon' + (testsEnabled ? ' info-response' : '')"
                 id="preRequestScriptButto"
                 v-tooltip.bottom="{
                   content: !testsEnabled
@@ -296,7 +296,7 @@
                   class="material-icons"
                   :class="testsEnabled"
                   v-if="!testsEnabled"
-                >code</i
+                >assignment_turned_in</i
                 >
                 <i class="material-icons" :class="testsEnabled" v-else
                 >close</i
@@ -371,9 +371,9 @@
               />
               <label>Test Reports<span v-if="testReports"></span></label>
               <div v-if="testReports">
-                <div v-for="testReport in testReports.testReports">
-                  <div v-if="testReport.status">
-                    <i class="material-icons" :class="testReport.styles.class">{{testReport.styles.icon}}</i> {{testReport.result}}
+                <div v-for="testReport in testReports">
+                  <div v-if="testReport.result">
+                    <span :class="testReport.styles.class"><i class="material-icons">{{testReport.styles.icon}}</i> {{testReport.result}}</span>
                     <ul v-if="testReport.message">
                       <li>{{testReport.message}}</li>
                     </ul>

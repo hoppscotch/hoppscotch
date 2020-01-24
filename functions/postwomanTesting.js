@@ -32,15 +32,15 @@ export default function runTestScriptWitVariables(script, variables) {
   let errors = null;
   new Function("pw", script)(pw);
   //
-  const report = pw._report.map(item => {
-    if (item.status) {
-      item.styles = styles[status];
+  const testReports = pw._testReports.map(item => {
+    if (item.result) {
+      item.styles = styles[item.result];
     } else {
       item.styles = styles.none;
     }
     return item;
   });
-  return {report, errors: pw._errors, testResults: pw._testReports};
+  return {report: pw._report, errors: pw._errors, testResults: testReports};
 }
 
 function test(descriptor, func, _testReports) {

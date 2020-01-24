@@ -18,7 +18,7 @@ export default function runTestScriptWitVariables(script, variables) {
     _report: '',
     expect: function(value) {
       try {
-        return expect(value, this._testReports, arguments);
+        return expect(value, this._testReports);
       } catch (e) {
         pw._testReports.push({result: ERROR, message: e});
       }
@@ -29,7 +29,6 @@ export default function runTestScriptWitVariables(script, variables) {
   Object.assign(pw, variables);
 
   // run pre-request script within this function so that it has access to the pw object.
-  let errors = null;
   new Function("pw", script)(pw);
   //
   const testReports = pw._testReports.map(item => {
@@ -142,11 +141,5 @@ class Expectation {
     return this._satisfies(code >= 500 && code < 600)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 500-level status`));
-  }
-}
-
-class PostwomanTestFailure {
-  constructor(message) {
-    return {message}
   }
 }

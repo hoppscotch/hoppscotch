@@ -282,6 +282,26 @@
                   >close</i
                 >
               </button>
+              <button
+                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+                id="preRequestScriptButto"
+                v-tooltip.bottom="{
+                  content: !testsEnabled
+                    ? 'Enable Tests'
+                    : 'Disable Tests'
+                }"
+                @click="testsEnabled = !testsEnabled"
+              >
+                <i
+                  class="material-icons"
+                  :class="testsEnabled"
+                  v-if="!testsEnabled"
+                >code</i
+                >
+                <i class="material-icons" :class="testsEnabled" v-else
+                >close</i
+                >
+              </button>
             </span>
             <span>
               <button
@@ -316,6 +336,43 @@
           </div>
         </pw-section>
 
+        <pw-section
+          v-if="testsEnabled"
+          class="orange"
+          label="Tests"
+          ref="postRequestTests">
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                <div>
+                  <a
+                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Request-Tests"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <button class="icon" v-tooltip="$t('wiki')">
+                      <i class="material-icons">help</i>
+                    </button>
+                  </a>
+                </div>
+              </div>
+              <Editor
+                v-model="testScript"
+                :lang="'javascript'"
+                :options="{
+                  maxLines: responseBodyMaxLines,
+                  minLines: '16',
+                  fontSize: '16px',
+                  autoScrollEditorIntoView: true,
+                  showPrintMargin: false,
+                  useWorker: false
+                }"
+              />
+            </li>
+          </ul>
+
+        </pw-section>
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
           <label for="tab-one">{{ $t("authentication") }}</label>
@@ -1152,6 +1209,7 @@ import querystring from "querystring";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
+import runTestScriptWitVariables from '../functions/postWomanTesting'
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
@@ -1229,6 +1287,8 @@ export default {
     return {
       showModal: false,
       showPreRequestScript: false,
+      testsEnabled: false,
+      testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
@@ -2135,6 +2195,16 @@ export default {
             }
           }
         })();
+
+        // tests
+        const syntheticResponse = {
+          status: this.response.status,
+          body: this.response.body,
+          headers: this.response.headers
+        };
+        const testResults = runTestScriptWitVariables(this.testScript, {response: syntheticResponse});
+        console.log('test results!! ', testResults)
+
       } catch (error) {
         console.error(error);
         if (error.response) {

@@ -1,4 +1,3 @@
-import {parse} from "graphql";
 const PASS = 'PASS',
   FAIL = 'FAIL',
   ERROR = 'ERROR';

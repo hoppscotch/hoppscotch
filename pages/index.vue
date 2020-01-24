@@ -286,9 +286,7 @@
                 :class="'icon' + (testsEnabled ? ' info-response' : '')"
                 id="preRequestScriptButto"
                 v-tooltip.bottom="{
-                  content: !testsEnabled
-                    ? 'Enable Tests'
-                    : 'Disable Tests'
+                  content: !testsEnabled ? 'Enable Tests' : 'Disable Tests'
                 }"
                 @click="testsEnabled = !testsEnabled"
               >
@@ -296,11 +294,10 @@
                   class="material-icons"
                   :class="testsEnabled"
                   v-if="!testsEnabled"
-                >assignment_turned_in</i
                 >
-                <i class="material-icons" :class="testsEnabled" v-else
-                >close</i
-                >
+                  assignment_turned_in
+                </i>
+                <i class="material-icons" :class="testsEnabled" v-else>close</i>
               </button>
             </span>
             <span>
@@ -340,7 +337,8 @@
           v-if="testsEnabled"
           class="orange"
           label="Tests"
-          ref="postRequestTests">
+          ref="postRequestTests"
+        >
           <ul>
             <li>
               <div class="flex-wrap">
@@ -373,20 +371,24 @@
               <div v-if="testReports">
                 <div v-for="testReport in testReports">
                   <div v-if="testReport.result">
-                    <span :class="testReport.styles.class"><i class="material-icons">{{testReport.styles.icon}}</i> {{testReport.result}}</span>
+                    <span :class="testReport.styles.class">
+                      <i class="material-icons">
+                        {{ testReport.styles.icon }}
+                      </i>
+                      {{ testReport.result }}
+                    </span>
                     <ul v-if="testReport.message">
-                      <li>{{testReport.message}}</li>
+                      <li>{{ testReport.message }}</li>
                     </ul>
                   </div>
                   <div v-else-if="testReport.startBlock">
-                    <h4>{{testReport.startBlock}}</h4>
+                    <h4>{{ testReport.startBlock }}</h4>
                   </div>
-                  <div v-else-if="testReport.endBlock"><br/></div>
+                  <div v-else-if="testReport.endBlock"><br /></div>
                 </div>
               </div>
             </li>
           </ul>
-
         </pw-section>
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
@@ -1224,7 +1226,7 @@ import querystring from "querystring";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
-import runTestScriptWitVariables from '../functions/postWomanTesting'
+import runTestScriptWitVariables from "../functions/postWomanTesting";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
@@ -2218,9 +2220,10 @@ export default {
           body: this.response.body,
           headers: this.response.headers
         };
-        const { testResults } = runTestScriptWitVariables(this.testScript, {response: syntheticResponse});
+        const { testResults } = runTestScriptWitVariables(this.testScript, {
+          response: syntheticResponse
+        });
         this.testReports = testResults;
-
       } catch (error) {
         console.error(error);
         if (error.response) {

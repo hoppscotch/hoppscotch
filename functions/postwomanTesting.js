@@ -1,12 +1,12 @@
-const PASS = 'PASS',
-  FAIL = 'FAIL',
-  ERROR = 'ERROR';
+const PASS = "PASS";
+const FAIL = "FAIL";
+const ERROR = "ERROR";
 
 const styles = {
-  [PASS]: {icon: 'check', class: 'success-response'},
-  [FAIL]: {icon: 'close', class: 'cl-error-response'},
-  [ERROR]: {icon: 'close', class: 'cl-error-response'},
-  none: {icon: '', class: ''}
+  [PASS]: { icon: "check", class: "success-response" },
+  [FAIL]: { icon: "close", class: "cl-error-response" },
+  [ERROR]: { icon: "close", class: "cl-error-response" },
+  none: { icon: "", class: "" }
 };
 
 //TODO: probably have to use a more global state for `test`
@@ -15,12 +15,12 @@ export default function runTestScriptWitVariables(script, variables) {
   let pw = {
     _errors: [],
     _testReports: [],
-    _report: '',
-    expect: function(value) {
+    _report: "",
+    expect(value) {
       try {
         return expect(value, this._testReports);
       } catch (e) {
-        pw._testReports.push({result: ERROR, message: e});
+        pw._testReports.push({ result: ERROR, message: e });
       }
     },
     test: (descriptor, func) => test(descriptor, func, pw._testReports)
@@ -39,17 +39,17 @@ export default function runTestScriptWitVariables(script, variables) {
     }
     return item;
   });
-  return {report: pw._report, errors: pw._errors, testResults: testReports};
+  return { report: pw._report, errors: pw._errors, testResults: testReports };
 }
 
 function test(descriptor, func, _testReports) {
-  _testReports.push({startBlock: descriptor});
+  _testReports.push({ startBlock: descriptor });
   try {
     func();
   } catch (e) {
-    _testReports.push({result: ERROR, message: e});
+    _testReports.push({ result: ERROR, message: e });
   }
-  _testReports.push({endBlock: true});
+  _testReports.push({ endBlock: true });
 
   // TODO: Organieze and generate text report of each {descriptor: true} section in testReports.
   // add checkmark or x depending on if each testReport is pass=true or pass=false
@@ -78,68 +78,98 @@ class Expectation {
       } else {
         return expectValue === targetValue;
       }
-    }
+    };
   }
   _fmtNot(message) {
     // given a string with "(not)" in it, replaces with "not" or "", depending if the expectation is expecting the positive or inverse (this._not)
     if (this.not === true) {
       return message.replace("(not)", "not ");
     } else {
-      return message.replace("(not)", "")
+      return message.replace("(not)", "");
     }
   }
   _fail(message) {
-    this._testReports.push({result: FAIL, message})
+    this._testReports.push({ result: FAIL, message });
   }
   _pass(message) {
-    this._testReports.push({result: PASS});
+    this._testReports.push({ result: PASS });
   }
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)
   toBe(value) {
     return this._satisfies(value)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} (not)to be ${value}`));
+      : this._fail(
+          this._fmtNot(`Expected ${this.expectValue} (not)to be ${value}`)
+        );
   }
   toHaveProperty(value) {
     return this._satisfies(this.expectValue.hasOwnProperty(value), true)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected object ${this.expectValue} to (not)have property ${value}`))
+      : this._fail(
+          this._fmtNot(
+            `Expected object ${this.expectValue} to (not)have property ${value}`
+          )
+        );
   }
   toBeLevel2xx() {
     let code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
-      return this._fail(`Expecteded 200-level status but could not parse value ${this.expectValue}`);
+      return this._fail(
+        `Expecteded 200-level status but could not parse value ${this.expectValue}`
+      );
     }
     return this._satisfies(code >= 200 && code < 300)
-      ? this._pass() :
-      this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 200-level status`));
+      ? this._pass()
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 200-level status`
+          )
+        );
   }
   toBeLevel3xx() {
     let code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 300-level status but could not parse value ${this.expectValue}`);
+      return this._fail(
+        `Expected 300-level status but could not parse value ${this.expectValue}`
+      );
     }
     return this._satisfies(code >= 300 && code < 400)
-      ? this._pass() :
-      this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 300-level status`));
+      ? this._pass()
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 300-level status`
+          )
+        );
   }
   toBeLevel4xx() {
     let code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 400-level status but could not parse value ${this.expectValue}`);
+      return this._fail(
+        `Expected 400-level status but could not parse value ${this.expectValue}`
+      );
     }
     return this._satisfies(code >= 400 && code < 500)
-      ? this._pass() :
-      this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 400-level status`));
+      ? this._pass()
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 400-level status`
+          )
+        );
   }
   toBeLevel5xx() {
     let code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 200-level status but could not parse value ${this.expectValue}`);
+      return this._fail(
+        `Expected 200-level status but could not parse value ${this.expectValue}`
+      );
     }
     return this._satisfies(code >= 500 && code < 600)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 500-level status`));
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 500-level status`
+          )
+        );
   }
 }

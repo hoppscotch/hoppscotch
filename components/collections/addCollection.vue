@@ -56,6 +56,10 @@ export default {
   },
   methods: {
     addNewCollection() {
+      if (!this.$data.name) {
+        this.$toast.info('Please provide a valid name for the collection')
+        return;
+      }
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name
       });

@@ -29,7 +29,7 @@
         "firebase": "^7.7.0",
         "graphql": "^14.5.8",
         "nuxt": "^2.11.0",
-        "nuxt-i18n": "^6.4.1",
+        "nuxt-i18n": "^6.5.0",
         "v-tooltip": "^2.0.2",
         "vue-virtual-scroll-list": "^1.4.4",
         "vuefire": "^2.2.1",

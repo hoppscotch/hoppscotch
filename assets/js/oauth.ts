@@ -33,14 +33,14 @@ const sendPostRequest = async (
   }
 };
 // Parse a query string into an object
-const parseQueryString = (string: string) => {
-  if (string === "") {
+const parseQueryString = (queryString: string) => {
+  if (queryString === "") {
     return {};
   }
-  let segments = string.split("&").map(s => s.split("="));
-  let queryString: { [key: string]: string } = {};
-  segments.forEach(s => (queryString[s[0]] = s[1]));
-  return queryString;
+  let segments = queryString.split("&").map(s => s.split("="));
+  let queries: { [key: string]: string } = {};
+  segments.forEach(s => (queries[s[0]] = s[1]));
+  return queries;
 };
 
 // Get OAuth configuration from OpenID Discovery endpoint
@@ -76,9 +76,6 @@ const sha256 = (plain: string) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
   return window.crypto.subtle.digest("SHA-256", data);
-};
-const hoge = (val: ArrayBuffer) => {
-  return new Uint8Array(val);
 };
 // Base64-urlencodes the input string
 const base64urlencode = (

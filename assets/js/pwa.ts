@@ -55,7 +55,7 @@ export default () => {
   });
 
   // When the app is installed, remove install prompts.
-  window.addEventListener("appinstalled", event => {
+  window.addEventListener("appinstalled", _event => {
     localStorage.setItem("pwaInstalled", "yes");
     pwaInstalled = true;
     const installPWAElement = document.getElementById("installPWA");

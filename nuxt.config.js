@@ -230,7 +230,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ['@nuxt/typescript-build'],
+  buildModules: ["@nuxt/typescript-build"],
   /*
    ** Nuxt.js modules
    */
@@ -303,61 +303,61 @@ export default {
         code: "en",
         name: "English",
         iso: "en-US",
-        file: "en-US.js"
+        file: "en-US.ts"
       },
       {
         code: "es",
         name: "Español",
         iso: "es-ES",
-        file: "es-ES.js"
+        file: "es-ES.ts"
       },
       {
         code: "fr",
         name: "Français",
         iso: "fr-FR",
-        file: "fr-FR.js"
+        file: "fr-FR.ts"
       },
       {
         code: "fa",
         name: "Farsi",
         iso: "fa-IR",
-        file: "fa-IR.js"
+        file: "fa-IR.ts"
       },
       {
         code: "pt",
         name: "Português Brasileiro",
         iso: "pt-BR",
-        file: "pt-BR.js"
+        file: "pt-BR.ts"
       },
       {
         code: "cn",
         name: "简体中文",
         iso: "zh-CN",
-        file: "zh-CN.js"
+        file: "zh-CN.ts"
       },
       {
         code: "id",
         name: "Bahasa Indonesia",
         iso: "id-ID",
-        file: "id-ID.js"
+        file: "id-ID.ts"
       },
       {
         code: "tr",
         name: "Türkçe",
         iso: "tr-TR",
-        file: "tr-TR.js"
+        file: "tr-TR.ts"
       },
       {
         code: "de",
         name: "Deutsch",
         iso: "de-DE",
-        file: "de-DE.js"
+        file: "de-DE.ts"
       },
       {
         code: "ja",
         name: "日本語",
         iso: "ja-JP",
-        file: "ja-JP.js"
+        file: "ja-JP.ts"
       }
     ],
     defaultLocale: "en",

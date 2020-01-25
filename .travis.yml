@@ -13,38 +13,40 @@
 
 language: node_js
 node_js:
- - "12"
+  - "12"
+
+os: linux
 
 addons:
- apt:
-  packages:
-   - libgconf-2-4 # cypress binary dependency
+  apt:
+    packages:
+      - libgconf-2-4 # cypress binary dependency
 
 env:
- - DEPLOY_ENV=POSTWOMAN_IO
+  - DEPLOY_ENV=POSTWOMAN_IO
 
 cache:
- npm: true
- directories:
-  - "node_modules"
-  - ~/.cache
+  npm: true
+  directories:
+    - "node_modules"
+    - ~/.cache
 
 branches:
- only:
-  - "master"
+  only:
+    - "master"
 
 install:
- - "npm install firebase-tools"
- - "npm install"
+  - "npm install firebase-tools"
+  - "npm install"
 
 before_script:
- - "npm run test"
+  - "npm run test"
 
 script:
- - "cd functions"
- - "npm install"
- - "cd .."
- - "npm run generate"
+  - "cd functions"
+  - "npm install"
+  - "cd .."
+  - "npm run generate"
 
 notifications:
   webhooks: https://www.travisbuddy.com

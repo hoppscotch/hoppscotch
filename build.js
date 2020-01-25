@@ -53,7 +53,7 @@ try {
 
     // Write version data into a file
     fs.writeFileSync(
-      PW_BUILD_DATA_DIR + "/version.json",
+      `${PW_BUILD_DATA_DIR}/version.json`,
       JSON.stringify(version)
     );
   })();

@@ -39,7 +39,7 @@
               </pw-toggle>
             </p>
             <p v-if="fb.currentSettings.length == 0">
-              <button class="" @click="writeSettings">
+              <button class="" @click="initSettings">
                 <i class="material-icons">sync</i>
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
               </button>
@@ -406,8 +406,8 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", false);
-                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncHistory", true);
+                  fb.writeSettings("syncCollections", false);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -435,8 +435,8 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", false);
-                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncHistory", true);
+                  fb.writeSettings("syncCollections", false);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -453,9 +453,9 @@ export default {
     toggleSettings(s, v) {
       fb.writeSettings(s, !v);
     },
-    writeSettings() {
-      fb.writeSettings("syncHistory", false);
-      fb.writeSettings("syncCollections", true);
+    initSettings() {
+      fb.writeSettings("syncHistory", true);
+      fb.writeSettings("syncCollections", false);
     }
   },
 

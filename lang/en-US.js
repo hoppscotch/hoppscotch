@@ -259,5 +259,6 @@ export default {
   syncCollections: "Collections",
   turn_on: "Turn on",
   login_first: "Login first",
-  paste_a_collection: "Paste a Collection"
+  paste_a_collection: "Paste a Collection",
+  import_from_sync: "Import from Sync"
 };

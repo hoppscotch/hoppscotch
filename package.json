@@ -38,6 +38,8 @@
   },
   "devDependencies": {
     "@nuxt/typescript-build": "^0.5.5",
+    "@types/cookie": "^0.3.3",
+    "@types/yargs-parser": "^15.0.0",
     "cypress": "^3.8.2",
     "node-sass": "^4.13.0",
     "sass-loader": "^8.0.1",

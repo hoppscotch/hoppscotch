@@ -592,7 +592,6 @@ pre {
 
 select {
   height: 37px;
-  background-color: var(--bg-dark-color);
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -698,6 +697,7 @@ ol li {
 
 .show-on-large-screen {
   display: inline-flex;
+  flex: 1;
 }
 
 .info-response {
@@ -852,10 +852,7 @@ input[type="radio"]:checked + label + .tab {
 }
 
 @media (max-width: $responsiveWidth) {
-  .content {
-    flex-flow: column;
-  }
-
+  .content,
   .columns {
     flex-flow: column;
   }

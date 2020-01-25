@@ -69,8 +69,8 @@ _Customized themes are synced with local session storage_
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
  - Offline support
  - Low RAM/memory and CPU usage
- - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
- - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
+ - Add to Home Screen
+ - Desktop PWA
  - ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve response from endpoint instantly.
@@ -89,8 +89,7 @@ _Customized themes are synced with local session storage_
 🔌 **WebSocket**: Establish full-duplex communication channels over a single TCP connection.
 
  - Send and receive data
- - Basic authentication using username and password
- - Token based authentication
+ - Basic and Bearer Token authentication
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
 
@@ -106,8 +105,10 @@ _Customized themes are synced with local session storage_
 
 **Types:**
  - None
- - Basic authentication using username and password
- - Token based authentication
+ - Basic
+ - Bearer Token
+ - OAuth 2.0
+ - OIDC Access Token/PKCE (Proof Key for Code Exchange)
 
 📢 **Headers**: Describes the format the body of your request is being sent as.
 
@@ -217,10 +218,15 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
 
 📦 **Add-ons**: Official add-ons for Postwoman.
 
- - **[Postwoman Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
- - **[Postwoman CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
+ - **[Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
+ - **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
+ - **Browser Extensions** - Browser extensions that simplifies access to Postwoman
 
-_Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**_
+   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) ([GitHub](https://github.com/AndrewBastin/postwoman-firefox)) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-chrome))
+
+   >**Extensions fixes `CORS` issues.**
+
+_Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**._
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 

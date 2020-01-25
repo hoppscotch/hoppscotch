@@ -4,7 +4,7 @@
       <input id="tab-one" type="radio" name="options" checked="checked" />
       <label for="tab-one">{{ $t("websocket") }}</label>
       <div class="tab">
-        <pw-section class="blue" label="Request" ref="request">
+        <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -39,13 +39,13 @@
 
         <pw-section
           class="purple"
-          label="Communication"
+          :label="$t('communication')"
           id="response"
           ref="response"
         >
           <ul>
             <li>
-              <label for="log">Log</label>
+              <label for="log">{{ $t("log") }}</label>
               <div id="log" name="log" class="log">
                 <span v-if="communication.log">
                   <span
@@ -94,7 +94,7 @@
       <input id="tab-two" type="radio" name="options" />
       <label for="tab-two">{{ $t("sse") }}</label>
       <div class="tab">
-        <pw-section class="blue" label="Request" ref="request">
+        <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li>
               <label for="server">{{ $t("server") }}</label>
@@ -129,7 +129,7 @@
 
         <pw-section
           class="purple"
-          label="Communication"
+          :label="$t('communication')"
           id="response"
           ref="response"
         >
@@ -243,7 +243,7 @@ export default {
     connect() {
       this.communication.log = [
         {
-          payload: `Connecting to ${this.url}...`,
+          payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
           color: "var(--ac-color)"
         }
@@ -254,13 +254,13 @@ export default {
           this.connectionState = true;
           this.communication.log = [
             {
-              payload: `Connected to ${this.url}.`,
+              payload: this.$t("connected_to", { name: this.url }),
               source: "info",
               color: "var(--ac-color)",
               ts: new Date().toLocaleTimeString()
             }
           ];
-          this.$toast.success("Connected", {
+          this.$toast.success(this.$t("connected"), {
             icon: "sync"
           });
         };
@@ -270,12 +270,12 @@ export default {
         this.socket.onclose = event => {
           this.connectionState = false;
           this.communication.log.push({
-            payload: `Disconnected from ${this.url}.`,
+            payload: this.$t("disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
             ts: new Date().toLocaleTimeString()
           });
-          this.$toast.error("Disconnected", {
+          this.$toast.error(this.$t("disconnected"), {
             icon: "sync_disabled"
           });
         };
@@ -288,7 +288,7 @@ export default {
         };
       } catch (ex) {
         this.handleError(ex);
-        this.$toast.error("Something went wrong!", {
+        this.$toast.error(this.$t("something_went_wrong"), {
           icon: "error"
         });
       }
@@ -300,7 +300,7 @@ export default {
       this.disconnect();
       this.connectionState = false;
       this.communication.log.push({
-        payload: `An error has occurred.`,
+        payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString()
@@ -349,7 +349,7 @@ export default {
     start() {
       this.events.log = [
         {
-          payload: `Connecting to ${this.server}...`,
+          payload: this.$t("connecting_to", { name: this.server }),
           source: "info",
           color: "var(--ac-color)"
         }
@@ -361,13 +361,13 @@ export default {
             this.connectionSSEState = true;
             this.events.log = [
               {
-                payload: `Connected to ${this.server}.`,
+                payload: this.$t("connected_to", { name: this.server }),
                 source: "info",
                 color: "var(--ac-color)",
                 ts: new Date().toLocaleTimeString()
               }
             ];
-            this.$toast.success("Connected", {
+            this.$toast.success(this.$t("connected"), {
               icon: "sync"
             });
           };
@@ -377,12 +377,12 @@ export default {
           this.sse.onclose = event => {
             this.connectionSSEState = false;
             this.events.log.push({
-              payload: `Disconnected from ${this.server}.`,
+              payload: this.$t("disconnected_from", { name: this.server }),
               source: "info",
               color: "#ff5555",
               ts: new Date().toLocaleTimeString()
             });
-            this.$toast.error("Disconnected", {
+            this.$toast.error(this.$t("disconnected"), {
               icon: "sync_disabled"
             });
           };
@@ -395,14 +395,14 @@ export default {
           };
         } catch (ex) {
           this.handleSSEError(ex);
-          this.$toast.error("Something went wrong!", {
+          this.$toast.error(this.$t("something_went_wrong"), {
             icon: "error"
           });
         }
       } else {
         this.events.log = [
           {
-            payload: `This browser doesn't seems to have Server Sent Events support.`,
+            payload: this.$t("browser_support_sse"),
             source: "info",
             color: "#ff5555",
             ts: new Date().toLocaleTimeString()
@@ -414,7 +414,7 @@ export default {
       this.stop();
       this.connectionSSEState = false;
       this.events.log.push({
-        payload: `An error has occurred.`,
+        payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString()

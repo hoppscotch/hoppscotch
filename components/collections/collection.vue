@@ -10,14 +10,14 @@
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="'More'">
+        <button class="tooltip-target icon" v-tooltip="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button class="icon" @click="$emit('add-folder')" v-close-popover>
               <i class="material-icons">create_new_folder</i>
-              <span>New folder</span>
+              <span>{{ $t("new_folder") }}</span>
             </button>
           </div>
           <div>
@@ -27,13 +27,13 @@
               v-close-popover
             >
               <i class="material-icons">create</i>
-              <span>Edit</span>
+              <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
             <button class="icon" @click="removeCollection" v-close-popover>
               <i class="material-icons">delete</i>
-              <span>Delete</span>
+              <span>{{ $t("delete") }}</span>
             </button>
           </div>
         </template>
@@ -56,7 +56,7 @@
             collection.folders.length === 0 && collection.requests.length === 0
           "
         >
-          <label>Collection is empty</label>
+          <label>{{ $t("collection_empty") }}</label>
         </li>
       </ul>
       <ul>

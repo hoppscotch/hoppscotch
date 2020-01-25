@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section class="blue" label="Endpoint" ref="endpoint">
+        <pw-section class="blue" :label="$t('endpoint')" ref="endpoint">
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -25,7 +25,7 @@
           </ul>
         </pw-section>
 
-        <pw-section class="orange" label="Headers" ref="headers">
+        <pw-section class="orange" :label="$t('headers')" ref="headers">
           <ul>
             <li>
               <div class="flex-wrap">
@@ -34,7 +34,7 @@
                   <button
                     class="icon"
                     @click="headers = []"
-                    v-tooltip.bottom="'Clear'"
+                    v-tooltip.bottom="$t('clear')"
                   >
                     <i class="material-icons">clear_all</i>
                   </button>
@@ -45,7 +45,7 @@
                 readonly
                 v-textarea-auto-height="headerString"
                 v-model="headerString"
-                placeholder="(add at least one header)"
+                :placeholder="$t('add_one_header')"
                 rows="1"
               ></textarea>
             </li>
@@ -53,7 +53,7 @@
           <ul v-for="(header, index) in headers" :key="index">
             <li>
               <autocomplete
-                :placeholder="'header ' + (index + 1)"
+                :placeholder="$t('header_count', { count: index + 1 })"
                 :source="commonHeaders"
                 :spellcheck="false"
                 :value="header.key"
@@ -68,7 +68,7 @@
             </li>
             <li>
               <input
-                :placeholder="'value ' + (index + 1)"
+                :placeholder="$t('value_count', { count: index + 1 })"
                 :name="'value' + index"
                 :value="header.value"
                 @change="
@@ -85,6 +85,7 @@
                 <button
                   class="icon"
                   @click="removeRequestHeader(index)"
+                  v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
                   <i class="material-icons">delete</i>
@@ -102,7 +103,7 @@
           </ul>
         </pw-section>
 
-        <pw-section class="green" label="Schema" ref="schema">
+        <pw-section class="green" :label="$t('schema')" ref="schema">
           <div class="flex-wrap">
             <label>{{ $t("response") }}</label>
             <div>
@@ -112,8 +113,8 @@
                 ref="ToggleExpandResponse"
                 v-tooltip="{
                   content: !expandResponse
-                    ? 'Expand response'
-                    : 'Collapse response'
+                    ? $t('expand_response')
+                    : $t('collapse_response')
                 }"
               >
                 <i class="material-icons">
@@ -124,7 +125,7 @@
                 class="icon"
                 @click="downloadResponse"
                 ref="downloadResponse"
-                v-tooltip="'Download file'"
+                v-tooltip="$t('download_file')"
               >
                 <i class="material-icons">get_app</i>
               </button>
@@ -132,7 +133,7 @@
                 class="icon"
                 ref="copySchemaCode"
                 @click="copySchema"
-                v-tooltip="'Copy Schema'"
+                v-tooltip="$t('copy_schema')"
               >
                 <i class="material-icons">file_copy</i>
               </button>
@@ -153,14 +154,14 @@
           />
         </pw-section>
 
-        <pw-section class="cyan" label="Query" ref="query">
+        <pw-section class="cyan" :label="$t('query')" ref="query">
           <div class="flex-wrap">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
                 class="icon"
                 @click="runQuery()"
-                v-tooltip.bottom="'Run Query'"
+                v-tooltip.bottom="$t('run_query')"
               >
                 <i class="material-icons">play_arrow</i>
               </button>
@@ -168,13 +169,14 @@
                 class="icon"
                 @click="copyQuery"
                 ref="copyQueryButton"
-                v-tooltip="'Copy Query'"
+                v-tooltip="$t('copy_query')"
               >
                 <i class="material-icons">file_copy</i>
               </button>
             </div>
           </div>
-          <Editor
+          <QueryEditor
+            ref="queryEditor"
             v-model="gqlQueryString"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -191,7 +193,7 @@
               <button
                 class="icon"
                 @click="variables = []"
-                v-tooltip.bottom="'Clear'"
+                v-tooltip.bottom="$t('clear')"
               >
                 <i class="material-icons">clear_all</i>
               </button>
@@ -200,7 +202,7 @@
           <ul v-for="(variable, index) in variables" :key="index">
             <li>
               <input
-                :placeholder="'variable ' + (index + 1)"
+                :placeholder="$t('variable_count', { count: index + 1 })"
                 :name="'variable_key_' + index"
                 :value="variable.key"
                 @change="
@@ -214,7 +216,7 @@
             </li>
             <li>
               <input
-                :placeholder="'value ' + (index + 1)"
+                :placeholder="$t('value_count', { count: index + 1 })"
                 :name="'variable_value_' + index"
                 :value="variable.value"
                 @change="
@@ -228,7 +230,11 @@
             </li>
             <div>
               <li>
-                <button class="icon" @click="removeQueryVariable(index)">
+                <button
+                  class="icon"
+                  @click="removeQueryVariable(index)"
+                  v-tooltip.bottom="$t('delete')"
+                >
                   <i class="material-icons">delete</i>
                 </button>
               </li>
@@ -252,7 +258,7 @@
                 class="icon"
                 @click="copyResponse"
                 ref="copyResponseButton"
-                v-tooltip="'Copy Response'"
+                v-tooltip="$t('copy_response')"
               >
                 <i class="material-icons">file_copy</i>
               </button>
@@ -274,7 +280,7 @@
         </pw-section>
       </div>
       <aside class="sticky-inner inner-right">
-        <pw-section class="purple" label="Docs" ref="docs">
+        <pw-section class="purple" :label="$t('docs')" ref="docs">
           <section>
             <input
               v-if="queryFields.length > 0"
@@ -288,7 +294,10 @@
             </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
-                <gql-field :gqlField="field" />
+                <gql-field
+                  :gqlField="field"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
 
@@ -304,7 +313,10 @@
             </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
-                <gql-field :gqlField="field" />
+                <gql-field
+                  :gqlField="field"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
 
@@ -320,7 +332,10 @@
             </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
-                <gql-field :gqlField="field" />
+                <gql-field
+                  :gqlField="field"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
 
@@ -335,8 +350,15 @@
               {{ $t("types") }}
             </label>
             <div v-if="gqlTypes.length > 0" class="tab">
-              <div v-for="type in gqlTypes" :key="type.name">
-                <gql-type :gqlType="type" />
+              <div
+                v-for="type in gqlTypes"
+                :key="type.name"
+                :id="`type_${type.name}`"
+              >
+                <gql-type
+                  :gqlType="type"
+                  :jumpTypeCallback="handleJumpToType"
+                />
               </div>
             </div>
           </section>
@@ -350,7 +372,7 @@
             "
             class="info"
           >
-            Send a request first
+            {{ $t("send_request_first") }}
           </p>
         </pw-section>
       </aside>
@@ -370,6 +392,8 @@ import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import AceEditor from "../components/ace-editor";
+import QueryEditor from "../components/graphql/queryeditor";
+import { sendNetworkRequest } from "../functions/network";
 
 export default {
   directives: {
@@ -380,7 +404,8 @@ export default {
     "gql-field": () => import("../components/graphql/field"),
     "gql-type": () => import("../components/graphql/type"),
     autocomplete: () => import("../components/autocomplete"),
-    Editor: AceEditor
+    Editor: AceEditor,
+    QueryEditor: QueryEditor
   },
   data() {
     return {
@@ -521,6 +546,7 @@ export default {
       responseBodyMaxLines: 16
     };
   },
+
   computed: {
     url: {
       get() {
@@ -563,6 +589,24 @@ export default {
     }
   },
   methods: {
+    handleJumpToType(type) {
+      const typesTab = document.getElementById("gqltypes-tab");
+      typesTab.checked = true;
+
+      const rootTypeName = this.resolveRootType(type).name;
+
+      const target = document.getElementById(`type_${rootTypeName}`);
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth"
+        });
+      }
+    },
+    resolveRootType(type) {
+      let t = type;
+      while (t.ofType != null) t = t.ofType;
+      return t;
+    },
     copySchema() {
       this.$refs.copySchemaCode.innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
@@ -571,7 +615,7 @@ export default {
       aux.select();
       document.execCommand("copy");
       document.body.removeChild(aux);
-      this.$toast.success("Copied to clipboard", {
+      this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done"
       });
       setTimeout(
@@ -587,7 +631,7 @@ export default {
       aux.select();
       document.execCommand("copy");
       document.body.removeChild(aux);
-      this.$toast.success("Copied to clipboard", {
+      this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done"
       });
       setTimeout(
@@ -603,7 +647,7 @@ export default {
       aux.select();
       document.execCommand("copy");
       document.body.removeChild(aux);
-      this.$toast.success("Copied to clipboard", {
+      this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done"
       });
       setTimeout(
@@ -627,14 +671,9 @@ export default {
         const gqlQueryString = this.gqlQueryString;
         this.variables.forEach(variable => {
           // todo: better variable type validation
-          const intRex = new RegExp(`\$${variable.key}\: Int`);
-          intRex.compile();
-          const floatRex = new RegExp(`\$${variable.key}\: Float`);
-          floatRex.compile();
-
-          if (intRex.test(gqlQueryString)) {
+          if (gqlQueryString.indexOf(`\$${variable.key}: Int`) > -1) {
             variables[variable.key] = parseInt(variable.value);
-          } else if (floatRex.test(gqlQueryString)) {
+          } else if (gqlQueryString.indexOf(`\$${variable.key}: Float`) > -1) {
             variables[variable.key] = parseFloat(variable.value);
           } else {
             variables[variable.key] = variable.value;
@@ -651,33 +690,19 @@ export default {
           data: JSON.stringify({ query: gqlQueryString, variables })
         };
 
-        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? {
-              method: "post",
-              url:
-                this.$store.state.postwoman.settings.PROXY_URL ||
-                `https://postwoman.apollotv.xyz/`,
-              data: reqOptions
-            }
-          : reqOptions;
-
-        const res = await axios(reqConfig);
-
-        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? res.data
-          : res;
+        const data = await sendNetworkRequest(reqOptions, this.$store);
 
         this.responseString = JSON.stringify(data.data, null, 2);
 
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
-        this.$toast.info(`Finished in ${duration}ms`, {
+        this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done"
         });
       } catch (error) {
         this.$nuxt.$loading.finish();
 
-        this.$toast.error(error + " (F12 for details)", {
+        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
           icon: "error"
         });
         console.log("Error", error);
@@ -685,7 +710,7 @@ export default {
     },
     async getSchema() {
       const startTime = Date.now();
-      this.schemaString = "Loading...";
+      this.schemaString = this.$t("loading");
       this.scrollInto("schema");
 
       // Start showing the loading bar as soon as possible.
@@ -787,16 +812,16 @@ export default {
           }
         }
         this.gqlTypes = types;
-
+        this.$refs.queryEditor.setValidationSchema(schema);
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
-        this.$toast.info(`Finished in ${duration}ms`, {
+        this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done"
         });
       } catch (error) {
         this.$nuxt.$loading.finish();
-        this.schemaString = error + ". Check console for details.";
-        this.$toast.error(error + " (F12 for details)", {
+        this.schemaString = `${error}. ${this.$t("check_console_details")}`;
+        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
           icon: "error"
         });
         console.log("Error", error);
@@ -820,7 +845,7 @@ export default {
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;
-      this.$toast.success("Download started", {
+      this.$toast.success(this.$t("download_started"), {
         icon: "done"
       });
       setTimeout(() => {
@@ -841,10 +866,10 @@ export default {
       const oldHeaders = this.headers.slice();
 
       this.$store.commit("removeGQLHeader", index);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           duration: 4000,
           onClick: (e, toastObject) => {
             this.headers = oldHeaders;
@@ -865,10 +890,10 @@ export default {
       const oldVariables = this.variables.slice();
 
       this.$store.commit("removeGQLVariable", index);
-      this.$toast.error("Deleted", {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
-          text: "Undo",
+          text: this.$t("undo"),
           duration: 4000,
           onClick: (e, toastObject) => {
             this.variables = oldVariables;

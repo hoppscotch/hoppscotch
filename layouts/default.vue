@@ -561,9 +561,6 @@ export default Vue.extend({
   },
 
   mounted() {
-    var greet: string = "Hello world";
-    console.log(greet);
-
     if (process.client) {
       document.body.classList.add("afterLoad");
     }

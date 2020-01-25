@@ -318,6 +318,12 @@ export default {
         file: "fr-FR.js"
       },
       {
+        code: "nl",
+        name: "Nederlands - Belgïe",
+        iso: "nl-BE",
+        file: "nl-BE.js"
+      },
+      {
         code: "fa",
         name: "Farsi",
         iso: "fa-IR",

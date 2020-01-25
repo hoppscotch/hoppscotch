@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es5",
     "module": "esnext",
     "moduleResolution": "node",
     "lib": ["esnext", "esnext.asynciterable", "dom"],
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "allowJs": true,
     "sourceMap": true,
     "strict": true,
     "noEmit": true,
+    "downlevelIteration": true,
     "baseUrl": ".",
     "paths": {
       "~/*": ["./*"],

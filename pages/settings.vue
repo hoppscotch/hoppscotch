@@ -136,12 +136,14 @@
 
 <style scoped lang="scss"></style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   components: {
-    "pw-section": () => import("../components/section"),
-    "pw-toggle": () => import("../components/toggle"),
-    swatch: () => import("../components/settings/swatch")
+    "pw-section": () => import("../components/section.vue"),
+    "pw-toggle": () => import("../components/toggle.vue"),
+    swatch: () => import("../components/settings/swatch.vue")
   },
 
   data() {
@@ -253,16 +255,16 @@ export default {
   },
 
   methods: {
-    applyTheme({ class: name, color, aceEditor }) {
+    applyTheme({ class: name, color, aceEditor }: { class: string, color: string, aceEditor: any }) {
       this.applySetting("THEME_CLASS", name);
       this.applySetting("THEME_ACE_EDITOR", aceEditor);
-      document
+      (document as any)
         .querySelector("meta[name=theme-color]")
         .setAttribute("content", color);
       this.applySetting("THEME_TAB_COLOR", color);
       document.documentElement.className = name;
     },
-    setActiveColor(color, vibrant) {
+    setActiveColor(color: string, vibrant: boolean) {
       // By default, the color is vibrant.
       if (vibrant === null) vibrant = true;
       document.documentElement.style.setProperty("--ac-color", color);
@@ -275,20 +277,20 @@ export default {
     },
     getActiveColor() {
       // This strips extra spaces and # signs from the strings.
-      const strip = str => str.replace(/#/g, "").replace(/ /g, "");
+      const strip = (str: string) => str.replace(/#/g, "").replace(/ /g, "");
       return `#${strip(
         window
           .getComputedStyle(document.documentElement)
           .getPropertyValue("--ac-color")
       ).toUpperCase()}`;
     },
-    applySetting(key, value) {
-      this.settings[key] = value;
+    applySetting(key: string, value: any) {
+      (this.settings as any)[key] = value;
       this.$store.commit("postwoman/applySetting", [key, value]);
     },
-    toggleSetting(key) {
-      this.settings[key] = !this.settings[key];
-      this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
+    toggleSetting(key: string) {
+      (this.settings as any)[key] = !(this.settings as any)[key];
+      this.$store.commit("postwoman/applySetting", [key, (this.settings as any)[key]]);
     }
   },
   beforeMount() {
@@ -296,12 +298,12 @@ export default {
   },
 
   computed: {
-    proxySettings() {
+    proxySettings(): { url: string, key: string } {
       return {
         url: this.settings.PROXY_URL,
         key: this.settings.PROXY_KEY
       };
     }
   }
-};
+});
 </script>

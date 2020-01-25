@@ -44,12 +44,17 @@
   display: flex;
   flex-grow: 1;
   flex-direction: column;
-  margin: 8px;
+  margin: 16px;
   padding: 16px;
   transition: all 0.2s ease;
   background-color: var(--bg-color);
   border-radius: 16px;
   box-shadow: 0px 16px 70px rgba(0, 0, 0, 0.5);
+  max-height: calc(100vh - 32px);
+}
+
+.modal-body {
+  overflow: auto;
 }
 
 /*
@@ -72,3 +77,9 @@
   transition: all 0.2s ease-in-out;
 }
 </style>
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
+});
+</script>

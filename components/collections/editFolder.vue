@@ -42,8 +42,10 @@
   </modal>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   props: {
     show: Boolean,
     collection: Object,
@@ -52,7 +54,7 @@ export default {
     folderIndex: Number
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal.vue")
   },
   data() {
     return {
@@ -72,5 +74,5 @@ export default {
       this.$emit("hide-modal");
     }
   }
-};
+});
 </script>

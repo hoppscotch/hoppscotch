@@ -94,11 +94,13 @@ ul li {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   components: {
-    folder: () => import("./folder"),
-    request: () => import("./request")
+    folder: () => import("./folder.vue"),
+    request: () => import("./request.vue")
   },
   props: {
     collectionIndex: Number,
@@ -120,9 +122,9 @@ export default {
         collectionIndex: this.collectionIndex
       });
     },
-    editFolder(collectionIndex, folder, folderIndex) {
+    editFolder(collectionIndex: number, folder: any, folderIndex: number) {
       this.$emit("edit-folder", { collectionIndex, folder, folderIndex });
     }
   }
-};
+});
 </script>

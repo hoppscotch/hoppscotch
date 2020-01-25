@@ -418,27 +418,22 @@
         </ul>
       </div>
       <div slot="body">
-        <br />
         <div>
           <label>{{ $t("send_request") }}</label>
           <kbd>⌘ G</kbd>
         </div>
-        <br />
         <div>
           <label>{{ $t("save_to_collections") }}</label>
           <kbd>⌘ S</kbd>
         </div>
-        <br />
         <div>
           <label>{{ $t("copy_request_link") }}</label>
           <kbd>⌘ K</kbd>
         </div>
-        <br />
         <div>
           <label>{{ $t("reset_request") }}</label>
           <kbd>⌘ L</kbd>
         </div>
-        <br />
       </div>
       <div slot="footer"></div>
     </modal>
@@ -458,11 +453,19 @@
         </ul>
       </div>
       <div slot="body">
+        <p class="info">
+          If you have enjoyed the productivity of using Postwoman, consider
+          donating as a sign of appreciation.
+        </p>
+        <p class="info">
+          You can support Postwoman development via the following methods:
+        </p>
         <div>
           <a
             href="https://opencollective.com/postwoman"
             target="_blank"
             rel="noopener"
+            v-tooltip.right="'One-time or recurring'"
           >
             <button class="icon">
               <i class="material-icons">donut_large</i>
@@ -475,6 +478,7 @@
             href="https://www.paypal.me/liyascthomas"
             target="_blank"
             rel="noopener"
+            v-tooltip.right="'One-time'"
           >
             <button class="icon">
               <i class="material-icons">payment</i>
@@ -487,6 +491,7 @@
             href="https://www.patreon.com/liyasthomas"
             target="_blank"
             rel="noopener"
+            v-tooltip.right="'Recurring'"
           >
             <button class="icon">
               <i class="material-icons">local_parking</i>
@@ -503,17 +508,19 @@
 <style scoped lang="scss"></style>
 
 <script lang="ts">
+import Vue from 'vue';
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
+import { NuxtVueI18n } from 'nuxt-i18n';
 
-export default {
+export default Vue.extend({
   components: {
-    logo: () => import("../components/logo"),
-    modal: () => import("../components/modal")
+    logo: () => import("../components/logo.vue"),
+    modal: () => import("../components/modal.vue")
   },
 
   methods: {
-    linkActive(path) {
+    linkActive(path: string) {
       return {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
@@ -526,7 +533,7 @@ export default {
       // Once the PWA code is initialized, this holds a method
       // that can be called to show the user the installation
       // prompt.
-      showInstallPrompt: null,
+      showInstallPrompt: (null as ((() => Promise<void>) | null)),
       version: {},
       showShortcuts: false,
       showSupport: false
@@ -534,8 +541,7 @@ export default {
   },
 
   beforeMount() {
-    // Set version data
-    this.version = version.default;
+    this.version = version;
 
     // Load theme settings
     (() => {
@@ -544,8 +550,8 @@ export default {
         this.$store.state.postwoman.settings.THEME_CLASS || "";
       // Load theme color data from settings, or use default color.
       let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
-      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT;
-      if (vibrant == null) vibrant = true;
+      let vibrant =
+        this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true;
       document.documentElement.style.setProperty("--ac-color", color);
       document.documentElement.style.setProperty(
         "--act-color",
@@ -555,28 +561,26 @@ export default {
   },
 
   mounted() {
-    var greet: string = "Hello world";
-    console.log(greet);
-
     if (process.client) {
       document.body.classList.add("afterLoad");
     }
 
-    document
-      .querySelector("meta[name=theme-color]")
-      .setAttribute(
-        "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
-      );
+    const meta = document.querySelector("meta[name=theme-color]");
+
+    if (meta) meta.setAttribute(
+      "content",
+      this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
+    );
 
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     (async () => {
       this.showInstallPrompt = await intializePwa();
+
       let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
       if (!cookiesAllowed) {
         this.$toast.show("We use cookies", {
-          icon: "info",
+          icon: () => "info",
           duration: 5000,
           theme: "toasted-primary",
           action: [
@@ -596,7 +600,7 @@ export default {
       let mainNavLinks = document.querySelectorAll("nav ul li a");
       let fromTop = window.scrollY;
       mainNavLinks.forEach(link => {
-        let section = document.querySelector(link.hash);
+        let section = document.querySelector((link as any).hash);
 
         if (
           section &&
@@ -627,9 +631,13 @@ export default {
   },
 
   computed: {
-    availableLocales() {
-      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
+    availableLocales(): NuxtVueI18n.Options.LocaleObject[] {
+      const locales = this.$i18n.locales as Array<NuxtVueI18n.Options.LocaleObject>;
+      if (locales) {
+        return locales.filter(i => i.code !== this.$i18n.locale);
+      } else return [];
     }
   }
-};
+});
+
 </script>

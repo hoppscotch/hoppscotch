@@ -104,18 +104,20 @@ ul {
 }
 </style>
 
-<script>
-import collection from "./collection";
+<script lang="ts">
+import Vue from "vue";
+import collection from "./collection.vue";
+import { Collection } from "../../store/postwoman";
 
-export default {
+export default Vue.extend({
   components: {
     collection,
-    addCollection: () => import("./addCollection"),
-    addFolder: () => import("./addFolder"),
-    editCollection: () => import("./editCollection"),
-    editFolder: () => import("./editFolder"),
-    editRequest: () => import("./editRequest"),
-    importExportCollections: () => import("./importExportCollections"),
+    addCollection: () => import("./addCollection.vue"),
+    addFolder: () => import("./addFolder.vue"),
+    editCollection: () => import("./editCollection.vue"),
+    editFolder: () => import("./editFolder.vue"),
+    editRequest: () => import("./editRequest.vue"),
+    importExportCollections: () => import("./importExportCollections.vue"),
     VirtualList: () => import("vue-virtual-scroll-list")
   },
   data() {
@@ -126,57 +128,57 @@ export default {
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
-      editingCollection: undefined,
-      editingCollectionIndex: undefined,
-      editingFolder: undefined,
-      editingFolderIndex: undefined,
-      editingRequest: undefined,
-      editingRequestIndex: undefined
+      editingCollection: undefined as Collection | undefined,
+      editingCollectionIndex: undefined as number | undefined,
+      editingFolder: undefined as any | undefined,
+      editingFolderIndex: undefined as number | undefined,
+      editingRequest: undefined as any | undefined,
+      editingRequestIndex: undefined as number | undefined
     };
   },
   computed: {
-    collections() {
+    collections(): Collection[] {
       return this.$store.state.postwoman.collections;
     }
   },
   methods: {
-    displayModalAdd(shouldDisplay) {
+    displayModalAdd(shouldDisplay: boolean) {
       this.showModalAdd = shouldDisplay;
     },
-    displayModalEdit(shouldDisplay) {
+    displayModalEdit(shouldDisplay: boolean) {
       this.showModalEdit = shouldDisplay;
 
       if (!shouldDisplay) this.resetSelectedData();
     },
-    displayModalImportExport(shouldDisplay) {
+    displayModalImportExport(shouldDisplay: boolean) {
       this.showModalImportExport = shouldDisplay;
     },
-    displayModalAddFolder(shouldDisplay) {
+    displayModalAddFolder(shouldDisplay: boolean) {
       this.showModalAddFolder = shouldDisplay;
 
       if (!shouldDisplay) this.resetSelectedData();
     },
-    displayModalEditFolder(shouldDisplay) {
+    displayModalEditFolder(shouldDisplay: boolean) {
       this.showModalEditFolder = shouldDisplay;
 
       if (!shouldDisplay) this.resetSelectedData();
     },
-    displayModalEditRequest(shouldDisplay) {
+    displayModalEditRequest(shouldDisplay: boolean) {
       this.showModalEditRequest = shouldDisplay;
 
       if (!shouldDisplay) this.resetSelectedData();
     },
-    editCollection(collection, collectionIndex) {
+    editCollection(collection: Collection, collectionIndex: number) {
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
       this.displayModalEdit(true);
     },
-    addFolder(collection, collectionIndex) {
+    addFolder(collection: Collection, collectionIndex: number) {
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
       this.displayModalAddFolder(true);
     },
-    editFolder(payload) {
+    editFolder(payload: { collectionIndex: number, folder: any, folderIndex: number }) {
       const { collectionIndex, folder, folderIndex } = payload;
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
@@ -184,7 +186,7 @@ export default {
       this.$data.editingFolderIndex = folderIndex;
       this.displayModalEditFolder(true);
     },
-    editRequest(payload) {
+    editRequest(payload: { request: any, collectionIndex: number, folderIndex: number, requestIndex: number }) {
       const { request, collectionIndex, folderIndex, requestIndex } = payload;
       this.$data.editingCollectionIndex = collectionIndex;
       this.$data.editingFolderIndex = folderIndex;
@@ -201,5 +203,5 @@ export default {
       this.$data.editingRequestIndex = undefined;
     }
   }
-};
+});
 </script>

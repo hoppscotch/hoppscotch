@@ -69,15 +69,17 @@ ul li {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   props: {
     folder: Object,
     collectionIndex: Number,
     folderIndex: Number
   },
   components: {
-    request: () => import("./request")
+    request: () => import("./request.vue")
   },
   data() {
     return {
@@ -88,7 +90,7 @@ export default {
     toggleShowChildren() {
       this.showChildren = !this.showChildren;
     },
-    selectRequest(request) {
+    selectRequest(request: any) {
       this.$store.commit("postwoman/selectRequest", { request });
     },
     removeFolder() {
@@ -102,5 +104,5 @@ export default {
       this.$emit("edit-folder");
     }
   }
-};
+});
 </script>

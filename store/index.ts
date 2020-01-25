@@ -3,13 +3,13 @@ import state from "./state";
 import VuexPersist from "vuex-persist";
 
 export default {
-  install(Vue) {
+  install(Vue: any) {
     Vue.use(Vuex);
 
     const vuexLocalStorage = new VuexPersist({
       key: "vuex",
       storage: window.localStorage,
-      reducer: ({ ...request }) => ({
+      reducer: ({ ...request }: any) => ({
         ...request
       })
     });

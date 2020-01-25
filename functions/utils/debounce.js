@@ -3,13 +3,13 @@
 // functions which might be called frequently
 // NOTE : Don't use lambda functions as this doesn't get bound properly in them, use the 'function (args) {}' format
 const debounce = (func, delay) => {
-  let inDebounce
+  let inDebounce;
   return function() {
-    const context = this
-    const args = arguments
-    clearTimeout(inDebounce)
-    inDebounce = setTimeout(() => func.apply(context, args), delay)
-  }
-}
+    const context = this;
+    const args = arguments;
+    clearTimeout(inDebounce);
+    inDebounce = setTimeout(() => func.apply(context, args), delay);
+  };
+};
 
 export default debounce;

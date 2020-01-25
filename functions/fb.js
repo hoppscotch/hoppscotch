@@ -25,6 +25,7 @@ export const fb = {
   currentFeeds: [],
   currentSettings: [],
   currentHistory: [],
+  currentCollections: [],
   writeFeeds: async (message, label) => {
     const dt = {
       createdOn: new Date(),
@@ -34,14 +35,11 @@ export const fb = {
       message,
       label
     };
-    try {
-      return usersCollection
-        .doc(fb.currentUser.uid)
-        .collection("feeds")
-        .add(dt);
-    } catch (e) {
-      return console.error("error inserting", dt, e);
-    }
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("feeds")
+      .add(dt)
+      .catch(e => console.error("error inserting", dt, e));
   },
   deleteFeed: id => {
     usersCollection
@@ -60,26 +58,20 @@ export const fb = {
       name: setting,
       value
     };
-    try {
-      return usersCollection
-        .doc(fb.currentUser.uid)
-        .collection("settings")
-        .doc(setting)
-        .set(st);
-    } catch (e) {
-      return console.error("error updating", st, e);
-    }
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("settings")
+      .doc(setting)
+      .set(st)
+      .catch(e => console.error("error updating", st, e));
   },
   writeHistory: async entry => {
     const hs = entry;
-    try {
-      return usersCollection
-        .doc(fb.currentUser.uid)
-        .collection("history")
-        .add(hs);
-    } catch (e) {
-      return console.error("error inserting", hs, e);
-    }
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("history")
+      .add(hs)
+      .catch(e => console.error("error inserting", hs, e));
   },
   deleteHistory: entry => {
     usersCollection
@@ -105,6 +97,21 @@ export const fb = {
       .doc(entry.id)
       .update({ star: value })
       .catch(e => console.error("error deleting", entry, e));
+  },
+  writeCollections: async collection => {
+    const cl = {
+      updatedOn: new Date(),
+      author: fb.currentUser.uid,
+      author_name: fb.currentUser.displayName,
+      author_image: fb.currentUser.photoURL,
+      collection: collection
+    };
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("collections")
+      .doc("sync")
+      .set(cl)
+      .catch(e => console.error("error updating", cl, e));
   }
 };
 
@@ -121,11 +128,10 @@ firebase.auth().onAuthStateChanged(user => {
         photoUrl: profile.photoURL,
         uid: profile.uid
       };
-      try {
-        usersCollection.doc(fb.currentUser.uid).set(us);
-      } catch (e) {
-        console.error("error updating", us, e);
-      }
+      usersCollection
+        .doc(fb.currentUser.uid)
+        .set(us)
+        .catch(e => console.error("error updating", us, e));
     });
 
     usersCollection
@@ -166,6 +172,19 @@ firebase.auth().onAuthStateChanged(user => {
           history.push(entry);
         });
         fb.currentHistory = history;
+      });
+
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("collections")
+      .onSnapshot(collectionsRef => {
+        const collections = [];
+        collectionsRef.forEach(doc => {
+          const collection = doc.data();
+          collection.id = doc.id;
+          collections.push(collection);
+        });
+        fb.currentCollections = collections[0].collection;
       });
   } else {
     fb.currentUser = null;

@@ -11,7 +11,7 @@ const styles = {
 
 //TODO: probably have to use a more global state for `test`
 
-export default function runTestScriptWitVariables(script, variables) {
+export default function runTestScriptWithVariables(script, variables) {
   let pw = {
     _errors: [],
     _testReports: [],

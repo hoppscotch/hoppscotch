@@ -1226,7 +1226,7 @@ import querystring from "querystring";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
-import runTestScriptWitVariables from "../functions/postwomanTesting";
+import runTestScriptWithVariables from "../functions/postwomanTesting";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
@@ -2220,7 +2220,7 @@ export default {
           body: this.response.body,
           headers: this.response.headers
         };
-        const { testResults } = runTestScriptWitVariables(this.testScript, {
+        const { testResults } = runTestScriptWithVariables(this.testScript, {
           response: syntheticResponse
         });
         this.testReports = testResults;

@@ -1226,7 +1226,7 @@ import querystring from "querystring";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
-import runTestScriptWitVariables from "../functions/postWomanTesting";
+import runTestScriptWitVariables from "../functions/postwomanTesting";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";

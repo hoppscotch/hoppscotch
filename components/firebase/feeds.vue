@@ -38,10 +38,6 @@
 .virtual-list {
   max-height: calc(100vh - 288px);
 }
-
-.bg-color {
-  background-color: transparent;
-}
 </style>
 
 <script>

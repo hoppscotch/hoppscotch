@@ -113,7 +113,7 @@ class Expectation {
         );
   }
   toBeLevel2xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
         `Expected 200-level status but could not parse value ${this.expectValue}`
@@ -128,7 +128,7 @@ class Expectation {
         );
   }
   toBeLevel3xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
         `Expected 300-level status but could not parse value ${this.expectValue}`
@@ -143,7 +143,7 @@ class Expectation {
         );
   }
   toBeLevel4xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
         `Expected 400-level status but could not parse value ${this.expectValue}`
@@ -158,7 +158,7 @@ class Expectation {
         );
   }
   toBeLevel5xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
         `Expected 500-level status but could not parse value ${this.expectValue}`

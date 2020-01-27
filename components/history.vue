@@ -314,10 +314,6 @@ ol li {
   padding: 0 0 8px;
 }
 
-.bg-color {
-  background-color: transparent;
-}
-
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;

@@ -28,8 +28,8 @@
                 v-model="preRequestScript"
                 :lang="'javascript'"
                 :options="{
-                  maxLines: responseBodyMaxLines,
-                  minLines: '16',
+                  maxLines: '16',
+                  minLines: '8',
                   fontSize: '16px',
                   autoScrollEditorIntoView: true,
                   showPrintMargin: false,
@@ -359,29 +359,42 @@
                 v-model="testScript"
                 :lang="'javascript'"
                 :options="{
-                  maxLines: responseBodyMaxLines,
-                  minLines: '16',
+                  maxLines: '16',
+                  minLines: '8',
                   fontSize: '16px',
                   autoScrollEditorIntoView: true,
                   showPrintMargin: false,
                   useWorker: false
                 }"
               />
-              <label>Test Reports<span v-if="testReports"></span></label>
               <div v-if="testReports">
+                <div class="flex-wrap">
+                  <label>Test Reports</label>
+                  <div>
+                    <button
+                      class="icon"
+                      @click="clearContent('tests', $event)"
+                      v-tooltip.bottom="$t('clear')"
+                    >
+                      <i class="material-icons">clear_all</i>
+                    </button>
+                  </div>
+                </div>
                 <div v-for="testReport in testReports">
-                  <div v-if="testReport.result">
-                    <span :class="testReport.styles.class">
+                  <div v-if="testReport.result" class="flex-wrap">
+                    <span :class="testReport.styles.class" class="info">
                       <i class="material-icons">
                         {{ testReport.styles.icon }}
                       </i>
-                      {{ testReport.result }}
+                      <span>&nbsp; {{ testReport.result }}</span>
                     </span>
                     <ul v-if="testReport.message">
-                      <li>{{ testReport.message }}</li>
+                      <li>
+                        <label>{{ testReport.message }}</label>
+                      </li>
                     </ul>
                   </div>
-                  <div v-else-if="testReport.startBlock">
+                  <div v-else-if="testReport.startBlock" class="info">
                     <h4>{{ testReport.startBlock }}</h4>
                   </div>
                   <div v-else-if="testReport.endBlock"><br /></div>
@@ -2605,6 +2618,9 @@ export default {
           break;
         case "tokenReqs":
           this.tokenReqs = [];
+        case "tests":
+          this.testReports = null;
+          break;
         default:
           (this.label = ""),
             (this.method = "GET"),

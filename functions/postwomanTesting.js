@@ -9,7 +9,7 @@ const styles = {
   none: { icon: "", class: "" }
 };
 
-//TODO: probably have to use a more global state for `test`
+// TODO: probably have to use a more global state for `test`
 
 export default function runTestScriptWithVariables(script, variables) {
   let pw = {

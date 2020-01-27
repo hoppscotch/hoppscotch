@@ -47,12 +47,8 @@ TODO:
         </button>
       </div>
       <div>
-        <button
-          class="icon"
-          @click="displayModalImportExport(true)"
-          v-tooltip="$t('import_export')"
-        >
-          <i class="material-icons">import_export</i>
+        <button class="icon" @click="displayModalImportExport(true)">
+          {{ $t("import_export") }}
         </button>
         <!-- <a
           href="https://github.com/liyasthomas/postwoman/wiki/Collections"
@@ -90,12 +86,18 @@ TODO:
         </li>
       </ul>
     </virtual-list>
+    <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
+      <button class="icon">
+        <i class="material-icons">books</i>
+        <span>{{ $t("generate_docs") }}</span>
+      </button>
+    </nuxt-link>
   </div>
 </template>
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 232px);
+  max-height: calc(100vh - 276px);
 }
 
 ul {
@@ -106,6 +108,7 @@ ul {
 
 <script>
 import collection from "./collection";
+import { fb } from "../../functions/fb";
 
 export default {
   components: {
@@ -170,11 +173,13 @@ export default {
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
       this.displayModalEdit(true);
+      this.syncCollections();
     },
     addFolder(collection, collectionIndex) {
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
       this.displayModalAddFolder(true);
+      this.syncCollections();
     },
     editFolder(payload) {
       const { collectionIndex, folder, folderIndex } = payload;
@@ -183,6 +188,7 @@ export default {
       this.$data.editingFolder = folder;
       this.$data.editingFolderIndex = folderIndex;
       this.displayModalEditFolder(true);
+      this.syncCollections();
     },
     editRequest(payload) {
       const { request, collectionIndex, folderIndex, requestIndex } = payload;
@@ -191,6 +197,7 @@ export default {
       this.$data.editingRequest = request;
       this.$data.editingRequestIndex = requestIndex;
       this.displayModalEditRequest(true);
+      this.syncCollections();
     },
     resetSelectedData() {
       this.$data.editingCollection = undefined;
@@ -199,6 +206,15 @@ export default {
       this.$data.editingFolderIndex = undefined;
       this.$data.editingRequest = undefined;
       this.$data.editingRequestIndex = undefined;
+    },
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+          );
+        }
+      }
     }
   }
 };

@@ -175,7 +175,8 @@
               </button>
             </div>
           </div>
-          <Editor
+          <QueryEditor
+            ref="queryEditor"
             v-model="gqlQueryString"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -391,6 +392,8 @@ import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import AceEditor from "../components/ace-editor";
+import QueryEditor from "../components/graphql/queryeditor";
+import { sendNetworkRequest } from "../functions/network";
 
 export default {
   directives: {
@@ -401,7 +404,8 @@ export default {
     "gql-field": () => import("../components/graphql/field"),
     "gql-type": () => import("../components/graphql/type"),
     autocomplete: () => import("../components/autocomplete"),
-    Editor: AceEditor
+    Editor: AceEditor,
+    QueryEditor: QueryEditor
   },
   data() {
     return {
@@ -542,6 +546,7 @@ export default {
       responseBodyMaxLines: 16
     };
   },
+
   computed: {
     url: {
       get() {
@@ -666,14 +671,9 @@ export default {
         const gqlQueryString = this.gqlQueryString;
         this.variables.forEach(variable => {
           // todo: better variable type validation
-          const intRex = new RegExp(`\$${variable.key}\: Int`);
-          intRex.compile();
-          const floatRex = new RegExp(`\$${variable.key}\: Float`);
-          floatRex.compile();
-
-          if (intRex.test(gqlQueryString)) {
+          if (gqlQueryString.indexOf(`\$${variable.key}: Int`) > -1) {
             variables[variable.key] = parseInt(variable.value);
-          } else if (floatRex.test(gqlQueryString)) {
+          } else if (gqlQueryString.indexOf(`\$${variable.key}: Float`) > -1) {
             variables[variable.key] = parseFloat(variable.value);
           } else {
             variables[variable.key] = variable.value;
@@ -690,21 +690,7 @@ export default {
           data: JSON.stringify({ query: gqlQueryString, variables })
         };
 
-        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? {
-              method: "post",
-              url:
-                this.$store.state.postwoman.settings.PROXY_URL ||
-                `https://postwoman.apollotv.xyz/`,
-              data: reqOptions
-            }
-          : reqOptions;
-
-        const res = await axios(reqConfig);
-
-        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? res.data
-          : res;
+        const data = await sendNetworkRequest(reqOptions, this.$store);
 
         this.responseString = JSON.stringify(data.data, null, 2);
 
@@ -826,7 +812,7 @@ export default {
           }
         }
         this.gqlTypes = types;
-
+        this.$refs.queryEditor.setValidationSchema(schema);
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
         this.$toast.info(this.$t("finished_in", { duration }), {
@@ -834,7 +820,7 @@ export default {
         });
       } catch (error) {
         this.$nuxt.$loading.finish();
-        this.schemaString = `${error}. ${check_console_details}`;
+        this.schemaString = `${error}. ${this.$t("check_console_details")}`;
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {
           icon: "error"
         });

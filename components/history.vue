@@ -1,10 +1,5 @@
 <template>
-  <pw-section
-    class="green"
-    icon="history"
-    :label="$t('history')"
-    ref="history"
-  >
+  <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <ul>
       <li id="filter-history">
         <input
@@ -26,8 +21,10 @@
           <button
             class="icon"
             :class="{ stared: entry.star }"
-            @click="toggleStar(index)"
-            v-tooltip="{ content: !entry.star ? $t('add_star') : $t('remove_star') }"
+            @click="toggleStar(entry)"
+            v-tooltip="{
+              content: !entry.star ? $t('add_star') : $t('remove_star')
+            }"
           >
             <i class="material-icons">
               {{ entry.star ? "star" : "star_border" }}
@@ -238,7 +235,9 @@
         </v-popover>
       </div>
       <div class="flex-wrap" v-else>
-        <label for="clear-history-button" class="info">{{ $t("are_you_sure") }}</label>
+        <label for="clear-history-button" class="info">
+          {{ $t("are_you_sure") }}
+        </label>
         <div>
           <button
             class="icon"
@@ -332,6 +331,7 @@ ol li {
 
 <script>
 import { findStatusGroup } from "../pages/index";
+import { fb } from "../functions/fb";
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property));
@@ -342,11 +342,11 @@ export default {
     VirtualList: () => import("vue-virtual-scroll-list")
   },
   data() {
-    const localStorageHistory = JSON.parse(
-      window.localStorage.getItem("history")
-    );
     return {
-      history: localStorageHistory || [],
+      history:
+        fb.currentUser !== null
+          ? fb.currentHistory
+          : JSON.parse(window.localStorage.getItem("history")) || [],
       filterText: "",
       showFilter: false,
       isClearingHistory: false,
@@ -360,6 +360,10 @@ export default {
   },
   computed: {
     filteredHistory() {
+      this.history =
+        fb.currentUser !== null
+          ? fb.currentHistory
+          : JSON.parse(window.localStorage.getItem("history")) || [];
       return this.history.filter(entry => {
         const filterText = this.filterText.toLowerCase();
         return Object.keys(entry).some(key => {
@@ -372,6 +376,9 @@ export default {
   },
   methods: {
     clearHistory() {
+      if (fb.currentUser !== null) {
+        fb.clearHistory();
+      }
       this.history = [];
       this.filterText = "";
       this.disableHistoryClearing();
@@ -392,6 +399,9 @@ export default {
       );
     },
     deleteHistory(entry) {
+      if (fb.currentUser !== null) {
+        fb.deleteHistory(entry);
+      }
       this.history.splice(this.history.indexOf(entry), 1);
       if (this.history.length === 0) {
         this.filterText = "";
@@ -498,8 +508,11 @@ export default {
     toggleCollapse() {
       this.showMore = !this.showMore;
     },
-    toggleStar(index) {
-      this.history[index]["star"] = !this.history[index]["star"];
+    toggleStar(entry) {
+      if (fb.currentUser !== null) {
+        fb.toggleStar(entry, !entry.star);
+      }
+      entry.star = !entry.star;
       updateOnLocalStorage("history", this.history);
     }
   }

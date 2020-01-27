@@ -40,11 +40,7 @@
           </ul>
         </pw-section>
 
-        <pw-section
-          class="blue"
-          :label="$t('request')"
-          ref="request"
-        >
+        <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li>
               <label for="method">{{ $t("method") }}</label>
@@ -842,8 +838,32 @@
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
-            <pw-section class="yellow" :label="$t('collections')" ref="collections">
+            <pw-section
+              class="yellow"
+              :label="$t('collections')"
+              ref="collections"
+            >
               <collections />
+            </pw-section>
+          </div>
+          <input id="sync-tab" type="radio" name="side" />
+          <label for="sync-tab">{{ $t("sync") }}</label>
+          <div class="tab">
+            <pw-section
+              v-if="fb.currentUser"
+              class="pink"
+              label="Sync"
+              ref="sync"
+            >
+              <inputform />
+              <ballsfeed />
+            </pw-section>
+            <pw-section v-else>
+              <ul>
+                <li>
+                  <label>{{ $t("login_first") }}</label>
+                </li>
+              </ul>
             </pw-section>
           </div>
         </section>
@@ -1135,6 +1155,8 @@ import getEnvironmentVariablesFromScript from "../functions/preRequest";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
+import { sendNetworkRequest } from "../functions/network";
+import { fb } from "../functions/fb";
 
 const statusCategories = [
   {
@@ -1199,7 +1221,9 @@ export default {
     autocomplete: () => import("../components/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    Editor: AceEditor
+    Editor: AceEditor,
+    inputform: () => import("../components/firebase/inputform"),
+    ballsfeed: () => import("../components/firebase/feeds")
   },
   data() {
     return {
@@ -1369,12 +1393,12 @@ export default {
       ],
       showRequestModal: false,
       editRequest: {},
-
       urlExcludes: {},
       responseBodyText: "",
       responseBodyType: "text",
       responseBodyMaxLines: 16,
-      activeSidebar: true
+      activeSidebar: true,
+      fb
     };
   },
   watch: {
@@ -1992,20 +2016,8 @@ export default {
       if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data);
       }
-      const config = this.$store.state.postwoman.settings.PROXY_ENABLED
-        ? {
-            method: "POST",
-            url:
-              this.$store.state.postwoman.settings.PROXY_URL ||
-              "https://postwoman.apollotv.xyz/",
-            data: requestOptions
-          }
-        : requestOptions;
 
-      const response = await this.$axios(config);
-      return this.$store.state.postwoman.settings.PROXY_ENABLED
-        ? response.data
-        : response;
+      return await sendNetworkRequest(requestOptions, this.$store);
     },
     async sendRequest() {
       this.$toast.clear();
@@ -2117,6 +2129,11 @@ export default {
             star: false
           };
           this.$refs.historyComponent.addEntry(entry);
+          if (fb.currentUser !== null) {
+            if (fb.currentSettings[1].value) {
+              fb.writeHistory(entry);
+            }
+          }
         })();
       } catch (error) {
         console.error(error);
@@ -2138,6 +2155,11 @@ export default {
             preRequestScript: this.preRequestScript
           };
           this.$refs.historyComponent.addEntry(entry);
+          if (fb.currentUser !== null) {
+            if (fb.currentSettings[1].value) {
+              fb.writeHistory(entry);
+            }
+          }
           return;
         } else {
           this.response.status = error.message;
@@ -2150,7 +2172,7 @@ export default {
               icon: "help",
               duration: 8000,
               action: {
-                text: "Settings",
+                text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   this.$router.push({ path: "/settings" });
                 }

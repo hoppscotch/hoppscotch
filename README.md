@@ -3,10 +3,10 @@
   <br>
   <br>
   <p>
-    API request builder - A free, fast, and beautiful alternative to Postman
+    <b>A free, fast & beautiful API request builder</b>
   </p>
   <p>
-     Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
+     <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
   </p>
   <p>
 
@@ -69,8 +69,8 @@ _Customized themes are synced with local session storage_
  - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
  - Offline support
  - Low RAM/memory and CPU usage
- - [Add to Home Screen](https://developers.google.com/web/fundamentals/app-install-banners) (button in footer)
- - [Desktop PWA](https://developers.google.com/web/progressive-web-apps/desktop) support (button in footer)
+ - Add to Home Screen
+ - Desktop PWA
  - ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve response from endpoint instantly.
@@ -190,38 +190,36 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 🌎 **i18n β**: Experience the app in your own language.
 
  1. Scroll down to the footer
- 2. Click "Choose Language" button
+ 2. Click "Choose Language" icon button
  3. Select your language from the menu
 
-_Keep in mind translations aren't available for all source and target language combinations_
+_Keep in mind: Translations aren't available for all source and target language combinations_
 
 **To provide a localized experience for users around the world, you can add you own translations.**
-
- - Add a new locale in `lang/`
-
-   Example: `lang/es-ES.js`
- - Mention `code`, `name`, `iso` and `file` in `nuxt.config.js`
-
-   Example:
-    ```
-    i18n: {
-      locales: [{
-        code: 'es',
-        name: 'Español',
-        iso: 'es-ES',
-        file: 'es-ES.js'
-      }]
-    }
-    ```
 
 _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
 
 📦 **Add-ons**: Official add-ons for Postwoman.
 
- - **[Postwoman Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
- - **[Postwoman CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
+ - **[Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
+ - **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
+ - **Browser Extensions** - Browser extensions that simplifies access to Postwoman
 
-_Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**_
+   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) ([GitHub](https://github.com/AndrewBastin/postwoman-firefox)) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-chrome))
+
+   >**Extensions fixes `CORS` issues.**
+
+_Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**._
+
+☁️ **Auth + Sync**: Sign in and sync in real-time.
+
+**Sign in with:**
+ - Google
+ - GitHub
+
+**Sync:**
+ - History
+ - Collections
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 

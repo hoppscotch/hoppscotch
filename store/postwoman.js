@@ -111,6 +111,12 @@ export const mutations = {
   },
 
   addNewCollection({ collections }, collection) {
+    const { name } = collection;
+    const duplicateCollection = collections.some(item => item.name === name);
+    if (duplicateCollection) {
+      this.$toast.info("Duplicate collection");
+      return;
+    }
     collections.push({
       name: "",
       folders: [],
@@ -126,6 +132,12 @@ export const mutations = {
 
   editCollection({ collections }, payload) {
     const { collection, collectionIndex } = payload;
+    const { name } = collection;
+    const duplicateCollection = collections.some(item => item.name === name);
+    if (duplicateCollection) {
+      this.$toast.info("Duplicate collection");
+      return;
+    }
     collections[collectionIndex] = collection;
   },
 

@@ -51,7 +51,7 @@ function test(descriptor, func, _testReports) {
   }
   _testReports.push({ endBlock: true });
 
-  // TODO: Organieze and generate text report of each {descriptor: true} section in testReports.
+  // TODO: Organize and generate text report of each {descriptor: true} section in testReports.
   // add checkmark or x depending on if each testReport is pass=true or pass=false
 }
 

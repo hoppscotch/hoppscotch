@@ -116,7 +116,7 @@ class Expectation {
     let code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
-        `Expecteded 200-level status but could not parse value ${this.expectValue}`
+        `Expected 200-level status but could not parse value ${this.expectValue}`
       );
     }
     return this._satisfies(code >= 200 && code < 300)

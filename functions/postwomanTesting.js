@@ -9,7 +9,7 @@ const styles = {
   none: { icon: "", class: "" }
 };
 
-//TODO: probably have to use a more global state for `test`
+// TODO: probably have to use a more global state for `test`
 
 export default function runTestScriptWithVariables(script, variables) {
   let pw = {
@@ -51,7 +51,7 @@ function test(descriptor, func, _testReports) {
   }
   _testReports.push({ endBlock: true });
 
-  // TODO: Organieze and generate text report of each {descriptor: true} section in testReports.
+  // TODO: Organize and generate text report of each {descriptor: true} section in testReports.
   // add checkmark or x depending on if each testReport is pass=true or pass=false
 }
 
@@ -113,10 +113,10 @@ class Expectation {
         );
   }
   toBeLevel2xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
-        `Expecteded 200-level status but could not parse value ${this.expectValue}`
+        `Expected 200-level status but could not parse value ${this.expectValue}`
       );
     }
     return this._satisfies(code >= 200 && code < 300)
@@ -128,7 +128,7 @@ class Expectation {
         );
   }
   toBeLevel3xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
         `Expected 300-level status but could not parse value ${this.expectValue}`
@@ -143,7 +143,7 @@ class Expectation {
         );
   }
   toBeLevel4xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
         `Expected 400-level status but could not parse value ${this.expectValue}`
@@ -158,10 +158,10 @@ class Expectation {
         );
   }
   toBeLevel5xx() {
-    let code = parseInt(this.expectValue);
+    const code = parseInt(this.expectValue);
     if (Number.isNaN(code)) {
       return this._fail(
-        `Expected 200-level status but could not parse value ${this.expectValue}`
+        `Expected 500-level status but could not parse value ${this.expectValue}`
       );
     }
     return this._satisfies(code >= 500 && code < 600)

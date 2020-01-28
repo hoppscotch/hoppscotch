@@ -381,23 +381,21 @@
                   </div>
                 </div>
                 <div v-for="testReport in testReports">
-                  <div v-if="testReport.result" class="flex-wrap">
-                    <span :class="testReport.styles.class" class="info">
+                  <div v-if="testReport.startBlock" class="info">
+                    <h4>{{ testReport.startBlock }}</h4>
+                  </div>
+                  <p v-else-if="testReport.result" class="flex-wrap info">
+                    <span :class="testReport.styles.class">
                       <i class="material-icons">
                         {{ testReport.styles.icon }}
                       </i>
                       <span>&nbsp; {{ testReport.result }}</span>
+                      <span v-if="testReport.message">
+                        <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
+                      </span>
                     </span>
-                    <ul v-if="testReport.message">
-                      <li>
-                        <label>{{ testReport.message }}</label>
-                      </li>
-                    </ul>
-                  </div>
-                  <div v-else-if="testReport.startBlock" class="info">
-                    <h4>{{ testReport.startBlock }}</h4>
-                  </div>
-                  <div v-else-if="testReport.endBlock"><br /></div>
+                  </p>
+                  <div v-else-if="testReport.endBlock"><hr /></div>
                 </div>
               </div>
             </li>

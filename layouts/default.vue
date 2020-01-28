@@ -305,11 +305,13 @@
                           (fb.currentUser.email ||
                             '<label><i>Email not found</i></label>')
                       "
+                      aria-label="Account"
                     >
                       <img
                         v-if="fb.currentUser.photoURL"
                         :src="fb.currentUser.photoURL"
                         class="material-icons"
+                        alt="Profile image"
                       />
                       <i v-else class="material-icons">account_circle</i>
                     </button>
@@ -665,8 +667,8 @@ import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
 
-import firebase from 'firebase/app';
-import { fb } from '../functions/fb';
+import firebase from "firebase/app";
+import { fb } from "../functions/fb";
 
 export default {
   components: {

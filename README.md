@@ -32,7 +32,6 @@
 <div align="center">
   <br>
   <img src="static/images/screenshot1.png" alt="Screenshot1" width="100%">
-  <img src="static/images/screenshot2.png" alt="Screenshot2" width="100%">
   <br>
 </div>
 
@@ -220,6 +219,13 @@ _Add-ons are developed and maintained under **[Official Postwoman Organization](
 **Sync:**
  - History
  - Collections
+
+✅ **Post-Request Tests β**: Write tests associated with a request that are executed after the request response.
+
+**Use-cases:**
+ - Check the status code as an integer
+ - Filter response headers
+ - Parse the response data
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 

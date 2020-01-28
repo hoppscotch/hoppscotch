@@ -108,6 +108,7 @@ ul {
 
 <script>
 import collection from "./collection";
+import { fb } from "../../functions/fb";
 
 export default {
   components: {
@@ -172,11 +173,13 @@ export default {
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
       this.displayModalEdit(true);
+      this.syncCollections();
     },
     addFolder(collection, collectionIndex) {
       this.$data.editingCollection = collection;
       this.$data.editingCollectionIndex = collectionIndex;
       this.displayModalAddFolder(true);
+      this.syncCollections();
     },
     editFolder(payload) {
       const { collectionIndex, folder, folderIndex } = payload;
@@ -185,6 +188,7 @@ export default {
       this.$data.editingFolder = folder;
       this.$data.editingFolderIndex = folderIndex;
       this.displayModalEditFolder(true);
+      this.syncCollections();
     },
     editRequest(payload) {
       const { request, collectionIndex, folderIndex, requestIndex } = payload;
@@ -193,6 +197,7 @@ export default {
       this.$data.editingRequest = request;
       this.$data.editingRequestIndex = requestIndex;
       this.displayModalEditRequest(true);
+      this.syncCollections();
     },
     resetSelectedData() {
       this.$data.editingCollection = undefined;
@@ -201,6 +206,15 @@ export default {
       this.$data.editingFolderIndex = undefined;
       this.$data.editingRequest = undefined;
       this.$data.editingRequestIndex = undefined;
+    },
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+          );
+        }
+      }
     }
   }
 };

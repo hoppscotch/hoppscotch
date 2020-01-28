@@ -3,10 +3,10 @@
   <br>
   <br>
   <p>
-    API request builder - A free, fast, and beautiful alternative to Postman
+    <b>A free, fast & beautiful API request builder</b>
   </p>
   <p>
-     Helps you create your requests faster, saving you precious time on your development - <a href="https://postwoman.launchaco.com">Subscribe</a>
+     <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
   </p>
   <p>
 
@@ -32,7 +32,6 @@
 <div align="center">
   <br>
   <img src="static/images/screenshot1.png" alt="Screenshot1" width="100%">
-  <img src="static/images/screenshot2.png" alt="Screenshot2" width="100%">
   <br>
 </div>
 
@@ -190,29 +189,12 @@ _Requests with Pre-Request Scripts are indicated in History entries_
 🌎 **i18n β**: Experience the app in your own language.
 
  1. Scroll down to the footer
- 2. Click "Choose Language" button
+ 2. Click "Choose Language" icon button
  3. Select your language from the menu
 
-_Keep in mind translations aren't available for all source and target language combinations_
+_Keep in mind: Translations aren't available for all source and target language combinations_
 
 **To provide a localized experience for users around the world, you can add you own translations.**
-
- - Add a new locale in `lang/`
-
-   Example: `lang/es-ES.js`
- - Mention `code`, `name`, `iso` and `file` in `nuxt.config.js`
-
-   Example:
-    ```
-    i18n: {
-      locales: [{
-        code: 'es',
-        name: 'Español',
-        iso: 'es-ES',
-        file: 'es-ES.js'
-      }]
-    }
-    ```
 
 _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
 
@@ -227,6 +209,23 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
    >**Extensions fixes `CORS` issues.**
 
 _Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**._
+
+☁️ **Auth + Sync**: Sign in and sync in real-time.
+
+**Sign in with:**
+ - Google
+ - GitHub
+
+**Sync:**
+ - History
+ - Collections
+
+✅ **Post-Request Tests β**: Write tests associated with a request that are executed after the request response.
+
+**Use-cases:**
+ - Check the status code as an integer
+ - Filter response headers
+ - Parse the response data
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 

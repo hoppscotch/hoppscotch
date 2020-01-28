@@ -29,8 +29,8 @@
         "firebase": "^7.7.0",
         "graphql": "^14.5.8",
         "nuxt": "^2.11.0",
-        "nuxt-i18n": "^6.4.1",
-        "v-tooltip": "^2.0.2",
+        "nuxt-i18n": "^6.5.0",
+        "v-tooltip": "^2.0.3",
         "vue-virtual-scroll-list": "^1.4.4",
         "vuefire": "^2.2.1",
         "vuejs-auto-complete": "^0.9.0",
@@ -38,7 +38,7 @@
         "yargs-parser": "^16.1.0"
     },
     "devDependencies": {
-        "cypress": "^3.8.2",
+        "cypress": "^3.8.3",
         "node-sass": "^4.13.1",
         "sass-loader": "^8.0.2",
         "start-server-and-test": "^1.10.6"

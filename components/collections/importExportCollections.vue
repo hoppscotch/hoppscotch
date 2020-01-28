@@ -11,6 +11,54 @@
               </button>
             </div>
           </div>
+          <div class="flex-wrap">
+            <span
+              v-tooltip="{
+                content: !fb.currentUser
+                  ? $t('login_first')
+                  : $t('replace_current')
+              }"
+            >
+              <button
+                :disabled="!fb.currentUser"
+                class="icon"
+                @click="syncCollections"
+              >
+                <i class="material-icons">folder_shared</i>
+                <span>{{ $t("import_from_sync") }}</span>
+              </button>
+            </span>
+            <button
+              class="icon"
+              @click="openDialogChooseFileToReplaceWith"
+              v-tooltip="$t('replace_current')"
+            >
+              <i class="material-icons">create_new_folder</i>
+              <span>{{ $t("replace_json") }}</span>
+              <input
+                type="file"
+                @change="replaceWithJSON"
+                style="display: none;"
+                ref="inputChooseFileToReplaceWith"
+                accept="application/json"
+              />
+            </button>
+            <button
+              class="icon"
+              @click="openDialogChooseFileToImportFrom"
+              v-tooltip="$t('preserve_current')"
+            >
+              <i class="material-icons">folder_special</i>
+              <span>{{ $t("import_json") }}</span>
+              <input
+                type="file"
+                @change="importFromJSON"
+                style="display: none;"
+                ref="inputChooseFileToImportFrom"
+                accept="application/json"
+              />
+            </button>
+          </div>
         </li>
       </ul>
     </div>
@@ -18,39 +66,6 @@
       <textarea v-model="collectionJson" rows="8"></textarea>
     </div>
     <div slot="footer">
-      <div class="flex-wrap">
-        <span>
-          <button
-            class="icon"
-            @click="openDialogChooseFileToReplaceWith"
-            v-tooltip="$t('replace_current')"
-          >
-            <i class="material-icons">create_new_folder</i>
-            <span>{{ $t("replace_json") }}</span>
-            <input
-              type="file"
-              @change="replaceWithJSON"
-              style="display: none;"
-              ref="inputChooseFileToReplaceWith"
-            />
-          </button>
-          <button
-            class="icon"
-            @click="openDialogChooseFileToImportFrom"
-            v-tooltip="$t('preserve_current')"
-          >
-            <i class="material-icons">folder_shared</i>
-            <span>{{ $t("import_json") }}</span>
-            <input
-              type="file"
-              @change="importFromJSON"
-              style="display: none;"
-              ref="inputChooseFileToImportFrom"
-            />
-          </button>
-        </span>
-        <span></span>
-      </div>
       <div class="flex-wrap">
         <span></span>
         <span>
@@ -71,7 +86,14 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb";
+
 export default {
+  data() {
+    return {
+      fb
+    };
+  },
   props: {
     show: Boolean
   },
@@ -101,6 +123,7 @@ export default {
         this.$store.commit("postwoman/replaceCollections", collections);
       };
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
+      this.fileImported();
     },
     importFromJSON() {
       let reader = new FileReader();
@@ -110,6 +133,7 @@ export default {
         this.$store.commit("postwoman/importCollections", collections);
       };
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
+      this.fileImported();
     },
     exportJSON() {
       let text = this.collectionJson;
@@ -125,6 +149,18 @@ export default {
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done"
+      });
+    },
+    syncCollections() {
+      this.$store.commit("postwoman/replaceCollections", fb.currentCollections);
+      this.fileImported();
+    },
+    fileImported() {
+      this.$toast.info(this.$t("file_imported"), {
+        icon: "folder_shared"
+      });
     }
   }
 };

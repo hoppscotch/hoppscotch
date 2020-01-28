@@ -666,7 +666,6 @@
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
 import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
-
 import firebase from "firebase/app";
 import { fb } from "../functions/fb";
 

@@ -39,7 +39,7 @@
               </pw-toggle>
             </p>
             <p v-if="fb.currentSettings.length == 0">
-              <button class="" @click="writeSettings">
+              <button class="" @click="initSettings">
                 <i class="material-icons">sync</i>
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
               </button>
@@ -172,7 +172,7 @@
             <label for="url">{{ $t("url") }}</label>
             <button
               class="icon"
-              @click="settings.PROXY_URL = `https://postwoman.apollotv.xyz/`"
+              @click="resetProxy"
               v-tooltip.bottom="$t('reset_default')"
             >
               <i class="material-icons">clear_all</i>
@@ -326,6 +326,7 @@ export default {
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
       },
 
+      doneButton: '<i class="material-icons">done</i>',
       fb
     };
   },
@@ -406,8 +407,8 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", false);
-                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncHistory", true);
+                  fb.writeSettings("syncCollections", false);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -435,8 +436,8 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", false);
-                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncHistory", true);
+                  fb.writeSettings("syncCollections", false);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -453,9 +454,20 @@ export default {
     toggleSettings(s, v) {
       fb.writeSettings(s, !v);
     },
-    writeSettings() {
-      fb.writeSettings("syncHistory", false);
-      fb.writeSettings("syncCollections", true);
+    initSettings() {
+      fb.writeSettings("syncHistory", true);
+      fb.writeSettings("syncCollections", false);
+    },
+    resetProxy(e) {
+      this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;
+      e.target.innerHTML = this.doneButton;
+      this.$toast.info(this.$t("cleared"), {
+        icon: "clear_all"
+      });
+      setTimeout(
+        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      );
     }
   },
 

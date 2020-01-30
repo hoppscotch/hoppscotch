@@ -249,5 +249,16 @@ export default {
   extensions: "Extensions",
   extensions_info1: "Browser extension that simplifies access to Postwoman",
   extensions_info2: "Get Postwoman browser extension!",
-  installed: "Installed"
+  installed: "Installed",
+  login_with: "Login with",
+  logged_out: "Logged out",
+  logout: "Logout",
+  account: "Account",
+  sync: "Sync",
+  syncHistory: "History",
+  syncCollections: "Collections",
+  turn_on: "Turn on",
+  login_first: "Login first",
+  paste_a_collection: "Paste a Collection",
+  import_from_sync: "Import from Sync"
 };

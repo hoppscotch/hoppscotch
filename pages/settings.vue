@@ -1,5 +1,88 @@
 <template>
   <div class="page">
+    <pw-section class="green" :label="$t('account')" ref="account">
+      <ul>
+        <li>
+          <div v-if="fb.currentUser">
+            <button class="icon">
+              <img
+                v-if="fb.currentUser.photoURL"
+                :src="fb.currentUser.photoURL"
+                class="material-icons"
+              />
+              <i v-else class="material-icons">account_circle</i>
+              <span>
+                {{ fb.currentUser.displayName || "Name not found" }}
+              </span>
+            </button>
+            <br />
+            <button class="icon">
+              <i class="material-icons">email</i>
+              <span>
+                {{ fb.currentUser.email || "Email not found" }}
+              </span>
+            </button>
+            <br />
+            <button class="icon" @click="logout">
+              <i class="material-icons">exit_to_app</i>
+              <span>{{ $t("logout") }}</span>
+            </button>
+            <br />
+            <p v-for="setting in fb.currentSettings" :key="setting.id">
+              <pw-toggle
+                :key="setting.name"
+                :on="setting.value"
+                @change="toggleSettings(setting.name, setting.value)"
+              >
+                {{ $t(setting.name) + " " + $t("sync") }}
+                {{ setting.value ? $t("enabled") : $t("disabled") }}
+              </pw-toggle>
+            </p>
+            <p v-if="fb.currentSettings.length == 0">
+              <button class="" @click="initSettings">
+                <i class="material-icons">sync</i>
+                <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
+              </button>
+            </p>
+          </div>
+          <div v-else>
+            <label>{{ $t("login_with") }}</label>
+            <p>
+              <button class="icon" @click="signInWithGoogle">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  class="material-icons"
+                >
+                  <path
+                    d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"
+                  />
+                </svg>
+                <span>Google</span>
+              </button>
+              <br />
+              <button class="icon" @click="signInWithGithub">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  class="material-icons"
+                >
+                  <path
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                  />
+                </svg>
+                <span>GitHub</span>
+              </button>
+            </p>
+          </div>
+        </li>
+      </ul>
+    </pw-section>
+
     <pw-section class="cyan" :label="$t('theme')" ref="theme">
       <ul>
         <li>
@@ -89,7 +172,7 @@
             <label for="url">{{ $t("url") }}</label>
             <button
               class="icon"
-              @click="settings.PROXY_URL = `https://postwoman.apollotv.xyz/`"
+              @click="resetProxy"
               v-tooltip.bottom="$t('reset_default')"
             >
               <i class="material-icons">clear_all</i>
@@ -137,6 +220,9 @@
 <style scoped lang="scss"></style>
 
 <script>
+import firebase from "firebase/app";
+import { fb } from "../functions/fb";
+
 export default {
   components: {
     "pw-section": () => import("../components/section"),
@@ -238,7 +324,10 @@ export default {
           this.$store.state.postwoman.settings.PROXY_URL ||
           "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
-      }
+      },
+
+      doneButton: '<i class="material-icons">done</i>',
+      fb
     };
   },
 
@@ -289,8 +378,99 @@ export default {
     toggleSetting(key) {
       this.settings[key] = !this.settings[key];
       this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
+    },
+    logout() {
+      fb.currentUser = null;
+      firebase
+        .auth()
+        .signOut()
+        .catch(err => {
+          this.$toast.show(err.message || err, {
+            icon: "error"
+          });
+        });
+      this.$toast.info(this.$t("logged_out"), {
+        icon: "vpn_key"
+      });
+    },
+    signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(res => {
+          if (res.additionalUserInfo.isNewUser) {
+            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+              icon: "sync",
+              duration: null,
+              closeOnSwipe: false,
+              action: {
+                text: this.$t("yes"),
+                onClick: (e, toastObject) => {
+                  fb.writeSettings("syncHistory", true);
+                  fb.writeSettings("syncCollections", false);
+                  this.$router.push({ path: "/settings" });
+                  toastObject.remove();
+                }
+              }
+            });
+          }
+        })
+        .catch(err => {
+          this.$toast.show(err.message || err, {
+            icon: "error"
+          });
+        });
+    },
+    signInWithGithub() {
+      const provider = new firebase.auth.GithubAuthProvider();
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(res => {
+          if (res.additionalUserInfo.isNewUser) {
+            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+              icon: "sync",
+              duration: null,
+              closeOnSwipe: false,
+              action: {
+                text: this.$t("yes"),
+                onClick: (e, toastObject) => {
+                  fb.writeSettings("syncHistory", true);
+                  fb.writeSettings("syncCollections", false);
+                  this.$router.push({ path: "/settings" });
+                  toastObject.remove();
+                }
+              }
+            });
+          }
+        })
+        .catch(err => {
+          this.$toast.show(err.message || err, {
+            icon: "error"
+          });
+        });
+    },
+    toggleSettings(s, v) {
+      fb.writeSettings(s, !v);
+    },
+    initSettings() {
+      fb.writeSettings("syncHistory", true);
+      fb.writeSettings("syncCollections", false);
+    },
+    resetProxy(e) {
+      this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;
+      e.target.innerHTML = this.doneButton;
+      this.$toast.info(this.$t("cleared"), {
+        icon: "clear_all"
+      });
+      setTimeout(
+        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      );
     }
   },
+
   beforeMount() {
     this.settings.THEME_COLOR = this.getActiveColor();
   },

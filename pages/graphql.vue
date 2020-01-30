@@ -757,9 +757,7 @@ export default {
           }
         }
         this.gqlTypes = types;
-        
         this.$refs.queryEditor.setValidationSchema(schema);
-
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
         this.$toast.info(this.$t("finished_in", { duration }), {

@@ -259,6 +259,10 @@ h4 {
   font-weight: 700;
 }
 
+hr {
+  border-bottom: 1px dashed var(--brd-color);
+}
+
 .tooltip {
   $bgcolor: var(--tt-color);
   $fgcolor: var(--fg-color);
@@ -385,6 +389,10 @@ h3.title {
 .info {
   margin-left: 4px;
   color: var(--fg-light-color);
+}
+
+.bg-color {
+  background-color: transparent;
 }
 
 button {
@@ -592,7 +600,6 @@ pre {
 
 select {
   height: 37px;
-  background-color: var(--bg-dark-color);
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -698,6 +705,7 @@ ol li {
 
 .show-on-large-screen {
   display: inline-flex;
+  flex: 1;
 }
 
 .info-response {

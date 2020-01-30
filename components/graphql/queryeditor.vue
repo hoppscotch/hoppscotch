@@ -34,7 +34,7 @@ export default {
     return {
       editor: null,
       cacheValue: "",
-      validationSchema: null 
+      validationSchema: null
     };
   },
 
@@ -88,7 +88,7 @@ export default {
         );
       }
     },
-    
+
     setValidationSchema(schema) {
       this.validationSchema = schema;
       this.parseContents(this.cacheValue);
@@ -101,16 +101,15 @@ export default {
 
           if (this.validationSchema) {
             this.editor.session.setAnnotations(
-              gql.validate(this.validationSchema, doc)
-                .map((err) => {
-                  return {
-                    row: err.locations[0].line - 1,
-                    column: err.locations[0].column - 1,
-                    text: err.message,
-                    type: "error"
-                  }
-                })
-            )
+              gql.validate(this.validationSchema, doc).map(err => {
+                return {
+                  row: err.locations[0].line - 1,
+                  column: err.locations[0].column - 1,
+                  text: err.message,
+                  type: "error"
+                };
+              })
+            );
           }
         } catch (e) {
           this.editor.session.setAnnotations([

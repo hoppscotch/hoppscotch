@@ -531,7 +531,10 @@ export default {
         return this.$store.state.gql.variablesJSONString;
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "variablesJSONString" });
+        this.$store.commit("setGQLState", {
+          value,
+          attribute: "variablesJSONString"
+        });
       }
     },
     headerString() {
@@ -620,7 +623,7 @@ export default {
         this.headers.forEach(header => {
           headers[header.key] = header.value;
         });
-        
+
         let variables = JSON.parse(this.variableString);
 
         const gqlQueryString = this.gqlQueryString;
@@ -780,13 +783,10 @@ export default {
     downloadResponse() {
       const dataToWrite = JSON.stringify(this.schemaString, null, 2);
       const file = new Blob([dataToWrite], { type: "application/json" });
-      const a = document.createElement("a"),
-        url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      const url = URL.createObjectURL(file);
       a.href = url;
-      a.download = (this.url + " on " + Date() + ".graphql").replace(
-        /\./g,
-        "[dot]"
-      );
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;

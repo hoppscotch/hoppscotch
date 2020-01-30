@@ -363,8 +363,8 @@ export default {
       let file = this.$refs.collectionUpload.files[0];
       if (file !== undefined && file !== null) {
         let reader = new FileReader();
-        reader.onload = e => {
-          this.collectionJSON = e.target.result;
+        reader.onload = ({ target }) => {
+          this.collectionJSON = target.result;
         };
         reader.readAsText(file);
         this.$toast.info(this.$t("file_imported"), {

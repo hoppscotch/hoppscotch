@@ -364,7 +364,6 @@ export default {
   data() {
     return {
       schemaString: "",
-      variableString: "{}",
       commonHeaders: [
         "WWW-Authenticate",
         "Authorization",
@@ -525,6 +524,14 @@ export default {
       },
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "query" });
+      }
+    },
+    variableString: {
+      get() {
+        return this.$store.state.gql.variablesJSONString;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "variablesJSONString" });
       }
     },
     headerString() {

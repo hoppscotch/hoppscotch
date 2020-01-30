@@ -187,67 +187,21 @@
               useWorker: false
             }"
           />
-          <div class="flex-wrap">
-            <label>{{ $t("query_variables") }}</label>
-            <div>
-              <button
-                class="icon"
-                @click="variables = []"
-                v-tooltip.bottom="$t('clear')"
-              >
-                <i class="material-icons">clear_all</i>
-              </button>
-            </div>
-          </div>
-          <ul v-for="(variable, index) in variables" :key="index">
-            <li>
-              <input
-                :placeholder="$t('variable_count', { count: index + 1 })"
-                :name="'variable_key_' + index"
-                :value="variable.key"
-                @change="
-                  $store.commit('setGQLVariableKey', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                autofocus
-              />
-            </li>
-            <li>
-              <input
-                :placeholder="$t('value_count', { count: index + 1 })"
-                :name="'variable_value_' + index"
-                :value="variable.value"
-                @change="
-                  $store.commit('setGQLVariableValue', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                autofocus
-              />
-            </li>
-            <div>
-              <li>
-                <button
-                  class="icon"
-                  @click="removeQueryVariable(index)"
-                  v-tooltip.bottom="$t('delete')"
-                >
-                  <i class="material-icons">delete</i>
-                </button>
-              </li>
-            </div>
-          </ul>
-          <ul>
-            <li>
-              <button class="icon" @click="addQueryVariable">
-                <i class="material-icons">add</i>
-                <span>{{ $t("add_new") }}</span>
-              </button>
-            </li>
-          </ul>
+        </pw-section>
+
+        <pw-section class="yellow" label="Variables" ref="variables">
+          <Editor
+            v-model="variableString"
+            :lang="'json'"
+            :options="{
+              maxLines: responseBodyMaxLines,
+              minLines: '16',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              showPrintMargin: false,
+              useWorker: false
+            }"
+          />
         </pw-section>
 
         <pw-section class="purple" label="Response" ref="response">
@@ -564,20 +518,20 @@ export default {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
       }
     },
-    variables: {
-      get() {
-        return this.$store.state.gql.variables;
-      },
-      set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "variables" });
-      }
-    },
     gqlQueryString: {
       get() {
         return this.$store.state.gql.query;
       },
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "query" });
+      }
+    },
+    variableString: {
+      get() {
+        return this.$store.state.gql.variablesJSONString;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "variablesJSONString" });
       }
     },
     headerString() {
@@ -666,19 +620,10 @@ export default {
         this.headers.forEach(header => {
           headers[header.key] = header.value;
         });
+        
+        let variables = JSON.parse(this.variableString);
 
-        let variables = {};
         const gqlQueryString = this.gqlQueryString;
-        this.variables.forEach(variable => {
-          // todo: better variable type validation
-          if (gqlQueryString.indexOf(`\$${variable.key}: Int`) > -1) {
-            variables[variable.key] = parseInt(variable.value);
-          } else if (gqlQueryString.indexOf(`\$${variable.key}: Float`) > -1) {
-            variables[variable.key] = parseFloat(variable.value);
-          } else {
-            variables[variable.key] = variable.value;
-          }
-        });
 
         const reqOptions = {
           method: "post",
@@ -878,30 +823,6 @@ export default {
         }
       });
       // console.log(oldHeaders);
-    },
-    addQueryVariable(index) {
-      this.$store.commit("addGQLVariable", {
-        key: "",
-        value: ""
-      });
-      return false;
-    },
-    removeQueryVariable(index) {
-      const oldVariables = this.variables.slice();
-
-      this.$store.commit("removeGQLVariable", index);
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-        action: {
-          text: this.$t("undo"),
-          duration: 4000,
-          onClick: (e, toastObject) => {
-            this.variables = oldVariables;
-            toastObject.remove();
-          }
-        }
-      });
-      // console.log(oldVariables);
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({

@@ -2856,6 +2856,10 @@ export default {
       } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.$refs.clearAll.click();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false;
+        this.isHidden = true;
       }
     };
     document.addEventListener("keydown", this._keyListener.bind(this));

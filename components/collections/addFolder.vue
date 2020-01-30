@@ -21,6 +21,7 @@
             type="text"
             v-model="name"
             :placeholder="$t('my_new_folder')"
+            @keyup.enter="addNewFolder"
           />
         </li>
       </ul>

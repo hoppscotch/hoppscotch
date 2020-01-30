@@ -21,6 +21,7 @@
             type="text"
             v-model="name"
             :placeholder="$t('my_new_collection')"
+            @keyup.enter="addNewCollection"
           />
         </li>
       </ul>

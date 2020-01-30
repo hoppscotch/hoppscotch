@@ -801,6 +801,14 @@ export default {
           });
         }, 15000);
       }
+
+      this._keyListener = function(e) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          this.showExtensions = this.showShortcuts = this.showSupport = false;
+        }
+      };
+      document.addEventListener("keydown", this._keyListener.bind(this));
     })();
 
     window.addEventListener("scroll", event => {
@@ -841,6 +849,10 @@ export default {
     availableLocales() {
       return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
     }
+  },
+
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener);
   }
 };
 </script>

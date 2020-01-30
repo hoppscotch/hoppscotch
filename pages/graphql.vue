@@ -519,14 +519,6 @@ export default {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
       }
     },
-    variables: {
-      get() {
-        return this.$store.state.gql.variables;
-      },
-      set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "variables" });
-      }
-    },
     gqlQueryString: {
       get() {
         return this.$store.state.gql.query;
@@ -826,30 +818,6 @@ export default {
         }
       });
       // console.log(oldHeaders);
-    },
-    addQueryVariable(index) {
-      this.$store.commit("addGQLVariable", {
-        key: "",
-        value: ""
-      });
-      return false;
-    },
-    removeQueryVariable(index) {
-      const oldVariables = this.variables.slice();
-
-      this.$store.commit("removeGQLVariable", index);
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-        action: {
-          text: this.$t("undo"),
-          duration: 4000,
-          onClick: (e, toastObject) => {
-            this.variables = oldVariables;
-            toastObject.remove();
-          }
-        }
-      });
-      // console.log(oldVariables);
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({

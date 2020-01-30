@@ -172,7 +172,7 @@
             <label for="url">{{ $t("url") }}</label>
             <button
               class="icon"
-              @click="settings.PROXY_URL = `https://postwoman.apollotv.xyz/`"
+              @click="resetProxy"
               v-tooltip.bottom="$t('reset_default')"
             >
               <i class="material-icons">clear_all</i>
@@ -326,6 +326,7 @@ export default {
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
       },
 
+      doneButton: '<i class="material-icons">done</i>',
       fb
     };
   },
@@ -456,6 +457,17 @@ export default {
     initSettings() {
       fb.writeSettings("syncHistory", true);
       fb.writeSettings("syncCollections", false);
+    },
+    resetProxy(e) {
+      this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;
+      e.target.innerHTML = this.doneButton;
+      this.$toast.info(this.$t("cleared"), {
+        icon: "clear_all"
+      });
+      setTimeout(
+        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      );
     }
   },
 

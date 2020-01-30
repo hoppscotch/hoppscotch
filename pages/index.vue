@@ -28,8 +28,8 @@
                 v-model="preRequestScript"
                 :lang="'javascript'"
                 :options="{
-                  maxLines: responseBodyMaxLines,
-                  minLines: '16',
+                  maxLines: '16',
+                  minLines: '8',
                   fontSize: '16px',
                   autoScrollEditorIntoView: true,
                   showPrintMargin: false,
@@ -282,6 +282,23 @@
                   >close</i
                 >
               </button>
+              <button
+                :class="'icon' + (testsEnabled ? ' info-response' : '')"
+                id="preRequestScriptButto"
+                v-tooltip.bottom="{
+                  content: !testsEnabled ? 'Enable Tests' : 'Disable Tests'
+                }"
+                @click="testsEnabled = !testsEnabled"
+              >
+                <i
+                  class="material-icons"
+                  :class="testsEnabled"
+                  v-if="!testsEnabled"
+                >
+                  assignment_turned_in
+                </i>
+                <i class="material-icons" :class="testsEnabled" v-else>close</i>
+              </button>
             </span>
             <span>
               <button
@@ -316,6 +333,74 @@
           </div>
         </pw-section>
 
+        <pw-section
+          v-if="testsEnabled"
+          class="orange"
+          label="Tests"
+          ref="postRequestTests"
+        >
+          <ul>
+            <li>
+              <div class="flex-wrap">
+                <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                <div>
+                  <a
+                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <button class="icon" v-tooltip="$t('wiki')">
+                      <i class="material-icons">help</i>
+                    </button>
+                  </a>
+                </div>
+              </div>
+              <Editor
+                v-model="testScript"
+                :lang="'javascript'"
+                :options="{
+                  maxLines: '16',
+                  minLines: '8',
+                  fontSize: '16px',
+                  autoScrollEditorIntoView: true,
+                  showPrintMargin: false,
+                  useWorker: false
+                }"
+              />
+              <div v-if="testReports">
+                <div class="flex-wrap">
+                  <label>Test Reports</label>
+                  <div>
+                    <button
+                      class="icon"
+                      @click="clearContent('tests', $event)"
+                      v-tooltip.bottom="$t('clear')"
+                    >
+                      <i class="material-icons">clear_all</i>
+                    </button>
+                  </div>
+                </div>
+                <div v-for="testReport in testReports">
+                  <div v-if="testReport.startBlock" class="info">
+                    <h4>{{ testReport.startBlock }}</h4>
+                  </div>
+                  <p v-else-if="testReport.result" class="flex-wrap info">
+                    <span :class="testReport.styles.class">
+                      <i class="material-icons">
+                        {{ testReport.styles.icon }}
+                      </i>
+                      <span>&nbsp; {{ testReport.result }}</span>
+                      <span v-if="testReport.message">
+                        <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
+                      </span>
+                    </span>
+                  </p>
+                  <div v-else-if="testReport.endBlock"><hr /></div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </pw-section>
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
           <label for="tab-one">{{ $t("authentication") }}</label>
@@ -1152,6 +1237,7 @@ import querystring from "querystring";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
+import runTestScriptWithVariables from "../functions/postwomanTesting";
 import parseTemplateString from "../functions/templating";
 import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
@@ -1229,7 +1315,10 @@ export default {
     return {
       showModal: false,
       showPreRequestScript: false,
+      testsEnabled: false,
+      testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
+      testReports: null,
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -2135,6 +2224,17 @@ export default {
             }
           }
         })();
+
+        // tests
+        const syntheticResponse = {
+          status: this.response.status,
+          body: this.response.body,
+          headers: this.response.headers
+        };
+        const { testResults } = runTestScriptWithVariables(this.testScript, {
+          response: syntheticResponse
+        });
+        this.testReports = testResults;
       } catch (error) {
         console.error(error);
         if (error.response) {
@@ -2516,6 +2616,9 @@ export default {
           break;
         case "tokenReqs":
           this.tokenReqs = [];
+        case "tests":
+          this.testReports = null;
+          break;
         default:
           (this.label = ""),
             (this.method = "GET"),

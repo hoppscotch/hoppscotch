@@ -2515,13 +2515,12 @@ export default {
       observer.observe(requestElement);
     },
     handleImport() {
-      let textarea = document.getElementById("import-text");
-      let text = textarea.value;
+      const { value: text } = document.getElementById("import-text");
       try {
-        let parsedCurl = parseCurlCommand(text);
-        let url = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""));
-        this.url = url.origin;
-        this.path = url.pathname;
+        const parsedCurl = parseCurlCommand(text);
+        const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""));
+        this.url = origin;
+        this.path = pathname;
         this.headers = [];
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {

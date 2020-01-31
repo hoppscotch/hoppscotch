@@ -1884,10 +1884,10 @@ export default {
         const requestString = [];
         requestString.push("const xhr = new XMLHttpRequest()");
         const user = this.auth === "Basic Auth" ? `'${this.httpUser}'` : null;
-        const pswd =
+        const password =
           this.auth === "Basic Auth" ? `'${this.httpPassword}'` : null;
         requestString.push(
-          `xhr.open('${this.method}', '${this.url}${this.pathName}${this.queryString}', true, ${user}, ${pswd})`
+          `xhr.open('${this.method}', '${this.url}${this.pathName}${this.queryString}', true, ${user}, ${password})`
         );
         if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(

@@ -74,7 +74,9 @@ export default {
 
   methods: {
     defineTheme() {
-      if (this.theme) return this.theme;
+      if (this.theme) {
+        return this.theme;
+      }
       return (
         this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
       );

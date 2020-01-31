@@ -2491,7 +2491,9 @@ export default {
         if (key === "rawParams") {
           this.rawInput = true;
           this.rawParams = queries["rawParams"];
-        } else if (typeof this[key] === "string") this[key] = queries[key];
+        } else if (typeof this[key] === "string") {
+          this[key] = queries[key];
+        }
       }
     },
     observeRequestButton() {

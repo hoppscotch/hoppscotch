@@ -2259,7 +2259,7 @@ export default {
     queryStringToArray(queryString) {
       let queryParsed = querystring.parse(queryString);
       return Object.keys(queryParsed).map(key => ({
-        key: key,
+        key,
         value: queryParsed[key]
       }));
     },
@@ -2334,8 +2334,8 @@ export default {
     },
     copyRequest() {
       if (navigator.share) {
-        let time = new Date().toLocaleTimeString();
-        let date = new Date().toLocaleDateString();
+        const time = new Date().toLocaleTimeString();
+        const date = new Date().toLocaleDateString();
         navigator
           .share({
             title: `Postwoman`,
@@ -2452,7 +2452,8 @@ export default {
         const haveItems = [...this[key]].length;
         if (haveItems && this[key]["value"] !== "") {
           return `${key}=${JSON.stringify(this[key])}&`;
-        } else return "";
+        } 
+        return "";
       };
       let flats = [
         "method",
@@ -2466,8 +2467,8 @@ export default {
       ]
         .filter(item => item !== null)
         .map(item => flat(item));
-      let deeps = ["headers", "params"].map(item => deep(item));
-      let bodyParams = this.rawInput
+      const deeps = ["headers", "params"].map(item => deep(item));
+      const bodyParams = this.rawInput
         ? [flat("rawParams")]
         : [deep("bodyParams")];
 

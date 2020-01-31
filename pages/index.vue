@@ -2525,7 +2525,7 @@ export default {
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
             this.$store.commit("addHeaders", {
-              key: key,
+              key,
               value: parsedCurl.headers[key]
             });
           }

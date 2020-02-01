@@ -2678,9 +2678,9 @@ export default {
     },
     uploadPayload() {
       this.rawInput = true;
-      let file = this.$refs.payload.files[0];
+      const file = this.$refs.payload.files[0];
       if (file !== undefined && file !== null) {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = ({ target }) => {
           this.rawParams = target.result;
         };
@@ -2721,7 +2721,7 @@ export default {
       }
     },
     async oauthRedirectReq() {
-      let tokenInfo = await oauthRedirect();
+      const tokenInfo = await oauthRedirect();
       if (tokenInfo.hasOwnProperty("access_token")) {
         this.bearerToken = tokenInfo.access_token;
         this.addOAuthToken({
@@ -2773,7 +2773,7 @@ export default {
     },
     removeOAuthTokenReq(index) {
       const oldTokenReqs = this.tokenReqs.slice();
-      let targetReqIndex = this.tokenReqs.findIndex(
+      const targetReqIndex = this.tokenReqs.findIndex(
         ({ name }) => name === this.tokenReqName
       );
       if (targetReqIndex < 0) return;
@@ -2790,7 +2790,7 @@ export default {
       });
     },
     tokenReqChange({ target }) {
-      let targetReq = this.tokenReqs.find(({ name }) => name === target.value);
+      const targetReq = this.tokenReqs.find(({ name }) => name === target.value);
       let {
         oidcDiscoveryUrl,
         authUrl,

@@ -1839,8 +1839,8 @@ export default {
       return this.path.match(/^([^?]*)\??/)[1];
     },
     rawRequestBody() {
-      const { bodyParams } = this;
-      if (this.contentType === "application/json") {
+      const { bodyParams, contentType } = this;
+      if (contentType === "application/json") {
         try {
           const obj = JSON.parse(
             `{${bodyParams

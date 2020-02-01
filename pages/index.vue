@@ -2256,19 +2256,19 @@ export default {
     },
     getQueryStringFromPath() {
       let queryString;
-      let pathParsed = url.parse(this.path);
+      const pathParsed = url.parse(this.path);
       return (queryString = pathParsed.query ? pathParsed.query : "");
     },
     queryStringToArray(queryString) {
-      let queryParsed = querystring.parse(queryString);
+      const queryParsed = querystring.parse(queryString);
       return Object.keys(queryParsed).map(key => ({
         key,
         value: queryParsed[key]
       }));
     },
     pathInputHandler() {
-      let queryString = this.getQueryStringFromPath();
-      let params = this.queryStringToArray(queryString);
+      const queryString = this.getQueryStringFromPath();
+      const params = this.queryStringToArray(queryString);
       this.paramsWatchEnabled = false;
       this.params = params;
     },

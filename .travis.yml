@@ -40,6 +40,7 @@ install:
   - "npm install"
 
 before_script:
+  - "npm run build" # use nuxt build and start to run tests
   - "npm run test"
 
 script:

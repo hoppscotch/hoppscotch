@@ -55,8 +55,8 @@ export default {
 
   mounted() {
     const editor = ace.edit(this.$refs.editor, {
-      theme: "ace/theme/" + this.defineTheme(),
-      mode: "ace/mode/" + this.lang,
+      theme: `ace/theme/${this.defineTheme()}`,
+      mode: `ace/mode/${this.lang}`,
       ...this.options
     });
 
@@ -76,11 +76,10 @@ export default {
     defineTheme() {
       if (this.theme) {
         return this.theme;
-      } else {
-        return (
-          this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
-        );
       }
+      return (
+        this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+      );
     }
   },
 

@@ -398,9 +398,9 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(res => {
-          if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+        .then(({ additionalUserInfo }) => {
+          if (additionalUserInfo.isNewUser) {
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,
@@ -427,9 +427,9 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(res => {
-          if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+        .then(({ additionalUserInfo }) => {
+          if (additionalUserInfo.isNewUser) {
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,
@@ -458,14 +458,14 @@ export default {
       fb.writeSettings("syncHistory", true);
       fb.writeSettings("syncCollections", false);
     },
-    resetProxy(e) {
+    resetProxy({ target }) {
       this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;
-      e.target.innerHTML = this.doneButton;
+      target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all"
       });
       setTimeout(
-        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
       );
     }

@@ -1504,8 +1504,11 @@ export default {
       this.rawInput = !this.knownContentTypes.includes(val);
     },
     rawInput(status) {
-      if (status && this.rawParams === "") this.rawParams = "{}";
-      else this.setRouteQueryState();
+      if (status && this.rawParams === "") {
+      	this.rawParams = "{}";
+      } else {
+        this.setRouteQueryState();	
+      }
     },
     "response.body": function(val) {
       if (

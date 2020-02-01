@@ -1852,7 +1852,7 @@ export default {
               )
               .join()}}`
           );
-          return JSON.stringify(obj);
+          return JSON.stringify(obj, null, 2);
         } catch (ex) {
           return "invalid";
         }

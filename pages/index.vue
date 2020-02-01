@@ -2790,15 +2790,15 @@ export default {
       });
     },
     tokenReqChange({ target }) {
-      const targetReq = this.tokenReqs.find(({ name }) => name === target.value);
-      let {
+      const { details, name } = this.tokenReqs.find(({ name }) => name === target.value);
+      const {
         oidcDiscoveryUrl,
         authUrl,
         accessTokenUrl,
         clientId,
         scope
-      } = targetReq.details;
-      this.tokenReqName = targetReq.name;
+      } = details;
+      this.tokenReqName = name;
       this.oidcDiscoveryUrl = oidcDiscoveryUrl;
       this.authUrl = authUrl;
       this.accessTokenUrl = accessTokenUrl;

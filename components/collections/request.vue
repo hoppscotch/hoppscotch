@@ -42,11 +42,12 @@ ul li {
 </style>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
+import { Request } from "./types";
 
 export default Vue.extend({
   props: {
-    request: Object,
+    request: Object as PropType<Request>,
     collectionIndex: Number,
     folderIndex: Number,
     requestIndex: Number

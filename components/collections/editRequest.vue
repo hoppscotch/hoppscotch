@@ -27,44 +27,31 @@
           />
           <label for="selectCollection">Collection</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectCollection"
-              v-model="requestUpdateData.collectionIndex"
-            >
+            <select type="text" id="selectCollection" v-model="requestUpdateData.collectionIndex">
               <option
                 :key="undefined"
                 :value="undefined"
                 hidden
                 disabled
                 selected
-                >Current Collection</option
-              >
+              >Current Collection</option>
               <option
                 v-for="(collection, index) in $store.state.postwoman
                   .collections"
                 :key="index"
                 :value="index"
-              >
-                {{ collection.name }}
-              </option>
+              >{{ collection.name }}</option>
             </select>
           </span>
           <label for="selectFolder">Folder</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectFolder"
-              v-model="requestUpdateData.folderIndex"
-            >
+            <select type="text" id="selectFolder" v-model="requestUpdateData.folderIndex">
               <option :key="undefined" :value="undefined">/</option>
               <option
                 v-for="(folder, index) in folders"
                 :key="index"
                 :value="index"
-              >
-                {{ folder.name }}
-              </option>
+              >{{ folder.name }}</option>
             </select>
           </span>
         </li>
@@ -74,12 +61,8 @@
       <div class="flex-wrap">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
-            Cancel
-          </button>
-          <button class="icon primary" @click="saveRequest">
-            Save
-          </button>
+          <button class="icon" @click="hideModal">Cancel</button>
+          <button class="icon primary" @click="saveRequest">Save</button>
         </span>
       </div>
     </div>
@@ -87,7 +70,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
+import { Folder, Request } from "./types";
 
 interface RequestUpdateData {
   name?: string;
@@ -100,7 +84,7 @@ export default Vue.extend({
     show: Boolean,
     collectionIndex: Number,
     folderIndex: Number,
-    request: Object,
+    request: Object as PropType<Request>,
     requestIndex: Number
   },
   components: {
@@ -109,9 +93,9 @@ export default Vue.extend({
   data() {
     return <{ requestUpdateData: RequestUpdateData }>{
       requestUpdateData: {
-        name: (undefined as string | undefined),
-        collectionIndex: (undefined as number | undefined),
-        folderIndex: (undefined as number | undefined)
+        name: undefined as string | undefined,
+        collectionIndex: undefined as number | undefined,
+        folderIndex: undefined as number | undefined
       }
     };
   },
@@ -123,7 +107,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    folders(): any[] {
+    folders(): Folder[] {
       const userSelectedAnyCollection =
         this.$data.requestUpdateData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];

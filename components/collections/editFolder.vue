@@ -17,12 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <input
-            type="text"
-            v-model="name"
-            :placeholder="folder.name"
-            @keyup.enter="editFolder"
-          />
+          <input type="text" v-model="name" :placeholder="folder.name" @keyup.enter="editFolder" />
         </li>
       </ul>
     </div>
@@ -30,12 +25,8 @@
       <div class="flex-wrap">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
-            Cancel
-          </button>
-          <button class="icon primary" @click="editFolder">
-            Save
-          </button>
+          <button class="icon" @click="hideModal">Cancel</button>
+          <button class="icon primary" @click="editFolder">Save</button>
         </span>
       </div>
     </div>
@@ -43,14 +34,15 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
+import { Collection, Folder } from "./types";
 
 export default Vue.extend({
   props: {
     show: Boolean,
-    collection: Object,
+    collection: Object as PropType<Collection>,
     collectionIndex: Number,
-    folder: Object,
+    folder: Object as PropType<Folder>,
     folderIndex: Number
   },
   components: {

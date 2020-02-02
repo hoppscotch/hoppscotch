@@ -27,61 +27,42 @@
           />
           <label for="selectCollection">Collection</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectCollection"
-              v-model="requestData.collectionIndex"
-            >
+            <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
               <option
                 :key="undefined"
                 :value="undefined"
                 hidden
                 disabled
                 selected
-                >Select a Collection</option
-              >
+              >Select a Collection</option>
               <option
                 v-for="(collection, index) in $store.state.postwoman
                   .collections"
                 :key="index"
                 :value="index"
-              >
-                {{ collection.name }}
-              </option>
+              >{{ collection.name }}</option>
             </select>
           </span>
           <label for="selectFolder">Folder</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectFolder"
-              v-model="requestData.folderIndex"
-            >
+            <select type="text" id="selectFolder" v-model="requestData.folderIndex">
               <option :key="undefined" :value="undefined">/</option>
               <option
                 v-for="(folder, index) in folders"
                 :key="index"
                 :value="index"
-              >
-                {{ folder.name }}
-              </option>
+              >{{ folder.name }}</option>
             </select>
           </span>
           <label for="selectRequest">Request</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectRequest"
-              v-model="requestData.requestIndex"
-            >
+            <select type="text" id="selectRequest" v-model="requestData.requestIndex">
               <option :key="undefined" :value="undefined">/</option>
               <option
                 v-for="(folder, index) in requests"
                 :key="index"
                 :value="index"
-              >
-                {{ folder.name }}
-              </option>
+              >{{ folder.name }}</option>
             </select>
           </span>
         </li>
@@ -91,12 +72,8 @@
       <div class="flex-wrap">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
-            Cancel
-          </button>
-          <button class="icon primary" @click="saveRequestAs">
-            Save
-          </button>
+          <button class="icon" @click="hideModal">Cancel</button>
+          <button class="icon primary" @click="saveRequestAs">Save</button>
         </span>
       </div>
     </div>
@@ -105,6 +82,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Folder, Request } from "./types";
 
 export default Vue.extend({
   props: {
@@ -137,7 +115,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    folders(): any[] {
+    folders(): Folder[] {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];
@@ -152,7 +130,7 @@ export default Vue.extend({
         this.$data.requestData.collectionIndex
       ].folders;
     },
-    requests(): any[] {
+    requests(): Request[] {
       const userSelectedAnyCollection =
         this.$data.requestData.collectionIndex !== undefined;
       if (!userSelectedAnyCollection) return [];

@@ -932,12 +932,12 @@
             </pw-section>
           </div>
           <input id="sync-tab" type="radio" name="side" />
-          <label for="sync-tab">{{ $t("sync") }}</label>
+          <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
             <pw-section
               v-if="fb.currentUser"
               class="pink"
-              label="Sync"
+              :label="$t('notes')"
               ref="sync"
             >
               <inputform />
@@ -1505,9 +1505,9 @@ export default {
     },
     rawInput(status) {
       if (status && this.rawParams === "") {
-      	this.rawParams = "{}";
+        this.rawParams = "{}";
       } else {
-        this.setRouteQueryState();	
+        this.setRouteQueryState();
       }
     },
     "response.body": function(val) {
@@ -2455,7 +2455,7 @@ export default {
         const haveItems = [...this[key]].length;
         if (haveItems && this[key]["value"] !== "") {
           return `${key}=${JSON.stringify(this[key])}&`;
-        } 
+        }
         return "";
       };
       let flats = [
@@ -2524,7 +2524,9 @@ export default {
       const { value: text } = document.getElementById("import-text");
       try {
         const parsedCurl = parseCurlCommand(text);
-        const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""));
+        const { origin, pathname } = new URL(
+          parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
+        );
         this.url = origin;
         this.path = pathname;
         this.headers = [];
@@ -2790,7 +2792,9 @@ export default {
       });
     },
     tokenReqChange({ target }) {
-      const { details, name } = this.tokenReqs.find(({ name }) => name === target.value);
+      const { details, name } = this.tokenReqs.find(
+        ({ name }) => name === target.value
+      );
       const {
         oidcDiscoveryUrl,
         authUrl,

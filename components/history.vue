@@ -289,11 +289,6 @@ ol {
   flex-direction: column;
 }
 
-ul li,
-ol li {
-  display: flex;
-}
-
 .method-list-item {
   position: relative;
 

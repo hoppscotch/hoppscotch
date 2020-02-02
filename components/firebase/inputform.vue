@@ -7,7 +7,8 @@
           type="text"
           autofocus
           v-model="message"
-          :placeholder="$t('paste_a_collection')"
+          :placeholder="$t('paste_a_note')"
+          @keyup.enter="formPost"
         />
       </li>
     </ul>
@@ -19,11 +20,12 @@
           autofocus
           v-model="label"
           :placeholder="$t('label')"
+          @keyup.enter="formPost"
         />
       </li>
       <button
         class="icon"
-        :disabled="!(this.message && this.label)"
+        :disabled="!(this.message || this.label)"
         value="Save"
         @click="formPost"
       >
@@ -46,6 +48,9 @@ export default {
   },
   methods: {
     formPost() {
+      if (!(this.message || this.label)) {
+        return;
+      }
       fb.writeFeeds(this.message, this.label);
       this.message = null;
       this.label = null;

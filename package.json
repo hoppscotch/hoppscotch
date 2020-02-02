@@ -14,8 +14,8 @@
         "generate": "nuxt generate",
         "e2e": "cypress run",
         "e2e:open": "cypress open",
-        "dev:e2e": "start-server-and-test dev http://localhost:3000 e2e:open",
-        "test": "start-server-and-test dev http://localhost:3000 e2e"
+        "dev:e2e": "server-test dev :3000 e2e:open",
+        "test": "start-server-and-test start http-get://localhost:3000 e2e"
     },
     "dependencies": {
         "@nuxtjs/axios": "^5.9.4",
@@ -41,6 +41,6 @@
         "cypress": "^3.8.3",
         "node-sass": "^4.13.1",
         "sass-loader": "^8.0.2",
-        "start-server-and-test": "^1.10.6"
+        "start-server-and-test": "^1.10.8"
     }
 }

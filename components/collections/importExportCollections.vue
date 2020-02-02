@@ -54,16 +54,8 @@
       <div class="flex-wrap">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
-            Cancel
-          </button>
-          <button
-            class="icon primary"
-            @click="exportJSON"
-            v-tooltip="'Download file'"
-          >
-            Export
-          </button>
+          <button class="icon" @click="hideModal">Cancel</button>
+          <button class="icon primary" @click="exportJSON" v-tooltip="'Download file'">Export</button>
         </span>
       </div>
     </div>
@@ -98,28 +90,36 @@ export default Vue.extend({
     replaceWithJSON() {
       let reader = new FileReader();
       reader.onload = event => {
-        if (event && event.target) {
-          let content = event.target.result;
+        if (event) {
+          let content = reader.result;
           if (content) {
             let collections = JSON.parse(content as string);
             this.$store.commit("postwoman/replaceCollections", collections);
           }
         }
       };
-      reader.readAsText((this.$refs.inputChooseFileToReplaceWith as any).files[0] as File);
+      const files = (this.$refs!
+        .inputChooseFileToReplaceWith as HTMLInputElement).files;
+      if (files) {
+        reader.readAsText(files[0]);
+      }
     },
     importFromJSON() {
       let reader = new FileReader();
       reader.onload = event => {
-        if (event && event.target) {
-          let content = event.target.result;
+        if (event) {
+          let content = reader.result;
           if (content) {
             let collections = JSON.parse(content as string);
             this.$store.commit("postwoman/importCollections", collections);
           }
         }
       };
-      reader.readAsText((this.$refs.inputChooseFileToImportFrom as any).files[0]);
+      const files = (this.$refs!
+        .inputChooseFileToReplaceWith as HTMLInputElement).files;
+      if (files) {
+        reader.readAsText(files[0]);
+      }
     },
     exportJSON() {
       let text = this.collectionJson;

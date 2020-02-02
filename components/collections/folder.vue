@@ -70,11 +70,12 @@ ul li {
 </style>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
+import { Folder, Request } from "./types";
 
 export default Vue.extend({
   props: {
-    folder: Object,
+    folder: Object as PropType<Folder>,
     collectionIndex: Number,
     folderIndex: Number
   },
@@ -90,7 +91,7 @@ export default Vue.extend({
     toggleShowChildren() {
       this.showChildren = !this.showChildren;
     },
-    selectRequest(request: any) {
+    selectRequest(request: Request) {
       this.$store.commit("postwoman/selectRequest", { request });
     },
     removeFolder() {

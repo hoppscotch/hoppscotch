@@ -21,11 +21,7 @@
             </button>
           </div>
           <div>
-            <button
-              class="icon"
-              @click="$emit('edit-collection')"
-              v-close-popover
-            >
+            <button class="icon" @click="$emit('edit-collection')" v-close-popover>
               <i class="material-icons">create</i>
               <span>Edit</span>
             </button>
@@ -95,7 +91,8 @@ ul li {
 </style>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
+import { Collection, Folder } from "./types";
 
 export default Vue.extend({
   components: {
@@ -104,7 +101,7 @@ export default Vue.extend({
   },
   props: {
     collectionIndex: Number,
-    collection: Object
+    collection: Object as PropType<Collection>
   },
   data() {
     return {
@@ -122,7 +119,7 @@ export default Vue.extend({
         collectionIndex: this.collectionIndex
       });
     },
-    editFolder(collectionIndex: number, folder: any, folderIndex: number) {
+    editFolder(collectionIndex: number, folder: Folder, folderIndex: number) {
       this.$emit("edit-folder", { collectionIndex, folder, folderIndex });
     }
   }

@@ -112,7 +112,7 @@ export const mutations = {
 
   addNewCollection({ collections }, collection) {
     const { name } = collection;
-    const duplicateCollection = collections.some(item => item.name === name);
+    const duplicateCollection = collections.some(item => item.name.toLowerCase() === name.toLowerCase());
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection");
       return;
@@ -133,7 +133,7 @@ export const mutations = {
   editCollection({ collections }, payload) {
     const { collection, collectionIndex } = payload;
     const { name } = collection;
-    const duplicateCollection = collections.some(item => item.name === name);
+    const duplicateCollection = collections.some(item => item.name.toLowerCase() === name.toLowerCase());
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection");
       return;

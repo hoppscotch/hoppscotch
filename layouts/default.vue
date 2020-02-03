@@ -566,19 +566,19 @@
       <div slot="body">
         <div>
           <label>{{ $t("send_request") }}</label>
-          <kbd>⌘ G</kbd>
+          <kbd>{{ getSpecialKey() }} G</kbd>
         </div>
         <div>
           <label>{{ $t("save_to_collections") }}</label>
-          <kbd>⌘ S</kbd>
+          <kbd>{{ getSpecialKey() }} S</kbd>
         </div>
         <div>
           <label>{{ $t("copy_request_link") }}</label>
-          <kbd>⌘ K</kbd>
+          <kbd>{{ getSpecialKey() }} K</kbd>
         </div>
         <div>
           <label>{{ $t("reset_request") }}</label>
-          <kbd>⌘ L</kbd>
+          <kbd>{{ getSpecialKey() }} L</kbd>
         </div>
       </div>
       <div slot="footer"></div>
@@ -677,6 +677,9 @@ export default {
   },
 
   methods: {
+    getSpecialKey() {
+      return (/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) ? "⌘" : "Ctrl";
+    },
     linkActive(path) {
       return {
         "nuxt-link-exact-active": this.$route.path === path,

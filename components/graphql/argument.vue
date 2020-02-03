@@ -8,7 +8,7 @@
   </span>
 </template>
 
-<style></style>
+<style scoped lang="scss"></style>
 
 <script>
 import typelink from "./typelink";

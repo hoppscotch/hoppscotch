@@ -1,14 +1,19 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <ul>
-      <li id="filter-history">
-        <input
-          aria-label="Search"
-          type="text"
-          :placeholder="$t('search_history')"
-          v-model="filterText"
-        />
-      </li>
+      <div class="show-on-large-screen">
+        <li id="filter-history">
+          <input
+            aria-label="Search"
+            type="text"
+            :placeholder="$t('search')"
+            v-model="filterText"
+          />
+        </li>
+        <button class="icon">
+          <i class="material-icons">search</i>
+        </button>
+      </div>
     </ul>
     <virtual-list
       class="virtual-list"

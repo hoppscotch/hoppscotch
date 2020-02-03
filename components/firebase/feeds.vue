@@ -8,15 +8,10 @@
   >
     <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
       <div class="show-on-large-screen">
-        <li>
-          <input
-            :aria-label="$t('label')"
-            type="text"
-            readonly
-            :value="feed.label"
-            :placeholder="$t('no_label')"
-            class="bg-color"
-          />
+        <li class="info">
+          <label>
+            {{ feed.label || $t("no_label") }}
+          </label>
         </li>
         <button class="icon" @click="deleteFeed(feed)">
           <i class="material-icons">delete</i>
@@ -24,7 +19,7 @@
       </div>
       <div class="show-on-large-screen">
         <li class="info clamb-3">
-          <label>{{ feed.message }}</label>
+          <label>{{ feed.message || $t("empty") }}</label>
         </li>
       </div>
     </ul>

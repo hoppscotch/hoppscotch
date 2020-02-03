@@ -111,7 +111,7 @@ export default {
   no_label: "Aucun label",
   prerequest_script: "Pre-Request Script",
   no_prerequest_script: "No pre-request script",
-  search_history: "Historique de la recherche",
+  search: "Historique de la recherche",
   history_empty: "L'historique est vide",
   history_deleted: "Historique supprimé",
   clear: "Nettoyer",

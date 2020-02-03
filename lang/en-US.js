@@ -111,7 +111,7 @@ export default {
   no_label: "No label",
   prerequest_script: "Pre-Request Script",
   no_prerequest_script: "No pre-request script",
-  search_history: "search history",
+  search: "Search",
   history_empty: "History is empty",
   history_deleted: "History Deleted",
   clear: "Clear",

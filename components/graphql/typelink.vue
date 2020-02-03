@@ -2,7 +2,7 @@
   <span class="typelink" @click="jumpToType">{{ typeString }}</span>
 </template>
 
-<style>
+<style scoped lang="scss">
 .typelink {
   color: var(--ac-color);
   font-family: "Roboto Mono", monospace;

@@ -934,21 +934,18 @@
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
-            <pw-section
-              v-if="fb.currentUser"
-              class="pink"
-              :label="$t('notes')"
-              ref="sync"
-            >
-              <inputform />
-              <ballsfeed />
-            </pw-section>
-            <pw-section v-else>
-              <ul>
-                <li>
-                  <label>{{ $t("login_first") }}</label>
-                </li>
-              </ul>
+            <pw-section class="pink" :label="$t('notes')" ref="sync">
+              <div v-if="fb.currentUser">
+                <inputform />
+                <ballsfeed />
+              </div>
+              <div v-else>
+                <ul>
+                  <li>
+                    <label>{{ $t("login_first") }}</label>
+                  </li>
+                </ul>
+              </div>
             </pw-section>
           </div>
         </section>

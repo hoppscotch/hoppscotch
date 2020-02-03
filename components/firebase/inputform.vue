@@ -1,40 +1,49 @@
 <template>
   <div>
     <ul>
-      <li>
-        <input
-          :aria-label="$t('label')"
-          type="text"
-          autofocus
-          v-model="message"
-          :placeholder="$t('paste_a_note')"
-          @keyup.enter="formPost"
-        />
-      </li>
-    </ul>
-    <ul>
-      <li>
-        <input
-          :aria-label="$t('label')"
-          type="text"
-          autofocus
-          v-model="label"
-          :placeholder="$t('label')"
-          @keyup.enter="formPost"
-        />
-      </li>
-      <button
-        class="icon"
-        :disabled="!(this.message || this.label)"
-        value="Save"
-        @click="formPost"
-      >
-        <i class="material-icons">add</i>
-        <span>Add</span>
-      </button>
+      <div class="show-on-large-screen">
+        <li>
+          <input
+            :aria-label="$t('label')"
+            type="text"
+            autofocus
+            v-model="message"
+            :placeholder="$t('paste_a_note')"
+            @keyup.enter="formPost"
+          />
+        </li>
+      </div>
+      <div class="show-on-large-screen">
+        <li>
+          <input
+            :aria-label="$t('label')"
+            type="text"
+            autofocus
+            v-model="label"
+            :placeholder="$t('label')"
+            @keyup.enter="formPost"
+          />
+        </li>
+        <button
+          class="icon"
+          :disabled="!(this.message || this.label)"
+          value="Save"
+          @click="formPost"
+        >
+          <i class="material-icons">add</i>
+          <span>Add</span>
+        </button>
+      </div>
     </ul>
   </div>
 </template>
+
+<style scoped lang="scss">
+ul,
+ol {
+  flex-direction: column;
+}
+</style>
 
 <script>
 import { fb } from "../../functions/fb";

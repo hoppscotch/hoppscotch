@@ -164,9 +164,7 @@ export default Vue.extend({
       const userDidntSpecifyCollection =
         this.$data.requestData.collectionIndex === undefined;
       if (userDidntSpecifyCollection) {
-        this.$toast.error("Select a Collection", {
-          icon: "error" as any
-        });
+        this.$toast.error("Select a Collection", { icon: () => "error" });
         return;
       }
 

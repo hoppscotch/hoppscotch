@@ -56,7 +56,13 @@ export const SETTINGS_KEYS = [
    * An array of properties to exclude from the URL.
    * e.g. 'auth'
    */
-  "URL_EXCLUDES"
+  "URL_EXCLUDES",
+  
+  /**
+   * A boolean value indicating whether to use the browser extensions
+   * to run the requests
+  */
+  "EXTENSIONS_ENABLED"
 ];
 
 export const state = () => ({

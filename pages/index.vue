@@ -46,12 +46,22 @@
               <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
                 <v-popover>
-                  <input id="method" v-model="method" />
+                  <input
+                    id="method"
+                    class="method"
+                    v-if="!customMethod"
+                    v-model="method"
+                    readonly
+                  />
+                  <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'GET'"
+                        @click="
+                          customMethod = false;
+                          method = 'GET';
+                        "
                         v-close-popover
                       >
                         GET
@@ -60,7 +70,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'HEAD'"
+                        @click="
+                          customMethod = false;
+                          method = 'HEAD';
+                        "
                         v-close-popover
                       >
                         HEAD
@@ -69,7 +82,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'POST'"
+                        @click="
+                          customMethod = false;
+                          method = 'POST';
+                        "
                         v-close-popover
                       >
                         POST
@@ -78,7 +94,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'PUT'"
+                        @click="
+                          customMethod = false;
+                          method = 'PUT';
+                        "
                         v-close-popover
                       >
                         PUT
@@ -87,7 +106,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'DELETE'"
+                        @click="
+                          customMethod = false;
+                          method = 'DELETE';
+                        "
                         v-close-popover
                       >
                         DELETE
@@ -96,7 +118,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'CONNECT'"
+                        @click="
+                          customMethod = false;
+                          method = 'CONNECT';
+                        "
                         v-close-popover
                       >
                         CONNECT
@@ -105,7 +130,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'OPTIONS'"
+                        @click="
+                          customMethod = false;
+                          method = 'OPTIONS';
+                        "
                         v-close-popover
                       >
                         OPTIONS
@@ -114,7 +142,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'TRACE'"
+                        @click="
+                          customMethod = false;
+                          method = 'TRACE';
+                        "
                         v-close-popover
                       >
                         TRACE
@@ -123,10 +154,25 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'PATCH'"
+                        @click="
+                          customMethod = false;
+                          method = 'PATCH';
+                        "
                         v-close-popover
                       >
                         PATCH
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = true;
+                          method = 'CUSTOM';
+                        "
+                        v-close-popover
+                      >
+                        CUSTOM
                       </button>
                     </div>
                   </template>
@@ -1559,7 +1605,8 @@ export default {
       responseBodyType: "text",
       responseBodyMaxLines: 16,
       activeSidebar: true,
-      fb
+      fb,
+      customMethod: false
     };
   },
   watch: {

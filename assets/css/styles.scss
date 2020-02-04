@@ -587,6 +587,14 @@ pre {
 .select-wrapper {
   position: relative;
 
+  input {
+    text-transform: uppercase;
+  }
+
+  .trigger {
+    width: 100%;
+  }
+
   &:after {
     display: inline-block;
     position: absolute;

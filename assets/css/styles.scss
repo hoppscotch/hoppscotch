@@ -538,6 +538,7 @@ input[type="radio"],
   display: none;
 }
 
+.method,
 kbd,
 select,
 input,
@@ -557,6 +558,7 @@ code {
   transition: all 0.2s ease-in-out;
   user-select: text;
   width: calc(100% - 8px);
+  min-width: 128px;
   resize: vertical;
   text-overflow: ellipsis;
 
@@ -586,6 +588,14 @@ pre {
 
 .select-wrapper {
   position: relative;
+
+  input {
+    text-transform: uppercase;
+  }
+
+  .trigger {
+    width: 100%;
+  }
 
   &:after {
     display: inline-block;

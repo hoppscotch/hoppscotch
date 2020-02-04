@@ -45,17 +45,138 @@
             <li>
               <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
-                <select id="method" v-model="method" @change="methodChange">
-                  <option value="GET">GET</option>
-                  <option value="HEAD">HEAD</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                  <option value="DELETE">DELETE</option>
-                  <option value="CONNECT">CONNECT</option>
-                  <option value="OPTIONS">OPTIONS</option>
-                  <option value="TRACE">TRACE</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
+                <v-popover>
+                  <input
+                    id="method"
+                    class="method"
+                    v-if="!customMethod"
+                    v-model="method"
+                    readonly
+                  />
+                  <input v-else v-model="method" placeholder="CUSTOM" />
+                  <template slot="popover">
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'GET';
+                        "
+                        v-close-popover
+                      >
+                        GET
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'HEAD';
+                        "
+                        v-close-popover
+                      >
+                        HEAD
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'POST';
+                        "
+                        v-close-popover
+                      >
+                        POST
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'PUT';
+                        "
+                        v-close-popover
+                      >
+                        PUT
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'DELETE';
+                        "
+                        v-close-popover
+                      >
+                        DELETE
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'CONNECT';
+                        "
+                        v-close-popover
+                      >
+                        CONNECT
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'OPTIONS';
+                        "
+                        v-close-popover
+                      >
+                        OPTIONS
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'TRACE';
+                        "
+                        v-close-popover
+                      >
+                        TRACE
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'PATCH';
+                        "
+                        v-close-popover
+                      >
+                        PATCH
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = true;
+                          method = 'CUSTOM';
+                        "
+                        v-close-popover
+                      >
+                        CUSTOM
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
             <li>
@@ -1484,7 +1605,8 @@ export default {
       responseBodyType: "text",
       responseBodyMaxLines: 16,
       activeSidebar: true,
-      fb
+      fb,
+      customMethod: false
     };
   },
   watch: {
@@ -1574,6 +1696,12 @@ export default {
     editingRequest(newValue) {
       this.editRequest = newValue;
       this.showRequestModal = true;
+    },
+    method() {
+      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
+      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
+        ? "application/json"
+        : "";
     }
   },
   computed: {
@@ -2668,12 +2796,6 @@ export default {
         this.urlExcludes[excludedField] = excluded;
       }
       this.setRouteQueryState();
-    },
-    methodChange() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
-        ? "application/json"
-        : "";
     },
     uploadPayload() {
       this.rawInput = true;

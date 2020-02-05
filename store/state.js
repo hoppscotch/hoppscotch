@@ -1,8 +1,8 @@
 export default () => ({
   request: {
     method: "GET",
-    url: "https://reqres.in",
-    path: "/api/users",
+    url: "https://httpbin.org",
+    path: "/get",
     label: "",
     auth: "None",
     httpUser: "",

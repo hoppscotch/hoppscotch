@@ -255,7 +255,11 @@
                       <button
                         class="icon"
                         @click="$refs.attachment.click()"
-                        v-tooltip="$t('upload_file')"
+                        v-tooltip="
+                          files.length === 0
+                            ? $t('upload_file')
+                            : filenames.replace('<br/>', '')
+                        "
                       >
                         <i class="material-icons">attach_file</i>
                         <span>
@@ -1626,7 +1630,8 @@ export default {
       activeSidebar: true,
       fb,
       customMethod: false,
-      files: []
+      files: [],
+      filenames: ""
     };
   },
   watch: {
@@ -2189,25 +2194,12 @@ export default {
       return getEnvironmentVariablesFromScript(this.preRequestScript);
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
-      if (this.files !== undefined && this.files !== null) {
-        var formData = new FormData();
-        for (var i = 0; i < this.files.length; i++) {
-          let file = this.files[i];
-          formData.append("files[" + i + "]", file);
-        }
-      console.log("form", formData.entries());
-      }
-
-      Object.assign(requestBody, formData)
-
-      console.log("req", requestBody);
-
       const requestOptions = {
         method: this.method,
         url: this.url + this.pathName + this.queryString,
         auth,
         headers,
-        data: requestBody ? requestBody : null,
+        data: requestBody,
         credentials: true
       };
       if (preRequestScript) {
@@ -2286,6 +2278,18 @@ export default {
           //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`
         });
+      }
+
+      requestBody = requestBody ? requestBody.toString() : null;
+
+      if (this.files.length !== 0) {
+        const formData = new FormData();
+        for (let i = 0; i < this.files.length; i++) {
+          let file = this.files[i];
+          formData.append(`files[${i}]`, file);
+        }
+        formData.append("data", requestBody);
+        requestBody = formData;
       }
 
       // If the request uses a token for auth, we want to make sure it's sent here.
@@ -2749,9 +2753,9 @@ export default {
         default:
           (this.label = ""),
             (this.method = "GET"),
-            (this.url = "https://reqres.in"),
+            (this.url = "https://httpbin.org"),
             (this.auth = "None"),
-            (this.path = "/api/users"),
+            (this.path = "/get"),
             (this.auth = "None");
           this.httpUser = "";
           this.httpPassword = "";
@@ -2769,6 +2773,7 @@ export default {
           this.accessTokenUrl = "";
           this.clientId = "";
           this.scope = "";
+          this.files = [];
       }
       e.target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
@@ -2831,8 +2836,12 @@ export default {
       this.setRouteQueryState();
     },
     uploadAttachment() {
+      this.filenames = "";
       this.files = this.$refs.attachment.files;
-      if (this.files !== undefined && this.files !== null) {
+      if (this.files.length !== 0) {
+        for (let file of this.files) {
+          this.filenames = `${this.filenames}<br/>${file.name}`;
+        }
         this.$toast.info(this.$t("file_imported"), {
           icon: "attach_file"
         });

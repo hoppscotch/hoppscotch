@@ -258,7 +258,15 @@
                         v-tooltip="$t('upload_file')"
                       >
                         <i class="material-icons">attach_file</i>
-                        <span>{{ file_choosen || "No file choosen" }}</span>
+                        <span>
+                          {{
+                            files.length === 0
+                              ? "No files"
+                              : files.length == 1
+                              ? "1 file"
+                              : files.length + " files"
+                          }}
+                        </span>
                       </button>
                     </label>
                     <input
@@ -266,6 +274,7 @@
                       name="attachment"
                       type="file"
                       @change="uploadAttachment"
+                      multiple
                     />
                     <label for="payload">
                       <button
@@ -517,7 +526,7 @@
                     </button>
                   </div>
                 </div>
-                <div v-for="testReport in testReports">
+                <div v-for="(testReport, index) in testReports" :key="index">
                   <div v-if="testReport.startBlock" class="info">
                     <h4>{{ testReport.startBlock }}</h4>
                   </div>
@@ -1617,7 +1626,7 @@ export default {
       activeSidebar: true,
       fb,
       customMethod: false,
-      file_choosen: null
+      files: []
     };
   },
   watch: {
@@ -2180,12 +2189,25 @@ export default {
       return getEnvironmentVariablesFromScript(this.preRequestScript);
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
+      if (this.files !== undefined && this.files !== null) {
+        var formData = new FormData();
+        for (var i = 0; i < this.files.length; i++) {
+          let file = this.files[i];
+          formData.append("files[" + i + "]", file);
+        }
+      console.log("form", formData.entries());
+      }
+
+      Object.assign(requestBody, formData)
+
+      console.log("req", requestBody);
+
       const requestOptions = {
         method: this.method,
         url: this.url + this.pathName + this.queryString,
         auth,
         headers,
-        data: requestBody ? requestBody.toString() : null,
+        data: requestBody ? requestBody : null,
         credentials: true
       };
       if (preRequestScript) {
@@ -2809,15 +2831,8 @@ export default {
       this.setRouteQueryState();
     },
     uploadAttachment() {
-      const file = this.$refs.attachment.files[0];
-      if (file !== undefined && file !== null) {
-        const reader = new FileReader();
-        reader.onload = ({ target }) => {
-          console.log(target);
-          this.file_choosen = file.name;
-          console.log(target.result);
-        };
-        reader.readAsText(file);
+      this.files = this.$refs.attachment.files;
+      if (this.files !== undefined && this.files !== null) {
         this.$toast.info(this.$t("file_imported"), {
           icon: "attach_file"
         });

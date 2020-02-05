@@ -21,7 +21,7 @@
         "@nuxtjs/axios": "^5.9.5",
         "@nuxtjs/google-analytics": "^2.2.3",
         "@nuxtjs/google-tag-manager": "^2.3.1",
-        "@nuxtjs/pwa": "^3.0.0-beta.19",
+        "@nuxtjs/pwa": "^3.0.0-beta.20",
         "@nuxtjs/robots": "^2.4.2",
         "@nuxtjs/sitemap": "^2.0.1",
         "@nuxtjs/toast": "^3.3.0",

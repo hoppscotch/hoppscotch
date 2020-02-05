@@ -219,7 +219,6 @@
                 ref="sendButton"
               >
                 {{ $t("send") }}
-                <!-- <span id="hidden-message">{{ $t("again") }}</span> -->
                 <span>
                   <i class="material-icons">send</i>
                 </span>
@@ -252,13 +251,29 @@
                     </pw-toggle>
                   </span>
                   <div>
+                    <label for="attachment">
+                      <button
+                        class="icon"
+                        @click="$refs.attachment.click()"
+                        v-tooltip="$t('upload_file')"
+                      >
+                        <i class="material-icons">attach_file</i>
+                        <span>{{ file_choosen || "No file choosen" }}</span>
+                      </button>
+                    </label>
+                    <input
+                      ref="attachment"
+                      name="attachment"
+                      type="file"
+                      @change="uploadAttachment"
+                    />
                     <label for="payload">
                       <button
                         class="icon"
                         @click="$refs.payload.click()"
-                        v-tooltip="$t('upload_file')"
+                        v-tooltip="$t('import_json')"
                       >
-                        <i class="material-icons">attach_file</i>
+                        <i class="material-icons">post_add</i>
                       </button>
                     </label>
                     <input
@@ -381,10 +396,10 @@
                   content: isHidden ? $t('show_code') : $t('hide_code')
                 }"
               >
-                <i class="material-icons">flash_on</i>
+                <i class="material-icons">code</i>
               </button>
               <button
-                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+                class="icon"
                 id="preRequestScriptButton"
                 v-tooltip.bottom="{
                   content: !showPreRequestScript
@@ -397,14 +412,15 @@
                   class="material-icons"
                   :class="showPreRequestScript"
                   v-if="!showPreRequestScript"
-                  >code</i
                 >
-                <i class="material-icons" :class="showPreRequestScript" v-else
-                  >close</i
-                >
+                  playlist_add
+                </i>
+                <i class="material-icons" :class="showPreRequestScript" v-else>
+                  close
+                </i>
               </button>
               <button
-                :class="'icon' + (testsEnabled ? ' info-response' : '')"
+                class="icon"
                 id="preRequestScriptButto"
                 v-tooltip.bottom="{
                   content: !testsEnabled ? 'Enable Tests' : 'Disable Tests'
@@ -416,7 +432,7 @@
                   :class="testsEnabled"
                   v-if="!testsEnabled"
                 >
-                  assignment_turned_in
+                  playlist_add_check
                 </i>
                 <i class="material-icons" :class="testsEnabled" v-else>close</i>
               </button>
@@ -1044,13 +1060,7 @@
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
-            <pw-section
-              class="yellow"
-              :label="$t('collections')"
-              ref="collections"
-            >
-              <collections />
-            </pw-section>
+            <collections />
           </div>
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
@@ -1606,7 +1616,8 @@ export default {
       responseBodyMaxLines: 16,
       activeSidebar: true,
       fb,
-      customMethod: false
+      customMethod: false,
+      file_choosen: null
     };
   },
   watch: {
@@ -2796,6 +2807,25 @@ export default {
         this.urlExcludes[excludedField] = excluded;
       }
       this.setRouteQueryState();
+    },
+    uploadAttachment() {
+      const file = this.$refs.attachment.files[0];
+      if (file !== undefined && file !== null) {
+        const reader = new FileReader();
+        reader.onload = ({ target }) => {
+          console.log(target);
+          this.file_choosen = file.name;
+          console.log(target.result);
+        };
+        reader.readAsText(file);
+        this.$toast.info(this.$t("file_imported"), {
+          icon: "attach_file"
+        });
+      } else {
+        this.$toast.error(this.$t("choose_file"), {
+          icon: "attach_file"
+        });
+      }
     },
     uploadPayload() {
       this.rawInput = true;

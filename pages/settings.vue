@@ -141,6 +141,20 @@
       </ul>
     </pw-section>
 
+    <pw-section class="purple" :label="$t('extensions')" ref="extensions">
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <pw-toggle
+              :on="settings.EXTENSIONS_ENABLED"
+              @change="toggleSetting('EXTENSIONS_ENABLED')"
+            >
+              {{ $t("extensions_use_toggle") }}
+            </pw-toggle>
+          </div>
+        </li>
+      </ul>
+    </pw-section>
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
@@ -323,7 +337,11 @@ export default {
         PROXY_URL:
           this.$store.state.postwoman.settings.PROXY_URL ||
           "https://postwoman.apollotv.xyz/",
-        PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
+        PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
+        EXTENSIONS_ENABLED:
+          (typeof(this.$store.state.postwoman.settings.EXTENSIONS_ENABLED) !== 'undefined') ? 
+            this.$store.state.postwoman.settings.EXTENSIONS_ENABLED 
+            : true
       },
 
       doneButton: '<i class="material-icons">done</i>',

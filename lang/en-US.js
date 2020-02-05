@@ -27,7 +27,6 @@ export default {
   method: "Method",
   path: "Path",
   label: "Label",
-  again: "Again",
   content_type: "Content Type",
   raw_input: "Raw input",
   parameter_list: "Parameter List",

@@ -558,13 +558,23 @@ code {
   transition: all 0.2s ease-in-out;
   user-select: text;
   width: calc(100% - 8px);
-  min-width: 128px;
   resize: vertical;
   text-overflow: ellipsis;
 
   &:not([readonly]):not(.ace_editor):hover,
   &:not([readonly]):not(.ace_editor):active,
   &:not([readonly]):not(.ace_editor):focus {
+    box-shadow: inset 0 0 0 2px var(--fg-light-color);
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+.method {
+  cursor: pointer;
+
+  &:hover,
+  &:active,
+  &:focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
     transition: all 0.2s ease-in-out;
   }
@@ -783,21 +793,12 @@ ol li {
 }
 
 #send {
-  // #hidden-message {
-  //   display: none;
-  // }
-
   &.show {
     display: flex;
     position: fixed;
     top: 12px;
     right: 12px;
     z-index: 2;
-
-    // #hidden-message {
-    //   display: block;
-    //   margin-left: 4px;
-    // }
   }
 }
 

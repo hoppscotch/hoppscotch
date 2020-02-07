@@ -162,7 +162,7 @@ export default {
   kinda_dark: "Kinda Dark",
   clearly_white: "Clearly White",
   just_black: "Just Black",
-  auto_system: "Auth (system)",
+  auto_system: "Auto (system)",
   green: "Green",
   yellow: "Yellow",
   pink: "Pink",

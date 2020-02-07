@@ -140,6 +140,7 @@ export default {
   deleted: "Deleted",
   undo: "Undo",
   collection_empty: "Collection is empty",
+  invalid_collection_name: "Please provide a valid name for the collection",
   new_collection: "New Collection",
   my_new_collection: "My New Collection",
   edit_collection: "Edit Collection",

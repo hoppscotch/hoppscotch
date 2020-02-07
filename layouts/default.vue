@@ -411,7 +411,7 @@
                   {{ version.name }}
                 </a>
                 <a
-                  class="link"
+                  class="link hide-on-small-screen"
                   href="https://www.netlify.com"
                   target="_blank"
                   rel="noopener"
@@ -653,12 +653,6 @@
 <style scoped lang="scss">
 .link {
   margin: 8px 16px;
-}
-@media (max-width: 768px) {
-  .link {
-    display: flex;
-    flex: 1;
-  }
 }
 </style>
 

@@ -92,7 +92,7 @@ footer {
 .wrapper {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-flow: column nowrap;
 }
 
 .wrapper .page {
@@ -246,7 +246,7 @@ nav.secondary-nav {
 }
 
 .footer {
-  flex-direction: column;
+  flex-flow: column nowrap;
 }
 
 h1,
@@ -699,7 +699,7 @@ ol {
 ul li,
 ol li {
   display: inline-flex;
-  flex-direction: column;
+  flex-flow: column nowrap;
   flex-grow: 1;
   justify-content: center;
 }
@@ -713,7 +713,7 @@ ol li {
 
   * {
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-flow: row wrap;
     align-items: center;
     justify-content: center;
   }
@@ -919,7 +919,7 @@ input[type="radio"]:checked + label + .tab {
 
   ul,
   ol {
-    flex-direction: column;
+    flex-flow: column nowrap;
   }
 
   ul li,

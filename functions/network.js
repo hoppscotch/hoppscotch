@@ -3,7 +3,7 @@ import FirefoxStrategy from "./strategies/FirefoxStrategy";
 import ChromeStrategy, { hasChromeExtensionInstalled } from "./strategies/ChromeStrategy";
 
 const isExtensionsAllowed = ({ state }) => {
-  return typeof(state.postwoman.settings.EXTENSIONS_ENABLED) === 'undefined'
+  return typeof state.postwoman.settings.EXTENSIONS_ENABLED === 'undefined'
     || state.postwoman.settings.EXTENSIONS_ENABLED;
 }
 

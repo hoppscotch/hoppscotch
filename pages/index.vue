@@ -1498,7 +1498,7 @@ export default {
         "text/plain"
       ],
 
-      commonHeaders: commonHeaders,
+      commonHeaders,
 
       showRequestModal: false,
       editRequest: {},

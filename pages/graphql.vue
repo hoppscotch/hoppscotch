@@ -365,7 +365,7 @@ export default {
   data() {
     return {
       schemaString: "",
-      commonHeaders: commonHeaders,
+      commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],

@@ -1375,7 +1375,7 @@
 import section from "../components/section";
 import url from "url";
 import querystring from "querystring";
-import { commonHeaders } from "~/functions/headers";
+import { commonHeaders } from "../functions/headers";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";

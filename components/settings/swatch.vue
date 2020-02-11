@@ -4,10 +4,9 @@
     :data-color="color"
     :class="{ active: active }"
     v-tooltip="{ content: name || color }"
+    :style="{ backgroundColor: color }"
   >
-    <span :style="{ backgroundColor: color }" class="preview">
-      <i v-if="active" class="material-icons activeTick">done</i>
-    </span>
+    <i v-if="active" class="material-icons activeTick">done</i>
   </div>
 </template>
 
@@ -17,6 +16,7 @@
   align-items: center;
   justify-content: center;
   margin: 8px;
+  padding: 16px;
   border-radius: 100%;
   border: 3px solid var(--bg-dark-color);
   cursor: pointer;
@@ -33,19 +33,8 @@
     border: 3px solid var(--fg-color);
   }
 
-  .preview {
-    vertical-align: middle;
-    display: inline-block;
-    border-radius: 100%;
-    padding: 16px;
-    position: relative;
-
-    .activeTick {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+  .activeTick {
+    position: absolute;
   }
 }
 </style>

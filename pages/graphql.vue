@@ -345,7 +345,7 @@
 import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
-import { commonHeaders } from "~/functions/headers";
+import { commonHeaders } from "../functions/headers";
 import AceEditor from "../components/ace-editor";
 import QueryEditor from "../components/graphql/queryeditor";
 import { sendNetworkRequest } from "../functions/network";

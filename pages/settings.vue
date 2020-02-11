@@ -339,8 +339,9 @@ export default {
           "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
         EXTENSIONS_ENABLED:
-          (typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !== 'undefined') ? 
-            this.$store.state.postwoman.settings.EXTENSIONS_ENABLED 
+          typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
             : true
       },
 

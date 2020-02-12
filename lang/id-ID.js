@@ -86,5 +86,17 @@ export default {
   connect: "Menghubungkan",
   disconnect: "Memutuskan",
   start: "Mulai",
-  stop: "Berhenti"
+  stop: "Berhenti",
+  clear_all: "Bersihkan Semua",
+  clear: "Bersihkan",
+  sort: "Urutan",
+  time: "Waktu",
+  duration: "Durasi",
+  no_label: "Tidak Ada Label",
+  search: "Cari",
+  delete: "Hapus",
+  add_one_header: "(tambahkan setidaknya satu header)",
+  add_one_parameter: "(tambahkan setidaknya satu parameter)",
+  waiting_send_req: "(menunggu untuk mengirim permintaan)",
+  collection_empty: "Koleksi Kosong"
 };

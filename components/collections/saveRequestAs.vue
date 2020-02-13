@@ -215,6 +215,7 @@ export default {
       });
 
       this.hideModal();
+      this.syncCollections();
     },
     hideModal() {
       this.$emit("hide-modal");

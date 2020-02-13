@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb";
+
 export default {
   props: {
     show: Boolean
@@ -56,6 +58,15 @@ export default {
     };
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+          );
+        }
+      }
+    },
     addNewCollection() {
       if (!this.$data.name) {
         this.$toast.info($t("invalid_collection_name"));
@@ -65,6 +76,7 @@ export default {
         name: this.$data.name
       });
       this.$emit("hide-modal");
+      this.syncCollections();
     },
     hideModal() {
       this.$emit("hide-modal");

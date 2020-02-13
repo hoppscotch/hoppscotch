@@ -104,6 +104,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb";
+
 export default {
   props: {
     show: Boolean,
@@ -180,6 +182,15 @@ export default {
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+          );
+        }
+      }
+    },
     saveRequestAs() {
       const userDidntSpecifyCollection =
         this.$data.requestData.collectionIndex === undefined;

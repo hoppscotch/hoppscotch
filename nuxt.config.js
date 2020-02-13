@@ -73,7 +73,7 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${routerBase.router.base}logo.jpg`
+        content: `https://postwoman.io/logo.jpg`
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
@@ -129,7 +129,7 @@ export default {
       },
       {
         property: "og:image",
-        content: `${routerBase.router.base}logo.jpg`
+        content: `https://postwoman.io/logo.jpg`
       },
       // Twitter
       {

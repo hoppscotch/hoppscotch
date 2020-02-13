@@ -5,7 +5,7 @@
         <li id="filter-history">
           <input
             aria-label="Search"
-            type="text"
+            type="search"
             :placeholder="$t('search')"
             v-model="filterText"
           />

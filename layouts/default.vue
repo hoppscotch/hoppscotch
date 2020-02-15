@@ -715,6 +715,7 @@ export default {
           .then(() => {})
           .catch(console.error);
       } else {
+      	this.$toast.info("Web Share API is not supported in your browser")
       }
     }
   },

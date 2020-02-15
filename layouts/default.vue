@@ -373,7 +373,7 @@
                     <div>
                       <button
                         class="icon"
-                        onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+                        onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
                         v-close-popover
                       >
                         <svg
@@ -387,6 +387,15 @@
                           />
                         </svg>
                         <span>{{ $t("tweet") }}</span>
+                      </button>
+                      <button
+                        v-if="navigatorShare"
+                        class="icon"
+                        onClick="nativeShare"
+                        v-close-popover
+                        v-tooltip="$t('more')"
+                      >
+                        <i class="material-icons">share</i>
                       </button>
                     </div>
                   </template>
@@ -672,7 +681,7 @@ export default {
 
   methods: {
     getSpecialKey() {
-      return (/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) ? "⌘" : "Ctrl";
+      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? "⌘" : "Ctrl";
     },
     linkActive(path) {
       return {
@@ -680,7 +689,6 @@ export default {
         "nuxt-link-active": this.$route.path === path
       };
     },
-
     logout() {
       fb.currentUser = null;
       firebase
@@ -694,6 +702,20 @@ export default {
       this.$toast.info(this.$t("logged_out"), {
         icon: "vpn_key"
       });
+    },
+    nativeShare() {
+      if (navigator.share) {
+        navigator
+          .share({
+            title: "Postwoman",
+            text:
+              "Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
+            url: "https://postwoman.io/"
+          })
+          .then(() => {})
+          .catch(console.error);
+      } else {
+      }
     }
   },
 
@@ -709,7 +731,8 @@ export default {
       showSupport: false,
       firefoxExtInstalled: window.firefoxExtSendRequest,
       chromeExtInstalled: window.chrome && hasChromeExtensionInstalled(),
-      fb
+      fb,
+      navigatorShare: navigator.share
     };
   },
 

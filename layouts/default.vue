@@ -391,7 +391,7 @@
                       <button
                         v-if="navigatorShare"
                         class="icon"
-                        onClick="nativeShare"
+                        @click="nativeShare"
                         v-close-popover
                         v-tooltip="$t('more')"
                       >

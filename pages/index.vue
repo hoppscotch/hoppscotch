@@ -2382,7 +2382,7 @@ export default {
         const date = new Date().toLocaleDateString();
         navigator
           .share({
-            title: `Postwoman`,
+            title: "Postwoman",
             text: `Postwoman • API request builder at ${time} on ${date}`,
             url: window.location.href
           })

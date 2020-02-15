@@ -2,9 +2,9 @@
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const meta = {
   name: "Postwoman",
-  shortDescription: "API request builder",
+  shortDescription: "A free, fast and beautiful API request builder",
   description:
-    "The Postwoman API request builder helps you create your requests faster, saving you precious time on your development."
+    "Web alternative to Postman - Helps you create requests faster, saving precious time on development."
 };
 // Sets the base path for the router.
 // Important for deploying to GitHub pages.

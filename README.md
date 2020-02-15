@@ -3,7 +3,7 @@
   <br>
   <br>
   <p>
-    <b>A free, fast & beautiful API request builder</b>
+    <b>A free, fast and beautiful API request builder</b>
   </p>
   <p>
      <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>

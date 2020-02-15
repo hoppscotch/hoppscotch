@@ -26,7 +26,7 @@
         "@nuxtjs/sitemap": "^2.0.1",
         "@nuxtjs/toast": "^3.3.0",
         "ace-builds": "^1.4.8",
-        "firebase": "^7.8.1",
+        "firebase": "^7.8.2",
         "graphql": "^14.6.0",
         "nuxt": "^2.11.0",
         "nuxt-i18n": "^6.5.0",
@@ -38,7 +38,7 @@
         "yargs-parser": "^17.0.0"
     },
     "devDependencies": {
-        "cypress": "^4.0.1",
+        "cypress": "^4.0.2",
         "node-sass": "^4.13.1",
         "sass-loader": "^8.0.2",
         "start-server-and-test": "^1.10.8"

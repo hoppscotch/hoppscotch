@@ -270,7 +270,7 @@ export default {
           aceEditor: "vibrant_ink"
         },
         {
-          color: "var(--bg-color)",
+          color: "var(--ac-color)",
           name: this.$t("auto_system"),
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
           class: "auto",

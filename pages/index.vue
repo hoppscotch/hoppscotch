@@ -458,7 +458,8 @@
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('copy_request_link')"
               >
-                <i class="material-icons">file_copy</i>
+                <i v-if="navigatorShare" class="material-icons">share</i>
+                <i v-else class="material-icons">file_copy</i>
               </button>
               <button
                 class="icon"
@@ -1509,7 +1510,8 @@ export default {
       fb,
       customMethod: false,
       files: [],
-      filenames: ""
+      filenames: "",
+      navigatorShare: navigator.share
     };
   },
   watch: {

@@ -247,7 +247,6 @@
                   <span>
                     <pw-toggle :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
-                      {{ rawInput ? $t("enabled") : $t("disabled") }}
                     </pw-toggle>
                   </span>
                   <div>

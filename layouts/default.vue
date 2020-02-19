@@ -715,7 +715,7 @@ export default {
           .then(() => {})
           .catch(console.error);
       } else {
-      	// fallback
+        // fallback
       }
     }
   },

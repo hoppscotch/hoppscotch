@@ -3,9 +3,8 @@ const EXTENSION_ID = "amknoiejhlmhancpahfcfcfhllgkpbld";
 // Check if the Chrome Extension is present
 // The Chrome extension injects an empty span to help detection.
 // Also check for the presence of window.chrome object to confirm smooth operations
-export const hasChromeExtensionInstalled = () => {
-  return document.getElementById("chromePWExtensionDetect") !== null;
-};
+export const hasChromeExtensionInstalled = () =>
+  document.getElementById("chromePWExtensionDetect") !== null;
 
 const chromeWithoutProxy = (req, _store) =>
   new Promise((resolve, reject) => {
@@ -17,11 +16,11 @@ const chromeWithoutProxy = (req, _store) =>
           config: req
         }
       },
-      message => {
-        if (message.data.error) {
-          reject(message.data.error);
+      ({ data }) => {
+        if (data.error) {
+          reject(data.error);
         } else {
-          resolve(message.data.response);
+          resolve(data.response);
         }
       }
     );
@@ -43,11 +42,11 @@ const chromeWithProxy = (req, { state }) =>
           }
         }
       },
-      message => {
-        if (message.data.error) {
+      ({ data }) => {
+        if (data.error) {
           reject(error);
         } else {
-          resolve(message.data.response.data);
+          resolve(data.response.data);
         }
       }
     );

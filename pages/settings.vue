@@ -206,7 +206,12 @@
             {{ $t("postwoman_official_proxy_hosting") }}
             <br />
             {{ $t("read_the") }}
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+            <a
+              class="link"
+              href="https://apollotv.xyz/legal"
+              target="_blank"
+              rel="noopener"
+            >
               {{ $t("apollotv_privacy_policy") }} </a
             >.
           </p>

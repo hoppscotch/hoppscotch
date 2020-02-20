@@ -22,13 +22,11 @@ $responsiveWidth: 768px;
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
-  border-radius: 4px;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-dark-color);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--fg-light-color);
-  border-radius: 8px;
 
   &:hover {
     background-color: var(--fg-color);
@@ -62,7 +60,6 @@ body {
   scroll-behavior: smooth;
 }
 
-// Make theme transition smoother.
 body.afterLoad {
   transition: background-color 0.2s ease-in-out;
 }
@@ -76,6 +73,10 @@ a {
   color: inherit;
   text-decoration: none;
   transition: all 0.2s ease-in-out;
+
+  &.link {
+    color: var(--ac-color);
+  }
 }
 
 header,
@@ -146,7 +147,8 @@ footer {
   z-index: 1;
   height: 100vh;
   padding: 0 8px;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-dark-color);
+  transition: all 0.2s ease-in-out;
 }
 
 .main {
@@ -186,7 +188,6 @@ nav.primary-nav {
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
     margin: 8px 0;
-    transition: all 0.2s ease-in-out;
 
     &:hover {
       color: var(--fg-color);
@@ -422,7 +423,6 @@ button {
     color: var(--act-color);
     fill: var(--act-color);
     box-shadow: inset 0 0 0 2px var(--fg-color);
-    transition: all 0.2s ease-in-out;
   }
 
   &.icon {
@@ -437,7 +437,6 @@ button {
       color: var(--fg-color);
       fill: var(--fg-color);
       box-shadow: none;
-      transition: all 0.2s ease-in-out;
     }
   }
 
@@ -472,7 +471,6 @@ button {
 fieldset {
   margin: 16px 0;
   border-radius: 16px;
-  transition: all 0.2s ease-in-out;
   background-color: var(--bg-dark-color);
 }
 
@@ -565,7 +563,6 @@ code {
   &:not([readonly]):not(.ace_editor):active,
   &:not([readonly]):not(.ace_editor):focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
-    transition: all 0.2s ease-in-out;
   }
 }
 
@@ -576,7 +573,6 @@ code {
   &:active,
   &:focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
-    transition: all 0.2s ease-in-out;
   }
 }
 
@@ -884,18 +880,19 @@ input[type="radio"]:checked + label + .tab {
     padding: 0;
     width: 100%;
     background-color: var(--bg-color);
-    transition: all 0.2s ease-in-out;
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
   }
 
   nav.primary-nav {
     flex-flow: row nowrap;
     overflow: auto;
-    justify-content: space-around;
+    justify-content: space-between;
+    background-color: var(--bg-dark-color);
 
     a {
       background-color: transparent;
       margin: 8px;
+      flex: 1;
 
       &.nuxt-link-exact-active {
         background-color: transparent;

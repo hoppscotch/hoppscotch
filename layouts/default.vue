@@ -408,7 +408,7 @@
             <div class="flex-wrap">
               <span v-if="version.name" class="mono">
                 <a
-                  class="link"
+                  class="footer-link"
                   :href="
                     'https://github.com/liyasthomas/postwoman/releases/tag/' +
                       version.name
@@ -420,7 +420,7 @@
                   {{ version.name }}
                 </a>
                 <a
-                  class="link hide-on-small-screen"
+                  class="footer-link hide-on-small-screen"
                   href="https://www.netlify.com"
                   target="_blank"
                   rel="noopener"
@@ -660,7 +660,7 @@
 </template>
 
 <style scoped lang="scss">
-.link {
+.footer-link {
   margin: 8px 16px;
 }
 </style>
@@ -715,7 +715,7 @@ export default {
           .then(() => {})
           .catch(console.error);
       } else {
-      	// fallback
+        // fallback
       }
     }
   },

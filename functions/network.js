@@ -1,4 +1,5 @@
 import AxiosStrategy from "./strategies/AxiosStrategy";
+import ExtensionStrategy from "./strategies/ExtensionStrategy";
 import FirefoxStrategy from "./strategies/FirefoxStrategy";
 import ChromeStrategy, { hasChromeExtensionInstalled } from "./strategies/ChromeStrategy";
 
@@ -9,6 +10,12 @@ const isExtensionsAllowed = ({ state }) => {
 
 const runAppropriateStrategy = (req, store) => {
   if (isExtensionsAllowed(store)) {
+    if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== 'undefined') {
+      return ExtensionStrategy(req, store);
+    }
+
+    // The following strategies are deprecated and kept to support older version of the extensions
+
     // Chrome Provides a chrome object for scripts to access
     // Check its availability to say whether you are in Google Chrome
     if (window.chrome && hasChromeExtensionInstalled()) {

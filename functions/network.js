@@ -1,5 +1,7 @@
 import AxiosStrategy from "./strategies/AxiosStrategy";
-import ExtensionStrategy from "./strategies/ExtensionStrategy";
+import ExtensionStrategy, {
+  hasExtensionInstalled
+} from "./strategies/ExtensionStrategy";
 import FirefoxStrategy from "./strategies/FirefoxStrategy";
 import ChromeStrategy, {
   hasChromeExtensionInstalled
@@ -11,7 +13,7 @@ const isExtensionsAllowed = ({ state }) =>
 
 const runAppropriateStrategy = (req, store) => {
   if (isExtensionsAllowed(store)) {
-    if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
+    if (hasExtensionInstalled()) {
       return ExtensionStrategy(req, store);
     }
 

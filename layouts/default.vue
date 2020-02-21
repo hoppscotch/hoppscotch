@@ -668,7 +668,7 @@
 <script>
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
-import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
+import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy";
 import firebase from "firebase/app";
 import { fb } from "../functions/fb";
 
@@ -730,8 +730,7 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
-      firefoxExtInstalled: window.firefoxExtSendRequest,
-      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled(),
+      extensionInstalled: hasExtensionInstalled(),
       fb,
       navigatorShare: navigator.share
     };
@@ -794,8 +793,7 @@ export default {
       let showExtensionsToast =
         localStorage.getItem("showExtensionsToast") === "yes";
       if (
-        !this.firefoxExtInstalled &&
-        !this.chromeExtInstalled &&
+        !this.extensionInstalled &&
         !showExtensionsToast
       ) {
         setTimeout(() => {

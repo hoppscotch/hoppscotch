@@ -155,6 +155,7 @@
         </li>
       </ul>
     </pw-section>
+
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>

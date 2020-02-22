@@ -57,9 +57,9 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(res => {
-          if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+        .then(({ additionalUserInfo }) => {
+          if (additionalUserInfo.isNewUser) {
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,
@@ -86,9 +86,9 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(res => {
-          if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+        .then(({ additionalUserInfo }) => {
+          if (additionalUserInfo.isNewUser) {
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,

@@ -248,6 +248,11 @@
                   </a>
                 </li>
                 <li>
+                  <a href="#extensions" v-tooltip.right="$t('extensions')">
+                    <i class="material-icons">extensions</i>
+                  </a>
+                </li>
+                <li>
                   <a href="#proxy" v-tooltip.right="$t('proxy')">
                     <i class="material-icons">public</i>
                   </a>

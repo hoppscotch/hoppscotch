@@ -58,6 +58,7 @@ body {
   padding: 0;
   margin: 0;
   scroll-behavior: smooth;
+  transition: all 0.2s ease-in-out;
 }
 
 body.afterLoad {
@@ -175,6 +176,7 @@ nav.primary-nav {
 
   svg {
     fill: var(--fg-light-color);
+    transition: all 0.2s ease-in-out;
   }
 
   a {
@@ -264,11 +266,16 @@ hr {
   border-bottom: 1px dashed var(--brd-color);
 }
 
+p {
+  transition: all 0.2s ease-in-out;
+}
+
 .tooltip {
   $bgcolor: var(--tt-color);
   $fgcolor: var(--fg-color);
   display: block !important;
   z-index: 10000;
+  transition: all 0.2s ease-in-out;
 
   .tooltip-inner {
     background: $bgcolor;
@@ -472,6 +479,18 @@ fieldset {
   margin: 16px 0;
   border-radius: 16px;
   background-color: var(--bg-dark-color);
+  transition: all 0.2s ease-in-out;
+}
+
+fieldset:target,
+section:target {
+  animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+  50% {
+    box-shadow: 0 0 0 2px var(--ac-color);
+  }
 }
 
 legend {
@@ -481,6 +500,7 @@ legend {
   color: var(--fg-color);
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 
   * {
     vertical-align: middle;
@@ -677,6 +697,7 @@ input[type="checkbox"] {
 label {
   padding: 4px;
   color: var(--fg-light-color);
+  transition: all 0.2s ease-in-out;
 }
 
 ul,
@@ -801,6 +822,7 @@ ol li {
 section {
   display: flex;
   flex-wrap: wrap;
+  border-radius: 16px;
 }
 
 .tab {

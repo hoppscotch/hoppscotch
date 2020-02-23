@@ -155,6 +155,7 @@
         </li>
       </ul>
     </pw-section>
+
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
@@ -206,7 +207,12 @@
             {{ $t("postwoman_official_proxy_hosting") }}
             <br />
             {{ $t("read_the") }}
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+            <a
+              class="link"
+              href="https://apollotv.xyz/legal"
+              target="_blank"
+              rel="noopener"
+            >
               {{ $t("apollotv_privacy_policy") }} </a
             >.
           </p>
@@ -270,7 +276,7 @@ export default {
           aceEditor: "vibrant_ink"
         },
         {
-          color: "var(--bg-color)",
+          color: "var(--ac-color)",
           name: this.$t("auto_system"),
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
           class: "auto",

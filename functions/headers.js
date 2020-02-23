@@ -121,4 +121,4 @@ export const commonHeaders = [
   "X-Requested-With",
   "X-Robots-Tag",
   "X-UA-Compatible"
-]
+];

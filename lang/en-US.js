@@ -230,6 +230,7 @@ export default {
   payload: "Payload",
   choose_file: "Choose a file",
   file_imported: "File imported",
+  import_failed: "Import failed",
   f12_details: "(F12 for details)",
   we_use_cookies: "We use cookies",
   copied_to_clipboard: "Copied to clipboard",

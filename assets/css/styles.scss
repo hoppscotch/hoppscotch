@@ -22,13 +22,11 @@ $responsiveWidth: 768px;
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
-  border-radius: 4px;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-dark-color);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--fg-light-color);
-  border-radius: 8px;
 
   &:hover {
     background-color: var(--fg-color);
@@ -60,9 +58,9 @@ body {
   padding: 0;
   margin: 0;
   scroll-behavior: smooth;
+  transition: all 0.2s ease-in-out;
 }
 
-// Make theme transition smoother.
 body.afterLoad {
   transition: background-color 0.2s ease-in-out;
 }
@@ -76,6 +74,10 @@ a {
   color: inherit;
   text-decoration: none;
   transition: all 0.2s ease-in-out;
+
+  &.link {
+    color: var(--ac-color);
+  }
 }
 
 header,
@@ -146,7 +148,8 @@ footer {
   z-index: 1;
   height: 100vh;
   padding: 0 8px;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-dark-color);
+  transition: all 0.2s ease-in-out;
 }
 
 .main {
@@ -173,6 +176,7 @@ nav.primary-nav {
 
   svg {
     fill: var(--fg-light-color);
+    transition: all 0.2s ease-in-out;
   }
 
   a {
@@ -186,7 +190,6 @@ nav.primary-nav {
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
     margin: 8px 0;
-    transition: all 0.2s ease-in-out;
 
     &:hover {
       color: var(--fg-color);
@@ -263,11 +266,16 @@ hr {
   border-bottom: 1px dashed var(--brd-color);
 }
 
+p {
+  transition: all 0.2s ease-in-out;
+}
+
 .tooltip {
   $bgcolor: var(--tt-color);
   $fgcolor: var(--fg-color);
   display: block !important;
   z-index: 10000;
+  transition: all 0.2s ease-in-out;
 
   .tooltip-inner {
     background: $bgcolor;
@@ -422,7 +430,6 @@ button {
     color: var(--act-color);
     fill: var(--act-color);
     box-shadow: inset 0 0 0 2px var(--fg-color);
-    transition: all 0.2s ease-in-out;
   }
 
   &.icon {
@@ -437,7 +444,6 @@ button {
       color: var(--fg-color);
       fill: var(--fg-color);
       box-shadow: none;
-      transition: all 0.2s ease-in-out;
     }
   }
 
@@ -472,8 +478,19 @@ button {
 fieldset {
   margin: 16px 0;
   border-radius: 16px;
-  transition: all 0.2s ease-in-out;
   background-color: var(--bg-dark-color);
+  transition: all 0.2s ease-in-out;
+}
+
+fieldset:target,
+section:target {
+  animation: highlight 2s ease;
+}
+
+@keyframes highlight {
+  50% {
+    box-shadow: 0 0 0 2px var(--ac-color);
+  }
 }
 
 legend {
@@ -483,6 +500,7 @@ legend {
   color: var(--fg-color);
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 
   * {
     vertical-align: middle;
@@ -565,7 +583,6 @@ code {
   &:not([readonly]):not(.ace_editor):active,
   &:not([readonly]):not(.ace_editor):focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
-    transition: all 0.2s ease-in-out;
   }
 }
 
@@ -576,7 +593,6 @@ code {
   &:active,
   &:focus {
     box-shadow: inset 0 0 0 2px var(--fg-light-color);
-    transition: all 0.2s ease-in-out;
   }
 }
 
@@ -681,6 +697,7 @@ input[type="checkbox"] {
 label {
   padding: 4px;
   color: var(--fg-light-color);
+  transition: all 0.2s ease-in-out;
 }
 
 ul,
@@ -805,6 +822,7 @@ ol li {
 section {
   display: flex;
   flex-wrap: wrap;
+  border-radius: 16px;
 }
 
 .tab {
@@ -884,18 +902,19 @@ input[type="radio"]:checked + label + .tab {
     padding: 0;
     width: 100%;
     background-color: var(--bg-color);
-    transition: all 0.2s ease-in-out;
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
   }
 
   nav.primary-nav {
     flex-flow: row nowrap;
     overflow: auto;
-    justify-content: space-around;
+    justify-content: space-between;
+    background-color: var(--bg-dark-color);
 
     a {
       background-color: transparent;
       margin: 8px;
+      flex: 1;
 
       &.nuxt-link-exact-active {
         background-color: transparent;

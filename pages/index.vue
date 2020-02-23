@@ -247,7 +247,6 @@
                   <span>
                     <pw-toggle :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
-                      {{ rawInput ? $t("enabled") : $t("disabled") }}
                     </pw-toggle>
                   </span>
                   <div>
@@ -459,7 +458,8 @@
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('copy_request_link')"
               >
-                <i class="material-icons">file_copy</i>
+                <i v-if="navigatorShare" class="material-icons">share</i>
+                <i v-else class="material-icons">file_copy</i>
               </button>
               <button
                 class="icon"
@@ -1516,7 +1516,8 @@ export default {
       fb,
       customMethod: false,
       files: [],
-      filenames: ""
+      filenames: "",
+      navigatorShare: navigator.share
     };
   },
   watch: {

@@ -1075,6 +1075,11 @@
           <div class="tab">
             <collections />
           </div>
+          <input id="environment-tab" type="radio" name="side" />
+          <label for="environment-tab">{{ $t("environment") }}</label>
+          <div class="tab">
+            <environments @use-environment="useSelectedEnvironment($event)" />
+          </div>
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
@@ -1451,7 +1456,8 @@ export default {
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
     Editor: AceEditor,
     inputform: () => import("../components/firebase/inputform"),
-    ballsfeed: () => import("../components/firebase/feeds")
+    ballsfeed: () => import("../components/firebase/feeds"),
+    environments: () => import("../components/environments")
   },
   data() {
     return {
@@ -2039,6 +2045,14 @@ export default {
     }
   },
   methods: {
+    useSelectedEnvironment(environment) {
+      let preRequestScriptString = ''
+      for (let variable of environment.variables) {
+        preRequestScriptString = preRequestScriptString + `pw.env.set('${variable.key}', '${variable.value}');\n`
+      }
+      this.preRequestScript = preRequestScriptString
+      this.showPreRequestScript = true
+    },
     checkCollections() {
       const checkCollectionAvailability =
         this.$store.state.postwoman.collections &&

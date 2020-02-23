@@ -76,7 +76,7 @@ export const state = () => ({
   ],
   environments: [
     {
-      name: "My Env Variables",
+      name: "My Environment Variables",
       variables: []
     }
   ],

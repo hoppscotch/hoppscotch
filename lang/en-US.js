@@ -51,7 +51,7 @@ export default {
   edit_environment: "Edit Environment",
   env_variable_list: "Variable List",
   invalid_environment_name: "Please provide a valid name for the environment",
-  use_environment: "Use environment",
+  use_environment: "Use Environment",
   add_one_variable: "(add at least one variable)",
   import_curl: "Import cURL",
   import: "Import",

@@ -7,7 +7,9 @@ const DEFAULT_THEME = "twilight";
 
 import ace from "ace-builds";
 import * as gql from "graphql";
+import { getAutocompleteSuggestions } from "graphql-language-service-interface";
 import "ace-builds/webpack-resolver";
+import "ace-builds/src-noconflict/ext-language_tools";
 import debounce from "../../functions/utils/debounce";
 
 export default {
@@ -46,10 +48,10 @@ export default {
       }
     },
     theme() {
-      this.editor.setTheme("ace/theme/" + this.defineTheme());
+      this.editor.setTheme(`ace/theme/${this.defineTheme()}`);
     },
     lang(value) {
-      this.editor.getSession().setMode("ace/mode/" + value);
+      this.editor.getSession().setMode(`ace/mode/${value}`);
     },
     options(value) {
       this.editor.setOptions(value);
@@ -57,11 +59,47 @@ export default {
   },
 
   mounted() {
+    let langTools = ace.require("ace/ext/language_tools");
+
     const editor = ace.edit(this.$refs.editor, {
-      theme: "ace/theme/" + this.defineTheme(),
-      mode: "ace/mode/" + this.lang,
+      theme: `ace/theme/${this.defineTheme()}`,
+      mode: `ace/mode/${this.lang}`,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
       ...this.options
     });
+
+    const completer = {
+      getCompletions: (
+        editor,
+        _session,
+        { row, column },
+        _prefix,
+        callback
+      ) => {
+        if (this.validationSchema) {
+          const completions = getAutocompleteSuggestions(
+            this.validationSchema,
+            editor.getValue(),
+            { line: row, character: column }
+          );
+
+          callback(
+            null,
+            completions.map(({ label, detail }) => ({
+              name: label,
+              value: label,
+              score: 1.0,
+              meta: detail
+            }))
+          );
+        } else {
+          callback(null, []);
+        }
+      }
+    };
+
+    langTools.setCompleters([completer]);
 
     if (this.value) editor.setValue(this.value, 1);
 
@@ -101,14 +139,14 @@ export default {
 
           if (this.validationSchema) {
             this.editor.session.setAnnotations(
-              gql.validate(this.validationSchema, doc).map(err => {
-                return {
-                  row: err.locations[0].line - 1,
-                  column: err.locations[0].column - 1,
-                  text: err.message,
+              gql
+                .validate(this.validationSchema, doc)
+                .map(({ locations, message }) => ({
+                  row: locations[0].line - 1,
+                  column: locations[0].column - 1,
+                  text: message,
                   type: "error"
-                };
-              })
+                }))
             );
           }
         } catch (e) {

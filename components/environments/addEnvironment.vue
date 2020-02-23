@@ -43,7 +43,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     show: Boolean
@@ -62,10 +61,12 @@ export default {
         this.$toast.info($t("invalid_environment_name"));
         return;
       }
-      let newEnvironment = [{
-        name: this.$data.name,
-        variables: []
-      }]
+      let newEnvironment = [
+        {
+          name: this.$data.name,
+          variables: []
+        }
+      ];
       this.$store.commit("postwoman/importAddEnvironments", newEnvironment);
       this.$emit("hide-modal");
     },

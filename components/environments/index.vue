@@ -1,5 +1,10 @@
 <template>
-  <pw-section class="green" icon="history" :label="$t('environment')" ref="environment">
+  <pw-section
+    class="green"
+    icon="history"
+    :label="$t('environment')"
+    ref="environment"
+  >
     <addEnvironment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <editEnvironment
       :show="showModalEdit"
@@ -11,7 +16,6 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-
     <div class="flex-wrap">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
@@ -35,7 +39,10 @@
       :remain="Math.min(5, environments.length)"
     >
       <ul>
-        <li v-for="(environment, index) in environments" :key="environment.name">
+        <li
+          v-for="(environment, index) in environments"
+          :key="environment.name"
+        >
           <environment
             :environmentIndex="index"
             :environment="environment"
@@ -84,7 +91,7 @@ export default {
       showModalAdd: false,
       showModalEdit: false,
       editingEnvironment: undefined,
-      editingEnvironmentIndex: undefined,
+      editingEnvironmentIndex: undefined
     };
   },
   computed: {
@@ -125,9 +132,9 @@ export default {
     syncEnvironments() {
       // TODO
     },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener);
+    beforeDestroy() {
+      document.removeEventListener("keydown", this._keyListener);
+    }
   }
-}
-}
+};
 </script>

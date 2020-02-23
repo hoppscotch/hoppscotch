@@ -110,11 +110,11 @@ export const mutations = {
   },
 
   removeVariables({ editingEnvironment }, value) {
-    editingEnvironment.variables = value
+    editingEnvironment.variables = value;
   },
 
-  setEditingEnvironment(state, value ) {
-    state.editingEnvironment = {...value}
+  setEditingEnvironment(state, value) {
+    state.editingEnvironment = { ...value };
   },
 
   setVariableKey({ editingEnvironment }, { index, value }) {
@@ -154,9 +154,11 @@ export const mutations = {
   saveEnvironment({ environments }, payload) {
     const { environment, environmentIndex } = payload;
     const { name } = environment;
-    const duplicateEnvironment = environments.some(item => {
-      return item.environmentIndex !== environmentIndex && item.name.toLowerCase() === name.toLowerCase()
-    });
+    const duplicateEnvironment = environments.some(
+      item =>
+        item.environmentIndex !== environmentIndex &&
+        item.name.toLowerCase() === name.toLowerCase()
+    );
     if (duplicateEnvironment) {
       this.$toast.info("Duplicate environment");
       return;
@@ -201,7 +203,10 @@ export const mutations = {
   },
 
   editCollection({ collections }, payload) {
-    const { collection: { name }, collectionIndex } = payload;
+    const {
+      collection: { name },
+      collectionIndex
+    } = payload;
     const duplicateCollection = collections.some(
       item => item.name.toLowerCase() === name.toLowerCase()
     );

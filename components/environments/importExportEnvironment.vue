@@ -23,11 +23,7 @@
                   : $t('replace_current')
               }"
             >
-              <button
-                :disabled="true"
-                class="icon"
-                @click="syncEnvironments"
-              >
+              <button :disabled="true" class="icon" @click="syncEnvironments">
                 <i class="material-icons">folder_shared</i>
                 <span>{{ $t("import_from_sync") }}</span>
               </button>

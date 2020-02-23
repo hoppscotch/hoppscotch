@@ -49,18 +49,21 @@
           ></textarea>
         </li>
       </ul>
-      <ul v-for="(variable, index) in this.editingEnvCopy.variables" :key="index">
+      <ul
+        v-for="(variable, index) in this.editingEnvCopy.variables"
+        :key="index"
+      >
         <li>
           <input
             :placeholder="$t('parameter_count', { count: index + 1 })"
             :name="'param' + index"
             :value="variable.key"
             @change="
-                      $store.commit('postwoman/setVariableKey', {
-                        index,
-                        value: $event.target.value
-                      })
-                    "
+              $store.commit('postwoman/setVariableKey', {
+                index,
+                value: $event.target.value
+              })
+            "
             autofocus
           />
         </li>
@@ -70,11 +73,11 @@
             :name="'value' + index"
             :value="variable.value"
             @change="
-                      $store.commit('postwoman/setVariableValue', {
-                        index,
-                        value: $event.target.value
-                      })
-                    "
+              $store.commit('postwoman/setVariableValue', {
+                index,
+                value: $event.target.value
+              })
+            "
           />
         </li>
         <div>
@@ -137,21 +140,24 @@ export default {
   },
   watch: {
     editingEnvironment: function(update) {
-      this.$store.commit("postwoman/setEditingEnvironment", this.$props.editingEnvironment);
+      this.$store.commit(
+        "postwoman/setEditingEnvironment",
+        this.$props.editingEnvironment
+      );
     }
   },
   computed: {
     editingEnvCopy() {
-      return this.$store.state.postwoman.editingEnvironment
+      return this.$store.state.postwoman.editingEnvironment;
     },
     variableString() {
-      const result = this.editingEnvCopy.variables
+      const result = this.editingEnvCopy.variables;
       return result === "" ? "" : JSON.stringify(result);
     }
   },
   methods: {
     clearContent(e) {
-      this.$store.commit("postwoman/removeVariables", [])
+      this.$store.commit("postwoman/removeVariables", []);
       e.target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all"
@@ -162,15 +168,17 @@ export default {
       );
     },
     addEnvironmentVariable() {
-      let value = { key: "", value: "" }
+      let value = { key: "", value: "" };
       this.$store.commit("postwoman/addVariable", value);
     },
     removeEnvironmentVariable(index) {
-      let variableIndex = index
-      const oldVariables = this.editingEnvCopy.variables.slice()
-      const newVariables = this.editingEnvCopy.variables.filter((variable, index) => variableIndex !== index)
+      let variableIndex = index;
+      const oldVariables = this.editingEnvCopy.variables.slice();
+      const newVariables = this.editingEnvCopy.variables.filter(
+        (variable, index) => variableIndex !== index
+      );
 
-      this.$store.commit("postwoman/removeVariable", newVariables)
+      this.$store.commit("postwoman/removeVariable", newVariables);
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
@@ -198,7 +206,7 @@ export default {
       this.$emit("hide-modal");
     },
     hideModal() {
-      this.$data.name = undefined
+      this.$data.name = undefined;
       this.$emit("hide-modal");
     }
   }

@@ -28,6 +28,7 @@
         "ace-builds": "^1.4.8",
         "firebase": "^7.9.1",
         "graphql": "^14.6.0",
+        "graphql-language-service-interface": "^2.3.3",
         "nuxt": "^2.11.0",
         "nuxt-i18n": "^6.5.0",
         "v-tooltip": "^2.0.3",

@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb";
+
 export default {
   props: {
     show: Boolean
@@ -56,6 +58,15 @@ export default {
     };
   },
   methods: {
+    syncEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+          );
+        }
+      }
+    },
     addNewEnvironment() {
       if (!this.$data.name) {
         this.$toast.info($t("invalid_environment_name"));
@@ -69,6 +80,7 @@ export default {
       ];
       this.$store.commit("postwoman/importAddEnvironments", newEnvironment);
       this.$emit("hide-modal");
+      this.syncEnvironments();
     },
     hideModal() {
       this.$emit("hide-modal");

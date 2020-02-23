@@ -12,10 +12,6 @@
             </div>
           </div>
           <div class="flex-wrap">
-            <!-- TODO db syncing
-              button needs to be switchded to
-              :disabled=="!fb.currentUser"
-            -->
             <span
               v-tooltip="{
                 content: !fb.currentUser
@@ -23,7 +19,11 @@
                   : $t('replace_current')
               }"
             >
-              <button :disabled="true" class="icon" @click="syncEnvironments">
+              <button
+                :disabled="!fb.currentUser"
+                class="icon"
+                @click="syncEnvironments"
+              >
                 <i class="material-icons">folder_shared</i>
                 <span>{{ $t("import_from_sync") }}</span>
               </button>
@@ -154,7 +154,11 @@ export default {
       });
     },
     syncEnvironments() {
-      // TODO
+      this.$store.commit(
+        "postwoman/replaceEnvironments",
+        fb.currentEnvironments
+      );
+      this.fileImported();
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

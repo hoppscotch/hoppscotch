@@ -71,7 +71,7 @@ ul {
 
 <script>
 import environment from "./environment";
-// import { fb } from "../functions/fb";
+import { fb } from "../../functions/fb";
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property));
@@ -124,17 +124,24 @@ export default {
       this.$data.editingEnvironment = environment;
       this.$data.editingEnvironmentIndex = environmentIndex;
       this.displayModalEdit(true);
+      this.syncEnvironments;
     },
     resetSelectedData() {
       this.$data.editingEnvironment = undefined;
       this.$data.editingEnvironmentIndex = undefined;
     },
     syncEnvironments() {
-      // TODO
-    },
-    beforeDestroy() {
-      document.removeEventListener("keydown", this._keyListener);
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+          );
+        }
+      }
     }
+  },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener);
   }
 };
 </script>

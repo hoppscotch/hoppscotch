@@ -256,7 +256,8 @@ export default {
   enter_curl: "Enter cURL",
   empty: "Empty",
   extensions: "Extensions",
-  extensions_use_toggle: "Use the browser extension to send requests (if present)",
+  extensions_use_toggle:
+    "Use the browser extension to send requests (if present)",
   extensions_info1: "Browser extension that simplifies access to Postwoman",
   extensions_info2: "Get Postwoman browser extension!",
   installed: "Installed",
@@ -267,6 +268,7 @@ export default {
   sync: "Sync",
   syncHistory: "History",
   syncCollections: "Collections",
+  syncEnvironments: "Environments",
   turn_on: "Turn on",
   login_first: "Login first",
   paste_a_note: "Paste a note",

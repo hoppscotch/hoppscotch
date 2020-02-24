@@ -1,0 +1,6 @@
+.dependabot
+.github
+.nuxt
+.postwoman
+.vscode
+node_modules

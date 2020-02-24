@@ -40,7 +40,10 @@
     },
     "devDependencies": {
         "cypress": "^4.0.2",
+        "husky": "^4.2.3",
+        "lint-staged": "^10.0.7",
         "node-sass": "^4.13.1",
+        "prettier": "^1.19.1",
         "sass-loader": "^8.0.2",
         "start-server-and-test": "^1.10.8"
     }

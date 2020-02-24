@@ -347,7 +347,7 @@ export default {
 
       settings: {
         SCROLL_INTO_ENABLED: 
-          this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED || false,
+          this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED || true,
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,

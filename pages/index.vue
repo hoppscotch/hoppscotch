@@ -1075,13 +1075,18 @@
           <div class="tab">
             <collections />
           </div>
+          <input id="environment-tab" type="radio" name="side" />
+          <label for="environment-tab">{{ $t("environment") }}</label>
+          <div class="tab">
+            <environments @use-environment="useSelectedEnvironment($event)" />
+          </div>
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
             <pw-section class="pink" :label="$t('notes')" ref="sync">
               <div v-if="fb.currentUser">
                 <inputform />
-                <ballsfeed />
+                <notes />
               </div>
               <div v-else>
                 <ul>
@@ -1452,7 +1457,8 @@ export default {
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
     Editor: AceEditor,
     inputform: () => import("../components/firebase/inputform"),
-    ballsfeed: () => import("../components/firebase/feeds")
+    notes: () => import("../components/firebase/feeds"),
+    environments: () => import("../components/environments")
   },
   data() {
     return {
@@ -2044,6 +2050,16 @@ export default {
     }
   },
   methods: {
+    useSelectedEnvironment(environment) {
+      let preRequestScriptString = "";
+      for (let variable of environment.variables) {
+        preRequestScriptString =
+          preRequestScriptString +
+          `pw.env.set('${variable.key}', '${variable.value}');\n`;
+      }
+      this.preRequestScript = preRequestScriptString;
+      this.showPreRequestScript = true;
+    },
     checkCollections() {
       const checkCollectionAvailability =
         this.$store.state.postwoman.collections &&
@@ -2237,7 +2253,7 @@ export default {
           };
           this.$refs.historyComponent.addEntry(entry);
           if (fb.currentUser !== null) {
-            if (fb.currentSettings[1].value) {
+            if (fb.currentSettings[2].value) {
               fb.writeHistory(entry);
             }
           }
@@ -2274,7 +2290,7 @@ export default {
           };
           this.$refs.historyComponent.addEntry(entry);
           if (fb.currentUser !== null) {
-            if (fb.currentSettings[1].value) {
+            if (fb.currentSettings[2].value) {
               fb.writeHistory(entry);
             }
           }

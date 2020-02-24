@@ -74,6 +74,13 @@ export const state = () => ({
       requests: []
     }
   ],
+  environments: [
+    {
+      name: "My Environment Variables",
+      variables: []
+    }
+  ],
+  editingEnvironment: {},
   selectedRequest: {},
   editingRequest: {}
 });
@@ -100,6 +107,80 @@ export const mutations = {
     }
 
     settings[key] = value;
+  },
+
+  removeVariables({ editingEnvironment }, value) {
+    editingEnvironment.variables = value;
+  },
+
+  setEditingEnvironment(state, value) {
+    state.editingEnvironment = { ...value };
+  },
+
+  setVariableKey({ editingEnvironment }, { index, value }) {
+    editingEnvironment.variables[index].key = value;
+  },
+
+  setVariableValue({ editingEnvironment }, { index, value }) {
+    editingEnvironment.variables[index].value = testValue(value);
+  },
+
+  removeVariable({ editingEnvironment }, variables) {
+    editingEnvironment.variables = variables;
+  },
+
+  addVariable({ editingEnvironment }, value) {
+    editingEnvironment.variables.push(value);
+  },
+
+  replaceEnvironments(state, environments) {
+    state.environments = environments;
+  },
+
+  importAddEnvironments(state, { environments, confirmation }) {
+    const duplicateEnvironment = environments.some(
+      item => {
+        return state.environments.some(
+          item2 => {
+          return item.name.toLowerCase() === item2.name.toLowerCase();
+        });
+      }
+    );
+    if (duplicateEnvironment) {
+      this.$toast.info("Duplicate environment");
+      return;
+    };
+    state.environments = [...state.environments, ...environments];
+
+    let index = 0;
+    for (let environment of state.environments) {
+      environment.environmentIndex = index;
+      index += 1;
+    }
+    this.$toast.info(confirmation, {
+      icon: "folder_shared"
+    });
+  },
+
+  removeEnvironment({ environments }, environmentIndex) {
+    environments.splice(environmentIndex, 1);
+  },
+
+  saveEnvironment({ environments }, payload) {
+    const { environment, environmentIndex } = payload;
+    const { name } = environment;
+    const duplicateEnvironment = environments.length === 1
+      ? false
+      : environments.some(
+      item =>
+        item.environmentIndex !== environmentIndex &&
+        item.name.toLowerCase() === name.toLowerCase()
+    );
+    if (duplicateEnvironment) {
+      this.$toast.info("Duplicate environment");
+      return;
+    }
+    environments[environmentIndex] = environment;
   },
 
   replaceCollections(state, collections) {
@@ -139,7 +220,10 @@ export const mutations = {
   },
 
   editCollection({ collections }, payload) {
-    const { collection: { name }, collectionIndex } = payload;
+    const {
+      collection: { name },
+      collectionIndex
+    } = payload;
     const duplicateCollection = collections.some(
       item => item.name.toLowerCase() === name.toLowerCase()
     );
@@ -326,3 +410,12 @@ export const mutations = {
     state.selectedRequest = Object.assign({}, request);
   }
 };
+
+function testValue(myValue) {
+  try {
+      return JSON.parse(myValue);
+  } catch(ex) {
+      // Now we know it's a string just leave it as a string value.
+      return myValue;
+  }
+}

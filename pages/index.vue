@@ -2096,7 +2096,6 @@ export default {
         this.$toast.info(this.$t('finished_in', { duration }), {
           icon: 'done',
         })
-
         ;(() => {
           const status = (this.response.status = payload.status)
           const headers = (this.response.headers = payload.headers)

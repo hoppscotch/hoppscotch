@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "pre-commit": "lint-staged"
+    "pre-commit": "yarn prettier"
   }
 }

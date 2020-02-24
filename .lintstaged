@@ -1,5 +1,0 @@
-{
-  "*.+(html|js|json|ts|tsx|vue)": [
-    "yarn prettier"
-  ]
-}

@@ -138,6 +138,21 @@
             </pw-toggle>
           </span>
         </li>
+        </ul>
+        <ul>
+        <li>
+          <span>
+            <pw-toggle
+              :on="settings.SCROLL_INTO_ENABLED"
+              @change="toggleSetting('SCROLL_INTO_ENABLED')"
+            >
+              {{ $t("scrollInto_use_toggle") }}
+              {{
+                settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled")
+              }}
+            </pw-toggle>
+          </span>
+        </li>
       </ul>
     </pw-section>
 
@@ -331,7 +346,8 @@ export default {
       ],
 
       settings: {
-        THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || "",
+        SCROLL_INTO_ENABLED: 
+          this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED || false,
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,

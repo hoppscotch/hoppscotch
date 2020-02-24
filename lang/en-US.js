@@ -265,6 +265,7 @@ export default {
   logged_out: "Logged out",
   logout: "Logout",
   account: "Account",
+  scrollInto_use_toggle: "Auto scroll",
   sync: "Sync",
   syncHistory: "History",
   syncCollections: "Collections",

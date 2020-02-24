@@ -69,7 +69,7 @@ export default {
     },
     addNewEnvironment() {
       if (!this.$data.name) {
-        this.$toast.info($t("invalid_environment_name"));
+        this.$toast.info(this.$t("invalid_environment_name"));
         return;
       }
       let newEnvironment = [
@@ -78,11 +78,15 @@ export default {
           variables: []
         }
       ];
-      this.$store.commit("postwoman/importAddEnvironments", newEnvironment);
+      this.$store.commit("postwoman/importAddEnvironments", {
+        environments: newEnvironment,
+        confirmation: "Environment added"
+      });
       this.$emit("hide-modal");
       this.syncEnvironments();
     },
     hideModal() {
+      this.$data.name = undefined;
       this.$emit("hide-modal");
     }
   }

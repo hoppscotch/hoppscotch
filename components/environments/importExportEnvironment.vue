@@ -119,8 +119,8 @@ export default {
       let reader = new FileReader();
       reader.onload = event => {
         let content = event.target.result;
-        let environment = JSON.parse(content);
-        this.$store.commit("postwoman/replaceEnvironments", environment);
+        let environments = JSON.parse(content);
+        this.$store.commit("postwoman/replaceEnvironments", environments);
       };
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
       this.fileImported();
@@ -129,11 +129,14 @@ export default {
       let reader = new FileReader();
       reader.onload = event => {
         let content = event.target.result;
-        let environment = JSON.parse(content);
-        this.$store.commit("postwoman/importAddEnvironments", environment);
+        let environments = JSON.parse(content);
+        let confirmation = this.$t("file_imported")
+        this.$store.commit("postwoman/importAddEnvironments", {
+          environments,
+          confirmation
+        });
       };
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
-      this.fileImported();
     },
     exportJSON() {
       let text = this.environmentJson;

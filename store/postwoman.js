@@ -122,7 +122,7 @@ export const mutations = {
   },
 
   setVariableValue({ editingEnvironment }, { index, value }) {
-    editingEnvironment.variables[index].value = value;
+    editingEnvironment.variables[index].value = testValue(value);
   },
 
   removeVariable({ editingEnvironment }, variables) {
@@ -137,7 +137,19 @@ export const mutations = {
     state.environments = environments;
   },
 
-  importAddEnvironments(state, environments) {
+  importAddEnvironments(state, { environments, confirmation }) {
+    const duplicateEnvironment = environments.some(
+      item => {
+        return state.environments.some(
+          item2 => {
+          return item.name.toLowerCase() === item2.name.toLowerCase();
+        });
+      }
+    );
+    if (duplicateEnvironment) {
+      this.$toast.info("Duplicate environment");
+      return;
+    };
     state.environments = [...state.environments, ...environments];
 
     let index = 0;
@@ -145,6 +157,9 @@ export const mutations = {
       environment.environmentIndex = index;
       index += 1;
     }
+    this.$toast.info(confirmation, {
+      icon: "folder_shared"
+    });
   },
 
   removeEnvironment({ environments }, environmentIndex) {
@@ -154,7 +169,9 @@ export const mutations = {
   saveEnvironment({ environments }, payload) {
     const { environment, environmentIndex } = payload;
     const { name } = environment;
-    const duplicateEnvironment = environments.some(
+    const duplicateEnvironment = environments.length === 1
+      ? false
+      : environments.some(
       item =>
         item.environmentIndex !== environmentIndex &&
         item.name.toLowerCase() === name.toLowerCase()
@@ -394,8 +411,11 @@ export const mutations = {
   }
 };
 
-// export const getters = {
-//   getEditingEnvironment: state => {
-//     return state.editingEnvironment
-//   }
-// }
+function testValue(myValue) {
+  try {
+      return JSON.parse(myValue);
+  } catch(ex) {
+      // Now we know it's a string just leave it as a string value.
+      return myValue;
+  }
+}

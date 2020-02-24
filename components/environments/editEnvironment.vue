@@ -71,7 +71,11 @@
           <input
             :placeholder="$t('value_count', { count: index + 1 })"
             :name="'value' + index"
-            :value="variable.value"
+            :value="
+              typeof variable.value === 'string'
+              ? variable.value
+              : JSON.stringify(variable.value)
+            "
             @change="
               $store.commit('postwoman/setVariableValue', {
                 index,
@@ -140,6 +144,9 @@ export default {
   },
   watch: {
     editingEnvironment: function(update) {
+      this.name = this.$props.editingEnvironment && this.$props.editingEnvironment.name
+      ? this.$props.editingEnvironment.name
+      : undefined
       this.$store.commit(
         "postwoman/setEditingEnvironment",
         this.$props.editingEnvironment

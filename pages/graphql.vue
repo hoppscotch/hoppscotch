@@ -140,7 +140,7 @@
             </div>
           </div>
           <Editor
-            :value="schemaString"
+            v-model="schema"
             :lang="'graphqlschema'"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -219,7 +219,7 @@
             </div>
           </div>
           <Editor
-            :value="responseString"
+            :value="response"
             :lang="'json'"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -364,13 +364,11 @@ export default {
   },
   data() {
     return {
-      schemaString: "",
       commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -402,6 +400,22 @@ export default {
       },
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "query" });
+      }
+    },
+    response: {
+      get() {
+        return this.$store.state.gql.response;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "response" });
+      }
+    },
+    schema: {
+      get() {
+        return this.$store.state.gql.schema;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "schema" });
       }
     },
     variableString: {
@@ -445,7 +459,7 @@ export default {
     copySchema() {
       this.$refs.copySchemaCode.innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
-      aux.innerText = this.schemaString;
+      aux.innerText = this.schema;
       document.body.appendChild(aux);
       aux.select();
       document.execCommand("copy");
@@ -477,7 +491,7 @@ export default {
     copyResponse() {
       this.$refs.copyResponseButton.innerHTML = this.doneButton;
       const aux = document.createElement("textarea");
-      aux.innerText = this.responseString;
+      aux.innerText = this.response;
       document.body.appendChild(aux);
       aux.select();
       document.execCommand("copy");
@@ -519,7 +533,7 @@ export default {
 
         const data = await sendNetworkRequest(reqOptions, this.$store);
 
-        this.responseString = JSON.stringify(data.data, null, 2);
+        this.response = JSON.stringify(data.data, null, 2);
 
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
@@ -537,7 +551,7 @@ export default {
     },
     async getSchema() {
       const startTime = Date.now();
-      this.schemaString = this.$t("loading");
+      this.schema = this.$t("loading");
       this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
         this.scrollInto("schema");
 
@@ -565,8 +579,6 @@ export default {
           data: query
         };
 
-        // console.log(reqOptions);
-
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? {
               method: "post",
@@ -584,9 +596,14 @@ export default {
           : res;
 
         const schema = gql.buildClientSchema(data.data.data);
-        this.schemaString = gql.printSchema(schema, {
+        this.schema = gql.printSchema(schema, {
           commentDescriptions: true
         });
+        console.log(
+          gql.printSchema(schema, {
+            commentDescriptions: true
+          })
+        );
 
         if (schema.getQueryType()) {
           const fields = schema.getQueryType().getFields();
@@ -648,7 +665,7 @@ export default {
         });
       } catch (error) {
         this.$nuxt.$loading.finish();
-        this.schemaString = `${error}. ${this.$t("check_console_details")}`;
+        this.schema = `${error}. ${this.$t("check_console_details")}`;
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {
           icon: "error"
         });
@@ -661,7 +678,7 @@ export default {
         this.responseBodyMaxLines == Infinity ? 16 : Infinity;
     },
     downloadResponse() {
-      const dataToWrite = JSON.stringify(this.schemaString, null, 2);
+      const dataToWrite = JSON.stringify(this.schema, null, 2);
       const file = new Blob([dataToWrite], { type: "application/json" });
       const a = document.createElement("a");
       const url = URL.createObjectURL(file);

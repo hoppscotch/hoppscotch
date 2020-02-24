@@ -38,7 +38,7 @@
                 {{ setting.value ? $t("enabled") : $t("disabled") }}
               </pw-toggle>
             </p>
-            <p v-if="fb.currentSettings.length == 0">
+            <p v-if="fb.currentSettings.length !== 3">
               <button class="" @click="initSettings">
                 <i class="material-icons">sync</i>
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
@@ -155,6 +155,7 @@
         </li>
       </ul>
     </pw-section>
+
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
@@ -206,7 +207,12 @@
             {{ $t("postwoman_official_proxy_hosting") }}
             <br />
             {{ $t("read_the") }}
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+            <a
+              class="link"
+              href="https://apollotv.xyz/legal"
+              target="_blank"
+              rel="noopener"
+            >
               {{ $t("apollotv_privacy_policy") }} </a
             >.
           </p>
@@ -427,7 +433,8 @@ export default {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   fb.writeSettings("syncHistory", true);
-                  fb.writeSettings("syncCollections", false);
+                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncEnvironments", true);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -456,7 +463,8 @@ export default {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   fb.writeSettings("syncHistory", true);
-                  fb.writeSettings("syncCollections", false);
+                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncEnvironments", true);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -475,7 +483,8 @@ export default {
     },
     initSettings() {
       fb.writeSettings("syncHistory", true);
-      fb.writeSettings("syncCollections", false);
+      fb.writeSettings("syncCollections", true);
+      fb.writeSettings("syncEnvironments", true);
     },
     resetProxy({ target }) {
       this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;

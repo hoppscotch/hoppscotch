@@ -26,6 +26,7 @@ export const fb = {
   currentSettings: [],
   currentHistory: [],
   currentCollections: [],
+  currentEnvironments: [],
   writeFeeds: async (message, label) => {
     const dt = {
       createdOn: new Date(),
@@ -112,6 +113,21 @@ export const fb = {
       .doc("sync")
       .set(cl)
       .catch(e => console.error("error updating", cl, e));
+  },
+  writeEnvironments: async environment => {
+    const ev = {
+      updatedOn: new Date(),
+      author: fb.currentUser.uid,
+      author_name: fb.currentUser.displayName,
+      author_image: fb.currentUser.photoURL,
+      environment: environment
+    };
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("environments")
+      .doc("sync")
+      .set(ev)
+      .catch(e => console.error("error updating", ev, e));
   }
 };
 
@@ -185,6 +201,19 @@ firebase.auth().onAuthStateChanged(user => {
           collections.push(collection);
         });
         fb.currentCollections = collections[0].collection;
+      });
+
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("environments")
+      .onSnapshot(environmentsRef => {
+        const environments = [];
+        environmentsRef.forEach(doc => {
+          const environment = doc.data();
+          environment.id = doc.id;
+          environments.push(environment);
+        });
+        fb.currentEnvironments = environments[0].environment;
       });
   } else {
     fb.currentUser = null;

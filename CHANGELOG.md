@@ -9,7 +9,9 @@
 - Disable SSL cert for websockets [\#557](https://github.com/liyasthomas/postwoman/issues/557)
 - Feature request: Keyboard shortcuts for folder creation [\#539](https://github.com/liyasthomas/postwoman/issues/539)
 - Friendly minded  GraphQL [\#468](https://github.com/liyasthomas/postwoman/issues/468)
+- multipart/form-data support [\#434](https://github.com/liyasthomas/postwoman/issues/434)
 - Implement pre-request and post-request scripts \(and request chaining\) [\#218](https://github.com/liyasthomas/postwoman/issues/218)
+- Environment management and configuration [\#147](https://github.com/liyasthomas/postwoman/issues/147)
 - POST request body editor reacts to the content type [\#594](https://github.com/liyasthomas/postwoman/pull/594) ([AndrewBastin](https://github.com/AndrewBastin))
 - Environment Mangement [\#591](https://github.com/liyasthomas/postwoman/pull/591) ([JacobAnavisca](https://github.com/JacobAnavisca))
 - GraphQL Query Autocompletion [\#590](https://github.com/liyasthomas/postwoman/pull/590) ([AndrewBastin](https://github.com/AndrewBastin))
@@ -75,9 +77,8 @@
 - i18n [\#538](https://github.com/liyasthomas/postwoman/pull/538) ([liyasthomas](https://github.com/liyasthomas))
 - Modification of French translations [\#537](https://github.com/liyasthomas/postwoman/pull/537) ([thomasbnt](https://github.com/thomasbnt))
 - Even [\#535](https://github.com/liyasthomas/postwoman/pull/535) ([liyasthomas](https://github.com/liyasthomas))
-- Enhancements [\#531](https://github.com/liyasthomas/postwoman/pull/531) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - Updating spanish translation [\#529](https://github.com/liyasthomas/postwoman/pull/529) ([liyasthomas](https://github.com/liyasthomas))
-- even merge [\#528](https://github.com/liyasthomas/postwoman/pull/528) ([liyasthomas](https://github.com/liyasthomas))
+- chore\(deps\): bump nuxt-i18n from 6.4.1 to 6.5.0 [\#522](https://github.com/liyasthomas/postwoman/pull/522) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 
 ## [v1.8.0](https://github.com/liyasthomas/postwoman/tree/v1.8.0) (2020-01-28)
 
@@ -94,6 +95,7 @@
 - Feature Request: Consumer Driven Contract Testing [\#420](https://github.com/liyasthomas/postwoman/issues/420)
 - Feature Request: Support OAuth2/OIDC [\#337](https://github.com/liyasthomas/postwoman/issues/337)
 - Add DB cache [\#26](https://github.com/liyasthomas/postwoman/issues/26)
+- Update asset/\*. js to  asset/\*. ts. [\#517](https://github.com/liyasthomas/postwoman/pull/517) ([Sn005](https://github.com/Sn005))
 - Auth [\#513](https://github.com/liyasthomas/postwoman/pull/513) ([liyasthomas](https://github.com/liyasthomas))
 - Support for Google Chrome Extension [\#512](https://github.com/liyasthomas/postwoman/pull/512) ([AndrewBastin](https://github.com/AndrewBastin))
 - GraphQL query validation based on schema [\#508](https://github.com/liyasthomas/postwoman/pull/508) ([AndrewBastin](https://github.com/AndrewBastin))
@@ -110,7 +112,6 @@
 - Multiple collections with the same name shouldn't exist [\#509](https://github.com/liyasthomas/postwoman/issues/509)
 - GraphQL String variables are null [\#497](https://github.com/liyasthomas/postwoman/issues/497)
 - Post request body is empty [\#473](https://github.com/liyasthomas/postwoman/issues/473)
-- API Documentation won't be generated [\#456](https://github.com/liyasthomas/postwoman/issues/456)
 
 **Closed issues:**
 
@@ -121,15 +122,15 @@
 - import cURL error [\#477](https://github.com/liyasthomas/postwoman/issues/477)
 - move to postwoman org [\#475](https://github.com/liyasthomas/postwoman/issues/475)
 - Create standalone vue components of the request builder. [\#474](https://github.com/liyasthomas/postwoman/issues/474)
-- \* ../.postwoman/version.json in ./node\_modules/babel-loader/lib??ref--2-0!./node\_modules/vue-loader/lib??vue-loader-options!./layouts/default.vue?vue&type=script&lang=js&        friendly-errors 11:12:37   [\#448](https://github.com/liyasthomas/postwoman/issues/448)
 - Enable running proxy as a backend for Request Capture [\#325](https://github.com/liyasthomas/postwoman/issues/325)
 - Label doesn't change when switching between collection requests [\#291](https://github.com/liyasthomas/postwoman/issues/291)
 
 **Merged pull requests:**
 
+- Enhancements [\#531](https://github.com/liyasthomas/postwoman/pull/531) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - Merge pull request \#530 from liyasthomas/feature/post-request-tests [\#530](https://github.com/liyasthomas/postwoman/pull/530) ([liyasthomas](https://github.com/liyasthomas))
+- even merge [\#528](https://github.com/liyasthomas/postwoman/pull/528) ([liyasthomas](https://github.com/liyasthomas))
 - Refactor [\#523](https://github.com/liyasthomas/postwoman/pull/523) ([liyasthomas](https://github.com/liyasthomas))
-- chore\(deps\): bump nuxt-i18n from 6.4.1 to 6.5.0 [\#522](https://github.com/liyasthomas/postwoman/pull/522) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - chore\(deps\): bump v-tooltip from 2.0.2 to 2.0.3 [\#521](https://github.com/liyasthomas/postwoman/pull/521) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - chore\(deps-dev\): bump cypress from 3.8.2 to 3.8.3 [\#520](https://github.com/liyasthomas/postwoman/pull/520) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - Feature/post request tests [\#518](https://github.com/liyasthomas/postwoman/pull/518) ([nickpalenchar](https://github.com/nickpalenchar))
@@ -160,7 +161,6 @@
 
 - Can WSDL be implemented, similar to SoapUI? [\#461](https://github.com/liyasthomas/postwoman/issues/461)
 - Raw Request Body should be supported  to format the JSON string [\#446](https://github.com/liyasthomas/postwoman/issues/446)
-- multipart/form-data support [\#434](https://github.com/liyasthomas/postwoman/issues/434)
 - Ability to send Binary data using Postwoman [\#415](https://github.com/liyasthomas/postwoman/issues/415)
 - Custom request method [\#398](https://github.com/liyasthomas/postwoman/issues/398)
 - \[request\]: CLI possibilities [\#363](https://github.com/liyasthomas/postwoman/issues/363)
@@ -189,15 +189,16 @@
 - Cache view [\#188](https://github.com/liyasthomas/postwoman/issues/188)
 - chore: stick to Vue.js best practices [\#432](https://github.com/liyasthomas/postwoman/pull/432) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - Header key autocompletion [\#421](https://github.com/liyasthomas/postwoman/pull/421) ([AndrewBastin](https://github.com/AndrewBastin))
+- Custom methods support [\#400](https://github.com/liyasthomas/postwoman/pull/400) ([liyasthomas](https://github.com/liyasthomas))
 - Two Way Data Binding \(v-model\) to Ace Editor component [\#379](https://github.com/liyasthomas/postwoman/pull/379) ([AndrewBastin](https://github.com/AndrewBastin))
 - Basic i18n support [\#351](https://github.com/liyasthomas/postwoman/pull/351) ([liyasthomas](https://github.com/liyasthomas))
 - Undo header/param/body param deletion [\#350](https://github.com/liyasthomas/postwoman/pull/350) ([AndrewBastin](https://github.com/AndrewBastin))
-- Added ability to run GraphQL queries [\#346](https://github.com/liyasthomas/postwoman/pull/346) ([AndrewBastin](https://github.com/AndrewBastin))
 - refactor: minor improvements [\#343](https://github.com/liyasthomas/postwoman/pull/343) ([jamesgeorge007](https://github.com/jamesgeorge007))
 
 **Fixed bugs:**
 
 - WebSocket page freezes when pasting long URL [\#471](https://github.com/liyasthomas/postwoman/issues/471)
+- API Documentation won't be generated [\#456](https://github.com/liyasthomas/postwoman/issues/456)
 - Sharing Requests via link is not working [\#435](https://github.com/liyasthomas/postwoman/issues/435)
 - URL input text is so stutters [\#412](https://github.com/liyasthomas/postwoman/issues/412)
 - Save to collections after deleting all the collections causes an error page [\#390](https://github.com/liyasthomas/postwoman/issues/390)
@@ -214,6 +215,7 @@
 **Closed issues:**
 
 - Module not found: Error: Can't resolve '../.postwoman/version.json' [\#457](https://github.com/liyasthomas/postwoman/issues/457)
+- \* ../.postwoman/version.json in ./node\_modules/babel-loader/lib??ref--2-0!./node\_modules/vue-loader/lib??vue-loader-options!./layouts/default.vue?vue&type=script&lang=js&        friendly-errors 11:12:37   [\#448](https://github.com/liyasthomas/postwoman/issues/448)
 - npm run dev module was not found: ../.postwoman/version.json [\#442](https://github.com/liyasthomas/postwoman/issues/442)
 - graphql and websocket work, but http and https do not [\#441](https://github.com/liyasthomas/postwoman/issues/441)
 - Can I test localhost? [\#433](https://github.com/liyasthomas/postwoman/issues/433)
@@ -245,6 +247,7 @@
 - Generated code is incorrect [\#269](https://github.com/liyasthomas/postwoman/issues/269)
 - Lacking documentation and wiki [\#232](https://github.com/liyasthomas/postwoman/issues/232)
 - I can't send POST method [\#210](https://github.com/liyasthomas/postwoman/issues/210)
+- Handling request failures when build number is obtained from GitHub [\#122](https://github.com/liyasthomas/postwoman/issues/122)
 
 **Merged pull requests:**
 
@@ -275,7 +278,6 @@
 - ⬆️ Bump vue-virtual-scroll-list from 1.4.3 to 1.4.4 [\#406](https://github.com/liyasthomas/postwoman/pull/406) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - ⬆️ Bump nuxt-i18n from 6.4.0 to 6.4.1 [\#405](https://github.com/liyasthomas/postwoman/pull/405) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - I18n [\#404](https://github.com/liyasthomas/postwoman/pull/404) ([yubathom](https://github.com/yubathom))
-- Improving translate for pt-BR [\#396](https://github.com/liyasthomas/postwoman/pull/396) ([GustavoBezerra](https://github.com/GustavoBezerra))
 - App UI [\#391](https://github.com/liyasthomas/postwoman/pull/391) ([liyasthomas](https://github.com/liyasthomas))
 - i18n [\#383](https://github.com/liyasthomas/postwoman/pull/383) ([liyasthomas](https://github.com/liyasthomas))
 - Added Turkish Language Support [\#382](https://github.com/liyasthomas/postwoman/pull/382) ([AliAnilKocak](https://github.com/AliAnilKocak))
@@ -297,7 +299,6 @@
 - Added Farsi language support [\#357](https://github.com/liyasthomas/postwoman/pull/357) ([hosseinnedaee](https://github.com/hosseinnedaee))
 - Adding french language basic [\#355](https://github.com/liyasthomas/postwoman/pull/355) ([thomasbnt](https://github.com/thomasbnt))
 - Add Proxy URL option [\#345](https://github.com/liyasthomas/postwoman/pull/345) ([NBTX](https://github.com/NBTX))
-- ♻️ Refactor Functions [\#344](https://github.com/liyasthomas/postwoman/pull/344) ([athul](https://github.com/athul))
 
 ## [v1.0.0](https://github.com/liyasthomas/postwoman/tree/v1.0.0) (2019-11-04)
 
@@ -378,7 +379,6 @@
 - Response with content-type "application/hal+json" shows as \[Object object\] [\#158](https://github.com/liyasthomas/postwoman/issues/158)
 - A place to discuss [\#149](https://github.com/liyasthomas/postwoman/issues/149)
 - Inconsistent version name [\#141](https://github.com/liyasthomas/postwoman/issues/141)
-- Handling request failures when build number is obtained from GitHub [\#122](https://github.com/liyasthomas/postwoman/issues/122)
 - Autoresize the textarea [\#102](https://github.com/liyasthomas/postwoman/issues/102)
 - Content-Type revamping [\#99](https://github.com/liyasthomas/postwoman/issues/99)
 - Add version number in footer [\#97](https://github.com/liyasthomas/postwoman/issues/97)

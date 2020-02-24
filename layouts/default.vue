@@ -248,6 +248,11 @@
                   </a>
                 </li>
                 <li>
+                  <a href="#extensions" v-tooltip.right="$t('extensions')">
+                    <i class="material-icons">extensions</i>
+                  </a>
+                </li>
+                <li>
                   <a href="#proxy" v-tooltip.right="$t('proxy')">
                     <i class="material-icons">public</i>
                   </a>
@@ -408,7 +413,7 @@
             <div class="flex-wrap">
               <span v-if="version.name" class="mono">
                 <a
-                  class="link"
+                  class="footer-link"
                   :href="
                     'https://github.com/liyasthomas/postwoman/releases/tag/' +
                       version.name
@@ -420,7 +425,7 @@
                   {{ version.name }}
                 </a>
                 <a
-                  class="link hide-on-small-screen"
+                  class="footer-link hide-on-small-screen"
                   href="https://www.netlify.com"
                   target="_blank"
                   rel="noopener"
@@ -660,7 +665,7 @@
 </template>
 
 <style scoped lang="scss">
-.link {
+.footer-link {
   margin: 8px 16px;
 }
 </style>
@@ -668,7 +673,7 @@
 <script>
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
-import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
+import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy";
 import firebase from "firebase/app";
 import { fb } from "../functions/fb";
 
@@ -715,7 +720,7 @@ export default {
           .then(() => {})
           .catch(console.error);
       } else {
-      	// fallback
+        // fallback
       }
     }
   },
@@ -730,8 +735,7 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
-      firefoxExtInstalled: window.firefoxExtSendRequest,
-      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled(),
+      extensionInstalled: hasExtensionInstalled(),
       fb,
       navigatorShare: navigator.share
     };
@@ -794,8 +798,7 @@ export default {
       let showExtensionsToast =
         localStorage.getItem("showExtensionsToast") === "yes";
       if (
-        !this.firefoxExtInstalled &&
-        !this.chromeExtInstalled &&
+        !this.extensionInstalled &&
         !showExtensionsToast
       ) {
         setTimeout(() => {

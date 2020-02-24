@@ -5,7 +5,7 @@
 <style scoped lang="scss">
 .typelink {
   color: var(--ac-color);
-  font-family: "Roboto Mono", monospace;
+  font-family: 'Roboto Mono', monospace;
   font-weight: 400;
   cursor: pointer;
 }
@@ -16,19 +16,19 @@ export default {
   props: {
     gqlType: null,
     // (typeName: string) => void
-    jumpTypeCallback: Function
+    jumpTypeCallback: Function,
   },
 
   computed: {
     typeString() {
-      return this.gqlType.toString();
-    }
+      return this.gqlType.toString()
+    },
   },
 
   methods: {
     jumpToType() {
-      this.jumpTypeCallback(this.gqlType);
-    }
-  }
-};
+      this.jumpTypeCallback(this.gqlType)
+    },
+  },
+}
 </script>

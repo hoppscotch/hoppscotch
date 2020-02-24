@@ -11,28 +11,28 @@
 <style scoped lang="scss"></style>
 
 <script>
-import typelink from "./typelink";
+import typelink from './typelink'
 
 export default {
   components: {
-    typelink: typelink
+    typelink: typelink,
   },
 
   props: {
-    gqlArg: Object
+    gqlArg: Object,
   },
 
   computed: {
     argName() {
-      return this.gqlArg.name;
+      return this.gqlArg.name
     },
     argType() {
-      return this.gqlArg.type;
-    }
+      return this.gqlArg.type
+    },
   },
 
   methods: {
-    jumpCallback(typeName) {}
-  }
-};
+    jumpCallback(typeName) {},
+  },
+}
 </script>

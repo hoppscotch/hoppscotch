@@ -304,11 +304,9 @@
                     <button
                       class="icon"
                       v-tooltip="
-                        (fb.currentUser.displayName ||
-                          '<label><i>Name not found</i></label>') +
+                        (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
                           '<br>' +
-                          (fb.currentUser.email ||
-                            '<label><i>Email not found</i></label>')
+                          (fb.currentUser.email || '<label><i>Email not found</i></label>')
                       "
                       aria-label="Account"
                     >
@@ -326,7 +324,7 @@
                           <button class="icon">
                             <i class="material-icons">settings</i>
                             <span>
-                              {{ $t("settings") }}
+                              {{ $t('settings') }}
                             </span>
                           </button>
                         </nuxt-link>
@@ -334,7 +332,7 @@
                       <div>
                         <button class="icon" @click="logout" v-close-popover>
                           <i class="material-icons">exit_to_app</i>
-                          <span>{{ $t("logout") }}</span>
+                          <span>{{ $t('logout') }}</span>
                         </button>
                       </div>
                     </template>
@@ -346,33 +344,21 @@
                   </button>
                   <template slot="popover">
                     <div>
-                      <button
-                        class="icon"
-                        @click="showExtensions = true"
-                        v-close-popover
-                      >
+                      <button class="icon" @click="showExtensions = true" v-close-popover>
                         <i class="material-icons">extension</i>
-                        <span>{{ $t("extensions") }}</span>
+                        <span>{{ $t('extensions') }}</span>
                       </button>
                     </div>
                     <div>
-                      <button
-                        class="icon"
-                        @click="showShortcuts = true"
-                        v-close-popover
-                      >
+                      <button class="icon" @click="showShortcuts = true" v-close-popover>
                         <i class="material-icons">keyboard</i>
-                        <span>{{ $t("shortcuts") }}</span>
+                        <span>{{ $t('shortcuts') }}</span>
                       </button>
                     </div>
                     <div>
-                      <button
-                        class="icon"
-                        @click="showSupport = true"
-                        v-close-popover
-                      >
+                      <button class="icon" @click="showSupport = true" v-close-popover>
                         <i class="material-icons">favorite</i>
-                        <span>{{ $t("support_us") }}</span>
+                        <span>{{ $t('support_us') }}</span>
                       </button>
                     </div>
                     <div>
@@ -391,7 +377,7 @@
                             d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
                           />
                         </svg>
-                        <span>{{ $t("tweet") }}</span>
+                        <span>{{ $t('tweet') }}</span>
                       </button>
                       <button
                         v-if="navigatorShare"
@@ -414,10 +400,7 @@
               <span v-if="version.name" class="mono">
                 <a
                   class="footer-link"
-                  :href="
-                    'https://github.com/liyasthomas/postwoman/releases/tag/' +
-                      version.name
-                  "
+                  :href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name"
                   target="_blank"
                   rel="noopener"
                   v-tooltip="'GitHub'"
@@ -443,20 +426,12 @@
                 <!-- <span v-if="version.variant">({{version.variant}})</span> -->
               </span>
               <span>
-                <a
-                  href="https://liyasthomas.web.app"
-                  target="_blank"
-                  rel="noopener"
-                >
+                <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">
                   <button class="icon" v-tooltip="'Liyas Thomas'">
                     🦄
                   </button>
                 </a>
-                <a
-                  href="mailto:liyascthomas@gmail.com"
-                  target="_blank"
-                  rel="noopener"
-                >
+                <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
                   <button class="icon" v-tooltip="$t('contact_us')">
                     <i class="material-icons">email</i>
                   </button>
@@ -487,7 +462,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">{{ $t("extensions") }}</h3>
+              <h3 class="title">{{ $t('extensions') }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
                   <i class="material-icons">close</i>
@@ -499,7 +474,7 @@
       </div>
       <div slot="body">
         <p class="info">
-          {{ $t("extensions_info1") }}
+          {{ $t('extensions_info1') }}
         </p>
         <div>
           <a
@@ -520,11 +495,7 @@
                 />
               </svg>
               <span>Firefox</span>
-              <span
-                class="icon"
-                v-if="firefoxExtInstalled"
-                v-tooltip="$t('installed')"
-              >
+              <span class="icon" v-if="firefoxExtInstalled" v-tooltip="$t('installed')">
                 <i class="material-icons">done</i>
               </span>
             </button>
@@ -549,11 +520,7 @@
                 />
               </svg>
               <span>Chrome</span>
-              <span
-                class="icon"
-                v-if="chromeExtInstalled"
-                v-tooltip="$t('installed')"
-              >
+              <span class="icon" v-if="chromeExtInstalled" v-tooltip="$t('installed')">
                 <i class="material-icons">done</i>
               </span>
             </button>
@@ -567,7 +534,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">{{ $t("shortcuts") }}</h3>
+              <h3 class="title">{{ $t('shortcuts') }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
                   <i class="material-icons">close</i>
@@ -579,19 +546,19 @@
       </div>
       <div slot="body">
         <div>
-          <label>{{ $t("send_request") }}</label>
+          <label>{{ $t('send_request') }}</label>
           <kbd>{{ getSpecialKey() }} G</kbd>
         </div>
         <div>
-          <label>{{ $t("save_to_collections") }}</label>
+          <label>{{ $t('save_to_collections') }}</label>
           <kbd>{{ getSpecialKey() }} S</kbd>
         </div>
         <div>
-          <label>{{ $t("copy_request_link") }}</label>
+          <label>{{ $t('copy_request_link') }}</label>
           <kbd>{{ getSpecialKey() }} K</kbd>
         </div>
         <div>
-          <label>{{ $t("reset_request") }}</label>
+          <label>{{ $t('reset_request') }}</label>
           <kbd>{{ getSpecialKey() }} L</kbd>
         </div>
       </div>
@@ -602,7 +569,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">{{ $t("support_us_on") }}</h3>
+              <h3 class="title">{{ $t('support_us_on') }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
                   <i class="material-icons">close</i>
@@ -614,10 +581,10 @@
       </div>
       <div slot="body">
         <p class="info">
-          {{ $t("donate_info1") }}
+          {{ $t('donate_info1') }}
         </p>
         <p class="info">
-          {{ $t("donate_info2") }}
+          {{ $t('donate_info2') }}
         </p>
         <div>
           <a
@@ -628,7 +595,7 @@
           >
             <button class="icon">
               <i class="material-icons">donut_large</i>
-              <span>{{ $t("open_collective") }}</span>
+              <span>{{ $t('open_collective') }}</span>
             </button>
           </a>
         </div>
@@ -641,7 +608,7 @@
           >
             <button class="icon">
               <i class="material-icons">payment</i>
-              <span>{{ $t("paypal") }}</span>
+              <span>{{ $t('paypal') }}</span>
             </button>
           </a>
         </div>
@@ -654,7 +621,7 @@
           >
             <button class="icon">
               <i class="material-icons">local_parking</i>
-              <span>{{ $t("patreon") }}</span>
+              <span>{{ $t('patreon') }}</span>
             </button>
           </a>
         </div>
@@ -671,58 +638,58 @@
 </style>
 
 <script>
-import intializePwa from "../assets/js/pwa";
-import * as version from "../.postwoman/version.json";
-import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy";
-import firebase from "firebase/app";
-import { fb } from "../functions/fb";
+import intializePwa from '../assets/js/pwa'
+import * as version from '../.postwoman/version.json'
+import { hasExtensionInstalled } from '../functions/strategies/ExtensionStrategy'
+import firebase from 'firebase/app'
+import { fb } from '../functions/fb'
 
 export default {
   components: {
-    logo: () => import("../components/logo"),
-    modal: () => import("../components/modal"),
-    login: () => import("../components/firebase/login")
+    logo: () => import('../components/logo'),
+    modal: () => import('../components/modal'),
+    login: () => import('../components/firebase/login'),
   },
 
   methods: {
     getSpecialKey() {
-      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? "⌘" : "Ctrl";
+      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? '⌘' : 'Ctrl'
     },
     linkActive(path) {
       return {
-        "nuxt-link-exact-active": this.$route.path === path,
-        "nuxt-link-active": this.$route.path === path
-      };
+        'nuxt-link-exact-active': this.$route.path === path,
+        'nuxt-link-active': this.$route.path === path,
+      }
     },
     logout() {
-      fb.currentUser = null;
+      fb.currentUser = null
       firebase
         .auth()
         .signOut()
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
-      this.$toast.info(this.$t("logged_out"), {
-        icon: "vpn_key"
-      });
+            icon: 'error',
+          })
+        })
+      this.$toast.info(this.$t('logged_out'), {
+        icon: 'vpn_key',
+      })
     },
     nativeShare() {
       if (navigator.share) {
         navigator
           .share({
-            title: "Postwoman",
+            title: 'Postwoman',
             text:
-              "Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
-            url: "https://postwoman.io/"
+              'Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.',
+            url: 'https://postwoman.io/',
           })
           .then(() => {})
-          .catch(console.error);
+          .catch(console.error)
       } else {
         // fallback
       }
-    }
+    },
   },
 
   data() {
@@ -737,146 +704,137 @@ export default {
       showSupport: false,
       extensionInstalled: hasExtensionInstalled(),
       fb,
-      navigatorShare: navigator.share
-    };
+      navigatorShare: navigator.share,
+    }
   },
 
   beforeMount() {
     // Set version data
-    this.version = version.default;
+    this.version = version.default
 
     // Load theme settings
-    (() => {
+    ;(() => {
       // Apply theme from settings.
-      document.documentElement.className =
-        this.$store.state.postwoman.settings.THEME_CLASS || "";
+      document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || ''
       // Load theme color data from settings, or use default color.
-      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
-      let vibrant =
-        this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true;
-      document.documentElement.style.setProperty("--ac-color", color);
+      let color = this.$store.state.postwoman.settings.THEME_COLOR || '#50fa7b'
+      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true
+      document.documentElement.style.setProperty('--ac-color', color)
       document.documentElement.style.setProperty(
-        "--act-color",
-        vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
-      );
-    })();
+        '--act-color',
+        vibrant ? 'rgba(32, 33, 36, 1)' : 'rgba(255, 255, 255, 1)'
+      )
+    })()
   },
 
   mounted() {
     if (process.client) {
-      document.body.classList.add("afterLoad");
+      document.body.classList.add('afterLoad')
     }
 
     document
-      .querySelector("meta[name=theme-color]")
-      .setAttribute(
-        "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
-      );
+      .querySelector('meta[name=theme-color]')
+      .setAttribute('content', this.$store.state.postwoman.settings.THEME_TAB_COLOR || '#202124')
 
     // Initializes the PWA code - checks if the app is installed,
     // etc.
-    (async () => {
-      this.showInstallPrompt = await intializePwa();
-      let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
+    ;(async () => {
+      this.showInstallPrompt = await intializePwa()
+      let cookiesAllowed = localStorage.getItem('cookiesAllowed') === 'yes'
       if (!cookiesAllowed) {
-        this.$toast.show(this.$t("we_use_cookies"), {
-          icon: "info",
+        this.$toast.show(this.$t('we_use_cookies'), {
+          icon: 'info',
           duration: 5000,
-          theme: "toasted-primary",
+          theme: 'toasted-primary',
           action: [
             {
-              text: this.$t("dismiss"),
+              text: this.$t('dismiss'),
               onClick: (e, toastObject) => {
-                localStorage.setItem("cookiesAllowed", "yes");
-                toastObject.goAway(0);
-              }
-            }
-          ]
-        });
+                localStorage.setItem('cookiesAllowed', 'yes')
+                toastObject.goAway(0)
+              },
+            },
+          ],
+        })
       }
-      let showExtensionsToast =
-        localStorage.getItem("showExtensionsToast") === "yes";
-      if (
-        !this.extensionInstalled &&
-        !showExtensionsToast
-      ) {
+      let showExtensionsToast = localStorage.getItem('showExtensionsToast') === 'yes'
+      if (!this.extensionInstalled && !showExtensionsToast) {
         setTimeout(() => {
-          this.$toast.show(this.$t("extensions_info2"), {
-            icon: "extension",
+          this.$toast.show(this.$t('extensions_info2'), {
+            icon: 'extension',
             duration: 5000,
-            theme: "toasted-primary",
+            theme: 'toasted-primary',
             action: [
               {
-                text: this.$t("yes"),
+                text: this.$t('yes'),
                 onClick: (e, toastObject) => {
-                  this.showExtensions = true;
-                  localStorage.setItem("showExtensionsToast", "yes");
-                  toastObject.goAway(0);
-                }
+                  this.showExtensions = true
+                  localStorage.setItem('showExtensionsToast', 'yes')
+                  toastObject.goAway(0)
+                },
               },
               {
-                text: this.$t("no"),
+                text: this.$t('no'),
                 onClick: (e, toastObject) => {
-                  toastObject.goAway(0);
-                }
-              }
-            ]
-          });
-        }, 15000);
+                  toastObject.goAway(0)
+                },
+              },
+            ],
+          })
+        }, 15000)
       }
 
       this._keyListener = function(e) {
-        if (e.key === "Escape") {
-          e.preventDefault();
-          this.showExtensions = this.showShortcuts = this.showSupport = false;
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          this.showExtensions = this.showShortcuts = this.showSupport = false
         }
-      };
-      document.addEventListener("keydown", this._keyListener.bind(this));
-    })();
+      }
+      document.addEventListener('keydown', this._keyListener.bind(this))
+    })()
 
-    window.addEventListener("scroll", event => {
-      let mainNavLinks = document.querySelectorAll("nav ul li a");
-      let fromTop = window.scrollY;
+    window.addEventListener('scroll', event => {
+      let mainNavLinks = document.querySelectorAll('nav ul li a')
+      let fromTop = window.scrollY
       mainNavLinks.forEach(link => {
-        let section = document.querySelector(link.hash);
+        let section = document.querySelector(link.hash)
 
         if (
           section &&
           section.offsetTop <= fromTop &&
           section.offsetTop + section.offsetHeight > fromTop
         ) {
-          link.classList.add("current");
+          link.classList.add('current')
         } else {
-          link.classList.remove("current");
+          link.classList.remove('current')
         }
-      });
-    });
+      })
+    })
 
     console.log(
-      "%cWe ❤︎ open source!",
-      "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
-    );
+      '%cWe ❤︎ open source!',
+      'background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;'
+    )
     console.log(
-      "%cContribute: https://github.com/liyasthomas/postwoman",
-      "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
-    );
+      '%cContribute: https://github.com/liyasthomas/postwoman',
+      'background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;'
+    )
   },
 
   watch: {
     $route() {
       // this.$toast.clear();
-    }
+    },
   },
 
   computed: {
     availableLocales() {
-      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
-    }
+      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
+    },
   },
 
   beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener);
-  }
-};
+    document.removeEventListener('keydown', this._keyListener)
+  },
+}
 </script>

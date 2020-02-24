@@ -57,7 +57,7 @@
       display: block;
       padding: 8px 16px;
       font-size: 16px;
-      font-family: "Roboto Mono", monospace;
+      font-family: 'Roboto Mono', monospace;
       font-weight: 400;
 
       &:last-child {
@@ -76,42 +76,42 @@
 </style>
 
 <script>
-const KEY_TAB = 9;
-const KEY_ESC = 27;
+const KEY_TAB = 9
+const KEY_ESC = 27
 
-const KEY_ARROW_UP = 38;
-const KEY_ARROW_DOWN = 40;
+const KEY_ARROW_UP = 38
+const KEY_ARROW_DOWN = 40
 
 export default {
   props: {
     spellcheck: {
       type: Boolean,
       default: true,
-      required: false
+      required: false,
     },
 
     placeholder: {
       type: String,
-      default: "",
-      required: false
+      default: '',
+      required: false,
     },
 
     source: {
       type: Array,
-      required: true
+      required: true,
     },
 
     value: {
       type: String,
-      default: "",
-      required: false
-    }
+      default: '',
+      required: false,
+    },
   },
 
   watch: {
     text() {
-      this.$emit("input", this.text);
-    }
+      this.$emit('input', this.text)
+    },
   },
 
   data() {
@@ -120,69 +120,67 @@ export default {
       selectionStart: 0,
       suggestionsOffsetLeft: 0,
       currentSuggestionIndex: -1,
-      suggestionsVisible: false
-    };
+      suggestionsVisible: false,
+    }
   },
 
   methods: {
     updateSuggestions(event) {
       // Hide suggestions if ESC pressed.
       if (event.which && event.which === KEY_ESC) {
-        event.preventDefault();
-        this.suggestionsVisible = false;
-        this.currentSuggestionIndex = -1;
-        return;
+        event.preventDefault()
+        this.suggestionsVisible = false
+        this.currentSuggestionIndex = -1
+        return
       }
 
       // As suggestions is a reactive property, this implicitly
       // causes suggestions to update.
-      this.selectionStart = this.$refs.acInput.selectionStart;
-      this.suggestionsOffsetLeft = 12 * this.selectionStart;
-      this.suggestionsVisible = true;
+      this.selectionStart = this.$refs.acInput.selectionStart
+      this.suggestionsOffsetLeft = 12 * this.selectionStart
+      this.suggestionsVisible = true
     },
 
     forceSuggestion(text) {
-      let input = this.text.substring(0, this.selectionStart);
-      this.text = input + text;
+      let input = this.text.substring(0, this.selectionStart)
+      this.text = input + text
 
-      this.selectionStart = this.text.length;
-      this.suggestionsVisible = true;
-      this.currentSuggestionIndex = -1;
+      this.selectionStart = this.text.length
+      this.suggestionsVisible = true
+      this.currentSuggestionIndex = -1
     },
 
     handleKeystroke(event) {
       switch (event.which) {
         case KEY_ARROW_UP:
-          event.preventDefault();
+          event.preventDefault()
           this.currentSuggestionIndex =
-            this.currentSuggestionIndex - 1 >= 0
-              ? this.currentSuggestionIndex - 1
-              : 0;
-          break;
+            this.currentSuggestionIndex - 1 >= 0 ? this.currentSuggestionIndex - 1 : 0
+          break
 
         case KEY_ARROW_DOWN:
-          event.preventDefault();
+          event.preventDefault()
           this.currentSuggestionIndex =
             this.currentSuggestionIndex < this.suggestions.length - 1
               ? this.currentSuggestionIndex + 1
-              : this.suggestions.length - 1;
-          break;
+              : this.suggestions.length - 1
+          break
 
         case KEY_TAB:
-          event.preventDefault();
+          event.preventDefault()
           let activeSuggestion = this.suggestions[
             this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
-          ];
+          ]
           if (activeSuggestion) {
-            let input = this.text.substring(0, this.selectionStart);
-            this.text = input + activeSuggestion;
+            let input = this.text.substring(0, this.selectionStart)
+            this.text = input + activeSuggestion
           }
-          break;
+          break
 
         default:
-          break;
+          break
       }
-    }
+    },
   },
 
   computed: {
@@ -192,7 +190,7 @@ export default {
      * @returns {default.props.source|{type, required}}
      */
     suggestions() {
-      let input = this.text.substring(0, this.selectionStart);
+      let input = this.text.substring(0, this.selectionStart)
 
       return (
         this.source
@@ -200,20 +198,20 @@ export default {
             return (
               entry.toLowerCase().startsWith(input.toLowerCase()) &&
               input.toLowerCase() !== entry.toLowerCase()
-            );
+            )
           })
           // Cut off the part that's already been typed.
           .map(entry => entry.substring(this.selectionStart))
           // We only want the top 6 suggestions.
           .slice(0, 6)
-      );
-    }
+      )
+    },
   },
 
   mounted() {
     this.updateSuggestions({
-      target: this.$refs.acInput
-    });
-  }
-};
+      target: this.$refs.acInput,
+    })
+  },
+}
 </script>

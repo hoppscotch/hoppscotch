@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("edit_collection") }}</h3>
+            <h3 class="title">{{ $t('edit_collection') }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -31,10 +31,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
+            {{ $t('cancel') }}
           </button>
           <button class="icon primary" @click="saveCollection">
-            {{ $t("save") }}
+            {{ $t('save') }}
           </button>
         </span>
       </div>
@@ -47,35 +47,35 @@ export default {
   props: {
     show: Boolean,
     editingCollection: Object,
-    editingCollectionIndex: Number
+    editingCollectionIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import('../../components/modal'),
   },
   data() {
     return {
-      name: undefined
-    };
+      name: undefined,
+    }
   },
   methods: {
     saveCollection() {
       if (!this.$data.name) {
-        this.$toast.info($t("invalid_collection_name"));
-        return;
+        this.$toast.info($t('invalid_collection_name'))
+        return
       }
       const collectionUpdated = {
         ...this.$props.editingCollection,
-        name: this.$data.name
-      };
-      this.$store.commit("postwoman/editCollection", {
+        name: this.$data.name,
+      }
+      this.$store.commit('postwoman/editCollection', {
         collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex
-      });
-      this.$emit("hide-modal");
+        collectionIndex: this.$props.editingCollectionIndex,
+      })
+      this.$emit('hide-modal')
     },
     hideModal() {
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$emit('hide-modal')
+    },
+  },
+}
 </script>

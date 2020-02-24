@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("edit_folder") }}</h3>
+            <h3 class="title">{{ $t('edit_folder') }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,12 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <input
-            type="text"
-            v-model="name"
-            :placeholder="folder.name"
-            @keyup.enter="editFolder"
-          />
+          <input type="text" v-model="name" :placeholder="folder.name" @keyup.enter="editFolder" />
         </li>
       </ul>
     </div>
@@ -31,10 +26,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
+            {{ $t('cancel') }}
           </button>
           <button class="icon primary" @click="editFolder">
-            {{ $t("save") }}
+            {{ $t('save') }}
           </button>
         </span>
       </div>
@@ -49,28 +44,28 @@ export default {
     collection: Object,
     collectionIndex: Number,
     folder: Object,
-    folderIndex: Number
+    folderIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import('../../components/modal'),
   },
   data() {
     return {
-      name: undefined
-    };
+      name: undefined,
+    }
   },
   methods: {
     editFolder() {
-      this.$store.commit("postwoman/editFolder", {
+      this.$store.commit('postwoman/editFolder', {
         collectionIndex: this.$props.collectionIndex,
         folder: { ...this.$props.folder, name: this.$data.name },
-        folderIndex: this.$props.folderIndex
-      });
-      this.hideModal();
+        folderIndex: this.$props.folderIndex,
+      })
+      this.hideModal()
     },
     hideModal() {
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$emit('hide-modal')
+    },
+  },
+}
 </script>

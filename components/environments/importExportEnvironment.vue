@@ -14,18 +14,12 @@
           <div class="flex-wrap">
             <span
               v-tooltip="{
-                content: !fb.currentUser
-                  ? $t('login_first')
-                  : $t('replace_current')
+                content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
               }"
             >
-              <button
-                :disabled="!fb.currentUser"
-                class="icon"
-                @click="syncEnvironments"
-              >
+              <button :disabled="!fb.currentUser" class="icon" @click="syncEnvironments">
                 <i class="material-icons">folder_shared</i>
-                <span>{{ $t("import_from_sync") }}</span>
+                <span>{{ $t('import_from_sync') }}</span>
               </button>
             </span>
             <button
@@ -34,7 +28,7 @@
               v-tooltip="$t('replace_current')"
             >
               <i class="material-icons">create_new_folder</i>
-              <span>{{ $t("replace_json") }}</span>
+              <span>{{ $t('replace_json') }}</span>
               <input
                 type="file"
                 @change="replaceWithJSON"
@@ -49,7 +43,7 @@
               v-tooltip="$t('preserve_current')"
             >
               <i class="material-icons">folder_special</i>
-              <span>{{ $t("import_json") }}</span>
+              <span>{{ $t('import_json') }}</span>
               <input
                 type="file"
                 @change="importFromJSON"
@@ -70,14 +64,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
+            {{ $t('cancel') }}
           </button>
-          <button
-            class="icon primary"
-            @click="exportJSON"
-            v-tooltip="$t('download_file')"
-          >
-            {{ $t("export") }}
+          <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
+            {{ $t('export') }}
           </button>
         </span>
       </div>
@@ -86,88 +76,85 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb";
+import { fb } from '../../functions/fb'
 
 export default {
   data() {
     return {
-      fb
-    };
+      fb,
+    }
   },
   props: {
-    show: Boolean
+    show: Boolean,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import('../../components/modal'),
   },
   computed: {
     environmentJson() {
-      return JSON.stringify(this.$store.state.postwoman.environments, null, 2);
-    }
+      return JSON.stringify(this.$store.state.postwoman.environments, null, 2)
+    },
   },
   methods: {
     hideModal() {
-      this.$emit("hide-modal");
+      this.$emit('hide-modal')
     },
     openDialogChooseFileToReplaceWith() {
-      this.$refs.inputChooseFileToReplaceWith.click();
+      this.$refs.inputChooseFileToReplaceWith.click()
     },
     openDialogChooseFileToImportFrom() {
-      this.$refs.inputChooseFileToImportFrom.click();
+      this.$refs.inputChooseFileToImportFrom.click()
     },
     replaceWithJSON() {
-      let reader = new FileReader();
+      let reader = new FileReader()
       reader.onload = event => {
-        let content = event.target.result;
-        let environments = JSON.parse(content);
-        this.$store.commit("postwoman/replaceEnvironments", environments);
-      };
-      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0]);
-      this.fileImported();
+        let content = event.target.result
+        let environments = JSON.parse(content)
+        this.$store.commit('postwoman/replaceEnvironments', environments)
+      }
+      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
+      this.fileImported()
     },
     importFromJSON() {
-      let reader = new FileReader();
+      let reader = new FileReader()
       reader.onload = event => {
-        let content = event.target.result;
-        let environments = JSON.parse(content);
-        let confirmation = this.$t("file_imported")
-        this.$store.commit("postwoman/importAddEnvironments", {
+        let content = event.target.result
+        let environments = JSON.parse(content)
+        let confirmation = this.$t('file_imported')
+        this.$store.commit('postwoman/importAddEnvironments', {
           environments,
-          confirmation
-        });
-      };
-      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0]);
+          confirmation,
+        })
+      }
+      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
     },
     exportJSON() {
-      let text = this.environmentJson;
-      text = text.replace(/\n/g, "\r\n");
+      let text = this.environmentJson
+      text = text.replace(/\n/g, '\r\n')
       let blob = new Blob([text], {
-        type: "text/json"
-      });
-      let anchor = document.createElement("a");
-      anchor.download = "postwoman-environment.json";
-      anchor.href = window.URL.createObjectURL(blob);
-      anchor.target = "_blank";
-      anchor.style.display = "none";
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      this.$toast.success(this.$t("download_started"), {
-        icon: "done"
-      });
+        type: 'text/json',
+      })
+      let anchor = document.createElement('a')
+      anchor.download = 'postwoman-environment.json'
+      anchor.href = window.URL.createObjectURL(blob)
+      anchor.target = '_blank'
+      anchor.style.display = 'none'
+      document.body.appendChild(anchor)
+      anchor.click()
+      document.body.removeChild(anchor)
+      this.$toast.success(this.$t('download_started'), {
+        icon: 'done',
+      })
     },
     syncEnvironments() {
-      this.$store.commit(
-        "postwoman/replaceEnvironments",
-        fb.currentEnvironments
-      );
-      this.fileImported();
+      this.$store.commit('postwoman/replaceEnvironments', fb.currentEnvironments)
+      this.fileImported()
     },
     fileImported() {
-      this.$toast.info(this.$t("file_imported"), {
-        icon: "folder_shared"
-      });
-    }
-  }
-};
+      this.$toast.info(this.$t('file_imported'), {
+        icon: 'folder_shared',
+      })
+    },
+  },
+}
 </script>

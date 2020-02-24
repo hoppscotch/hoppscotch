@@ -1,10 +1,5 @@
 <template>
-  <pw-section
-    class="green"
-    icon="history"
-    :label="$t('environment')"
-    ref="environment"
-  >
+  <pw-section class="green" icon="history" :label="$t('environment')" ref="environment">
     <addEnvironment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <editEnvironment
       :show="showModalEdit"
@@ -20,12 +15,12 @@
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
-          <span>{{ $t("new") }}</span>
+          <span>{{ $t('new') }}</span>
         </button>
       </div>
       <div>
         <button class="icon" @click="displayModalImportExport(true)">
-          {{ $t("import_export") }}
+          {{ $t('import_export') }}
         </button>
       </div>
     </div>
@@ -39,10 +34,7 @@
       :remain="Math.min(5, environments.length)"
     >
       <ul>
-        <li
-          v-for="(environment, index) in environments"
-          :key="environment.name"
-        >
+        <li v-for="(environment, index) in environments" :key="environment.name">
           <environment
             :environmentIndex="index"
             :environment="environment"
@@ -70,20 +62,20 @@ ul {
 </style>
 
 <script>
-import environment from "./environment";
-import { fb } from "../../functions/fb";
+import environment from './environment'
+import { fb } from '../../functions/fb'
 
 const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property));
+  window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
     environment,
-    "pw-section": () => import("../section"),
-    addEnvironment: () => import("./addEnvironment"),
-    editEnvironment: () => import("./editEnvironment"),
-    importExportEnvironment: () => import("./importExportEnvironment"),
-    VirtualList: () => import("vue-virtual-scroll-list")
+    'pw-section': () => import('../section'),
+    addEnvironment: () => import('./addEnvironment'),
+    editEnvironment: () => import('./editEnvironment'),
+    importExportEnvironment: () => import('./importExportEnvironment'),
+    VirtualList: () => import('vue-virtual-scroll-list'),
   },
   data() {
     return {
@@ -91,57 +83,55 @@ export default {
       showModalAdd: false,
       showModalEdit: false,
       editingEnvironment: undefined,
-      editingEnvironmentIndex: undefined
-    };
+      editingEnvironmentIndex: undefined,
+    }
   },
   computed: {
     environments() {
-      return this.$store.state.postwoman.environments;
-    }
+      return this.$store.state.postwoman.environments
+    },
   },
   async mounted() {
     this._keyListener = function(e) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        this.showModalImportExport = false;
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        this.showModalImportExport = false
       }
-    };
-    document.addEventListener("keydown", this._keyListener.bind(this));
+    }
+    document.addEventListener('keydown', this._keyListener.bind(this))
   },
   methods: {
     displayModalAdd(shouldDisplay) {
-      this.showModalAdd = shouldDisplay;
+      this.showModalAdd = shouldDisplay
     },
     displayModalEdit(shouldDisplay) {
-      this.showModalEdit = shouldDisplay;
+      this.showModalEdit = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalImportExport(shouldDisplay) {
-      this.showModalImportExport = shouldDisplay;
+      this.showModalImportExport = shouldDisplay
     },
     editEnvironment(environment, environmentIndex) {
-      this.$data.editingEnvironment = environment;
-      this.$data.editingEnvironmentIndex = environmentIndex;
-      this.displayModalEdit(true);
-      this.syncEnvironments;
+      this.$data.editingEnvironment = environment
+      this.$data.editingEnvironmentIndex = environmentIndex
+      this.displayModalEdit(true)
+      this.syncEnvironments
     },
     resetSelectedData() {
-      this.$data.editingEnvironment = undefined;
-      this.$data.editingEnvironmentIndex = undefined;
+      this.$data.editingEnvironment = undefined
+      this.$data.editingEnvironmentIndex = undefined
     },
     syncEnvironments() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-          );
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
         }
       }
-    }
+    },
   },
   beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener);
-  }
-};
+    document.removeEventListener('keydown', this._keyListener)
+  },
+}
 </script>

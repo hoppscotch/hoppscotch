@@ -43,12 +43,12 @@ TODO:
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
-          <span>{{ $t("new") }}</span>
+          <span>{{ $t('new') }}</span>
         </button>
       </div>
       <div>
         <button class="icon" @click="displayModalImportExport(true)">
-          {{ $t("import_export") }}
+          {{ $t('import_export') }}
         </button>
         <!-- <a
           href="https://github.com/liyasthomas/postwoman/wiki/Collections"
@@ -89,7 +89,7 @@ TODO:
     <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
       <button class="icon">
         <i class="material-icons">books</i>
-        <span>{{ $t("generate_docs") }}</span>
+        <span>{{ $t('generate_docs') }}</span>
       </button>
     </nuxt-link>
   </pw-section>
@@ -107,20 +107,20 @@ ul {
 </style>
 
 <script>
-import collection from "./collection";
-import { fb } from "../../functions/fb";
+import collection from './collection'
+import { fb } from '../../functions/fb'
 
 export default {
   components: {
     collection,
-    "pw-section": () => import("../section"),
-    addCollection: () => import("./addCollection"),
-    addFolder: () => import("./addFolder"),
-    editCollection: () => import("./editCollection"),
-    editFolder: () => import("./editFolder"),
-    editRequest: () => import("./editRequest"),
-    importExportCollections: () => import("./importExportCollections"),
-    VirtualList: () => import("vue-virtual-scroll-list")
+    'pw-section': () => import('../section'),
+    addCollection: () => import('./addCollection'),
+    addFolder: () => import('./addFolder'),
+    editCollection: () => import('./editCollection'),
+    editFolder: () => import('./editFolder'),
+    editRequest: () => import('./editRequest'),
+    importExportCollections: () => import('./importExportCollections'),
+    VirtualList: () => import('vue-virtual-scroll-list'),
   },
   data() {
     return {
@@ -135,100 +135,98 @@ export default {
       editingFolder: undefined,
       editingFolderIndex: undefined,
       editingRequest: undefined,
-      editingRequestIndex: undefined
-    };
+      editingRequestIndex: undefined,
+    }
   },
   computed: {
     collections() {
-      return this.$store.state.postwoman.collections;
-    }
+      return this.$store.state.postwoman.collections
+    },
   },
   async mounted() {
     this._keyListener = function(e) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false;
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false
       }
-    };
-    document.addEventListener("keydown", this._keyListener.bind(this));
+    }
+    document.addEventListener('keydown', this._keyListener.bind(this))
   },
   methods: {
     displayModalAdd(shouldDisplay) {
-      this.showModalAdd = shouldDisplay;
+      this.showModalAdd = shouldDisplay
     },
     displayModalEdit(shouldDisplay) {
-      this.showModalEdit = shouldDisplay;
+      this.showModalEdit = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalImportExport(shouldDisplay) {
-      this.showModalImportExport = shouldDisplay;
+      this.showModalImportExport = shouldDisplay
     },
     displayModalAddFolder(shouldDisplay) {
-      this.showModalAddFolder = shouldDisplay;
+      this.showModalAddFolder = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalEditFolder(shouldDisplay) {
-      this.showModalEditFolder = shouldDisplay;
+      this.showModalEditFolder = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     displayModalEditRequest(shouldDisplay) {
-      this.showModalEditRequest = shouldDisplay;
+      this.showModalEditRequest = shouldDisplay
 
-      if (!shouldDisplay) this.resetSelectedData();
+      if (!shouldDisplay) this.resetSelectedData()
     },
     editCollection(collection, collectionIndex) {
-      this.$data.editingCollection = collection;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.displayModalEdit(true);
-      this.syncCollections();
+      this.$data.editingCollection = collection
+      this.$data.editingCollectionIndex = collectionIndex
+      this.displayModalEdit(true)
+      this.syncCollections()
     },
     addFolder(collection, collectionIndex) {
-      this.$data.editingCollection = collection;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.displayModalAddFolder(true);
-      this.syncCollections();
+      this.$data.editingCollection = collection
+      this.$data.editingCollectionIndex = collectionIndex
+      this.displayModalAddFolder(true)
+      this.syncCollections()
     },
     editFolder(payload) {
-      const { collectionIndex, folder, folderIndex } = payload;
-      this.$data.editingCollection = collection;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.$data.editingFolder = folder;
-      this.$data.editingFolderIndex = folderIndex;
-      this.displayModalEditFolder(true);
-      this.syncCollections();
+      const { collectionIndex, folder, folderIndex } = payload
+      this.$data.editingCollection = collection
+      this.$data.editingCollectionIndex = collectionIndex
+      this.$data.editingFolder = folder
+      this.$data.editingFolderIndex = folderIndex
+      this.displayModalEditFolder(true)
+      this.syncCollections()
     },
     editRequest(payload) {
-      const { request, collectionIndex, folderIndex, requestIndex } = payload;
-      this.$data.editingCollectionIndex = collectionIndex;
-      this.$data.editingFolderIndex = folderIndex;
-      this.$data.editingRequest = request;
-      this.$data.editingRequestIndex = requestIndex;
-      this.displayModalEditRequest(true);
-      this.syncCollections();
+      const { request, collectionIndex, folderIndex, requestIndex } = payload
+      this.$data.editingCollectionIndex = collectionIndex
+      this.$data.editingFolderIndex = folderIndex
+      this.$data.editingRequest = request
+      this.$data.editingRequestIndex = requestIndex
+      this.displayModalEditRequest(true)
+      this.syncCollections()
     },
     resetSelectedData() {
-      this.$data.editingCollection = undefined;
-      this.$data.editingCollectionIndex = undefined;
-      this.$data.editingFolder = undefined;
-      this.$data.editingFolderIndex = undefined;
-      this.$data.editingRequest = undefined;
-      this.$data.editingRequestIndex = undefined;
+      this.$data.editingCollection = undefined
+      this.$data.editingCollectionIndex = undefined
+      this.$data.editingFolder = undefined
+      this.$data.editingFolderIndex = undefined
+      this.$data.editingRequest = undefined
+      this.$data.editingRequestIndex = undefined
     },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
-          );
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }
       }
-    }
+    },
   },
   beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener);
-  }
-};
+    document.removeEventListener('keydown', this._keyListener)
+  },
+}
 </script>

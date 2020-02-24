@@ -84,15 +84,15 @@ export default {
   props: {
     on: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   methods: {
     toggle() {
-      const containsOnClass = this.$refs.toggle.classList.toggle("on");
-      this.$emit("change", containsOnClass);
-    }
-  }
-};
+      const containsOnClass = this.$refs.toggle.classList.toggle('on')
+      this.$emit('change', containsOnClass)
+    },
+  },
+}
 </script>

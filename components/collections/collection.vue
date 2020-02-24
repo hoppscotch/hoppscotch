@@ -17,23 +17,19 @@
           <div>
             <button class="icon" @click="$emit('add-folder')" v-close-popover>
               <i class="material-icons">create_new_folder</i>
-              <span>{{ $t("new_folder") }}</span>
+              <span>{{ $t('new_folder') }}</span>
             </button>
           </div>
           <div>
-            <button
-              class="icon"
-              @click="$emit('edit-collection')"
-              v-close-popover
-            >
+            <button class="icon" @click="$emit('edit-collection')" v-close-popover>
               <i class="material-icons">create</i>
-              <span>{{ $t("edit") }}</span>
+              <span>{{ $t('edit') }}</span>
             </button>
           </div>
           <div>
             <button class="icon" @click="removeCollection" v-close-popover>
               <i class="material-icons">delete</i>
-              <span>{{ $t("delete") }}</span>
+              <span>{{ $t('delete') }}</span>
             </button>
           </div>
         </template>
@@ -51,12 +47,8 @@
             @edit-request="$emit('edit-request', $event)"
           />
         </li>
-        <li
-          v-if="
-            collection.folders.length === 0 && collection.requests.length === 0
-          "
-        >
-          <label>{{ $t("collection_empty") }}</label>
+        <li v-if="collection.folders.length === 0 && collection.requests.length === 0">
+          <label>{{ $t('collection_empty') }}</label>
         </li>
       </ul>
       <ul>
@@ -71,7 +63,7 @@
                 request,
                 collectionIndex,
                 folderIndex: undefined,
-                requestIndex: index
+                requestIndex: index,
               })
             "
           />
@@ -97,32 +89,32 @@ ul li {
 <script>
 export default {
   components: {
-    folder: () => import("./folder"),
-    request: () => import("./request")
+    folder: () => import('./folder'),
+    request: () => import('./request'),
   },
   props: {
     collectionIndex: Number,
-    collection: Object
+    collection: Object,
   },
   data() {
     return {
       showChildren: false,
-      selectedFolder: {}
-    };
+      selectedFolder: {},
+    }
   },
   methods: {
     toggleShowChildren() {
-      this.showChildren = !this.showChildren;
+      this.showChildren = !this.showChildren
     },
     removeCollection() {
-      if (!confirm("Are you sure you want to remove this Collection?")) return;
-      this.$store.commit("postwoman/removeCollection", {
-        collectionIndex: this.collectionIndex
-      });
+      if (!confirm('Are you sure you want to remove this Collection?')) return
+      this.$store.commit('postwoman/removeCollection', {
+        collectionIndex: this.collectionIndex,
+      })
     },
     editFolder(collectionIndex, folder, folderIndex) {
-      this.$emit("edit-folder", { collectionIndex, folder, folderIndex });
-    }
-  }
-};
+      this.$emit('edit-folder', { collectionIndex, folder, folderIndex })
+    },
+  },
+}
 </script>

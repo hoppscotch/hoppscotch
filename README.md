@@ -315,7 +315,10 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 ### Lead Developers
 
 * **[Liyas Thomas](https://github.com/liyasthomas)** - *Author*
-* **[Caneco](https://twitter.com/caneco)** - *Designer*
+* **[John Harker](https://github.com/NBTX)** - *Lead developer*
+* **[Andrew Bastin](https://github.com/andrewbastin)** - *Lead developer*
+* **[James George](https://github.com/jamesgeorge007)** - *Lead maintainer*
+* **[Caneco](https://twitter.com/caneco)** - *Logo and banner designer*
 
 ### Testing and Debugging
 

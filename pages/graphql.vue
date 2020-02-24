@@ -129,7 +129,7 @@
             </div>
           </div>
           <Editor
-            :value="schemaString"
+            v-model="schema"
             :lang="'graphqlschema'"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -204,7 +204,7 @@
             </div>
           </div>
           <Editor
-            :value="responseString"
+            :value="response"
             :lang="'json'"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -333,13 +333,11 @@ export default {
   },
   data() {
     return {
-      schemaString: "",
       commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -372,6 +370,22 @@ export default {
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "query" })
       },
+    },
+    response: {
+      get() {
+        return this.$store.state.gql.response;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "response" });
+      }
+    },
+    schema: {
+      get() {
+        return this.$store.state.gql.schema;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "schema" });
+      }
     },
     variableString: {
       get() {
@@ -412,13 +426,13 @@ export default {
       return t
     },
     copySchema() {
-      this.$refs.copySchemaCode.innerHTML = this.doneButton
-      const aux = document.createElement("textarea")
-      aux.innerText = this.schemaString
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
+      this.$refs.copySchemaCode.innerHTML = this.doneButton;
+      const aux = document.createElement("textarea");
+      aux.innerText = this.schema;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
@@ -438,13 +452,13 @@ export default {
       setTimeout(() => (this.$refs.copyQueryButton.innerHTML = this.copyButton), 1000)
     },
     copyResponse() {
-      this.$refs.copyResponseButton.innerHTML = this.doneButton
-      const aux = document.createElement("textarea")
-      aux.innerText = this.responseString
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
+      this.$refs.copyResponseButton.innerHTML = this.doneButton;
+      const aux = document.createElement("textarea");
+      aux.innerText = this.response;
+      document.body.appendChild(aux);
+      aux.select();
+      document.execCommand("copy");
+      document.body.removeChild(aux);
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
@@ -478,7 +492,7 @@ export default {
 
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
-        this.responseString = JSON.stringify(data.data, null, 2)
+        this.response = JSON.stringify(data.data, null, 2);
 
         this.$nuxt.$loading.finish()
         const duration = Date.now() - startTime
@@ -495,9 +509,10 @@ export default {
       }
     },
     async getSchema() {
-      const startTime = Date.now()
-      this.schemaString = this.$t("loading")
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("schema")
+      const startTime = Date.now();
+      this.schema = this.$t("loading");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("schema");
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
@@ -523,8 +538,6 @@ export default {
           data: query,
         }
 
-        // console.log(reqOptions);
-
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? {
               method: "post",
@@ -538,10 +551,15 @@ export default {
 
         const data = this.$store.state.postwoman.settings.PROXY_ENABLED ? res.data : res
 
-        const schema = gql.buildClientSchema(data.data.data)
-        this.schemaString = gql.printSchema(schema, {
-          commentDescriptions: true,
-        })
+        const schema = gql.buildClientSchema(data.data.data);
+        this.schema = gql.printSchema(schema, {
+          commentDescriptions: true
+        });
+        console.log(
+          gql.printSchema(schema, {
+            commentDescriptions: true
+          })
+        );
 
         if (schema.getQueryType()) {
           const fields = schema.getQueryType().getFields()
@@ -596,8 +614,8 @@ export default {
           icon: "done",
         })
       } catch (error) {
-        this.$nuxt.$loading.finish()
-        this.schemaString = `${error}. ${this.$t("check_console_details")}`
+        this.$nuxt.$loading.finish();
+        this.schema = `${error}. ${this.$t("check_console_details")}`;
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {
           icon: "error",
         })
@@ -609,15 +627,15 @@ export default {
       this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
     },
     downloadResponse() {
-      const dataToWrite = JSON.stringify(this.schemaString, null, 2)
-      const file = new Blob([dataToWrite], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
-      document.body.appendChild(a)
-      a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
+      const dataToWrite = JSON.stringify(this.schema, null, 2);
+      const file = new Blob([dataToWrite], { type: "application/json" });
+      const a = document.createElement("a");
+      const url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]");
+      document.body.appendChild(a);
+      a.click();
+      this.$refs.downloadResponse.innerHTML = this.doneButton;
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })

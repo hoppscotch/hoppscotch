@@ -347,7 +347,11 @@ export default {
 
       settings: {
         SCROLL_INTO_ENABLED: 
-          this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED || true,
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,
@@ -360,6 +364,7 @@ export default {
           this.$store.state.postwoman.settings.PROXY_URL ||
           "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
+        
         EXTENSIONS_ENABLED:
           typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
           "undefined"

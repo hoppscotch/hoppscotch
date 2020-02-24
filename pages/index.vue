@@ -375,7 +375,7 @@
                   <label for="rawBody">{{ $t("raw_request_body") }}</label>
                   <Editor
                     v-model="rawParams"
-                    :lang="'json'"
+                    :lang="rawInputEditorLang"
                     :options="{
                       maxLines: '16',
                       minLines: '8',
@@ -1390,6 +1390,7 @@ import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
 import { sendNetworkRequest } from "../functions/network";
 import { fb } from "../functions/fb";
+import { getEditorLangForMimeType } from "~/functions/editorutils";
 
 const statusCategories = [
   {
@@ -1813,6 +1814,9 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawInput" });
       }
+    },
+    rawInputEditorLang() {
+      return getEditorLangForMimeType(this.contentType);
     },
     requestType: {
       get() {

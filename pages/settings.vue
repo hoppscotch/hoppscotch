@@ -138,6 +138,21 @@
             </pw-toggle>
           </span>
         </li>
+        </ul>
+        <ul>
+        <li>
+          <span>
+            <pw-toggle
+              :on="settings.SCROLL_INTO_ENABLED"
+              @change="toggleSetting('SCROLL_INTO_ENABLED')"
+            >
+              {{ $t("scrollInto_use_toggle") }}
+              {{
+                settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled")
+              }}
+            </pw-toggle>
+          </span>
+        </li>
       </ul>
     </pw-section>
 
@@ -331,7 +346,12 @@ export default {
       ],
 
       settings: {
-        THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || "",
+        SCROLL_INTO_ENABLED: 
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,
@@ -344,6 +364,7 @@ export default {
           this.$store.state.postwoman.settings.PROXY_URL ||
           "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
+        
         EXTENSIONS_ENABLED:
           typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
           "undefined"

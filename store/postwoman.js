@@ -2,6 +2,12 @@ import Vue from "vue";
 
 export const SETTINGS_KEYS = [
   /**
+   * Whether or not to enable scrolling to a specified element, when certain
+   * actions are triggered.
+   */
+  "SCROLL_INTO_ENABLED",
+
+  /**
    * The CSS class that should be applied to the root element.
    * Essentially, the name of the background theme.
    */

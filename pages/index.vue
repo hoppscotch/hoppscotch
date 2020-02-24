@@ -2085,7 +2085,8 @@ export default {
       this.path = path;
       this.showPreRequestScript = usesScripts;
       this.preRequestScript = preRequestScript;
-      this.scrollInto("request");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2132,7 +2133,8 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear();
-      this.scrollInto("response");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("response");
 
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {

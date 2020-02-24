@@ -431,7 +431,7 @@ export default {
       const rootTypeName = this.resolveRootType(type).name;
 
       const target = document.getElementById(`type_${rootTypeName}`);
-      if (target) {
+      if (target && this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED) {
         target.scrollIntoView({
           behavior: "smooth"
         });
@@ -494,7 +494,8 @@ export default {
       const startTime = Date.now();
 
       this.$nuxt.$loading.start();
-      this.scrollInto("response");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("response");
 
       try {
         let headers = {};
@@ -537,7 +538,8 @@ export default {
     async getSchema() {
       const startTime = Date.now();
       this.schemaString = this.$t("loading");
-      this.scrollInto("schema");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("schema");
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.

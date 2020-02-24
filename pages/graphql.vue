@@ -129,7 +129,7 @@
             </div>
           </div>
           <Editor
-            v-model="schema"
+            :value="schema"
             :lang="'graphqlschema'"
             :options="{
               maxLines: responseBodyMaxLines,

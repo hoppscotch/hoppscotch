@@ -182,6 +182,7 @@
                 id="url"
                 name="url"
                 type="url"
+                spellcheck="false"
                 v-model="url"
               />
             </li>
@@ -192,6 +193,7 @@
                 id="path"
                 name="path"
                 v-model="path"
+                spellcheck="false"
                 @input="pathInputHandler"
               />
             </li>
@@ -202,6 +204,7 @@
                 name="label"
                 type="text"
                 v-model="label"
+                spellcheck="false"
                 :placeholder="$t('optional')"
               />
             </li>

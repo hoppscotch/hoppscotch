@@ -346,7 +346,7 @@ export default {
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,
-      
+
       settings: {
         SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
@@ -561,16 +561,10 @@ export default {
         const res = await axios(reqConfig)
 
         const data = this.$store.state.postwoman.settings.PROXY_ENABLED ? res.data : res
-
         const schema = gql.buildClientSchema(data.data.data)
         this.schema = gql.printSchema(schema, {
           commentDescriptions: true,
         })
-        console.log(
-          gql.printSchema(schema, {
-            commentDescriptions: true,
-          })
-        )
 
         if (schema.getQueryType()) {
           const fields = schema.getQueryType().getFields()
@@ -679,7 +673,6 @@ export default {
           },
         },
       })
-      // console.log(oldHeaders);
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({

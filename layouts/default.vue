@@ -759,7 +759,11 @@ export default {
       }
       let showExtensionsToast =
         localStorage.getItem("showExtensionsToast") === "yes";
-      if (!this.extensionInstalled && !showExtensionsToast) {
+
+      // Just return if showExtensionsToast is "no"
+      if (!showExtensionsToast) return
+
+      if (!this.extensionInstalled) {
         setTimeout(() => {
           this.$toast.show(this.$t("extensions_info2"), {
             icon: "extension",

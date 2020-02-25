@@ -97,6 +97,13 @@ export default {
       });
     });
 
+    // Set the theme and show the editor only after it's been set to prevent FOUC.
+    editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+      this.$nextTick().then(() => {
+        this.initialized = true;
+      });
+    });
+
     const completer = {
       getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
         if (this.validationSchema) {

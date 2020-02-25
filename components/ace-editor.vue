@@ -81,6 +81,13 @@ export default {
       ...this.options,
     })
 
+    // Set the theme and show the editor only after it's been set to prevent FOUC.
+    editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+      this.$nextTick().then(() => {
+        this.initialized = true;
+      });
+    });
+
     if (this.value) editor.setValue(this.value, 1);
 
     this.editor = editor
@@ -102,9 +109,8 @@ export default {
     },
   },
 
-  beforeDestroy() {
+  destroyed() {
     this.editor.destroy();
-    this.editor.container.remove();
   }
 };
 </script>

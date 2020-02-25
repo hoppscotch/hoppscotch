@@ -353,8 +353,14 @@ export default {
         code: "ja",
         name: "日本語",
         iso: "ja-JP",
-        file: "ja-JP.js",
+        file: "ja-JP.js"
       },
+      {
+        code: "ko",
+        name: "한국어",
+        iso: "ko-KR",
+        file: "ko-KR.js"
+      }
     ],
     defaultLocale: "en",
     vueI18n: {

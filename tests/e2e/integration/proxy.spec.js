@@ -17,7 +17,6 @@ describe("Proxy enabled - external request", () => {
     cy.enableProxy("/?url=https://api.thecatapi.com&path=")
       .get("#send")
       .click()
-      .wait(1000)
       .get("#response-details-wrapper")
       .should($wrapper => {
         expect($wrapper).to.contain("Cat API")

@@ -757,7 +757,8 @@ export default {
           ],
         })
       }
-      let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
+      let showExtensionsToast =
+        localStorage.getItem("showExtensionsToast") === "yes";
       if (!this.extensionInstalled && !showExtensionsToast) {
         setTimeout(() => {
           this.$toast.show(this.$t("extensions_info2"), {
@@ -776,12 +777,17 @@ export default {
               {
                 text: this.$t("no"),
                 onClick: (e, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            ],
-          })
-        }, 15000)
+                  this.$store.commit("setMiscState", {
+                    value: false,
+                    attribute: "showExtensionsToast"
+                  });
+                  localStorage.setItem("showExtensionsToast", "no");
+                  toastObject.goAway(0);
+                }
+              }
+            ]
+          });
+        }, 15000);
       }
 
       this._keyListener = function(e) {

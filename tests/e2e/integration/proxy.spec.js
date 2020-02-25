@@ -12,13 +12,14 @@ describe("Proxy disabled - local request", () => {
   })
 })
 
-describe('Proxy enabled - external request', () => {
-  it('Enable the proxy and make a request to the real cat api', () => {
-    cy.enableProxy('/?url=https://api.thecatapi.com&path=')
-      .get('#send').click()
-      .wait(500)
-      .get('#response-details-wrapper').should($wrapper => {
-        expect($wrapper).to.contain('Cat API')
+describe("Proxy enabled - external request", () => {
+  it("Enable the proxy and make a request to the real cat api", () => {
+    cy.enableProxy("/?url=https://api.thecatapi.com&path=")
+      .get("#send")
+      .click()
+      .get("#response-details-wrapper")
+      .should($wrapper => {
+        expect($wrapper).to.contain("Cat API")
       })
   })
 })

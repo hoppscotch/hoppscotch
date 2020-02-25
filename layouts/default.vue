@@ -757,8 +757,7 @@ export default {
           ],
         })
       }
-      let showExtensionsToast =
-        localStorage.getItem("showExtensionsToast") === "yes";
+      let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
 
       // Just return if showExtensionsToast is "no"
       if (!showExtensionsToast) return
@@ -783,15 +782,15 @@ export default {
                 onClick: (e, toastObject) => {
                   this.$store.commit("setMiscState", {
                     value: false,
-                    attribute: "showExtensionsToast"
-                  });
-                  localStorage.setItem("showExtensionsToast", "no");
-                  toastObject.goAway(0);
-                }
-              }
-            ]
-          });
-        }, 15000);
+                    attribute: "showExtensionsToast",
+                  })
+                  localStorage.setItem("showExtensionsToast", "no")
+                  toastObject.goAway(0)
+                },
+              },
+            ],
+          })
+        }, 15000)
       }
 
       this._keyListener = function(e) {

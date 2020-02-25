@@ -46,7 +46,7 @@ export default {
     collapse({ target }) {
       const parent = target.parentNode.parentNode;
       parent.querySelector(".collapsible").classList.toggle("hidden");
-      // Save collapsed section to local state
+      // Save collapsed section into the collapsedSections array
       this.$store.commit("setCollapsedSection", this.sectionString);
     },
     isCollapsed(label) {

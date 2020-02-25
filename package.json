@@ -15,7 +15,7 @@
     "e2e": "cypress run",
     "e2e:open": "cypress open",
     "dev:e2e": "server-test dev :3000 e2e:open",
-    "prettier": "prettier --write **/*.{html,js,json,vue}",
+    "pretty-quick": "pretty-quick --pattern \"**/*.*(html|js|json|vue)\"",
     "test": "start-server-and-test start http-get://localhost:3000 e2e"
   },
   "dependencies": {
@@ -45,6 +45,7 @@
     "lint-staged": "^10.0.7",
     "node-sass": "^4.13.1",
     "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
     "sass-loader": "^8.0.2",
     "start-server-and-test": "^1.10.8"
   }

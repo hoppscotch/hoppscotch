@@ -1518,7 +1518,15 @@ export default {
       customMethod: false,
       files: [],
       filenames: "",
-      navigatorShare: navigator.share
+      navigatorShare: navigator.share,
+
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true
+      }
     };
   },
   watch: {
@@ -2085,8 +2093,7 @@ export default {
       this.path = path;
       this.showPreRequestScript = usesScripts;
       this.preRequestScript = preRequestScript;
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
-        this.scrollInto("request");
+      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2133,8 +2140,7 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear();
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
-        this.scrollInto("response");
+      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("response");
 
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {

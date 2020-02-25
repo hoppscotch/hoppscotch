@@ -13,6 +13,12 @@ export default {
       : theme.collapsedSections.push(value)
   },
 
+  setCollapsedSection({ theme }, value) {
+    theme.collapsedSections.includes(value)
+      ? (theme.collapsedSections = theme.collapsedSections.filter(section => section !== value))
+      : theme.collapsedSections.push(value)
+  },
+
   addGQLHeader({ gql }, object) {
     gql.headers.push(object)
   },

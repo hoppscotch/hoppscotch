@@ -471,6 +471,7 @@ export default {
       const startTime = Date.now()
 
       this.$nuxt.$loading.start()
+      this.response = this.$t("loading")
       this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
 
       try {

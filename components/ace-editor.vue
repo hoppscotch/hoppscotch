@@ -21,8 +21,10 @@
 <script>
 const DEFAULT_THEME = "twilight"
 
-import ace from "ace-builds"
-import "ace-builds/webpack-resolver"
+import ace from "ace-builds";
+import "ace-builds/webpack-resolver";
+import jsonParse from '../functions/jsonParse';
+import debounce from '../functions/utils/debounce';
 
 export default {
   props: {
@@ -55,8 +57,10 @@ export default {
   watch: {
     value(value) {
       if (value !== this.cacheValue) {
-        this.editor.session.setValue(value, 1)
-        this.cacheValue = value
+        this.editor.session.setValue(value, 1);
+        this.cacheValue = value;
+
+        this.provideLinting(value);
       }
     },
     theme() {
@@ -94,10 +98,13 @@ export default {
     this.cacheValue = this.value
 
     editor.on("change", () => {
-      const content = editor.getValue()
-      this.$emit("input", content)
-      this.cacheValue = content
-    })
+      const content = editor.getValue();
+      this.$emit("input", content);
+      this.cacheValue = content;
+      this.provideLinting(content);
+    });
+
+    this.provideLinting(this.value);
   },
 
   methods: {
@@ -105,8 +112,29 @@ export default {
       if (this.theme) {
         return this.theme
       }
-      return this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+      return (
+        this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+      );
     },
+
+    provideLinting: debounce(function (code) {
+      if (this.lang === "json") {
+        try {
+          jsonParse(code);
+          this.editor.session.setAnnotations([]);
+        } catch (e) {
+          const pos = this.editor.session.getDocument().indexToPosition(e.start, 0);
+          this.editor.session.setAnnotations([
+            {
+              row: pos.row,
+              column: pos.column,
+              text: e.message,
+              type: "error"
+            }
+          ]);
+        }
+      }
+    }, 2000)
   },
 
   destroyed() {

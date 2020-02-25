@@ -25,7 +25,7 @@ export default {
       return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
     },
     sectionString() {
-      return `${this.$route.path.replace(/\/+$/, '')}/${this.label}`
+      return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },
   },
 

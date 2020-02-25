@@ -187,67 +187,21 @@
               useWorker: false
             }"
           />
-          <div class="flex-wrap">
-            <label>{{ $t("query_variables") }}</label>
-            <div>
-              <button
-                class="icon"
-                @click="variables = []"
-                v-tooltip.bottom="$t('clear')"
-              >
-                <i class="material-icons">clear_all</i>
-              </button>
-            </div>
-          </div>
-          <ul v-for="(variable, index) in variables" :key="index">
-            <li>
-              <input
-                :placeholder="$t('variable_count', { count: index + 1 })"
-                :name="'variable_key_' + index"
-                :value="variable.key"
-                @change="
-                  $store.commit('setGQLVariableKey', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                autofocus
-              />
-            </li>
-            <li>
-              <input
-                :placeholder="$t('value_count', { count: index + 1 })"
-                :name="'variable_value_' + index"
-                :value="variable.value"
-                @change="
-                  $store.commit('setGQLVariableValue', {
-                    index,
-                    value: $event.target.value
-                  })
-                "
-                autofocus
-              />
-            </li>
-            <div>
-              <li>
-                <button
-                  class="icon"
-                  @click="removeQueryVariable(index)"
-                  v-tooltip.bottom="$t('delete')"
-                >
-                  <i class="material-icons">delete</i>
-                </button>
-              </li>
-            </div>
-          </ul>
-          <ul>
-            <li>
-              <button class="icon" @click="addQueryVariable">
-                <i class="material-icons">add</i>
-                <span>{{ $t("add_new") }}</span>
-              </button>
-            </li>
-          </ul>
+        </pw-section>
+
+        <pw-section class="yellow" label="Variables" ref="variables">
+          <Editor
+            v-model="variableString"
+            :lang="'json'"
+            :options="{
+              maxLines: responseBodyMaxLines,
+              minLines: '16',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              showPrintMargin: false,
+              useWorker: false
+            }"
+          />
         </pw-section>
 
         <pw-section class="purple" label="Response" ref="response">
@@ -391,6 +345,7 @@
 import axios from "axios";
 import * as gql from "graphql";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
+import { commonHeaders } from "../functions/headers";
 import AceEditor from "../components/ace-editor";
 import QueryEditor from "../components/graphql/queryeditor";
 import { sendNetworkRequest } from "../functions/network";
@@ -410,130 +365,7 @@ export default {
   data() {
     return {
       schemaString: "",
-      commonHeaders: [
-        "WWW-Authenticate",
-        "Authorization",
-        "Proxy-Authenticate",
-        "Proxy-Authorization",
-        "Age",
-        "Cache-Control",
-        "Clear-Site-Data",
-        "Expires",
-        "Pragma",
-        "Warning",
-        "Accept-CH",
-        "Accept-CH-Lifetime",
-        "Early-Data",
-        "Content-DPR",
-        "DPR",
-        "Device-Memory",
-        "Save-Data",
-        "Viewport-Width",
-        "Width",
-        "Last-Modified",
-        "ETag",
-        "If-Match",
-        "If-None-Match",
-        "If-Modified-Since",
-        "If-Unmodified-Since",
-        "Vary",
-        "Connection",
-        "Keep-Alive",
-        "Accept",
-        "Accept-Charset",
-        "Accept-Encoding",
-        "Accept-Language",
-        "Expect",
-        "Max-Forwards",
-        "Cookie",
-        "Set-Cookie",
-        "Cookie2",
-        "Set-Cookie2",
-        "Access-Control-Allow-Origin",
-        "Access-Control-Allow-Credentials",
-        "Access-Control-Allow-Headers",
-        "Access-Control-Allow-Methods",
-        "Access-Control-Expose-Headers",
-        "Access-Control-Max-Age",
-        "Access-Control-Request-Headers",
-        "Access-Control-Request-Method",
-        "Origin",
-        "Service-Worker-Allowed",
-        "Timing-Allow-Origin",
-        "X-Permitted-Cross-Domain-Policies",
-        "DNT",
-        "Tk",
-        "Content-Disposition",
-        "Content-Length",
-        "Content-Type",
-        "Content-Encoding",
-        "Content-Language",
-        "Content-Location",
-        "Forwarded",
-        "X-Forwarded-For",
-        "X-Forwarded-Host",
-        "X-Forwarded-Proto",
-        "Via",
-        "Location",
-        "From",
-        "Host",
-        "Referer",
-        "Referrer-Policy",
-        "User-Agent",
-        "Allow",
-        "Server",
-        "Accept-Ranges",
-        "Range",
-        "If-Range",
-        "Content-Range",
-        "Cross-Origin-Opener-Policy",
-        "Cross-Origin-Resource-Policy",
-        "Content-Security-Policy",
-        "Content-Security-Policy-Report-Only",
-        "Expect-CT",
-        "Feature-Policy",
-        "Public-Key-Pins",
-        "Public-Key-Pins-Report-Only",
-        "Strict-Transport-Security",
-        "Upgrade-Insecure-Requests",
-        "X-Content-Type-Options",
-        "X-Download-Options",
-        "X-Frame-Options",
-        "X-Powered-By",
-        "X-XSS-Protection",
-        "Last-Event-ID",
-        "NEL",
-        "Ping-From",
-        "Ping-To",
-        "Report-To",
-        "Transfer-Encoding",
-        "TE",
-        "Trailer",
-        "Sec-WebSocket-Key",
-        "Sec-WebSocket-Extensions",
-        "Sec-WebSocket-Accept",
-        "Sec-WebSocket-Protocol",
-        "Sec-WebSocket-Version",
-        "Accept-Push-Policy",
-        "Accept-Signature",
-        "Alt-Svc",
-        "Date",
-        "Large-Allocation",
-        "Link",
-        "Push-Policy",
-        "Retry-After",
-        "Signature",
-        "Signed-Headers",
-        "Server-Timing",
-        "SourceMap",
-        "Upgrade",
-        "X-DNS-Prefetch-Control",
-        "X-Firefox-Spdy",
-        "X-Pingback",
-        "X-Requested-With",
-        "X-Robots-Tag",
-        "X-UA-Compatible"
-      ],
+      commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
@@ -564,20 +396,23 @@ export default {
         this.$store.commit("setGQLState", { value, attribute: "headers" });
       }
     },
-    variables: {
-      get() {
-        return this.$store.state.gql.variables;
-      },
-      set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "variables" });
-      }
-    },
     gqlQueryString: {
       get() {
         return this.$store.state.gql.query;
       },
       set(value) {
         this.$store.commit("setGQLState", { value, attribute: "query" });
+      }
+    },
+    variableString: {
+      get() {
+        return this.$store.state.gql.variablesJSONString;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", {
+          value,
+          attribute: "variablesJSONString"
+        });
       }
     },
     headerString() {
@@ -596,7 +431,7 @@ export default {
       const rootTypeName = this.resolveRootType(type).name;
 
       const target = document.getElementById(`type_${rootTypeName}`);
-      if (target) {
+      if (target && this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED) {
         target.scrollIntoView({
           behavior: "smooth"
         });
@@ -659,7 +494,8 @@ export default {
       const startTime = Date.now();
 
       this.$nuxt.$loading.start();
-      this.scrollInto("response");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("response");
 
       try {
         let headers = {};
@@ -667,18 +503,9 @@ export default {
           headers[header.key] = header.value;
         });
 
-        let variables = {};
+        let variables = JSON.parse(this.variableString);
+
         const gqlQueryString = this.gqlQueryString;
-        this.variables.forEach(variable => {
-          // todo: better variable type validation
-          if (gqlQueryString.indexOf(`\$${variable.key}: Int`) > -1) {
-            variables[variable.key] = parseInt(variable.value);
-          } else if (gqlQueryString.indexOf(`\$${variable.key}: Float`) > -1) {
-            variables[variable.key] = parseFloat(variable.value);
-          } else {
-            variables[variable.key] = variable.value;
-          }
-        });
 
         const reqOptions = {
           method: "post",
@@ -711,7 +538,8 @@ export default {
     async getSchema() {
       const startTime = Date.now();
       this.schemaString = this.$t("loading");
-      this.scrollInto("schema");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("schema");
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
@@ -835,13 +663,10 @@ export default {
     downloadResponse() {
       const dataToWrite = JSON.stringify(this.schemaString, null, 2);
       const file = new Blob([dataToWrite], { type: "application/json" });
-      const a = document.createElement("a"),
-        url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      const url = URL.createObjectURL(file);
       a.href = url;
-      a.download = (this.url + " on " + Date() + ".graphql").replace(
-        /\./g,
-        "[dot]"
-      );
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;
@@ -878,30 +703,6 @@ export default {
         }
       });
       // console.log(oldHeaders);
-    },
-    addQueryVariable(index) {
-      this.$store.commit("addGQLVariable", {
-        key: "",
-        value: ""
-      });
-      return false;
-    },
-    removeQueryVariable(index) {
-      const oldVariables = this.variables.slice();
-
-      this.$store.commit("removeGQLVariable", index);
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-        action: {
-          text: this.$t("undo"),
-          duration: 4000,
-          onClick: (e, toastObject) => {
-            this.variables = oldVariables;
-            toastObject.remove();
-          }
-        }
-      });
-      // console.log(oldVariables);
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({

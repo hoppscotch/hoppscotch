@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("edit_collection") }}</h3>
+            <h3 class="title">{{ $t("new_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -20,8 +20,8 @@
           <input
             type="text"
             v-model="name"
-            :placeholder="editingCollection.name"
-            @keyup.enter="saveCollection"
+            :placeholder="$t('my_new_environment')"
+            @keyup.enter="addNewEnvironment"
           />
         </li>
       </ul>
@@ -33,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveCollection">
+          <button class="icon primary" @click="addNewEnvironment">
             {{ $t("save") }}
           </button>
         </span>
@@ -43,11 +43,11 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb";
+
 export default {
   props: {
-    show: Boolean,
-    editingCollection: Object,
-    editingCollectionIndex: Number
+    show: Boolean
   },
   components: {
     modal: () => import("../../components/modal")
@@ -58,22 +58,35 @@ export default {
     };
   },
   methods: {
-    saveCollection() {
+    syncEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+          );
+        }
+      }
+    },
+    addNewEnvironment() {
       if (!this.$data.name) {
-        this.$toast.info($t("invalid_collection_name"));
+        this.$toast.info(this.$t("invalid_environment_name"));
         return;
       }
-      const collectionUpdated = {
-        ...this.$props.editingCollection,
-        name: this.$data.name
-      };
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex
+      let newEnvironment = [
+        {
+          name: this.$data.name,
+          variables: []
+        }
+      ];
+      this.$store.commit("postwoman/importAddEnvironments", {
+        environments: newEnvironment,
+        confirmation: "Environment added"
       });
       this.$emit("hide-modal");
+      this.syncEnvironments();
     },
     hideModal() {
+      this.$data.name = undefined;
       this.$emit("hide-modal");
     }
   }

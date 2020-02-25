@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<style>
+<style scoped lang="scss">
 .type-box {
   padding: 16px;
   margin: 4px 0;

@@ -4,7 +4,7 @@ TODO:
 -->
 
 <template>
-  <div class="collections-wrapper">
+  <pw-section class="yellow" :label="$t('collections')" ref="collections">
     <addCollection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <editCollection
       :show="showModalEdit"
@@ -92,7 +92,7 @@ TODO:
         <span>{{ $t("generate_docs") }}</span>
       </button>
     </nuxt-link>
-  </div>
+  </pw-section>
 </template>
 
 <style scoped lang="scss">
@@ -113,6 +113,7 @@ import { fb } from "../../functions/fb";
 export default {
   components: {
     collection,
+    "pw-section": () => import("../section"),
     addCollection: () => import("./addCollection"),
     addFolder: () => import("./addFolder"),
     editCollection: () => import("./editCollection"),
@@ -141,6 +142,15 @@ export default {
     collections() {
       return this.$store.state.postwoman.collections;
     }
+  },
+  async mounted() {
+    this._keyListener = function(e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false;
+      }
+    };
+    document.addEventListener("keydown", this._keyListener.bind(this));
   },
   methods: {
     displayModalAdd(shouldDisplay) {
@@ -216,6 +226,9 @@ export default {
         }
       }
     }
+  },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener);
   }
 };
 </script>

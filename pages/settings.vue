@@ -12,14 +12,14 @@
               />
               <i v-else class="material-icons">account_circle</i>
               <span>
-                {{ fb.currentUser.displayName || "Name not found" }}
+                {{ fb.currentUser.displayName || $t("nothing_found") }}
               </span>
             </button>
             <br />
             <button class="icon">
               <i class="material-icons">email</i>
               <span>
-                {{ fb.currentUser.email || "Email not found" }}
+                {{ fb.currentUser.email || $t("nothing_found") }}
               </span>
             </button>
             <br />
@@ -38,7 +38,7 @@
                 {{ setting.value ? $t("enabled") : $t("disabled") }}
               </pw-toggle>
             </p>
-            <p v-if="fb.currentSettings.length == 0">
+            <p v-if="fb.currentSettings.length !== 3">
               <button class="" @click="initSettings">
                 <i class="material-icons">sync</i>
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
@@ -99,7 +99,7 @@
                 :color="theme.color"
                 :name="theme.name"
                 class="bg"
-              ></swatch>
+              />
             </span>
           </div>
         </li>
@@ -110,7 +110,7 @@
           <div class="colors">
             <span
               :key="entry.color"
-              @click.prevent="setActiveColor(entry.color, entry.vibrant)"
+              @click="setActiveColor(entry.color, entry.vibrant)"
               v-for="entry in colors"
             >
               <swatch
@@ -137,6 +137,36 @@
               }}
             </pw-toggle>
           </span>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <span>
+            <pw-toggle
+              :on="settings.SCROLL_INTO_ENABLED"
+              @change="toggleSetting('SCROLL_INTO_ENABLED')"
+            >
+              {{ $t("scrollInto_use_toggle") }}
+              {{
+                settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled")
+              }}
+            </pw-toggle>
+          </span>
+        </li>
+      </ul>
+    </pw-section>
+
+    <pw-section class="purple" :label="$t('extensions')" ref="extensions">
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <pw-toggle
+              :on="settings.EXTENSIONS_ENABLED"
+              @change="toggleSetting('EXTENSIONS_ENABLED')"
+            >
+              {{ $t("extensions_use_toggle") }}
+            </pw-toggle>
+          </div>
         </li>
       </ul>
     </pw-section>
@@ -192,7 +222,12 @@
             {{ $t("postwoman_official_proxy_hosting") }}
             <br />
             {{ $t("read_the") }}
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+            <a
+              class="link"
+              href="https://apollotv.xyz/legal"
+              target="_blank"
+              rel="noopener"
+            >
               {{ $t("apollotv_privacy_policy") }} </a
             >.
           </p>
@@ -256,7 +291,7 @@ export default {
           aceEditor: "vibrant_ink"
         },
         {
-          color: "var(--bg-color)",
+          color: "var(--ac-color)",
           name: this.$t("auto_system"),
           vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
           class: "auto",
@@ -311,7 +346,13 @@ export default {
       ],
 
       settings: {
-        THEME_CLASS: this.$store.state.postwoman.settings.THEME_CLASS || "",
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+
+        THEME_CLASS: "",
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,
@@ -323,7 +364,13 @@ export default {
         PROXY_URL:
           this.$store.state.postwoman.settings.PROXY_URL ||
           "https://postwoman.apollotv.xyz/",
-        PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
+        PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
+
+        EXTENSIONS_ENABLED:
+          typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
+            : true
       },
 
       doneButton: '<i class="material-icons">done</i>',
@@ -398,9 +445,9 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(res => {
-          if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+        .then(({ additionalUserInfo }) => {
+          if (additionalUserInfo.isNewUser) {
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,
@@ -408,7 +455,8 @@ export default {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   fb.writeSettings("syncHistory", true);
-                  fb.writeSettings("syncCollections", false);
+                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncEnvironments", true);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -427,9 +475,9 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(res => {
-          if (res.additionalUserInfo.isNewUser) {
-            this.$toast.info(this.$t("turn_on") + " " + this.$t("sync"), {
+        .then(({ additionalUserInfo }) => {
+          if (additionalUserInfo.isNewUser) {
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
               icon: "sync",
               duration: null,
               closeOnSwipe: false,
@@ -437,7 +485,8 @@ export default {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
                   fb.writeSettings("syncHistory", true);
-                  fb.writeSettings("syncCollections", false);
+                  fb.writeSettings("syncCollections", true);
+                  fb.writeSettings("syncEnvironments", true);
                   this.$router.push({ path: "/settings" });
                   toastObject.remove();
                 }
@@ -456,16 +505,17 @@ export default {
     },
     initSettings() {
       fb.writeSettings("syncHistory", true);
-      fb.writeSettings("syncCollections", false);
+      fb.writeSettings("syncCollections", true);
+      fb.writeSettings("syncEnvironments", true);
     },
-    resetProxy(e) {
+    resetProxy({ target }) {
       this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;
-      e.target.innerHTML = this.doneButton;
+      target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all"
       });
       setTimeout(
-        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
       );
     }

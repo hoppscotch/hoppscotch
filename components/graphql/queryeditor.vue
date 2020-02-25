@@ -1,13 +1,31 @@
 <template>
-  <pre ref="editor"></pre>
+  <div class="show-if-initialized" :class="{ initialized }">
+    <pre ref="editor"></pre>
+  </div>
 </template>
+
+<style lang="scss">
+  .show-if-initialized {
+    opacity: 0;
+
+    &.initialized {
+      opacity: 1;
+    }
+
+    & > * {
+      transition: none;
+    }
+  }
+</style>
 
 <script>
 const DEFAULT_THEME = "twilight";
 
 import ace from "ace-builds";
 import * as gql from "graphql";
+import { getAutocompleteSuggestions } from "graphql-language-service-interface";
 import "ace-builds/webpack-resolver";
+import "ace-builds/src-noconflict/ext-language_tools";
 import debounce from "../../functions/utils/debounce";
 
 export default {
@@ -32,6 +50,7 @@ export default {
 
   data() {
     return {
+      initialized: false,
       editor: null,
       cacheValue: "",
       validationSchema: null
@@ -46,10 +65,15 @@ export default {
       }
     },
     theme() {
-      this.editor.setTheme("ace/theme/" + this.defineTheme());
+      this.initialized = false;
+      this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+        this.$nextTick().then(() => {
+          this.initialized = true;
+        });
+      });
     },
     lang(value) {
-      this.editor.getSession().setMode("ace/mode/" + value);
+      this.editor.getSession().setMode(`ace/mode/${value}`);
     },
     options(value) {
       this.editor.setOptions(value);
@@ -57,11 +81,53 @@ export default {
   },
 
   mounted() {
+    let langTools = ace.require("ace/ext/language_tools");
+
     const editor = ace.edit(this.$refs.editor, {
-      theme: "ace/theme/" + this.defineTheme(),
-      mode: "ace/mode/" + this.lang,
+      mode: `ace/mode/${this.lang}`,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
       ...this.options
     });
+
+    // Set the theme and show the editor only after it's been set to prevent FOUC.
+    editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+      this.$nextTick().then(() => {
+        this.initialized = true;
+      });
+    });
+
+    const completer = {
+      getCompletions: (
+        editor,
+        _session,
+        { row, column },
+        _prefix,
+        callback
+      ) => {
+        if (this.validationSchema) {
+          const completions = getAutocompleteSuggestions(
+            this.validationSchema,
+            editor.getValue(),
+            { line: row, character: column }
+          );
+
+          callback(
+            null,
+            completions.map(({ label, detail }) => ({
+              name: label,
+              value: label,
+              score: 1.0,
+              meta: detail
+            }))
+          );
+        } else {
+          callback(null, []);
+        }
+      }
+    };
+
+    langTools.setCompleters([completer]);
 
     if (this.value) editor.setValue(this.value, 1);
 
@@ -101,14 +167,14 @@ export default {
 
           if (this.validationSchema) {
             this.editor.session.setAnnotations(
-              gql.validate(this.validationSchema, doc).map(err => {
-                return {
-                  row: err.locations[0].line - 1,
-                  column: err.locations[0].column - 1,
-                  text: err.message,
+              gql
+                .validate(this.validationSchema, doc)
+                .map(({ locations, message }) => ({
+                  row: locations[0].line - 1,
+                  column: locations[0].column - 1,
+                  text: message,
                   type: "error"
-                };
-              })
+                }))
             );
           }
         } catch (e) {
@@ -129,7 +195,6 @@ export default {
 
   beforeDestroy() {
     this.editor.destroy();
-    this.editor.container.remove();
   }
 };
 </script>

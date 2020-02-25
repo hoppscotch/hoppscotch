@@ -1,8 +1,8 @@
 export default () => ({
   request: {
     method: "GET",
-    url: "https://reqres.in",
-    path: "/api/users",
+    url: "https://httpbin.org",
+    path: "/get",
     label: "",
     auth: "None",
     httpUser: "",
@@ -20,7 +20,7 @@ export default () => ({
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],
-    variables: [],
+    variablesJSONString: "{}",
     query: ""
   },
   oauth2: {

@@ -15,7 +15,7 @@
   </fieldset>
 </template>
 
-<style>
+<style scoped lang="scss">
 fieldset.no-colored-frames legend {
   color: var(--fg-color);
 }

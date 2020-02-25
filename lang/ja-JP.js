@@ -111,7 +111,7 @@ export default {
   no_label: "ラベル無し",
   prerequest_script: "プレリクエストスクリプト",
   no_prerequest_script: "プレリクエストスクリプト無し",
-  search_history: "検索履歴",
+  search: "検索履歴",
   history_empty: "履歴が空です",
   history_deleted: "履歴が削除された",
   clear: "クリア",

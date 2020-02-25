@@ -45,17 +45,138 @@
             <li>
               <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
-                <select id="method" v-model="method" @change="methodChange">
-                  <option value="GET">GET</option>
-                  <option value="HEAD">HEAD</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                  <option value="DELETE">DELETE</option>
-                  <option value="CONNECT">CONNECT</option>
-                  <option value="OPTIONS">OPTIONS</option>
-                  <option value="TRACE">TRACE</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
+                <v-popover>
+                  <input
+                    id="method"
+                    class="method"
+                    v-if="!customMethod"
+                    v-model="method"
+                    readonly
+                  />
+                  <input v-else v-model="method" placeholder="CUSTOM" />
+                  <template slot="popover">
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'GET';
+                        "
+                        v-close-popover
+                      >
+                        GET
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'HEAD';
+                        "
+                        v-close-popover
+                      >
+                        HEAD
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'POST';
+                        "
+                        v-close-popover
+                      >
+                        POST
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'PUT';
+                        "
+                        v-close-popover
+                      >
+                        PUT
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'DELETE';
+                        "
+                        v-close-popover
+                      >
+                        DELETE
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'CONNECT';
+                        "
+                        v-close-popover
+                      >
+                        CONNECT
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'OPTIONS';
+                        "
+                        v-close-popover
+                      >
+                        OPTIONS
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'TRACE';
+                        "
+                        v-close-popover
+                      >
+                        TRACE
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = false;
+                          method = 'PATCH';
+                        "
+                        v-close-popover
+                      >
+                        PATCH
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = true;
+                          method = 'CUSTOM';
+                        "
+                        v-close-popover
+                      >
+                        CUSTOM
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
             <li>
@@ -98,7 +219,6 @@
                 ref="sendButton"
               >
                 {{ $t("send") }}
-                <!-- <span id="hidden-message">{{ $t("again") }}</span> -->
                 <span>
                   <i class="material-icons">send</i>
                 </span>
@@ -127,17 +247,45 @@
                   <span>
                     <pw-toggle :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
-                      {{ rawInput ? $t("enabled") : $t("disabled") }}
                     </pw-toggle>
                   </span>
                   <div>
+                    <label for="attachment">
+                      <button
+                        class="icon"
+                        @click="$refs.attachment.click()"
+                        v-tooltip="
+                          files.length === 0
+                            ? $t('upload_file')
+                            : filenames.replace('<br/>', '')
+                        "
+                      >
+                        <i class="material-icons">attach_file</i>
+                        <span>
+                          {{
+                            files.length === 0
+                              ? "No files"
+                              : files.length == 1
+                              ? "1 file"
+                              : files.length + " files"
+                          }}
+                        </span>
+                      </button>
+                    </label>
+                    <input
+                      ref="attachment"
+                      name="attachment"
+                      type="file"
+                      @change="uploadAttachment"
+                      multiple
+                    />
                     <label for="payload">
                       <button
                         class="icon"
                         @click="$refs.payload.click()"
-                        v-tooltip="$t('upload_file')"
+                        v-tooltip="$t('import_json')"
                       >
-                        <i class="material-icons">attach_file</i>
+                        <i class="material-icons">post_add</i>
                       </button>
                     </label>
                     <input
@@ -227,7 +375,7 @@
                   <label for="rawBody">{{ $t("raw_request_body") }}</label>
                   <Editor
                     v-model="rawParams"
-                    :lang="'json'"
+                    :lang="rawInputEditorLang"
                     :options="{
                       maxLines: '16',
                       minLines: '8',
@@ -260,10 +408,10 @@
                   content: isHidden ? $t('show_code') : $t('hide_code')
                 }"
               >
-                <i class="material-icons">flash_on</i>
+                <i class="material-icons">code</i>
               </button>
               <button
-                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+                class="icon"
                 id="preRequestScriptButton"
                 v-tooltip.bottom="{
                   content: !showPreRequestScript
@@ -276,14 +424,15 @@
                   class="material-icons"
                   :class="showPreRequestScript"
                   v-if="!showPreRequestScript"
-                  >code</i
                 >
-                <i class="material-icons" :class="showPreRequestScript" v-else
-                  >close</i
-                >
+                  playlist_add
+                </i>
+                <i class="material-icons" :class="showPreRequestScript" v-else>
+                  close
+                </i>
               </button>
               <button
-                :class="'icon' + (testsEnabled ? ' info-response' : '')"
+                class="icon"
                 id="preRequestScriptButto"
                 v-tooltip.bottom="{
                   content: !testsEnabled ? 'Enable Tests' : 'Disable Tests'
@@ -295,7 +444,7 @@
                   :class="testsEnabled"
                   v-if="!testsEnabled"
                 >
-                  assignment_turned_in
+                  playlist_add_check
                 </i>
                 <i class="material-icons" :class="testsEnabled" v-else>close</i>
               </button>
@@ -309,7 +458,8 @@
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('copy_request_link')"
               >
-                <i class="material-icons">file_copy</i>
+                <i v-if="navigatorShare" class="material-icons">share</i>
+                <i v-else class="material-icons">file_copy</i>
               </button>
               <button
                 class="icon"
@@ -380,7 +530,7 @@
                     </button>
                   </div>
                 </div>
-                <div v-for="testReport in testReports">
+                <div v-for="(testReport, index) in testReports" :key="index">
                   <div v-if="testReport.startBlock" class="info">
                     <h4>{{ testReport.startBlock }}</h4>
                   </div>
@@ -923,32 +1073,28 @@
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
-            <pw-section
-              class="yellow"
-              :label="$t('collections')"
-              ref="collections"
-            >
-              <collections />
-            </pw-section>
+            <collections />
+          </div>
+          <input id="environment-tab" type="radio" name="side" />
+          <label for="environment-tab">{{ $t("environment") }}</label>
+          <div class="tab">
+            <environments @use-environment="useSelectedEnvironment($event)" />
           </div>
           <input id="sync-tab" type="radio" name="side" />
-          <label for="sync-tab">{{ $t("sync") }}</label>
+          <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
-            <pw-section
-              v-if="fb.currentUser"
-              class="pink"
-              label="Sync"
-              ref="sync"
-            >
-              <inputform />
-              <ballsfeed />
-            </pw-section>
-            <pw-section v-else>
-              <ul>
-                <li>
-                  <label>{{ $t("login_first") }}</label>
-                </li>
-              </ul>
+            <pw-section class="pink" :label="$t('notes')" ref="sync">
+              <div v-if="fb.currentUser">
+                <inputform />
+                <notes />
+              </div>
+              <div v-else>
+                <ul>
+                  <li>
+                    <label>{{ $t("login_first") }}</label>
+                  </li>
+                </ul>
+              </div>
             </pw-section>
           </div>
         </section>
@@ -1234,6 +1380,7 @@
 import section from "../components/section";
 import url from "url";
 import querystring from "querystring";
+import { commonHeaders } from "../functions/headers";
 import textareaAutoHeight from "../directives/textareaAutoHeight";
 import parseCurlCommand from "../assets/js/curlparser.js";
 import getEnvironmentVariablesFromScript from "../functions/preRequest";
@@ -1243,6 +1390,7 @@ import AceEditor from "../components/ace-editor";
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth";
 import { sendNetworkRequest } from "../functions/network";
 import { fb } from "../functions/fb";
+import { getEditorLangForMimeType } from "~/functions/editorutils";
 
 const statusCategories = [
   {
@@ -1309,7 +1457,8 @@ export default {
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
     Editor: AceEditor,
     inputform: () => import("../components/firebase/inputform"),
-    ballsfeed: () => import("../components/firebase/feeds")
+    notes: () => import("../components/firebase/feeds"),
+    environments: () => import("../components/environments")
   },
   data() {
     return {
@@ -1356,130 +1505,8 @@ export default {
         "text/plain"
       ],
 
-      commonHeaders: [
-        "WWW-Authenticate",
-        "Authorization",
-        "Proxy-Authenticate",
-        "Proxy-Authorization",
-        "Age",
-        "Cache-Control",
-        "Clear-Site-Data",
-        "Expires",
-        "Pragma",
-        "Warning",
-        "Accept-CH",
-        "Accept-CH-Lifetime",
-        "Early-Data",
-        "Content-DPR",
-        "DPR",
-        "Device-Memory",
-        "Save-Data",
-        "Viewport-Width",
-        "Width",
-        "Last-Modified",
-        "ETag",
-        "If-Match",
-        "If-None-Match",
-        "If-Modified-Since",
-        "If-Unmodified-Since",
-        "Vary",
-        "Connection",
-        "Keep-Alive",
-        "Accept",
-        "Accept-Charset",
-        "Accept-Encoding",
-        "Accept-Language",
-        "Expect",
-        "Max-Forwards",
-        "Cookie",
-        "Set-Cookie",
-        "Cookie2",
-        "Set-Cookie2",
-        "Access-Control-Allow-Origin",
-        "Access-Control-Allow-Credentials",
-        "Access-Control-Allow-Headers",
-        "Access-Control-Allow-Methods",
-        "Access-Control-Expose-Headers",
-        "Access-Control-Max-Age",
-        "Access-Control-Request-Headers",
-        "Access-Control-Request-Method",
-        "Origin",
-        "Service-Worker-Allowed",
-        "Timing-Allow-Origin",
-        "X-Permitted-Cross-Domain-Policies",
-        "DNT",
-        "Tk",
-        "Content-Disposition",
-        "Content-Length",
-        "Content-Type",
-        "Content-Encoding",
-        "Content-Language",
-        "Content-Location",
-        "Forwarded",
-        "X-Forwarded-For",
-        "X-Forwarded-Host",
-        "X-Forwarded-Proto",
-        "Via",
-        "Location",
-        "From",
-        "Host",
-        "Referer",
-        "Referrer-Policy",
-        "User-Agent",
-        "Allow",
-        "Server",
-        "Accept-Ranges",
-        "Range",
-        "If-Range",
-        "Content-Range",
-        "Cross-Origin-Opener-Policy",
-        "Cross-Origin-Resource-Policy",
-        "Content-Security-Policy",
-        "Content-Security-Policy-Report-Only",
-        "Expect-CT",
-        "Feature-Policy",
-        "Public-Key-Pins",
-        "Public-Key-Pins-Report-Only",
-        "Strict-Transport-Security",
-        "Upgrade-Insecure-Requests",
-        "X-Content-Type-Options",
-        "X-Download-Options",
-        "X-Frame-Options",
-        "X-Powered-By",
-        "X-XSS-Protection",
-        "Last-Event-ID",
-        "NEL",
-        "Ping-From",
-        "Ping-To",
-        "Report-To",
-        "Transfer-Encoding",
-        "TE",
-        "Trailer",
-        "Sec-WebSocket-Key",
-        "Sec-WebSocket-Extensions",
-        "Sec-WebSocket-Accept",
-        "Sec-WebSocket-Protocol",
-        "Sec-WebSocket-Version",
-        "Accept-Push-Policy",
-        "Accept-Signature",
-        "Alt-Svc",
-        "Date",
-        "Large-Allocation",
-        "Link",
-        "Push-Policy",
-        "Retry-After",
-        "Signature",
-        "Signed-Headers",
-        "Server-Timing",
-        "SourceMap",
-        "Upgrade",
-        "X-DNS-Prefetch-Control",
-        "X-Firefox-Spdy",
-        "X-Pingback",
-        "X-Requested-With",
-        "X-Robots-Tag",
-        "X-UA-Compatible"
-      ],
+      commonHeaders,
+
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
@@ -1487,7 +1514,11 @@ export default {
       responseBodyType: "text",
       responseBodyMaxLines: 16,
       activeSidebar: true,
-      fb
+      fb,
+      customMethod: false,
+      files: [],
+      filenames: "",
+      navigatorShare: navigator.share
     };
   },
   watch: {
@@ -1504,8 +1535,11 @@ export default {
       this.rawInput = !this.knownContentTypes.includes(val);
     },
     rawInput(status) {
-      if (status && this.rawParams === "") this.rawParams = "{}";
-      else this.setRouteQueryState();
+      if (status && this.rawParams === "") {
+        this.rawParams = "{}";
+      } else {
+        this.setRouteQueryState();
+      }
     },
     "response.body": function(val) {
       if (
@@ -1574,6 +1608,12 @@ export default {
     editingRequest(newValue) {
       this.editRequest = newValue;
       this.showRequestModal = true;
+    },
+    method() {
+      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
+      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
+        ? "application/json"
+        : "";
     }
   },
   computed: {
@@ -1775,6 +1815,9 @@ export default {
         this.$store.commit("setState", { value, attribute: "rawInput" });
       }
     },
+    rawInputEditorLang() {
+      return getEditorLangForMimeType(this.contentType);
+    },
     requestType: {
       get() {
         return this.$store.state.request.requestType;
@@ -1822,12 +1865,10 @@ export default {
       }
       const protocol = "^(https?:\\/\\/)?";
       const validIP = new RegExp(
-        protocol +
-          "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+        `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
       );
       const validHostname = new RegExp(
-        protocol +
-          "(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$"
+        `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
       );
       return validIP.test(this.url) || validHostname.test(this.url);
     },
@@ -1838,8 +1879,8 @@ export default {
       return this.path.match(/^([^?]*)\??/)[1];
     },
     rawRequestBody() {
-      const { bodyParams } = this;
-      if (this.contentType === "application/json") {
+      const { bodyParams, contentType } = this;
+      if (contentType === "application/json") {
         try {
           const obj = JSON.parse(
             `{${bodyParams
@@ -1851,7 +1892,7 @@ export default {
               )
               .join()}}`
           );
-          return JSON.stringify(obj);
+          return JSON.stringify(obj, null, 2);
         } catch (ex) {
           return "invalid";
         }
@@ -1885,39 +1926,20 @@ export default {
       if (this.requestType === "JavaScript XHR") {
         const requestString = [];
         requestString.push("const xhr = new XMLHttpRequest()");
-        const user =
-          this.auth === "Basic Auth" ? "'" + this.httpUser + "'" : null;
-        const pswd =
-          this.auth === "Basic Auth" ? "'" + this.httpPassword + "'" : null;
+        const user = this.auth === "Basic Auth" ? `'${this.httpUser}'` : null;
+        const password =
+          this.auth === "Basic Auth" ? `'${this.httpPassword}'` : null;
         requestString.push(
-          "xhr.open('" +
-            this.method +
-            "', '" +
-            this.url +
-            this.pathName +
-            this.queryString +
-            "', true, " +
-            user +
-            ", " +
-            pswd +
-            ")"
+          `xhr.open('${this.method}', '${this.url}${this.pathName}${this.queryString}', true, ${user}, ${password})`
         );
         if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(
-            "xhr.setRequestHeader('Authorization', 'Bearer " +
-              this.bearerToken +
-              "')"
+            `xhr.setRequestHeader('Authorization', 'Bearer ${this.bearerToken}')`
           );
         }
         if (this.headers) {
-          this.headers.forEach(element => {
-            requestString.push(
-              "xhr.setRequestHeader('" +
-                element.key +
-                "', '" +
-                element.value +
-                "')"
-            );
+          this.headers.forEach(({ key, value }) => {
+            requestString.push(`xhr.setRequestHeader('${key}', '${value}')`);
           });
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
@@ -1925,14 +1947,12 @@ export default {
             ? this.rawParams
             : this.rawRequestBody;
           requestString.push(
-            "xhr.setRequestHeader('Content-Length', " + requestBody.length + ")"
+            `xhr.setRequestHeader('Content-Length', ${requestBody.length})`
           );
           requestString.push(
-            "xhr.setRequestHeader('Content-Type', '" +
-              this.contentType +
-              "; charset=utf-8')"
+            `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
           );
-          requestString.push("xhr.send(" + requestBody + ")");
+          requestString.push(`xhr.send(${requestBody})`);
         } else {
           requestString.push("xhr.send()");
         }
@@ -1941,40 +1961,36 @@ export default {
         const requestString = [];
         let headers = [];
         requestString.push(
-          'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
+          `fetch("${this.url}${this.pathName}${this.queryString}", {\n`
         );
-        requestString.push('  method: "' + this.method + '",\n');
+        requestString.push(`  method: "${this.method}",\n`);
         if (this.auth === "Basic Auth") {
-          const basic = this.httpUser + ":" + this.httpPassword;
+          const basic = `${this.httpUser}:${this.httpPassword}`;
           headers.push(
-            '    "Authorization": "Basic ' +
-              window.btoa(unescape(encodeURIComponent(basic))) +
-              '",\n'
+            `    "Authorization": "Basic ${window.btoa(
+              unescape(encodeURIComponent(basic))
+            )}",\n`
           );
         } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          headers.push(
-            '    "Authorization": "Bearer ' + this.bearerToken + '",\n'
-          );
+          headers.push(`    "Authorization": "Bearer ${this.bearerToken}",\n`);
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput
             ? this.rawParams
             : this.rawRequestBody;
-          requestString.push("  body: " + requestBody + ",\n");
-          headers.push('    "Content-Length": ' + requestBody.length + ",\n");
+          requestString.push(`  body: ${requestBody},\n`);
+          headers.push(`    "Content-Length": ${requestBody.length},\n`);
           headers.push(
-            '    "Content-Type": "' + this.contentType + '; charset=utf-8",\n'
+            `    "Content-Type": "${this.contentType}; charset=utf-8",\n`
           );
         }
         if (this.headers) {
-          this.headers.forEach(element => {
-            headers.push(
-              '    "' + element.key + '": "' + element.value + '",\n'
-            );
+          this.headers.forEach(({ key, value }) => {
+            headers.push(`    "${key}": "${value}",\n`);
           });
         }
         headers = headers.join("").slice(0, -2);
-        requestString.push("  headers: {\n" + headers + "\n  },\n");
+        requestString.push(`  headers: {\n${headers}\n  },\n`);
         requestString.push('  credentials: "same-origin"\n');
         requestString.push("}).then(function(response) {\n");
         requestString.push("  response.status\n");
@@ -1988,40 +2004,36 @@ export default {
         return requestString.join("");
       } else if (this.requestType === "cURL") {
         const requestString = [];
-        requestString.push("curl -X " + this.method + " \n");
+        requestString.push(`curl -X ${this.method} \n`);
         requestString.push(
-          "  '" + this.url + this.pathName + this.queryString + "' \n"
+          `  '${this.url}${this.pathName}${this.queryString}' \n`
         );
         if (this.auth === "Basic Auth") {
-          const basic = this.httpUser + ":" + this.httpPassword;
+          const basic = `${this.httpUser}:${this.httpPassword}`;
           requestString.push(
-            "  -H 'Authorization: Basic " +
-              window.btoa(unescape(encodeURIComponent(basic))) +
-              "' \n"
+            `  -H 'Authorization: Basic ${window.btoa(
+              unescape(encodeURIComponent(basic))
+            )}' \n`
           );
         } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(
-            "  -H 'Authorization: Bearer " + this.bearerToken + "' \n"
+            `  -H 'Authorization: Bearer ${this.bearerToken}' \n`
           );
         }
         if (this.headers) {
-          this.headers.forEach(element => {
-            requestString.push(
-              "  -H '" + element.key + ": " + element.value + "' \n"
-            );
+          this.headers.forEach(({ key, value }) => {
+            requestString.push(`  -H '${key}: ${value}' \n`);
           });
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput
             ? this.rawParams
             : this.rawRequestBody;
+          requestString.push(`  -H 'Content-Length: ${requestBody.length}' \n`);
           requestString.push(
-            "  -H 'Content-Length: " + requestBody.length + "' \n"
+            `  -H 'Content-Type: ${this.contentType}; charset=utf-8' \n`
           );
-          requestString.push(
-            "  -H 'Content-Type: " + this.contentType + "; charset=utf-8' \n"
-          );
-          requestString.push("  -d '" + requestBody + "' \n");
+          requestString.push(`  -d '${requestBody}' \n`);
         }
         return requestString.join("").slice(0, -2);
       }
@@ -2038,6 +2050,16 @@ export default {
     }
   },
   methods: {
+    useSelectedEnvironment(environment) {
+      let preRequestScriptString = "";
+      for (let variable of environment.variables) {
+        preRequestScriptString =
+          preRequestScriptString +
+          `pw.env.set('${variable.key}', '${variable.value}');\n`;
+      }
+      this.preRequestScript = preRequestScriptString;
+      this.showPreRequestScript = true;
+    },
     checkCollections() {
       const checkCollectionAvailability =
         this.$store.state.postwoman.collections &&
@@ -2063,7 +2085,8 @@ export default {
       this.path = path;
       this.showPreRequestScript = usesScripts;
       this.preRequestScript = preRequestScript;
-      this.scrollInto("request");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2077,7 +2100,7 @@ export default {
         url: this.url + this.pathName + this.queryString,
         auth,
         headers,
-        data: requestBody ? requestBody.toString() : null,
+        data: requestBody,
         credentials: true
       };
       if (preRequestScript) {
@@ -2110,7 +2133,8 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear();
-      this.scrollInto("response");
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
+        this.scrollInto("response");
 
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {
@@ -2156,6 +2180,18 @@ export default {
           //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`
         });
+      }
+
+      requestBody = requestBody ? requestBody.toString() : null;
+
+      if (this.files.length !== 0) {
+        const formData = new FormData();
+        for (let i = 0; i < this.files.length; i++) {
+          let file = this.files[i];
+          formData.append(`files[${i}]`, file);
+        }
+        formData.append("data", requestBody);
+        requestBody = formData;
       }
 
       // If the request uses a token for auth, we want to make sure it's sent here.
@@ -2219,7 +2255,7 @@ export default {
           };
           this.$refs.historyComponent.addEntry(entry);
           if (fb.currentUser !== null) {
-            if (fb.currentSettings[1].value) {
+            if (fb.currentSettings[2].value) {
               fb.writeHistory(entry);
             }
           }
@@ -2256,7 +2292,7 @@ export default {
           };
           this.$refs.historyComponent.addEntry(entry);
           if (fb.currentUser !== null) {
-            if (fb.currentSettings[1].value) {
+            if (fb.currentSettings[2].value) {
               fb.writeHistory(entry);
             }
           }
@@ -2283,21 +2319,20 @@ export default {
       }
     },
     getQueryStringFromPath() {
-      let queryString,
-        pathParsed = url.parse(this.path);
+      let queryString;
+      const pathParsed = url.parse(this.path);
       return (queryString = pathParsed.query ? pathParsed.query : "");
     },
     queryStringToArray(queryString) {
-      let queryParsed = querystring.parse(queryString);
+      const queryParsed = querystring.parse(queryString);
       return Object.keys(queryParsed).map(key => ({
-        key: key,
+        key,
         value: queryParsed[key]
       }));
     },
     pathInputHandler() {
-      let queryString = this.getQueryStringFromPath(),
-        params = this.queryStringToArray(queryString);
-
+      const queryString = this.getQueryStringFromPath();
+      const params = this.queryStringToArray(queryString);
       this.paramsWatchEnabled = false;
       this.params = params;
     },
@@ -2366,11 +2401,11 @@ export default {
     },
     copyRequest() {
       if (navigator.share) {
-        let time = new Date().toLocaleTimeString();
-        let date = new Date().toLocaleDateString();
+        const time = new Date().toLocaleTimeString();
+        const date = new Date().toLocaleDateString();
         navigator
           .share({
-            title: `Postwoman`,
+            title: "Postwoman",
             text: `Postwoman • API request builder at ${time} on ${date}`,
             url: window.location.href
           })
@@ -2418,7 +2453,7 @@ export default {
       const aux = document.createElement("textarea");
       const copy =
         this.responseType === "application/json"
-          ? JSON.stringify(this.response.body)
+          ? JSON.stringify(this.response.body, null, 2)
           : this.response.body;
       aux.innerText = copy;
       document.body.appendChild(aux);
@@ -2433,17 +2468,12 @@ export default {
     downloadResponse() {
       const dataToWrite = JSON.stringify(this.response.body, null, 2);
       const file = new Blob([dataToWrite], { type: this.responseType });
-      const a = document.createElement("a"),
-        url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      const url = URL.createObjectURL(file);
       a.href = url;
-      a.download = (
-        this.url +
-        this.path +
-        " [" +
-        this.method +
-        "] on " +
-        Date()
-      ).replace(/\./g, "[dot]");
+      a.download = `${this.url + this.path} [${
+        this.method
+      }] on ${Date()}`.replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;
@@ -2489,7 +2519,8 @@ export default {
         const haveItems = [...this[key]].length;
         if (haveItems && this[key]["value"] !== "") {
           return `${key}=${JSON.stringify(this[key])}&`;
-        } else return "";
+        }
+        return "";
       };
       let flats = [
         "method",
@@ -2503,21 +2534,20 @@ export default {
       ]
         .filter(item => item !== null)
         .map(item => flat(item));
-      let deeps = ["headers", "params"].map(item => deep(item));
-      let bodyParams = this.rawInput
+      const deeps = ["headers", "params"].map(item => deep(item));
+      const bodyParams = this.rawInput
         ? [flat("rawParams")]
         : [deep("bodyParams")];
 
       history.replaceState(
         window.location.href,
         "",
-        "/?" +
-          encodeURI(
-            flats
-              .concat(deeps, bodyParams)
-              .join("")
-              .slice(0, -1)
-          )
+        `/?${encodeURI(
+          flats
+            .concat(deeps, bodyParams)
+            .join("")
+            .slice(0, -1)
+        )}`
       );
     },
     setRouteQueries(queries) {
@@ -2529,7 +2559,9 @@ export default {
         if (key === "rawParams") {
           this.rawInput = true;
           this.rawParams = queries["rawParams"];
-        } else if (typeof this[key] === "string") this[key] = queries[key];
+        } else if (typeof this[key] === "string") {
+          this[key] = queries[key];
+        }
       }
     },
     observeRequestButton() {
@@ -2553,18 +2585,19 @@ export default {
       observer.observe(requestElement);
     },
     handleImport() {
-      let textarea = document.getElementById("import-text");
-      let text = textarea.value;
+      const { value: text } = document.getElementById("import-text");
       try {
-        let parsedCurl = parseCurlCommand(text);
-        let url = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""));
-        this.url = url.origin;
-        this.path = url.pathname;
+        const parsedCurl = parseCurlCommand(text);
+        const { origin, pathname } = new URL(
+          parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
+        );
+        this.url = origin;
+        this.path = pathname;
         this.headers = [];
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
             this.$store.commit("addHeaders", {
-              key: key,
+              key,
               value: parsedCurl.headers[key]
             });
           }
@@ -2622,9 +2655,9 @@ export default {
         default:
           (this.label = ""),
             (this.method = "GET"),
-            (this.url = "https://reqres.in"),
+            (this.url = "https://httpbin.org"),
             (this.auth = "None"),
-            (this.path = "/api/users"),
+            (this.path = "/get"),
             (this.auth = "None");
           this.httpUser = "";
           this.httpPassword = "";
@@ -2642,6 +2675,7 @@ export default {
           this.accessTokenUrl = "";
           this.clientId = "";
           this.scope = "";
+          this.files = [];
       }
       e.target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
@@ -2703,19 +2737,29 @@ export default {
       }
       this.setRouteQueryState();
     },
-    methodChange() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
-        ? "application/json"
-        : "";
+    uploadAttachment() {
+      this.filenames = "";
+      this.files = this.$refs.attachment.files;
+      if (this.files.length !== 0) {
+        for (let file of this.files) {
+          this.filenames = `${this.filenames}<br/>${file.name}`;
+        }
+        this.$toast.info(this.$t("file_imported"), {
+          icon: "attach_file"
+        });
+      } else {
+        this.$toast.error(this.$t("choose_file"), {
+          icon: "attach_file"
+        });
+      }
     },
     uploadPayload() {
       this.rawInput = true;
-      let file = this.$refs.payload.files[0];
+      const file = this.$refs.payload.files[0];
       if (file !== undefined && file !== null) {
-        let reader = new FileReader();
-        reader.onload = e => {
-          this.rawParams = e.target.result;
+        const reader = new FileReader();
+        reader.onload = ({ target }) => {
+          this.rawParams = target.result;
         };
         reader.readAsText(file);
         this.$toast.info(this.$t("file_imported"), {
@@ -2754,7 +2798,7 @@ export default {
       }
     },
     async oauthRedirectReq() {
-      let tokenInfo = await oauthRedirect();
+      const tokenInfo = await oauthRedirect();
       if (tokenInfo.hasOwnProperty("access_token")) {
         this.bearerToken = tokenInfo.access_token;
         this.addOAuthToken({
@@ -2806,8 +2850,8 @@ export default {
     },
     removeOAuthTokenReq(index) {
       const oldTokenReqs = this.tokenReqs.slice();
-      let targetReqIndex = this.tokenReqs.findIndex(
-        tokenReq => tokenReq.name === this.tokenReqName
+      const targetReqIndex = this.tokenReqs.findIndex(
+        ({ name }) => name === this.tokenReqName
       );
       if (targetReqIndex < 0) return;
       this.$store.commit("removeOAuthTokenReq", targetReqIndex);
@@ -2822,18 +2866,18 @@ export default {
         }
       });
     },
-    tokenReqChange(event) {
-      let targetReq = this.tokenReqs.find(
-        tokenReq => tokenReq.name === event.target.value
+    tokenReqChange({ target }) {
+      const { details, name } = this.tokenReqs.find(
+        ({ name }) => name === target.value
       );
-      let {
+      const {
         oidcDiscoveryUrl,
         authUrl,
         accessTokenUrl,
         clientId,
         scope
-      } = targetReq.details;
-      this.tokenReqName = targetReq.name;
+      } = details;
+      this.tokenReqName = name;
       this.oidcDiscoveryUrl = oidcDiscoveryUrl;
       this.authUrl = authUrl;
       this.accessTokenUrl = accessTokenUrl;
@@ -2856,6 +2900,10 @@ export default {
       } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.$refs.clearAll.click();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false;
+        this.isHidden = true;
       }
     };
     document.addEventListener("keydown", this._keyListener.bind(this));

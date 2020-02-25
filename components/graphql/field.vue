@@ -28,7 +28,7 @@
   </div>
 </template>
 
-<style>
+<style scoped lang="scss">
 .field-box {
   padding: 16px;
   margin: 4px;

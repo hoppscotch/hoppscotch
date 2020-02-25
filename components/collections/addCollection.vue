@@ -21,6 +21,7 @@
             type="text"
             v-model="name"
             :placeholder="$t('my_new_collection')"
+            @keyup.enter="addNewCollection"
           />
         </li>
       </ul>
@@ -42,6 +43,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb";
+
 export default {
   props: {
     show: Boolean
@@ -55,15 +58,25 @@ export default {
     };
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+          );
+        }
+      }
+    },
     addNewCollection() {
       if (!this.$data.name) {
-        this.$toast.info("Please provide a valid name for the collection");
+        this.$toast.info($t("invalid_collection_name"));
         return;
       }
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name
       });
       this.$emit("hide-modal");
+      this.syncCollections();
     },
     hideModal() {
       this.$emit("hide-modal");

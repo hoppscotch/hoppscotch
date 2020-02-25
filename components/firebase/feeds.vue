@@ -3,27 +3,24 @@
     v-if="fb.currentFeeds.length !== 0"
     class="virtual-list"
     :class="{ filled: fb.currentFeeds.length }"
-    :size="56"
-    :remain="Math.min(8, fb.currentFeeds.length)"
+    :size="90"
+    :remain="Math.min(5, fb.currentFeeds.length)"
   >
-    <ul v-for="feed in fb.currentFeeds" :key="feed.id">
+    <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
       <div class="show-on-large-screen">
-        <li>
-          <input
-            :aria-label="$t('label')"
-            type="text"
-            readonly
-            :value="feed.label"
-            :placeholder="$t('no_label')"
-            class="bg-color"
-          />
+        <li class="info">
+          <label>
+            {{ feed.label || $t("no_label") }}
+          </label>
         </li>
-        <button class="icon" @click="saveFeed(feed)">
-          <i class="material-icons">get_app</i>
-        </button>
         <button class="icon" @click="deleteFeed(feed)">
           <i class="material-icons">delete</i>
         </button>
+      </div>
+      <div class="show-on-large-screen">
+        <li class="info clamb-3">
+          <label>{{ feed.message || $t("empty") }}</label>
+        </li>
       </div>
     </ul>
   </virtual-list>
@@ -37,6 +34,23 @@
 <style scoped lang="scss">
 .virtual-list {
   max-height: calc(100vh - 288px);
+}
+
+ul,
+ol {
+  flex-direction: column;
+}
+
+.entry {
+  border-bottom: 1px dashed var(--brd-color);
+  padding: 0 0 8px;
+}
+
+.clamb-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
 
@@ -58,23 +72,6 @@ export default {
       this.$toast.error(this.$t("deleted"), {
         icon: "delete"
       });
-    },
-    saveFeed(feed) {
-      const dataToWrite = JSON.stringify(feed.message, null, 2);
-      const file = new Blob([dataToWrite], { type: "application/json" });
-      const a = document.createElement("a"),
-        url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = (feed.label + " on " + Date()).replace(/\./g, "[dot]");
-      document.body.appendChild(a);
-      a.click();
-      this.$toast.success(this.$t("download_started"), {
-        icon: "done"
-      });
-      setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 1000);
     }
   }
 };

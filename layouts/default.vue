@@ -248,6 +248,11 @@
                   </a>
                 </li>
                 <li>
+                  <a href="#extensions" v-tooltip.right="$t('extensions')">
+                    <i class="material-icons">extensions</i>
+                  </a>
+                </li>
+                <li>
                   <a href="#proxy" v-tooltip.right="$t('proxy')">
                     <i class="material-icons">public</i>
                   </a>
@@ -293,8 +298,8 @@
                 >
                   <i class="material-icons">offline_bolt</i>
                 </button>
-                <login v-if="!fb.currentUser" />
-                <span v-if="fb.currentUser">
+                <login v-if="fb.currentUser === null" />
+                <span v-else>
                   <v-popover>
                     <button
                       class="icon"
@@ -373,7 +378,7 @@
                     <div>
                       <button
                         class="icon"
-                        onClick="window.open('https://twitter.com/share?text=👽 Postwoman • API request builder - Helps you create your requests faster, saving you precious time on your development&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+                        onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
                         v-close-popover
                       >
                         <svg
@@ -388,6 +393,15 @@
                         </svg>
                         <span>{{ $t("tweet") }}</span>
                       </button>
+                      <button
+                        v-if="navigatorShare"
+                        class="icon"
+                        @click="nativeShare"
+                        v-close-popover
+                        v-tooltip="$t('more')"
+                      >
+                        <i class="material-icons">share</i>
+                      </button>
                     </div>
                   </template>
                 </v-popover>
@@ -399,7 +413,7 @@
             <div class="flex-wrap">
               <span v-if="version.name" class="mono">
                 <a
-                  class="link"
+                  class="footer-link"
                   :href="
                     'https://github.com/liyasthomas/postwoman/releases/tag/' +
                       version.name
@@ -411,7 +425,7 @@
                   {{ version.name }}
                 </a>
                 <a
-                  class="link"
+                  class="footer-link hide-on-small-screen"
                   href="https://www.netlify.com"
                   target="_blank"
                   rel="noopener"
@@ -566,19 +580,19 @@
       <div slot="body">
         <div>
           <label>{{ $t("send_request") }}</label>
-          <kbd>⌘ G</kbd>
+          <kbd>{{ getSpecialKey() }} G</kbd>
         </div>
         <div>
           <label>{{ $t("save_to_collections") }}</label>
-          <kbd>⌘ S</kbd>
+          <kbd>{{ getSpecialKey() }} S</kbd>
         </div>
         <div>
           <label>{{ $t("copy_request_link") }}</label>
-          <kbd>⌘ K</kbd>
+          <kbd>{{ getSpecialKey() }} K</kbd>
         </div>
         <div>
           <label>{{ $t("reset_request") }}</label>
-          <kbd>⌘ L</kbd>
+          <kbd>{{ getSpecialKey() }} L</kbd>
         </div>
       </div>
       <div slot="footer"></div>
@@ -651,21 +665,15 @@
 </template>
 
 <style scoped lang="scss">
-.link {
+.footer-link {
   margin: 8px 16px;
-}
-@media (max-width: 768px) {
-  .link {
-    display: flex;
-    flex: 1;
-  }
 }
 </style>
 
 <script>
 import intializePwa from "../assets/js/pwa";
 import * as version from "../.postwoman/version.json";
-import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy";
+import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy";
 import firebase from "firebase/app";
 import { fb } from "../functions/fb";
 
@@ -677,13 +685,15 @@ export default {
   },
 
   methods: {
+    getSpecialKey() {
+      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? "⌘" : "Ctrl";
+    },
     linkActive(path) {
       return {
         "nuxt-link-exact-active": this.$route.path === path,
         "nuxt-link-active": this.$route.path === path
       };
     },
-
     logout() {
       fb.currentUser = null;
       firebase
@@ -697,6 +707,21 @@ export default {
       this.$toast.info(this.$t("logged_out"), {
         icon: "vpn_key"
       });
+    },
+    nativeShare() {
+      if (navigator.share) {
+        navigator
+          .share({
+            title: "Postwoman",
+            text:
+              "Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
+            url: "https://postwoman.io/"
+          })
+          .then(() => {})
+          .catch(console.error);
+      } else {
+        // fallback
+      }
     }
   },
 
@@ -710,9 +735,9 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
-      firefoxExtInstalled: window.firefoxExtSendRequest,
-      chromeExtInstalled: window.chrome && hasChromeExtensionInstalled(),
-      fb
+      extensionInstalled: hasExtensionInstalled(),
+      fb,
+      navigatorShare: navigator.share
     };
   },
 
@@ -773,8 +798,7 @@ export default {
       let showExtensionsToast =
         localStorage.getItem("showExtensionsToast") === "yes";
       if (
-        !this.firefoxExtInstalled &&
-        !this.chromeExtInstalled &&
+        !this.extensionInstalled &&
         !showExtensionsToast
       ) {
         setTimeout(() => {
@@ -801,6 +825,14 @@ export default {
           });
         }, 15000);
       }
+
+      this._keyListener = function(e) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          this.showExtensions = this.showShortcuts = this.showSupport = false;
+        }
+      };
+      document.addEventListener("keydown", this._keyListener.bind(this));
     })();
 
     window.addEventListener("scroll", event => {
@@ -841,6 +873,10 @@ export default {
     availableLocales() {
       return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
     }
+  },
+
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener);
   }
 };
 </script>

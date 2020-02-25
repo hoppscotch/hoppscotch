@@ -98,3 +98,9 @@ sw.*
 
 # File explorer
 .directory
+
+# Tests screenshots
+tests/*/screenshots
+
+# Tests videos
+tests/*/videos

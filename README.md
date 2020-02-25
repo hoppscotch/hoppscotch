@@ -3,7 +3,7 @@
   <br>
   <br>
   <p>
-    <b>A free, fast & beautiful API request builder</b>
+    <b>A free, fast and beautiful API request builder</b>
   </p>
   <p>
      <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
@@ -204,7 +204,7 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
  - **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
  - **Browser Extensions** - Browser extensions that simplifies access to Postwoman
 
-   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) ([GitHub](https://github.com/AndrewBastin/postwoman-firefox)) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-chrome))
+   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-extension))
 
    >**Extensions fixes `CORS` issues.**
 
@@ -315,7 +315,10 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 ### Lead Developers
 
 * **[Liyas Thomas](https://github.com/liyasthomas)** - *Author*
-* **[Caneco](https://twitter.com/caneco)** - *Designer*
+* **[John Harker](https://github.com/NBTX)** - *Lead developer*
+* **[Andrew Bastin](https://github.com/andrewbastin)** - *Lead developer*
+* **[James George](https://github.com/jamesgeorge007)** - *Lead maintainer*
+* **[Caneco](https://twitter.com/caneco)** - *Logo and banner designer*
 
 ### Testing and Debugging
 

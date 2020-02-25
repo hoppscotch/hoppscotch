@@ -298,8 +298,8 @@
                 >
                   <i class="material-icons">offline_bolt</i>
                 </button>
-                <login v-if="!fb.currentUser" />
-                <span v-if="fb.currentUser">
+                <login v-if="fb.currentUser === null" />
+                <span v-else>
                   <v-popover>
                     <button
                       class="icon"

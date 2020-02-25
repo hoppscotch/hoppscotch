@@ -1,6 +1,22 @@
 <template>
-  <pre ref="editor"></pre>
+  <div class="show-if-initialized" :class="{ initialized }">
+    <pre ref="editor"></pre>
+  </div>
 </template>
+
+<style lang="scss">
+  .show-if-initialized {
+    opacity: 0;
+
+    &.initialized {
+      opacity: 1;
+    }
+
+    & > * {
+      transition: none;
+    }
+  }
+</style>
 
 <script>
 const DEFAULT_THEME = "twilight"
@@ -30,6 +46,7 @@ export default {
 
   data() {
     return {
+      initialized: false,
       editor: null,
       cacheValue: "",
     }
@@ -43,7 +60,12 @@ export default {
       }
     },
     theme() {
-      this.editor.setTheme("ace/theme/" + this.defineTheme())
+      this.initialized = false;
+      this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+        this.$nextTick().then(() => {
+          this.initialized = true;
+        });
+      });
     },
     lang(value) {
       this.editor.getSession().setMode("ace/mode/" + value)
@@ -55,12 +77,11 @@ export default {
 
   mounted() {
     const editor = ace.edit(this.$refs.editor, {
-      theme: `ace/theme/${this.defineTheme()}`,
       mode: `ace/mode/${this.lang}`,
       ...this.options,
     })
 
-    if (this.value) editor.setValue(this.value, 1)
+    if (this.value) editor.setValue(this.value, 1);
 
     this.editor = editor
     this.cacheValue = this.value
@@ -82,8 +103,8 @@ export default {
   },
 
   beforeDestroy() {
-    this.editor.destroy()
-    this.editor.container.remove()
-  },
-}
+    this.editor.destroy();
+    this.editor.container.remove();
+  }
+};
 </script>

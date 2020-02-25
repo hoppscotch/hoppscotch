@@ -1,6 +1,22 @@
 <template>
-  <pre ref="editor"></pre>
+  <div class="show-if-initialized" :class="{ initialized }">
+    <pre ref="editor"></pre>
+  </div>
 </template>
+
+<style lang="scss">
+  .show-if-initialized {
+    opacity: 0;
+
+    &.initialized {
+      opacity: 1;
+    }
+
+    & > * {
+      transition: none;
+    }
+  }
+</style>
 
 <script>
 const DEFAULT_THEME = "twilight"
@@ -34,6 +50,7 @@ export default {
 
   data() {
     return {
+      initialized: false,
       editor: null,
       cacheValue: "",
       validationSchema: null,
@@ -48,7 +65,12 @@ export default {
       }
     },
     theme() {
-      this.editor.setTheme(`ace/theme/${this.defineTheme()}`)
+      this.initialized = false;
+      this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+        this.$nextTick().then(() => {
+          this.initialized = true;
+        });
+      });
     },
     lang(value) {
       this.editor.getSession().setMode(`ace/mode/${value}`)
@@ -62,12 +84,18 @@ export default {
     let langTools = ace.require("ace/ext/language_tools")
 
     const editor = ace.edit(this.$refs.editor, {
-      theme: `ace/theme/${this.defineTheme()}`,
       mode: `ace/mode/${this.lang}`,
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
       ...this.options,
     })
+
+    // Set the theme and show the editor only after it's been set to prevent FOUC.
+    editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
+      this.$nextTick().then(() => {
+        this.initialized = true;
+      });
+    });
 
     const completer = {
       getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
@@ -155,8 +183,7 @@ export default {
   },
 
   beforeDestroy() {
-    this.editor.destroy()
-    this.editor.container.remove()
-  },
-}
+    this.editor.destroy();
+  }
+};
 </script>

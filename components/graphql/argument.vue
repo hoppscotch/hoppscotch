@@ -11,7 +11,7 @@
 <style scoped lang="scss"></style>
 
 <script>
-import typelink from './typelink'
+import typelink from "./typelink"
 
 export default {
   components: {

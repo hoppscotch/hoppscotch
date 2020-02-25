@@ -43,12 +43,12 @@ TODO:
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
-          <span>{{ $t('new') }}</span>
+          <span>{{ $t("new") }}</span>
         </button>
       </div>
       <div>
         <button class="icon" @click="displayModalImportExport(true)">
-          {{ $t('import_export') }}
+          {{ $t("import_export") }}
         </button>
         <!-- <a
           href="https://github.com/liyasthomas/postwoman/wiki/Collections"
@@ -89,7 +89,7 @@ TODO:
     <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
       <button class="icon">
         <i class="material-icons">books</i>
-        <span>{{ $t('generate_docs') }}</span>
+        <span>{{ $t("generate_docs") }}</span>
       </button>
     </nuxt-link>
   </pw-section>
@@ -107,20 +107,20 @@ ul {
 </style>
 
 <script>
-import collection from './collection'
-import { fb } from '../../functions/fb'
+import collection from "./collection"
+import { fb } from "../../functions/fb"
 
 export default {
   components: {
     collection,
-    'pw-section': () => import('../section'),
-    addCollection: () => import('./addCollection'),
-    addFolder: () => import('./addFolder'),
-    editCollection: () => import('./editCollection'),
-    editFolder: () => import('./editFolder'),
-    editRequest: () => import('./editRequest'),
-    importExportCollections: () => import('./importExportCollections'),
-    VirtualList: () => import('vue-virtual-scroll-list'),
+    "pw-section": () => import("../section"),
+    addCollection: () => import("./addCollection"),
+    addFolder: () => import("./addFolder"),
+    editCollection: () => import("./editCollection"),
+    editFolder: () => import("./editFolder"),
+    editRequest: () => import("./editRequest"),
+    importExportCollections: () => import("./importExportCollections"),
+    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -145,12 +145,12 @@ export default {
   },
   async mounted() {
     this._keyListener = function(e) {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault()
         this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false
       }
     }
-    document.addEventListener('keydown', this._keyListener.bind(this))
+    document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
     displayModalAdd(shouldDisplay) {
@@ -226,7 +226,7 @@ export default {
     },
   },
   beforeDestroy() {
-    document.removeEventListener('keydown', this._keyListener)
+    document.removeEventListener("keydown", this._keyListener)
   },
 }
 </script>

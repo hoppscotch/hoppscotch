@@ -3,16 +3,16 @@
 </template>
 
 <script>
-const DEFAULT_THEME = 'twilight'
+const DEFAULT_THEME = "twilight"
 
-import ace from 'ace-builds'
-import 'ace-builds/webpack-resolver'
+import ace from "ace-builds"
+import "ace-builds/webpack-resolver"
 
 export default {
   props: {
     value: {
       type: String,
-      default: '',
+      default: "",
     },
     theme: {
       type: String,
@@ -20,7 +20,7 @@ export default {
     },
     lang: {
       type: String,
-      default: 'json',
+      default: "json",
     },
     options: {
       type: Object,
@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       editor: null,
-      cacheValue: '',
+      cacheValue: "",
     }
   },
 
@@ -43,10 +43,10 @@ export default {
       }
     },
     theme() {
-      this.editor.setTheme('ace/theme/' + this.defineTheme())
+      this.editor.setTheme("ace/theme/" + this.defineTheme())
     },
     lang(value) {
-      this.editor.getSession().setMode('ace/mode/' + value)
+      this.editor.getSession().setMode("ace/mode/" + value)
     },
     options(value) {
       this.editor.setOptions(value)
@@ -65,9 +65,9 @@ export default {
     this.editor = editor
     this.cacheValue = this.value
 
-    editor.on('change', () => {
+    editor.on("change", () => {
       const content = editor.getValue()
-      this.$emit('input', content)
+      this.$emit("input", content)
       this.cacheValue = content
     })
   },

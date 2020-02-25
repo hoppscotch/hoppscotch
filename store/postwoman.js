@@ -1,27 +1,27 @@
-import Vue from 'vue'
+import Vue from "vue"
 
 export const SETTINGS_KEYS = [
   /**
    * Whether or not to enable scrolling to a specified element, when certain
    * actions are triggered.
    */
-  'SCROLL_INTO_ENABLED',
+  "SCROLL_INTO_ENABLED",
 
   /**
    * The CSS class that should be applied to the root element.
    * Essentially, the name of the background theme.
    */
-  'THEME_CLASS',
+  "THEME_CLASS",
 
   /**
    * The hex color code for the currently active theme.
    */
-  'THEME_COLOR',
+  "THEME_COLOR",
 
   /**
    * The hex color code for browser tab color.
    */
-  'THEME_TAB_COLOR',
+  "THEME_TAB_COLOR",
 
   /**
    * Whether or not THEME_COLOR is considered 'vibrant'.
@@ -30,59 +30,59 @@ export const SETTINGS_KEYS = [
    * any text placed on the theme color will have its color
    * inverted from white to black.
    */
-  'THEME_COLOR_VIBRANT',
+  "THEME_COLOR_VIBRANT",
 
   /**
    * The Ace editor theme
    */
-  'THEME_ACE_EDITOR',
+  "THEME_ACE_EDITOR",
 
   /**
    * Normally, section frames are multicolored in the UI
    * to emphasise the different sections.
    * This setting allows that to be turned off.
    */
-  'FRAME_COLORS_ENABLED',
+  "FRAME_COLORS_ENABLED",
 
   /**
    * Whether or not requests should be proxied.
    */
-  'PROXY_ENABLED',
+  "PROXY_ENABLED",
 
   /**
    * The URL of the proxy to connect to for requests.
    */
-  'PROXY_URL',
+  "PROXY_URL",
   /**
    * The security key of the proxy.
    */
-  'PROXY_KEY',
+  "PROXY_KEY",
 
   /**
    * An array of properties to exclude from the URL.
    * e.g. 'auth'
    */
-  'URL_EXCLUDES',
+  "URL_EXCLUDES",
 
   /**
    * A boolean value indicating whether to use the browser extensions
    * to run the requests
    */
-  'EXTENSIONS_ENABLED',
+  "EXTENSIONS_ENABLED",
 ]
 
 export const state = () => ({
   settings: {},
   collections: [
     {
-      name: 'My Collection',
+      name: "My Collection",
       folders: [],
       requests: [],
     },
   ],
   environments: [
     {
-      name: 'My Environment Variables',
+      name: "My Environment Variables",
       variables: [],
     },
   ],
@@ -94,7 +94,7 @@ export const state = () => ({
 export const mutations = {
   applySetting({ settings }, setting) {
     if (setting === null || !(setting instanceof Array) || setting.length !== 2) {
-      throw new Error('You must provide a setting (array in the form [key, value])')
+      throw new Error("You must provide a setting (array in the form [key, value])")
     }
 
     const [key, value] = setting
@@ -144,7 +144,7 @@ export const mutations = {
       })
     })
     if (duplicateEnvironment) {
-      this.$toast.info('Duplicate environment')
+      this.$toast.info("Duplicate environment")
       return
     }
     state.environments = [...state.environments, ...environments]
@@ -155,7 +155,7 @@ export const mutations = {
       index += 1
     }
     this.$toast.info(confirmation, {
-      icon: 'folder_shared',
+      icon: "folder_shared",
     })
   },
 
@@ -175,7 +175,7 @@ export const mutations = {
               item.name.toLowerCase() === name.toLowerCase()
           )
     if (duplicateEnvironment) {
-      this.$toast.info('Duplicate environment')
+      this.$toast.info("Duplicate environment")
       return
     }
     environments[environmentIndex] = environment
@@ -201,11 +201,11 @@ export const mutations = {
       item => item.name.toLowerCase() === name.toLowerCase()
     )
     if (duplicateCollection) {
-      this.$toast.info('Duplicate collection')
+      this.$toast.info("Duplicate collection")
       return
     }
     collections.push({
-      name: '',
+      name: "",
       folders: [],
       requests: [],
       ...collection,
@@ -226,7 +226,7 @@ export const mutations = {
       item => item.name.toLowerCase() === name.toLowerCase()
     )
     if (duplicateCollection) {
-      this.$toast.info('Duplicate collection')
+      this.$toast.info("Duplicate collection")
       return
     }
     collections[collectionIndex] = collection
@@ -235,7 +235,7 @@ export const mutations = {
   addNewFolder({ collections }, payload) {
     const { collectionIndex, folder } = payload
     collections[collectionIndex].folders.push({
-      name: '',
+      name: "",
       requests: [],
       ...folder,
     })
@@ -328,9 +328,9 @@ export const mutations = {
     const { request } = payload
 
     // Remove the old request from collection
-    if (request.hasOwnProperty('oldCollection') && request.oldCollection > -1) {
+    if (request.hasOwnProperty("oldCollection") && request.oldCollection > -1) {
       const folder =
-        request.hasOwnProperty('oldFolder') && request.oldFolder >= -1
+        request.hasOwnProperty("oldFolder") && request.oldFolder >= -1
           ? request.oldFolder
           : request.folder
       if (folder > -1) {
@@ -338,7 +338,7 @@ export const mutations = {
       } else {
         collections[request.oldCollection].requests.splice(request.requestIndex, 1)
       }
-    } else if (request.hasOwnProperty('oldFolder') && request.oldFolder !== -1) {
+    } else if (request.hasOwnProperty("oldFolder") && request.oldFolder !== -1) {
       collections[request.collection].folders[folder].requests.splice(request.requestIndex, 1)
     }
 

@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t('save_request_as') }}</h3>
+            <h3 class="title">{{ $t("save_request_as") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <label for="selectLabel">{{ $t('label') }}</label>
+          <label for="selectLabel">{{ $t("label") }}</label>
           <input
             type="text"
             id="selectLabel"
@@ -25,11 +25,11 @@
             :placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
           />
-          <label for="selectCollection">{{ $t('collection') }}</label>
+          <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
               <option :key="undefined" :value="undefined" hidden disabled selected>{{
-                $t('select_collection')
+                $t("select_collection")
               }}</option>
               <option
                 v-for="(collection, index) in $store.state.postwoman.collections"
@@ -40,7 +40,7 @@
               </option>
             </select>
           </span>
-          <label for="selectFolder">{{ $t('folder') }}</label>
+          <label for="selectFolder">{{ $t("folder") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectFolder" v-model="requestData.folderIndex">
               <option :key="undefined" :value="undefined">/</option>
@@ -49,7 +49,7 @@
               </option>
             </select>
           </span>
-          <label for="selectRequest">{{ $t('request') }}</label>
+          <label for="selectRequest">{{ $t("request") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectRequest" v-model="requestData.requestIndex">
               <option :key="undefined" :value="undefined">/</option>
@@ -66,10 +66,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="saveRequestAs">
-            {{ $t('save') }}
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { fb } from '../../functions/fb'
+import { fb } from "../../functions/fb"
 
 export default {
   props: {
@@ -86,11 +86,11 @@ export default {
     editingRequest: Object,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
-      defaultRequestName: 'My Request',
+      defaultRequestName: "My Request",
       requestData: {
         name: undefined,
         collectionIndex: undefined,
@@ -100,13 +100,13 @@ export default {
     }
   },
   watch: {
-    'requestData.collectionIndex': function resetFolderAndRequestIndex() {
+    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
       // if user choosen some folder, than selected other collection, which doesn't have any folders
       // than `requestUpdateData.folderIndex` won't be reseted
       this.$data.requestData.folderIndex = undefined
       this.$data.requestData.requestIndex = undefined
     },
-    'requestData.folderIndex': function resetRequestIndex() {
+    "requestData.folderIndex": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined
     },
   },
@@ -159,8 +159,8 @@ export default {
     saveRequestAs() {
       const userDidntSpecifyCollection = this.$data.requestData.collectionIndex === undefined
       if (userDidntSpecifyCollection) {
-        this.$toast.error(this.$t('select_collection'), {
-          icon: 'error',
+        this.$toast.error(this.$t("select_collection"), {
+          icon: "error",
         })
         return
       }
@@ -171,7 +171,7 @@ export default {
         collection: this.$data.requestData.collectionIndex,
       }
 
-      this.$store.commit('postwoman/saveRequestAs', {
+      this.$store.commit("postwoman/saveRequestAs", {
         request: requestUpdated,
         collectionIndex: this.$data.requestData.collectionIndex,
         folderIndex: this.$data.requestData.folderIndex,
@@ -182,8 +182,8 @@ export default {
       this.syncCollections()
     },
     hideModal() {
-      this.$emit('hide-modal')
-      this.$emit('hide-model') // for backward compatibility  // TODO: use fixed event
+      this.$emit("hide-modal")
+      this.$emit("hide-model") // for backward compatibility  // TODO: use fixed event
     },
   },
 }

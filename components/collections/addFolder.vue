@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t('new_folder') }}</h3>
+            <h3 class="title">{{ $t("new_folder") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -31,10 +31,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="addNewFolder">
-            {{ $t('save') }}
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -50,7 +50,7 @@ export default {
     collectionIndex: Number,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
@@ -59,14 +59,14 @@ export default {
   },
   methods: {
     addNewFolder() {
-      this.$store.commit('postwoman/addNewFolder', {
+      this.$store.commit("postwoman/addNewFolder", {
         folder: { name: this.$data.name },
         collectionIndex: this.$props.collectionIndex,
       })
       this.hideModal()
     },
     hideModal() {
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
   },
 }

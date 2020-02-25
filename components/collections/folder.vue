@@ -17,13 +17,13 @@
           <div>
             <button class="icon" @click="editFolder" v-close-popover>
               <i class="material-icons">edit</i>
-              <span>{{ $t('edit') }}</span>
+              <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
             <button class="icon" @click="removeFolder" v-close-popover>
               <i class="material-icons">delete</i>
-              <span>{{ $t('delete') }}</span>
+              <span>{{ $t("delete") }}</span>
             </button>
           </div>
         </template>
@@ -49,7 +49,7 @@
           />
         </li>
         <li v-if="folder.requests.length === 0">
-          <label>{{ $t('folder_empty') }}</label>
+          <label>{{ $t("folder_empty") }}</label>
         </li>
       </ul>
     </div>
@@ -77,7 +77,7 @@ export default {
     folderIndex: Number,
   },
   components: {
-    request: () => import('./request'),
+    request: () => import("./request"),
   },
   data() {
     return {
@@ -89,17 +89,17 @@ export default {
       this.showChildren = !this.showChildren
     },
     selectRequest(request) {
-      this.$store.commit('postwoman/selectRequest', { request })
+      this.$store.commit("postwoman/selectRequest", { request })
     },
     removeFolder() {
-      if (!confirm('Are you sure you want to remove this folder?')) return
-      this.$store.commit('postwoman/removeFolder', {
+      if (!confirm("Are you sure you want to remove this folder?")) return
+      this.$store.commit("postwoman/removeFolder", {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
       })
     },
     editFolder() {
-      this.$emit('edit-folder')
+      this.$emit("edit-folder")
     },
   },
 }

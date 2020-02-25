@@ -46,7 +46,7 @@ ol {
 </style>
 
 <script>
-import { fb } from '../../functions/fb'
+import { fb } from "../../functions/fb"
 
 export default {
   data() {

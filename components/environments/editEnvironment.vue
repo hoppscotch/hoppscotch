@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t('edit_environment') }}</h3>
+            <h3 class="title">{{ $t("edit_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -28,7 +28,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <label for="variableList">{{ $t('env_variable_list') }}</label>
+            <label for="variableList">{{ $t("env_variable_list") }}</label>
             <div>
               <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
                 <i class="material-icons">clear_all</i>
@@ -92,7 +92,7 @@
         <li>
           <button class="icon" @click="addEnvironmentVariable">
             <i class="material-icons">add</i>
-            <span>{{ $t('add_new') }}</span>
+            <span>{{ $t("add_new") }}</span>
           </button>
         </li>
       </ul>
@@ -102,10 +102,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="saveEnvironment">
-            {{ $t('save') }}
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import textareaAutoHeight from '../../directives/textareaAutoHeight'
+import textareaAutoHeight from "../../directives/textareaAutoHeight"
 
 export default {
   directives: {
@@ -126,7 +126,7 @@ export default {
     editingEnvironmentIndex: Number,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
@@ -139,7 +139,7 @@ export default {
         this.$props.editingEnvironment && this.$props.editingEnvironment.name
           ? this.$props.editingEnvironment.name
           : undefined
-      this.$store.commit('postwoman/setEditingEnvironment', this.$props.editingEnvironment)
+      this.$store.commit("postwoman/setEditingEnvironment", this.$props.editingEnvironment)
     },
   },
   computed: {
@@ -148,21 +148,21 @@ export default {
     },
     variableString() {
       const result = this.editingEnvCopy.variables
-      return result === '' ? '' : JSON.stringify(result)
+      return result === "" ? "" : JSON.stringify(result)
     },
   },
   methods: {
     clearContent(e) {
-      this.$store.commit('postwoman/removeVariables', [])
+      this.$store.commit("postwoman/removeVariables", [])
       e.target.innerHTML = this.doneButton
-      this.$toast.info(this.$t('cleared'), {
-        icon: 'clear_all',
+      this.$toast.info(this.$t("cleared"), {
+        icon: "clear_all",
       })
       setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     addEnvironmentVariable() {
-      let value = { key: '', value: '' }
-      this.$store.commit('postwoman/addVariable', value)
+      let value = { key: "", value: "" }
+      this.$store.commit("postwoman/addVariable", value)
     },
     removeEnvironmentVariable(index) {
       let variableIndex = index
@@ -171,13 +171,13 @@ export default {
         (variable, index) => variableIndex !== index
       )
 
-      this.$store.commit('postwoman/removeVariable', newVariables)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("postwoman/removeVariable", newVariables)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.$store.commit('postwoman/removeVariable', oldVariables)
+            this.$store.commit("postwoman/removeVariable", oldVariables)
             toastObject.remove()
           },
         },
@@ -185,22 +185,22 @@ export default {
     },
     saveEnvironment() {
       if (!this.$data.name) {
-        this.$toast.info(this.$t('invalid_environment_name'))
+        this.$toast.info(this.$t("invalid_environment_name"))
         return
       }
       const environmentUpdated = {
         ...this.editingEnvCopy,
         name: this.$data.name,
       }
-      this.$store.commit('postwoman/saveEnvironment', {
+      this.$store.commit("postwoman/saveEnvironment", {
         environment: environmentUpdated,
         environmentIndex: this.$props.editingEnvironmentIndex,
       })
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
     hideModal() {
       this.$data.name = undefined
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
   },
 }

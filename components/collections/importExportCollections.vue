@@ -19,7 +19,7 @@
             >
               <button :disabled="!fb.currentUser" class="icon" @click="syncCollections">
                 <i class="material-icons">folder_shared</i>
-                <span>{{ $t('import_from_sync') }}</span>
+                <span>{{ $t("import_from_sync") }}</span>
               </button>
             </span>
             <button
@@ -28,7 +28,7 @@
               v-tooltip="$t('replace_current')"
             >
               <i class="material-icons">create_new_folder</i>
-              <span>{{ $t('replace_json') }}</span>
+              <span>{{ $t("replace_json") }}</span>
               <input
                 type="file"
                 @change="replaceWithJSON"
@@ -43,7 +43,7 @@
               v-tooltip="$t('preserve_current')"
             >
               <i class="material-icons">folder_special</i>
-              <span>{{ $t('import_json') }}</span>
+              <span>{{ $t("import_json") }}</span>
               <input
                 type="file"
                 @change="importFromJSON"
@@ -64,10 +64,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
-            {{ $t('export') }}
+            {{ $t("export") }}
           </button>
         </span>
       </div>
@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { fb } from '../../functions/fb'
+import { fb } from "../../functions/fb"
 
 export default {
   data() {
@@ -88,7 +88,7 @@ export default {
     show: Boolean,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   computed: {
     collectionJson() {
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     hideModal() {
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
     openDialogChooseFileToReplaceWith() {
       this.$refs.inputChooseFileToReplaceWith.click()
@@ -112,15 +112,15 @@ export default {
         let collections = JSON.parse(content)
         if (collections[0]) {
           let [name, folders, requests] = Object.keys(collections[0])
-          if (name === 'name' && folders === 'folders' && requests === 'requests') {
+          if (name === "name" && folders === "folders" && requests === "requests") {
             // Do nothing
           }
-        } else if (collections.info && collections.info.schema.includes('v2.1.0')) {
+        } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           collections = this.parsePostmanCollection(collections)
         } else {
           return this.failedImport()
         }
-        this.$store.commit('postwoman/importCollections', collections)
+        this.$store.commit("postwoman/importCollections", collections)
         this.fileImported()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
@@ -132,71 +132,71 @@ export default {
         let collections = JSON.parse(content)
         if (collections[0]) {
           let [name, folders, requests] = Object.keys(collections[0])
-          if (name === 'name' && folders === 'folders' && requests === 'requests') {
+          if (name === "name" && folders === "folders" && requests === "requests") {
             // Do nothing
           }
-        } else if (collections.info && collections.info.schema.includes('v2.1.0')) {
+        } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           collections = this.parsePostmanCollection(collections)
         } else {
           return this.failedImport()
         }
-        this.$store.commit('postwoman/importCollections', collections)
+        this.$store.commit("postwoman/importCollections", collections)
         this.fileImported()
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
     },
     exportJSON() {
       let text = this.collectionJson
-      text = text.replace(/\n/g, '\r\n')
+      text = text.replace(/\n/g, "\r\n")
       let blob = new Blob([text], {
-        type: 'text/json',
+        type: "text/json",
       })
-      let anchor = document.createElement('a')
-      anchor.download = 'postwoman-collection.json'
+      let anchor = document.createElement("a")
+      anchor.download = "postwoman-collection.json"
       anchor.href = window.URL.createObjectURL(blob)
-      anchor.target = '_blank'
-      anchor.style.display = 'none'
+      anchor.target = "_blank"
+      anchor.style.display = "none"
       document.body.appendChild(anchor)
       anchor.click()
       document.body.removeChild(anchor)
-      this.$toast.success(this.$t('download_started'), {
-        icon: 'done',
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done",
       })
     },
     syncCollections() {
-      this.$store.commit('postwoman/replaceCollections', fb.currentCollections)
+      this.$store.commit("postwoman/replaceCollections", fb.currentCollections)
       this.fileImported()
     },
     fileImported() {
-      this.$toast.info(this.$t('file_imported'), {
-        icon: 'folder_shared',
+      this.$toast.info(this.$t("file_imported"), {
+        icon: "folder_shared",
       })
     },
     failedImport() {
-      this.$toast.error(this.$t('import_failed'), {
-        icon: 'error',
+      this.$toast.error(this.$t("import_failed"), {
+        icon: "error",
       })
     },
     parsePostmanCollection(collection, folders = true) {
       let postwomanCollection = folders
         ? [
             {
-              name: '',
+              name: "",
               folders: [],
               requests: [],
             },
           ]
         : {
-            name: '',
+            name: "",
             requests: [],
           }
       for (let collectionItem of collection.item) {
         if (collectionItem.request) {
           if (postwomanCollection[0]) {
-            postwomanCollection[0].name = collection.info ? collection.info.name : ''
+            postwomanCollection[0].name = collection.info ? collection.info.name : ""
             postwomanCollection[0].requests.push(this.parsePostmanRequest(collectionItem))
           } else {
-            postwomanCollection.name = collection.name ? collection.name : ''
+            postwomanCollection.name = collection.name ? collection.name : ""
             postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
           }
         } else if (collectionItem.item) {
@@ -209,22 +209,22 @@ export default {
     },
     parsePostmanRequest(requestObject) {
       let pwRequest = {
-        url: '',
-        path: '',
-        method: '',
-        auth: '',
-        httpUser: '',
-        httpPassword: '',
-        passwordFieldType: 'password',
-        bearerToken: '',
+        url: "",
+        path: "",
+        method: "",
+        auth: "",
+        httpUser: "",
+        httpPassword: "",
+        passwordFieldType: "password",
+        bearerToken: "",
         headers: [],
         params: [],
         bodyParams: [],
-        rawParams: '',
+        rawParams: "",
         rawInput: false,
-        contentType: '',
-        requestType: '',
-        name: '',
+        contentType: "",
+        requestType: "",
+        name: "",
       }
 
       pwRequest.name = requestObject.name
@@ -232,24 +232,24 @@ export default {
         /^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/
       )
       pwRequest.url = requestObjectUrl[1]
-      pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ''
+      pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
       pwRequest.method = requestObject.request.method
-      let itemAuth = requestObject.request.auth ? requestObject.request.auth : ''
-      let authType = itemAuth ? itemAuth.type : ''
-      if (authType === 'basic') {
-        pwRequest.auth = 'Basic Auth'
+      let itemAuth = requestObject.request.auth ? requestObject.request.auth : ""
+      let authType = itemAuth ? itemAuth.type : ""
+      if (authType === "basic") {
+        pwRequest.auth = "Basic Auth"
         pwRequest.httpUser =
-          itemAuth.basic[0].key === 'username' ? itemAuth.basic[0].value : itemAuth.basic[1].value
+          itemAuth.basic[0].key === "username" ? itemAuth.basic[0].value : itemAuth.basic[1].value
         pwRequest.httpPassword =
-          itemAuth.basic[0].key === 'password' ? itemAuth.basic[0].value : itemAuth.basic[1].value
-      } else if (authType === 'oauth2') {
-        pwRequest.auth = 'OAuth 2.0'
+          itemAuth.basic[0].key === "password" ? itemAuth.basic[0].value : itemAuth.basic[1].value
+      } else if (authType === "oauth2") {
+        pwRequest.auth = "OAuth 2.0"
         pwRequest.bearerToken =
-          itemAuth.oauth2[0].key === 'accessToken'
+          itemAuth.oauth2[0].key === "accessToken"
             ? itemAuth.oauth2[0].value
             : itemAuth.oauth2[1].value
-      } else if (authType === 'bearer') {
-        pwRequest.auth = 'Bearer Token'
+      } else if (authType === "bearer") {
+        pwRequest.auth = "Bearer Token"
         pwRequest.bearerToken = itemAuth.bearer[0].value
       }
       let requestObjectHeaders = requestObject.request.header
@@ -268,13 +268,13 @@ export default {
         }
       }
       if (requestObject.request.body) {
-        if (requestObject.request.body.mode === 'urlencoded') {
+        if (requestObject.request.body.mode === "urlencoded") {
           let params = requestObject.request.body.urlencoded
           pwRequest.bodyParams = params ? params : []
           for (let param of pwRequest.bodyParams) {
             delete param.type
           }
-        } else if (requestObject.request.body.mode === 'raw') {
+        } else if (requestObject.request.body.mode === "raw") {
           pwRequest.rawInput = true
           pwRequest.rawParams = requestObject.request.body.raw
         }

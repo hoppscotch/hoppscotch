@@ -15,12 +15,12 @@
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
-          <span>{{ $t('new') }}</span>
+          <span>{{ $t("new") }}</span>
         </button>
       </div>
       <div>
         <button class="icon" @click="displayModalImportExport(true)">
-          {{ $t('import_export') }}
+          {{ $t("import_export") }}
         </button>
       </div>
     </div>
@@ -62,8 +62,8 @@ ul {
 </style>
 
 <script>
-import environment from './environment'
-import { fb } from '../../functions/fb'
+import environment from "./environment"
+import { fb } from "../../functions/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
@@ -71,11 +71,11 @@ const updateOnLocalStorage = (propertyName, property) =>
 export default {
   components: {
     environment,
-    'pw-section': () => import('../section'),
-    addEnvironment: () => import('./addEnvironment'),
-    editEnvironment: () => import('./editEnvironment'),
-    importExportEnvironment: () => import('./importExportEnvironment'),
-    VirtualList: () => import('vue-virtual-scroll-list'),
+    "pw-section": () => import("../section"),
+    addEnvironment: () => import("./addEnvironment"),
+    editEnvironment: () => import("./editEnvironment"),
+    importExportEnvironment: () => import("./importExportEnvironment"),
+    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -93,12 +93,12 @@ export default {
   },
   async mounted() {
     this._keyListener = function(e) {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault()
         this.showModalImportExport = false
       }
     }
-    document.addEventListener('keydown', this._keyListener.bind(this))
+    document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
     displayModalAdd(shouldDisplay) {
@@ -131,7 +131,7 @@ export default {
     },
   },
   beforeDestroy() {
-    document.removeEventListener('keydown', this._keyListener)
+    document.removeEventListener("keydown", this._keyListener)
   },
 }
 </script>

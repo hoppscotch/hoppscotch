@@ -32,7 +32,7 @@
             }"
           >
             <i class="material-icons">
-              {{ entry.star ? 'star' : 'star_border' }}
+              {{ entry.star ? "star" : "star_border" }}
             </i>
           </button>
           <li>
@@ -73,7 +73,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">restore</i>
-                  <span>{{ $t('restore') }}</span>
+                  <span>{{ $t("restore") }}</span>
                 </button>
               </div>
               <div>
@@ -85,7 +85,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">delete</i>
-                  <span>{{ $t('delete') }}</span>
+                  <span>{{ $t("delete") }}</span>
                 </button>
               </div>
             </template>
@@ -164,11 +164,11 @@
     </virtual-list>
     <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
-        <label>{{ $t('nothing_found') }} "{{ filterText }}"</label>
+        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
     </ul>
     <p v-if="history.length === 0" class="info">
-      {{ $t('history_empty') }}
+      {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
       <div class="flex-wrap" v-if="!isClearingHistory">
@@ -179,7 +179,7 @@
           @click="enableHistoryClearing"
         >
           <i class="material-icons">clear_all</i>
-          <span>{{ $t('clear_all') }}</span>
+          <span>{{ $t("clear_all") }}</span>
         </button>
         <v-popover>
           <button class="tooltip-target icon" v-tooltip="$t('sort')">
@@ -189,45 +189,45 @@
             <div>
               <button class="icon" @click="sort_by_label()" v-close-popover>
                 <i class="material-icons">sort_by_alpha</i>
-                <span>{{ $t('label') }}</span>
+                <span>{{ $t("label") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_time()" v-close-popover>
                 <i class="material-icons">access_time</i>
-                <span>{{ $t('time') }}</span>
+                <span>{{ $t("time") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_status_code()" v-close-popover>
                 <i class="material-icons">assistant</i>
-                <span>{{ $t('status') }}</span>
+                <span>{{ $t("status") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_url()" v-close-popover>
                 <i class="material-icons">language</i>
-                <span>{{ $t('url') }}</span>
+                <span>{{ $t("url") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_path()" v-close-popover>
                 <i class="material-icons">timeline</i>
-                <span>{{ $t('path') }}</span>
+                <span>{{ $t("path") }}</span>
               </button>
             </div>
             <div v-if="showMore">
               <button class="icon" @click="sort_by_duration()" v-close-popover>
                 <i class="material-icons">timer</i>
-                <span>{{ $t('duration') }}</span>
+                <span>{{ $t("duration") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="toggleCollapse()">
                 <i class="material-icons">
-                  {{ !showMore ? 'first_page' : 'last_page' }}
+                  {{ !showMore ? "first_page" : "last_page" }}
                 </i>
-                <span>{{ !showMore ? $t('show_more') : $t('hide_more') }}</span>
+                <span>{{ !showMore ? $t("show_more") : $t("hide_more") }}</span>
               </button>
             </div>
           </template>
@@ -235,7 +235,7 @@
       </div>
       <div class="flex-wrap" v-else>
         <label for="clear-history-button" class="info">
-          {{ $t('are_you_sure') }}
+          {{ $t("are_you_sure") }}
         </label>
         <div>
           <button
@@ -295,7 +295,7 @@ ol {
     position: absolute;
     top: 10px;
     right: 10px;
-    font-family: 'Roboto Mono', monospace;
+    font-family: "Roboto Mono", monospace;
     font-weight: 400;
     background-color: transparent;
     padding: 2px 6px;
@@ -320,24 +320,24 @@ ol {
 </style>
 
 <script>
-import { findStatusGroup } from '../pages/index'
-import { fb } from '../functions/fb'
+import { findStatusGroup } from "../pages/index"
+import { fb } from "../functions/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
-    'pw-section': () => import('./section'),
-    VirtualList: () => import('vue-virtual-scroll-list'),
+    "pw-section": () => import("./section"),
+    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
       history:
         fb.currentUser !== null
           ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem('history')) || [],
-      filterText: '',
+          : JSON.parse(window.localStorage.getItem("history")) || [],
+      filterText: "",
       showFilter: false,
       isClearingHistory: false,
       reverse_sort_label: false,
@@ -353,12 +353,12 @@ export default {
       this.history =
         fb.currentUser !== null
           ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem('history')) || []
+          : JSON.parse(window.localStorage.getItem("history")) || []
       return this.history.filter(entry => {
         const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some(key => {
           let value = entry[key]
-          value = typeof value !== 'string' ? value.toString() : value
+          value = typeof value !== "string" ? value.toString() : value
           return value.toLowerCase().includes(filterText)
         })
       })
@@ -370,21 +370,21 @@ export default {
         fb.clearHistory()
       }
       this.history = []
-      this.filterText = ''
+      this.filterText = ""
       this.disableHistoryClearing()
-      updateOnLocalStorage('history', this.history)
-      this.$toast.error(this.$t('history_deleted'), {
-        icon: 'delete',
+      updateOnLocalStorage("history", this.history)
+      this.$toast.error(this.$t("history_deleted"), {
+        icon: "delete",
       })
     },
     useHistory(entry) {
-      this.$emit('useHistory', entry)
+      this.$emit("useHistory", entry)
     },
     findEntryStatus(entry) {
       const foundStatusGroup = findStatusGroup(entry.status)
       return (
         foundStatusGroup || {
-          className: '',
+          className: "",
         }
       )
     },
@@ -394,16 +394,16 @@ export default {
       }
       this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {
-        this.filterText = ''
+        this.filterText = ""
       }
-      updateOnLocalStorage('history', this.history)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      updateOnLocalStorage("history", this.history)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
       })
     },
     addEntry(entry) {
       this.history.push(entry)
-      updateOnLocalStorage('history', this.history)
+      updateOnLocalStorage("history", this.history)
     },
     enableHistoryClearing() {
       if (!this.history || !this.history.length) return
@@ -415,10 +415,10 @@ export default {
     sort_by_time() {
       let byDate = this.history.slice(0)
       byDate.sort((a, b) => {
-        let date_a = a.date.split('/')
-        let date_b = b.date.split('/')
-        let time_a = a.time.split(':')
-        let time_b = b.time.split(':')
+        let date_a = a.date.split("/")
+        let date_b = b.date.split("/")
+        let time_a = a.time.split(":")
+        let time_b = b.time.split(":")
         let final_a = new Date(date_a[2], date_a[1], date_a[0], time_a[0], time_a[1], time_a[2])
         let final_b = new Date(date_b[2], date_b[1], date_b[0], time_b[0], time_b[1], time_b[2])
         if (this.reverse_sort_time) return final_b - final_a
@@ -481,7 +481,7 @@ export default {
         fb.toggleStar(entry, !entry.star)
       }
       entry.star = !entry.star
-      updateOnLocalStorage('history', this.history)
+      updateOnLocalStorage("history", this.history)
     },
   },
 }

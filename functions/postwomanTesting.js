@@ -1,12 +1,12 @@
-const PASS = 'PASS'
-const FAIL = 'FAIL'
-const ERROR = 'ERROR'
+const PASS = "PASS"
+const FAIL = "FAIL"
+const ERROR = "ERROR"
 
 const styles = {
-  [PASS]: { icon: 'check', class: 'success-response' },
-  [FAIL]: { icon: 'close', class: 'cl-error-response' },
-  [ERROR]: { icon: 'close', class: 'cl-error-response' },
-  none: { icon: '', class: '' },
+  [PASS]: { icon: "check", class: "success-response" },
+  [FAIL]: { icon: "close", class: "cl-error-response" },
+  [ERROR]: { icon: "close", class: "cl-error-response" },
+  none: { icon: "", class: "" },
 }
 
 // TODO: probably have to use a more global state for `test`
@@ -15,7 +15,7 @@ export default function runTestScriptWithVariables(script, variables) {
   let pw = {
     _errors: [],
     _testReports: [],
-    _report: '',
+    _report: "",
     expect(value) {
       try {
         return expect(value, this._testReports)
@@ -29,7 +29,7 @@ export default function runTestScriptWithVariables(script, variables) {
   Object.assign(pw, variables)
 
   // run pre-request script within this function so that it has access to the pw object.
-  new Function('pw', script)(pw)
+  new Function("pw", script)(pw)
   //
   const testReports = pw._testReports.map(item => {
     if (item.result) {
@@ -83,9 +83,9 @@ class Expectation {
   _fmtNot(message) {
     // given a string with "(not)" in it, replaces with "not" or "", depending if the expectation is expecting the positive or inverse (this._not)
     if (this.not === true) {
-      return message.replace('(not)', 'not ')
+      return message.replace("(not)", "not ")
     } else {
-      return message.replace('(not)', '')
+      return message.replace("(not)", "")
     }
   }
   _fail(message) {

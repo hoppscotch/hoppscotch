@@ -1,10 +1,10 @@
 export const hasExtensionInstalled = () =>
-  typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== 'undefined'
+  typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined"
 
 const extensionWithProxy = async (req, { state }) => {
   const { data } = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
-    method: 'post',
-    url: state.postwoman.settings.PROXY_URL || 'https://postwoman.apollotv.xyz/',
+    method: "post",
+    url: state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
     data: req,
   })
   return data

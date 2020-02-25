@@ -13,11 +13,11 @@ const redirectUri = `${window.location.origin}/`
 const sendPostRequest = async (url, params) => {
   const body = Object.keys(params)
     .map(key => `${key}=${params[key]}`)
-    .join('&')
+    .join("&")
   const options = {
-    method: 'post',
+    method: "post",
     headers: {
-      'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
     },
     body,
   }
@@ -26,7 +26,7 @@ const sendPostRequest = async (url, params) => {
     const data = await response.json()
     return data
   } catch (err) {
-    console.error('Request failed', err)
+    console.error("Request failed", err)
     throw err
   }
 }
@@ -39,10 +39,10 @@ const sendPostRequest = async (url, params) => {
  */
 
 const parseQueryString = searchQuery => {
-  if (searchQuery === '') {
+  if (searchQuery === "") {
     return {}
   }
-  const segments = searchQuery.split('&').map(s => s.split('='))
+  const segments = searchQuery.split("&").map(s => s.split("="))
   const queryString = segments.reduce((obj, el) => ({ ...obj, [el[0]]: el[1] }), {})
   return queryString
 }
@@ -55,9 +55,9 @@ const parseQueryString = searchQuery => {
 
 const getTokenConfiguration = async endpoint => {
   const options = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Content-type': 'application/json',
+      "Content-type": "application/json",
     },
   }
   try {
@@ -65,7 +65,7 @@ const getTokenConfiguration = async endpoint => {
     const config = await response.json()
     return config
   } catch (err) {
-    console.error('Request failed', err)
+    console.error("Request failed", err)
     throw err
   }
 }
@@ -81,7 +81,7 @@ const getTokenConfiguration = async endpoint => {
 const generateRandomString = () => {
   const array = new Uint32Array(28)
   window.crypto.getRandomValues(array)
-  return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join('')
+  return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join("")
 }
 
 /**
@@ -93,7 +93,7 @@ const generateRandomString = () => {
 const sha256 = plain => {
   const encoder = new TextEncoder()
   const data = encoder.encode(plain)
-  return window.crypto.subtle.digest('SHA-256', data)
+  return window.crypto.subtle.digest("SHA-256", data)
 }
 
 /**
@@ -110,9 +110,9 @@ const base64urlencode = (
   // Then convert the base64 encoded to base64url encoded
   //   (replace + with -, replace / with _, trim trailing =)
   btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
 
 /**
  * Return the base64-urlencoded sha256 hash for the PKCE challenge
@@ -144,23 +144,23 @@ const tokenRequest = async ({
   scope,
 }) => {
   // Check oauth configuration
-  if (oidcDiscoveryUrl !== '') {
+  if (oidcDiscoveryUrl !== "") {
     const { authorization_endpoint, token_endpoint } = await getTokenConfiguration(oidcDiscoveryUrl)
     authUrl = authorization_endpoint
     accessTokenUrl = token_endpoint
   }
 
   // Store oauth information
-  localStorage.setItem('token_endpoint', accessTokenUrl)
-  localStorage.setItem('client_id', clientId)
+  localStorage.setItem("token_endpoint", accessTokenUrl)
+  localStorage.setItem("client_id", clientId)
 
   // Create and store a random state value
   const state = generateRandomString()
-  localStorage.setItem('pkce_state', state)
+  localStorage.setItem("pkce_state", state)
 
   // Create and store a new PKCE code_verifier (the plaintext random secret)
   const code_verifier = generateRandomString()
-  localStorage.setItem('pkce_code_verifier', code_verifier)
+  localStorage.setItem("pkce_code_verifier", code_verifier)
 
   // Hash and base64-urlencode the secret to use as the challenge
   const code_challenge = await pkceChallengeFromVerifier(code_verifier)
@@ -189,7 +189,7 @@ const tokenRequest = async ({
  */
 
 const oauthRedirect = async () => {
-  let tokenResponse = ''
+  let tokenResponse = ""
   let q = parseQueryString(window.location.search.substring(1))
   // Check if the server returned an error string
   if (q.error) {
@@ -198,27 +198,27 @@ const oauthRedirect = async () => {
   // If the server returned an authorization code, attempt to exchange it for an access token
   if (q.code) {
     // Verify state matches what we set at the beginning
-    if (localStorage.getItem('pkce_state') != q.state) {
-      alert('Invalid state')
+    if (localStorage.getItem("pkce_state") != q.state) {
+      alert("Invalid state")
     } else {
       try {
         // Exchange the authorization code for an access token
-        tokenResponse = await sendPostRequest(localStorage.getItem('token_endpoint'), {
-          grant_type: 'authorization_code',
+        tokenResponse = await sendPostRequest(localStorage.getItem("token_endpoint"), {
+          grant_type: "authorization_code",
           code: q.code,
-          client_id: localStorage.getItem('client_id'),
+          client_id: localStorage.getItem("client_id"),
           redirect_uri: redirectUri,
-          code_verifier: localStorage.getItem('pkce_code_verifier'),
+          code_verifier: localStorage.getItem("pkce_code_verifier"),
         })
       } catch (err) {
         console.log(`${error.error}\n\n${error.error_description}`)
       }
     }
     // Clean these up since we don't need them anymore
-    localStorage.removeItem('pkce_state')
-    localStorage.removeItem('pkce_code_verifier')
-    localStorage.removeItem('token_endpoint')
-    localStorage.removeItem('client_id')
+    localStorage.removeItem("pkce_state")
+    localStorage.removeItem("pkce_code_verifier")
+    localStorage.removeItem("token_endpoint")
+    localStorage.removeItem("client_id")
     return tokenResponse
   }
   return tokenResponse

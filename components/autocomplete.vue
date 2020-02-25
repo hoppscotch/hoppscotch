@@ -57,7 +57,7 @@
       display: block;
       padding: 8px 16px;
       font-size: 16px;
-      font-family: 'Roboto Mono', monospace;
+      font-family: "Roboto Mono", monospace;
       font-weight: 400;
 
       &:last-child {
@@ -92,7 +92,7 @@ export default {
 
     placeholder: {
       type: String,
-      default: '',
+      default: "",
       required: false,
     },
 
@@ -103,14 +103,14 @@ export default {
 
     value: {
       type: String,
-      default: '',
+      default: "",
       required: false,
     },
   },
 
   watch: {
     text() {
-      this.$emit('input', this.text)
+      this.$emit("input", this.text)
     },
   },
 

@@ -5,14 +5,14 @@
         <pw-section class="blue" :label="$t('endpoint')" ref="endpoint">
           <ul>
             <li>
-              <label for="url">{{ $t('url') }}</label>
+              <label for="url">{{ $t("url") }}</label>
               <input id="url" type="url" v-model="url" @keyup.enter="getSchema()" />
             </li>
             <div>
               <li>
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
                 <button id="get" name="get" @click="getSchema">
-                  {{ $t('get_schema') }}
+                  {{ $t("get_schema") }}
                   <span><i class="material-icons">send</i></span>
                 </button>
               </li>
@@ -24,7 +24,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="headerList">{{ $t('header_list') }}</label>
+                <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
                     <i class="material-icons">clear_all</i>
@@ -88,7 +88,7 @@
             <li>
               <button class="icon" @click="addRequestHeader">
                 <i class="material-icons">add</i>
-                <span>{{ $t('add_new') }}</span>
+                <span>{{ $t("add_new") }}</span>
               </button>
             </li>
           </ul>
@@ -96,7 +96,7 @@
 
         <pw-section class="green" :label="$t('schema')" ref="schema">
           <div class="flex-wrap">
-            <label>{{ $t('response') }}</label>
+            <label>{{ $t("response") }}</label>
             <div>
               <button
                 class="icon"
@@ -107,7 +107,7 @@
                 }"
               >
                 <i class="material-icons">
-                  {{ !expandResponse ? 'unfold_more' : 'unfold_less' }}
+                  {{ !expandResponse ? "unfold_more" : "unfold_less" }}
                 </i>
               </button>
               <button
@@ -145,7 +145,7 @@
 
         <pw-section class="cyan" :label="$t('query')" ref="query">
           <div class="flex-wrap">
-            <label for="gqlQuery">{{ $t('query') }}</label>
+            <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button class="icon" @click="runQuery()" v-tooltip.bottom="$t('run_query')">
                 <i class="material-icons">play_arrow</i>
@@ -191,7 +191,7 @@
 
         <pw-section class="purple" label="Response" ref="response">
           <div class="flex-wrap">
-            <label for="responseField">{{ $t('response') }}</label>
+            <label for="responseField">{{ $t("response") }}</label>
             <div>
               <button
                 class="icon"
@@ -229,7 +229,7 @@
               checked="checked"
             />
             <label v-if="queryFields.length > 0" for="queries-tab">
-              {{ $t('queries') }}
+              {{ $t("queries") }}
             </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
@@ -245,7 +245,7 @@
               checked="checked"
             />
             <label v-if="mutationFields.length > 0" for="mutations-tab">
-              {{ $t('mutations') }}
+              {{ $t("mutations") }}
             </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
@@ -261,7 +261,7 @@
               checked="checked"
             />
             <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">
-              {{ $t('subscriptions') }}
+              {{ $t("subscriptions") }}
             </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
@@ -277,7 +277,7 @@
               checked="checked"
             />
             <label v-if="gqlTypes.length > 0" for="gqltypes-tab">
-              {{ $t('types') }}
+              {{ $t("types") }}
             </label>
             <div v-if="gqlTypes.length > 0" class="tab">
               <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
@@ -295,7 +295,7 @@
             "
             class="info"
           >
-            {{ $t('send_request_first') }}
+            {{ $t("send_request_first") }}
           </p>
         </pw-section>
       </aside>
@@ -311,35 +311,35 @@
 </style>
 
 <script>
-import axios from 'axios'
-import * as gql from 'graphql'
-import textareaAutoHeight from '../directives/textareaAutoHeight'
-import { commonHeaders } from '../functions/headers'
-import AceEditor from '../components/ace-editor'
-import QueryEditor from '../components/graphql/queryeditor'
-import { sendNetworkRequest } from '../functions/network'
+import axios from "axios"
+import * as gql from "graphql"
+import textareaAutoHeight from "../directives/textareaAutoHeight"
+import { commonHeaders } from "../functions/headers"
+import AceEditor from "../components/ace-editor"
+import QueryEditor from "../components/graphql/queryeditor"
+import { sendNetworkRequest } from "../functions/network"
 
 export default {
   directives: {
     textareaAutoHeight,
   },
   components: {
-    'pw-section': () => import('../components/section'),
-    'gql-field': () => import('../components/graphql/field'),
-    'gql-type': () => import('../components/graphql/type'),
-    autocomplete: () => import('../components/autocomplete'),
+    "pw-section": () => import("../components/section"),
+    "gql-field": () => import("../components/graphql/field"),
+    "gql-type": () => import("../components/graphql/type"),
+    autocomplete: () => import("../components/autocomplete"),
     Editor: AceEditor,
     QueryEditor: QueryEditor,
   },
   data() {
     return {
-      schemaString: '',
+      schemaString: "",
       commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      responseString: '',
+      responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -354,7 +354,7 @@ export default {
         return this.$store.state.gql.url
       },
       set(value) {
-        this.$store.commit('setGQLState', { value, attribute: 'url' })
+        this.$store.commit("setGQLState", { value, attribute: "url" })
       },
     },
     headers: {
@@ -362,7 +362,7 @@ export default {
         return this.$store.state.gql.headers
       },
       set(value) {
-        this.$store.commit('setGQLState', { value, attribute: 'headers' })
+        this.$store.commit("setGQLState", { value, attribute: "headers" })
       },
     },
     gqlQueryString: {
@@ -370,7 +370,7 @@ export default {
         return this.$store.state.gql.query
       },
       set(value) {
-        this.$store.commit('setGQLState', { value, attribute: 'query' })
+        this.$store.commit("setGQLState", { value, attribute: "query" })
       },
     },
     variableString: {
@@ -378,9 +378,9 @@ export default {
         return this.$store.state.gql.variablesJSONString
       },
       set(value) {
-        this.$store.commit('setGQLState', {
+        this.$store.commit("setGQLState", {
           value,
-          attribute: 'variablesJSONString',
+          attribute: "variablesJSONString",
         })
       },
     },
@@ -388,13 +388,13 @@ export default {
       const result = this.headers
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}: ${value}`)
-        .join(',\n')
-      return result === '' ? '' : `${result}`
+        .join(",\n")
+      return result === "" ? "" : `${result}`
     },
   },
   methods: {
     handleJumpToType(type) {
-      const typesTab = document.getElementById('gqltypes-tab')
+      const typesTab = document.getElementById("gqltypes-tab")
       typesTab.checked = true
 
       const rootTypeName = this.resolveRootType(type).name
@@ -402,7 +402,7 @@ export default {
       const target = document.getElementById(`type_${rootTypeName}`)
       if (target && this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED) {
         target.scrollIntoView({
-          behavior: 'smooth',
+          behavior: "smooth",
         })
       }
     },
@@ -413,40 +413,40 @@ export default {
     },
     copySchema() {
       this.$refs.copySchemaCode.innerHTML = this.doneButton
-      const aux = document.createElement('textarea')
+      const aux = document.createElement("textarea")
       aux.innerText = this.schemaString
       document.body.appendChild(aux)
       aux.select()
-      document.execCommand('copy')
+      document.execCommand("copy")
       document.body.removeChild(aux)
-      this.$toast.success(this.$t('copied_to_clipboard'), {
-        icon: 'done',
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
       })
       setTimeout(() => (this.$refs.copySchemaCode.innerHTML = this.copyButton), 1000)
     },
     copyQuery() {
       this.$refs.copyQueryButton.innerHTML = this.doneButton
-      const aux = document.createElement('textarea')
+      const aux = document.createElement("textarea")
       aux.innerText = this.gqlQueryString
       document.body.appendChild(aux)
       aux.select()
-      document.execCommand('copy')
+      document.execCommand("copy")
       document.body.removeChild(aux)
-      this.$toast.success(this.$t('copied_to_clipboard'), {
-        icon: 'done',
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
       })
       setTimeout(() => (this.$refs.copyQueryButton.innerHTML = this.copyButton), 1000)
     },
     copyResponse() {
       this.$refs.copyResponseButton.innerHTML = this.doneButton
-      const aux = document.createElement('textarea')
+      const aux = document.createElement("textarea")
       aux.innerText = this.responseString
       document.body.appendChild(aux)
       aux.select()
-      document.execCommand('copy')
+      document.execCommand("copy")
       document.body.removeChild(aux)
-      this.$toast.success(this.$t('copied_to_clipboard'), {
-        icon: 'done',
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
       })
       setTimeout(() => (this.$refs.copyResponseButton.innerHTML = this.copyButton), 1000)
     },
@@ -454,7 +454,7 @@ export default {
       const startTime = Date.now()
 
       this.$nuxt.$loading.start()
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto('response')
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
 
       try {
         let headers = {}
@@ -467,11 +467,11 @@ export default {
         const gqlQueryString = this.gqlQueryString
 
         const reqOptions = {
-          method: 'post',
+          method: "post",
           url: this.url,
           headers: {
             ...headers,
-            'content-type': 'application/json',
+            "content-type": "application/json",
           },
           data: JSON.stringify({ query: gqlQueryString, variables }),
         }
@@ -482,22 +482,22 @@ export default {
 
         this.$nuxt.$loading.finish()
         const duration = Date.now() - startTime
-        this.$toast.info(this.$t('finished_in', { duration }), {
-          icon: 'done',
+        this.$toast.info(this.$t("finished_in", { duration }), {
+          icon: "done",
         })
       } catch (error) {
         this.$nuxt.$loading.finish()
 
-        this.$toast.error(`${error} ${this.$t('f12_details')}`, {
-          icon: 'error',
+        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
+          icon: "error",
         })
-        console.log('Error', error)
+        console.log("Error", error)
       }
     },
     async getSchema() {
       const startTime = Date.now()
-      this.schemaString = this.$t('loading')
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto('schema')
+      this.schemaString = this.$t("loading")
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("schema")
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
@@ -514,11 +514,11 @@ export default {
         })
 
         const reqOptions = {
-          method: 'post',
+          method: "post",
           url: this.url,
           headers: {
             ...headers,
-            'content-type': 'application/json',
+            "content-type": "application/json",
           },
           data: query,
         }
@@ -527,7 +527,7 @@ export default {
 
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? {
-              method: 'post',
+              method: "post",
               url:
                 this.$store.state.postwoman.settings.PROXY_URL || `https://postwoman.apollotv.xyz/`,
               data: reqOptions,
@@ -573,15 +573,15 @@ export default {
         const typeMap = schema.getTypeMap()
         const types = []
 
-        const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ''
-        const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ''
+        const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ""
+        const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ""
         const subscriptionTypeName = schema.getSubscriptionType()
           ? schema.getSubscriptionType().name
-          : ''
+          : ""
 
         for (const type in typeMap) {
           if (
-            !typeMap[type].name.startsWith('__') &&
+            !typeMap[type].name.startsWith("__") &&
             ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
             typeMap[type] instanceof gql.GraphQLObjectType
           ) {
@@ -592,16 +592,16 @@ export default {
         this.$refs.queryEditor.setValidationSchema(schema)
         this.$nuxt.$loading.finish()
         const duration = Date.now() - startTime
-        this.$toast.info(this.$t('finished_in', { duration }), {
-          icon: 'done',
+        this.$toast.info(this.$t("finished_in", { duration }), {
+          icon: "done",
         })
       } catch (error) {
         this.$nuxt.$loading.finish()
-        this.schemaString = `${error}. ${this.$t('check_console_details')}`
-        this.$toast.error(`${error} ${this.$t('f12_details')}`, {
-          icon: 'error',
+        this.schemaString = `${error}. ${this.$t("check_console_details")}`
+        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
+          icon: "error",
         })
-        console.log('Error', error)
+        console.log("Error", error)
       }
     },
     ToggleExpandResponse() {
@@ -610,16 +610,16 @@ export default {
     },
     downloadResponse() {
       const dataToWrite = JSON.stringify(this.schemaString, null, 2)
-      const file = new Blob([dataToWrite], { type: 'application/json' })
-      const a = document.createElement('a')
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, '[dot]')
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t('download_started'), {
-        icon: 'done',
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
@@ -628,9 +628,9 @@ export default {
       }, 1000)
     },
     addRequestHeader(index) {
-      this.$store.commit('addGQLHeader', {
-        key: '',
-        value: '',
+      this.$store.commit("addGQLHeader", {
+        key: "",
+        value: "",
       })
       return false
     },
@@ -638,11 +638,11 @@ export default {
       // .slice() is used so we get a separate array, rather than just a reference
       const oldHeaders = this.headers.slice()
 
-      this.$store.commit('removeGQLHeader', index)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("removeGQLHeader", index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           duration: 4000,
           onClick: (e, toastObject) => {
             this.headers = oldHeaders
@@ -654,7 +654,7 @@ export default {
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
-        behavior: 'smooth',
+        behavior: "smooth",
       })
     },
   },

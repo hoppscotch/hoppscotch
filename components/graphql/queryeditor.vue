@@ -3,20 +3,20 @@
 </template>
 
 <script>
-const DEFAULT_THEME = 'twilight'
+const DEFAULT_THEME = "twilight"
 
-import ace from 'ace-builds'
-import * as gql from 'graphql'
-import { getAutocompleteSuggestions } from 'graphql-language-service-interface'
-import 'ace-builds/webpack-resolver'
-import 'ace-builds/src-noconflict/ext-language_tools'
-import debounce from '../../functions/utils/debounce'
+import ace from "ace-builds"
+import * as gql from "graphql"
+import { getAutocompleteSuggestions } from "graphql-language-service-interface"
+import "ace-builds/webpack-resolver"
+import "ace-builds/src-noconflict/ext-language_tools"
+import debounce from "../../functions/utils/debounce"
 
 export default {
   props: {
     value: {
       type: String,
-      default: '',
+      default: "",
     },
     theme: {
       type: String,
@@ -24,7 +24,7 @@ export default {
     },
     lang: {
       type: String,
-      default: 'json',
+      default: "json",
     },
     options: {
       type: Object,
@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       editor: null,
-      cacheValue: '',
+      cacheValue: "",
       validationSchema: null,
     }
   },
@@ -59,7 +59,7 @@ export default {
   },
 
   mounted() {
-    let langTools = ace.require('ace/ext/language_tools')
+    let langTools = ace.require("ace/ext/language_tools")
 
     const editor = ace.edit(this.$refs.editor, {
       theme: `ace/theme/${this.defineTheme()}`,
@@ -99,9 +99,9 @@ export default {
     this.editor = editor
     this.cacheValue = this.value
 
-    editor.on('change', () => {
+    editor.on("change", () => {
       const content = editor.getValue()
-      this.$emit('input', content)
+      this.$emit("input", content)
       this.parseContents(content)
       this.cacheValue = content
     })
@@ -124,7 +124,7 @@ export default {
     },
 
     parseContents: debounce(function(content) {
-      if (content !== '') {
+      if (content !== "") {
         try {
           const doc = gql.parse(content)
 
@@ -134,7 +134,7 @@ export default {
                 row: locations[0].line - 1,
                 column: locations[0].column - 1,
                 text: message,
-                type: 'error',
+                type: "error",
               }))
             )
           }
@@ -144,7 +144,7 @@ export default {
               row: e.locations[0].line - 1,
               column: e.locations[0].column - 1,
               text: e.message,
-              type: 'error',
+              type: "error",
             },
           ])
         }

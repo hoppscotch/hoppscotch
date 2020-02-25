@@ -1,10 +1,10 @@
-import AxiosStrategy from './strategies/AxiosStrategy'
-import ExtensionStrategy, { hasExtensionInstalled } from './strategies/ExtensionStrategy'
-import FirefoxStrategy from './strategies/FirefoxStrategy'
-import ChromeStrategy, { hasChromeExtensionInstalled } from './strategies/ChromeStrategy'
+import AxiosStrategy from "./strategies/AxiosStrategy"
+import ExtensionStrategy, { hasExtensionInstalled } from "./strategies/ExtensionStrategy"
+import FirefoxStrategy from "./strategies/FirefoxStrategy"
+import ChromeStrategy, { hasChromeExtensionInstalled } from "./strategies/ChromeStrategy"
 
 const isExtensionsAllowed = ({ state }) =>
-  typeof state.postwoman.settings.EXTENSIONS_ENABLED === 'undefined' ||
+  typeof state.postwoman.settings.EXTENSIONS_ENABLED === "undefined" ||
   state.postwoman.settings.EXTENSIONS_ENABLED
 
 const runAppropriateStrategy = (req, store) => {

@@ -14,13 +14,13 @@
         <div>
           <button class="icon" @click="$emit('edit-request')" v-close-popover>
             <i class="material-icons">edit</i>
-            <span>{{ $t('edit') }}</span>
+            <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div>
           <button class="icon" @click="removeRequest" v-close-popover>
             <i class="material-icons">delete</i>
-            <span>{{ $t('delete') }}</span>
+            <span>{{ $t("delete") }}</span>
           </button>
         </div>
       </template>
@@ -51,11 +51,11 @@ export default {
   },
   methods: {
     selectRequest() {
-      this.$store.commit('postwoman/selectRequest', { request: this.request })
+      this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     removeRequest() {
-      if (!confirm('Are you sure you want to remove this request?')) return
-      this.$store.commit('postwoman/removeRequest', {
+      if (!confirm("Are you sure you want to remove this request?")) return
+      this.$store.commit("postwoman/removeRequest", {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
         requestIndex: this.requestIndex,

@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t('edit_request') }}</h3>
+            <h3 class="title">{{ $t("edit_request") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <label for="selectLabel">{{ $t('label') }}</label>
+          <label for="selectLabel">{{ $t("label") }}</label>
           <input
             type="text"
             id="selectLabel"
@@ -25,11 +25,11 @@
             @keyup.enter="saveRequest"
             :placeholder="request.name"
           />
-          <label for="selectCollection">{{ $t('collection') }}</label>
+          <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectCollection" v-model="requestUpdateData.collectionIndex">
               <option :key="undefined" :value="undefined" hidden disabled selected>{{
-                $t('current_collection')
+                $t("current_collection")
               }}</option>
               <option
                 v-for="(collection, index) in $store.state.postwoman.collections"
@@ -40,7 +40,7 @@
               </option>
             </select>
           </span>
-          <label for="selectFolder">{{ $t('folder') }}</label>
+          <label for="selectFolder">{{ $t("folder") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectFolder" v-model="requestUpdateData.folderIndex">
               <option :key="undefined" :value="undefined">/</option>
@@ -57,10 +57,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="saveRequest">
-            {{ $t('save') }}
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -78,7 +78,7 @@ export default {
     requestIndex: Number,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
@@ -90,7 +90,7 @@ export default {
     }
   },
   watch: {
-    'requestUpdateData.collectionIndex': function resetFolderIndex() {
+    "requestUpdateData.collectionIndex": function resetFolderIndex() {
       // if user choosen some folder, than selected other collection, which doesn't have any folders
       // than `requestUpdateData.folderIndex` won't be reseted
       this.$data.requestUpdateData.folderIndex = undefined
@@ -120,7 +120,7 @@ export default {
 
       // pass data separately to don't depend on request's collection, folder fields
       // probably, they should be deprecated because they don't describe request itself
-      this.$store.commit('postwoman/editRequest', {
+      this.$store.commit("postwoman/editRequest", {
         requestOldCollectionIndex: this.$props.collectionIndex,
         requestOldFolderIndex: this.$props.folderIndex,
         requestOldIndex: this.$props.requestIndex,
@@ -132,7 +132,7 @@ export default {
       this.hideModal()
     },
     hideModal() {
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
   },
 }

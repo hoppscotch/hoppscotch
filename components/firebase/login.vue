@@ -41,8 +41,8 @@
 </template>
 
 <script>
-import firebase from 'firebase/app'
-import { fb } from '../../functions/fb'
+import firebase from "firebase/app"
+import { fb } from "../../functions/fb"
 
 export default {
   data() {
@@ -59,16 +59,16 @@ export default {
         .signInWithPopup(provider)
         .then(({ additionalUserInfo }) => {
           if (additionalUserInfo.isNewUser) {
-            this.$toast.info(`${this.$t('turn_on')} ${this.$t('sync')}`, {
-              icon: 'sync',
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
+              icon: "sync",
               duration: null,
               closeOnSwipe: false,
               action: {
-                text: this.$t('yes'),
+                text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings('syncHistory', false)
-                  fb.writeSettings('syncCollections', true)
-                  this.$router.push({ path: '/settings' })
+                  fb.writeSettings("syncHistory", false)
+                  fb.writeSettings("syncCollections", true)
+                  this.$router.push({ path: "/settings" })
                   toastObject.remove()
                 },
               },
@@ -77,7 +77,7 @@ export default {
         })
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: 'error',
+            icon: "error",
           })
         })
     },
@@ -88,16 +88,16 @@ export default {
         .signInWithPopup(provider)
         .then(({ additionalUserInfo }) => {
           if (additionalUserInfo.isNewUser) {
-            this.$toast.info(`${this.$t('turn_on')} ${this.$t('sync')}`, {
-              icon: 'sync',
+            this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
+              icon: "sync",
               duration: null,
               closeOnSwipe: false,
               action: {
-                text: this.$t('yes'),
+                text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings('syncHistory', false)
-                  fb.writeSettings('syncCollections', true)
-                  this.$router.push({ path: '/settings' })
+                  fb.writeSettings("syncHistory", false)
+                  fb.writeSettings("syncCollections", true)
+                  this.$router.push({ path: "/settings" })
                   toastObject.remove()
                 },
               },
@@ -106,7 +106,7 @@ export default {
         })
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: 'error',
+            icon: "error",
           })
         })
     },

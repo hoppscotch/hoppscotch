@@ -10,7 +10,7 @@
       <div class="show-on-large-screen">
         <li class="info">
           <label>
-            {{ feed.label || $t('no_label') }}
+            {{ feed.label || $t("no_label") }}
           </label>
         </li>
         <button class="icon" @click="deleteFeed(feed)">
@@ -19,14 +19,14 @@
       </div>
       <div class="show-on-large-screen">
         <li class="info clamb-3">
-          <label>{{ feed.message || $t('empty') }}</label>
+          <label>{{ feed.message || $t("empty") }}</label>
         </li>
       </div>
     </ul>
   </virtual-list>
   <ul v-else>
     <li>
-      <label class="info">{{ $t('empty') }}</label>
+      <label class="info">{{ $t("empty") }}</label>
     </li>
   </ul>
 </template>
@@ -55,11 +55,11 @@ ol {
 </style>
 
 <script>
-import { fb } from '../../functions/fb'
+import { fb } from "../../functions/fb"
 
 export default {
   components: {
-    VirtualList: () => import('vue-virtual-scroll-list'),
+    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -69,8 +69,8 @@ export default {
   methods: {
     deleteFeed(feed) {
       fb.deleteFeed(feed.id)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
       })
     },
   },

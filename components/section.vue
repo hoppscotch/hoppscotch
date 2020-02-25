@@ -3,7 +3,7 @@
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="material-icons">
-        {{ isCollapsed ? 'expand_more' : 'expand_less' }}
+        {{ isCollapsed ? "expand_more" : "expand_less" }}
       </i>
     </legend>
     <div class="collapsible" :class="{ hidden: collapsed }">
@@ -35,7 +35,7 @@ export default {
   props: {
     label: {
       type: String,
-      default: 'Section',
+      default: "Section",
     },
     collapsed: {
       type: Boolean,
@@ -45,7 +45,7 @@ export default {
   methods: {
     collapse({ target }) {
       const parent = target.parentNode.parentNode
-      parent.querySelector('.collapsible').classList.toggle('hidden')
+      parent.querySelector(".collapsible").classList.toggle("hidden")
       this.isCollapsed = !this.isCollapsed
     },
   },

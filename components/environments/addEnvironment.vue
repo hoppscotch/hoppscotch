@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t('new_environment') }}</h3>
+            <h3 class="title">{{ $t("new_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -31,10 +31,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="addNewEnvironment">
-            {{ $t('save') }}
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -43,14 +43,14 @@
 </template>
 
 <script>
-import { fb } from '../../functions/fb'
+import { fb } from "../../functions/fb"
 
 export default {
   props: {
     show: Boolean,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
@@ -67,7 +67,7 @@ export default {
     },
     addNewEnvironment() {
       if (!this.$data.name) {
-        this.$toast.info(this.$t('invalid_environment_name'))
+        this.$toast.info(this.$t("invalid_environment_name"))
         return
       }
       let newEnvironment = [
@@ -76,16 +76,16 @@ export default {
           variables: [],
         },
       ]
-      this.$store.commit('postwoman/importAddEnvironments', {
+      this.$store.commit("postwoman/importAddEnvironments", {
         environments: newEnvironment,
-        confirmation: 'Environment added',
+        confirmation: "Environment added",
       })
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
       this.syncEnvironments()
     },
     hideModal() {
       this.$data.name = undefined
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
   },
 }

@@ -5,11 +5,11 @@
     <h3>{{ error.message }}</h3>
     <p>
       <nuxt-link to="/">
-        <button>{{ $t('go_home') }}</button>
+        <button>{{ $t("go_home") }}</button>
       </nuxt-link>
     </p>
     <p>
-      <a href @click.prevent="reloadApplication">{{ $t('reload') }}</a>
+      <a href @click.prevent="reloadApplication">{{ $t("reload") }}</a>
     </p>
   </div>
 </template>
@@ -31,18 +31,18 @@
 
 <script>
 export default {
-  props: ['error'],
+  props: ["error"],
 
   methods: {
     reloadApplication() {
-      this.$router.push('/', () => window.location.reload())
+      this.$router.push("/", () => window.location.reload())
     },
   },
 
   head() {
     return {
       bodyAttrs: {
-        class: 'sticky-footer',
+        class: "sticky-footer",
       },
     }
   },

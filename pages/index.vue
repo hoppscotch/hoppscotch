@@ -6,7 +6,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="generatedCode">{{ $t('javascript_code') }}</label>
+                <label for="generatedCode">{{ $t("javascript_code") }}</label>
                 <div>
                   <a
                     href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
@@ -38,7 +38,7 @@
         <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li>
-              <label for="method">{{ $t('method') }}</label>
+              <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
                 <v-popover>
                   <input
@@ -175,7 +175,7 @@
               </span>
             </li>
             <li>
-              <label for="url">{{ $t('url') }}</label>
+              <label for="url">{{ $t("url") }}</label>
               <input
                 :class="{ error: !isValidURL }"
                 @keyup.enter="isValidURL ? sendRequest() : null"
@@ -186,7 +186,7 @@
               />
             </li>
             <li>
-              <label for="path">{{ $t('path') }}</label>
+              <label for="path">{{ $t("path") }}</label>
               <input
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="path"
@@ -196,7 +196,7 @@
               />
             </li>
             <li>
-              <label for="label">{{ $t('label') }}</label>
+              <label for="label">{{ $t("label") }}</label>
               <input
                 id="label"
                 name="label"
@@ -208,7 +208,7 @@
             <li>
               <label class="hide-on-small-screen" for="send">&nbsp;</label>
               <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
-                {{ $t('send') }}
+                {{ $t("send") }}
                 <span>
                   <i class="material-icons">send</i>
                 </span>
@@ -218,7 +218,7 @@
           <div class="blue" label="Request Body" v-if="['POST', 'PUT', 'PATCH'].includes(method)">
             <ul>
               <li>
-                <label for="contentType">{{ $t('content_type') }}</label>
+                <label for="contentType">{{ $t("content_type") }}</label>
                 <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType"
                   >Content Type</autocomplete
                 >
@@ -229,7 +229,7 @@
                 <div class="flex-wrap">
                   <span>
                     <pw-toggle :on="rawInput" @change="rawInput = $event">
-                      {{ $t('raw_input') }}
+                      {{ $t("raw_input") }}
                     </pw-toggle>
                   </span>
                   <div>
@@ -245,10 +245,10 @@
                         <span>
                           {{
                             files.length === 0
-                              ? 'No files'
+                              ? "No files"
                               : files.length == 1
-                              ? '1 file'
-                              : files.length + ' files'
+                              ? "1 file"
+                              : files.length + " files"
                           }}
                         </span>
                       </button>
@@ -277,7 +277,7 @@
             <div v-if="!rawInput">
               <ul>
                 <li>
-                  <label for="reqParamList">{{ $t('parameter_list') }}</label>
+                  <label for="reqParamList">{{ $t("parameter_list") }}</label>
                   <textarea
                     id="reqParamList"
                     readonly
@@ -336,7 +336,7 @@
                 <li>
                   <button class="icon" @click="addRequestBodyParam" name="addrequest">
                     <i class="material-icons">add</i>
-                    <span>{{ $t('add_new') }}</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
@@ -344,7 +344,7 @@
             <div v-else>
               <ul>
                 <li>
-                  <label for="rawBody">{{ $t('raw_request_body') }}</label>
+                  <label for="rawBody">{{ $t("raw_request_body") }}</label>
                   <Editor
                     v-model="rawParams"
                     :lang="rawInputEditorLang"
@@ -455,7 +455,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="generatedCode">{{ $t('javascript_code') }}</label>
+                <label for="generatedCode">{{ $t("javascript_code") }}</label>
                 <div>
                   <a
                     href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
@@ -516,13 +516,13 @@
         </pw-section>
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
-          <label for="tab-one">{{ $t('authentication') }}</label>
+          <label for="tab-one">{{ $t("authentication") }}</label>
           <div class="tab">
             <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="auth">{{ $t('authentication') }}</label>
+                    <label for="auth">{{ $t("authentication") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -596,7 +596,7 @@
               </ul>
               <div class="flex-wrap">
                 <pw-toggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">
-                  {{ $t('include_in_url') }}
+                  {{ $t("include_in_url") }}
                 </pw-toggle>
               </div>
             </pw-section>
@@ -609,7 +609,7 @@
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="token-name">{{ $t('token_name') }}</label>
+                    <label for="token-name">{{ $t("token_name") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -646,7 +646,7 @@
               <ul>
                 <li>
                   <label for="oidc-discovery-url">
-                    {{ $t('oidc_discovery_url') }}
+                    {{ $t("oidc_discovery_url") }}
                   </label>
                   <input
                     :disabled="this.authUrl !== '' || this.accessTokenUrl !== ''"
@@ -660,7 +660,7 @@
               </ul>
               <ul>
                 <li>
-                  <label for="auth-url">{{ $t('auth_url') }}</label>
+                  <label for="auth-url">{{ $t("auth_url") }}</label>
                   <input
                     :disabled="this.oidcDiscoveryUrl !== ''"
                     id="auth-url"
@@ -674,7 +674,7 @@
               <ul>
                 <li>
                   <label for="access-token-url">
-                    {{ $t('access_token_url') }}
+                    {{ $t("access_token_url") }}
                   </label>
                   <input
                     :disabled="this.oidcDiscoveryUrl !== ''"
@@ -688,7 +688,7 @@
               </ul>
               <ul>
                 <li>
-                  <label for="client-id">{{ $t('client_id') }}</label>
+                  <label for="client-id">{{ $t("client_id") }}</label>
                   <input
                     id="client-id"
                     name="client_id"
@@ -700,7 +700,7 @@
               </ul>
               <ul>
                 <li>
-                  <label for="scope">{{ $t('scope') }}</label>
+                  <label for="scope">{{ $t("scope") }}</label>
                   <input
                     id="scope"
                     name="scope"
@@ -714,20 +714,20 @@
                 <li>
                   <button class="icon" @click="handleAccessTokenRequest">
                     <i class="material-icons">vpn_key</i>
-                    <span>{{ $t('request_token') }}</span>
+                    <span>{{ $t("request_token") }}</span>
                   </button>
                 </li>
               </ul>
             </pw-section>
           </div>
           <input id="tab-two" type="radio" name="options" />
-          <label for="tab-two">{{ $t('headers') }}</label>
+          <label for="tab-two">{{ $t("headers") }}</label>
           <div class="tab">
             <pw-section class="orange" label="Headers" ref="headers">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="headerList">{{ $t('header_list') }}</label>
+                    <label for="headerList">{{ $t("header_list") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -796,20 +796,20 @@
                 <li>
                   <button class="icon" @click="addRequestHeader">
                     <i class="material-icons">add</i>
-                    <span>{{ $t('add_new') }}</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
             </pw-section>
           </div>
           <input id="tab-three" type="radio" name="options" />
-          <label for="tab-three">{{ $t('parameters') }}</label>
+          <label for="tab-three">{{ $t("parameters") }}</label>
           <div class="tab">
             <pw-section class="pink" label="Parameters" ref="parameters">
               <ul>
                 <li>
                   <div class="flex-wrap">
-                    <label for="paramList">{{ $t('parameter_list') }}</label>
+                    <label for="paramList">{{ $t("parameter_list") }}</label>
                     <div>
                       <button
                         class="icon"
@@ -875,7 +875,7 @@
                 <li>
                   <button class="icon" @click="addRequestParam">
                     <i class="material-icons">add</i>
-                    <span>{{ $t('add_new') }}</span>
+                    <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
               </ul>
@@ -900,7 +900,7 @@
         <pw-section class="purple" id="response" :label="$t('response')" ref="response">
           <ul>
             <li>
-              <label for="status">{{ $t('status') }}</label>
+              <label for="status">{{ $t("status") }}</label>
               <input
                 :class="statusCategory ? statusCategory.className : ''"
                 :value="response.status || $t('waiting_send_req')"
@@ -921,7 +921,7 @@
           <ul v-if="response.body">
             <li>
               <div class="flex-wrap">
-                <label for="body">{{ $t('response') }}</label>
+                <label for="body">{{ $t("response") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -933,7 +933,7 @@
                     }"
                   >
                     <i class="material-icons">
-                      {{ !expandResponse ? 'unfold_more' : 'unfold_less' }}
+                      {{ !expandResponse ? "unfold_more" : "unfold_less" }}
                     </i>
                   </button>
                   <button
@@ -980,10 +980,10 @@
               <div class="align-right" v-if="response.body && responseType === 'text/html'">
                 <button class="icon" @click.prevent="togglePreview">
                   <i class="material-icons">
-                    {{ !previewEnabled ? 'visibility' : 'visibility_off' }}
+                    {{ !previewEnabled ? "visibility" : "visibility_off" }}
                   </i>
                   <span>
-                    {{ previewEnabled ? $t('hide_preview') : $t('preview_html') }}
+                    {{ previewEnabled ? $t("hide_preview") : $t("preview_html") }}
                   </span>
                 </button>
               </div>
@@ -994,22 +994,22 @@
       <aside v-if="activeSidebar" class="sticky-inner inner-right">
         <section>
           <input id="history-tab" type="radio" name="side" checked="checked" />
-          <label for="history-tab">{{ $t('history') }}</label>
+          <label for="history-tab">{{ $t("history") }}</label>
           <div class="tab">
             <history @useHistory="handleUseHistory" ref="historyComponent" />
           </div>
           <input id="collection-tab" type="radio" name="side" />
-          <label for="collection-tab">{{ $t('collections') }}</label>
+          <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
             <collections />
           </div>
           <input id="environment-tab" type="radio" name="side" />
-          <label for="environment-tab">{{ $t('environment') }}</label>
+          <label for="environment-tab">{{ $t("environment") }}</label>
           <div class="tab">
             <environments @use-environment="useSelectedEnvironment($event)" />
           </div>
           <input id="sync-tab" type="radio" name="side" />
-          <label for="sync-tab">{{ $t('notes') }}</label>
+          <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
             <pw-section class="pink" :label="$t('notes')" ref="sync">
               <div v-if="fb.currentUser">
@@ -1019,7 +1019,7 @@
               <div v-else>
                 <ul>
                   <li>
-                    <label>{{ $t('login_first') }}</label>
+                    <label>{{ $t("login_first") }}</label>
                   </li>
                 </ul>
               </div>
@@ -1039,7 +1039,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">{{ $t('import_curl') }}</h3>
+                <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
                     <i class="material-icons">close</i>
@@ -1066,10 +1066,10 @@
             <span></span>
             <span>
               <button class="icon" @click="showModal = false">
-                {{ $t('cancel') }}
+                {{ $t("cancel") }}
               </button>
               <button class="icon primary" @click="handleImport">
-                {{ $t('import') }}
+                {{ $t("import") }}
               </button>
             </span>
           </div>
@@ -1081,7 +1081,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">{{ $t('generate_code') }}</h3>
+                <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
                     <i class="material-icons">close</i>
@@ -1094,7 +1094,7 @@
         <div slot="body">
           <ul>
             <li>
-              <label for="requestType">{{ $t('request_type') }}</label>
+              <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
                 <select id="requestType" v-model="requestType">
                   <option>JavaScript XHR</option>
@@ -1107,7 +1107,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="generatedCode">{{ $t('generated_code') }}</label>
+                <label for="generatedCode">{{ $t("generated_code") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -1138,7 +1138,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">{{ $t('manage_token') }}</h3>
+                <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
                     <i class="material-icons">close</i>
@@ -1152,7 +1152,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="token-list">{{ $t('token_list') }}</label>
+                <label for="token-list">{{ $t("token_list") }}</label>
                 <div v-if="tokens.length != 0">
                   <button
                     class="icon"
@@ -1203,7 +1203,7 @@
             </div>
           </ul>
           <p v-if="tokens.length === 0" class="info">
-            {{ $t('empty') }}
+            {{ $t("empty") }}
           </p>
         </div>
         <div slot="footer"></div>
@@ -1214,7 +1214,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <h3 class="title">{{ $t('manage_token_req') }}</h3>
+                <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
                     <i class="material-icons">close</i>
@@ -1228,7 +1228,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="token-req-list">{{ $t('token_req_list') }}</label>
+                <label for="token-req-list">{{ $t("token_req_list") }}</label>
                 <div>
                   <button
                     :disabled="this.tokenReqs.length === 0"
@@ -1264,14 +1264,14 @@
           </ul>
           <ul>
             <li>
-              <label for="token-req-name">{{ $t('token_req_name') }}</label>
+              <label for="token-req-name">{{ $t("token_req_name") }}</label>
               <input v-model="tokenReqName" />
             </li>
           </ul>
           <ul>
             <li>
               <label for="token-req-details">
-                {{ $t('token_req_details') }}
+                {{ $t("token_req_details") }}
               </label>
               <textarea
                 id="token-req-details"
@@ -1287,7 +1287,7 @@
             <span></span>
             <span>
               <button class="icon primary" @click="addOAuthTokenReq">
-                {{ $t('save_token_req') }}
+                {{ $t("save_token_req") }}
               </button>
             </span>
           </div>
@@ -1298,52 +1298,52 @@
 </template>
 
 <script>
-import section from '../components/section'
-import url from 'url'
-import querystring from 'querystring'
-import { commonHeaders } from '../functions/headers'
-import textareaAutoHeight from '../directives/textareaAutoHeight'
-import parseCurlCommand from '../assets/js/curlparser.js'
-import getEnvironmentVariablesFromScript from '../functions/preRequest'
-import runTestScriptWithVariables from '../functions/postwomanTesting'
-import parseTemplateString from '../functions/templating'
-import AceEditor from '../components/ace-editor'
-import { tokenRequest, oauthRedirect } from '../assets/js/oauth'
-import { sendNetworkRequest } from '../functions/network'
-import { fb } from '../functions/fb'
-import { getEditorLangForMimeType } from '~/functions/editorutils'
+import section from "../components/section"
+import url from "url"
+import querystring from "querystring"
+import { commonHeaders } from "../functions/headers"
+import textareaAutoHeight from "../directives/textareaAutoHeight"
+import parseCurlCommand from "../assets/js/curlparser.js"
+import getEnvironmentVariablesFromScript from "../functions/preRequest"
+import runTestScriptWithVariables from "../functions/postwomanTesting"
+import parseTemplateString from "../functions/templating"
+import AceEditor from "../components/ace-editor"
+import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
+import { sendNetworkRequest } from "../functions/network"
+import { fb } from "../functions/fb"
+import { getEditorLangForMimeType } from "~/functions/editorutils"
 
 const statusCategories = [
   {
-    name: 'informational',
+    name: "informational",
     statusCodeRegex: new RegExp(/[1][0-9]+/),
-    className: 'info-response',
+    className: "info-response",
   },
   {
-    name: 'successful',
+    name: "successful",
     statusCodeRegex: new RegExp(/[2][0-9]+/),
-    className: 'success-response',
+    className: "success-response",
   },
   {
-    name: 'redirection',
+    name: "redirection",
     statusCodeRegex: new RegExp(/[3][0-9]+/),
-    className: 'redir-response',
+    className: "redir-response",
   },
   {
-    name: 'client error',
+    name: "client error",
     statusCodeRegex: new RegExp(/[4][0-9]+/),
-    className: 'cl-error-response',
+    className: "cl-error-response",
   },
   {
-    name: 'server error',
+    name: "server error",
     statusCodeRegex: new RegExp(/[5][0-9]+/),
-    className: 'sv-error-response',
+    className: "sv-error-response",
   },
   {
     // this object is a catch-all for when no other objects match and should always be last
-    name: 'unknown',
+    name: "unknown",
     statusCodeRegex: new RegExp(/.*/),
-    className: 'missing-data-response',
+    className: "missing-data-response",
   },
 ]
 const parseHeaders = xhr => {
@@ -1353,9 +1353,9 @@ const parseHeaders = xhr => {
     .split(/[\r\n]+/)
   const headerMap = {}
   headers.forEach(line => {
-    const parts = line.split(': ')
+    const parts = line.split(": ")
     const header = parts.shift().toLowerCase()
-    const value = parts.join(': ')
+    const value = parts.join(": ")
     headerMap[header] = value
   })
   return headerMap
@@ -1369,17 +1369,17 @@ export default {
   },
 
   components: {
-    'pw-section': section,
-    'pw-toggle': () => import('../components/toggle'),
-    'pw-modal': () => import('../components/modal'),
-    history: () => import('../components/history'),
-    autocomplete: () => import('../components/autocomplete'),
-    collections: () => import('../components/collections'),
-    saveRequestAs: () => import('../components/collections/saveRequestAs'),
+    "pw-section": section,
+    "pw-toggle": () => import("../components/toggle"),
+    "pw-modal": () => import("../components/modal"),
+    history: () => import("../components/history"),
+    autocomplete: () => import("../components/autocomplete"),
+    collections: () => import("../components/collections"),
+    saveRequestAs: () => import("../components/collections/saveRequestAs"),
     Editor: AceEditor,
-    inputform: () => import('../components/firebase/inputform'),
-    notes: () => import('../components/firebase/feeds'),
-    environments: () => import('../components/environments'),
+    inputform: () => import("../components/firebase/inputform"),
+    notes: () => import("../components/firebase/feeds"),
+    environments: () => import("../components/environments"),
   },
   data() {
     return {
@@ -1394,9 +1394,9 @@ export default {
       doneButton: '<i class="material-icons">done</i>',
       isHidden: true,
       response: {
-        status: '',
-        headers: '',
-        body: '',
+        status: "",
+        headers: "",
+        body: "",
       },
       previewEnabled: false,
       paramsWatchEnabled: true,
@@ -1409,18 +1409,18 @@ export default {
        * These are content types that can be automatically
        * serialized by postwoman.
        */
-      knownContentTypes: ['application/json', 'application/x-www-form-urlencoded'],
+      knownContentTypes: ["application/json", "application/x-www-form-urlencoded"],
 
       /**
        * These are a list of Content Types known to Postwoman.
        */
       validContentTypes: [
-        'application/json',
-        'application/hal+json',
-        'application/xml',
-        'application/x-www-form-urlencoded',
-        'text/html',
-        'text/plain',
+        "application/json",
+        "application/hal+json",
+        "application/xml",
+        "application/x-www-form-urlencoded",
+        "text/html",
+        "text/plain",
       ],
 
       commonHeaders,
@@ -1428,14 +1428,14 @@ export default {
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
-      responseBodyText: '',
-      responseBodyType: 'text',
+      responseBodyText: "",
+      responseBodyType: "text",
       responseBodyMaxLines: 16,
       activeSidebar: true,
       fb,
       customMethod: false,
       files: [],
-      filenames: '',
+      filenames: "",
       navigatorShare: navigator.share,
     }
   },
@@ -1443,8 +1443,8 @@ export default {
     urlExcludes: {
       deep: true,
       handler() {
-        this.$store.commit('postwoman/applySetting', [
-          'URL_EXCLUDES',
+        this.$store.commit("postwoman/applySetting", [
+          "URL_EXCLUDES",
           Object.assign({}, this.urlExcludes),
         ])
       },
@@ -1453,32 +1453,32 @@ export default {
       this.rawInput = !this.knownContentTypes.includes(val)
     },
     rawInput(status) {
-      if (status && this.rawParams === '') {
-        this.rawParams = '{}'
+      if (status && this.rawParams === "") {
+        this.rawParams = "{}"
       } else {
         this.setRouteQueryState()
       }
     },
-    'response.body': function(val) {
+    "response.body": function(val) {
       if (
-        this.response.body === this.$t('waiting_send_req') ||
-        this.response.body === this.$t('loading')
+        this.response.body === this.$t("waiting_send_req") ||
+        this.response.body === this.$t("loading")
       ) {
         this.responseBodyText = this.response.body
-        this.responseBodyType = 'text'
+        this.responseBodyType = "text"
       } else {
         if (
-          this.responseType === 'application/json' ||
-          this.responseType === 'application/hal+json'
+          this.responseType === "application/json" ||
+          this.responseType === "application/hal+json"
         ) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType = 'json'
-        } else if (this.responseType === 'text/html') {
+          this.responseBodyType = "json"
+        } else if (this.responseType === "text/html") {
           this.responseBodyText = this.response.body
-          this.responseBodyType = 'html'
+          this.responseBodyType = "html"
         } else {
           this.responseBodyText = this.response.body
-          this.responseBodyType = 'text'
+          this.responseBodyType = "text"
         }
       }
     },
@@ -1492,10 +1492,10 @@ export default {
         let queryString = newValue
           .filter(({ key }) => !!key)
           .map(({ key, value }) => `${key}=${value}`)
-          .join('&')
-        queryString = queryString === '' ? '' : `?${queryString}`
-        if (path.includes('?')) {
-          path = path.slice(0, path.indexOf('?')) + queryString
+          .join("&")
+        queryString = queryString === "" ? "" : `?${queryString}`
+        if (path.includes("?")) {
+          path = path.slice(0, path.indexOf("?")) + queryString
         } else {
           path = path + queryString
         }
@@ -1529,7 +1529,7 @@ export default {
     },
     method() {
       // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ['POST', 'PUT', 'PATCH'].includes(this.method) ? 'application/json' : ''
+      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method) ? "application/json" : ""
     },
   },
   computed: {
@@ -1538,7 +1538,7 @@ export default {
         return this.$store.state.request.url
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'url' })
+        this.$store.commit("setState", { value, attribute: "url" })
       },
     },
     method: {
@@ -1546,7 +1546,7 @@ export default {
         return this.$store.state.request.method
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'method' })
+        this.$store.commit("setState", { value, attribute: "method" })
       },
     },
     path: {
@@ -1554,7 +1554,7 @@ export default {
         return this.$store.state.request.path
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'path' })
+        this.$store.commit("setState", { value, attribute: "path" })
       },
     },
     label: {
@@ -1562,7 +1562,7 @@ export default {
         return this.$store.state.request.label
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'label' })
+        this.$store.commit("setState", { value, attribute: "label" })
       },
     },
     auth: {
@@ -1570,7 +1570,7 @@ export default {
         return this.$store.state.request.auth
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'auth' })
+        this.$store.commit("setState", { value, attribute: "auth" })
       },
     },
     httpUser: {
@@ -1578,7 +1578,7 @@ export default {
         return this.$store.state.request.httpUser
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'httpUser' })
+        this.$store.commit("setState", { value, attribute: "httpUser" })
       },
     },
     httpPassword: {
@@ -1586,7 +1586,7 @@ export default {
         return this.$store.state.request.httpPassword
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'httpPassword' })
+        this.$store.commit("setState", { value, attribute: "httpPassword" })
       },
     },
     bearerToken: {
@@ -1594,7 +1594,7 @@ export default {
         return this.$store.state.request.bearerToken
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'bearerToken' })
+        this.$store.commit("setState", { value, attribute: "bearerToken" })
       },
     },
     tokens: {
@@ -1602,7 +1602,7 @@ export default {
         return this.$store.state.oauth2.tokens
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'tokens' })
+        this.$store.commit("setOAuth2", { value, attribute: "tokens" })
       },
     },
     tokenReqs: {
@@ -1610,7 +1610,7 @@ export default {
         return this.$store.state.oauth2.tokenReqs
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'tokenReqs' })
+        this.$store.commit("setOAuth2", { value, attribute: "tokenReqs" })
       },
     },
     tokenReqSelect: {
@@ -1618,7 +1618,7 @@ export default {
         return this.$store.state.oauth2.tokenReqSelect
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'tokenReqSelect' })
+        this.$store.commit("setOAuth2", { value, attribute: "tokenReqSelect" })
       },
     },
     tokenReqName: {
@@ -1626,7 +1626,7 @@ export default {
         return this.$store.state.oauth2.tokenReqName
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'tokenReqName' })
+        this.$store.commit("setOAuth2", { value, attribute: "tokenReqName" })
       },
     },
     accessTokenName: {
@@ -1634,9 +1634,9 @@ export default {
         return this.$store.state.oauth2.accessTokenName
       },
       set(value) {
-        this.$store.commit('setOAuth2', {
+        this.$store.commit("setOAuth2", {
           value,
-          attribute: 'accessTokenName',
+          attribute: "accessTokenName",
         })
       },
     },
@@ -1645,9 +1645,9 @@ export default {
         return this.$store.state.oauth2.oidcDiscoveryUrl
       },
       set(value) {
-        this.$store.commit('setOAuth2', {
+        this.$store.commit("setOAuth2", {
           value,
-          attribute: 'oidcDiscoveryUrl',
+          attribute: "oidcDiscoveryUrl",
         })
       },
     },
@@ -1656,7 +1656,7 @@ export default {
         return this.$store.state.oauth2.authUrl
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'authUrl' })
+        this.$store.commit("setOAuth2", { value, attribute: "authUrl" })
       },
     },
     accessTokenUrl: {
@@ -1664,7 +1664,7 @@ export default {
         return this.$store.state.oauth2.accessTokenUrl
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'accessTokenUrl' })
+        this.$store.commit("setOAuth2", { value, attribute: "accessTokenUrl" })
       },
     },
     clientId: {
@@ -1672,7 +1672,7 @@ export default {
         return this.$store.state.oauth2.clientId
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'clientId' })
+        this.$store.commit("setOAuth2", { value, attribute: "clientId" })
       },
     },
     scope: {
@@ -1680,7 +1680,7 @@ export default {
         return this.$store.state.oauth2.scope
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'scope' })
+        this.$store.commit("setOAuth2", { value, attribute: "scope" })
       },
     },
     state: {
@@ -1688,7 +1688,7 @@ export default {
         return this.$store.state.oauth2.state
       },
       set(value) {
-        this.$store.commit('setOAuth2', { value, attribute: 'state' })
+        this.$store.commit("setOAuth2", { value, attribute: "state" })
       },
     },
     headers: {
@@ -1696,7 +1696,7 @@ export default {
         return this.$store.state.request.headers
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'headers' })
+        this.$store.commit("setState", { value, attribute: "headers" })
       },
     },
     params: {
@@ -1704,7 +1704,7 @@ export default {
         return this.$store.state.request.params
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'params' })
+        this.$store.commit("setState", { value, attribute: "params" })
       },
     },
     bodyParams: {
@@ -1712,7 +1712,7 @@ export default {
         return this.$store.state.request.bodyParams
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'bodyParams' })
+        this.$store.commit("setState", { value, attribute: "bodyParams" })
       },
     },
     rawParams: {
@@ -1720,7 +1720,7 @@ export default {
         return this.$store.state.request.rawParams
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'rawParams' })
+        this.$store.commit("setState", { value, attribute: "rawParams" })
       },
     },
     rawInput: {
@@ -1728,7 +1728,7 @@ export default {
         return this.$store.state.request.rawInput
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'rawInput' })
+        this.$store.commit("setState", { value, attribute: "rawInput" })
       },
     },
     rawInputEditorLang() {
@@ -1739,7 +1739,7 @@ export default {
         return this.$store.state.request.requestType
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'requestType' })
+        this.$store.commit("setState", { value, attribute: "requestType" })
       },
     },
     contentType: {
@@ -1747,7 +1747,7 @@ export default {
         return this.$store.state.request.contentType
       },
       set(value) {
-        this.$store.commit('setState', { value, attribute: 'contentType' })
+        this.$store.commit("setState", { value, attribute: "contentType" })
       },
     },
     passwordFieldType: {
@@ -1755,9 +1755,9 @@ export default {
         return this.$store.state.request.passwordFieldType
       },
       set(value) {
-        this.$store.commit('setState', {
+        this.$store.commit("setState", {
           value,
-          attribute: 'passwordFieldType',
+          attribute: "passwordFieldType",
         })
       },
     },
@@ -1779,7 +1779,7 @@ export default {
         // we cannot determine if a URL is valid because the full string is not known ahead of time
         return true
       }
-      const protocol = '^(https?:\\/\\/)?'
+      const protocol = "^(https?:\\/\\/)?"
       const validIP = new RegExp(
         `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
       )
@@ -1789,14 +1789,14 @@ export default {
       return validIP.test(this.url) || validHostname.test(this.url)
     },
     hasRequestBody() {
-      return ['POST', 'PUT', 'PATCH'].includes(this.method)
+      return ["POST", "PUT", "PATCH"].includes(this.method)
     },
     pathName() {
       return this.path.match(/^([^?]*)\??/)[1]
     },
     rawRequestBody() {
       const { bodyParams, contentType } = this
-      if (contentType === 'application/json') {
+      if (contentType === "application/json") {
         try {
           const obj = JSON.parse(
             `{${bodyParams
@@ -1810,42 +1810,42 @@ export default {
           )
           return JSON.stringify(obj, null, 2)
         } catch (ex) {
-          return 'invalid'
+          return "invalid"
         }
       } else {
         return bodyParams
           .filter(({ key }) => !!key)
           .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
-          .join('&')
+          .join("&")
       }
     },
     headerString() {
       const result = this.headers
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}: ${value}`)
-        .join(',\n')
-      return result === '' ? '' : `${result}`
+        .join(",\n")
+      return result === "" ? "" : `${result}`
     },
     queryString() {
       const result = this.params
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
-        .join('&')
-      return result === '' ? '' : `?${result}`
+        .join("&")
+      return result === "" ? "" : `?${result}`
     },
     responseType() {
-      return (this.response.headers['content-type'] || '').split(';')[0].toLowerCase()
+      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },
     requestCode() {
-      if (this.requestType === 'JavaScript XHR') {
+      if (this.requestType === "JavaScript XHR") {
         const requestString = []
-        requestString.push('const xhr = new XMLHttpRequest()')
-        const user = this.auth === 'Basic Auth' ? `'${this.httpUser}'` : null
-        const password = this.auth === 'Basic Auth' ? `'${this.httpPassword}'` : null
+        requestString.push("const xhr = new XMLHttpRequest()")
+        const user = this.auth === "Basic Auth" ? `'${this.httpUser}'` : null
+        const password = this.auth === "Basic Auth" ? `'${this.httpPassword}'` : null
         requestString.push(
           `xhr.open('${this.method}', '${this.url}${this.pathName}${this.queryString}', true, ${user}, ${password})`
         )
-        if (this.auth === 'Bearer Token' || this.auth === 'OAuth 2.0') {
+        if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(`xhr.setRequestHeader('Authorization', 'Bearer ${this.bearerToken}')`)
         }
         if (this.headers) {
@@ -1853,7 +1853,7 @@ export default {
             requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
           })
         }
-        if (['POST', 'PUT', 'PATCH'].includes(this.method)) {
+        if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           requestString.push(`xhr.setRequestHeader('Content-Length', ${requestBody.length})`)
           requestString.push(
@@ -1861,23 +1861,23 @@ export default {
           )
           requestString.push(`xhr.send(${requestBody})`)
         } else {
-          requestString.push('xhr.send()')
+          requestString.push("xhr.send()")
         }
-        return requestString.join('\n')
-      } else if (this.requestType === 'Fetch') {
+        return requestString.join("\n")
+      } else if (this.requestType === "Fetch") {
         const requestString = []
         let headers = []
         requestString.push(`fetch("${this.url}${this.pathName}${this.queryString}", {\n`)
         requestString.push(`  method: "${this.method}",\n`)
-        if (this.auth === 'Basic Auth') {
+        if (this.auth === "Basic Auth") {
           const basic = `${this.httpUser}:${this.httpPassword}`
           headers.push(
             `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
           )
-        } else if (this.auth === 'Bearer Token' || this.auth === 'OAuth 2.0') {
+        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           headers.push(`    "Authorization": "Bearer ${this.bearerToken}",\n`)
         }
-        if (['POST', 'PUT', 'PATCH'].includes(this.method)) {
+        if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           requestString.push(`  body: ${requestBody},\n`)
           headers.push(`    "Content-Length": ${requestBody.length},\n`)
@@ -1888,29 +1888,29 @@ export default {
             headers.push(`    "${key}": "${value}",\n`)
           })
         }
-        headers = headers.join('').slice(0, -2)
+        headers = headers.join("").slice(0, -2)
         requestString.push(`  headers: {\n${headers}\n  },\n`)
         requestString.push('  credentials: "same-origin"\n')
-        requestString.push('}).then(function(response) {\n')
-        requestString.push('  response.status\n')
-        requestString.push('  response.statusText\n')
-        requestString.push('  response.headers\n')
-        requestString.push('  response.url\n\n')
-        requestString.push('  return response.text()\n')
-        requestString.push('}).catch(function(error) {\n')
-        requestString.push('  error.message\n')
-        requestString.push('})')
-        return requestString.join('')
-      } else if (this.requestType === 'cURL') {
+        requestString.push("}).then(function(response) {\n")
+        requestString.push("  response.status\n")
+        requestString.push("  response.statusText\n")
+        requestString.push("  response.headers\n")
+        requestString.push("  response.url\n\n")
+        requestString.push("  return response.text()\n")
+        requestString.push("}).catch(function(error) {\n")
+        requestString.push("  error.message\n")
+        requestString.push("})")
+        return requestString.join("")
+      } else if (this.requestType === "cURL") {
         const requestString = []
         requestString.push(`curl -X ${this.method} \n`)
         requestString.push(`  '${this.url}${this.pathName}${this.queryString}' \n`)
-        if (this.auth === 'Basic Auth') {
+        if (this.auth === "Basic Auth") {
           const basic = `${this.httpUser}:${this.httpPassword}`
           requestString.push(
             `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}' \n`
           )
-        } else if (this.auth === 'Bearer Token' || this.auth === 'OAuth 2.0') {
+        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           requestString.push(`  -H 'Authorization: Bearer ${this.bearerToken}' \n`)
         }
         if (this.headers) {
@@ -1918,13 +1918,13 @@ export default {
             requestString.push(`  -H '${key}: ${value}' \n`)
           })
         }
-        if (['POST', 'PUT', 'PATCH'].includes(this.method)) {
+        if (["POST", "PUT", "PATCH"].includes(this.method)) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           requestString.push(`  -H 'Content-Length: ${requestBody.length}' \n`)
           requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8' \n`)
           requestString.push(`  -d '${requestBody}' \n`)
         }
-        return requestString.join('').slice(0, -2)
+        return requestString.join("").slice(0, -2)
       }
     },
     tokenReqDetails() {
@@ -1940,7 +1940,7 @@ export default {
   },
   methods: {
     useSelectedEnvironment(environment) {
-      let preRequestScriptString = ''
+      let preRequestScriptString = ""
       for (let variable of environment.variables) {
         preRequestScriptString =
           preRequestScriptString + `pw.env.set('${variable.key}', '${variable.value}');\n`
@@ -1956,7 +1956,7 @@ export default {
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
-        behavior: 'smooth',
+        behavior: "smooth",
       })
     },
     handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
@@ -1966,7 +1966,7 @@ export default {
       this.path = path
       this.showPreRequestScript = usesScripts
       this.preRequestScript = preRequestScript
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto('request')
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -1994,7 +1994,7 @@ export default {
           requestOptions.headers[kParsed] = valParsed
         }
       }
-      if (typeof requestOptions.data === 'string') {
+      if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data)
       }
 
@@ -2002,11 +2002,11 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear()
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto('response')
+      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
 
       if (!this.isValidURL) {
-        this.$toast.error(this.$t('url_invalid_format'), {
-          icon: 'error',
+        this.$toast.error(this.$t("url_invalid_format"), {
+          icon: "error",
         })
         return
       }
@@ -2015,15 +2015,15 @@ export default {
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
 
-      if (this.$refs.response.$el.classList.contains('hidden')) {
-        this.$refs.response.$el.classList.toggle('hidden')
+      if (this.$refs.response.$el.classList.contains("hidden")) {
+        this.$refs.response.$el.classList.toggle("hidden")
       }
       this.previewEnabled = false
-      this.response.status = this.$t('fetching')
-      this.response.body = this.$t('loading')
+      this.response.status = this.$t("fetching")
+      this.response.body = this.$t("loading")
 
       const auth =
-        this.auth === 'Basic Auth'
+        this.auth === "Basic Auth"
           ? {
               username: this.httpUser,
               password: this.httpPassword,
@@ -2046,7 +2046,7 @@ export default {
 
         Object.assign(headers, {
           //'Content-Length': requestBody.length,
-          'Content-Type': `${this.contentType}; charset=utf-8`,
+          "Content-Type": `${this.contentType}; charset=utf-8`,
         })
       }
 
@@ -2058,13 +2058,13 @@ export default {
           let file = this.files[i]
           formData.append(`files[${i}]`, file)
         }
-        formData.append('data', requestBody)
+        formData.append("data", requestBody)
         requestBody = formData
       }
 
       // If the request uses a token for auth, we want to make sure it's sent here.
-      if (this.auth === 'Bearer Token' || this.auth === 'OAuth 2.0')
-        headers['Authorization'] = `Bearer ${this.bearerToken}`
+      if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0")
+        headers["Authorization"] = `Bearer ${this.bearerToken}`
 
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
@@ -2093,8 +2093,8 @@ export default {
         )
 
         const duration = Date.now() - startTime
-        this.$toast.info(this.$t('finished_in', { duration }), {
-          icon: 'done',
+        this.$toast.info(this.$t("finished_in", { duration }), {
+          icon: "done",
         })
         ;(() => {
           const status = (this.response.status = payload.status)
@@ -2166,18 +2166,18 @@ export default {
           return
         } else {
           this.response.status = error.message
-          this.response.body = `${error}. ${this.$t('check_console_details')}`
-          this.$toast.error(`${error} ${this.$t('f12_details')}`, {
-            icon: 'error',
+          this.response.body = `${error}. ${this.$t("check_console_details")}`
+          this.$toast.error(`${error} ${this.$t("f12_details")}`, {
+            icon: "error",
           })
           if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
-            this.$toast.info(this.$t('enable_proxy'), {
-              icon: 'help',
+            this.$toast.info(this.$t("enable_proxy"), {
+              icon: "help",
               duration: 8000,
               action: {
-                text: this.$t('yes'),
+                text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  this.$router.push({ path: '/settings' })
+                  this.$router.push({ path: "/settings" })
                 },
               },
             })
@@ -2188,7 +2188,7 @@ export default {
     getQueryStringFromPath() {
       let queryString
       const pathParsed = url.parse(this.path)
-      return (queryString = pathParsed.query ? pathParsed.query : '')
+      return (queryString = pathParsed.query ? pathParsed.query : "")
     },
     queryStringToArray(queryString) {
       const queryParsed = querystring.parse(queryString)
@@ -2204,9 +2204,9 @@ export default {
       this.params = params
     },
     addRequestHeader() {
-      this.$store.commit('addHeaders', {
-        key: '',
-        value: '',
+      this.$store.commit("addHeaders", {
+        key: "",
+        value: "",
       })
       return false
     },
@@ -2214,11 +2214,11 @@ export default {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldHeaders = this.headers.slice()
 
-      this.$store.commit('removeHeaders', index)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("removeHeaders", index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.headers = oldHeaders
             toastObject.remove()
@@ -2227,18 +2227,18 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit('addParams', { key: '', value: '' })
+      this.$store.commit("addParams", { key: "", value: "" })
       return false
     },
     removeRequestParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldParams = this.params.slice()
 
-      this.$store.commit('removeParams', index)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("removeParams", index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.params = oldParams
             toastObject.remove()
@@ -2247,18 +2247,18 @@ export default {
       })
     },
     addRequestBodyParam() {
-      this.$store.commit('addBodyParams', { key: '', value: '' })
+      this.$store.commit("addBodyParams", { key: "", value: "" })
       return false
     },
     removeRequestBodyParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldBodyParams = this.bodyParams.slice()
 
-      this.$store.commit('removeBodyParams', index)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("removeBodyParams", index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.bodyParams = oldBodyParams
             toastObject.remove()
@@ -2272,33 +2272,33 @@ export default {
         const date = new Date().toLocaleDateString()
         navigator
           .share({
-            title: 'Postwoman',
+            title: "Postwoman",
             text: `Postwoman • API request builder at ${time} on ${date}`,
             url: window.location.href,
           })
           .then(() => {})
           .catch(console.error)
       } else {
-        const dummy = document.createElement('input')
+        const dummy = document.createElement("input")
         document.body.appendChild(dummy)
         dummy.value = window.location.href
         dummy.select()
-        document.execCommand('copy')
+        document.execCommand("copy")
         document.body.removeChild(dummy)
         this.$refs.copyRequest.innerHTML = this.doneButton
-        this.$toast.info(this.$t('copied_to_clipboard'), {
-          icon: 'done',
+        this.$toast.info(this.$t("copied_to_clipboard"), {
+          icon: "done",
         })
         setTimeout(() => (this.$refs.copyRequest.innerHTML = this.copyButton), 1000)
       }
     },
     copyRequestCode() {
       this.$refs.copyRequestCode.innerHTML = this.doneButton
-      this.$toast.success(this.$t('copied_to_clipboard'), {
-        icon: 'done',
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
       })
       this.$refs.generatedCode.select()
-      document.execCommand('copy')
+      document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
     },
     ToggleExpandResponse() {
@@ -2307,33 +2307,33 @@ export default {
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t('copied_to_clipboard'), {
-        icon: 'done',
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
       })
-      const aux = document.createElement('textarea')
+      const aux = document.createElement("textarea")
       const copy =
-        this.responseType === 'application/json'
+        this.responseType === "application/json"
           ? JSON.stringify(this.response.body, null, 2)
           : this.response.body
       aux.innerText = copy
       document.body.appendChild(aux)
       aux.select()
-      document.execCommand('copy')
+      document.execCommand("copy")
       document.body.removeChild(aux)
       setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
     },
     downloadResponse() {
       const dataToWrite = JSON.stringify(this.response.body, null, 2)
       const file = new Blob([dataToWrite], { type: this.responseType })
-      const a = document.createElement('a')
+      const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, '[dot]')
+      a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, "[dot]")
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t('download_started'), {
-        icon: 'done',
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
@@ -2346,9 +2346,9 @@ export default {
       if (this.previewEnabled) {
         // If you want to add 'preview' support for other response types,
         // just add them here.
-        if (this.responseType === 'text/html') {
+        if (this.responseType === "text/html") {
           // If the preview already has that URL loaded, let's not bother re-loading it all.
-          if (this.$refs.previewFrame.getAttribute('data-previewing-url') === this.url) return
+          if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
           // Use DOMParser to parse document HTML.
           const previewDocument = new DOMParser().parseFromString(
             this.response.body,
@@ -2359,54 +2359,54 @@ export default {
             `<base href="${this.url}">` + previewDocument.head.innerHTML
           // Finally, set the iframe source to the resulting HTML.
           this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
-          this.$refs.previewFrame.setAttribute('data-previewing-url', this.url)
+          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
         }
       }
     },
     setRouteQueryState() {
-      const flat = key => (this[key] !== '' ? `${key}=${this[key]}&` : '')
+      const flat = key => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = key => {
         const haveItems = [...this[key]].length
-        if (haveItems && this[key]['value'] !== '') {
+        if (haveItems && this[key]["value"] !== "") {
           return `${key}=${JSON.stringify(this[key])}&`
         }
-        return ''
+        return ""
       }
       let flats = [
-        'method',
-        'url',
-        'path',
-        !this.urlExcludes.auth ? 'auth' : null,
-        !this.urlExcludes.httpUser ? 'httpUser' : null,
-        !this.urlExcludes.httpPassword ? 'httpPassword' : null,
-        !this.urlExcludes.bearerToken ? 'bearerToken' : null,
-        'contentType',
+        "method",
+        "url",
+        "path",
+        !this.urlExcludes.auth ? "auth" : null,
+        !this.urlExcludes.httpUser ? "httpUser" : null,
+        !this.urlExcludes.httpPassword ? "httpPassword" : null,
+        !this.urlExcludes.bearerToken ? "bearerToken" : null,
+        "contentType",
       ]
         .filter(item => item !== null)
         .map(item => flat(item))
-      const deeps = ['headers', 'params'].map(item => deep(item))
-      const bodyParams = this.rawInput ? [flat('rawParams')] : [deep('bodyParams')]
+      const deeps = ["headers", "params"].map(item => deep(item))
+      const bodyParams = this.rawInput ? [flat("rawParams")] : [deep("bodyParams")]
 
       history.replaceState(
         window.location.href,
-        '',
+        "",
         `/?${encodeURI(
           flats
             .concat(deeps, bodyParams)
-            .join('')
+            .join("")
             .slice(0, -1)
         )}`
       )
     },
     setRouteQueries(queries) {
-      if (typeof queries !== 'object') throw new Error('Route query parameters must be a Object')
+      if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
-        if (['headers', 'params', 'bodyParams'].includes(key))
+        if (["headers", "params", "bodyParams"].includes(key))
           this[key] = JSON.parse(decodeURI(queries[key]))
-        if (key === 'rawParams') {
+        if (key === "rawParams") {
           this.rawInput = true
-          this.rawParams = queries['rawParams']
-        } else if (typeof this[key] === 'string') {
+          this.rawParams = queries["rawParams"]
+        } else if (typeof this[key] === "string") {
           this[key] = queries[key]
         }
       }
@@ -2417,119 +2417,119 @@ export default {
       const observer = new IntersectionObserver(
         (entries, observer) => {
           entries.forEach(entry => {
-            if (entry.isIntersecting) sendButtonElement.classList.remove('show')
+            if (entry.isIntersecting) sendButtonElement.classList.remove("show")
             // The button should float when it is no longer visible on screen.
             // This is done by adding the show class to the button.
-            else sendButtonElement.classList.add('show')
+            else sendButtonElement.classList.add("show")
           })
         },
         {
-          rootMargin: '0px',
+          rootMargin: "0px",
           threshold: [0],
         }
       )
       observer.observe(requestElement)
     },
     handleImport() {
-      const { value: text } = document.getElementById('import-text')
+      const { value: text } = document.getElementById("import-text")
       try {
         const parsedCurl = parseCurlCommand(text)
-        const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, '').replace(/'/g, ''))
+        const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
         this.url = origin
         this.path = pathname
         this.headers = []
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
-            this.$store.commit('addHeaders', {
+            this.$store.commit("addHeaders", {
               key,
               value: parsedCurl.headers[key],
             })
           }
         }
         this.method = parsedCurl.method.toUpperCase()
-        if (parsedCurl['data']) {
+        if (parsedCurl["data"]) {
           this.rawInput = true
-          this.rawParams = parsedCurl['data']
+          this.rawParams = parsedCurl["data"]
         }
         this.showModal = false
       } catch (error) {
         this.showModal = false
-        this.$toast.error(this.$t('curl_invalid_format'), {
-          icon: 'error',
+        this.$toast.error(this.$t("curl_invalid_format"), {
+          icon: "error",
         })
       }
     },
     switchVisibility() {
-      this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
+      this.passwordFieldType = this.passwordFieldType === "password" ? "text" : "password"
     },
     clearContent(name, e) {
       switch (name) {
-        case 'auth':
-          this.auth = 'None'
-          this.httpUser = ''
-          this.httpPassword = ''
-          this.bearerToken = ''
+        case "auth":
+          this.auth = "None"
+          this.httpUser = ""
+          this.httpPassword = ""
+          this.bearerToken = ""
           this.showTokenRequest = false
           this.tokens = []
           this.tokenReqs = []
           break
-        case 'headers':
+        case "headers":
           this.headers = []
           break
-        case 'parameters':
+        case "parameters":
           this.params = []
           break
-        case 'access_token':
-          this.accessTokenName = ''
-          this.oidcDiscoveryUrl = ''
-          this.authUrl = ''
-          this.accessTokenUrl = ''
-          this.clientId = ''
-          this.scope = ''
+        case "access_token":
+          this.accessTokenName = ""
+          this.oidcDiscoveryUrl = ""
+          this.authUrl = ""
+          this.accessTokenUrl = ""
+          this.clientId = ""
+          this.scope = ""
           break
-        case 'tokens':
+        case "tokens":
           this.tokens = []
           break
-        case 'tokenReqs':
+        case "tokenReqs":
           this.tokenReqs = []
-        case 'tests':
+        case "tests":
           this.testReports = null
           break
         default:
-          ;(this.label = ''),
-            (this.method = 'GET'),
-            (this.url = 'https://httpbin.org'),
-            (this.auth = 'None'),
-            (this.path = '/get'),
-            (this.auth = 'None')
-          this.httpUser = ''
-          this.httpPassword = ''
-          this.bearerToken = ''
+          ;(this.label = ""),
+            (this.method = "GET"),
+            (this.url = "https://httpbin.org"),
+            (this.auth = "None"),
+            (this.path = "/get"),
+            (this.auth = "None")
+          this.httpUser = ""
+          this.httpPassword = ""
+          this.bearerToken = ""
           this.headers = []
           this.params = []
           this.bodyParams = []
-          this.rawParams = ''
+          this.rawParams = ""
           this.showTokenRequest = false
           this.tokens = []
           this.tokenReqs = []
-          this.accessTokenName = ''
-          this.oidcDiscoveryUrl = ''
-          this.authUrl = ''
-          this.accessTokenUrl = ''
-          this.clientId = ''
-          this.scope = ''
+          this.accessTokenName = ""
+          this.oidcDiscoveryUrl = ""
+          this.authUrl = ""
+          this.accessTokenUrl = ""
+          this.clientId = ""
+          this.scope = ""
           this.files = []
       }
       e.target.innerHTML = this.doneButton
-      this.$toast.info(this.$t('cleared'), {
-        icon: 'clear_all',
+      this.$toast.info(this.$t("cleared"), {
+        icon: "clear_all",
       })
       setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     saveRequest() {
       if (!this.checkCollections()) {
-        this.$toast.error(this.$t('create_collection'), {
-          icon: 'error',
+        this.$toast.error(this.$t("create_collection"), {
+          icon: "error",
         })
         return
       }
@@ -2563,7 +2563,7 @@ export default {
       this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
-      if (excludedField === 'auth') {
+      if (excludedField === "auth") {
         this.urlExcludes.auth = excluded
         this.urlExcludes.httpUser = excluded
         this.urlExcludes.httpPassword = excluded
@@ -2574,18 +2574,18 @@ export default {
       this.setRouteQueryState()
     },
     uploadAttachment() {
-      this.filenames = ''
+      this.filenames = ""
       this.files = this.$refs.attachment.files
       if (this.files.length !== 0) {
         for (let file of this.files) {
           this.filenames = `${this.filenames}<br/>${file.name}`
         }
-        this.$toast.info(this.$t('file_imported'), {
-          icon: 'attach_file',
+        this.$toast.info(this.$t("file_imported"), {
+          icon: "attach_file",
         })
       } else {
-        this.$toast.error(this.$t('choose_file'), {
-          icon: 'attach_file',
+        this.$toast.error(this.$t("choose_file"), {
+          icon: "attach_file",
         })
       }
     },
@@ -2598,25 +2598,25 @@ export default {
           this.rawParams = target.result
         }
         reader.readAsText(file)
-        this.$toast.info(this.$t('file_imported'), {
-          icon: 'attach_file',
+        this.$toast.info(this.$t("file_imported"), {
+          icon: "attach_file",
         })
       } else {
-        this.$toast.error(this.$t('choose_file'), {
-          icon: 'attach_file',
+        this.$toast.error(this.$t("choose_file"), {
+          icon: "attach_file",
         })
       }
     },
     async handleAccessTokenRequest() {
-      if (this.oidcDiscoveryUrl === '' && (this.authUrl === '' || this.accessTokenUrl === '')) {
-        this.$toast.error(this.$t('complete_config_urls'), {
-          icon: 'error',
+      if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
+        this.$toast.error(this.$t("complete_config_urls"), {
+          icon: "error",
         })
         return
       }
       try {
         const tokenReqParams = {
-          grantType: 'code',
+          grantType: "code",
           oidcDiscoveryUrl: this.oidcDiscoveryUrl,
           authUrl: this.authUrl,
           accessTokenUrl: this.accessTokenUrl,
@@ -2626,13 +2626,13 @@ export default {
         await tokenRequest(tokenReqParams)
       } catch (e) {
         this.$toast.error(e, {
-          icon: 'code',
+          icon: "code",
         })
       }
     },
     async oauthRedirectReq() {
       const tokenInfo = await oauthRedirect()
-      if (tokenInfo.hasOwnProperty('access_token')) {
+      if (tokenInfo.hasOwnProperty("access_token")) {
         this.bearerToken = tokenInfo.access_token
         this.addOAuthToken({
           name: this.accessTokenName,
@@ -2641,7 +2641,7 @@ export default {
       }
     },
     addOAuthToken({ name, value }) {
-      this.$store.commit('addOAuthToken', {
+      this.$store.commit("addOAuthToken", {
         name,
         value,
       })
@@ -2649,11 +2649,11 @@ export default {
     },
     removeOAuthToken(index) {
       const oldTokens = this.tokens.slice()
-      this.$store.commit('removeOAuthToken', index)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("removeOAuthToken", index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.tokens = oldTokens
             toastObject.remove()
@@ -2669,15 +2669,15 @@ export default {
       try {
         const name = this.tokenReqName
         const details = JSON.parse(this.tokenReqDetails)
-        this.$store.commit('addOAuthTokenReq', {
+        this.$store.commit("addOAuthTokenReq", {
           name,
           details,
         })
-        this.$toast.info(this.$t('token_request_saved'))
+        this.$toast.info(this.$t("token_request_saved"))
         this.showTokenRequestList = false
       } catch (e) {
         this.$toast.error(e, {
-          icon: 'code',
+          icon: "code",
         })
       }
     },
@@ -2685,11 +2685,11 @@ export default {
       const oldTokenReqs = this.tokenReqs.slice()
       const targetReqIndex = this.tokenReqs.findIndex(({ name }) => name === this.tokenReqName)
       if (targetReqIndex < 0) return
-      this.$store.commit('removeOAuthTokenReq', targetReqIndex)
-      this.$toast.error(this.$t('deleted'), {
-        icon: 'delete',
+      this.$store.commit("removeOAuthTokenReq", targetReqIndex)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
         action: {
-          text: this.$t('undo'),
+          text: this.$t("undo"),
           onClick: (e, toastObject) => {
             this.tokenReqs = oldTokenReqs
             toastObject.remove()
@@ -2711,25 +2711,25 @@ export default {
   async mounted() {
     this.observeRequestButton()
     this._keyListener = function(e) {
-      if (e.key === 'g' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.sendRequest()
-      } else if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.saveRequest()
-      } else if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.copyRequest()
-      } else if (e.key === 'j' && (e.ctrlKey || e.metaKey)) {
+      } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.$refs.clearAll.click()
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         e.preventDefault()
         this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false
         this.isHidden = true
       }
     }
-    document.addEventListener('keydown', this._keyListener.bind(this))
+    document.addEventListener("keydown", this._keyListener.bind(this))
     await this.oauthRedirectReq()
   },
   created() {
@@ -2764,7 +2764,7 @@ export default {
     )
   },
   beforeDestroy() {
-    document.removeEventListener('keydown', this._keyListener)
+    document.removeEventListener("keydown", this._keyListener)
   },
 }
 </script>

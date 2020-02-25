@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t('new_collection') }}</h3>
+            <h3 class="title">{{ $t("new_collection") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -31,10 +31,10 @@
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
-            {{ $t('cancel') }}
+            {{ $t("cancel") }}
           </button>
           <button class="icon primary" @click="addNewCollection">
-            {{ $t('save') }}
+            {{ $t("save") }}
           </button>
         </span>
       </div>
@@ -43,14 +43,14 @@
 </template>
 
 <script>
-import { fb } from '../../functions/fb'
+import { fb } from "../../functions/fb"
 
 export default {
   props: {
     show: Boolean,
   },
   components: {
-    modal: () => import('../../components/modal'),
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
@@ -67,17 +67,17 @@ export default {
     },
     addNewCollection() {
       if (!this.$data.name) {
-        this.$toast.info($t('invalid_collection_name'))
+        this.$toast.info($t("invalid_collection_name"))
         return
       }
-      this.$store.commit('postwoman/addNewCollection', {
+      this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name,
       })
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
       this.syncCollections()
     },
     hideModal() {
-      this.$emit('hide-modal')
+      this.$emit("hide-modal")
     },
   },
 }

@@ -1,7 +1,7 @@
 const firefoxWithProxy = (req, { state }) =>
   new Promise((resolve, reject) => {
     const eventListener = event => {
-      window.removeEventListener('firefoxExtSendRequestComplete', event)
+      window.removeEventListener("firefoxExtSendRequestComplete", event)
 
       if (event.detail.error) {
         reject(JSON.parse(event.detail.error))
@@ -10,11 +10,11 @@ const firefoxWithProxy = (req, { state }) =>
       }
     }
 
-    window.addEventListener('firefoxExtSendRequestComplete', eventListener)
+    window.addEventListener("firefoxExtSendRequestComplete", eventListener)
 
     window.firefoxExtSendRequest({
-      method: 'post',
-      url: state.postwoman.settings.PROXY_URL || 'https://postwoman.apollotv.xyz/',
+      method: "post",
+      url: state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
       data: req,
     })
   })
@@ -22,7 +22,7 @@ const firefoxWithProxy = (req, { state }) =>
 const firefoxWithoutProxy = (req, _store) =>
   new Promise((resolve, reject) => {
     const eventListener = ({ detail }) => {
-      window.removeEventListener('firefoxExtSendRequestComplete', eventListener)
+      window.removeEventListener("firefoxExtSendRequestComplete", eventListener)
 
       if (detail.error) {
         reject(JSON.parse(detail.error))
@@ -31,7 +31,7 @@ const firefoxWithoutProxy = (req, _store) =>
       }
     }
 
-    window.addEventListener('firefoxExtSendRequestComplete', eventListener)
+    window.addEventListener("firefoxExtSendRequestComplete", eventListener)
 
     window.firefoxExtSendRequest(req)
   })

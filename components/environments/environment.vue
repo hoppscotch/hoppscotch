@@ -14,13 +14,13 @@
         <div>
           <button class="icon" @click="$emit('edit-environment')" v-close-popover>
             <i class="material-icons">create</i>
-            <span>{{ $t('edit') }}</span>
+            <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div>
           <button class="icon" @click="removeEnvironment" v-close-popover>
             <i class="material-icons">delete</i>
-            <span>{{ $t('delete') }}</span>
+            <span>{{ $t("delete") }}</span>
           </button>
         </div>
       </template>
@@ -49,8 +49,8 @@ export default {
   },
   methods: {
     removeEnvironment() {
-      if (!confirm('Are you sure you want to remove this environment?')) return
-      this.$store.commit('postwoman/removeEnvironment', this.environmentIndex)
+      if (!confirm("Are you sure you want to remove this environment?")) return
+      this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
     },
   },
 }

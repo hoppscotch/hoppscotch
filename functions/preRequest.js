@@ -14,7 +14,7 @@ export default function getEnvironmentVariablesFromScript(script) {
   }
 
   // run pre-request script within this function so that it has access to the pw object.
-  new Function('pw', script)(pw)
+  new Function("pw", script)(pw)
 
   return _variables
 }

@@ -346,6 +346,14 @@ export default {
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,
+      
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+      }
     }
   },
 
@@ -417,7 +425,7 @@ export default {
       const rootTypeName = this.resolveRootType(type).name
 
       const target = document.getElementById(`type_${rootTypeName}`)
-      if (target && this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED) {
+      if (target && this.settings.SCROLL_INTO_ENABLED) {
         target.scrollIntoView({
           behavior: "smooth",
         })
@@ -472,7 +480,7 @@ export default {
 
       this.$nuxt.$loading.start()
       this.response = this.$t("loading")
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
+      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
 
       try {
         let headers = {}
@@ -515,7 +523,7 @@ export default {
     async getSchema() {
       const startTime = Date.now()
       this.schema = this.$t("loading")
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("schema")
+      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("schema")
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.

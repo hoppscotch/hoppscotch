@@ -1437,7 +1437,15 @@ export default {
       files: [],
       filenames: "",
       navigatorShare: navigator.share,
-    }
+
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
+          "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true
+      }
+    };
   },
   watch: {
     urlExcludes: {
@@ -1959,14 +1967,21 @@ export default {
         behavior: "smooth",
       })
     },
-    handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
-      this.label = label
-      this.method = method
-      this.url = url
-      this.path = path
-      this.showPreRequestScript = usesScripts
-      this.preRequestScript = preRequestScript
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("request")
+    handleUseHistory({
+      label,
+      method,
+      url,
+      path,
+      usesScripts,
+      preRequestScript
+    }) {
+      this.label = label;
+      this.method = method;
+      this.url = url;
+      this.path = path;
+      this.showPreRequestScript = usesScripts;
+      this.preRequestScript = preRequestScript;
+      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("request");
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2001,8 +2016,8 @@ export default {
       return await sendNetworkRequest(requestOptions, this.$store)
     },
     async sendRequest() {
-      this.$toast.clear()
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
+      this.$toast.clear();
+      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("response");
 
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {

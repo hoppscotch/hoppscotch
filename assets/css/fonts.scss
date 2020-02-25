@@ -6,7 +6,9 @@
   font-family: "Material Icons";
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  // Do not use font-display: swap for the icon font - it looks really bad when the page
+  // loads.
+  font-display: block;
   src: url("~static/fonts/material-icons-v48.woff2") format("woff2");
 }
 

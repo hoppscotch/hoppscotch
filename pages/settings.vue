@@ -12,14 +12,14 @@
               />
               <i v-else class="material-icons">account_circle</i>
               <span>
-                {{ fb.currentUser.displayName || "Name not found" }}
+                {{ fb.currentUser.displayName || $t("nothing_found") }}
               </span>
             </button>
             <br />
             <button class="icon">
               <i class="material-icons">email</i>
               <span>
-                {{ fb.currentUser.email || "Email not found" }}
+                {{ fb.currentUser.email || $t("nothing_found") }}
               </span>
             </button>
             <br />
@@ -99,7 +99,7 @@
                 :color="theme.color"
                 :name="theme.name"
                 class="bg"
-              ></swatch>
+              />
             </span>
           </div>
         </li>
@@ -110,7 +110,7 @@
           <div class="colors">
             <span
               :key="entry.color"
-              @click.prevent="setActiveColor(entry.color, entry.vibrant)"
+              @click="setActiveColor(entry.color, entry.vibrant)"
               v-for="entry in colors"
             >
               <swatch
@@ -138,8 +138,8 @@
             </pw-toggle>
           </span>
         </li>
-        </ul>
-        <ul>
+      </ul>
+      <ul>
         <li>
           <span>
             <pw-toggle
@@ -346,12 +346,13 @@ export default {
       ],
 
       settings: {
-        SCROLL_INTO_ENABLED: 
+        SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
           "undefined"
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
             : true,
 
+        THEME_CLASS: "",
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,
@@ -364,7 +365,7 @@ export default {
           this.$store.state.postwoman.settings.PROXY_URL ||
           "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
-        
+
         EXTENSIONS_ENABLED:
           typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
           "undefined"

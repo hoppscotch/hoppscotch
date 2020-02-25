@@ -1,6 +1,6 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
+import firebase from "firebase/app"
+import "firebase/firestore"
+import "firebase/auth"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -11,12 +11,12 @@ const firebaseConfig = {
   storageBucket: "postwoman-api.appspot.com",
   messagingSenderId: "421993993223",
   appId: "1:421993993223:web:ec0baa8ee8c02ffa1fc6a2",
-  measurementId: "G-ERJ6025CEB"
-};
-firebase.initializeApp(firebaseConfig);
+  measurementId: "G-ERJ6025CEB",
+}
+firebase.initializeApp(firebaseConfig)
 
 // a reference to the users collection
-const usersCollection = firebase.firestore().collection("users");
+const usersCollection = firebase.firestore().collection("users")
 
 // the shared state object that any vue component
 // can get access to
@@ -34,13 +34,13 @@ export const fb = {
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
       message,
-      label
-    };
+      label,
+    }
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("feeds")
       .add(dt)
-      .catch(e => console.error("error inserting", dt, e));
+      .catch(e => console.error("error inserting", dt, e))
   },
   deleteFeed: id => {
     usersCollection
@@ -48,7 +48,7 @@ export const fb = {
       .collection("feeds")
       .doc(id)
       .delete()
-      .catch(e => console.error("error deleting", id, e));
+      .catch(e => console.error("error deleting", id, e))
   },
   writeSettings: async (setting, value) => {
     const st = {
@@ -57,22 +57,22 @@ export const fb = {
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
       name: setting,
-      value
-    };
+      value,
+    }
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("settings")
       .doc(setting)
       .set(st)
-      .catch(e => console.error("error updating", st, e));
+      .catch(e => console.error("error updating", st, e))
   },
   writeHistory: async entry => {
-    const hs = entry;
+    const hs = entry
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("history")
       .add(hs)
-      .catch(e => console.error("error inserting", hs, e));
+      .catch(e => console.error("error inserting", hs, e))
   },
   deleteHistory: entry => {
     usersCollection
@@ -80,7 +80,7 @@ export const fb = {
       .collection("history")
       .doc(entry.id)
       .delete()
-      .catch(e => console.error("error deleting", entry, e));
+      .catch(e => console.error("error deleting", entry, e))
   },
   clearHistory: () => {
     usersCollection
@@ -88,8 +88,8 @@ export const fb = {
       .collection("history")
       .get()
       .then(({ docs }) => {
-        docs.forEach(e => fb.deleteHistory(e));
-      });
+        docs.forEach(e => fb.deleteHistory(e))
+      })
   },
   toggleStar: (entry, value) => {
     usersCollection
@@ -97,7 +97,7 @@ export const fb = {
       .collection("history")
       .doc(entry.id)
       .update({ star: value })
-      .catch(e => console.error("error deleting", entry, e));
+      .catch(e => console.error("error deleting", entry, e))
   },
   writeCollections: async collection => {
     const cl = {
@@ -105,14 +105,14 @@ export const fb = {
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      collection: collection
-    };
+      collection: collection,
+    }
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("collections")
       .doc("sync")
       .set(cl)
-      .catch(e => console.error("error updating", cl, e));
+      .catch(e => console.error("error updating", cl, e))
   },
   writeEnvironments: async environment => {
     const ev = {
@@ -120,21 +120,21 @@ export const fb = {
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      environment: environment
-    };
+      environment: environment,
+    }
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("environments")
       .doc("sync")
       .set(ev)
-      .catch(e => console.error("error updating", ev, e));
-  }
-};
+      .catch(e => console.error("error updating", ev, e))
+  },
+}
 
 // When a user logs in or out, save that in the store
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
-    fb.currentUser = user;
+    fb.currentUser = user
     fb.currentUser.providerData.forEach(profile => {
       let us = {
         updatedOn: new Date(),
@@ -142,80 +142,80 @@ firebase.auth().onAuthStateChanged(user => {
         name: profile.displayName,
         email: profile.email,
         photoUrl: profile.photoURL,
-        uid: profile.uid
-      };
+        uid: profile.uid,
+      }
       usersCollection
         .doc(fb.currentUser.uid)
         .set(us)
-        .catch(e => console.error("error updating", us, e));
-    });
+        .catch(e => console.error("error updating", us, e))
+    })
 
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("feeds")
       .orderBy("createdOn", "desc")
       .onSnapshot(feedsRef => {
-        const feeds = [];
+        const feeds = []
         feedsRef.forEach(doc => {
-          const feed = doc.data();
-          feed.id = doc.id;
-          feeds.push(feed);
-        });
-        fb.currentFeeds = feeds;
-      });
+          const feed = doc.data()
+          feed.id = doc.id
+          feeds.push(feed)
+        })
+        fb.currentFeeds = feeds
+      })
 
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("settings")
       .onSnapshot(settingsRef => {
-        const settings = [];
+        const settings = []
         settingsRef.forEach(doc => {
-          const setting = doc.data();
-          setting.id = doc.id;
-          settings.push(setting);
-        });
-        fb.currentSettings = settings;
-      });
+          const setting = doc.data()
+          setting.id = doc.id
+          settings.push(setting)
+        })
+        fb.currentSettings = settings
+      })
 
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("history")
       .onSnapshot(historyRef => {
-        const history = [];
+        const history = []
         historyRef.forEach(doc => {
-          const entry = doc.data();
-          entry.id = doc.id;
-          history.push(entry);
-        });
-        fb.currentHistory = history;
-      });
+          const entry = doc.data()
+          entry.id = doc.id
+          history.push(entry)
+        })
+        fb.currentHistory = history
+      })
 
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("collections")
       .onSnapshot(collectionsRef => {
-        const collections = [];
+        const collections = []
         collectionsRef.forEach(doc => {
-          const collection = doc.data();
-          collection.id = doc.id;
-          collections.push(collection);
-        });
-        fb.currentCollections = collections[0].collection;
-      });
+          const collection = doc.data()
+          collection.id = doc.id
+          collections.push(collection)
+        })
+        fb.currentCollections = collections[0].collection
+      })
 
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("environments")
       .onSnapshot(environmentsRef => {
-        const environments = [];
+        const environments = []
         environmentsRef.forEach(doc => {
-          const environment = doc.data();
-          environment.id = doc.id;
-          environments.push(environment);
-        });
-        fb.currentEnvironments = environments[0].environment;
-      });
+          const environment = doc.data()
+          environment.id = doc.id
+          environments.push(environment)
+        })
+        fb.currentEnvironments = environments[0].environment
+      })
   } else {
-    fb.currentUser = null;
+    fb.currentUser = null
   }
-});
+})

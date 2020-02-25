@@ -27,22 +27,12 @@
           />
           <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectCollection"
-              v-model="requestUpdateData.collectionIndex"
-            >
+            <select type="text" id="selectCollection" v-model="requestUpdateData.collectionIndex">
+              <option :key="undefined" :value="undefined" hidden disabled selected>{{
+                $t("current_collection")
+              }}</option>
               <option
-                :key="undefined"
-                :value="undefined"
-                hidden
-                disabled
-                selected
-                >{{ $t("current_collection") }}</option
-              >
-              <option
-                v-for="(collection, index) in $store.state.postwoman
-                  .collections"
+                v-for="(collection, index) in $store.state.postwoman.collections"
                 :key="index"
                 :value="index"
               >
@@ -52,17 +42,9 @@
           </span>
           <label for="selectFolder">{{ $t("folder") }}</label>
           <span class="select-wrapper">
-            <select
-              type="text"
-              id="selectFolder"
-              v-model="requestUpdateData.folderIndex"
-            >
+            <select type="text" id="selectFolder" v-model="requestUpdateData.folderIndex">
               <option :key="undefined" :value="undefined">/</option>
-              <option
-                v-for="(folder, index) in folders"
-                :key="index"
-                :value="index"
-              >
+              <option v-for="(folder, index) in folders" :key="index" :value="index">
                 {{ folder.name }}
               </option>
             </select>
@@ -93,42 +75,39 @@ export default {
     collectionIndex: Number,
     folderIndex: Number,
     request: Object,
-    requestIndex: Number
+    requestIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
       requestUpdateData: {
         name: undefined,
         collectionIndex: undefined,
-        folderIndex: undefined
-      }
-    };
+        folderIndex: undefined,
+      },
+    }
   },
   watch: {
     "requestUpdateData.collectionIndex": function resetFolderIndex() {
       // if user choosen some folder, than selected other collection, which doesn't have any folders
       // than `requestUpdateData.folderIndex` won't be reseted
-      this.$data.requestUpdateData.folderIndex = undefined;
-    }
+      this.$data.requestUpdateData.folderIndex = undefined
+    },
   },
   computed: {
     folders() {
-      const userSelectedAnyCollection =
-        this.$data.requestUpdateData.collectionIndex !== undefined;
-      if (!userSelectedAnyCollection) return [];
+      const userSelectedAnyCollection = this.$data.requestUpdateData.collectionIndex !== undefined
+      if (!userSelectedAnyCollection) return []
 
-      return this.$store.state.postwoman.collections[
-        this.$data.requestUpdateData.collectionIndex
-      ].folders;
-    }
+      return this.$store.state.postwoman.collections[this.$data.requestUpdateData.collectionIndex]
+        .folders
+    },
   },
   methods: {
     saveRequest() {
-      const userSelectedAnyCollection =
-        this.$data.requestUpdateData.collectionIndex !== undefined;
+      const userSelectedAnyCollection = this.$data.requestUpdateData.collectionIndex !== undefined
 
       const requestUpdated = {
         ...this.$props.request,
@@ -136,8 +115,8 @@ export default {
         collection: userSelectedAnyCollection
           ? this.$data.requestUpdateData.collectionIndex
           : this.$props.collectionIndex,
-        folder: this.$data.requestUpdateData.folderIndex
-      };
+        folder: this.$data.requestUpdateData.folderIndex,
+      }
 
       // pass data separately to don't depend on request's collection, folder fields
       // probably, they should be deprecated because they don't describe request itself
@@ -147,14 +126,14 @@ export default {
         requestOldIndex: this.$props.requestIndex,
         requestNew: requestUpdated,
         requestNewCollectionIndex: requestUpdated.collection,
-        requestNewFolderIndex: requestUpdated.folder
-      });
+        requestNewFolderIndex: requestUpdated.folder,
+      })
 
-      this.hideModal();
+      this.hideModal()
     },
     hideModal() {
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$emit("hide-modal")
+    },
+  },
+}
 </script>

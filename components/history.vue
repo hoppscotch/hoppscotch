@@ -28,7 +28,7 @@
             :class="{ stared: entry.star }"
             @click="toggleStar(entry)"
             v-tooltip="{
-              content: !entry.star ? $t('add_star') : $t('remove_star')
+              content: !entry.star ? $t('add_star') : $t('remove_star'),
             }"
           >
             <i class="material-icons">
@@ -162,9 +162,7 @@
         </transition>
       </ul>
     </virtual-list>
-    <ul
-      :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }"
-    >
+    <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
         <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
@@ -201,11 +199,7 @@
               </button>
             </div>
             <div>
-              <button
-                class="icon"
-                @click="sort_by_status_code()"
-                v-close-popover
-              >
+              <button class="icon" @click="sort_by_status_code()" v-close-popover>
                 <i class="material-icons">assistant</i>
                 <span>{{ $t("status") }}</span>
               </button>
@@ -326,16 +320,16 @@ ol {
 </style>
 
 <script>
-import { findStatusGroup } from "../pages/index";
-import { fb } from "../functions/fb";
+import { findStatusGroup } from "../pages/index"
+import { fb } from "../functions/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property));
+  window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
     "pw-section": () => import("./section"),
-    VirtualList: () => import("vue-virtual-scroll-list")
+    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -351,166 +345,144 @@ export default {
       reverse_sort_status_code: false,
       reverse_sort_url: false,
       reverse_sort_path: false,
-      showMore: false
-    };
+      showMore: false,
+    }
   },
   computed: {
     filteredHistory() {
       this.history =
         fb.currentUser !== null
           ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem("history")) || [];
+          : JSON.parse(window.localStorage.getItem("history")) || []
       return this.history.filter(entry => {
-        const filterText = this.filterText.toLowerCase();
+        const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some(key => {
-          let value = entry[key];
-          value = typeof value !== "string" ? value.toString() : value;
-          return value.toLowerCase().includes(filterText);
-        });
-      });
-    }
+          let value = entry[key]
+          value = typeof value !== "string" ? value.toString() : value
+          return value.toLowerCase().includes(filterText)
+        })
+      })
+    },
   },
   methods: {
     clearHistory() {
       if (fb.currentUser !== null) {
-        fb.clearHistory();
+        fb.clearHistory()
       }
-      this.history = [];
-      this.filterText = "";
-      this.disableHistoryClearing();
-      updateOnLocalStorage("history", this.history);
+      this.history = []
+      this.filterText = ""
+      this.disableHistoryClearing()
+      updateOnLocalStorage("history", this.history)
       this.$toast.error(this.$t("history_deleted"), {
-        icon: "delete"
-      });
+        icon: "delete",
+      })
     },
     useHistory(entry) {
-      this.$emit("useHistory", entry);
+      this.$emit("useHistory", entry)
     },
     findEntryStatus(entry) {
-      const foundStatusGroup = findStatusGroup(entry.status);
+      const foundStatusGroup = findStatusGroup(entry.status)
       return (
         foundStatusGroup || {
-          className: ""
+          className: "",
         }
-      );
+      )
     },
     deleteHistory(entry) {
       if (fb.currentUser !== null) {
-        fb.deleteHistory(entry);
+        fb.deleteHistory(entry)
       }
-      this.history.splice(this.history.indexOf(entry), 1);
+      this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {
-        this.filterText = "";
+        this.filterText = ""
       }
-      updateOnLocalStorage("history", this.history);
+      updateOnLocalStorage("history", this.history)
       this.$toast.error(this.$t("deleted"), {
-        icon: "delete"
-      });
+        icon: "delete",
+      })
     },
     addEntry(entry) {
-      this.history.push(entry);
-      updateOnLocalStorage("history", this.history);
+      this.history.push(entry)
+      updateOnLocalStorage("history", this.history)
     },
     enableHistoryClearing() {
-      if (!this.history || !this.history.length) return;
-      this.isClearingHistory = true;
+      if (!this.history || !this.history.length) return
+      this.isClearingHistory = true
     },
     disableHistoryClearing() {
-      this.isClearingHistory = false;
+      this.isClearingHistory = false
     },
     sort_by_time() {
-      let byDate = this.history.slice(0);
+      let byDate = this.history.slice(0)
       byDate.sort((a, b) => {
-        let date_a = a.date.split("/");
-        let date_b = b.date.split("/");
-        let time_a = a.time.split(":");
-        let time_b = b.time.split(":");
-        let final_a = new Date(
-          date_a[2],
-          date_a[1],
-          date_a[0],
-          time_a[0],
-          time_a[1],
-          time_a[2]
-        );
-        let final_b = new Date(
-          date_b[2],
-          date_b[1],
-          date_b[0],
-          time_b[0],
-          time_b[1],
-          time_b[2]
-        );
-        if (this.reverse_sort_time) return final_b - final_a;
-        else return final_a - final_b;
-      });
-      this.history = byDate;
-      this.reverse_sort_time = !this.reverse_sort_time;
+        let date_a = a.date.split("/")
+        let date_b = b.date.split("/")
+        let time_a = a.time.split(":")
+        let time_b = b.time.split(":")
+        let final_a = new Date(date_a[2], date_a[1], date_a[0], time_a[0], time_a[1], time_a[2])
+        let final_b = new Date(date_b[2], date_b[1], date_b[0], time_b[0], time_b[1], time_b[2])
+        if (this.reverse_sort_time) return final_b - final_a
+        else return final_a - final_b
+      })
+      this.history = byDate
+      this.reverse_sort_time = !this.reverse_sort_time
     },
     sort_by_status_code() {
-      let byCode = this.history.slice(0);
+      let byCode = this.history.slice(0)
       byCode.sort((a, b) => {
-        if (this.reverse_sort_status_code) return b.status - a.status;
-        else return a.status - b.status;
-      });
-      this.history = byCode;
-      this.reverse_sort_status_code = !this.reverse_sort_status_code;
+        if (this.reverse_sort_status_code) return b.status - a.status
+        else return a.status - b.status
+      })
+      this.history = byCode
+      this.reverse_sort_status_code = !this.reverse_sort_status_code
     },
     sort_by_url() {
-      let byUrl = this.history.slice(0);
+      let byUrl = this.history.slice(0)
       byUrl.sort((a, b) => {
-        if (this.reverse_sort_url)
-          return a.url === b.url ? 0 : +(a.url < b.url) || -1;
-        else return a.url === b.url ? 0 : +(a.url > b.url) || -1;
-      });
-      this.history = byUrl;
-      this.reverse_sort_url = !this.reverse_sort_url;
+        if (this.reverse_sort_url) return a.url === b.url ? 0 : +(a.url < b.url) || -1
+        else return a.url === b.url ? 0 : +(a.url > b.url) || -1
+      })
+      this.history = byUrl
+      this.reverse_sort_url = !this.reverse_sort_url
     },
     sort_by_label() {
-      let byLabel = this.history.slice(0);
+      let byLabel = this.history.slice(0)
       byLabel.sort((a, b) => {
-        if (this.reverse_sort_label)
-          return a.label === b.label ? 0 : +(a.label < b.label) || -1;
-        else return a.label === b.label ? 0 : +(a.label > b.label) || -1;
-      });
-      this.history = byLabel;
-      this.reverse_sort_label = !this.reverse_sort_label;
+        if (this.reverse_sort_label) return a.label === b.label ? 0 : +(a.label < b.label) || -1
+        else return a.label === b.label ? 0 : +(a.label > b.label) || -1
+      })
+      this.history = byLabel
+      this.reverse_sort_label = !this.reverse_sort_label
     },
     sort_by_path() {
-      let byPath = this.history.slice(0);
+      let byPath = this.history.slice(0)
       byPath.sort((a, b) => {
-        if (this.reverse_sort_path)
-          return a.path === b.path ? 0 : +(a.path < b.path) || -1;
-        else return a.path === b.path ? 0 : +(a.path > b.path) || -1;
-      });
-      this.history = byPath;
-      this.reverse_sort_path = !this.reverse_sort_path;
+        if (this.reverse_sort_path) return a.path === b.path ? 0 : +(a.path < b.path) || -1
+        else return a.path === b.path ? 0 : +(a.path > b.path) || -1
+      })
+      this.history = byPath
+      this.reverse_sort_path = !this.reverse_sort_path
     },
     sort_by_duration() {
-      let byDuration = this.history.slice(0);
+      let byDuration = this.history.slice(0)
       byDuration.sort((a, b) => {
         if (this.reverse_sort_duration)
-          return a.duration === b.duration
-            ? 0
-            : +(a.duration < b.duration) || -1;
-        else
-          return a.duration === b.duration
-            ? 0
-            : +(a.duration > b.duration) || -1;
-      });
-      this.history = byDuration;
-      this.reverse_sort_duration = !this.reverse_sort_duration;
+          return a.duration === b.duration ? 0 : +(a.duration < b.duration) || -1
+        else return a.duration === b.duration ? 0 : +(a.duration > b.duration) || -1
+      })
+      this.history = byDuration
+      this.reverse_sort_duration = !this.reverse_sort_duration
     },
     toggleCollapse() {
-      this.showMore = !this.showMore;
+      this.showMore = !this.showMore
     },
     toggleStar(entry) {
       if (fb.currentUser !== null) {
-        fb.toggleStar(entry, !entry.star);
+        fb.toggleStar(entry, !entry.star)
       }
-      entry.star = !entry.star;
-      updateOnLocalStorage("history", this.history);
-    }
-  }
-};
+      entry.star = !entry.star
+      updateOnLocalStorage("history", this.history)
+    },
+  },
+}
 </script>

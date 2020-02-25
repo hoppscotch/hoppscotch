@@ -85,8 +85,7 @@ export default {
   enabled: "Enabled",
   disabled: "Disabled",
   proxy: "Proxy",
-  postwoman_official_proxy_hosting:
-    "Postwoman's Official Proxy is hosted by ApolloTV.",
+  postwoman_official_proxy_hosting: "Postwoman's Official Proxy is hosted by ApolloTV.",
   read_the: "Read the",
   apollotv_privacy_policy: "ApolloTV privacy policy",
   contact_us: "Contact us",
@@ -162,8 +161,7 @@ export default {
   disconnected_from: "Disconnected from {name}",
   something_went_wrong: "Something went wrong!",
   error_occurred: "An error has occurred.",
-  browser_support_sse:
-    "This browser doesn't seems to have Server Sent Events support.",
+  browser_support_sse: "This browser doesn't seems to have Server Sent Events support.",
   log: "Log",
   no_url: "No URL",
   run_query: "Run Query",
@@ -216,8 +214,7 @@ export default {
   value_count: "value {count}",
   send_request_first: "Send a request first",
   generate_docs: "Generate Documentation",
-  generate_docs_message:
-    "Import any Postwoman Collection to Generate Documentation on-the-go.",
+  generate_docs_message: "Import any Postwoman Collection to Generate Documentation on-the-go.",
   generate_docs_first: "Generate documentation first",
   docs_generated: "Documentation generated",
   import_collections: "Import collections",
@@ -244,8 +241,7 @@ export default {
   token_request_saved: "Token request saved",
   donate_info1:
     "If you have enjoyed the productivity of using Postwoman, consider donating as a sign of appreciation.",
-  donate_info2:
-    "You can support Postwoman development via the following methods:",
+  donate_info2: "You can support Postwoman development via the following methods:",
   one_time_recurring: "One-time or recurring",
   one_time: "One-time",
   recurring: "Recurring",
@@ -256,8 +252,7 @@ export default {
   enter_curl: "Enter cURL",
   empty: "Empty",
   extensions: "Extensions",
-  extensions_use_toggle:
-    "Use the browser extension to send requests (if present)",
+  extensions_use_toggle: "Use the browser extension to send requests (if present)",
   extensions_info1: "Browser extension that simplifies access to Postwoman",
   extensions_info2: "Get Postwoman browser extension!",
   installed: "Installed",
@@ -274,5 +269,5 @@ export default {
   login_first: "Login first",
   paste_a_note: "Paste a note",
   import_from_sync: "Import from Sync",
-  notes: "Notes"
-};
+  notes: "Notes",
+}

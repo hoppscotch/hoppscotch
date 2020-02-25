@@ -120,5 +120,5 @@ export const commonHeaders = [
   "X-Pingback",
   "X-Requested-With",
   "X-Robots-Tag",
-  "X-UA-Compatible"
-];
+  "X-UA-Compatible",
+]

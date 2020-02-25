@@ -46,24 +46,24 @@ ol {
 </style>
 
 <script>
-import { fb } from "../../functions/fb";
+import { fb } from "../../functions/fb"
 
 export default {
   data() {
     return {
       message: null,
-      label: null
-    };
+      label: null,
+    }
   },
   methods: {
     formPost() {
       if (!(this.message || this.label)) {
-        return;
+        return
       }
-      fb.writeFeeds(this.message, this.label);
-      this.message = null;
-      this.label = null;
-    }
-  }
-};
+      fb.writeFeeds(this.message, this.label)
+      this.message = null
+      this.label = null
+    },
+  },
+}
 </script>

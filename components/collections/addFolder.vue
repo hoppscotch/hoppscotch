@@ -47,27 +47,27 @@ export default {
   props: {
     show: Boolean,
     collection: Object,
-    collectionIndex: Number
+    collectionIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
-      name: undefined
-    };
+      name: undefined,
+    }
   },
   methods: {
     addNewFolder() {
       this.$store.commit("postwoman/addNewFolder", {
         folder: { name: this.$data.name },
-        collectionIndex: this.$props.collectionIndex
-      });
-      this.hideModal();
+        collectionIndex: this.$props.collectionIndex,
+      })
+      this.hideModal()
     },
     hideModal() {
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$emit("hide-modal")
+    },
+  },
+}
 </script>

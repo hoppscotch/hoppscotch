@@ -85,5 +85,5 @@ export default {
   connect: "连接",
   disconnect: "断开",
   start: "开始",
-  stop: "停止"
-};
+  stop: "停止",
+}

@@ -41,19 +41,19 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import { fb } from "../../functions/fb";
+import firebase from "firebase/app"
+import { fb } from "../../functions/fb"
 
 export default {
   data() {
     return {
-      fb
-    };
+      fb,
+    }
   },
 
   methods: {
     signInWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
+      const provider = new firebase.auth.GoogleAuthProvider()
       firebase
         .auth()
         .signInWithPopup(provider)
@@ -66,23 +66,23 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", false);
-                  fb.writeSettings("syncCollections", true);
-                  this.$router.push({ path: "/settings" });
-                  toastObject.remove();
-                }
-              }
-            });
+                  fb.writeSettings("syncHistory", false)
+                  fb.writeSettings("syncCollections", true)
+                  this.$router.push({ path: "/settings" })
+                  toastObject.remove()
+                },
+              },
+            })
           }
         })
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
+            icon: "error",
+          })
+        })
     },
     signInWithGithub() {
-      const provider = new firebase.auth.GithubAuthProvider();
+      const provider = new firebase.auth.GithubAuthProvider()
       firebase
         .auth()
         .signInWithPopup(provider)
@@ -95,21 +95,21 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", false);
-                  fb.writeSettings("syncCollections", true);
-                  this.$router.push({ path: "/settings" });
-                  toastObject.remove();
-                }
-              }
-            });
+                  fb.writeSettings("syncHistory", false)
+                  fb.writeSettings("syncCollections", true)
+                  this.$router.push({ path: "/settings" })
+                  toastObject.remove()
+                },
+              },
+            })
           }
         })
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
-    }
-  }
-};
+            icon: "error",
+          })
+        })
+    },
+  },
+}
 </script>

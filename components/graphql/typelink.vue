@@ -16,19 +16,19 @@ export default {
   props: {
     gqlType: null,
     // (typeName: string) => void
-    jumpTypeCallback: Function
+    jumpTypeCallback: Function,
   },
 
   computed: {
     typeString() {
-      return this.gqlType.toString();
-    }
+      return this.gqlType.toString()
+    },
   },
 
   methods: {
     jumpToType() {
-      this.jumpTypeCallback(this.gqlType);
-    }
-  }
-};
+      this.jumpTypeCallback(this.gqlType)
+    },
+  },
+}
 </script>

@@ -33,12 +33,12 @@
 <script>
 export default {
   components: {
-    "gql-field": () => import("./field")
+    "gql-field": () => import("./field"),
   },
 
   props: {
     gqlType: {},
-    jumpTypeCallback: Function
-  }
-};
+    jumpTypeCallback: Function,
+  },
+}
 </script>

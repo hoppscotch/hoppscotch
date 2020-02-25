@@ -45,15 +45,15 @@ export default {
   props: {
     color: {
       type: String,
-      required: true
+      required: true,
     },
     name: {
-      type: String
+      type: String,
     },
     active: {
       type: Boolean,
-      default: false
-    }
-  }
-};
+      default: false,
+    },
+  },
+}
 </script>

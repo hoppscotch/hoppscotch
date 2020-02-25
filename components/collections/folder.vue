@@ -43,7 +43,7 @@
                 request,
                 collectionIndex,
                 folderIndex,
-                requestIndex: index
+                requestIndex: index,
               })
             "
           />
@@ -74,33 +74,33 @@ export default {
   props: {
     folder: Object,
     collectionIndex: Number,
-    folderIndex: Number
+    folderIndex: Number,
   },
   components: {
-    request: () => import("./request")
+    request: () => import("./request"),
   },
   data() {
     return {
-      showChildren: false
-    };
+      showChildren: false,
+    }
   },
   methods: {
     toggleShowChildren() {
-      this.showChildren = !this.showChildren;
+      this.showChildren = !this.showChildren
     },
     selectRequest(request) {
-      this.$store.commit("postwoman/selectRequest", { request });
+      this.$store.commit("postwoman/selectRequest", { request })
     },
     removeFolder() {
-      if (!confirm("Are you sure you want to remove this folder?")) return;
+      if (!confirm("Are you sure you want to remove this folder?")) return
       this.$store.commit("postwoman/removeFolder", {
         collectionIndex: this.collectionIndex,
-        folderIndex: this.folderIndex
-      });
+        folderIndex: this.folderIndex,
+      })
     },
     editFolder() {
-      this.$emit("edit-folder");
-    }
-  }
-};
+      this.$emit("edit-folder")
+    },
+  },
+}
 </script>

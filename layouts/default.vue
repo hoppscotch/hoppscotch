@@ -304,11 +304,9 @@
                     <button
                       class="icon"
                       v-tooltip="
-                        (fb.currentUser.displayName ||
-                          '<label><i>Name not found</i></label>') +
+                        (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
                           '<br>' +
-                          (fb.currentUser.email ||
-                            '<label><i>Email not found</i></label>')
+                          (fb.currentUser.email || '<label><i>Email not found</i></label>')
                       "
                       aria-label="Account"
                     >
@@ -346,31 +344,19 @@
                   </button>
                   <template slot="popover">
                     <div>
-                      <button
-                        class="icon"
-                        @click="showExtensions = true"
-                        v-close-popover
-                      >
+                      <button class="icon" @click="showExtensions = true" v-close-popover>
                         <i class="material-icons">extension</i>
                         <span>{{ $t("extensions") }}</span>
                       </button>
                     </div>
                     <div>
-                      <button
-                        class="icon"
-                        @click="showShortcuts = true"
-                        v-close-popover
-                      >
+                      <button class="icon" @click="showShortcuts = true" v-close-popover>
                         <i class="material-icons">keyboard</i>
                         <span>{{ $t("shortcuts") }}</span>
                       </button>
                     </div>
                     <div>
-                      <button
-                        class="icon"
-                        @click="showSupport = true"
-                        v-close-popover
-                      >
+                      <button class="icon" @click="showSupport = true" v-close-popover>
                         <i class="material-icons">favorite</i>
                         <span>{{ $t("support_us") }}</span>
                       </button>
@@ -414,10 +400,7 @@
               <span v-if="version.name" class="mono">
                 <a
                   class="footer-link"
-                  :href="
-                    'https://github.com/liyasthomas/postwoman/releases/tag/' +
-                      version.name
-                  "
+                  :href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name"
                   target="_blank"
                   rel="noopener"
                   v-tooltip="'GitHub'"
@@ -443,20 +426,12 @@
                 <!-- <span v-if="version.variant">({{version.variant}})</span> -->
               </span>
               <span>
-                <a
-                  href="https://liyasthomas.web.app"
-                  target="_blank"
-                  rel="noopener"
-                >
+                <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">
                   <button class="icon" v-tooltip="'Liyas Thomas'">
                     🦄
                   </button>
                 </a>
-                <a
-                  href="mailto:liyascthomas@gmail.com"
-                  target="_blank"
-                  rel="noopener"
-                >
+                <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
                   <button class="icon" v-tooltip="$t('contact_us')">
                     <i class="material-icons">email</i>
                   </button>
@@ -520,11 +495,7 @@
                 />
               </svg>
               <span>Firefox</span>
-              <span
-                class="icon"
-                v-if="firefoxExtInstalled"
-                v-tooltip="$t('installed')"
-              >
+              <span class="icon" v-if="firefoxExtInstalled" v-tooltip="$t('installed')">
                 <i class="material-icons">done</i>
               </span>
             </button>
@@ -549,11 +520,7 @@
                 />
               </svg>
               <span>Chrome</span>
-              <span
-                class="icon"
-                v-if="chromeExtInstalled"
-                v-tooltip="$t('installed')"
-              >
+              <span class="icon" v-if="chromeExtInstalled" v-tooltip="$t('installed')">
                 <i class="material-icons">done</i>
               </span>
             </button>
@@ -671,42 +638,42 @@
 </style>
 
 <script>
-import intializePwa from "../assets/js/pwa";
-import * as version from "../.postwoman/version.json";
-import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy";
-import firebase from "firebase/app";
-import { fb } from "../functions/fb";
+import intializePwa from "../assets/js/pwa"
+import * as version from "../.postwoman/version.json"
+import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy"
+import firebase from "firebase/app"
+import { fb } from "../functions/fb"
 
 export default {
   components: {
     logo: () => import("../components/logo"),
     modal: () => import("../components/modal"),
-    login: () => import("../components/firebase/login")
+    login: () => import("../components/firebase/login"),
   },
 
   methods: {
     getSpecialKey() {
-      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? "⌘" : "Ctrl";
+      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? "⌘" : "Ctrl"
     },
     linkActive(path) {
       return {
         "nuxt-link-exact-active": this.$route.path === path,
-        "nuxt-link-active": this.$route.path === path
-      };
+        "nuxt-link-active": this.$route.path === path,
+      }
     },
     logout() {
-      fb.currentUser = null;
+      fb.currentUser = null
       firebase
         .auth()
         .signOut()
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
+            icon: "error",
+          })
+        })
       this.$toast.info(this.$t("logged_out"), {
-        icon: "vpn_key"
-      });
+        icon: "vpn_key",
+      })
     },
     nativeShare() {
       if (navigator.share) {
@@ -715,14 +682,14 @@ export default {
             title: "Postwoman",
             text:
               "Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
-            url: "https://postwoman.io/"
+            url: "https://postwoman.io/",
           })
           .then(() => {})
-          .catch(console.error);
+          .catch(console.error)
       } else {
         // fallback
       }
-    }
+    },
   },
 
   data() {
@@ -737,48 +704,43 @@ export default {
       showSupport: false,
       extensionInstalled: hasExtensionInstalled(),
       fb,
-      navigatorShare: navigator.share
-    };
+      navigatorShare: navigator.share,
+    }
   },
 
   beforeMount() {
     // Set version data
-    this.version = version.default;
+    this.version = version.default
 
     // Load theme settings
-    (() => {
+    ;(() => {
       // Apply theme from settings.
-      document.documentElement.className =
-        this.$store.state.postwoman.settings.THEME_CLASS || "";
+      document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || ""
       // Load theme color data from settings, or use default color.
-      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b";
-      let vibrant =
-        this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true;
-      document.documentElement.style.setProperty("--ac-color", color);
+      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b"
+      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true
+      document.documentElement.style.setProperty("--ac-color", color)
       document.documentElement.style.setProperty(
         "--act-color",
         vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
-      );
-    })();
+      )
+    })()
   },
 
   mounted() {
     if (process.client) {
-      document.body.classList.add("afterLoad");
+      document.body.classList.add("afterLoad")
     }
 
     document
       .querySelector("meta[name=theme-color]")
-      .setAttribute(
-        "content",
-        this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124"
-      );
+      .setAttribute("content", this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124")
 
     // Initializes the PWA code - checks if the app is installed,
     // etc.
-    (async () => {
-      this.showInstallPrompt = await intializePwa();
-      let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes";
+    ;(async () => {
+      this.showInstallPrompt = await intializePwa()
+      let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes"
       if (!cookiesAllowed) {
         this.$toast.show(this.$t("we_use_cookies"), {
           icon: "info",
@@ -788,19 +750,15 @@ export default {
             {
               text: this.$t("dismiss"),
               onClick: (e, toastObject) => {
-                localStorage.setItem("cookiesAllowed", "yes");
-                toastObject.goAway(0);
-              }
-            }
-          ]
-        });
+                localStorage.setItem("cookiesAllowed", "yes")
+                toastObject.goAway(0)
+              },
+            },
+          ],
+        })
       }
-      let showExtensionsToast =
-        localStorage.getItem("showExtensionsToast") === "yes";
-      if (
-        !this.extensionInstalled &&
-        !showExtensionsToast
-      ) {
+      let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
+      if (!this.extensionInstalled && !showExtensionsToast) {
         setTimeout(() => {
           this.$toast.show(this.$t("extensions_info2"), {
             icon: "extension",
@@ -810,73 +768,73 @@ export default {
               {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  this.showExtensions = true;
-                  localStorage.setItem("showExtensionsToast", "yes");
-                  toastObject.goAway(0);
-                }
+                  this.showExtensions = true
+                  localStorage.setItem("showExtensionsToast", "yes")
+                  toastObject.goAway(0)
+                },
               },
               {
                 text: this.$t("no"),
                 onClick: (e, toastObject) => {
-                  toastObject.goAway(0);
-                }
-              }
-            ]
-          });
-        }, 15000);
+                  toastObject.goAway(0)
+                },
+              },
+            ],
+          })
+        }, 15000)
       }
 
       this._keyListener = function(e) {
         if (e.key === "Escape") {
-          e.preventDefault();
-          this.showExtensions = this.showShortcuts = this.showSupport = false;
+          e.preventDefault()
+          this.showExtensions = this.showShortcuts = this.showSupport = false
         }
-      };
-      document.addEventListener("keydown", this._keyListener.bind(this));
-    })();
+      }
+      document.addEventListener("keydown", this._keyListener.bind(this))
+    })()
 
     window.addEventListener("scroll", event => {
-      let mainNavLinks = document.querySelectorAll("nav ul li a");
-      let fromTop = window.scrollY;
+      let mainNavLinks = document.querySelectorAll("nav ul li a")
+      let fromTop = window.scrollY
       mainNavLinks.forEach(link => {
-        let section = document.querySelector(link.hash);
+        let section = document.querySelector(link.hash)
 
         if (
           section &&
           section.offsetTop <= fromTop &&
           section.offsetTop + section.offsetHeight > fromTop
         ) {
-          link.classList.add("current");
+          link.classList.add("current")
         } else {
-          link.classList.remove("current");
+          link.classList.remove("current")
         }
-      });
-    });
+      })
+    })
 
     console.log(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
-    );
+    )
     console.log(
       "%cContribute: https://github.com/liyasthomas/postwoman",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
-    );
+    )
   },
 
   watch: {
     $route() {
       // this.$toast.clear();
-    }
+    },
   },
 
   computed: {
     availableLocales() {
-      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
-    }
+      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
+    },
   },
 
   beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener);
-  }
-};
+    document.removeEventListener("keydown", this._keyListener)
+  },
+}
 </script>

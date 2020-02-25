@@ -1,0 +1,7 @@
+.dependabot
+.github
+.nuxt
+.postwoman
+.vscode
+package-lock.json
+node_modules

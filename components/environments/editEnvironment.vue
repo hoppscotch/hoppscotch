@@ -30,11 +30,7 @@
           <div class="flex-wrap">
             <label for="variableList">{{ $t("env_variable_list") }}</label>
             <div>
-              <button
-                class="icon"
-                @click="clearContent($event)"
-                v-tooltip.bottom="$t('clear')"
-              >
+              <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
                 <i class="material-icons">clear_all</i>
               </button>
             </div>
@@ -49,10 +45,7 @@
           ></textarea>
         </li>
       </ul>
-      <ul
-        v-for="(variable, index) in this.editingEnvCopy.variables"
-        :key="index"
-      >
+      <ul v-for="(variable, index) in this.editingEnvCopy.variables" :key="index">
         <li>
           <input
             :placeholder="$t('parameter_count', { count: index + 1 })"
@@ -61,7 +54,7 @@
             @change="
               $store.commit('postwoman/setVariableKey', {
                 index,
-                value: $event.target.value
+                value: $event.target.value,
               })
             "
             autofocus
@@ -72,14 +65,12 @@
             :placeholder="$t('value_count', { count: index + 1 })"
             :name="'value' + index"
             :value="
-              typeof variable.value === 'string'
-              ? variable.value
-              : JSON.stringify(variable.value)
+              typeof variable.value === 'string' ? variable.value : JSON.stringify(variable.value)
             "
             @change="
               $store.commit('postwoman/setVariableValue', {
                 index,
-                value: $event.target.value
+                value: $event.target.value,
               })
             "
           />
@@ -123,99 +114,94 @@
 </template>
 
 <script>
-import textareaAutoHeight from "../../directives/textareaAutoHeight";
+import textareaAutoHeight from "../../directives/textareaAutoHeight"
 
 export default {
   directives: {
-    textareaAutoHeight
+    textareaAutoHeight,
   },
   props: {
     show: Boolean,
     editingEnvironment: Object,
-    editingEnvironmentIndex: Number
+    editingEnvironmentIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
-      name: undefined
-    };
+      name: undefined,
+    }
   },
   watch: {
     editingEnvironment: function(update) {
-      this.name = this.$props.editingEnvironment && this.$props.editingEnvironment.name
-      ? this.$props.editingEnvironment.name
-      : undefined
-      this.$store.commit(
-        "postwoman/setEditingEnvironment",
-        this.$props.editingEnvironment
-      );
-    }
+      this.name =
+        this.$props.editingEnvironment && this.$props.editingEnvironment.name
+          ? this.$props.editingEnvironment.name
+          : undefined
+      this.$store.commit("postwoman/setEditingEnvironment", this.$props.editingEnvironment)
+    },
   },
   computed: {
     editingEnvCopy() {
-      return this.$store.state.postwoman.editingEnvironment;
+      return this.$store.state.postwoman.editingEnvironment
     },
     variableString() {
-      const result = this.editingEnvCopy.variables;
-      return result === "" ? "" : JSON.stringify(result);
-    }
+      const result = this.editingEnvCopy.variables
+      return result === "" ? "" : JSON.stringify(result)
+    },
   },
   methods: {
     clearContent(e) {
-      this.$store.commit("postwoman/removeVariables", []);
-      e.target.innerHTML = this.doneButton;
+      this.$store.commit("postwoman/removeVariables", [])
+      e.target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
-        icon: "clear_all"
-      });
-      setTimeout(
-        () => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'),
-        1000
-      );
+        icon: "clear_all",
+      })
+      setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     addEnvironmentVariable() {
-      let value = { key: "", value: "" };
-      this.$store.commit("postwoman/addVariable", value);
+      let value = { key: "", value: "" }
+      this.$store.commit("postwoman/addVariable", value)
     },
     removeEnvironmentVariable(index) {
-      let variableIndex = index;
-      const oldVariables = this.editingEnvCopy.variables.slice();
+      let variableIndex = index
+      const oldVariables = this.editingEnvCopy.variables.slice()
       const newVariables = this.editingEnvCopy.variables.filter(
         (variable, index) => variableIndex !== index
-      );
+      )
 
-      this.$store.commit("postwoman/removeVariable", newVariables);
+      this.$store.commit("postwoman/removeVariable", newVariables)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.$store.commit("postwoman/removeVariable", oldVariables);
-            toastObject.remove();
-          }
-        }
-      });
+            this.$store.commit("postwoman/removeVariable", oldVariables)
+            toastObject.remove()
+          },
+        },
+      })
     },
     saveEnvironment() {
       if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_environment_name"));
-        return;
+        this.$toast.info(this.$t("invalid_environment_name"))
+        return
       }
       const environmentUpdated = {
         ...this.editingEnvCopy,
-        name: this.$data.name
-      };
+        name: this.$data.name,
+      }
       this.$store.commit("postwoman/saveEnvironment", {
         environment: environmentUpdated,
-        environmentIndex: this.$props.editingEnvironmentIndex
-      });
-      this.$emit("hide-modal");
+        environmentIndex: this.$props.editingEnvironmentIndex,
+      })
+      this.$emit("hide-modal")
     },
     hideModal() {
-      this.$data.name = undefined;
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$data.name = undefined
+      this.$emit("hide-modal")
+    },
+  },
+}
 </script>

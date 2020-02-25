@@ -55,24 +55,24 @@ ol {
 </style>
 
 <script>
-import { fb } from "../../functions/fb";
+import { fb } from "../../functions/fb"
 
 export default {
   components: {
-    VirtualList: () => import("vue-virtual-scroll-list")
+    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
-      fb
-    };
+      fb,
+    }
   },
   methods: {
     deleteFeed(feed) {
-      fb.deleteFeed(feed.id);
+      fb.deleteFeed(feed.id)
       this.$toast.error(this.$t("deleted"), {
-        icon: "delete"
-      });
-    }
-  }
-};
+        icon: "delete",
+      })
+    },
+  },
+}
 </script>

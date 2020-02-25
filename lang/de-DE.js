@@ -86,5 +86,5 @@ export default {
   connect: "Verbinden",
   disconnect: "Trennen",
   start: "Start",
-  stop: "Stopp"
-};
+  stop: "Stopp",
+}

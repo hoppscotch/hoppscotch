@@ -1,10 +1,10 @@
-const EXTENSION_ID = "amknoiejhlmhancpahfcfcfhllgkpbld";
+const EXTENSION_ID = "amknoiejhlmhancpahfcfcfhllgkpbld"
 
 // Check if the Chrome Extension is present
 // The Chrome extension injects an empty span to help detection.
 // Also check for the presence of window.chrome object to confirm smooth operations
 export const hasChromeExtensionInstalled = () =>
-  document.getElementById("chromePWExtensionDetect") !== null;
+  document.getElementById("chromePWExtensionDetect") !== null
 
 const chromeWithoutProxy = (req, _store) =>
   new Promise((resolve, reject) => {
@@ -13,18 +13,18 @@ const chromeWithoutProxy = (req, _store) =>
       {
         messageType: "send-req",
         data: {
-          config: req
-        }
+          config: req,
+        },
       },
       ({ data }) => {
         if (data.error) {
-          reject(data.error);
+          reject(data.error)
         } else {
-          resolve(data.response);
+          resolve(data.response)
         }
       }
-    );
-  });
+    )
+  })
 
 const chromeWithProxy = (req, { state }) =>
   new Promise((resolve, reject) => {
@@ -35,29 +35,27 @@ const chromeWithProxy = (req, { state }) =>
         data: {
           config: {
             method: "post",
-            url:
-              state.postwoman.settings.PROXY_URL ||
-              "https://postwoman.apollotv.xyz/",
-            data: req
-          }
-        }
+            url: state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
+            data: req,
+          },
+        },
       },
       ({ data }) => {
         if (data.error) {
-          reject(error);
+          reject(error)
         } else {
-          resolve(data.response.data);
+          resolve(data.response.data)
         }
       }
-    );
-  });
+    )
+  })
 
 const chromeStrategy = (req, store) => {
   if (store.state.postwoman.settings.PROXY_ENABLED) {
-    return chromeWithProxy(req, store);
+    return chromeWithProxy(req, store)
   } else {
-    return chromeWithoutProxy(req, store);
+    return chromeWithoutProxy(req, store)
   }
-};
+}
 
-export default chromeStrategy;
+export default chromeStrategy

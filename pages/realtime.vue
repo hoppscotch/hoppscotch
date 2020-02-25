@@ -19,12 +19,7 @@
             <div>
               <li>
                 <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-                <button
-                  :disabled="!urlValid"
-                  id="connect"
-                  name="connect"
-                  @click="toggleConnection"
-                >
+                <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
                   {{ !connectionState ? $t("connect") : $t("disconnect") }}
                   <span>
                     <i class="material-icons">
@@ -37,12 +32,7 @@
           </ul>
         </pw-section>
 
-        <pw-section
-          class="purple"
-          :label="$t('communication')"
-          id="response"
-          ref="response"
-        >
+        <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
           <ul>
             <li>
               <label for="log">{{ $t("log") }}</label>
@@ -75,12 +65,7 @@
             <div>
               <li>
                 <label for="send" class="hide-on-small-screen">&nbsp;</label>
-                <button
-                  id="send"
-                  name="send"
-                  :disabled="!connectionState"
-                  @click="sendMessage"
-                >
+                <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
                   {{ $t("send") }}
                   <span>
                     <i class="material-icons">send</i>
@@ -127,12 +112,7 @@
           </ul>
         </pw-section>
 
-        <pw-section
-          class="purple"
-          :label="$t('communication')"
-          id="response"
-          ref="response"
-        >
+        <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
           <ul>
             <li>
               <label for="log">{{ $t("events") }}</label>
@@ -187,7 +167,7 @@ div.log {
 <script>
 export default {
   components: {
-    "pw-section": () => import("../components/section")
+    "pw-section": () => import("../components/section"),
   },
   data() {
     return {
@@ -196,132 +176,132 @@ export default {
       socket: null,
       communication: {
         log: null,
-        input: ""
+        input: "",
       },
       connectionSSEState: false,
       server: "https://express-eventsource.herokuapp.com/events",
       sse: null,
       events: {
         log: null,
-        input: ""
-      }
-    };
+        input: "",
+      },
+    }
   },
   computed: {
     urlValid() {
-      const protocol = "^(wss?:\\/\\/)?";
+      const protocol = "^(wss?:\\/\\/)?"
       const validIP = new RegExp(
         `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      );
+      )
       const validHostname = new RegExp(
         `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      );
-      return validIP.test(this.url) || validHostname.test(this.url);
+      )
+      return validIP.test(this.url) || validHostname.test(this.url)
     },
     serverValid() {
-      const protocol = "^(https?:\\/\\/)?";
+      const protocol = "^(https?:\\/\\/)?"
       const validIP = new RegExp(
         `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      );
+      )
       const validHostname = new RegExp(
         `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      );
-      return validIP.test(this.server) || validHostname.test(this.server);
-    }
+      )
+      return validIP.test(this.server) || validHostname.test(this.server)
+    },
   },
   methods: {
     toggleConnection() {
       // If it is connecting:
-      if (!this.connectionState) return this.connect();
+      if (!this.connectionState) return this.connect()
       // Otherwise, it's disconnecting.
-      else return this.disconnect();
+      else return this.disconnect()
     },
     connect() {
       this.communication.log = [
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)"
-        }
-      ];
+          color: "var(--ac-color)",
+        },
+      ]
       try {
-        this.socket = new WebSocket(this.url);
+        this.socket = new WebSocket(this.url)
         this.socket.onopen = event => {
-          this.connectionState = true;
+          this.connectionState = true
           this.communication.log = [
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
               color: "var(--ac-color)",
-              ts: new Date().toLocaleTimeString()
-            }
-          ];
+              ts: new Date().toLocaleTimeString(),
+            },
+          ]
           this.$toast.success(this.$t("connected"), {
-            icon: "sync"
-          });
-        };
+            icon: "sync",
+          })
+        }
         this.socket.onerror = event => {
-          this.handleError();
-        };
+          this.handleError()
+        }
         this.socket.onclose = event => {
-          this.connectionState = false;
+          this.connectionState = false
           this.communication.log.push({
             payload: this.$t("disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
-            ts: new Date().toLocaleTimeString()
-          });
+            ts: new Date().toLocaleTimeString(),
+          })
           this.$toast.error(this.$t("disconnected"), {
-            icon: "sync_disabled"
-          });
-        };
+            icon: "sync_disabled",
+          })
+        }
         this.socket.onmessage = event => {
           this.communication.log.push({
             payload: event.data,
             source: "server",
-            ts: new Date().toLocaleTimeString()
-          });
-        };
+            ts: new Date().toLocaleTimeString(),
+          })
+        }
       } catch (ex) {
-        this.handleError(ex);
+        this.handleError(ex)
         this.$toast.error(this.$t("something_went_wrong"), {
-          icon: "error"
-        });
+          icon: "error",
+        })
       }
     },
     disconnect() {
-      this.socket.close();
+      this.socket.close()
     },
     handleError(error) {
-      this.disconnect();
-      this.connectionState = false;
+      this.disconnect()
+      this.connectionState = false
       this.communication.log.push({
         payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
-        ts: new Date().toLocaleTimeString()
-      });
+        ts: new Date().toLocaleTimeString(),
+      })
       if (error !== null)
         this.communication.log.push({
           payload: error,
           source: "info",
           color: "#ff5555",
-          ts: new Date().toLocaleTimeString()
-        });
+          ts: new Date().toLocaleTimeString(),
+        })
     },
     sendMessage() {
-      const message = this.communication.input;
-      this.socket.send(message);
+      const message = this.communication.input
+      this.socket.send(message)
       this.communication.log.push({
         payload: message,
         source: "client",
-        ts: new Date().toLocaleTimeString()
-      });
-      this.communication.input = "";
+        ts: new Date().toLocaleTimeString(),
+      })
+      this.communication.input = ""
     },
     collapse({ target }) {
-      const el = target.parentNode.className;
-      document.getElementsByClassName(el)[0].classList.toggle("hidden");
+      const el = target.parentNode.className
+      document.getElementsByClassName(el)[0].classList.toggle("hidden")
     },
     getSourcePrefix(source) {
       const sourceEmojis = {
@@ -330,70 +310,69 @@ export default {
         // Source used for client to server messages.
         client: "\t👽 [SENT]:\t",
         // Source used for server to client messages.
-        server: "\t📥 [RECEIVED]:\t"
-      };
-      if (Object.keys(sourceEmojis).includes(source))
-        return sourceEmojis[source];
-      return "";
+        server: "\t📥 [RECEIVED]:\t",
+      }
+      if (Object.keys(sourceEmojis).includes(source)) return sourceEmojis[source]
+      return ""
     },
     toggleSSEConnection() {
       // If it is connecting:
-      if (!this.connectionSSEState) return this.start();
+      if (!this.connectionSSEState) return this.start()
       // Otherwise, it's disconnecting.
-      else return this.stop();
+      else return this.stop()
     },
     start() {
       this.events.log = [
         {
           payload: this.$t("connecting_to", { name: this.server }),
           source: "info",
-          color: "var(--ac-color)"
-        }
-      ];
+          color: "var(--ac-color)",
+        },
+      ]
       if (typeof EventSource !== "undefined") {
         try {
-          this.sse = new EventSource(this.server);
+          this.sse = new EventSource(this.server)
           this.sse.onopen = event => {
-            this.connectionSSEState = true;
+            this.connectionSSEState = true
             this.events.log = [
               {
                 payload: this.$t("connected_to", { name: this.server }),
                 source: "info",
                 color: "var(--ac-color)",
-                ts: new Date().toLocaleTimeString()
-              }
-            ];
+                ts: new Date().toLocaleTimeString(),
+              },
+            ]
             this.$toast.success(this.$t("connected"), {
-              icon: "sync"
-            });
-          };
+              icon: "sync",
+            })
+          }
           this.sse.onerror = event => {
-            this.handleSSEError();
-          };
+            this.handleSSEError()
+          }
           this.sse.onclose = event => {
-            this.connectionSSEState = false;
+            this.connectionSSEState = false
             this.events.log.push({
               payload: this.$t("disconnected_from", { name: this.server }),
               source: "info",
               color: "#ff5555",
-              ts: new Date().toLocaleTimeString()
-            });
+              ts: new Date().toLocaleTimeString(),
+            })
             this.$toast.error(this.$t("disconnected"), {
-              icon: "sync_disabled"
-            });
-          };
+              icon: "sync_disabled",
+            })
+          }
           this.sse.onmessage = event => {
             this.events.log.push({
               payload: event.data,
               source: "server",
-              ts: new Date().toLocaleTimeString()
-            });
-          };
+              ts: new Date().toLocaleTimeString(),
+            })
+          }
         } catch (ex) {
-          this.handleSSEError(ex);
+          this.handleSSEError(ex)
           this.$toast.error(this.$t("something_went_wrong"), {
-            icon: "error"
-          });
+            icon: "error",
+          })
         }
       } else {
         this.events.log = [
@@ -401,38 +380,38 @@ export default {
             payload: this.$t("browser_support_sse"),
             source: "info",
             color: "#ff5555",
-            ts: new Date().toLocaleTimeString()
-          }
-        ];
+            ts: new Date().toLocaleTimeString(),
+          },
+        ]
       }
     },
     handleSSEError(error) {
-      this.stop();
-      this.connectionSSEState = false;
+      this.stop()
+      this.connectionSSEState = false
       this.events.log.push({
         payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
-        ts: new Date().toLocaleTimeString()
-      });
+        ts: new Date().toLocaleTimeString(),
+      })
       if (error !== null)
         this.events.log.push({
           payload: error,
           source: "info",
           color: "#ff5555",
-          ts: new Date().toLocaleTimeString()
-        });
+          ts: new Date().toLocaleTimeString(),
+        })
     },
     stop() {
-      this.sse.onclose();
-      this.sse.close();
-    }
+      this.sse.onclose()
+      this.sse.close()
+    },
   },
   updated: function() {
     this.$nextTick(function() {
-      const divLog = document.getElementById("log");
-      divLog.scrollBy(0, divLog.scrollHeight + 100);
-    });
-  }
-};
+      const divLog = document.getElementById("log")
+      divLog.scrollBy(0, divLog.scrollHeight + 100)
+    })
+  },
+}
 </script>

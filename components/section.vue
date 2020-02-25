@@ -1,8 +1,5 @@
 <template>
-  <fieldset
-    :id="label.toLowerCase()"
-    :class="{ 'no-colored-frames': !frameColorsEnabled }"
-  >
+  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="material-icons">
@@ -25,32 +22,32 @@ fieldset.no-colored-frames legend {
 export default {
   computed: {
     frameColorsEnabled() {
-      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false;
-    }
+      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
+    },
   },
 
   data() {
     return {
-      isCollapsed: false
-    };
+      isCollapsed: false,
+    }
   },
 
   props: {
     label: {
       type: String,
-      default: "Section"
+      default: "Section",
     },
     collapsed: {
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
 
   methods: {
     collapse({ target }) {
-      const parent = target.parentNode.parentNode;
-      parent.querySelector(".collapsible").classList.toggle("hidden");
-      this.isCollapsed = !this.isCollapsed;
-    }
-  }
-};
+      const parent = target.parentNode.parentNode
+      parent.querySelector(".collapsible").classList.toggle("hidden")
+      this.isCollapsed = !this.isCollapsed
+    },
+  },
+}
 </script>

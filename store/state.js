@@ -15,13 +15,13 @@ export default () => ({
     rawParams: "",
     rawInput: false,
     requestType: "",
-    contentType: ""
+    contentType: "",
   },
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],
     variablesJSONString: "{}",
-    query: ""
+    query: "",
   },
   oauth2: {
     tokens: [],
@@ -33,6 +33,6 @@ export default () => ({
     authUrl: "",
     accessTokenUrl: "",
     clientId: "",
-    scope: ""
-  }
-});
+    scope: "",
+  },
+})

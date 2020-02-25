@@ -78,8 +78,7 @@ export default {
   enabled: "Habilitado",
   disabled: "Deshabilitado",
   proxy: "Proxy",
-  postwoman_official_proxy_hosting:
-    "Proxy Oficial de Postwoman está hospedado en ApolloTV.",
+  postwoman_official_proxy_hosting: "Proxy Oficial de Postwoman está hospedado en ApolloTV.",
   read_the: "Leer la",
   apollotv_privacy_policy: "Política de Privacidad de ApolloTV",
   contact_us: "Contáctenos",
@@ -235,8 +234,7 @@ export default {
   token_request_saved: "La petición de tToken ha sido guardada",
   donate_info1:
     "Si le ha gustado su productividad usando Postwoman, considere hacer una donación como un signo de su apreciación.",
-  donate_info2:
-    "Puede ayudar al desarrollo de Postwoman mediante los siguientes métodos:",
+  donate_info2: "Puede ayudar al desarrollo de Postwoman mediante los siguientes métodos:",
   one_time_recurring: "Una vez o recurrente",
   one_time: "Una vez",
   recurring: "Recurrente",
@@ -260,5 +258,5 @@ export default {
   turn_on: "Encender",
   login_first: "Inicie sesión primero",
   paste_a_collection: "Pegar una Colección",
-  import_from_sync: "Importar desde Sync"
-};
+  import_from_sync: "Importar desde Sync",
+}

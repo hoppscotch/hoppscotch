@@ -37,7 +37,7 @@ const chromeWithProxy = (req, { state }) =>
             method: "post",
             url:
               state.postwoman.settings.PROXY_URL ||
-              "https://postwoman.apollotv.xyz/",
+              "https://postwoman.apollosoftware.xyz/",
             data: req
           }
         }

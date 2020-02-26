@@ -79,9 +79,9 @@ export default {
   disabled: "Deaktiviert",
   proxy: "Proxy",
   postwoman_official_proxy_hosting:
-    "Postwomans offizieller Proxy wird durch ApolloTV bereitgestellt.",
+    "Postwomans offizieller Proxy wird durch Apollo Software bereitgestellt.",
   read_the: "Lies die",
-  apollotv_privacy_policy: "ApolloTV Datenschutzerklärung",
+  apollosw_privacy_policy: "Apollo Software Datenschutzerklärung",
   contact_us: "Kontaktiere uns",
   connect: "Verbinden",
   disconnect: "Trennen",

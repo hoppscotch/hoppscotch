@@ -15,7 +15,7 @@ const firefoxWithProxy = (req, { state }) =>
     window.firefoxExtSendRequest({
       method: "post",
       url:
-        state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
+        state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
       data: req
     });
   });

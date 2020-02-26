@@ -79,9 +79,9 @@ export default {
   disabled: "dinonaktifkan",
   proxy: "Proksi",
   postwoman_official_proxy_hosting:
-    "Proksi Resmi Postwoman dalam penginangan ApolloTV.",
+    "Proksi Resmi Postwoman dalam penginangan Apollo Software.",
   read_the: "Bacalah",
-  apollotv_privacy_policy: "kebijakan privasi ApolloTV",
+  apollosw_privacy_policy: "kebijakan privasi Apollo Software",
   contact_us: "Hubungi kami",
   connect: "Menghubungkan",
   disconnect: "Memutuskan",

@@ -79,9 +79,9 @@ export default {
   disabled: "غیر فعال",
   proxy: "پراکسی",
   postwoman_official_proxy_hosting:
-    "پراکسی Postwoman  برروی هاست ApolloTV قرار دارد.",
+    "پراکسی Postwoman  برروی هاست Apollo Software قرار دارد.",
   read_the: "بخوانید",
-  apollotv_privacy_policy: "خط مشی رازداری ApolloTV",
+  apollosw_privacy_policy: "خط مشی رازداری Apollo Software",
   contact_us: "Contact us",
   connect: "Connect",
   disconnect: "Disconnect",

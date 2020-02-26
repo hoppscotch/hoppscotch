@@ -5,7 +5,7 @@ const extensionWithProxy = async (req, { state }) => {
   const { data } = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     method: "post",
     url:
-      state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
+      state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
     data: req
   });
   return data;

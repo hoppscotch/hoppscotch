@@ -224,11 +224,11 @@
             {{ $t("read_the") }}
             <a
               class="link"
-              href="https://apollotv.xyz/legal"
+              href="https://apollosoftware.xyz/legal/postwoman"
               target="_blank"
               rel="noopener"
             >
-              {{ $t("apollotv_privacy_policy") }} </a
+              {{ $t("apollosw_privacy_policy") }} </a
             >.
           </p>
         </li>
@@ -346,7 +346,7 @@ export default {
       ],
 
       settings: {
-        SCROLL_INTO_ENABLED: 
+        SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !==
           "undefined"
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
@@ -362,9 +362,9 @@ export default {
           this.$store.state.postwoman.settings.PROXY_ENABLED || false,
         PROXY_URL:
           this.$store.state.postwoman.settings.PROXY_URL ||
-          "https://postwoman.apollotv.xyz/",
+          "https://postwoman.apollosoftware.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
-        
+
         EXTENSIONS_ENABLED:
           typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
           "undefined"
@@ -508,7 +508,7 @@ export default {
       fb.writeSettings("syncEnvironments", true);
     },
     resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://postwoman.apollotv.xyz/`;
+      this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`;
       target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all"

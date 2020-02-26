@@ -342,7 +342,7 @@
 - Serialize a request into JSON? [\#4](https://github.com/liyasthomas/postwoman/issues/4)
 - Add brand new logo to the project [\#244](https://github.com/liyasthomas/postwoman/pull/244) ([caneco](https://github.com/caneco))
 - Feature/pre request script [\#231](https://github.com/liyasthomas/postwoman/pull/231) ([nickpalenchar](https://github.com/nickpalenchar))
-- Add the ApolloTV proxy server [\#217](https://github.com/liyasthomas/postwoman/pull/217) ([NBTX](https://github.com/NBTX))
+- Add the Apollo Software proxy server [\#217](https://github.com/liyasthomas/postwoman/pull/217) ([NBTX](https://github.com/NBTX))
 - bug: keeping information on page change [\#211](https://github.com/liyasthomas/postwoman/pull/211) ([breno-pereira](https://github.com/breno-pereira))
 - Work in Progress: feature/allow-collections-importing [\#209](https://github.com/liyasthomas/postwoman/pull/209) ([vlad0337187](https://github.com/vlad0337187))
 - Feature/log errors [\#207](https://github.com/liyasthomas/postwoman/pull/207) ([nickpalenchar](https://github.com/nickpalenchar))

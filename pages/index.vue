@@ -1976,7 +1976,7 @@ export default {
       this.path = path
       this.showPreRequestScript = usesScripts
       this.preRequestScript = preRequestScript
-      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("request")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2012,7 +2012,7 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear()
-      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {

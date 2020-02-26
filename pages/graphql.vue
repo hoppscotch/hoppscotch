@@ -489,7 +489,7 @@ export default {
       this.$nuxt.$loading.start()
 
       this.response = this.$t("loading")
-      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       try {
         let headers = {}
@@ -537,7 +537,7 @@ export default {
       this.$nuxt.$loading.start()
 
       this.schema = this.$t("loading")
-      this.settings.SCROLL_INTO_ENABLED && this.scrollInto("schema")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("schema")
 
       try {
         const query = JSON.stringify({

@@ -1,6 +1,7 @@
 export default () => ({
   request: {
     method: "GET",
+    uri: "",
     url: "https://httpbin.org",
     path: "/get",
     label: "",

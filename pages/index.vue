@@ -185,24 +185,6 @@
                 v-model="uri"
               />
             </li>
-            <div>
-              <li>
-                <label class="hide-on-small-screen" for="send">&nbsp;</label>
-                <button
-                  :disabled="!isValidURL"
-                  @click="sendRequest"
-                  id="send"
-                  ref="sendButton"
-                >
-                  {{ $t("send") }}
-                  <span>
-                    <i class="material-icons">send</i>
-                  </span>
-                </button>
-              </li>
-            </div>
-          </ul>
-          <ul>
             <li>
               <label for="label">{{ $t("label") }}</label>
               <input
@@ -1320,7 +1302,6 @@ import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
 import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
-
 const statusCategories = [
   {
     name: "informational",
@@ -1370,12 +1351,10 @@ const parseHeaders = xhr => {
 }
 export const findStatusGroup = responseStatus =>
   statusCategories.find(status => status.statusCodeRegex.test(responseStatus))
-
 export default {
   directives: {
     textareaAutoHeight,
   },
-
   components: {
     "pw-section": section,
     "pw-toggle": () => import("../components/toggle"),
@@ -1412,13 +1391,11 @@ export default {
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-
       /**
        * These are content types that can be automatically
        * serialized by postwoman.
        */
       knownContentTypes: ["application/json", "application/x-www-form-urlencoded"],
-
       /**
        * These are a list of Content Types known to Postwoman.
        */
@@ -1430,9 +1407,7 @@ export default {
         "text/html",
         "text/plain",
       ],
-
       commonHeaders,
-
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
@@ -1507,7 +1482,6 @@ export default {
         } else {
           path = path + queryString
         }
-
         this.path = path
       },
       deep: true,
@@ -1543,16 +1517,29 @@ export default {
   computed: {
     uri: {
       get() {
-        return this.url + this.path;
+        return this.$store.state.request.uri ?
+          this.$store.state.request.uri
+          : this.url + this.path;
       },
       set(value) {
-        let uriRegex = value.match(
-        /^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/
-      );
-        let url = uriRegex[1];
-        let path = uriRegex[4];
-        this.url = url;
-        this.path = path;
+        this.$store.commit("setState", { value, attribute: "uri" })
+        let url;
+        if (this.preRequestScript && this.showPreRequestScript) {
+          const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript);
+          url = parseTemplateString(value, environmentVariables);
+        }
+        try {
+          url = new URL(url);
+          this.url = url.origin;
+          this.path = url.pathname;
+        } catch(error) {
+          console.log(error)
+          let uriRegex = value.match(
+            /^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/
+          );
+          this.url = uriRegex[1];
+          this.path = uriRegex[4];
+        }
       }
     },
     url: {
@@ -1783,7 +1770,6 @@ export default {
         })
       },
     },
-
     selectedRequest() {
       return this.$store.state.postwoman.selectedRequest
     },
@@ -2019,31 +2005,26 @@ export default {
       if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data)
       }
-
       return await sendNetworkRequest(requestOptions, this.$store)
     },
     async sendRequest() {
       this.$toast.clear()
       this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
-
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {
           icon: "error",
         })
         return
       }
-
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-
       if (this.$refs.response.$el.classList.contains("hidden")) {
         this.$refs.response.$el.classList.toggle("hidden")
       }
       this.previewEnabled = false
       this.response.status = this.$t("fetching")
       this.response.body = this.$t("loading")
-
       const auth =
         this.auth === "Basic Auth"
           ? {
@@ -2051,29 +2032,23 @@ export default {
               password: this.httpPassword,
             }
           : null
-
       let headers = {}
       let headersObject = {}
-
       Object.keys(headers).forEach(id => {
         headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
-
       // If the request has a body, we want to ensure Content-Length and
       // Content-Type are sent.
       let requestBody
       if (this.hasRequestBody) {
         requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-
         Object.assign(headers, {
           //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`,
         })
       }
-
       requestBody = requestBody ? requestBody.toString() : null
-
       if (this.files.length !== 0) {
         const formData = new FormData()
         for (let i = 0; i < this.files.length; i++) {
@@ -2083,37 +2058,30 @@ export default {
         formData.append("data", requestBody)
         requestBody = formData
       }
-
       // If the request uses a token for auth, we want to make sure it's sent here.
       if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0")
         headers["Authorization"] = `Bearer ${this.bearerToken}`
-
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
         // mutate it with the request headers added by default.
         Object.assign({}, this.headers)
-
         // We make our temporary headers object the source so
         // that you can override the added headers if you
         // specify them.
         // headers
       )
-
       Object.keys(headers).forEach(id => {
         headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
-
       try {
         const startTime = Date.now()
-
         const payload = await this.makeRequest(
           auth,
           headers,
           requestBody,
           this.showPreRequestScript && this.preRequestScript
         )
-
         const duration = Date.now() - startTime
         this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done",
@@ -2121,13 +2089,10 @@ export default {
         ;(() => {
           const status = (this.response.status = payload.status)
           const headers = (this.response.headers = payload.headers)
-
           // We don't need to bother parsing JSON, axios already handles it for us!
           const body = (this.response.body = payload.data)
-
           const date = new Date().toLocaleDateString()
           const time = new Date().toLocaleTimeString()
-
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
@@ -2149,7 +2114,6 @@ export default {
             }
           }
         })()
-
         // tests
         const syntheticResponse = {
           status: this.response.status,
@@ -2166,7 +2130,6 @@ export default {
           this.response.headers = error.response.headers
           this.response.status = error.response.status
           this.response.body = error.response.data
-
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
@@ -2235,7 +2198,6 @@ export default {
     removeRequestHeader(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldHeaders = this.headers.slice()
-
       this.$store.commit("removeHeaders", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -2255,7 +2217,6 @@ export default {
     removeRequestParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldParams = this.params.slice()
-
       this.$store.commit("removeParams", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -2275,7 +2236,6 @@ export default {
     removeRequestBodyParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldBodyParams = this.bodyParams.slice()
-
       this.$store.commit("removeBodyParams", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -2408,7 +2368,6 @@ export default {
         .map(item => flat(item))
       const deeps = ["headers", "params"].map(item => deep(item))
       const bodyParams = this.rawInput ? [flat("rawParams")] : [deep("bodyParams")]
-
       history.replaceState(
         window.location.href,
         "",
@@ -2555,7 +2514,6 @@ export default {
         })
         return
       }
-
       this.editRequest = {
         url: this.url,
         path: this.path,
@@ -2573,11 +2531,9 @@ export default {
         contentType: this.contentType,
         requestType: this.requestType,
       }
-
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
       }
-
       this.showRequestModal = true
     },
     hideRequestModal() {
@@ -2762,7 +2718,6 @@ export default {
       httpPassword: true,
       bearerToken: true,
     }
-
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
       vm => [

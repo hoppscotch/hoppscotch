@@ -3,8 +3,6 @@ describe("Proxy disabled - local request", () => {
     cy.seedAndVisit("catapi", "/?url=https://api.thecatapi.com&path=")
       .get("#url")
       .then(el => expect(el.val() === "https://api.thecatapi.com").to.equal(true))
-      .get("#path")
-      .then(el => expect(el.val() === "").to.equal(true))
       .get("#response-details-wrapper")
       .should($wrapper => {
         expect($wrapper).to.contain("FAKE Cat API")

@@ -11,6 +11,7 @@
               <input
                 id="url"
                 type="url"
+                spellcheck="false"
                 :class="{ error: !urlValid }"
                 v-model="url"
                 @keyup.enter="urlValid ? toggleConnection() : null"

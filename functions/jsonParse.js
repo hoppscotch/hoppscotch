@@ -20,152 +20,152 @@
  *
  */
 export default function jsonParse(str) {
-  string = str;
-  strLen = str.length;
-  start = end = lastEnd = -1;
-  ch();
-  lex();
-  const ast = parseObj();
-  expect('EOF');
-  return ast;
+  string = str
+  strLen = str.length
+  start = end = lastEnd = -1
+  ch()
+  lex()
+  const ast = parseObj()
+  expect("EOF")
+  return ast
 }
 
-let string;
-let strLen;
-let start;
-let end;
-let lastEnd;
-let code;
-let kind;
+let string
+let strLen
+let start
+let end
+let lastEnd
+let code
+let kind
 
 function parseObj() {
-  const nodeStart = start;
-  const members = [];
-  expect('{');
-  if (!skip('}')) {
+  const nodeStart = start
+  const members = []
+  expect("{")
+  if (!skip("}")) {
     do {
-      members.push(parseMember());
-    } while (skip(','));
-    expect('}');
+      members.push(parseMember())
+    } while (skip(","))
+    expect("}")
   }
   return {
-    kind: 'Object',
+    kind: "Object",
     start: nodeStart,
     end: lastEnd,
     members,
-  };
+  }
 }
 
 function parseMember() {
-  const nodeStart = start;
-  const key = kind === 'String' ? curToken() : null;
-  expect('String');
-  expect(':');
-  const value = parseVal();
+  const nodeStart = start
+  const key = kind === "String" ? curToken() : null
+  expect("String")
+  expect(":")
+  const value = parseVal()
   return {
-    kind: 'Member',
+    kind: "Member",
     start: nodeStart,
     end: lastEnd,
     key,
     value,
-  };
+  }
 }
 
 function parseArr() {
-  const nodeStart = start;
-  const values = [];
-  expect('[');
-  if (!skip(']')) {
+  const nodeStart = start
+  const values = []
+  expect("[")
+  if (!skip("]")) {
     do {
-      values.push(parseVal());
-    } while (skip(','));
-    expect(']');
+      values.push(parseVal())
+    } while (skip(","))
+    expect("]")
   }
   return {
-    kind: 'Array',
+    kind: "Array",
     start: nodeStart,
     end: lastEnd,
     values,
-  };
+  }
 }
 
 function parseVal() {
   switch (kind) {
-    case '[':
-      return parseArr();
-    case '{':
-      return parseObj();
-    case 'String':
-    case 'Number':
-    case 'Boolean':
-    case 'Null':
-      const token = curToken();
-      lex();
-      return token;
+    case "[":
+      return parseArr()
+    case "{":
+      return parseObj()
+    case "String":
+    case "Number":
+    case "Boolean":
+    case "Null":
+      const token = curToken()
+      lex()
+      return token
   }
-  return expect('Value');
+  return expect("Value")
 }
 
 function curToken() {
-  return { kind, start, end, value: JSON.parse(string.slice(start, end)) };
+  return { kind, start, end, value: JSON.parse(string.slice(start, end)) }
 }
 
 function expect(str) {
   if (kind === str) {
-    lex();
-    return;
+    lex()
+    return
   }
 
-  let found;
-  if (kind === 'EOF') {
-    found = '[end of file]';
+  let found
+  if (kind === "EOF") {
+    found = "[end of file]"
   } else if (end - start > 1) {
-    found = '`' + string.slice(start, end) + '`';
+    found = "`" + string.slice(start, end) + "`"
   } else {
-    const match = string.slice(start).match(/^.+?\b/);
-    found = '`' + (match ? match[0] : string[start]) + '`';
+    const match = string.slice(start).match(/^.+?\b/)
+    found = "`" + (match ? match[0] : string[start]) + "`"
   }
 
-  throw syntaxError(`Expected ${str} but found ${found}.`);
+  throw syntaxError(`Expected ${str} but found ${found}.`)
 }
 
 function syntaxError(message) {
-  return { message, start, end };
+  return { message, start, end }
 }
 
 function skip(k) {
   if (kind === k) {
-    lex();
-    return true;
+    lex()
+    return true
   }
 }
 
 function ch() {
   if (end < strLen) {
-    end++;
-    code = end === strLen ? 0 : string.charCodeAt(end);
+    end++
+    code = end === strLen ? 0 : string.charCodeAt(end)
   }
 }
 
 function lex() {
-  lastEnd = end;
+  lastEnd = end
 
   while (code === 9 || code === 10 || code === 13 || code === 32) {
-    ch();
+    ch()
   }
 
   if (code === 0) {
-    kind = 'EOF';
-    return;
+    kind = "EOF"
+    return
   }
 
-  start = end;
+  start = end
 
   switch (code) {
     // "
     case 34:
-      kind = 'String';
-      return readString();
+      kind = "String"
+      return readString()
     // -, 0-9
     case 45:
     case 48:
@@ -178,50 +178,50 @@ function lex() {
     case 55:
     case 56:
     case 57:
-      kind = 'Number';
-      return readNumber();
+      kind = "Number"
+      return readNumber()
     // f
     case 102:
-      if (string.slice(start, start + 5) !== 'false') {
-        break;
+      if (string.slice(start, start + 5) !== "false") {
+        break
       }
-      end += 4;
-      ch();
+      end += 4
+      ch()
 
-      kind = 'Boolean';
-      return;
+      kind = "Boolean"
+      return
     // n
     case 110:
-      if (string.slice(start, start + 4) !== 'null') {
-        break;
+      if (string.slice(start, start + 4) !== "null") {
+        break
       }
-      end += 3;
-      ch();
+      end += 3
+      ch()
 
-      kind = 'Null';
-      return;
+      kind = "Null"
+      return
     // t
     case 116:
-      if (string.slice(start, start + 4) !== 'true') {
-        break;
+      if (string.slice(start, start + 4) !== "true") {
+        break
       }
-      end += 3;
-      ch();
+      end += 3
+      ch()
 
-      kind = 'Boolean';
-      return;
+      kind = "Boolean"
+      return
   }
 
-  kind = string[start];
-  ch();
+  kind = string[start]
+  ch()
 }
 
 function readString() {
-  ch();
+  ch()
   while (code !== 34 && code > 31) {
     if (code === 92) {
       // \
-      ch();
+      ch()
       switch (code) {
         case 34: // "
         case 47: // /
@@ -231,31 +231,31 @@ function readString() {
         case 110: // n
         case 114: // r
         case 116: // t
-          ch();
-          break;
+          ch()
+          break
         case 117: // u
-          ch();
-          readHex();
-          readHex();
-          readHex();
-          readHex();
-          break;
+          ch()
+          readHex()
+          readHex()
+          readHex()
+          readHex()
+          break
         default:
-          throw syntaxError('Bad character escape sequence.');
+          throw syntaxError("Bad character escape sequence.")
       }
     } else if (end === strLen) {
-      throw syntaxError('Unterminated string.');
+      throw syntaxError("Unterminated string.")
     } else {
-      ch();
+      ch()
     }
   }
 
   if (code === 34) {
-    ch();
-    return;
+    ch()
+    return
   }
 
-  throw syntaxError('Unterminated string.');
+  throw syntaxError("Unterminated string.")
 }
 
 function readHex() {
@@ -264,47 +264,47 @@ function readHex() {
     (code >= 65 && code <= 70) || // A-F
     (code >= 97 && code <= 102) // a-f
   ) {
-    return ch();
+    return ch()
   }
-  throw syntaxError('Expected hexadecimal digit.');
+  throw syntaxError("Expected hexadecimal digit.")
 }
 
 function readNumber() {
   if (code === 45) {
     // -
-    ch();
+    ch()
   }
 
   if (code === 48) {
     // 0
-    ch();
+    ch()
   } else {
-    readDigits();
+    readDigits()
   }
 
   if (code === 46) {
     // .
-    ch();
-    readDigits();
+    ch()
+    readDigits()
   }
 
   if (code === 69 || code === 101) {
     // E e
-    ch();
+    ch()
     if (code === 43 || code === 45) {
       // + -
-      ch();
+      ch()
     }
-    readDigits();
+    readDigits()
   }
 }
 
 function readDigits() {
   if (code < 48 || code > 57) {
     // 0 - 9
-    throw syntaxError('Expected decimal digit.');
+    throw syntaxError("Expected decimal digit.")
   }
   do {
-    ch();
-  } while (code >= 48 && code <= 57); // 0 - 9
+    ch()
+  } while (code >= 48 && code <= 57) // 0 - 9
 }

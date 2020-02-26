@@ -182,6 +182,7 @@
                 id="url"
                 name="url"
                 type="url"
+                spellcheck="false"
                 v-model="url"
               />
             </li>
@@ -192,6 +193,7 @@
                 id="path"
                 name="path"
                 v-model="path"
+                spellcheck="false"
                 @input="pathInputHandler"
               />
             </li>
@@ -202,6 +204,7 @@
                 name="label"
                 type="text"
                 v-model="label"
+                spellcheck="false"
                 :placeholder="$t('optional')"
               />
             </li>
@@ -1437,6 +1440,13 @@ export default {
       files: [],
       filenames: "",
       navigatorShare: navigator.share,
+
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+      },
     }
   },
   watch: {
@@ -1966,7 +1976,7 @@ export default {
       this.path = path
       this.showPreRequestScript = usesScripts
       this.preRequestScript = preRequestScript
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("request")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2002,7 +2012,7 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear()
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {

@@ -1517,9 +1517,9 @@ export default {
   computed: {
     uri: {
       get() {
-        return this.$store.state.request.uri ?
-          this.$store.state.request.uri
-          : this.url + this.path;
+        return this.url + this.path ?
+          this.url + this.path
+          : this.$store.state.request.uri;
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })

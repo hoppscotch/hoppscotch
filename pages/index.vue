@@ -1493,6 +1493,7 @@ export default {
     selectedRequest(newValue, oldValue) {
       // @TODO: Convert all variables to single request variable
       if (!newValue) return
+      this.uri = newValue.url + newValue.path
       this.url = newValue.url
       this.path = newValue.path
       this.method = newValue.method
@@ -1521,9 +1522,9 @@ export default {
   computed: {
     uri: {
       get() {
-        return this.url + this.path ?
-          this.url + this.path
-          : this.$store.state.request.uri;
+        return this.$store.state.request.uri ?
+          this.$store.state.request.uri
+          : this.url + this.path;
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
@@ -1974,6 +1975,7 @@ export default {
     handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
       this.label = label
       this.method = method
+      this.uri = url + path
       this.url = url
       this.path = path
       this.showPreRequestScript = usesScripts

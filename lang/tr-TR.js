@@ -78,13 +78,12 @@ export default {
   enabled: "Aktif",
   disabled: "Aktif değil",
   proxy: "Proxy",
-  postwoman_official_proxy_hosting:
-    "Proxy Oficial de Postwoman está hospedado en Apollo Software.",
+  postwoman_official_proxy_hosting: "Proxy Oficial de Postwoman está hospedado en Apollo Software.",
   read_the: "Leer la",
   apollosw_privacy_policy: "Apollo Software gizlilik politikaları",
   contact_us: "Bizimle iletişime geçin",
   connect: "Bağlan",
   disconnect: "Kesmek",
   start: "Başla",
-  stop: "Durdurmak"
-};
+  stop: "Durdurmak",
+}

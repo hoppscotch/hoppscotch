@@ -78,8 +78,7 @@ export default {
   enabled: "有効",
   disabled: "無効",
   proxy: "プロキシ",
-  postwoman_official_proxy_hosting:
-    "Postwomanの公式プロキシは、Apollo TVがホストしています。",
+  postwoman_official_proxy_hosting: "Postwomanの公式プロキシは、Apollo Softwareがホストしています。",
   read_the: "プライバシーポリシー",
   apollosw_privacy_policy: "を読む",
   contact_us: "お問い合わせ",
@@ -231,7 +230,8 @@ export default {
   enable_proxy: "プロキシを有効にしてみてください",
   complete_config_urls: "設定URLsを入力してください",
   token_request_saved: "トークンリクエストを保存した",
-  donate_info1: "Postwomanを非常に役に立つと思われる場合、感謝の印として寄付のご検討をお願いします。",
+  donate_info1:
+    "Postwomanを非常に役に立つと思われる場合、感謝の印として寄付のご検討をお願いします。",
   donate_info2: "以下の方法でPostwomanの開発をサポートできます：",
   one_time_recurring: "一度又は定期的",
   one_time: "一度",

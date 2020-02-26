@@ -78,13 +78,12 @@ export default {
   enabled: "فعال",
   disabled: "غیر فعال",
   proxy: "پراکسی",
-  postwoman_official_proxy_hosting:
-    "پراکسی Postwoman  برروی هاست Apollo Software قرار دارد.",
+  postwoman_official_proxy_hosting: "پراکسی Postwoman  برروی هاست Apollo Software قرار دارد.",
   read_the: "بخوانید",
   apollosw_privacy_policy: "خط مشی رازداری Apollo Software",
   contact_us: "Contact us",
   connect: "Connect",
   disconnect: "Disconnect",
   start: "Start",
-  stop: "Stop"
-};
+  stop: "Stop",
+}

@@ -1,4 +1,4 @@
-const redirectUri = `${window.location.origin}/`;
+const redirectUri = `${window.location.origin}/`
 
 // GENERAL HELPER FUNCTIONS
 
@@ -13,23 +13,23 @@ const redirectUri = `${window.location.origin}/`;
 const sendPostRequest = async (url, params) => {
   const body = Object.keys(params)
     .map(key => `${key}=${params[key]}`)
-    .join("&");
+    .join("&")
   const options = {
     method: "post",
     headers: {
-      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
     },
-    body
-  };
-  try {
-    const response = await fetch(url, options);
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    console.error("Request failed", err);
-    throw err;
+    body,
   }
-};
+  try {
+    const response = await fetch(url, options)
+    const data = await response.json()
+    return data
+  } catch (err) {
+    console.error("Request failed", err)
+    throw err
+  }
+}
 
 /**
  * Parse a query string into an object
@@ -40,15 +40,12 @@ const sendPostRequest = async (url, params) => {
 
 const parseQueryString = searchQuery => {
   if (searchQuery === "") {
-    return {};
+    return {}
   }
-  const segments = searchQuery.split("&").map(s => s.split("="));
-  const queryString = segments.reduce(
-    (obj, el) => ({ ...obj, [el[0]]: el[1] }),
-    {}
-  );
-  return queryString;
-};
+  const segments = searchQuery.split("&").map(s => s.split("="))
+  const queryString = segments.reduce((obj, el) => ({ ...obj, [el[0]]: el[1] }), {})
+  return queryString
+}
 
 /**
  * Get OAuth configuration from OpenID Discovery endpoint
@@ -60,18 +57,18 @@ const getTokenConfiguration = async endpoint => {
   const options = {
     method: "GET",
     headers: {
-      "Content-type": "application/json"
-    }
-  };
-  try {
-    const response = await fetch(endpoint, options);
-    const config = await response.json();
-    return config;
-  } catch (err) {
-    console.error("Request failed", err);
-    throw err;
+      "Content-type": "application/json",
+    },
   }
-};
+  try {
+    const response = await fetch(endpoint, options)
+    const config = await response.json()
+    return config
+  } catch (err) {
+    console.error("Request failed", err)
+    throw err
+  }
+}
 
 // PKCE HELPER FUNCTIONS
 
@@ -82,10 +79,10 @@ const getTokenConfiguration = async endpoint => {
  */
 
 const generateRandomString = () => {
-  const array = new Uint32Array(28);
-  window.crypto.getRandomValues(array);
-  return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join("");
-};
+  const array = new Uint32Array(28)
+  window.crypto.getRandomValues(array)
+  return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join("")
+}
 
 /**
  * Calculate the SHA256 hash of the input text
@@ -94,10 +91,10 @@ const generateRandomString = () => {
  */
 
 const sha256 = plain => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(plain);
-  return window.crypto.subtle.digest("SHA-256", data);
-};
+  const encoder = new TextEncoder()
+  const data = encoder.encode(plain)
+  return window.crypto.subtle.digest("SHA-256", data)
+}
 
 /**
  * Encodes the input string into Base64 format
@@ -115,7 +112,7 @@ const base64urlencode = (
   btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
-    .replace(/=+$/, "");
+    .replace(/=+$/, "")
 
 /**
  * Return the base64-urlencoded sha256 hash for the PKCE challenge
@@ -125,9 +122,9 @@ const base64urlencode = (
  */
 
 const pkceChallengeFromVerifier = async v => {
-  const hashed = await sha256(v);
-  return base64urlencode(hashed);
-};
+  const hashed = await sha256(v)
+  return base64urlencode(hashed)
+}
 
 // OAUTH REQUEST
 
@@ -144,32 +141,29 @@ const tokenRequest = async ({
   authUrl,
   accessTokenUrl,
   clientId,
-  scope
+  scope,
 }) => {
   // Check oauth configuration
   if (oidcDiscoveryUrl !== "") {
-    const {
-      authorization_endpoint,
-      token_endpoint
-    } = await getTokenConfiguration(oidcDiscoveryUrl);
-    authUrl = authorization_endpoint;
-    accessTokenUrl = token_endpoint;
+    const { authorization_endpoint, token_endpoint } = await getTokenConfiguration(oidcDiscoveryUrl)
+    authUrl = authorization_endpoint
+    accessTokenUrl = token_endpoint
   }
 
   // Store oauth information
-  localStorage.setItem("token_endpoint", accessTokenUrl);
-  localStorage.setItem("client_id", clientId);
+  localStorage.setItem("token_endpoint", accessTokenUrl)
+  localStorage.setItem("client_id", clientId)
 
   // Create and store a random state value
-  const state = generateRandomString();
-  localStorage.setItem("pkce_state", state);
+  const state = generateRandomString()
+  localStorage.setItem("pkce_state", state)
 
   // Create and store a new PKCE code_verifier (the plaintext random secret)
-  const code_verifier = generateRandomString();
-  localStorage.setItem("pkce_code_verifier", code_verifier);
+  const code_verifier = generateRandomString()
+  localStorage.setItem("pkce_code_verifier", code_verifier)
 
   // Hash and base64-urlencode the secret to use as the challenge
-  const code_challenge = await pkceChallengeFromVerifier(code_verifier);
+  const code_challenge = await pkceChallengeFromVerifier(code_verifier)
 
   // Build the authorization URL
   const buildUrl = () =>
@@ -177,15 +171,13 @@ const tokenRequest = async ({
       clientId
     )}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(
       scope
-    )}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&code_challenge=${encodeURIComponent(
+    )}&redirect_uri=${encodeURIComponent(redirectUri)}&code_challenge=${encodeURIComponent(
       code_challenge
-    )}&code_challenge_method=S256`;
+    )}&code_challenge_method=S256`
 
   // Redirect to the authorization server
-  window.location = buildUrl();
-};
+  window.location = buildUrl()
+}
 
 // OAUTH REDIRECT HANDLING
 
@@ -197,42 +189,39 @@ const tokenRequest = async ({
  */
 
 const oauthRedirect = async () => {
-  let tokenResponse = "";
-  let q = parseQueryString(window.location.search.substring(1));
+  let tokenResponse = ""
+  let q = parseQueryString(window.location.search.substring(1))
   // Check if the server returned an error string
   if (q.error) {
-    alert(`Error returned from authorization server: ${q.error}`);
+    alert(`Error returned from authorization server: ${q.error}`)
   }
   // If the server returned an authorization code, attempt to exchange it for an access token
   if (q.code) {
     // Verify state matches what we set at the beginning
     if (localStorage.getItem("pkce_state") != q.state) {
-      alert("Invalid state");
+      alert("Invalid state")
     } else {
       try {
         // Exchange the authorization code for an access token
-        tokenResponse = await sendPostRequest(
-          localStorage.getItem("token_endpoint"),
-          {
-            grant_type: "authorization_code",
-            code: q.code,
-            client_id: localStorage.getItem("client_id"),
-            redirect_uri: redirectUri,
-            code_verifier: localStorage.getItem("pkce_code_verifier")
-          }
-        );
+        tokenResponse = await sendPostRequest(localStorage.getItem("token_endpoint"), {
+          grant_type: "authorization_code",
+          code: q.code,
+          client_id: localStorage.getItem("client_id"),
+          redirect_uri: redirectUri,
+          code_verifier: localStorage.getItem("pkce_code_verifier"),
+        })
       } catch (err) {
-        console.log(`${error.error}\n\n${error.error_description}`);
+        console.log(`${error.error}\n\n${error.error_description}`)
       }
     }
     // Clean these up since we don't need them anymore
-    localStorage.removeItem("pkce_state");
-    localStorage.removeItem("pkce_code_verifier");
-    localStorage.removeItem("token_endpoint");
-    localStorage.removeItem("client_id");
-    return tokenResponse;
+    localStorage.removeItem("pkce_state")
+    localStorage.removeItem("pkce_code_verifier")
+    localStorage.removeItem("token_endpoint")
+    localStorage.removeItem("client_id")
+    return tokenResponse
   }
-  return tokenResponse;
-};
+  return tokenResponse
+}
 
-export { tokenRequest, oauthRedirect };
+export { tokenRequest, oauthRedirect }

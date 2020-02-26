@@ -3,9 +3,9 @@ const mimeToMode = {
   "text/html": "html",
   "application/xml": "xml",
   "application/hal+json": "json",
-  "application/json": "json"
+  "application/json": "json",
 }
 
 export function getEditorLangForMimeType(mimeType) {
-  return mimeToMode[mimeType] || "plain_text";
+  return mimeToMode[mimeType] || "plain_text"
 }

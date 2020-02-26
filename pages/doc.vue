@@ -11,11 +11,7 @@
       <ul>
         <li>
           <label for="collectionUpload">
-            <button
-              class="icon"
-              @click="$refs.collectionUpload.click()"
-              v-tooltip="$t('json')"
-            >
+            <button class="icon" @click="$refs.collectionUpload.click()" v-tooltip="$t('json')">
               <i class="material-icons">folder</i>
               <span>{{ $t("import_collections") }}</span>
             </button>
@@ -39,7 +35,7 @@
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </li>
@@ -59,29 +55,17 @@
         {{ $t("generate_docs_first") }}
       </p>
       <div>
-        <span
-          class="collection"
-          v-for="(collection, index) in this.items"
-          :key="index"
-        >
+        <span class="collection" v-for="(collection, index) in this.items" :key="index">
           <h2>
             <i class="material-icons">folder</i>
             {{ collection.name || $t("none") }}
           </h2>
-          <span
-            class="folder"
-            v-for="(folder, index) in collection.folders"
-            :key="index"
-          >
+          <span class="folder" v-for="(folder, index) in collection.folders" :key="index">
             <h3>
               <i class="material-icons">folder_open</i>
               {{ folder.name || $t("none") }}
             </h3>
-            <span
-              class="request"
-              v-for="(request, index) in folder.requests"
-              :key="index"
-            >
+            <span class="request" v-for="(request, index) in folder.requests" :key="index">
               <h4>
                 <i class="material-icons">insert_drive_file</i>
                 {{ request.name || $t("none") }}
@@ -129,11 +113,7 @@
               </p>
               <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
               <span v-if="request.headers">
-                <p
-                  v-for="header in request.headers"
-                  :key="header.key"
-                  class="doc-desc"
-                >
+                <p v-for="header in request.headers" :key="header.key" class="doc-desc">
                   <span>
                     {{ header.key || $t("none") }}:
                     <code>{{ header.value || $t("none") }}</code>
@@ -142,11 +122,7 @@
               </span>
               <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
               <span v-if="request.params">
-                <p
-                  v-for="parameter in request.params"
-                  :key="parameter.key"
-                  class="doc-desc"
-                >
+                <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
                   <span>
                     {{ parameter.key || $t("none") }}:
                     <code>{{ parameter.value || $t("none") }}</code>
@@ -155,11 +131,7 @@
               </span>
               <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
               <span v-if="request.bodyParam">
-                <p
-                  v-for="payload in request.bodyParam"
-                  :key="payload.key"
-                  class="doc-desc"
-                >
+                <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
                   <span>
                     {{ payload.key || $t("none") }}:
                     <code>{{ payload.value || $t("none") }}</code>
@@ -237,11 +209,7 @@
             </p>
             <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
             <span v-if="request.headers">
-              <p
-                v-for="header in request.headers"
-                :key="header.key"
-                class="doc-desc"
-              >
+              <p v-for="header in request.headers" :key="header.key" class="doc-desc">
                 <span>
                   {{ header.key || $t("none") }}:
                   <code>{{ header.value || $t("none") }}</code>
@@ -250,11 +218,7 @@
             </span>
             <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
             <span v-if="request.params">
-              <p
-                v-for="parameter in request.params"
-                :key="parameter.key"
-                class="doc-desc"
-              >
+              <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
                 <span>
                   {{ parameter.key || $t("none") }}:
                   <code>{{ parameter.value || $t("none") }}</code>
@@ -263,11 +227,7 @@
             </span>
             <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
             <span v-if="request.bodyParam">
-              <p
-                v-for="payload in request.bodyParam"
-                :key="payload.key"
-                class="doc-desc"
-              >
+              <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
                 <span>
                   {{ payload.key || $t("none") }}:
                   <code>{{ payload.value || $t("none") }}</code>
@@ -342,53 +302,53 @@
 </style>
 
 <script>
-import AceEditor from "../components/ace-editor";
+import AceEditor from "../components/ace-editor"
 
 export default {
   components: {
     "pw-section": () => import("../components/section"),
-    Editor: AceEditor
+    Editor: AceEditor,
   },
 
   data() {
     return {
       collectionJSON: "[]",
-      items: []
-    };
+      items: [],
+    }
   },
 
   methods: {
     uploadCollection() {
-      this.rawInput = true;
-      let file = this.$refs.collectionUpload.files[0];
+      this.rawInput = true
+      let file = this.$refs.collectionUpload.files[0]
       if (file !== undefined && file !== null) {
-        let reader = new FileReader();
+        let reader = new FileReader()
         reader.onload = ({ target }) => {
-          this.collectionJSON = target.result;
-        };
-        reader.readAsText(file);
+          this.collectionJSON = target.result
+        }
+        reader.readAsText(file)
         this.$toast.info(this.$t("file_imported"), {
-          icon: "attach_file"
-        });
+          icon: "attach_file",
+        })
       } else {
         this.$toast.error(this.$t("choose_file"), {
-          icon: "attach_file"
-        });
+          icon: "attach_file",
+        })
       }
     },
 
     getDoc() {
       try {
-        this.items = JSON.parse(this.collectionJSON);
+        this.items = JSON.parse(this.collectionJSON)
         this.$toast.info(this.$t("docs_generated"), {
-          icon: "book"
-        });
+          icon: "book",
+        })
       } catch (e) {
         this.$toast.error(e, {
-          icon: "code"
-        });
+          icon: "code",
+        })
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>

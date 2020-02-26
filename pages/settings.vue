@@ -12,14 +12,14 @@
               />
               <i v-else class="material-icons">account_circle</i>
               <span>
-                {{ fb.currentUser.displayName || "Name not found" }}
+                {{ fb.currentUser.displayName || $t("nothing_found") }}
               </span>
             </button>
             <br />
             <button class="icon">
               <i class="material-icons">email</i>
               <span>
-                {{ fb.currentUser.email || "Email not found" }}
+                {{ fb.currentUser.email || $t("nothing_found") }}
               </span>
             </button>
             <br />
@@ -88,18 +88,14 @@
         <li>
           <label>{{ $t("background") }}</label>
           <div class="backgrounds">
-            <span
-              :key="theme.class"
-              @click="applyTheme(theme)"
-              v-for="theme in themes"
-            >
+            <span :key="theme.class" @click="applyTheme(theme)" v-for="theme in themes">
               <swatch
                 :active="settings.THEME_CLASS === theme.class"
                 :class="{ vibrant: theme.vibrant }"
                 :color="theme.color"
                 :name="theme.name"
                 class="bg"
-              ></swatch>
+              />
             </span>
           </div>
         </li>
@@ -110,7 +106,7 @@
           <div class="colors">
             <span
               :key="entry.color"
-              @click.prevent="setActiveColor(entry.color, entry.vibrant)"
+              @click="setActiveColor(entry.color, entry.vibrant)"
               v-for="entry in colors"
             >
               <swatch
@@ -132,14 +128,12 @@
               @change="toggleSetting('FRAME_COLORS_ENABLED')"
             >
               {{ $t("multi_color") }}
-              {{
-                settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled")
-              }}
+              {{ settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled") }}
             </pw-toggle>
           </span>
         </li>
-        </ul>
-        <ul>
+      </ul>
+      <ul>
         <li>
           <span>
             <pw-toggle
@@ -147,9 +141,7 @@
               @change="toggleSetting('SCROLL_INTO_ENABLED')"
             >
               {{ $t("scrollInto_use_toggle") }}
-              {{
-                settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled")
-              }}
+              {{ settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
             </pw-toggle>
           </span>
         </li>
@@ -176,10 +168,7 @@
         <li>
           <div class="flex-wrap">
             <span>
-              <pw-toggle
-                :on="settings.PROXY_ENABLED"
-                @change="toggleSetting('PROXY_ENABLED')"
-              >
+              <pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
                 {{ $t("proxy") }}
                 {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
               </pw-toggle>
@@ -200,11 +189,7 @@
         <li>
           <div class="flex-wrap">
             <label for="url">{{ $t("url") }}</label>
-            <button
-              class="icon"
-              @click="resetProxy"
-              v-tooltip.bottom="$t('reset_default')"
-            >
+            <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
               <i class="material-icons">clear_all</i>
             </button>
           </div>
@@ -226,10 +211,8 @@
               class="link"
               href="https://apollosoftware.xyz/legal/postwoman"
               target="_blank"
-              rel="noopener"
-            >
-              {{ $t("apollosw_privacy_policy") }} </a
-            >.
+              rel="noopener">
+              {{ $t("apollosw_privacy_policy") }} </a>.
           </p>
         </li>
       </ul>
@@ -255,14 +238,14 @@
 <style scoped lang="scss"></style>
 
 <script>
-import firebase from "firebase/app";
-import { fb } from "../functions/fb";
+import firebase from "firebase/app"
+import { fb } from "../functions/fb"
 
 export default {
   components: {
     "pw-section": () => import("../components/section"),
     "pw-toggle": () => import("../components/toggle"),
-    swatch: () => import("../components/settings/swatch")
+    swatch: () => import("../components/settings/swatch"),
   },
 
   data() {
@@ -275,20 +258,20 @@ export default {
           color: "#202124",
           name: this.$t("kinda_dark"),
           class: "",
-          aceEditor: "twilight"
+          aceEditor: "twilight",
         },
         {
           color: "#ffffff",
           name: this.$t("clearly_white"),
           vibrant: true,
           class: "light",
-          aceEditor: "iplastic"
+          aceEditor: "iplastic",
         },
         {
           color: "#000000",
           name: this.$t("just_black"),
           class: "black",
-          aceEditor: "vibrant_ink"
+          aceEditor: "vibrant_ink",
         },
         {
           color: "var(--ac-color)",
@@ -297,8 +280,8 @@ export default {
           class: "auto",
           aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches
             ? "iplastic"
-            : "twilight"
-        }
+            : "twilight",
+        },
       ],
       // You can define a new color here! It will simply store the color value.
       colors: [
@@ -306,43 +289,43 @@ export default {
         {
           color: "#50fa7b",
           name: this.$t("green"),
-          vibrant: true
+          vibrant: true,
         },
         {
           color: "#f1fa8c",
           name: this.$t("yellow"),
-          vibrant: true
+          vibrant: true,
         },
         {
           color: "#ff79c6",
           name: this.$t("pink"),
-          vibrant: true
+          vibrant: true,
         },
         {
           color: "#ff5555",
           name: this.$t("red"),
-          vibrant: false
+          vibrant: false,
         },
         {
           color: "#bd93f9",
           name: this.$t("purple"),
-          vibrant: true
+          vibrant: true,
         },
         {
           color: "#ffb86c",
           name: this.$t("orange"),
-          vibrant: true
+          vibrant: true,
         },
         {
           color: "#8be9fd",
           name: this.$t("cyan"),
-          vibrant: true
+          vibrant: true,
         },
         {
           color: "#57b5f9",
           name: this.$t("blue"),
-          vibrant: false
-        }
+          vibrant: false,
+        },
       ],
 
       settings: {
@@ -352,95 +335,87 @@ export default {
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
             : true,
 
+        THEME_CLASS: "",
         THEME_COLOR: "",
         THEME_TAB_COLOR: "",
         THEME_COLOR_VIBRANT: true,
 
-        FRAME_COLORS_ENABLED:
-          this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
-        PROXY_ENABLED:
-          this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL:
-          this.$store.state.postwoman.settings.PROXY_URL ||
-          "https://postwoman.apollosoftware.xyz/",
+        FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
+        PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
+        PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
 
         EXTENSIONS_ENABLED:
-          typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !==
-          "undefined"
+          typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
-            : true
+            : true,
       },
 
       doneButton: '<i class="material-icons">done</i>',
-      fb
-    };
+      fb,
+    }
   },
 
   watch: {
     proxySettings: {
       deep: true,
       handler(value) {
-        this.applySetting("PROXY_URL", value.url);
-        this.applySetting("PROXY_KEY", value.key);
-      }
-    }
+        this.applySetting("PROXY_URL", value.url)
+        this.applySetting("PROXY_KEY", value.key)
+      },
+    },
   },
 
   methods: {
     applyTheme({ class: name, color, aceEditor }) {
-      this.applySetting("THEME_CLASS", name);
-      this.applySetting("THEME_ACE_EDITOR", aceEditor);
-      document
-        .querySelector("meta[name=theme-color]")
-        .setAttribute("content", color);
-      this.applySetting("THEME_TAB_COLOR", color);
-      document.documentElement.className = name;
+      this.applySetting("THEME_CLASS", name)
+      this.applySetting("THEME_ACE_EDITOR", aceEditor)
+      document.querySelector("meta[name=theme-color]").setAttribute("content", color)
+      this.applySetting("THEME_TAB_COLOR", color)
+      document.documentElement.className = name
     },
     setActiveColor(color, vibrant) {
       // By default, the color is vibrant.
-      if (vibrant === null) vibrant = true;
-      document.documentElement.style.setProperty("--ac-color", color);
+      if (vibrant === null) vibrant = true
+      document.documentElement.style.setProperty("--ac-color", color)
       document.documentElement.style.setProperty(
         "--act-color",
         vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
-      );
-      this.applySetting("THEME_COLOR", color.toUpperCase());
-      this.applySetting("THEME_COLOR_VIBRANT", vibrant);
+      )
+      this.applySetting("THEME_COLOR", color.toUpperCase())
+      this.applySetting("THEME_COLOR_VIBRANT", vibrant)
     },
     getActiveColor() {
       // This strips extra spaces and # signs from the strings.
-      const strip = str => str.replace(/#/g, "").replace(/ /g, "");
+      const strip = str => str.replace(/#/g, "").replace(/ /g, "")
       return `#${strip(
-        window
-          .getComputedStyle(document.documentElement)
-          .getPropertyValue("--ac-color")
-      ).toUpperCase()}`;
+        window.getComputedStyle(document.documentElement).getPropertyValue("--ac-color")
+      ).toUpperCase()}`
     },
     applySetting(key, value) {
-      this.settings[key] = value;
-      this.$store.commit("postwoman/applySetting", [key, value]);
+      this.settings[key] = value
+      this.$store.commit("postwoman/applySetting", [key, value])
     },
     toggleSetting(key) {
-      this.settings[key] = !this.settings[key];
-      this.$store.commit("postwoman/applySetting", [key, this.settings[key]]);
+      this.settings[key] = !this.settings[key]
+      this.$store.commit("postwoman/applySetting", [key, this.settings[key]])
     },
     logout() {
-      fb.currentUser = null;
+      fb.currentUser = null
       firebase
         .auth()
         .signOut()
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
+            icon: "error",
+          })
+        })
       this.$toast.info(this.$t("logged_out"), {
-        icon: "vpn_key"
-      });
+        icon: "vpn_key",
+      })
     },
     signInWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
+      const provider = new firebase.auth.GoogleAuthProvider()
       firebase
         .auth()
         .signInWithPopup(provider)
@@ -453,24 +428,24 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", true);
-                  fb.writeSettings("syncCollections", true);
-                  fb.writeSettings("syncEnvironments", true);
-                  this.$router.push({ path: "/settings" });
-                  toastObject.remove();
-                }
-              }
-            });
+                  fb.writeSettings("syncHistory", true)
+                  fb.writeSettings("syncCollections", true)
+                  fb.writeSettings("syncEnvironments", true)
+                  this.$router.push({ path: "/settings" })
+                  toastObject.remove()
+                },
+              },
+            })
           }
         })
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
+            icon: "error",
+          })
+        })
     },
     signInWithGithub() {
-      const provider = new firebase.auth.GithubAuthProvider();
+      const provider = new firebase.auth.GithubAuthProvider()
       firebase
         .auth()
         .signInWithPopup(provider)
@@ -483,54 +458,51 @@ export default {
               action: {
                 text: this.$t("yes"),
                 onClick: (e, toastObject) => {
-                  fb.writeSettings("syncHistory", true);
-                  fb.writeSettings("syncCollections", true);
-                  fb.writeSettings("syncEnvironments", true);
-                  this.$router.push({ path: "/settings" });
-                  toastObject.remove();
-                }
-              }
-            });
+                  fb.writeSettings("syncHistory", true)
+                  fb.writeSettings("syncCollections", true)
+                  fb.writeSettings("syncEnvironments", true)
+                  this.$router.push({ path: "/settings" })
+                  toastObject.remove()
+                },
+              },
+            })
           }
         })
         .catch(err => {
           this.$toast.show(err.message || err, {
-            icon: "error"
-          });
-        });
+            icon: "error",
+          })
+        })
     },
     toggleSettings(s, v) {
-      fb.writeSettings(s, !v);
+      fb.writeSettings(s, !v)
     },
     initSettings() {
-      fb.writeSettings("syncHistory", true);
-      fb.writeSettings("syncCollections", true);
-      fb.writeSettings("syncEnvironments", true);
+      fb.writeSettings("syncHistory", true)
+      fb.writeSettings("syncCollections", true)
+      fb.writeSettings("syncEnvironments", true)
     },
     resetProxy({ target }) {
       this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`;
       target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
-        icon: "clear_all"
-      });
-      setTimeout(
-        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
-        1000
-      );
-    }
+        icon: "clear_all",
+      })
+      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+    },
   },
 
   beforeMount() {
-    this.settings.THEME_COLOR = this.getActiveColor();
+    this.settings.THEME_COLOR = this.getActiveColor()
   },
 
   computed: {
     proxySettings() {
       return {
         url: this.settings.PROXY_URL,
-        key: this.settings.PROXY_KEY
-      };
-    }
-  }
-};
+        key: this.settings.PROXY_KEY,
+      }
+    },
+  },
+}
 </script>

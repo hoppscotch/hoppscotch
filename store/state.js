@@ -1,6 +1,7 @@
 export default () => ({
   request: {
     method: "GET",
+    uri: "",
     url: "https://httpbin.org",
     path: "/get",
     label: "",
@@ -15,13 +16,18 @@ export default () => ({
     rawParams: "",
     rawInput: false,
     requestType: "",
-    contentType: ""
+    contentType: "",
   },
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],
+    schema: "",
     variablesJSONString: "{}",
-    query: ""
+    query: "",
+    response: "",
+  },
+  theme: {
+    collapsedSections: [],
   },
   oauth2: {
     tokens: [],
@@ -33,6 +39,6 @@ export default () => ({
     authUrl: "",
     accessTokenUrl: "",
     clientId: "",
-    scope: ""
-  }
-});
+    scope: "",
+  },
+})

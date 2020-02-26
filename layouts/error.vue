@@ -1,10 +1,6 @@
 <template>
   <div class="page page-error">
-    <img
-      src="~static/icons/error.svg"
-      :alt="$t('error')"
-      class="error_banner"
-    />
+    <img src="~static/icons/error.svg" :alt="$t('error')" class="error_banner" />
     <h2>{{ error.statusCode }}</h2>
     <h3>{{ error.message }}</h3>
     <p>
@@ -39,16 +35,16 @@ export default {
 
   methods: {
     reloadApplication() {
-      this.$router.push("/", () => window.location.reload());
-    }
+      this.$router.push("/", () => window.location.reload())
+    },
   },
 
   head() {
     return {
       bodyAttrs: {
-        class: "sticky-footer"
-      }
-    };
-  }
-};
+        class: "sticky-footer",
+      },
+    }
+  },
+}
 </script>

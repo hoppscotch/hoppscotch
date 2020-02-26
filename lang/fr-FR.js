@@ -78,8 +78,7 @@ export default {
   enabled: "Activé",
   disabled: "Désactivé",
   proxy: "Proxy",
-  postwoman_official_proxy_hosting:
-    "Le proxy officiel de Postwoman est hébergé par Apollo Software.",
+  postwoman_official_proxy_hosting: "Le proxy officiel de Postwoman est hébergé par Apollo Software.",
   read_the: "Lire la",
   apollosw_privacy_policy: "politique de confidentialité Apollo Software",
   contact_us: "Contactez nous",
@@ -235,8 +234,7 @@ export default {
   token_request_saved: "Requête de Token sauvegardé",
   donate_info1:
     "Si vous avez apprécié la productivité de l'utilisation de Postwoman, considérez le don comme un signe d'appréciation.",
-  donate_info2:
-    "Vous pouvez soutenir le développement de Postwoman par les méthodes suivantes :",
+  donate_info2: "Vous pouvez soutenir le développement de Postwoman par les méthodes suivantes :",
   one_time_recurring: "Ponctuel ou récurrent",
   one_time: "Une fois",
   recurring: "Récurrent",
@@ -260,5 +258,5 @@ export default {
   turn_on: "Activer",
   login_first: "Se connecter d'abord",
   paste_a_collection: "Coller une collection",
-  import_from_sync: "Importer depuis la synchronisation"
-};
+  import_from_sync: "Importer depuis la synchronisation",
+}

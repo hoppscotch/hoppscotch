@@ -43,52 +43,50 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb";
+import { fb } from "../../functions/fb"
 
 export default {
   props: {
-    show: Boolean
+    show: Boolean,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
-      name: undefined
-    };
+      name: undefined,
+    }
   },
   methods: {
     syncEnvironments() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-          );
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
         }
       }
     },
     addNewEnvironment() {
       if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_environment_name"));
-        return;
+        this.$toast.info(this.$t("invalid_environment_name"))
+        return
       }
       let newEnvironment = [
         {
           name: this.$data.name,
-          variables: []
-        }
-      ];
+          variables: [],
+        },
+      ]
       this.$store.commit("postwoman/importAddEnvironments", {
         environments: newEnvironment,
-        confirmation: "Environment added"
-      });
-      this.$emit("hide-modal");
-      this.syncEnvironments();
+        confirmation: "Environment added",
+      })
+      this.$emit("hide-modal")
+      this.syncEnvironments()
     },
     hideModal() {
-      this.$data.name = undefined;
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$data.name = undefined
+      this.$emit("hide-modal")
+    },
+  },
+}
 </script>

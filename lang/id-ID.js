@@ -78,13 +78,12 @@ export default {
   enabled: "diaktifkan",
   disabled: "dinonaktifkan",
   proxy: "Proksi",
-  postwoman_official_proxy_hosting:
-    "Proksi Resmi Postwoman dalam penginangan Apollo Software.",
+  postwoman_official_proxy_hosting: "Proksi Resmi Postwoman dalam penginangan Apollo Software.",
   read_the: "Bacalah",
   apollosw_privacy_policy: "kebijakan privasi Apollo Software",
   contact_us: "Hubungi kami",
   connect: "Menghubungkan",
   disconnect: "Memutuskan",
   start: "Mulai",
-  stop: "Berhenti"
-};
+  stop: "Berhenti",
+}

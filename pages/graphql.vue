@@ -10,6 +10,7 @@
                 id="url"
                 type="url"
                 v-model="url"
+                spellcheck="false"
                 @keyup.enter="getSchema()"
               />
             </li>
@@ -31,11 +32,7 @@
               <div class="flex-wrap">
                 <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
-                  <button
-                    class="icon"
-                    @click="headers = []"
-                    v-tooltip.bottom="$t('clear')"
-                  >
+                  <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
                     <i class="material-icons">clear_all</i>
                   </button>
                 </div>
@@ -60,7 +57,7 @@
                 @input="
                   $store.commit('setGQLHeaderKey', {
                     index,
-                    value: $event
+                    value: $event,
                   })
                 "
                 autofocus
@@ -74,7 +71,7 @@
                 @change="
                   $store.commit('setGQLHeaderValue', {
                     index,
-                    value: $event.target.value
+                    value: $event.target.value,
                   })
                 "
                 autofocus
@@ -112,9 +109,7 @@
                 @click="ToggleExpandResponse"
                 ref="ToggleExpandResponse"
                 v-tooltip="{
-                  content: !expandResponse
-                    ? $t('expand_response')
-                    : $t('collapse_response')
+                  content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
                 }"
               >
                 <i class="material-icons">
@@ -140,7 +135,7 @@
             </div>
           </div>
           <Editor
-            :value="schemaString"
+            :value="schema"
             :lang="'graphqlschema'"
             :options="{
               maxLines: responseBodyMaxLines,
@@ -149,20 +144,16 @@
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </pw-section>
 
         <pw-section class="cyan" :label="$t('query')" ref="query">
-          <div class="flex-wrap">
+          <div class="flex-wrap gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
-              <button
-                class="icon"
-                @click="runQuery()"
-                v-tooltip.bottom="$t('run_query')"
-              >
+              <button @click="runQuery()" v-tooltip.bottom="$t('run_query')">
                 <i class="material-icons">play_arrow</i>
               </button>
               <button
@@ -184,7 +175,7 @@
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </pw-section>
@@ -199,7 +190,7 @@
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </pw-section>
@@ -219,8 +210,9 @@
             </div>
           </div>
           <Editor
-            :value="responseString"
+            :value="response"
             :lang="'json'"
+            :lint="false"
             :options="{
               maxLines: responseBodyMaxLines,
               minLines: '16',
@@ -228,7 +220,7 @@
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </pw-section>
@@ -248,10 +240,7 @@
             </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
-                <gql-field
-                  :gqlField="field"
-                  :jumpTypeCallback="handleJumpToType"
-                />
+                <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
               </div>
             </div>
 
@@ -267,10 +256,7 @@
             </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
-                <gql-field
-                  :gqlField="field"
-                  :jumpTypeCallback="handleJumpToType"
-                />
+                <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
               </div>
             </div>
 
@@ -286,10 +272,7 @@
             </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
-                <gql-field
-                  :gqlField="field"
-                  :jumpTypeCallback="handleJumpToType"
-                />
+                <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
               </div>
             </div>
 
@@ -304,15 +287,8 @@
               {{ $t("types") }}
             </label>
             <div v-if="gqlTypes.length > 0" class="tab">
-              <div
-                v-for="type in gqlTypes"
-                :key="type.name"
-                :id="`type_${type.name}`"
-              >
-                <gql-type
-                  :gqlType="type"
-                  :jumpTypeCallback="handleJumpToType"
-                />
+              <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
+                <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
               </div>
             </div>
           </section>
@@ -339,20 +315,23 @@
   max-height: calc(100vh - 186px);
   overflow: auto;
 }
+.gqlRunQuery {
+  margin-bottom: 12px;
+}
 </style>
 
 <script>
-import axios from "axios";
-import * as gql from "graphql";
-import textareaAutoHeight from "../directives/textareaAutoHeight";
-import { commonHeaders } from "../functions/headers";
-import AceEditor from "../components/ace-editor";
-import QueryEditor from "../components/graphql/queryeditor";
-import { sendNetworkRequest } from "../functions/network";
+import axios from "axios"
+import * as gql from "graphql"
+import textareaAutoHeight from "../directives/textareaAutoHeight"
+import { commonHeaders } from "../functions/headers"
+import AceEditor from "../components/ace-editor"
+import QueryEditor from "../components/graphql/queryeditor"
+import { sendNetworkRequest } from "../functions/network"
 
 export default {
   directives: {
-    textareaAutoHeight
+    textareaAutoHeight,
   },
   components: {
     "pw-section": () => import("../components/section"),
@@ -360,212 +339,225 @@ export default {
     "gql-type": () => import("../components/graphql/type"),
     autocomplete: () => import("../components/autocomplete"),
     Editor: AceEditor,
-    QueryEditor: QueryEditor
+    QueryEditor: QueryEditor,
   },
   data() {
     return {
-      schemaString: "",
       commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      responseString: "",
       copyButton: '<i class="material-icons">file_copy</i>',
       downloadButton: '<i class="material-icons">get_app</i>',
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
-      responseBodyMaxLines: 16
-    };
+      responseBodyMaxLines: 16,
+
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+      },
+    }
   },
 
   computed: {
     url: {
       get() {
-        return this.$store.state.gql.url;
+        return this.$store.state.gql.url
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "url" });
-      }
+        this.$store.commit("setGQLState", { value, attribute: "url" })
+      },
     },
     headers: {
       get() {
-        return this.$store.state.gql.headers;
+        return this.$store.state.gql.headers
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "headers" });
-      }
+        this.$store.commit("setGQLState", { value, attribute: "headers" })
+      },
     },
     gqlQueryString: {
       get() {
-        return this.$store.state.gql.query;
+        return this.$store.state.gql.query
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "query" });
-      }
+        this.$store.commit("setGQLState", { value, attribute: "query" })
+      },
+    },
+    response: {
+      get() {
+        return this.$store.state.gql.response
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "response" })
+      },
+    },
+    schema: {
+      get() {
+        return this.$store.state.gql.schema
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "schema" })
+      },
     },
     variableString: {
       get() {
-        return this.$store.state.gql.variablesJSONString;
+        return this.$store.state.gql.variablesJSONString
       },
       set(value) {
         this.$store.commit("setGQLState", {
           value,
-          attribute: "variablesJSONString"
-        });
-      }
+          attribute: "variablesJSONString",
+        })
+      },
     },
     headerString() {
       const result = this.headers
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n");
-      return result === "" ? "" : `${result}`;
-    }
+        .join(",\n")
+      return result === "" ? "" : `${result}`
+    },
   },
   methods: {
     handleJumpToType(type) {
-      const typesTab = document.getElementById("gqltypes-tab");
-      typesTab.checked = true;
+      const typesTab = document.getElementById("gqltypes-tab")
+      typesTab.checked = true
 
-      const rootTypeName = this.resolveRootType(type).name;
+      const rootTypeName = this.resolveRootType(type).name
 
-      const target = document.getElementById(`type_${rootTypeName}`);
-      if (target && this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED) {
+      const target = document.getElementById(`type_${rootTypeName}`)
+      if (target && this.settings.SCROLL_INTO_ENABLED) {
         target.scrollIntoView({
-          behavior: "smooth"
-        });
+          behavior: "smooth",
+        })
       }
     },
     resolveRootType(type) {
-      let t = type;
-      while (t.ofType != null) t = t.ofType;
-      return t;
+      let t = type
+      while (t.ofType != null) t = t.ofType
+      return t
     },
     copySchema() {
-      this.$refs.copySchemaCode.innerHTML = this.doneButton;
-      const aux = document.createElement("textarea");
-      aux.innerText = this.schemaString;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+      this.$refs.copySchemaCode.innerHTML = this.doneButton
+      const aux = document.createElement("textarea")
+      aux.innerText = this.schema
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done"
-      });
-      setTimeout(
-        () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
-        1000
-      );
+        icon: "done",
+      })
+      setTimeout(() => (this.$refs.copySchemaCode.innerHTML = this.copyButton), 1000)
     },
     copyQuery() {
-      this.$refs.copyQueryButton.innerHTML = this.doneButton;
-      const aux = document.createElement("textarea");
-      aux.innerText = this.gqlQueryString;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+      this.$refs.copyQueryButton.innerHTML = this.doneButton
+      const aux = document.createElement("textarea")
+      aux.innerText = this.gqlQueryString
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done"
-      });
-      setTimeout(
-        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
-        1000
-      );
+        icon: "done",
+      })
+      setTimeout(() => (this.$refs.copyQueryButton.innerHTML = this.copyButton), 1000)
     },
     copyResponse() {
-      this.$refs.copyResponseButton.innerHTML = this.doneButton;
-      const aux = document.createElement("textarea");
-      aux.innerText = this.responseString;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+      this.$refs.copyResponseButton.innerHTML = this.doneButton
+      const aux = document.createElement("textarea")
+      aux.innerText = this.response
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done"
-      });
-      setTimeout(
-        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
-        1000
-      );
+        icon: "done",
+      })
+      setTimeout(() => (this.$refs.copyResponseButton.innerHTML = this.copyButton), 1000)
     },
     async runQuery() {
-      const startTime = Date.now();
-
-      this.$nuxt.$loading.start();
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
-        this.scrollInto("response");
-
-      try {
-        let headers = {};
-        this.headers.forEach(header => {
-          headers[header.key] = header.value;
-        });
-
-        let variables = JSON.parse(this.variableString);
-
-        const gqlQueryString = this.gqlQueryString;
-
-        const reqOptions = {
-          method: "post",
-          url: this.url,
-          headers: {
-            ...headers,
-            "content-type": "application/json"
-          },
-          data: JSON.stringify({ query: gqlQueryString, variables })
-        };
-
-        const data = await sendNetworkRequest(reqOptions, this.$store);
-
-        this.responseString = JSON.stringify(data.data, null, 2);
-
-        this.$nuxt.$loading.finish();
-        const duration = Date.now() - startTime;
-        this.$toast.info(this.$t("finished_in", { duration }), {
-          icon: "done"
-        });
-      } catch (error) {
-        this.$nuxt.$loading.finish();
-
-        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-          icon: "error"
-        });
-        console.log("Error", error);
-      }
-    },
-    async getSchema() {
-      const startTime = Date.now();
-      this.schemaString = this.$t("loading");
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED &&
-        this.scrollInto("schema");
+      const startTime = Date.now()
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
-      this.$nuxt.$loading.start();
+      this.$nuxt.$loading.start()
+
+      this.response = this.$t("loading")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       try {
-        const query = JSON.stringify({
-          query: gql.getIntrospectionQuery()
-        });
-
-        let headers = {};
+        let headers = {}
         this.headers.forEach(header => {
-          headers[header.key] = header.value;
-        });
+          headers[header.key] = header.value
+        })
+
+        let variables = JSON.parse(this.variableString)
+
+        const gqlQueryString = this.gqlQueryString
 
         const reqOptions = {
           method: "post",
           url: this.url,
           headers: {
             ...headers,
-            "content-type": "application/json"
+            "content-type": "application/json",
           },
-          data: query
-        };
+          data: JSON.stringify({ query: gqlQueryString, variables }),
+        }
 
-        // console.log(reqOptions);
+        const data = await sendNetworkRequest(reqOptions, this.$store)
+        this.response = JSON.stringify(data.data, null, 2)
+
+        this.$nuxt.$loading.finish()
+        const duration = Date.now() - startTime
+        this.$toast.info(this.$t("finished_in", { duration }), {
+          icon: "done",
+        })
+      } catch (error) {
+        this.response = `${error}. ${this.$t("check_console_details")}`
+        this.$nuxt.$loading.finish()
+
+        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
+          icon: "error",
+        })
+        console.log("Error", error)
+      }
+    },
+    async getSchema() {
+      const startTime = Date.now()
+
+      // Start showing the loading bar as soon as possible.
+      // The nuxt axios module will hide it when the request is made.
+      this.$nuxt.$loading.start()
+
+      this.schema = this.$t("loading")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("schema")
+
+      try {
+        const query = JSON.stringify({
+          query: gql.getIntrospectionQuery(),
+        })
+
+        let headers = {}
+        this.headers.forEach(header => {
+          headers[header.key] = header.value
+        })
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            ...headers,
+            "content-type": "application/json",
+          },
+          data: query,
+        }
 
         const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
           ? {
@@ -575,140 +567,130 @@ export default {
                 `https://postwoman.apollosoftware.xyz/`,
               data: reqOptions
             }
-          : reqOptions;
+          : reqOptions
 
-        const res = await axios(reqConfig);
+        const res = await axios(reqConfig)
 
-        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? res.data
-          : res;
-
-        const schema = gql.buildClientSchema(data.data.data);
-        this.schemaString = gql.printSchema(schema, {
-          commentDescriptions: true
-        });
+        const data = this.$store.state.postwoman.settings.PROXY_ENABLED ? res.data : res
+        const schema = gql.buildClientSchema(data.data.data)
+        this.schema = gql.printSchema(schema, {
+          commentDescriptions: true,
+        })
 
         if (schema.getQueryType()) {
-          const fields = schema.getQueryType().getFields();
-          const qFields = [];
+          const fields = schema.getQueryType().getFields()
+          const qFields = []
           for (const field in fields) {
-            qFields.push(fields[field]);
+            qFields.push(fields[field])
           }
-          this.queryFields = qFields;
+          this.queryFields = qFields
         }
 
         if (schema.getMutationType()) {
-          const fields = schema.getMutationType().getFields();
-          const mFields = [];
+          const fields = schema.getMutationType().getFields()
+          const mFields = []
           for (const field in fields) {
-            mFields.push(fields[field]);
+            mFields.push(fields[field])
           }
-          this.mutationFields = mFields;
+          this.mutationFields = mFields
         }
 
         if (schema.getSubscriptionType()) {
-          const fields = schema.getSubscriptionType().getFields();
-          const sFields = [];
+          const fields = schema.getSubscriptionType().getFields()
+          const sFields = []
           for (const field in fields) {
-            sFields.push(fields[field]);
+            sFields.push(fields[field])
           }
-          this.subscriptionFields = sFields;
+          this.subscriptionFields = sFields
         }
 
-        const typeMap = schema.getTypeMap();
-        const types = [];
+        const typeMap = schema.getTypeMap()
+        const types = []
 
-        const queryTypeName = schema.getQueryType()
-          ? schema.getQueryType().name
-          : "";
-        const mutationTypeName = schema.getMutationType()
-          ? schema.getMutationType().name
-          : "";
+        const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ""
+        const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ""
         const subscriptionTypeName = schema.getSubscriptionType()
           ? schema.getSubscriptionType().name
-          : "";
+          : ""
 
         for (const type in typeMap) {
           if (
             !typeMap[type].name.startsWith("__") &&
-            ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(
-              typeMap[type].name
-            ) &&
+            ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
             typeMap[type] instanceof gql.GraphQLObjectType
           ) {
-            types.push(typeMap[type]);
+            types.push(typeMap[type])
           }
         }
-        this.gqlTypes = types;
-        this.$refs.queryEditor.setValidationSchema(schema);
-        this.$nuxt.$loading.finish();
-        const duration = Date.now() - startTime;
+        this.gqlTypes = types
+        this.$refs.queryEditor.setValidationSchema(schema)
+        this.$nuxt.$loading.finish()
+        const duration = Date.now() - startTime
         this.$toast.info(this.$t("finished_in", { duration }), {
-          icon: "done"
-        });
+          icon: "done",
+        })
       } catch (error) {
-        this.$nuxt.$loading.finish();
-        this.schemaString = `${error}. ${this.$t("check_console_details")}`;
+        this.$nuxt.$loading.finish()
+
+        this.schema = `${error}. ${this.$t("check_console_details")}`
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-          icon: "error"
-        });
-        console.log("Error", error);
+          icon: "error",
+        })
+        console.log("Error", error)
       }
     },
     ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse;
-      this.responseBodyMaxLines =
-        this.responseBodyMaxLines == Infinity ? 16 : Infinity;
+      this.expandResponse = !this.expandResponse
+      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
     },
     downloadResponse() {
-      const dataToWrite = JSON.stringify(this.schemaString, null, 2);
-      const file = new Blob([dataToWrite], { type: "application/json" });
-      const a = document.createElement("a");
-      const url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]");
-      document.body.appendChild(a);
-      a.click();
-      this.$refs.downloadResponse.innerHTML = this.doneButton;
+      const dataToWrite = JSON.stringify(this.schema, null, 2)
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
+      document.body.appendChild(a)
+      a.click()
+      this.$refs.downloadResponse.innerHTML = this.doneButton
       this.$toast.success(this.$t("download_started"), {
-        icon: "done"
-      });
+        icon: "done",
+      })
       setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        this.$refs.downloadResponse.innerHTML = this.downloadButton;
-      }, 1000);
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        this.$refs.downloadResponse.innerHTML = this.downloadButton
+      }, 1000)
     },
     addRequestHeader(index) {
       this.$store.commit("addGQLHeader", {
         key: "",
-        value: ""
-      });
-      return false;
+        value: "",
+      })
+      return false
     },
     removeRequestHeader(index) {
       // .slice() is used so we get a separate array, rather than just a reference
-      const oldHeaders = this.headers.slice();
+      const oldHeaders = this.headers.slice()
 
-      this.$store.commit("removeGQLHeader", index);
+      this.$store.commit("removeGQLHeader", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           duration: 4000,
           onClick: (e, toastObject) => {
-            this.headers = oldHeaders;
-            toastObject.remove();
-          }
-        }
-      });
-      // console.log(oldHeaders);
+            this.headers = oldHeaders
+            toastObject.remove()
+          },
+        },
+      })
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
-        behavior: "smooth"
-      });
-    }
-  }
-};
+        behavior: "smooth",
+      })
+    },
+  },
+}
 </script>

@@ -1,11 +1,7 @@
 <template>
   <div class="flex-wrap">
     <div>
-      <button
-        class="icon"
-        @click="selectRequest()"
-        v-tooltip="$t('use_request')"
-      >
+      <button class="icon" @click="selectRequest()" v-tooltip="$t('use_request')">
         <i class="material-icons">insert_drive_file</i>
         <span>{{ request.name }}</span>
       </button>
@@ -51,20 +47,20 @@ export default {
     request: Object,
     collectionIndex: Number,
     folderIndex: Number,
-    requestIndex: Number
+    requestIndex: Number,
   },
   methods: {
     selectRequest() {
-      this.$store.commit("postwoman/selectRequest", { request: this.request });
+      this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     removeRequest() {
-      if (!confirm("Are you sure you want to remove this request?")) return;
+      if (!confirm("Are you sure you want to remove this request?")) return
       this.$store.commit("postwoman/removeRequest", {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
-        requestIndex: this.requestIndex
-      });
-    }
-  }
-};
+        requestIndex: this.requestIndex,
+      })
+    },
+  },
+}
 </script>

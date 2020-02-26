@@ -47,35 +47,35 @@ export default {
   props: {
     show: Boolean,
     editingCollection: Object,
-    editingCollectionIndex: Number
+    editingCollectionIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal")
+    modal: () => import("../../components/modal"),
   },
   data() {
     return {
-      name: undefined
-    };
+      name: undefined,
+    }
   },
   methods: {
     saveCollection() {
       if (!this.$data.name) {
-        this.$toast.info($t("invalid_collection_name"));
-        return;
+        this.$toast.info($t("invalid_collection_name"))
+        return
       }
       const collectionUpdated = {
         ...this.$props.editingCollection,
-        name: this.$data.name
-      };
+        name: this.$data.name,
+      }
       this.$store.commit("postwoman/editCollection", {
         collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex
-      });
-      this.$emit("hide-modal");
+        collectionIndex: this.$props.editingCollectionIndex,
+      })
+      this.$emit("hide-modal")
     },
     hideModal() {
-      this.$emit("hide-modal");
-    }
-  }
-};
+      this.$emit("hide-modal")
+    },
+  },
+}
 </script>

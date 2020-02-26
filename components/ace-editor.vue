@@ -84,9 +84,6 @@ export default {
   },
 
   mounted() {
-    // Set whether or not we should lint the editors contents
-    this.shouldLint = this.lint
-
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/${this.lang}`,
       ...this.options,

@@ -1,5 +1,0 @@
-{
-  "hooks": {
-    "pre-commit": "npm run pretty-quick"
-  }
-}

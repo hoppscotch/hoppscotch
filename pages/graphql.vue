@@ -630,6 +630,7 @@ export default {
         })
       } catch (error) {
         this.$nuxt.$loading.finish()
+        
         this.schema = `${error}. ${this.$t("check_console_details")}`
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {
           icon: "error",

@@ -5,26 +5,26 @@
 </template>
 
 <style lang="scss">
-  .show-if-initialized {
-    opacity: 0;
+.show-if-initialized {
+  opacity: 0;
 
-    &.initialized {
-      opacity: 1;
-    }
-
-    & > * {
-      transition: none;
-    }
+  &.initialized {
+    opacity: 1;
   }
+
+  & > * {
+    transition: none;
+  }
+}
 </style>
 
 <script>
 const DEFAULT_THEME = "twilight"
 
-import ace from "ace-builds";
-import "ace-builds/webpack-resolver";
-import jsonParse from '../functions/jsonParse';
-import debounce from '../functions/utils/debounce';
+import ace from "ace-builds"
+import "ace-builds/webpack-resolver"
+import jsonParse from "../functions/jsonParse"
+import debounce from "../functions/utils/debounce"
 
 export default {
   props: {
@@ -40,6 +40,11 @@ export default {
       type: String,
       default: "json",
     },
+    lint: {
+      type: Boolean,
+      default: true,
+      required: false,
+    },
     options: {
       type: Object,
       default: {},
@@ -50,6 +55,7 @@ export default {
     return {
       initialized: false,
       editor: null,
+      shouldLint: true,
       cacheValue: "",
     }
   },
@@ -57,19 +63,18 @@ export default {
   watch: {
     value(value) {
       if (value !== this.cacheValue) {
-        this.editor.session.setValue(value, 1);
-        this.cacheValue = value;
-
-        this.provideLinting(value);
+        this.editor.session.setValue(value, 1)
+        this.cacheValue = value
+        if (this.shouldLint) this.provideLinting(value)
       }
     },
     theme() {
-      this.initialized = false;
+      this.initialized = false
       this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
         this.$nextTick().then(() => {
-          this.initialized = true;
-        });
-      });
+          this.initialized = true
+        })
+      })
     },
     lang(value) {
       this.editor.getSession().setMode("ace/mode/" + value)
@@ -80,6 +85,9 @@ export default {
   },
 
   mounted() {
+    // Set whether or not we should lint the editors contents
+    this.shouldLint = this.lint
+
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/${this.lang}`,
       ...this.options,
@@ -88,23 +96,24 @@ export default {
     // Set the theme and show the editor only after it's been set to prevent FOUC.
     editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
       this.$nextTick().then(() => {
-        this.initialized = true;
-      });
-    });
+        this.initialized = true
+      })
+    })
 
-    if (this.value) editor.setValue(this.value, 1);
+    if (this.value) editor.setValue(this.value, 1)
 
     this.editor = editor
     this.cacheValue = this.value
 
     editor.on("change", () => {
-      const content = editor.getValue();
-      this.$emit("input", content);
-      this.cacheValue = content;
-      this.provideLinting(content);
-    });
+      const content = editor.getValue()
+      this.$emit("input", content)
+      this.cacheValue = content
+      if (this.shouldLint) this.provideLinting(content)
+    })
 
-    this.provideLinting(this.value);
+    // Disable linting, if lint prop is false
+    if (this.shouldLint) this.provideLinting(this.value)
   },
 
   methods: {
@@ -112,33 +121,31 @@ export default {
       if (this.theme) {
         return this.theme
       }
-      return (
-        this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
-      );
+      return this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
     },
 
-    provideLinting: debounce(function (code) {
+    provideLinting: debounce(function(code) {
       if (this.lang === "json") {
         try {
-          jsonParse(code);
-          this.editor.session.setAnnotations([]);
+          jsonParse(code)
+          this.editor.session.setAnnotations([])
         } catch (e) {
-          const pos = this.editor.session.getDocument().indexToPosition(e.start, 0);
+          const pos = this.editor.session.getDocument().indexToPosition(e.start, 0)
           this.editor.session.setAnnotations([
             {
               row: pos.row,
               column: pos.column,
               text: e.message,
-              type: "error"
-            }
-          ]);
+              type: "error",
+            },
+          ])
         }
       }
-    }, 2000)
+    }, 2000),
   },
 
   destroyed() {
-    this.editor.destroy();
-  }
-};
+    this.editor.destroy()
+  },
+}
 </script>

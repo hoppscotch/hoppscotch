@@ -212,6 +212,7 @@
           <Editor
             :value="response"
             :lang="'json'"
+            :lint="false"
             :options="{
               maxLines: responseBodyMaxLines,
               minLines: '16',
@@ -511,7 +512,6 @@ export default {
         }
 
         const data = await sendNetworkRequest(reqOptions, this.$store)
-
         this.response = JSON.stringify(data.data, null, 2)
 
         this.$nuxt.$loading.finish()
@@ -520,6 +520,10 @@ export default {
           icon: "done",
         })
       } catch (error) {
+        // Reset response back to empty string
+        // Note: We're specifically setting this to an empty string, as
+        // returning {} could could give the impression that the query succeeded
+        this.response = ""
         this.$nuxt.$loading.finish()
 
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {

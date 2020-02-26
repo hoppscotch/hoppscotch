@@ -55,7 +55,6 @@ export default {
     return {
       initialized: false,
       editor: null,
-      shouldLint: true,
       cacheValue: "",
     }
   },
@@ -65,7 +64,7 @@ export default {
       if (value !== this.cacheValue) {
         this.editor.session.setValue(value, 1)
         this.cacheValue = value
-        if (this.shouldLint) this.provideLinting(value)
+        if (this.lint) this.provideLinting(value)
       }
     },
     theme() {
@@ -109,11 +108,11 @@ export default {
       const content = editor.getValue()
       this.$emit("input", content)
       this.cacheValue = content
-      if (this.shouldLint) this.provideLinting(content)
+      if (this.lint) this.provideLinting(content)
     })
 
     // Disable linting, if lint prop is false
-    if (this.shouldLint) this.provideLinting(this.value)
+    if (this.lint) this.provideLinting(this.value)
   },
 
   methods: {

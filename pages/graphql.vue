@@ -520,10 +520,7 @@ export default {
           icon: "done",
         })
       } catch (error) {
-        // Reset response back to empty string
-        // Note: We're specifically setting this to an empty string, as
-        // returning {} could could give the impression that the query succeeded
-        this.response = ""
+        this.response = `${error}. ${this.$t("check_console_details")}`
         this.$nuxt.$loading.finish()
 
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {

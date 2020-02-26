@@ -37,143 +37,145 @@
 
         <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
-            <li>
-              <label for="method">{{ $t("method") }}</label>
-              <span class="select-wrapper">
-                <v-popover>
-                  <input
-                    id="method"
-                    class="method"
-                    v-if="!customMethod"
-                    v-model="method"
-                    readonly
-                  />
-                  <input v-else v-model="method" placeholder="CUSTOM" />
-                  <template slot="popover">
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'GET'
-                        "
-                        v-close-popover
-                      >
-                        GET
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'HEAD'
-                        "
-                        v-close-popover
-                      >
-                        HEAD
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'POST'
-                        "
-                        v-close-popover
-                      >
-                        POST
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'PUT'
-                        "
-                        v-close-popover
-                      >
-                        PUT
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'DELETE'
-                        "
-                        v-close-popover
-                      >
-                        DELETE
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'CONNECT'
-                        "
-                        v-close-popover
-                      >
-                        CONNECT
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'OPTIONS'
-                        "
-                        v-close-popover
-                      >
-                        OPTIONS
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'TRACE'
-                        "
-                        v-close-popover
-                      >
-                        TRACE
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'PATCH'
-                        "
-                        v-close-popover
-                      >
-                        PATCH
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = true
-                          method = 'CUSTOM'
-                        "
-                        v-close-popover
-                      >
-                        CUSTOM
-                      </button>
-                    </div>
-                  </template>
-                </v-popover>
-              </span>
-            </li>
+            <div>
+              <li>
+                <label for="method">{{ $t("method") }}</label>
+                <span class="select-wrapper">
+                  <v-popover>
+                    <input
+                      id="method"
+                      class="method"
+                      v-if="!customMethod"
+                      v-model="method"
+                      readonly
+                    />
+                    <input v-else v-model="method" placeholder="CUSTOM" />
+                    <template slot="popover">
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'GET'
+                          "
+                          v-close-popover
+                        >
+                          GET
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'HEAD'
+                          "
+                          v-close-popover
+                        >
+                          HEAD
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'POST'
+                          "
+                          v-close-popover
+                        >
+                          POST
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'PUT'
+                          "
+                          v-close-popover
+                        >
+                          PUT
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'DELETE'
+                          "
+                          v-close-popover
+                        >
+                          DELETE
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'CONNECT'
+                          "
+                          v-close-popover
+                        >
+                          CONNECT
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'OPTIONS'
+                          "
+                          v-close-popover
+                        >
+                          OPTIONS
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'TRACE'
+                          "
+                          v-close-popover
+                        >
+                          TRACE
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = false
+                            method = 'PATCH'
+                          "
+                          v-close-popover
+                        >
+                          PATCH
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="
+                            customMethod = true
+                            method = 'CUSTOM'
+                          "
+                          v-close-popover
+                        >
+                          CUSTOM
+                        </button>
+                      </div>
+                    </template>
+                  </v-popover>
+                </span>
+              </li>
+            </div>
             <li>
               <label for="url">{{ $t("url") }}</label>
               <input
@@ -185,26 +187,28 @@
                 v-model="uri"
               />
             </li>
-            <li>
-              <label for="label">{{ $t("label") }}</label>
-              <input
-                id="label"
-                name="label"
-                type="text"
-                v-model="label"
-                :placeholder="$t('optional')"
-              />
-            </li>
-            <li>
-              <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
-                {{ $t("send") }}
-                <span>
-                  <i class="material-icons">send</i>
-                </span>
-              </button>
-            </li>
+            <div>
+              <li>
+                <label class="hide-on-small-screen" for="send">&nbsp;</label>
+                <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
+                  {{ $t("send") }}
+                  <span>
+                    <i class="material-icons">send</i>
+                  </span>
+                </button>
+              </li>
+            </div>
           </ul>
+          <div class="blue">
+            <label for="label">{{ $t("label") }}</label>
+            <input
+              id="label"
+              name="label"
+              type="text"
+              v-model="label"
+              :placeholder="$t('optional')"
+            />
+          </div>
           <div class="blue" label="Request Body" v-if="['POST', 'PUT', 'PATCH'].includes(method)">
             <ul>
               <li>

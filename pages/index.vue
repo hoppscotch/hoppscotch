@@ -185,6 +185,7 @@
                 name="url"
                 type="url"
                 v-model="uri"
+                spellcheck="false"
               />
             </li>
             <div>
@@ -1424,6 +1425,13 @@ export default {
       files: [],
       filenames: "",
       navigatorShare: navigator.share,
+
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+      },
     }
   },
   watch: {
@@ -1980,7 +1988,7 @@ export default {
       this.path = path
       this.showPreRequestScript = usesScripts
       this.preRequestScript = preRequestScript
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("request")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
       if (!this.preRequestScript) {
@@ -2015,7 +2023,7 @@ export default {
     },
     async sendRequest() {
       this.$toast.clear()
-      this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED && this.scrollInto("response")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {
           icon: "error",

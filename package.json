@@ -18,6 +18,17 @@
     "pretty-quick": "pretty-quick --pattern \"**/*.*(html|js|json|vue)\"",
     "test": "start-server-and-test start http-get://localhost:3000 e2e"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pretty-quick"
+    }
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": false,
+    "singleQuote": false,
+    "printWidth": 100
+  },
   "dependencies": {
     "@nuxtjs/axios": "^5.9.5",
     "@nuxtjs/google-analytics": "^2.2.3",
@@ -42,7 +53,7 @@
   "devDependencies": {
     "cypress": "^4.0.2",
     "husky": "^4.2.3",
-    "lint-staged": "^10.0.7",
+    "lint-staged": "^10.0.8",
     "node-sass": "^4.13.1",
     "prettier": "^1.19.1",
     "pretty-quick": "^2.0.1",

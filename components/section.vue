@@ -3,10 +3,10 @@
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="material-icons">
-        {{ isCollapsed ? "expand_more" : "expand_less" }}
+        {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
       </i>
     </legend>
-    <div class="collapsible" :class="{ hidden: collapsed }">
+    <div class="collapsible" :class="{ hidden: isCollapsed(label.toLowerCase()) }">
       <slot />
     </div>
   </fieldset>
@@ -24,12 +24,9 @@ export default {
     frameColorsEnabled() {
       return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
     },
-  },
-
-  data() {
-    return {
-      isCollapsed: false,
-    }
+    sectionString() {
+      return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
+    },
   },
 
   props: {
@@ -46,7 +43,12 @@ export default {
     collapse({ target }) {
       const parent = target.parentNode.parentNode
       parent.querySelector(".collapsible").classList.toggle("hidden")
-      this.isCollapsed = !this.isCollapsed
+
+      // Save collapsed section into the collapsedSections array
+      this.$store.commit("setCollapsedSection", this.sectionString)
+    },
+    isCollapsed(label) {
+      return this.$store.state.theme.collapsedSections.includes(this.sectionString) || false
     },
   },
 }

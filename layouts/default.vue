@@ -758,7 +758,11 @@ export default {
         })
       }
       let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
-      if (!this.extensionInstalled && !showExtensionsToast) {
+
+      // Just return if showExtensionsToast is "no"
+      if (!showExtensionsToast) return
+
+      if (!this.extensionInstalled) {
         setTimeout(() => {
           this.$toast.show(this.$t("extensions_info2"), {
             icon: "extension",
@@ -776,6 +780,11 @@ export default {
               {
                 text: this.$t("no"),
                 onClick: (e, toastObject) => {
+                  this.$store.commit("setMiscState", {
+                    value: false,
+                    attribute: "showExtensionsToast",
+                  })
+                  localStorage.setItem("showExtensionsToast", "no")
                   toastObject.goAway(0)
                 },
               },

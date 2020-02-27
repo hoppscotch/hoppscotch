@@ -641,6 +641,7 @@
 import intializePwa from "../assets/js/pwa"
 import * as version from "../.postwoman/version.json"
 import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy"
+import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy"
 import firebase from "firebase/app"
 import { fb } from "../functions/fb"
 
@@ -702,7 +703,6 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
-      extensionInstalled: hasExtensionInstalled(),
       fb,
       navigatorShare: navigator.share,
     }
@@ -762,8 +762,8 @@ export default {
       // Just return if showExtensionsToast is "no"
       if (!showExtensionsToast) return
 
-      if (!this.extensionInstalled) {
-        setTimeout(() => {
+      setTimeout(() => {
+        if (!(hasExtensionInstalled() || hasChromeExtensionInstalled())) {
           this.$toast.show(this.$t("extensions_info2"), {
             icon: "extension",
             duration: 5000,
@@ -790,8 +790,8 @@ export default {
               },
             ],
           })
-        }, 15000)
-      }
+        }
+      }, 15000)
 
       this._keyListener = function(e) {
         if (e.key === "Escape") {

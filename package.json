@@ -15,7 +15,7 @@
     "e2e": "cypress run",
     "e2e:open": "cypress open",
     "dev:e2e": "server-test dev :3000 e2e:open",
-    "pretty-quick": "pretty-quick --pattern \"**/*.*(html|js|json|vue)\"",
+    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
     "test": "start-server-and-test start http-get://localhost:3000 e2e"
   },
   "husky": {

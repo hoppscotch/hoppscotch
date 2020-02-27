@@ -1530,30 +1530,26 @@ export default {
   computed: {
     uri: {
       get() {
-        return this.$store.state.request.uri ?
-          this.$store.state.request.uri
-          : this.url + this.path;
+        return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
-        let url;
+        let url
         if (this.preRequestScript && this.showPreRequestScript) {
-          const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript);
-          url = parseTemplateString(value, environmentVariables);
+          const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          url = parseTemplateString(value, environmentVariables)
         }
         try {
-          url = new URL(url);
-          this.url = url.origin;
-          this.path = url.pathname;
-        } catch(error) {
+          url = new URL(url)
+          this.url = url.origin
+          this.path = url.pathname
+        } catch (error) {
           console.log(error)
-          let uriRegex = value.match(
-            /^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/
-          );
-          this.url = uriRegex[1];
-          this.path = uriRegex[4];
+          let uriRegex = value.match(/^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/)
+          this.url = uriRegex[1]
+          this.path = uriRegex[4]
         }
-      }
+      },
     },
     url: {
       get() {
@@ -2067,7 +2063,7 @@ export default {
         const formData = new FormData()
         for (let i = 0; i < this.files.length; i++) {
           let file = this.files[i]
-          formData.append(`files[${i}]`, file)
+          formData.append(i, file)
         }
         formData.append("data", requestBody)
         requestBody = formData
@@ -2411,8 +2407,8 @@ export default {
       const sendButtonElement = this.$refs.sendButton
       const observer = new IntersectionObserver(
         (entries, observer) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) sendButtonElement.classList.remove("show")
+          entries.forEach(({ isIntersecting }) => {
+            if (isIntersecting) sendButtonElement.classList.remove("show")
             // The button should float when it is no longer visible on screen.
             // This is done by adding the show class to the button.
             else sendButtonElement.classList.add("show")
@@ -2457,7 +2453,7 @@ export default {
     switchVisibility() {
       this.passwordFieldType = this.passwordFieldType === "password" ? "text" : "password"
     },
-    clearContent(name, e) {
+    clearContent(name, { target }) {
       switch (name) {
         case "auth":
           this.auth = "None"
@@ -2491,12 +2487,12 @@ export default {
           this.testReports = null
           break
         default:
-          ;(this.label = ""),
-            (this.method = "GET"),
-            (this.url = "https://httpbin.org"),
-            (this.auth = "None"),
-            (this.path = "/get"),
-            (this.auth = "None")
+          this.method = "GET"
+          this.url = "https://httpbin.org"
+          this.path = "/get"
+          this.uri = this.url + this.path
+          this.label = ""
+          this.auth = "None"
           this.httpUser = ""
           this.httpPassword = ""
           this.bearerToken = ""
@@ -2515,11 +2511,11 @@ export default {
           this.scope = ""
           this.files = []
       }
-      e.target.innerHTML = this.doneButton
+      target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     saveRequest() {
       if (!this.checkCollections()) {

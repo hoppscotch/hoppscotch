@@ -169,6 +169,7 @@
           <QueryEditor
             ref="queryEditor"
             v-model="gqlQueryString"
+            :onRunGQLQuery="runQuery"
             :options="{
               maxLines: responseBodyMaxLines,
               minLines: '16',

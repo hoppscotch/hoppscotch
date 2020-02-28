@@ -642,6 +642,7 @@ import intializePwa from "../assets/js/pwa"
 import * as version from "../.postwoman/version.json"
 import { hasExtensionInstalled } from "../functions/strategies/ExtensionStrategy"
 import { hasChromeExtensionInstalled } from "../functions/strategies/ChromeStrategy"
+import { getPlatformSpecialKey } from "~/functions/platformutils"
 import firebase from "firebase/app"
 import { fb } from "../functions/fb"
 
@@ -653,9 +654,7 @@ export default {
   },
 
   methods: {
-    getSpecialKey() {
-      return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform) ? "⌘" : "Ctrl"
-    },
+    getSpecialKey: getPlatformSpecialKey,
     linkActive(path) {
       return {
         "nuxt-link-exact-active": this.$route.path === path,

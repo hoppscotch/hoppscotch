@@ -326,6 +326,12 @@ export default {
         file: "pt-BR.js",
       },
       {
+        code: "ru",
+        name: "Русский",
+        iso: "ru-RU",
+        file: "ru-RU.js",
+      },
+      {
         code: "cn",
         name: "简体中文",
         iso: "zh-CN",

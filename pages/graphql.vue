@@ -153,7 +153,10 @@
           <div class="flex-wrap gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
-              <button @click="runQuery()" v-tooltip.bottom="$t('run_query')">
+              <button
+                @click="runQuery()"
+                v-tooltip.bottom="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
+              >
                 <i class="material-icons">play_arrow</i>
               </button>
               <button
@@ -328,6 +331,7 @@ import textareaAutoHeight from "../directives/textareaAutoHeight"
 import { commonHeaders } from "../functions/headers"
 import AceEditor from "../components/ace-editor"
 import QueryEditor from "../components/graphql/queryeditor"
+import { getPlatformSpecialKey } from "~/functions/platformutils"
 import { sendNetworkRequest } from "../functions/network"
 
 export default {
@@ -425,6 +429,7 @@ export default {
     },
   },
   methods: {
+    getSpecialKey: getPlatformSpecialKey,
     handleJumpToType(type) {
       const typesTab = document.getElementById("gqltypes-tab")
       typesTab.checked = true

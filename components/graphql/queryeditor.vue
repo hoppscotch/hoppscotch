@@ -5,17 +5,17 @@
 </template>
 
 <style lang="scss">
-  .show-if-initialized {
-    opacity: 0;
+.show-if-initialized {
+  opacity: 0;
 
-    &.initialized {
-      opacity: 1;
-    }
-
-    & > * {
-      transition: none;
-    }
+  &.initialized {
+    opacity: 1;
   }
+
+  & > * {
+    transition: none;
+  }
+}
 </style>
 
 <script>
@@ -42,6 +42,10 @@ export default {
       type: String,
       default: "json",
     },
+    onRunGQLQuery: {
+      type: Function,
+      default: () => {},
+    },
     options: {
       type: Object,
       default: {},
@@ -65,12 +69,12 @@ export default {
       }
     },
     theme() {
-      this.initialized = false;
+      this.initialized = false
       this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
         this.$nextTick().then(() => {
-          this.initialized = true;
-        });
-      });
+          this.initialized = true
+        })
+      })
     },
     lang(value) {
       this.editor.getSession().setMode(`ace/mode/${value}`)
@@ -93,16 +97,16 @@ export default {
     // Set the theme and show the editor only after it's been set to prevent FOUC.
     editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
       this.$nextTick().then(() => {
-        this.initialized = true;
-      });
-    });
+        this.initialized = true
+      })
+    })
 
     // Set the theme and show the editor only after it's been set to prevent FOUC.
     editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
       this.$nextTick().then(() => {
-        this.initialized = true;
-      });
-    });
+        this.initialized = true
+      })
+    })
 
     const completer = {
       getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
@@ -133,6 +137,15 @@ export default {
 
     this.editor = editor
     this.cacheValue = this.value
+
+    editor.commands.addCommand({
+      name: "runGQLQuery",
+      exec: () => this.onRunGQLQuery(this.editor.getValue()),
+      bindKey: {
+        mac: "cmd-enter",
+        win: "ctrl-enter",
+      },
+    })
 
     editor.on("change", () => {
       const content = editor.getValue()
@@ -190,7 +203,7 @@ export default {
   },
 
   beforeDestroy() {
-    this.editor.destroy();
-  }
-};
+    this.editor.destroy()
+  },
+}
 </script>

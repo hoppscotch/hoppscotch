@@ -114,11 +114,21 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dmitryyankowski",
+      "name": "Dmitry Yankowski",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/20114263?v=4",
+      "profile": "https://dmitryyankowski.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
   "projectName": "postwoman",
   "projectOwner": "liyasthomas",
   "repoType": "github",
-  "repoHost": "https://github.com"
+  "repoHost": "https://github.com",
+  "skipCi": true
 }

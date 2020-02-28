@@ -258,6 +258,7 @@ export default {
   installed: "Installed",
   login_with: "Login with",
   logged_out: "Logged out",
+  login_success: "Successfully logged in",
   logout: "Logout",
   account: "Account",
   scrollInto_use_toggle: "Auto scroll",

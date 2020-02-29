@@ -102,8 +102,8 @@
 
         <pw-section class="green" :label="$t('schema')" ref="schema">
           <div class="flex-wrap">
-            <label>{{ $t("response") }}</label>
-            <div>
+            <label>{{ $t("schema") }}</label>
+            <div v-if="schema">
               <button
                 class="icon"
                 @click="ToggleExpandResponse"
@@ -135,17 +135,28 @@
             </div>
           </div>
           <Editor
+            v-if="schema"
             :value="schema"
             :lang="'graphqlschema'"
             :options="{
               maxLines: responseBodyMaxLines,
-              minLines: '16',
+              minLines: 16,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
               useWorker: false,
             }"
+          />
+          <input
+            v-else
+            class="missing-data-response"
+            :value="$t('waiting_receive_schema')"
+            ref="status"
+            id="status"
+            name="status"
+            readonly
+            type="text"
           />
         </pw-section>
 
@@ -175,7 +186,7 @@
             :onRunGQLQuery="runQuery"
             :options="{
               maxLines: responseBodyMaxLines,
-              minLines: '16',
+              minLines: 10,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
@@ -189,8 +200,8 @@
             v-model="variableString"
             :lang="'json'"
             :options="{
-              maxLines: responseBodyMaxLines,
-              minLines: '16',
+              maxLines: 10,
+              minLines: 5,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
@@ -214,18 +225,29 @@
             </div>
           </div>
           <Editor
+            v-if="response"
             :value="response"
             :lang="'json'"
             :lint="false"
             :options="{
               maxLines: responseBodyMaxLines,
-              minLines: '16',
+              minLines: 10,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
               useWorker: false,
             }"
+          />
+          <input
+            v-else
+            class="missing-data-response"
+            :value="$t('waiting_receive_response')"
+            ref="status"
+            id="status"
+            name="status"
+            readonly
+            type="text"
           />
         </pw-section>
       </div>

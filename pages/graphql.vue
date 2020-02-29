@@ -525,7 +525,7 @@ export default {
           headers[header.key] = header.value
         })
 
-        let variables = JSON.parse(this.variableString)
+        let variables = JSON.parse(this.variableString || "{}")
 
         const gqlQueryString = this.gqlQueryString
 

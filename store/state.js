@@ -23,8 +23,8 @@ export default () => ({
     headers: [],
     schema: "",
     variablesJSONString: '{ "id": "1" }',
-    query: `query charcter {
-  character(id: 1) {
+    query: `query charcter($id: ID) {
+  character(id: $id) {
     id
     name
   }

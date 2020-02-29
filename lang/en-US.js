@@ -181,6 +181,8 @@ export default {
   loading: "Loading...",
   fetching: "Fetching...",
   waiting_send_req: "(waiting to send request)",
+  waiting_receive_response: "(waiting to receive response)",
+  waiting_receive_schema: "(waiting to receive schema)",
   cancel: "Cancel",
   save: "Save",
   dismiss: "Dismiss",

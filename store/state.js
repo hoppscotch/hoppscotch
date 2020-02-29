@@ -22,8 +22,13 @@ export default () => ({
     url: "https://rickandmortyapi.com/graphql",
     headers: [],
     schema: "",
-    variablesJSONString: "{}",
-    query: "",
+    variablesJSONString: '{ "id": "1" }',
+    query: `query charcter($id: ID) {
+  character(id: $id) {
+    id
+    name
+  }
+}`,
     response: "",
   },
   theme: {

@@ -4,6 +4,7 @@ describe("Proxy disabled - local request", () => {
       .get("#url")
       .then(el => expect(el.val() === "https://api.thecatapi.com").to.equal(true))
       .get("#response-details-wrapper")
+      .should("be.visible")
       .should($wrapper => {
         expect($wrapper).to.contain("FAKE Cat API")
       })
@@ -15,9 +16,10 @@ describe("Proxy enabled - external request", () => {
     cy.enableProxy("/?url=https://api.thecatapi.com&path=")
       .get("#send")
       .click()
-      .get("#response-details-wrapper")
+      .get("#response-details-wrapper", { timeout: 24000 })
+      .should("be.visible")
       .should($wrapper => {
-        expect($wrapper).to.contain("Cat API")
+        expect($wrapper).to.contain("The Cat API")
       })
   })
 })

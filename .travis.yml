@@ -1,4 +1,4 @@
-# == INSTRUCTIONS FOR SETTING UP TRAVIS (and GitHub Pages) ==
+# == INSTRUCTIONS FOR SETTING UP TRAVIS ==
 #
 # 1. Find this repository in your Travis-CI dashboard.
 #    open settings and add an environment variable called
@@ -8,12 +8,10 @@
 #    **DO NOT TURN ON 'Display value in build log'!!!!**
 #
 # 2. Push the code to the repository.
-# 3. Set the GitHub Pages source in the GitHub repository settings to the
-#    gh-pages branch.
 
 language: node_js
 node_js:
-  - "12"
+  - lts/*
 
 os: linux
 
@@ -22,35 +20,20 @@ addons:
     packages:
       - libgconf-2-4 # cypress binary dependency
 
-env:
-  - DEPLOY_ENV=POSTWOMAN_IO
-
-cache:
-  npm: true
-  directories:
-    - "node_modules"
-    - ~/.cache
+cache: npm
 
 branches:
   only:
-    - "master"
+    - master
 
 install:
-  - "npm install firebase-tools"
-  - "npm install"
+  - npm ci
 
 before_script:
-  - "npm run build" # use nuxt build and start to run tests
-  - "npm run test"
+  - npm run build # use nuxt build and start to run tests
 
 script:
-  - "cd functions"
-  - "npm install"
-  - "cd .."
-  - "npm run generate"
+  - npm test
 
 notifications:
   webhooks: https://www.travisbuddy.com
-
-after_success:
-  - firebase deploy --token $FIREBASE_TOKEN

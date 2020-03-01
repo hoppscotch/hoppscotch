@@ -42,7 +42,7 @@
     "graphql": "^14.6.0",
     "graphql-language-service-interface": "^2.3.3",
     "nuxt": "^2.11.0",
-    "nuxt-i18n": "^6.5.0",
+    "nuxt-i18n": "^6.6.0",
     "v-tooltip": "^2.0.3",
     "vue-virtual-scroll-list": "^1.4.6",
     "vuefire": "^2.2.1",

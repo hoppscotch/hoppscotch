@@ -51,7 +51,7 @@
     "yargs-parser": "^17.0.0"
   },
   "devDependencies": {
-    "cypress": "^4.0.2",
+    "cypress": "^4.1.0",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.8",
     "node-sass": "^4.13.1",

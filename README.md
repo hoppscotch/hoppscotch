@@ -161,7 +161,7 @@ _Collections are synced with local session storage_
  - Access APIs served in non-HTTPS (`http://`)
  - Use custom Proxy URL
 
-_Official Postwoman Proxy is hosted by ApolloTV - **[Privacy policy](https://apollotv.xyz/legal)**_
+_Official Postwoman Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
 
 📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
 

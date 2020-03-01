@@ -591,8 +591,9 @@ export default {
           ? {
               method: "post",
               url:
-                this.$store.state.postwoman.settings.PROXY_URL || `https://postwoman.apollotv.xyz/`,
-              data: reqOptions,
+                this.$store.state.postwoman.settings.PROXY_URL ||
+                `https://postwoman.apollosoftware.xyz/`,
+              data: reqOptions
             }
           : reqOptions
 

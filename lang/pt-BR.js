@@ -80,7 +80,7 @@ export default {
   proxy: "Proxy",
   postwoman_official_proxy_hosting: "Postwoman's alojamento proxy oficial",
   read_the: "Leia o",
-  apollotv_privacy_policy: "ApolloTV Política de Privacidade",
+  apollosw_privacy_policy: "Apollo Software Política de Privacidade",
   contact_us: "Contate-Nos",
   connect: "Conectar",
   disconnect: "Desconectar",

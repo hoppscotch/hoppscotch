@@ -14,10 +14,11 @@ const firefoxWithProxy = (req, { state }) =>
 
     window.firefoxExtSendRequest({
       method: "post",
-      url: state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
-      data: req,
-    })
-  })
+      url:
+        state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
+      data: req
+    });
+  });
 
 const firefoxWithoutProxy = (req, _store) =>
   new Promise((resolve, reject) => {

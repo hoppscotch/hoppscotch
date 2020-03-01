@@ -35,10 +35,12 @@ const chromeWithProxy = (req, { state }) =>
         data: {
           config: {
             method: "post",
-            url: state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
-            data: req,
-          },
-        },
+            url:
+              state.postwoman.settings.PROXY_URL ||
+              "https://postwoman.apollosoftware.xyz/",
+            data: req
+          }
+        }
       },
       ({ data }) => {
         if (data.error) {

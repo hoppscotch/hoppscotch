@@ -235,6 +235,8 @@ export default {
   copied_to_clipboard: "Copied to clipboard",
   finished_in: "Finished in {duration}ms",
   check_console_details: "Check console for details.",
+  check_graphql_valid: "Check the URL to see if it is a valid GraphQL endpoint",
+  graphql_introspect_failed: "Failed fetching schema details.",
   download_started: "Download started",
   url_invalid_format: "URL is not formatted properly",
   curl_invalid_format: "cURL is not formatted properly",

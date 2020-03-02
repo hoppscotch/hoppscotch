@@ -593,7 +593,7 @@ export default {
               url:
                 this.$store.state.postwoman.settings.PROXY_URL ||
                 `https://postwoman.apollosoftware.xyz/`,
-              data: reqOptions
+              data: reqOptions,
             }
           : reqOptions
 
@@ -661,9 +661,12 @@ export default {
         this.$nuxt.$loading.finish()
 
         this.schema = `${error}. ${this.$t("check_console_details")}`
-        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-          icon: "error",
-        })
+        this.$toast.error(
+          `${this.$t("graphql_introspect_failed")} ${this.$t("check_graphql_valid")}`,
+          {
+            icon: "error",
+          }
+        )
         console.log("Error", error)
       }
     },

@@ -168,7 +168,7 @@ div.log {
 <script>
 export default {
   components: {
-    "pw-section": () => import("../components/section"),
+    "pw-section": () => import("../components/layout/section"),
   },
   data() {
     return {

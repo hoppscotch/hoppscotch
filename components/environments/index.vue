@@ -71,7 +71,7 @@ const updateOnLocalStorage = (propertyName, property) =>
 export default {
   components: {
     environment,
-    "pw-section": () => import("../section"),
+    "pw-section": () => import("../layout/section"),
     addEnvironment: () => import("./addEnvironment"),
     editEnvironment: () => import("./editEnvironment"),
     importExportEnvironment: () => import("./importExportEnvironment"),

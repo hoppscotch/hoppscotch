@@ -86,7 +86,7 @@ export default {
     editingRequest: Object,
   },
   components: {
-    modal: () => import("../../components/modal"),
+    modal: () => import("../../components/ui/modal"),
   },
   data() {
     return {

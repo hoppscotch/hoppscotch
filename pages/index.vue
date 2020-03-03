@@ -1301,7 +1301,7 @@
 </template>
 
 <script>
-import section from "../components/section"
+import section from "../components/layout/section"
 import url from "url"
 import querystring from "querystring"
 import { commonHeaders } from "../functions/headers"
@@ -1310,7 +1310,7 @@ import parseCurlCommand from "../assets/js/curlparser.js"
 import getEnvironmentVariablesFromScript from "../functions/preRequest"
 import runTestScriptWithVariables from "../functions/postwomanTesting"
 import parseTemplateString from "../functions/templating"
-import AceEditor from "../components/ace-editor"
+import AceEditor from "../components/ui/ace-editor"
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
 import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
@@ -1370,10 +1370,10 @@ export default {
   },
   components: {
     "pw-section": section,
-    "pw-toggle": () => import("../components/toggle"),
-    "pw-modal": () => import("../components/modal"),
-    history: () => import("../components/history"),
-    autocomplete: () => import("../components/autocomplete"),
+    "pw-toggle": () => import("../components/ui/toggle"),
+    "pw-modal": () => import("../components/ui/modal"),
+    history: () => import("../components/layout/history"),
+    autocomplete: () => import("../components/ui/autocomplete"),
     collections: () => import("../components/collections"),
     saveRequestAs: () => import("../components/collections/saveRequestAs"),
     Editor: AceEditor,

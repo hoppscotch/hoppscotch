@@ -720,8 +720,8 @@ import { fb } from "../functions/fb"
 
 export default {
   components: {
-    logo: () => import("../components/logo"),
-    modal: () => import("../components/modal"),
+    logo: () => import("../components/layout/logo"),
+    modal: () => import("../components/ui/modal"),
     login: () => import("../components/firebase/login"),
   },
 

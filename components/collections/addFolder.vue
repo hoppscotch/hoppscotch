@@ -50,7 +50,7 @@ export default {
     collectionIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal"),
+    modal: () => import("../../components/ui/modal"),
   },
   data() {
     return {

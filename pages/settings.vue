@@ -211,8 +211,10 @@
               class="link"
               href="https://apollosoftware.xyz/legal/postwoman"
               target="_blank"
-              rel="noopener">
-              {{ $t("apollosw_privacy_policy") }} </a>.
+              rel="noopener"
+            >
+              {{ $t("apollosw_privacy_policy") }} </a
+            >.
           </p>
         </li>
       </ul>
@@ -243,8 +245,8 @@ import { fb } from "../functions/fb"
 
 export default {
   components: {
-    "pw-section": () => import("../components/section"),
-    "pw-toggle": () => import("../components/toggle"),
+    "pw-section": () => import("../components/layout/section"),
+    "pw-toggle": () => import("../components/ui/toggle"),
     swatch: () => import("../components/settings/swatch"),
   },
 
@@ -341,7 +343,8 @@ export default {
 
         FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
+        PROXY_URL:
+          this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
 
         EXTENSIONS_ENABLED:
@@ -641,8 +644,8 @@ export default {
       fb.writeSettings("syncEnvironments", true)
     },
     resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`;
-      target.innerHTML = this.doneButton;
+      this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`
+      target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })

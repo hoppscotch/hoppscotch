@@ -361,19 +361,9 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 
 * [dev.to 👩‍💻👨‍💻](https://dev.to)
 
-### Code Contributors
-
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-
-<a href="https://github.com/liyasthomas/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
-
 ### Financial Contributors
 
 Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/postwoman/contribute)]
-
-#### Individuals
-
-<a href="https://opencollective.com/postwoman"><img src="https://opencollective.com/postwoman/individuals.svg"></a>
 
 #### Organizations
 
@@ -389,6 +379,16 @@ Support this project with your organization. Your logo will show up here with a 
 <a href="https://opencollective.com/postwoman/organization/7/website"><img src="https://opencollective.com/postwoman/organization/7/avatar.svg"></a>
 <a href="https://opencollective.com/postwoman/organization/8/website"><img src="https://opencollective.com/postwoman/organization/8/avatar.svg"></a>
 <a href="https://opencollective.com/postwoman/organization/9/website"><img src="https://opencollective.com/postwoman/organization/9/avatar.svg"></a>
+
+#### Individuals
+
+<a href="https://opencollective.com/postwoman"><img src="https://opencollective.com/postwoman/individuals.svg"></a>
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+
+<a href="https://github.com/liyasthomas/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
 
 ## License 📄
 

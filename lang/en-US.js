@@ -19,7 +19,6 @@ export default {
   save_to_collections: "Save to Collections",
   copy_request_link: "Copy Request Link",
   reset_request: "Reset Request",
-  support_us_on: "Support us on",
   open_collective: "Open Collective",
   paypal: "PayPal",
   patreon: "Patreon",

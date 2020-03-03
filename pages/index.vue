@@ -509,6 +509,7 @@
             </li>
           </ul>
         </pw-section>
+
         <section id="options">
           <input id="tab-one" type="radio" name="options" checked="checked" />
           <label for="tab-one">{{ $t("authentication") }}</label>
@@ -715,6 +716,7 @@
               </ul>
             </pw-section>
           </div>
+
           <input id="tab-two" type="radio" name="options" />
           <label for="tab-two">{{ $t("headers") }}</label>
           <div class="tab">
@@ -797,6 +799,7 @@
               </ul>
             </pw-section>
           </div>
+
           <input id="tab-three" type="radio" name="options" />
           <label for="tab-three">{{ $t("parameters") }}</label>
           <div class="tab">
@@ -876,6 +879,7 @@
               </ul>
             </pw-section>
           </div>
+
           <!-- <div class="flex-wrap">
             <span></span>
             <button
@@ -986,6 +990,7 @@
           </ul>
         </pw-section>
       </div>
+
       <aside v-if="activeSidebar" class="sticky-inner inner-right">
         <section>
           <input id="history-tab" type="radio" name="side" checked="checked" />
@@ -993,16 +998,19 @@
           <div class="tab">
             <history @useHistory="handleUseHistory" ref="historyComponent" />
           </div>
+
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
             <collections />
           </div>
+
           <input id="environment-tab" type="radio" name="side" />
           <label for="environment-tab">{{ $t("environment") }}</label>
           <div class="tab">
             <environments @use-environment="useSelectedEnvironment($event)" />
           </div>
+
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">

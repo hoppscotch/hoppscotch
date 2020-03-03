@@ -78,7 +78,7 @@ export default {
     requestIndex: Number,
   },
   components: {
-    modal: () => import("../../components/modal"),
+    modal: () => import("../../components/ui/modal"),
   },
   data() {
     return {

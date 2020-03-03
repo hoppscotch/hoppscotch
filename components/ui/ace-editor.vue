@@ -23,8 +23,8 @@ const DEFAULT_THEME = "twilight"
 
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
-import jsonParse from "../functions/jsonParse"
-import debounce from "../functions/utils/debounce"
+import jsonParse from "../../functions/jsonParse"
+import debounce from "../../functions/utils/debounce"
 
 export default {
   props: {

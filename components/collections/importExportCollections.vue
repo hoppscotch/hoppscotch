@@ -88,7 +88,7 @@ export default {
     show: Boolean,
   },
   components: {
-    modal: () => import("../../components/modal"),
+    modal: () => import("../../components/ui/modal"),
   },
   computed: {
     collectionJson() {

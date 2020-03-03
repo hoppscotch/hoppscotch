@@ -113,7 +113,7 @@ import { fb } from "../../functions/fb"
 export default {
   components: {
     collection,
-    "pw-section": () => import("../section"),
+    "pw-section": () => import("../layout/section"),
     addCollection: () => import("./addCollection"),
     addFolder: () => import("./addFolder"),
     editCollection: () => import("./editCollection"),

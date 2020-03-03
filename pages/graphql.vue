@@ -351,7 +351,7 @@ import axios from "axios"
 import * as gql from "graphql"
 import textareaAutoHeight from "../directives/textareaAutoHeight"
 import { commonHeaders } from "../functions/headers"
-import AceEditor from "../components/ace-editor"
+import AceEditor from "../components/ui/ace-editor"
 import QueryEditor from "../components/graphql/queryeditor"
 import { getPlatformSpecialKey } from "~/functions/platformutils"
 import { sendNetworkRequest } from "../functions/network"
@@ -361,10 +361,10 @@ export default {
     textareaAutoHeight,
   },
   components: {
-    "pw-section": () => import("../components/section"),
+    "pw-section": () => import("../components/layout/section"),
     "gql-field": () => import("../components/graphql/field"),
     "gql-type": () => import("../components/graphql/type"),
-    autocomplete: () => import("../components/autocomplete"),
+    autocomplete: () => import("../components/ui/autocomplete"),
     Editor: AceEditor,
     QueryEditor: QueryEditor,
   },

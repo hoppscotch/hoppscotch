@@ -320,15 +320,15 @@ ol {
 </style>
 
 <script>
-import { findStatusGroup } from "../pages/index"
-import { fb } from "../functions/fb"
+import { findStatusGroup } from "../../pages/index"
+import { fb } from "../../functions/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
-    "pw-section": () => import("./section"),
+    "pw-section": () => import("../layout/section"),
     VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {

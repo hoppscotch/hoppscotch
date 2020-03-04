@@ -85,7 +85,7 @@ export default {
   },
   data() {
     return {
-      url: "wss://echo.websocket.org",
+      url: "ws://",
       connectionState: false,
       io: null,
       communication: {

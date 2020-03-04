@@ -112,7 +112,7 @@
       </div>
 
       <input id="tab-three" type="radio" name="options" />
-      <label for="tab-three">{{ $t("socket.io") }}</label>
+      <label for="tab-three">{{ $t("socketio") }}</label>
       <div class="tab">
         <socketio />
       </div>

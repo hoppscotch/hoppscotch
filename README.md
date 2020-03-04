@@ -92,6 +92,8 @@ _Customized themes are synced with local session storage_
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
 
+🌩 **Socket.IO**: Send and Receive data with socketio server. SocketIO is popular websocket solution.
+
 🔮 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
  - Set endpoint and get schemas

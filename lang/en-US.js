@@ -274,4 +274,6 @@ export default {
   paste_a_note: "Paste a note",
   import_from_sync: "Import from Sync",
   notes: "Notes",
+  socketio: "Socket.IO",
+  event_name: "Event Name",
 }

@@ -221,6 +221,8 @@ _Add-ons are developed and maintained under **[Official Postwoman Organization](
 **Sync:**
  - History
  - Collections
+ - Environments
+ - Notes
 
 ✅ **Post-Request Tests β**: Write tests associated with a request that are executed after the request response.
 
@@ -228,6 +230,17 @@ _Add-ons are developed and maintained under **[Official Postwoman Organization](
  - Check the status code as an integer
  - Filter response headers
  - Parse the response data
+
+📝 **Notes** : Instantly jot down notes, tasks or whatever you feel like as they come to your mind.
+
+_Notes are only available for signed-in users_
+
+🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
+
+**Use-cases:**
+ - By storing a value in a variable, you can reference it throughout your request section
+ - If you need to update the value, you only have to change it in one place
+ - Using variables increases your ability to work efficiently and minimizes the likelihood of error
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 

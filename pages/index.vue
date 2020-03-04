@@ -2132,16 +2132,6 @@ export default {
             }
           }
         })()
-        // tests
-        const syntheticResponse = {
-          status: this.response.status,
-          body: this.response.body,
-          headers: this.response.headers,
-        }
-        const { testResults } = runTestScriptWithVariables(this.testScript, {
-          response: syntheticResponse,
-        })
-        this.testReports = testResults
       } catch (error) {
         console.error(error)
         if (error.response) {
@@ -2187,6 +2177,16 @@ export default {
           }
         }
       }
+      // tests
+      const syntheticResponse = {
+        status: this.response.status,
+        body: this.response.body,
+        headers: this.response.headers,
+      }
+      const { testResults } = runTestScriptWithVariables(this.testScript, {
+        response: syntheticResponse,
+      })
+      this.testReports = testResults
     },
     getQueryStringFromPath() {
       let queryString

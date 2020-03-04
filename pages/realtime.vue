@@ -36,19 +36,7 @@
         <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
           <ul>
             <li>
-              <label for="log">{{ $t("log") }}</label>
-              <div id="log" name="log" class="log">
-                <span v-if="communication.log">
-                  <span
-                    v-for="(logEntry, index) in communication.log"
-                    :style="{ color: logEntry.color }"
-                    :key="index"
-                    >@ {{ logEntry.ts }}{{ getSourcePrefix(logEntry.source)
-                    }}{{ logEntry.payload }}</span
-                  >
-                </span>
-                <span v-else>{{ $t("waiting_for_connection") }}</span>
-              </div>
+              <realtime-log :title="$t('log')" :log="communication.log" />
             </li>
           </ul>
           <ul>
@@ -116,59 +104,31 @@
         <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
           <ul>
             <li>
-              <label for="log">{{ $t("events") }}</label>
-              <div id="log" name="log" class="log">
-                <span v-if="events.log">
-                  <span
-                    v-for="(logEntry, index) in events.log"
-                    :style="{ color: logEntry.color }"
-                    :key="index"
-                    >@ {{ logEntry.ts }}{{ getSourcePrefix(logEntry.source)
-                    }}{{ logEntry.payload }}</span
-                  >
-                </span>
-                <span v-else>{{ $t("waiting_for_connection") }}</span>
-              </div>
+              <realtime-log :title="$t('events')" :log="events.log" />
               <div id="result"></div>
             </li>
           </ul>
         </pw-section>
       </div>
+
+      <input id="tab-three" type="radio" name="options" />
+      <label for="tab-three">{{ $t("socket.io") }}</label>
+      <div class="tab">
+        <socketio />
+      </div>
     </section>
   </div>
 </template>
 
-<style scoped lang="scss">
-div.log {
-  margin: 4px;
-  padding: 8px 16px;
-  width: calc(100% - 8px);
-  border-radius: 8px;
-  background-color: var(--bg-dark-color);
-  color: var(--fg-color);
-  height: 256px;
-  overflow: auto;
-
-  &,
-  span {
-    font-size: 16px;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 400;
-  }
-
-  span {
-    display: block;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-all;
-  }
-}
-</style>
-
 <script>
+import { wsValid, sseValid } from "~/functions/utils/valid"
+import realtimeLog from "~/components/realtime/log"
+
 export default {
   components: {
     "pw-section": () => import("../components/layout/section"),
+    socketio: () => import("../components/realtime/socketio"),
+    realtimeLog,
   },
   data() {
     return {
@@ -190,24 +150,10 @@ export default {
   },
   computed: {
     urlValid() {
-      const protocol = "^(wss?:\\/\\/)?"
-      const validIP = new RegExp(
-        `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      )
-      const validHostname = new RegExp(
-        `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      )
-      return validIP.test(this.url) || validHostname.test(this.url)
+      return wsValid(this.url)
     },
     serverValid() {
-      const protocol = "^(https?:\\/\\/)?"
-      const validIP = new RegExp(
-        `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      )
-      const validHostname = new RegExp(
-        `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      )
-      return validIP.test(this.server) || validHostname.test(this.server)
+      return sseValid(this.server)
     },
   },
   methods: {
@@ -304,18 +250,6 @@ export default {
       const el = target.parentNode.className
       document.getElementsByClassName(el)[0].classList.toggle("hidden")
     },
-    getSourcePrefix(source) {
-      const sourceEmojis = {
-        // Source used for info messages.
-        info: "\tℹ️ [INFO]:\t",
-        // Source used for client to server messages.
-        client: "\t👽 [SENT]:\t",
-        // Source used for server to client messages.
-        server: "\t📥 [RECEIVED]:\t",
-      }
-      if (Object.keys(sourceEmojis).includes(source)) return sourceEmojis[source]
-      return ""
-    },
     toggleSSEConnection() {
       // If it is connecting:
       if (!this.connectionSSEState) return this.start()
@@ -407,12 +341,6 @@ export default {
       this.sse.onclose()
       this.sse.close()
     },
-  },
-  updated: function() {
-    this.$nextTick(function() {
-      const divLog = document.getElementById("log")
-      divLog.scrollBy(0, divLog.scrollHeight + 100)
-    })
   },
 }
 </script>

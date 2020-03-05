@@ -184,6 +184,7 @@ export default {
   waiting_receive_schema: "(waiting to receive schema)",
   gql_prettify_invalid_query:
     "Couldn't prettify an invalid query, solve query syntax errors and try again",
+  prettify_query: "Prettify Query",
   cancel: "Cancel",
   save: "Save",
   dismiss: "Dismiss",

@@ -29,6 +29,7 @@
           <Editor
             v-model="collectionJSON"
             :lang="'json'"
+            :lint="false"
             :options="{
               maxLines: '16',
               minLines: '8',

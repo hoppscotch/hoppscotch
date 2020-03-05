@@ -57,7 +57,7 @@ export default {
       {
         name: "keywords",
         content:
-          "postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql",
+          "postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
       },
       {
         name: "X-UA-Compatible",
@@ -353,14 +353,14 @@ export default {
         code: "ja",
         name: "日本語",
         iso: "ja-JP",
-        file: "ja-JP.js"
+        file: "ja-JP.js",
       },
       {
         code: "ko",
         name: "한국어",
         iso: "ko-KR",
-        file: "ko-KR.js"
-      }
+        file: "ko-KR.js",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

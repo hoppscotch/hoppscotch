@@ -654,6 +654,7 @@ export default {
   },
 
   beforeMount() {
+    this.settings.THEME_CLASS = document.documentElement.className
     this.settings.THEME_COLOR = this.getActiveColor()
   },
 

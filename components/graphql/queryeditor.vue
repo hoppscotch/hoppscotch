@@ -151,8 +151,8 @@ export default {
       name: "prettifyGQLQuery",
       exec: () => this.prettifyQuery(),
       bindKey: {
-        mac: "cmd-g",
-        win: "ctrl-g",
+        mac: "cmd-p",
+        win: "ctrl-p",
       },
     })
 
@@ -168,7 +168,12 @@ export default {
 
   methods: {
     prettifyQuery() {
-      this.value = gql.print(gql.parse(this.editor.getValue()))
+      try {
+        this.value = gql.print(gql.parse(this.editor.getValue()))
+      } catch (e) {
+        // Catching the exception to avoid the event to be passed to the browser
+        // Prevents the print dialog from appearing
+      }
     },
 
     defineTheme() {

@@ -8,8 +8,8 @@
           </div>
           <div class="modal-body">
             <slot name="body"></slot>
-            <div class="fade top"></div>
-            <div class="fade bottom"></div>
+            <!-- <div class="fade top"></div>
+            <div class="fade bottom"></div> -->
           </div>
           <div class="modal-footer">
             <slot name="footer"></slot>

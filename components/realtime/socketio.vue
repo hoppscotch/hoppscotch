@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { wsValid } from "~/functions/utils/valid"
+import { socketioValid } from "~/functions/utils/valid"
 import io from "socket.io-client"
 import realtimeLog from "./log"
 
@@ -97,7 +97,7 @@ export default {
   },
   computed: {
     urlValid() {
-      return wsValid(this.url)
+      return socketioValid(this.url)
     },
   },
   methods: {

@@ -147,6 +147,15 @@ export default {
       },
     })
 
+    editor.commands.addCommand({
+      name: "prettifyGQLQuery",
+      exec: () => this.prettifyQuery(),
+      bindKey: {
+        mac: "cmd-g",
+        win: "ctrl-g",
+      },
+    })
+
     editor.on("change", () => {
       const content = editor.getValue()
       this.$emit("input", content)
@@ -158,6 +167,10 @@ export default {
   },
 
   methods: {
+    prettifyQuery() {
+      this.value = gql.print(gql.parse(this.editor.getValue()))
+    },
+
     defineTheme() {
       if (this.theme) {
         return this.theme

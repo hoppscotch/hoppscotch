@@ -171,8 +171,9 @@ export default {
       try {
         this.value = gql.print(gql.parse(this.editor.getValue()))
       } catch (e) {
-        // Catching the exception to avoid the event to be passed to the browser
-        // Prevents the print dialog from appearing
+        this.$toast.error(`${this.$t("gql_prettify_invalid_query")}`, {
+          icon: "error",
+        })
       }
     },
 

@@ -8,6 +8,8 @@
           </div>
           <div class="modal-body">
             <slot name="body"></slot>
+            <div class="fade top"></div>
+            <div class="fade bottom"></div>
           </div>
           <div class="modal-footer">
             <slot name="footer"></slot>
@@ -40,6 +42,7 @@
 }
 
 .modal-container {
+  position: relative;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -75,5 +78,24 @@
 .modal-leave-active .modal-container {
   transform: scale(0.8);
   transition: all 0.2s ease-in-out;
+}
+
+.fade {
+  position: absolute;
+  left: 16px;
+  right: 20px;
+  display: block;
+  height: 32px;
+  transition: all 0.2s;
+
+  &.top {
+    top: 68px;
+    background: linear-gradient(to bottom, var(--bg-color), transparent);
+  }
+
+  &.bottom {
+    bottom: 16px;
+    background: linear-gradient(to top, var(--bg-color), transparent);
+  }
 }
 </style>

@@ -199,6 +199,7 @@ export default {
    */
   loading: {
     color: "var(--ac-color)",
+    continuous: true,
   },
   /*
    ** Customize the loading indicator

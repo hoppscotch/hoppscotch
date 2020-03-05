@@ -35,46 +35,48 @@
         >
           <i class="material-icons">offline_bolt</i>
         </button>
-        <login v-if="fb.currentUser === null" />
-        <span v-else>
-          <v-popover>
-            <button
-              class="icon"
-              v-tooltip="
-                (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
-                  '<br>' +
-                  (fb.currentUser.email || '<label><i>Email not found</i></label>')
-              "
-              aria-label="Account"
-            >
-              <img
-                v-if="fb.currentUser.photoURL"
-                :src="fb.currentUser.photoURL"
-                class="material-icons"
-                alt="Profile image"
-              />
-              <i v-else class="material-icons">account_circle</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <nuxt-link :to="localePath('settings')" v-close-popover>
-                  <button class="icon">
-                    <i class="material-icons">settings</i>
-                    <span>
-                      {{ $t("settings") }}
-                    </span>
-                  </button>
-                </nuxt-link>
-              </div>
-              <div>
-                <button class="icon" @click="logout" v-close-popover>
-                  <i class="material-icons">exit_to_app</i>
-                  <span>{{ $t("logout") }}</span>
+        <v-popover v-if="fb.currentUser === null">
+          <button class="icon" v-tooltip="$t('login_with')">
+            <i class="material-icons">vpn_key</i>
+          </button>
+          <template slot="popover">
+            <login />
+          </template>
+        </v-popover>
+        <v-popover v-else>
+          <button
+            class="icon"
+            v-tooltip="
+              (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
+                '<br>' +
+                (fb.currentUser.email || '<label><i>Email not found</i></label>')
+            "
+            aria-label="Account"
+          >
+            <img
+              v-if="fb.currentUser.photoURL"
+              :src="fb.currentUser.photoURL"
+              class="material-icons"
+              alt="Profile image"
+            />
+            <i v-else class="material-icons">account_circle</i>
+          </button>
+          <template slot="popover">
+            <div>
+              <nuxt-link :to="localePath('settings')" v-close-popover>
+                <button class="icon">
+                  <i class="material-icons">settings</i>
+                  <span>
+                    {{ $t("settings") }}
+                  </span>
                 </button>
-              </div>
-            </template>
-          </v-popover>
-        </span>
+              </nuxt-link>
+            </div>
+            <div>
+              <logout />
+            </div>
+          </template>
+        </v-popover>
         <v-popover>
           <button class="icon" v-tooltip="$t('more')">
             <i class="material-icons">more_vert</i>
@@ -267,6 +269,7 @@ export default {
   components: {
     modal: () => import("../ui/modal"),
     login: () => import("../firebase/login"),
+    logout: () => import("../firebase/logout"),
     contributors: () => import("./contributors"),
   },
 
@@ -355,20 +358,6 @@ export default {
 
   methods: {
     getSpecialKey: getPlatformSpecialKey,
-    logout() {
-      fb.currentUser = null
-      firebase
-        .auth()
-        .signOut()
-        .catch(err => {
-          this.$toast.show(err.message || err, {
-            icon: "error",
-          })
-        })
-      this.$toast.info(this.$t("logged_out"), {
-        icon: "vpn_key",
-      })
-    },
     nativeShare() {
       if (navigator.share) {
         navigator

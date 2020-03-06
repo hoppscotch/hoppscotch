@@ -147,6 +147,15 @@ export default {
       },
     })
 
+    editor.commands.addCommand({
+      name: "prettifyGQLQuery",
+      exec: () => this.prettifyQuery(),
+      bindKey: {
+        mac: "cmd-p",
+        win: "ctrl-p",
+      },
+    })
+
     editor.on("change", () => {
       const content = editor.getValue()
       this.$emit("input", content)
@@ -158,6 +167,16 @@ export default {
   },
 
   methods: {
+    prettifyQuery() {
+      try {
+        this.value = gql.print(gql.parse(this.editor.getValue()))
+      } catch (e) {
+        this.$toast.error(`${this.$t("gql_prettify_invalid_query")}`, {
+          icon: "error",
+        })
+      }
+    },
+
     defineTheme() {
       if (this.theme) {
         return this.theme

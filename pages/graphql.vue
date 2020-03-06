@@ -178,6 +178,13 @@
               >
                 <i class="material-icons">file_copy</i>
               </button>
+              <button
+                class="icon"
+                @click="doPrettifyQuery"
+                v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
+              >
+                <i class="material-icons">photo_filter</i>
+              </button>
             </div>
           </div>
           <QueryEditor
@@ -452,6 +459,9 @@ export default {
   },
   methods: {
     getSpecialKey: getPlatformSpecialKey,
+    doPrettifyQuery() {
+      this.$refs.queryEditor.prettifyQuery()
+    },
     handleJumpToType(type) {
       const typesTab = document.getElementById("gqltypes-tab")
       typesTab.checked = true

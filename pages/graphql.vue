@@ -427,8 +427,7 @@ export default {
       this.$refs.queryEditor.prettifyQuery()
     },
     handleJumpToType(type) {
-      const typesTab = document.getElementById("gqltypes-tab")
-      typesTab.checked = true
+      // TODO: switch to gqltypes tab
 
       const rootTypeName = this.resolveRootType(type).name
 

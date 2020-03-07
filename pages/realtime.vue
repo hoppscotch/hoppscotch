@@ -1,121 +1,123 @@
 <template>
   <div class="page">
     <section id="options">
-      <input id="tab-one" type="radio" name="options" checked="checked" />
-      <label for="tab-one">{{ $t("websocket") }}</label>
-      <div class="tab">
-        <pw-section class="blue" :label="$t('request')" ref="request">
-          <ul>
-            <li>
-              <label for="url">{{ $t("url") }}</label>
-              <input
-                id="url"
-                type="url"
-                spellcheck="false"
-                :class="{ error: !urlValid }"
-                v-model="url"
-                @keyup.enter="urlValid ? toggleConnection() : null"
-              />
-            </li>
-            <div>
+      <tabs>
+        <tab :name="$t('websocket')" :selected="true">
+          <pw-section class="blue" :label="$t('request')" ref="request">
+            <ul>
               <li>
-                <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-                <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
-                  {{ !connectionState ? $t("connect") : $t("disconnect") }}
-                  <span>
-                    <i class="material-icons">
-                      {{ !connectionState ? "sync" : "sync_disabled" }}
-                    </i>
-                  </span>
-                </button>
+                <label for="url">{{ $t("url") }}</label>
+                <input
+                  id="url"
+                  type="url"
+                  spellcheck="false"
+                  :class="{ error: !urlValid }"
+                  v-model="url"
+                  @keyup.enter="urlValid ? toggleConnection() : null"
+                />
               </li>
-            </div>
-          </ul>
-        </pw-section>
+              <div>
+                <li>
+                  <label for="connect" class="hide-on-small-screen">&nbsp;</label>
+                  <button
+                    :disabled="!urlValid"
+                    id="connect"
+                    name="connect"
+                    @click="toggleConnection"
+                  >
+                    {{ !connectionState ? $t("connect") : $t("disconnect") }}
+                    <span>
+                      <i class="material-icons">
+                        {{ !connectionState ? "sync" : "sync_disabled" }}
+                      </i>
+                    </span>
+                  </button>
+                </li>
+              </div>
+            </ul>
+          </pw-section>
 
-        <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
-          <ul>
-            <li>
-              <realtime-log :title="$t('log')" :log="communication.log" />
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="message">{{ $t("message") }}</label>
-              <input
-                id="message"
-                name="message"
-                type="text"
-                v-model="communication.input"
-                :readonly="!connectionState"
-                @keyup.enter="connectionState ? sendMessage() : null"
-              />
-            </li>
-            <div>
+          <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
+            <ul>
               <li>
-                <label for="send" class="hide-on-small-screen">&nbsp;</label>
-                <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
-                  {{ $t("send") }}
-                  <span>
-                    <i class="material-icons">send</i>
-                  </span>
-                </button>
+                <realtime-log :title="$t('log')" :log="communication.log" />
               </li>
-            </div>
-          </ul>
-        </pw-section>
-      </div>
-      <input id="tab-two" type="radio" name="options" />
-      <label for="tab-two">{{ $t("sse") }}</label>
-      <div class="tab">
-        <pw-section class="blue" :label="$t('request')" ref="request">
-          <ul>
-            <li>
-              <label for="server">{{ $t("server") }}</label>
-              <input
-                id="server"
-                type="url"
-                :class="{ error: !serverValid }"
-                v-model="server"
-                @keyup.enter="serverValid ? toggleSSEConnection() : null"
-              />
-            </li>
-            <div>
+            </ul>
+            <ul>
               <li>
-                <label for="start" class="hide-on-small-screen">&nbsp;</label>
-                <button
-                  :disabled="!serverValid"
-                  id="start"
-                  name="start"
-                  @click="toggleSSEConnection"
-                >
-                  {{ !connectionSSEState ? $t("start") : $t("stop") }}
-                  <span>
-                    <i class="material-icons">
-                      {{ !connectionSSEState ? "sync" : "sync_disabled" }}
-                    </i>
-                  </span>
-                </button>
+                <label for="message">{{ $t("message") }}</label>
+                <input
+                  id="message"
+                  name="message"
+                  type="text"
+                  v-model="communication.input"
+                  :readonly="!connectionState"
+                  @keyup.enter="connectionState ? sendMessage() : null"
+                />
               </li>
-            </div>
-          </ul>
-        </pw-section>
+              <div>
+                <li>
+                  <label for="send" class="hide-on-small-screen">&nbsp;</label>
+                  <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+                    {{ $t("send") }}
+                    <span>
+                      <i class="material-icons">send</i>
+                    </span>
+                  </button>
+                </li>
+              </div>
+            </ul>
+          </pw-section>
+        </tab>
 
-        <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
-          <ul>
-            <li>
-              <realtime-log :title="$t('events')" :log="events.log" />
-              <div id="result"></div>
-            </li>
-          </ul>
-        </pw-section>
-      </div>
+        <tab :name="$t('sse')">
+          <pw-section class="blue" :label="$t('request')" ref="request">
+            <ul>
+              <li>
+                <label for="server">{{ $t("server") }}</label>
+                <input
+                  id="server"
+                  type="url"
+                  :class="{ error: !serverValid }"
+                  v-model="server"
+                  @keyup.enter="serverValid ? toggleSSEConnection() : null"
+                />
+              </li>
+              <div>
+                <li>
+                  <label for="start" class="hide-on-small-screen">&nbsp;</label>
+                  <button
+                    :disabled="!serverValid"
+                    id="start"
+                    name="start"
+                    @click="toggleSSEConnection"
+                  >
+                    {{ !connectionSSEState ? $t("start") : $t("stop") }}
+                    <span>
+                      <i class="material-icons">
+                        {{ !connectionSSEState ? "sync" : "sync_disabled" }}
+                      </i>
+                    </span>
+                  </button>
+                </li>
+              </div>
+            </ul>
+          </pw-section>
 
-      <input id="tab-three" type="radio" name="options" />
-      <label for="tab-three">{{ $t("socketio") }}</label>
-      <div class="tab">
-        <socketio />
-      </div>
+          <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
+            <ul>
+              <li>
+                <realtime-log :title="$t('events')" :log="events.log" />
+                <div id="result"></div>
+              </li>
+            </ul>
+          </pw-section>
+        </tab>
+
+        <tab :name="$t('socketio')">
+          <socketio />
+        </tab>
+      </tabs>
     </section>
   </div>
 </template>
@@ -128,6 +130,8 @@ export default {
   components: {
     "pw-section": () => import("../components/layout/section"),
     socketio: () => import("../components/realtime/socketio"),
+    tabs: () => import("../components/ui/tabs"),
+    tab: () => import("../components/ui/tab"),
     realtimeLog,
   },
   data() {

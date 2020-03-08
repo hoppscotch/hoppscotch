@@ -551,7 +551,6 @@ fieldset.yellow legend {
 
 input[type="file"],
 input[type="radio"],
-.tab,
 .hide-on-large-screen,
 #installPWA,
 .hidden {
@@ -825,33 +824,6 @@ section {
   display: flex;
   flex-wrap: wrap;
   border-radius: 16px;
-}
-
-.tab {
-  width: 100%;
-  order: 1;
-}
-
-input[type="radio"] + label {
-  padding: 8px 16px;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover,
-  &:active,
-  &:focus {
-    border-color: var(--brd-color);
-  }
-}
-
-input[type="radio"]:checked + label {
-  border-color: var(--fg-color);
-  color: var(--fg-color);
-}
-
-input[type="radio"]:checked + label + .tab {
-  display: block;
 }
 
 .toasted-container .toasted {

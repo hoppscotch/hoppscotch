@@ -262,9 +262,9 @@
 
 <style scoped lang="scss">
 .collection,
+.doc-desc,
 .folder,
-.request,
-.doc-desc {
+.request {
   display: flex;
   flex-flow: column;
   justify-content: center;

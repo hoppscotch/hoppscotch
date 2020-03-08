@@ -261,69 +261,33 @@
       <aside class="sticky-inner inner-right">
         <pw-section class="purple" :label="$t('docs')" ref="docs">
           <section>
-            <input
-              v-if="queryFields.length > 0"
-              id="queries-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="queryFields.length > 0" for="queries-tab">
-              {{ $t("queries") }}
-            </label>
-            <div v-if="queryFields.length > 0" class="tab">
-              <div v-for="field in queryFields" :key="field.name">
-                <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-              </div>
-            </div>
+            <tabs ref="gqlTabs">
+              <div class="gqlTabs">
+                <tab v-if="queryFields.length > 0" :name="$t('queries')" :selected="true">
+                  <div v-for="field in queryFields" :key="field.name">
+                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-            <input
-              v-if="mutationFields.length > 0"
-              id="mutations-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="mutationFields.length > 0" for="mutations-tab">
-              {{ $t("mutations") }}
-            </label>
-            <div v-if="mutationFields.length > 0" class="tab">
-              <div v-for="field in mutationFields" :key="field.name">
-                <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-              </div>
-            </div>
+                <tab v-if="mutationFields.length > 0" :name="$t('mutations')">
+                  <div v-for="field in mutationFields" :key="field.name">
+                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-            <input
-              v-if="subscriptionFields.length > 0"
-              id="subscriptions-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">
-              {{ $t("subscriptions") }}
-            </label>
-            <div v-if="subscriptionFields.length > 0" class="tab">
-              <div v-for="field in subscriptionFields" :key="field.name">
-                <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-              </div>
-            </div>
+                <tab v-if="subscriptionFields.length > 0" :name="$t('subscriptions')">
+                  <div v-for="field in subscriptionFields" :key="field.name">
+                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-            <input
-              v-if="gqlTypes.length > 0"
-              id="gqltypes-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">
-              {{ $t("types") }}
-            </label>
-            <div v-if="gqlTypes.length > 0" class="tab">
-              <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
-                <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                <tab v-if="gqlTypes.length > 0" :name="$t('types')" ref="typesTab">
+                  <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
+                    <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
               </div>
-            </div>
+            </tabs>
           </section>
 
           <p
@@ -344,7 +308,7 @@
 </template>
 
 <style scoped lang="scss">
-.tab {
+.gqlTabs {
   max-height: calc(100vh - 186px);
   overflow: auto;
 }
@@ -374,6 +338,8 @@ export default {
     autocomplete: () => import("../components/ui/autocomplete"),
     Editor: AceEditor,
     QueryEditor: QueryEditor,
+    tabs: () => import("../components/ui/tabs"),
+    tab: () => import("../components/ui/tab"),
   },
   data() {
     return {
@@ -463,8 +429,7 @@ export default {
       this.$refs.queryEditor.prettifyQuery()
     },
     handleJumpToType(type) {
-      const typesTab = document.getElementById("gqltypes-tab")
-      typesTab.checked = true
+      this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
 
       const rootTypeName = this.resolveRootType(type).name
 

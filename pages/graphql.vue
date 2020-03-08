@@ -261,30 +261,32 @@
       <aside class="sticky-inner inner-right">
         <pw-section class="purple" :label="$t('docs')" ref="docs">
           <section>
-            <tabs>
-              <tab v-if="queryFields.length > 0" :name="$t('queries')" :selected="true">
-                <div v-for="field in queryFields" :key="field.name">
-                  <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                </div>
-              </tab>
+            <tabs ref="gqlTabs">
+              <div class="gqlTabs">
+                <tab v-if="queryFields.length > 0" :name="$t('queries')" :selected="true">
+                  <div v-for="field in queryFields" :key="field.name">
+                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-              <tab v-if="mutationFields.length > 0" :name="$t('mutations')">
-                <div v-for="field in mutationFields" :key="field.name">
-                  <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                </div>
-              </tab>
+                <tab v-if="mutationFields.length > 0" :name="$t('mutations')">
+                  <div v-for="field in mutationFields" :key="field.name">
+                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-              <tab v-if="subscriptionFields.length > 0" :name="$t('subscriptions')">
-                <div v-for="field in subscriptionFields" :key="field.name">
-                  <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                </div>
-              </tab>
+                <tab v-if="subscriptionFields.length > 0" :name="$t('subscriptions')">
+                  <div v-for="field in subscriptionFields" :key="field.name">
+                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-              <tab v-if="gqlTypes.length > 0" :name="$t('types')">
-                <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
-                  <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
-                </div>
-              </tab>
+                <tab v-if="gqlTypes.length > 0" :name="$t('types')" ref="typesTab">
+                  <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
+                    <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
+              </div>
             </tabs>
           </section>
 
@@ -306,7 +308,7 @@
 </template>
 
 <style scoped lang="scss">
-.tab {
+.gqlTabs {
   max-height: calc(100vh - 186px);
   overflow: auto;
 }
@@ -427,7 +429,7 @@ export default {
       this.$refs.queryEditor.prettifyQuery()
     },
     handleJumpToType(type) {
-      // TODO: switch to gqltypes tab
+      this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
 
       const rootTypeName = this.resolveRootType(type).name
 

@@ -22,10 +22,12 @@ $responsiveWidth: 768px;
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
+  border-radius: 4px;
   background-color: var(--bg-dark-color);
 }
 
 ::-webkit-scrollbar-thumb {
+  border-radius: 4px;
   background-color: var(--fg-light-color);
 
   &:hover {

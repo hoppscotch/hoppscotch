@@ -3,7 +3,12 @@
     <div class="tabs">
       <ul>
         <li v-for="tab in tabs" :class="{ 'is-active': tab.isActive }">
-          <a :href="tab.href" @click="selectTab(tab)">{{ tab.name }}</a>
+          <a :href="tab.href" @click="selectTab(tab)">
+            <i v-if="tab.icon" class="material-icons">
+              {{ tab.icon }}
+            </i>
+            <span v-if="tab.label">{{ tab.label }}</span>
+          </a>
         </li>
       </ul>
     </div>
@@ -35,10 +40,16 @@
 
       a {
         display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 8px 16px;
         color: var(--fg-light-color);
         border-radius: 4px;
         cursor: pointer;
+
+        .material-icons {
+          margin-right: 8px;
+        }
 
         &:hover {
           color: var(--fg-color);
@@ -74,9 +85,9 @@ export default {
   },
 
   methods: {
-    selectTab({ name }) {
+    selectTab({ id }) {
       this.tabs.forEach(tab => {
-        tab.isActive = tab.name == name
+        tab.isActive = tab.id == id
       })
     },
   },

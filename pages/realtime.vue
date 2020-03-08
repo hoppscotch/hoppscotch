@@ -2,7 +2,7 @@
   <div class="page">
     <section id="options">
       <tabs>
-        <tab :name="$t('websocket')" :selected="true">
+        <tab :id="'websocket'" :label="$t('websocket')" :selected="true">
           <pw-section class="blue" :label="$t('request')" ref="request">
             <ul>
               <li>
@@ -70,7 +70,7 @@
           </pw-section>
         </tab>
 
-        <tab :name="$t('sse')">
+        <tab :id="'sse'" :label="$t('sse')">
           <pw-section class="blue" :label="$t('request')" ref="request">
             <ul>
               <li>
@@ -114,7 +114,7 @@
           </pw-section>
         </tab>
 
-        <tab :name="$t('socketio')">
+        <tab :id="'socketio'" :label="$t('socketio')">
           <socketio />
         </tab>
       </tabs>

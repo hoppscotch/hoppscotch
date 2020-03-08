@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="green" icon="history" :label="$t('environment')" ref="environment">
+  <pw-section class="green" icon="history" :label="$t('environments')" ref="environments">
     <addEnvironment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <editEnvironment
       :show="showModalEdit"

@@ -9,9 +9,9 @@
 <script>
 export default {
   props: {
-    name: {
-      required: true,
-    },
+    label: { type: String },
+    icon: { type: String },
+    id: { required: true },
     selected: {
       default: false,
     },

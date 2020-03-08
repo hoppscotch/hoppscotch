@@ -263,25 +263,34 @@
           <section>
             <tabs ref="gqlTabs">
               <div class="gqlTabs">
-                <tab v-if="queryFields.length > 0" :name="$t('queries')" :selected="true">
+                <tab
+                  v-if="queryFields.length > 0"
+                  :id="'queries'"
+                  :label="$t('queries')"
+                  :selected="true"
+                >
                   <div v-for="field in queryFields" :key="field.name">
                     <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
-                <tab v-if="mutationFields.length > 0" :name="$t('mutations')">
+                <tab v-if="mutationFields.length > 0" :id="'mutations'" :label="$t('mutations')">
                   <div v-for="field in mutationFields" :key="field.name">
                     <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
-                <tab v-if="subscriptionFields.length > 0" :name="$t('subscriptions')">
+                <tab
+                  v-if="subscriptionFields.length > 0"
+                  :id="'subscriptions'"
+                  :label="$t('subscriptions')"
+                >
                   <div v-for="field in subscriptionFields" :key="field.name">
                     <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
-                <tab v-if="gqlTypes.length > 0" :name="$t('types')" ref="typesTab">
+                <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
                   <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
                     <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
                   </div>

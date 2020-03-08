@@ -512,7 +512,7 @@
 
         <section id="options">
           <tabs>
-            <tab :name="$t('authentication')" :selected="true">
+            <tab :id="'authentication'" :label="$t('authentication')" :selected="true">
               <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
@@ -716,7 +716,7 @@
               </pw-section>
             </tab>
 
-            <tab :name="$t('headers')">
+            <tab :id="'headers'" :label="$t('headers')">
               <pw-section class="orange" label="Headers" ref="headers">
                 <ul>
                   <li>
@@ -797,7 +797,7 @@
               </pw-section>
             </tab>
 
-            <tab :name="$t('parameters')">
+            <tab :id="'params'" :label="$t('parameters')">
               <pw-section class="pink" label="Parameters" ref="parameters">
                 <ul>
                   <li>
@@ -990,19 +990,19 @@
       <aside v-if="activeSidebar" class="sticky-inner inner-right">
         <section>
           <tabs>
-            <tab :name="$t('history')" :selected="true">
+            <tab :id="'history'" :icon="'watch_later'" :label="$t('history')" :selected="true">
               <history @useHistory="handleUseHistory" ref="historyComponent" />
             </tab>
 
-            <tab :name="$t('collections')">
+            <tab :id="'collections'" :icon="'folder_special'" :label="$t('collections')">
               <collections />
             </tab>
 
-            <tab :name="$t('environment')">
+            <tab :id="'env'" :icon="'style'" :label="$t('environments')">
               <environments @use-environment="useSelectedEnvironment($event)" />
             </tab>
 
-            <tab :name="$t('notes')">
+            <tab :id="'notes'" :icon="'note'" :label="$t('notes')">
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />

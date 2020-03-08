@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">Import / Export Environment</h3>
+            <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>

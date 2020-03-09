@@ -3,8 +3,8 @@
     v-if="fb.currentFeeds.length !== 0"
     class="virtual-list"
     :class="{ filled: fb.currentFeeds.length }"
-    :size="90"
-    :remain="Math.min(5, fb.currentFeeds.length)"
+    :size="180"
+    :remain="Math.min(6, fb.currentFeeds.length)"
   >
     <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
       <div class="show-on-large-screen">
@@ -33,7 +33,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 288px);
+  max-height: calc(100vh - 294px);
 }
 
 ul,

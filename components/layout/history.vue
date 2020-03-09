@@ -262,7 +262,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 284px);
+  max-height: calc(100vh - 294px);
 
   [readonly] {
     cursor: default;

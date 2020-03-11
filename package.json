@@ -49,7 +49,7 @@
     "vuefire": "^2.2.1",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^2.2.0",
-    "yargs-parser": "^18.0.0"
+    "yargs-parser": "^18.1.0"
   },
   "devDependencies": {
     "cypress": "^4.1.0",

@@ -94,6 +94,8 @@ _Customized themes are synced with local session storage_
 
 🌩 **Socket.IO**: Send and Receive data with socketio server. SocketIO is popular websocket solution.
 
+🦟 **MQTT**: Subscribe and Publish to topics of a MQTT Broker.
+
 🔮 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
  - Set endpoint and get schemas

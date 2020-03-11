@@ -276,4 +276,10 @@ export default {
   notes: "Notes",
   socketio: "Socket.IO",
   event_name: "Event Name",
+  mqtt: "MQTT",
+  mqtt_topic: "Topic",
+  mqtt_topic_title: "Publish / Subscribe topic",
+  mqtt_publish: "Publish",
+  mqtt_subscribe: "Subscribe",
+  mqtt_unsubscribe: "Unsubscribe",
 }

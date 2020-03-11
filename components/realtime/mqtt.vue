@@ -19,10 +19,11 @@
         </div>
       </ul>
     </pw-section>
+
     <pw-section class="blue" :label="$t('communication')">
       <ul>
         <li>
-          <realtimeLog :log="this.log" />
+          <realtime-log :title="$t('log')" :log="this.log" />
         </li>
       </ul>
       <ul>
@@ -66,19 +67,19 @@
     </pw-section>
   </div>
 </template>
+
 <script>
-import realtimeLog from "./log"
 import Paho from "paho-mqtt"
 import { wsValid } from "~/functions/utils/valid"
+
 export default {
-  name: "mqtt",
   components: {
     "pw-section": () => import("../../components/layout/section"),
-    realtimeLog,
+    realtimeLog: () => import("./log"),
   },
   data: function() {
     return {
-      url: "wss://",
+      url: "wss://test.mosquitto.org:8081",
       client: null,
       pub_topic: "",
       sub_topic: "",

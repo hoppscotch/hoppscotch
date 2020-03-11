@@ -27,9 +27,9 @@
                   >
                     {{ !connectionState ? $t("connect") : $t("disconnect") }}
                     <span>
-                      <i class="material-icons">
-                        {{ !connectionState ? "sync" : "sync_disabled" }}
-                      </i>
+                      <i class="material-icons">{{
+                        !connectionState ? "sync" : "sync_disabled"
+                      }}</i>
                     </span>
                   </button>
                 </li>
@@ -94,9 +94,9 @@
                   >
                     {{ !connectionSSEState ? $t("start") : $t("stop") }}
                     <span>
-                      <i class="material-icons">
-                        {{ !connectionSSEState ? "sync" : "sync_disabled" }}
-                      </i>
+                      <i class="material-icons">{{
+                        !connectionSSEState ? "sync" : "sync_disabled"
+                      }}</i>
                     </span>
                   </button>
                 </li>
@@ -117,6 +117,9 @@
         <tab :id="'socketio'" :label="$t('socketio')">
           <socketio />
         </tab>
+        <tab :id="'mqtt'" :label="$t('mqtt')">
+          <mqtt />
+        </tab>
       </tabs>
     </section>
   </div>
@@ -132,6 +135,7 @@ export default {
     socketio: () => import("../components/realtime/socketio"),
     tabs: () => import("../components/ui/tabs"),
     tab: () => import("../components/ui/tab"),
+    mqtt: () => import("../components/realtime/mqtt"),
     realtimeLog,
   },
   data() {

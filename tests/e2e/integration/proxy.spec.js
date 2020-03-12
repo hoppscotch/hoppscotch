@@ -13,13 +13,13 @@ describe("Proxy disabled - local request", () => {
 
 describe("Proxy enabled - external request", () => {
   it("Enable the proxy and make a request to the real cat api", () => {
-    cy.enableProxy("/?url=https://api.thecatapi.com&path=")
+    cy.enableProxy("/?url=https://postwoman.io&path=/.netlify/functions/api")
       .get("#send")
       .click()
       .get("#response-details-wrapper", { timeout: 24000 })
       .should("be.visible")
       .should($wrapper => {
-        expect($wrapper).to.contain("The Cat API")
+        expect($wrapper).to.contain("Hello World")
       })
   })
 })

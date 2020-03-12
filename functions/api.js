@@ -1,6 +1,6 @@
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {
-  switch (httpMethod) {
+  switch (event.httpMethod) {
     case "GET":
       try {
         const name = event.queryStringParameters.name || "World"

@@ -1,18 +1,5 @@
-describe("Proxy disabled - local request", () => {
-  it("Change default url with query and make a request to local cat api", () => {
-    cy.seedAndVisit("catapi", "/?url=https://api.thecatapi.com&path=")
-      .get("#url")
-      .then(el => expect(el.val() === "https://api.thecatapi.com").to.equal(true))
-      .get("#response-details-wrapper", { timeout: 24000 })
-      .should("be.visible")
-      .should($wrapper => {
-        expect($wrapper).to.contain("FAKE Cat API")
-      })
-  })
-})
-
 describe("Proxy enabled - external request", () => {
-  it("Enable the proxy and make a request to the real cat api", () => {
+  it("Enable proxy and make a GET request to Postwoman API", () => {
     cy.enableProxy("/?url=https://postwoman.io&path=/.netlify/functions/api")
       .get("#send")
       .click()
@@ -20,6 +7,19 @@ describe("Proxy enabled - external request", () => {
       .should("be.visible")
       .should($wrapper => {
         expect($wrapper).to.contain("Hello World")
+      })
+  })
+})
+
+describe("Proxy disabled - local request", () => {
+  it("Change default URL with query and make a request to local Cat API", () => {
+    cy.seedAndVisit("catapi", "/?url=https://api.thecatapi.com&path=")
+      .get("#url")
+      .then(el => expect(el.val() === "https://api.thecatapi.com").to.equal(true))
+      .get("#response-details-wrapper")
+      .should("be.visible")
+      .should($wrapper => {
+        expect($wrapper).to.contain("FAKE Cat API")
       })
   })
 })

@@ -6,27 +6,29 @@ exports.handler = async (event, context) => {
         const name = event.queryStringParameters.name || "World"
         return {
           statusCode: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ message: `Hello ${name}` }),
-          // // more keys you can return:
-          // headers: { "headerName": "headerValue", ... },
-          // isBase64Encoded: true,
         }
       } catch (err) {
         return { statusCode: 500, body: err.toString() }
       }
+
     case "POST":
       try {
         const name = event.body.name || "World"
         return {
           statusCode: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ message: `Hello ${name}` }),
-          // // more keys you can return:
-          // headers: { "headerName": "headerValue", ... },
-          // isBase64Encoded: true,
         }
       } catch (err) {
         return { statusCode: 500, body: err.toString() }
       }
+
     default:
       return { statusCode: 405, body: "Method Not Allowed" }
   }

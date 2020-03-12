@@ -1,3 +1,0 @@
-[build]
-  command = "npm run generate"
-  functions = "functions/"

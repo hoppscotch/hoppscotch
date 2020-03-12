@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="page">
     <pw-section class="blue" :label="$t('request')" ref="request">
       <ul>
         <li>
-          <label for="socketio-url">{{ $t("url") }}</label>
+          <label for="websocket-url">{{ $t("url") }}</label>
           <input
-            id="socketio-url"
+            id="websocket-url"
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
@@ -37,21 +37,9 @@
       </ul>
       <ul>
         <li>
-          <label for="event_name">{{ $t("event_name") }}</label>
+          <label for="websocket-message">{{ $t("message") }}</label>
           <input
-            id="event_name"
-            name="event_name"
-            type="text"
-            v-model="communication.eventName"
-            :readonly="!connectionState"
-          />
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="socketio-message">{{ $t("message") }}</label>
-          <input
-            id="socketio-message"
+            id="websocket-message"
             name="message"
             type="text"
             v-model="communication.input"
@@ -76,29 +64,27 @@
 </template>
 
 <script>
-import { socketioValid } from "~/functions/utils/valid"
-import io from "socket.io-client"
+import { wsValid } from "~/functions/utils/valid"
 
 export default {
   components: {
-    "pw-section": () => import("../../components/layout/section"),
+    "pw-section": () => import("../layout/section"),
     realtimeLog: () => import("./log"),
   },
   data() {
     return {
-      url: "ws://",
       connectionState: false,
-      io: null,
+      url: "wss://echo.websocket.org",
+      socket: null,
       communication: {
         log: null,
-        eventName: "",
         input: "",
       },
     }
   },
   computed: {
     urlValid() {
-      return socketioValid(this.url)
+      return wsValid(this.url)
     },
   },
   methods: {
@@ -116,10 +102,9 @@ export default {
           color: "var(--ac-color)",
         },
       ]
-
       try {
-        this.io = new io(this.url)
-        this.io.on("connect", () => {
+        this.socket = new WebSocket(this.url)
+        this.socket.onopen = event => {
           this.connectionState = true
           this.communication.log = [
             {
@@ -132,24 +117,11 @@ export default {
           this.$toast.success(this.$t("connected"), {
             icon: "sync",
           })
-        })
-        this.io.on("message", data => {
-          this.communication.log.push({
-            payload: data,
-            source: "server",
-            ts: new Date().toLocaleTimeString(),
-          })
-        })
-        this.io.on("connect_error", error => {
-          this.handleError(error)
-        })
-        this.io.on("reconnect_error", error => {
-          this.handleError(error)
-        })
-        this.io.on("error", data => {
+        }
+        this.socket.onerror = event => {
           this.handleError()
-        })
-        this.io.on("disconnect", () => {
+        }
+        this.socket.onclose = event => {
           this.connectionState = false
           this.communication.log.push({
             payload: this.$t("disconnected_from", { name: this.url }),
@@ -160,7 +132,14 @@ export default {
           this.$toast.error(this.$t("disconnected"), {
             icon: "sync_disabled",
           })
-        })
+        }
+        this.socket.onmessage = event => {
+          this.communication.log.push({
+            payload: event.data,
+            source: "server",
+            ts: new Date().toLocaleTimeString(),
+          })
+        }
       } catch (ex) {
         this.handleError(ex)
         this.$toast.error(this.$t("something_went_wrong"), {
@@ -169,7 +148,7 @@ export default {
       }
     },
     disconnect() {
-      this.io.close()
+      this.socket.close()
     },
     handleError(error) {
       this.disconnect()
@@ -189,28 +168,14 @@ export default {
         })
     },
     sendMessage() {
-      const eventName = this.communication.eventName
       const message = this.communication.input
-
-      if (this.io) {
-        // TODO: support only one argument now
-        // maybe should support more argument
-        this.io.emit(eventName, message, data => {
-          // receive response from server
-          this.communication.log.push({
-            payload: `[${eventName}] ${JSON.stringify(data)}`,
-            source: "server",
-            ts: new Date().toLocaleTimeString(),
-          })
-        })
-
-        this.communication.log.push({
-          payload: `[${eventName}] ${message}`,
-          source: "client",
-          ts: new Date().toLocaleTimeString(),
-        })
-        this.communication.input = ""
-      }
+      this.socket.send(message)
+      this.communication.log.push({
+        payload: message,
+        source: "client",
+        ts: new Date().toLocaleTimeString(),
+      })
+      this.communication.input = ""
     },
   },
 }

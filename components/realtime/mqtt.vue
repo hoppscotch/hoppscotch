@@ -3,12 +3,12 @@
     <pw-section class="blue" :label="$t('request')">
       <ul>
         <li>
-          <label for="url">{{ $t("url") }}</label>
-          <input id="url" type="url" v-model="url" spellcheck="false" />
+          <label for="mqtt-url">{{ $t("url") }}</label>
+          <input id="mqtt-url" type="url" v-model="url" spellcheck="false" />
         </li>
         <div>
           <li>
-            <label for="connect">&nbsp;</label>
+            <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button id="connect" :disabled="!validUrl" @click="toggleConnection">
               {{ this.connectionState ? $t("disconnect") : $t("connect") }}
               <span>
@@ -19,10 +19,11 @@
         </div>
       </ul>
     </pw-section>
+
     <pw-section class="blue" :label="$t('communication')">
       <ul>
         <li>
-          <realtimeLog :log="this.log" />
+          <realtime-log :title="$t('log')" :log="this.log" />
         </li>
       </ul>
       <ul>
@@ -31,12 +32,12 @@
           <input id="pub_topic" type="text" v-model="pub_topic" spellcheck="false" />
         </li>
         <li>
-          <label for="message">{{ $t("message") }}</label>
-          <input id="message" type="text" v-model="msg" spellcheck="false" />
+          <label for="mqtt-message">{{ $t("message") }}</label>
+          <input id="mqtt-message" type="text" v-model="msg" spellcheck="false" />
         </li>
         <div>
           <li>
-            <label for="publish">&nbsp;</label>
+            <label for="publish" class="hide-on-small-screen">&nbsp;</label>
             <button id="publish" name="get" :disabled="!canpublish" @click="publish">
               {{ $t("mqtt_publish") }}
               <span>
@@ -53,7 +54,7 @@
         </li>
         <div>
           <li>
-            <label for="subscribe">&nbsp;</label>
+            <label for="subscribe" class="hide-on-small-screen">&nbsp;</label>
             <button id="subscribe" name="get" :disabled="!cansubscribe" @click="toggleSubscription">
               {{ subscriptionState ? $t("mqtt_unsubscribe") : $t("mqtt_subscribe") }}
               <span>
@@ -66,19 +67,19 @@
     </pw-section>
   </div>
 </template>
+
 <script>
-import realtimeLog from "./log"
 import Paho from "paho-mqtt"
 import { wsValid } from "~/functions/utils/valid"
+
 export default {
-  name: "mqtt",
   components: {
     "pw-section": () => import("../../components/layout/section"),
-    realtimeLog,
+    realtimeLog: () => import("./log"),
   },
   data: function() {
     return {
-      url: "wss://",
+      url: "wss://test.mosquitto.org:8081",
       client: null,
       pub_topic: "",
       sub_topic: "",

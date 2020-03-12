@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: `Hello ${name}` }),
+          body: `Hello ${name}`,
         }
       } catch (err) {
         return { statusCode: 500, body: err.toString() }
@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: `Hello ${name}` }),
+          body: `Hello ${name}`,
         }
       } catch (err) {
         return { statusCode: 500, body: err.toString() }

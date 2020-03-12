@@ -3,9 +3,9 @@
     <pw-section class="blue" :label="$t('request')" ref="request">
       <ul>
         <li>
-          <label for="url">{{ $t("url") }}</label>
+          <label for="websocket-url">{{ $t("url") }}</label>
           <input
-            id="url"
+            id="websocket-url"
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
@@ -37,9 +37,9 @@
       </ul>
       <ul>
         <li>
-          <label for="message">{{ $t("message") }}</label>
+          <label for="websocket-message">{{ $t("message") }}</label>
           <input
-            id="message"
+            id="websocket-message"
             name="message"
             type="text"
             v-model="communication.input"

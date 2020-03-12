@@ -1,4 +1,4 @@
-import querystring from "querystring"
+const querystring = require("querystring")
 
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
 exports.handler = async (event, context) => {

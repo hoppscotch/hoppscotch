@@ -3,9 +3,9 @@
     <pw-section class="blue" :label="$t('request')" ref="request">
       <ul>
         <li>
-          <label for="url">{{ $t("url") }}</label>
+          <label for="socketio-url">{{ $t("url") }}</label>
           <input
-            id="url"
+            id="socketio-url"
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
@@ -39,6 +39,7 @@
         <li>
           <label for="event_name">{{ $t("event_name") }}</label>
           <input
+            id="event_name"
             name="event_name"
             type="text"
             v-model="communication.eventName"
@@ -48,8 +49,9 @@
       </ul>
       <ul>
         <li>
-          <label for="message">{{ $t("message") }}</label>
+          <label for="socketio-message">{{ $t("message") }}</label>
           <input
+            id="socketio-message"
             name="message"
             type="text"
             v-model="communication.input"

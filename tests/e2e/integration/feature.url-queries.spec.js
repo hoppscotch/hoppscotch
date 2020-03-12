@@ -1,5 +1,5 @@
 describe("Authentication", () => {
-  it(`Change default auth user and pass with url`, () => {
+  it(`Change default Auth username and password with URL`, () => {
     cy.visit(`?&auth=Basic Auth&httpUser=foo&httpPassword=bar`, { retryOnStatusCodeFailure: true })
       .get('input[name="http_basic_user"]', { timeout: 500 })
       .invoke("val")
@@ -14,7 +14,7 @@ describe("Authentication", () => {
       })
   })
 
-  it("Enable user and pass at url with toggler", () => {
+  it("Enable username and password in URL with toggler", () => {
     cy.visit("/", { retryOnStatusCodeFailure: true })
       .get("#auth")
       .select("Basic Auth")

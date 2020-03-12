@@ -120,6 +120,7 @@ export default {
       this.client.connect({
         onSuccess: this.onConnectionSuccess,
         onFailure: this.onConnectionFailure,
+        useSSL: true,
       })
       this.client.onConnectionLost = this.onConnectionLost
       this.client.onMessageArrived = this.onMessageArrived
@@ -146,7 +147,6 @@ export default {
       })
     },
     onMessageArrived(message) {
-      debugger
       this.log.push({
         payload: `Message: ${message.payloadString} arrived on topic: ${message.destinationName}`,
         source: "info",

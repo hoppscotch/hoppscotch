@@ -62,6 +62,11 @@
 <style scoped lang="scss">
 .footer-link {
   margin: 8px 16px;
+  color: var(--fg-light-color);
+
+  &:hover {
+    color: var(--fg-color);
+  }
 }
 </style>
 

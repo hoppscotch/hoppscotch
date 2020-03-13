@@ -7,7 +7,9 @@
  */
 Cypress.Commands.add("seedAndVisit", (seedData, path = "/", method = "GET") => {
   cy.server()
-    .route(method, "https://api.thecatapi.com/", `fixture:${seedData}`)
+    .fixture(`${seedData}.json`)
+    .as(`${seedData}JSON`)
+    .route(method, "https://api.thecatapi.com/", `@${seedData}JSON`)
     .as("load")
 
   cy.visit(path)

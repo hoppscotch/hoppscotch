@@ -4,8 +4,8 @@ describe("Proxy disabled - local request", () => {
       .get("#url")
       .then(el => expect(el.val() === "https://api.thecatapi.com").to.equal(true))
       .get("#response-details-wrapper")
-      .wait(2000)
       .should("be.visible")
+      .wait(2000)
       .should($wrapper => {
         expect($wrapper).to.contain("FAKE Cat API")
       })

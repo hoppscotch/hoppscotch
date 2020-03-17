@@ -223,7 +223,7 @@
               <li>
                 <div class="flex-wrap">
                   <span>
-                    <pw-toggle :on="rawInput" @change="rawInput = $event">
+                    <pw-toggle v-if="canListParameters" :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
                     </pw-toggle>
                   </span>
@@ -1432,8 +1432,8 @@ export default {
         ])
       },
     },
-    contentType(val) {
-      this.rawInput = !this.knownContentTypes.includes(val)
+    canListParameters(canToggleRaw) {
+      this.rawInput = !canToggleRaw
     },
     rawInput(status) {
       if (status && this.rawParams === "") {
@@ -1532,6 +1532,9 @@ export default {
       "text/html",
       "text/plain",
     ],
+    canListParameters() {
+      return this.contentType === "application/x-www-form-urlencoded"
+    },
     uri: {
       get() {
         return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path

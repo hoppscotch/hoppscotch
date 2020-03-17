@@ -1435,12 +1435,25 @@ export default {
     canListParameters(canToggleRaw) {
       this.rawInput = !canToggleRaw
     },
-    rawInput(status) {
-      if (status && this.rawParams === "") {
-        this.rawParams = "{}"
-      } else {
-        this.setRouteQueryState()
+    contentType(contentType) {
+      switch (contentType) {
+        case "application/json":
+        case "application/hal+json":
+          if (!(this.rawParams.charAt(0) in ['"', "{", "["])) {
+            this.rawParams = "{}"
+          }
+          break
+        case "application/xml":
+          if (this.rawParams.charAt(0) !== "<" || this.rawParams === "<!doctype html>") {
+            this.rawParams = "<?xml version='1.0' encoding='utf-8'?>"
+          }
+          break
+        case "text/html":
+          if (this.rawParams.charAt(0) !== "<" || this.rawParams.startsWith("<?xml")) {
+            this.rawParams = "<!doctype html>"
+          }
       }
+      this.setRouteQueryState()
     },
     "response.body": function(val) {
       if (

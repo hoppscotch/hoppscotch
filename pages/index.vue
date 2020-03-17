@@ -1400,22 +1400,6 @@ export default {
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      /**
-       * These are content types that can be automatically
-       * serialized by postwoman.
-       */
-      knownContentTypes: ["application/json", "application/x-www-form-urlencoded"],
-      /**
-       * These are a list of Content Types known to Postwoman.
-       */
-      validContentTypes: [
-        "application/json",
-        "application/hal+json",
-        "application/xml",
-        "application/x-www-form-urlencoded",
-        "text/html",
-        "text/plain",
-      ],
       commonHeaders,
       showRequestModal: false,
       editRequest: {},
@@ -1532,6 +1516,22 @@ export default {
     },
   },
   computed: {
+    /**
+     * These are content types that can be automatically
+     * serialized by postwoman.
+     */
+    knownContentTypes: () => ["application/json", "application/x-www-form-urlencoded"],
+    /**
+     * These are a list of Content Types known to Postwoman.
+     */
+    validContentTypes: () => [
+      "application/json",
+      "application/hal+json",
+      "application/xml",
+      "application/x-www-form-urlencoded",
+      "text/html",
+      "text/plain",
+    ],
     uri: {
       get() {
         return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path

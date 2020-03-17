@@ -223,7 +223,7 @@
               <li>
                 <div class="flex-wrap">
                   <span>
-                    <pw-toggle :on="rawInput" @change="rawInput = $event">
+                    <pw-toggle v-if="canListParameters" :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
                     </pw-toggle>
                   </span>
@@ -1400,22 +1400,6 @@ export default {
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      /**
-       * These are content types that can be automatically
-       * serialized by postwoman.
-       */
-      knownContentTypes: ["application/json", "application/x-www-form-urlencoded"],
-      /**
-       * These are a list of Content Types known to Postwoman.
-       */
-      validContentTypes: [
-        "application/json",
-        "application/hal+json",
-        "application/xml",
-        "application/x-www-form-urlencoded",
-        "text/html",
-        "text/plain",
-      ],
       commonHeaders,
       showRequestModal: false,
       editRequest: {},
@@ -1448,15 +1432,28 @@ export default {
         ])
       },
     },
-    contentType(val) {
-      this.rawInput = !this.knownContentTypes.includes(val)
+    canListParameters(canToggleRaw) {
+      this.rawInput = !canToggleRaw
     },
-    rawInput(status) {
-      if (status && this.rawParams === "") {
-        this.rawParams = "{}"
-      } else {
-        this.setRouteQueryState()
+    contentType(contentType) {
+      switch (contentType) {
+        case "application/json":
+        case "application/hal+json":
+          if (!(this.rawParams.charAt(0) in ['"', "{", "["])) {
+            this.rawParams = "{}"
+          }
+          break
+        case "application/xml":
+          if (this.rawParams.charAt(0) !== "<" || this.rawParams === "<!doctype html>") {
+            this.rawParams = "<?xml version='1.0' encoding='utf-8'?>"
+          }
+          break
+        case "text/html":
+          if (this.rawParams.charAt(0) !== "<" || this.rawParams.startsWith("<?xml")) {
+            this.rawParams = "<!doctype html>"
+          }
       }
+      this.setRouteQueryState()
     },
     "response.body": function(val) {
       if (
@@ -1532,6 +1529,25 @@ export default {
     },
   },
   computed: {
+    /**
+     * These are content types that can be automatically
+     * serialized by postwoman.
+     */
+    knownContentTypes: () => ["application/json", "application/x-www-form-urlencoded"],
+    /**
+     * These are a list of Content Types known to Postwoman.
+     */
+    validContentTypes: () => [
+      "application/json",
+      "application/hal+json",
+      "application/xml",
+      "application/x-www-form-urlencoded",
+      "text/html",
+      "text/plain",
+    ],
+    canListParameters() {
+      return this.contentType === "application/x-www-form-urlencoded"
+    },
     uri: {
       get() {
         return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path

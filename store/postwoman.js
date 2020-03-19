@@ -218,10 +218,8 @@ export const mutations = {
   },
 
   editCollection({ collections }, payload) {
-    const {
-      collection: { name },
-      collectionIndex,
-    } = payload
+    const { collection, collectionIndex } = payload
+    const { name } = collection
     const duplicateCollection = collections.some(
       item => item.name.toLowerCase() === name.toLowerCase()
     )

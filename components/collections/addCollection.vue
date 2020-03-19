@@ -67,7 +67,7 @@ export default {
     },
     addNewCollection() {
       if (!this.$data.name) {
-        this.$toast.info($t("invalid_collection_name"))
+        this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
       this.$store.commit("postwoman/addNewCollection", {

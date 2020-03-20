@@ -1547,7 +1547,7 @@ export default {
       "text/plain",
     ],
     canListParameters() {
-      this.contentType === "application/x-www-form-urlencoded"
+      return this.contentType === "application/x-www-form-urlencoded"
     },
     uri: {
       get() {

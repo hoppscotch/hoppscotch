@@ -1434,8 +1434,8 @@ export default {
     },
     canListParameters: {
       immediate: true,
-      handler (canToggleRaw) {
-        this.rawInput = !canToggleRaw
+      handler (canListParameters) {
+        this.rawInput = !canListParameters
       }
     },
     contentType(contentType, oldContentType) {
@@ -1764,7 +1764,7 @@ export default {
     },
     rawInput: {
       get() {
-        return this.canListParameter ? this.$store.state.request.rawInput : true
+        return this.canListParameters ? this.$store.state.request.rawInput : true
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawInput" })

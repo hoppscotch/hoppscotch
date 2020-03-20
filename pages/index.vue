@@ -1434,9 +1434,9 @@ export default {
     },
     canListParameters: {
       immediate: true,
-      handler (canListParameters) {
+      handler(canListParameters) {
         this.rawInput = !canListParameters
-      }
+      },
     },
     contentType(contentType, oldContentType) {
       const getDefaultParams = contentType => {

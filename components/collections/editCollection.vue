@@ -60,7 +60,7 @@ export default {
   methods: {
     saveCollection() {
       if (!this.$data.name) {
-        this.$toast.info($t("invalid_collection_name"))
+        this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
       const collectionUpdated = {

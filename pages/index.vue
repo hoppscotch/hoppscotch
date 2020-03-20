@@ -1435,23 +1435,21 @@ export default {
     canListParameters(canToggleRaw) {
       this.rawInput = !canToggleRaw
     },
-    contentType(contentType) {
-      switch (contentType) {
-        case "application/json":
-        case "application/hal+json":
-          if (!(this.rawParams.charAt(0) in ['"', "{", "["])) {
-            this.rawParams = "{}"
-          }
-          break
-        case "application/xml":
-          if (this.rawParams.charAt(0) !== "<" || this.rawParams === "<!doctype html>") {
-            this.rawParams = "<?xml version='1.0' encoding='utf-8'?>"
-          }
-          break
-        case "text/html":
-          if (this.rawParams.charAt(0) !== "<" || this.rawParams.startsWith("<?xml")) {
-            this.rawParams = "<!doctype html>"
-          }
+    contentType(contentType, oldContentType) {
+      const getDefaultParams = contentType => {
+        switch (contentType) {
+          case "application/json":
+          case "application/hal+json":
+            return "{}"
+          case "application/xml":
+            return "<?xml version='1.0' encoding='utf-8'?>"
+          case "text/html":
+            return "<!doctype html>"
+        }
+        return ""
+      }
+      if (!this.rawParams || this.rawParams === getDefaultParams(oldContentType)) {
+        this.rawParams = getDefaultParams(contentType)
       }
       this.setRouteQueryState()
     },
@@ -1546,7 +1544,11 @@ export default {
       "text/plain",
     ],
     canListParameters() {
-      return this.contentType === "application/x-www-form-urlencoded"
+      return [
+        "application/json",
+        "application/hal+json",
+        "application/x-www-form-urlencoded",
+      ].includes(this.contentType)
     },
     uri: {
       get() {

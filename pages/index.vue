@@ -1432,8 +1432,11 @@ export default {
         ])
       },
     },
-    canListParameters(canToggleRaw) {
-      this.rawInput = !canToggleRaw
+    canListParameters: {
+      immediate: true,
+      handler (canToggleRaw) {
+        this.rawInput = !canToggleRaw
+      }
     },
     contentType(contentType, oldContentType) {
       const getDefaultParams = contentType => {
@@ -1544,11 +1547,7 @@ export default {
       "text/plain",
     ],
     canListParameters() {
-      return [
-        "application/json",
-        "application/hal+json",
-        "application/x-www-form-urlencoded",
-      ].includes(this.contentType)
+      this.contentType === "application/x-www-form-urlencoded"
     },
     uri: {
       get() {
@@ -1765,7 +1764,7 @@ export default {
     },
     rawInput: {
       get() {
-        return this.$store.state.request.rawInput
+        return this.canListParameter ? this.$store.state.request.rawInput : true
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawInput" })

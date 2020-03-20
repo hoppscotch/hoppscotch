@@ -1546,7 +1546,11 @@ export default {
       "text/plain",
     ],
     canListParameters() {
-      return this.contentType === "application/x-www-form-urlencoded"
+      return [
+        "application/json",
+        "application/hal+json",
+        "application/x-www-form-urlencoded",
+      ].includes(this.contentType)
     },
     uri: {
       get() {

@@ -16,9 +16,9 @@
   font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
-  height: 24px;
-  width: 24px;
-  font-size: 24px;
+  height: 20px;
+  width: 20px;
+  font-size: 20px;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -40,8 +40,8 @@
   font-display: swap;
   src: local("Poppins Medium"), local("Poppins-Medium"),
     url("~static/fonts/poppins-v9-latin-500.woff2") format("woff2"),
-    /* Chrome 26+, Opera 23+, Firefox 39+ */
-      url("~static/fonts/poppins-v9-latin-500.woff") format("woff");
+    /* Chrome 26+, Opera 23+, Firefox 39+ */ 
+    url("~static/fonts/poppins-v9-latin-500.woff") format("woff");
   /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 
@@ -53,8 +53,8 @@
   font-display: swap;
   src: local("Poppins Bold"), local("Poppins-Bold"),
     url("~static/fonts/poppins-v9-latin-700.woff2") format("woff2"),
-    /* Chrome 26+, Opera 23+, Firefox 39+ */
-      url("~static/fonts/poppins-v9-latin-700.woff") format("woff");
+    /* Chrome 26+, Opera 23+, Firefox 39+ */ 
+    url("~static/fonts/poppins-v9-latin-700.woff") format("woff");
   /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
 
@@ -66,7 +66,7 @@
   font-display: swap;
   src: local("Roboto Mono"), local("RobotoMono-Regular"),
     url("~static/fonts/roboto-mono-v7-latin-regular.woff2") format("woff2"),
-    /* Chrome 26+, Opera 23+, Firefox 39+ */
-      url("~static/fonts/roboto-mono-v7-latin-regular.woff") format("woff");
+    /* Chrome 26+, Opera 23+, Firefox 39+ */ 
+    url("~static/fonts/roboto-mono-v7-latin-regular.woff") format("woff");
   /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }

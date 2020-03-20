@@ -86,7 +86,7 @@ header,
 footer {
   & > div {
     display: flex;
-    padding: 16px 8px;
+    padding: 8px 8px;
     width: 100%;
     align-items: center;
     justify-content: space-between;
@@ -109,6 +109,7 @@ footer {
 .footer {
   display: flex;
   flex: 1;
+  height: fit-content;
 }
 
 .slide-in {
@@ -160,8 +161,7 @@ footer {
   flex: 1;
   order: 2;
   position: relative;
-  padding: 0 16px;
-  height: 100%;
+  padding: 0 6px;
 }
 
 .nav-second {
@@ -416,7 +416,7 @@ button {
   border-radius: 20px;
   background-color: var(--ac-color);
   color: var(--act-color);
-  font-size: 16px;
+  font-size: 14px;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
   font-weight: 700;
   transition: all 0.2s ease-in-out;
@@ -480,8 +480,8 @@ button {
 }
 
 fieldset {
-  margin: 16px 0;
-  border-radius: 16px;
+  margin: 12px 0;
+  border-radius: 12px;
   background-color: var(--bg-dark-color);
   transition: all 0.2s ease-in-out;
 }
@@ -572,7 +572,7 @@ code {
   border-radius: 8px;
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
-  font-size: 16px;
+  font-size: 14px;
   font-family: "Roboto Mono", monospace;
   font-weight: 400;
   line-height: 1;
@@ -591,6 +591,7 @@ code {
 
 .method {
   cursor: pointer;
+  width: 100px;
 
   &:hover,
   &:active,
@@ -698,15 +699,17 @@ input[type="checkbox"] {
 }
 
 label {
-  padding: 4px;
+  padding: 0;
+  margin-bottom: -1px;
   color: var(--fg-light-color);
   transition: all 0.2s ease-in-out;
+  font-size: 12px;
 }
 
 ul,
 ol {
   display: flex;
-  margin: 4px 0 4px;
+  margin: 2px 0 0;
   padding: 0;
   list-style-type: none;
 

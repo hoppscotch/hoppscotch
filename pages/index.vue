@@ -894,24 +894,26 @@
 
         <pw-section class="purple" id="response" :label="$t('response')" ref="response">
           <ul>
-            <li>
-              <label for="status">{{ $t("status") }}</label>
-              <input
-                :class="statusCategory ? statusCategory.className : ''"
-                :value="response.status || $t('waiting_send_req')"
-                ref="status"
-                id="status"
-                name="status"
-                readonly
-                type="text"
-              />
-            </li>
-          </ul>
-          <ul v-for="(value, key) in response.headers" :key="key">
-            <li>
-              <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
-            </li>
+            <ul>
+              <li>
+                <label for="status">{{ $t("status") }}</label>
+                <input
+                  :class="statusCategory ? statusCategory.className : ''"
+                  :value="response.status || $t('waiting_send_req')"
+                  ref="status"
+                  id="status"
+                  name="status"
+                  readonly
+                  type="text"
+                />
+              </li>
+            </ul>
+            <ul v-for="(value, key) in response.headers" :key="key">
+              <li>
+                <label :for="key">{{ key }}</label>
+                <input :id="key" :value="value" :name="key" readonly />
+              </li>
+            </ul>
           </ul>
           <ul v-if="response.body">
             <li>

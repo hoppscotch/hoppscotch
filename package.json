@@ -47,7 +47,7 @@
     "socket.io-client": "^2.3.0",
     "v-tooltip": "^2.0.3",
     "vue-virtual-scroll-list": "^1.4.6",
-    "vuefire": "^2.2.1",
+    "vuefire": "^2.2.2",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^2.2.0",
     "yargs-parser": "^18.1.1"

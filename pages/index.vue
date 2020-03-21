@@ -1439,6 +1439,7 @@ export default {
       const getDefaultParams = contentType => {
         switch (contentType) {
           case "application/json":
+          case "application/vnd.api+json":
           case "application/hal+json":
             return "{}"
           case "application/xml":
@@ -1463,7 +1464,8 @@ export default {
       } else {
         if (
           this.responseType === "application/json" ||
-          this.responseType === "application/hal+json"
+          this.responseType === "application/hal+json" ||
+          this.responseType === "application/vnd.api+json"
         ) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
           this.responseBodyType = "json"
@@ -1531,12 +1533,13 @@ export default {
      * These are content types that can be automatically
      * serialized by postwoman.
      */
-    knownContentTypes: () => ["application/json", "application/x-www-form-urlencoded"],
+    knownContentTypes: () => ["application/json", "application/x-www-form-urlencoded", "application/vnd.api+json"],
     /**
      * These are a list of Content Types known to Postwoman.
      */
     validContentTypes: () => [
       "application/json",
+      "application/vnd.api+json",
       "application/hal+json",
       "application/xml",
       "application/x-www-form-urlencoded",
@@ -1547,6 +1550,7 @@ export default {
       return [
         "application/json",
         "application/hal+json",
+        "application/vnd.api+json",
         "application/x-www-form-urlencoded",
       ].includes(this.contentType)
     },

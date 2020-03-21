@@ -257,6 +257,33 @@
   </header>
 </template>
 
+<style scoped lang="scss">
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    left: -16px;
+  }
+
+  100% {
+    opacity: 1;
+    left: 0px;
+  }
+}
+
+.slide-in {
+  position: relative;
+  animation: slideIn 0.2s forwards ease-in-out;
+}
+
+.logo {
+  font-size: 22px;
+
+  &:hover {
+    color: var(--ac-color);
+  }
+}
+</style>
+
 <script>
 import intializePwa from "../../assets/js/pwa"
 import { hasExtensionInstalled } from "../../functions/strategies/ExtensionStrategy"

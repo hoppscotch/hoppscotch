@@ -60,6 +60,10 @@
 </template>
 
 <style scoped lang="scss">
+.footer {
+  flex-flow: column nowrap;
+}
+
 .footer-link {
   margin: 8px 16px;
   color: var(--fg-light-color);

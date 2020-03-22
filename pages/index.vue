@@ -1448,6 +1448,7 @@ export default {
       const getDefaultParams = contentType => {
         switch (contentType) {
           case "application/json":
+          case "application/vnd.api+json":
           case "application/hal+json":
             return "{}"
           case "application/xml":
@@ -1472,7 +1473,8 @@ export default {
       } else {
         if (
           this.responseType === "application/json" ||
-          this.responseType === "application/hal+json"
+          this.responseType === "application/hal+json" ||
+          this.responseType === "application/vnd.api+json"
         ) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
           this.responseBodyType = "json"
@@ -1541,6 +1543,7 @@ export default {
      */
     validContentTypes: () => [
       "application/json",
+      "application/vnd.api+json",
       "application/hal+json",
       "application/xml",
       "application/x-www-form-urlencoded",

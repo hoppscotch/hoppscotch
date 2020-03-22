@@ -1432,8 +1432,17 @@ export default {
         ])
       },
     },
-    canListParameters(canToggleRaw) {
-      this.rawInput = !canToggleRaw
+    canListParameters: {
+      immediate: true,
+      handler(canListParameters) {
+        if (canListParameters) {
+          this.$nextTick(() => {
+            this.rawInput = Boolean(this.rawParams && this.rawParams !== "{}")
+          })
+        } else {
+          this.rawInput = true
+        }
+      },
     },
     contentType(contentType, oldContentType) {
       const getDefaultParams = contentType => {
@@ -1530,11 +1539,6 @@ export default {
   },
   computed: {
     /**
-     * These are content types that can be automatically
-     * serialized by postwoman.
-     */
-    knownContentTypes: () => ["application/json", "application/x-www-form-urlencoded", "application/vnd.api+json"],
-    /**
      * These are a list of Content Types known to Postwoman.
      */
     validContentTypes: () => [
@@ -1546,13 +1550,15 @@ export default {
       "text/html",
       "text/plain",
     ],
+    /**
+     * Check content types that can be automatically
+     * serialized by postwoman.
+     */
     canListParameters() {
-      return [
-        "application/json",
-        "application/hal+json",
-        "application/vnd.api+json",
-        "application/x-www-form-urlencoded",
-      ].includes(this.contentType)
+      return (
+        this.contentType === "application/x-www-form-urlencoded" ||
+        this.contentType.endsWith("json")
+      )
     },
     uri: {
       get() {
@@ -1839,7 +1845,7 @@ export default {
     },
     rawRequestBody() {
       const { bodyParams, contentType } = this
-      if (contentType === "application/json") {
+      if (contentType.endsWith("json")) {
         try {
           const obj = JSON.parse(
             `{${bodyParams

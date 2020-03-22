@@ -1552,7 +1552,10 @@ export default {
      * serialized by postwoman.
      */
     canListParameters() {
-      return ["application/json", "application/x-www-form-urlencoded"].includes(this.contentType)
+      return (
+        this.contentType === "application/x-www-form-urlencoded" ||
+        this.contentType.endsWith("json")
+      )
     },
     uri: {
       get() {

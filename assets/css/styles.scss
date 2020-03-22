@@ -786,9 +786,12 @@ ol li {
   &.show {
     display: flex;
     position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
+    bottom: 86px;
+    left: 50%;
+    z-index: 10001;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 24px rgba(black, 0.2);
+    transition: all .2s ease-in-out;
   }
 }
 

@@ -1,5 +1,112 @@
 # Changelog
 
+## [v1.9.5](https://github.com/liyasthomas/postwoman/tree/v1.9.5) (2020-03-22)
+
+[Full Changelog](https://github.com/liyasthomas/postwoman/compare/v1.9.0...v1.9.5)
+
+**Implemented enhancements:**
+
+- Support preview of JSON:API's "application/vnd.api+json" Content-Type [\#694](https://github.com/liyasthomas/postwoman/issues/694)
+- Support SocketIO connections on Realtime page [\#611](https://github.com/liyasthomas/postwoman/issues/611)
+- Parameter list not showing JSON object fields \(force raw?\) [\#597](https://github.com/liyasthomas/postwoman/issues/597)
+- Add setting to disable scroll animations [\#592](https://github.com/liyasthomas/postwoman/issues/592)
+- Bigger URL and/or Path input field [\#581](https://github.com/liyasthomas/postwoman/issues/581)
+- Ability to connect to a MQTT broker [\#342](https://github.com/liyasthomas/postwoman/issues/342)
+- \[request\] Offline cross-platform native build [\#267](https://github.com/liyasthomas/postwoman/issues/267)
+- On Save Update existing API [\#204](https://github.com/liyasthomas/postwoman/issues/204)
+- Import and export environments from JSON [\#190](https://github.com/liyasthomas/postwoman/issues/190)
+- Fast URL entry [\#62](https://github.com/liyasthomas/postwoman/issues/62)
+- Added the ability to prettify GraphQL queries [\#650](https://github.com/liyasthomas/postwoman/pull/650) ([AndrewBastin](https://github.com/AndrewBastin))
+- Updated messages for when GraphQL Get Schema fails [\#633](https://github.com/liyasthomas/postwoman/pull/633) ([AndrewBastin](https://github.com/AndrewBastin))
+- Ignore empty GQL Variable Strings [\#629](https://github.com/liyasthomas/postwoman/pull/629) ([AndrewBastin](https://github.com/AndrewBastin))
+- test: purge travis [\#623](https://github.com/liyasthomas/postwoman/pull/623) ([yubathom](https://github.com/yubathom))
+- Added shortcut to quickly run the GraphQL query [\#620](https://github.com/liyasthomas/postwoman/pull/620) ([AndrewBastin](https://github.com/AndrewBastin))
+- JSON linting in the code editor [\#605](https://github.com/liyasthomas/postwoman/pull/605) ([AndrewBastin](https://github.com/AndrewBastin))
+- GraphQL page improvements, and more [\#602](https://github.com/liyasthomas/postwoman/pull/602) ([dmitryyankowski](https://github.com/dmitryyankowski))
+- Environment Mangement [\#591](https://github.com/liyasthomas/postwoman/pull/591) ([JacobAnavisca](https://github.com/JacobAnavisca))
+- GraphQL Query Autocompletion [\#590](https://github.com/liyasthomas/postwoman/pull/590) ([AndrewBastin](https://github.com/AndrewBastin))
+
+**Fixed bugs:**
+
+- Test script is not run after failing request [\#644](https://github.com/liyasthomas/postwoman/issues/644)
+- \[HELP\] Auth permission denied [\#621](https://github.com/liyasthomas/postwoman/issues/621)
+- Can't login on Brave Browser [\#607](https://github.com/liyasthomas/postwoman/issues/607)
+
+**Closed issues:**
+
+- \[UI/UX\] - Change place of Send button [\#696](https://github.com/liyasthomas/postwoman/issues/696)
+- Report Portal integration [\#691](https://github.com/liyasthomas/postwoman/issues/691)
+- Docs request: how to prevent secrets from leaving local storage wrt. sync. [\#686](https://github.com/liyasthomas/postwoman/issues/686)
+- \[bug\] - Can't make a request to HTTP [\#676](https://github.com/liyasthomas/postwoman/issues/676)
+- Looking forward to    that  the postwoman Compatible 'swagger ' at next version   [\#675](https://github.com/liyasthomas/postwoman/issues/675)
+- Error: Network Error. Check console for details. [\#673](https://github.com/liyasthomas/postwoman/issues/673)
+- \[Bug\] - Can't login to Github and Google [\#661](https://github.com/liyasthomas/postwoman/issues/661)
+- A question that has been raised but not resolved [\#658](https://github.com/liyasthomas/postwoman/issues/658)
+- An unknown error occurred whilst the proxy was processing your request. [\#656](https://github.com/liyasthomas/postwoman/issues/656)
+- Running app from downloaded zip fails to compile [\#651](https://github.com/liyasthomas/postwoman/issues/651)
+- Environment variable in path won't update [\#641](https://github.com/liyasthomas/postwoman/issues/641)
+- Info: The current domain is not authorized for OAuth operations Error [\#637](https://github.com/liyasthomas/postwoman/issues/637)
+- A suggestion for UI  [\#635](https://github.com/liyasthomas/postwoman/issues/635)
+- How to use postwoman for local development and testing [\#634](https://github.com/liyasthomas/postwoman/issues/634)
+- How to debug localhost \(cors\) [\#630](https://github.com/liyasthomas/postwoman/issues/630)
+- Requests to local API returning error response [\#608](https://github.com/liyasthomas/postwoman/issues/608)
+- Why does the URL input field display only one line [\#604](https://github.com/liyasthomas/postwoman/issues/604)
+
+**Merged pull requests:**
+
+- Add application/vnd.api+json [\#695](https://github.com/liyasthomas/postwoman/pull/695) ([allthesignals](https://github.com/allthesignals))
+- Fix raw input \(JSON\) [\#693](https://github.com/liyasthomas/postwoman/pull/693) ([leomp12](https://github.com/leomp12))
+- chore\(deps\): bump firebase from 7.11.0 to 7.12.0 [\#689](https://github.com/liyasthomas/postwoman/pull/689) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump vuefire from 2.2.1 to 2.2.2 [\#688](https://github.com/liyasthomas/postwoman/pull/688) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps-dev\): bump cypress from 4.1.0 to 4.2.0 [\#685](https://github.com/liyasthomas/postwoman/pull/685) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps-dev\): bump start-server-and-test from 1.10.10 to 1.10.11 [\#684](https://github.com/liyasthomas/postwoman/pull/684) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump nuxt-i18n from 6.6.0 to 6.6.1 [\#683](https://github.com/liyasthomas/postwoman/pull/683) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump nuxt from 2.11.0 to 2.12.0 [\#682](https://github.com/liyasthomas/postwoman/pull/682) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- Fix setting default raw params [\#681](https://github.com/liyasthomas/postwoman/pull/681) ([leomp12](https://github.com/leomp12))
+- Fix handling content type and raw input [\#678](https://github.com/liyasthomas/postwoman/pull/678) ([leomp12](https://github.com/leomp12))
+- \[Snyk\] Security upgrade yargs-parser from 18.1.0 to 18.1.1 [\#674](https://github.com/liyasthomas/postwoman/pull/674) ([snyk-bot](https://github.com/snyk-bot))
+- chore\(deps-dev\): bump start-server-and-test from 1.10.9 to 1.10.10 [\#672](https://github.com/liyasthomas/postwoman/pull/672) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump firebase from 7.10.0 to 7.11.0 [\#671](https://github.com/liyasthomas/postwoman/pull/671) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- ✅ Updating tests [\#669](https://github.com/liyasthomas/postwoman/pull/669) ([liyasthomas](https://github.com/liyasthomas))
+- Updating tests [\#668](https://github.com/liyasthomas/postwoman/pull/668) ([liyasthomas](https://github.com/liyasthomas))
+- APIs [\#667](https://github.com/liyasthomas/postwoman/pull/667) ([liyasthomas](https://github.com/liyasthomas))
+- Insecure Websocket connection issue while connecting to MQTT broker. [\#666](https://github.com/liyasthomas/postwoman/pull/666) ([rahulnpadalkar](https://github.com/rahulnpadalkar))
+- Improving performance [\#664](https://github.com/liyasthomas/postwoman/pull/664) ([liyasthomas](https://github.com/liyasthomas))
+- Feature/mqtt [\#663](https://github.com/liyasthomas/postwoman/pull/663) ([liyasthomas](https://github.com/liyasthomas))
+- Added Support for MQTT [\#662](https://github.com/liyasthomas/postwoman/pull/662) ([rahulnpadalkar](https://github.com/rahulnpadalkar))
+- chore\(deps\): bump yargs-parser from 18.0.0 to 18.1.0 [\#660](https://github.com/liyasthomas/postwoman/pull/660) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps-dev\): bump start-server-and-test from 1.10.8 to 1.10.9 [\#659](https://github.com/liyasthomas/postwoman/pull/659) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- Added icon slot to tabs [\#657](https://github.com/liyasthomas/postwoman/pull/657) ([liyasthomas](https://github.com/liyasthomas))
+- Refactor/ui [\#655](https://github.com/liyasthomas/postwoman/pull/655) ([liyasthomas](https://github.com/liyasthomas))
+- even [\#654](https://github.com/liyasthomas/postwoman/pull/654) ([liyasthomas](https://github.com/liyasthomas))
+- chore\(deps\): bump yargs-parser from 17.0.0 to 18.0.0 [\#653](https://github.com/liyasthomas/postwoman/pull/653) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump firebase from 7.9.3 to 7.10.0 [\#652](https://github.com/liyasthomas/postwoman/pull/652) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- Add http/https support to socketio url valid [\#648](https://github.com/liyasthomas/postwoman/pull/648) ([moonrailgun](https://github.com/moonrailgun))
+- Refactor/ui [\#647](https://github.com/liyasthomas/postwoman/pull/647) ([liyasthomas](https://github.com/liyasthomas))
+- Even [\#646](https://github.com/liyasthomas/postwoman/pull/646) ([liyasthomas](https://github.com/liyasthomas))
+- Run tests even after failed request [\#645](https://github.com/liyasthomas/postwoman/pull/645) ([liyasthomas](https://github.com/liyasthomas))
+- Feature: add socket io support [\#640](https://github.com/liyasthomas/postwoman/pull/640) ([moonrailgun](https://github.com/moonrailgun))
+- Removed linting for the collection docs import editor [\#639](https://github.com/liyasthomas/postwoman/pull/639) ([AndrewBastin](https://github.com/AndrewBastin))
+- Moving or renaming files [\#638](https://github.com/liyasthomas/postwoman/pull/638) ([liyasthomas](https://github.com/liyasthomas))
+- Refactor/ui [\#636](https://github.com/liyasthomas/postwoman/pull/636) ([liyasthomas](https://github.com/liyasthomas))
+- Minor GraphQL page improvements [\#631](https://github.com/liyasthomas/postwoman/pull/631) ([dmitryyankowski](https://github.com/dmitryyankowski))
+- chore\(deps-dev\): bump cypress from 4.0.2 to 4.1.0 [\#628](https://github.com/liyasthomas/postwoman/pull/628) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump nuxt-i18n from 6.5.0 to 6.6.0 [\#627](https://github.com/liyasthomas/postwoman/pull/627) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- chore\(deps\): bump firebase from 7.9.1 to 7.9.3 [\#626](https://github.com/liyasthomas/postwoman/pull/626) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- docs: add dmitryyankowski as a contributor [\#619](https://github.com/liyasthomas/postwoman/pull/619) ([allcontributors[bot]](https://github.com/apps/allcontributors))
+- Link multiple auth providers [\#618](https://github.com/liyasthomas/postwoman/pull/618) ([liyasthomas](https://github.com/liyasthomas))
+- Add --staged parameter to pretty-quick pre-commit [\#617](https://github.com/liyasthomas/postwoman/pull/617) ([dmitryyankowski](https://github.com/dmitryyankowski))
+- :bug: FIxed URI not updating on Clear content, minor formData improve… [\#612](https://github.com/liyasthomas/postwoman/pull/612) ([liyasthomas](https://github.com/liyasthomas))
+- Update proxy information. [\#610](https://github.com/liyasthomas/postwoman/pull/610) ([NBTX](https://github.com/NBTX))
+- Fixed install extension toast appearing even when extension is installed [\#609](https://github.com/liyasthomas/postwoman/pull/609) ([AndrewBastin](https://github.com/AndrewBastin))
+- chore\(deps-dev\): bump lint-staged from 10.0.7 to 10.0.8 [\#606](https://github.com/liyasthomas/postwoman/pull/606) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- Added regex to handle url parts [\#603](https://github.com/liyasthomas/postwoman/pull/603) ([JacobAnavisca](https://github.com/JacobAnavisca))
+- I18n [\#601](https://github.com/liyasthomas/postwoman/pull/601) ([liyasthomas](https://github.com/liyasthomas))
+- feat\(i18n\): add Korean [\#600](https://github.com/liyasthomas/postwoman/pull/600) ([9j](https://github.com/9j))
+- Improve page load/unload experience \(remove FOUCs\) [\#599](https://github.com/liyasthomas/postwoman/pull/599) ([NBTX](https://github.com/NBTX))
+- Feature: Add prettier/pretty-quick formatting w/ Husky pre-commit [\#596](https://github.com/liyasthomas/postwoman/pull/596) ([dmitryyankowski](https://github.com/dmitryyankowski))
+- Added settings toggle for enabling/disabling auto scrolling \(scrollInto functionality\) [\#595](https://github.com/liyasthomas/postwoman/pull/595) ([dmitryyankowski](https://github.com/dmitryyankowski))
+
 ## [v1.9.0](https://github.com/liyasthomas/postwoman/tree/v1.9.0) (2020-02-24)
 
 [Full Changelog](https://github.com/liyasthomas/postwoman/compare/v1.8.0...v1.9.0)
@@ -13,8 +120,6 @@
 - Implement pre-request and post-request scripts \(and request chaining\) [\#218](https://github.com/liyasthomas/postwoman/issues/218)
 - Environment management and configuration [\#147](https://github.com/liyasthomas/postwoman/issues/147)
 - POST request body editor reacts to the content type [\#594](https://github.com/liyasthomas/postwoman/pull/594) ([AndrewBastin](https://github.com/AndrewBastin))
-- Environment Mangement [\#591](https://github.com/liyasthomas/postwoman/pull/591) ([JacobAnavisca](https://github.com/JacobAnavisca))
-- GraphQL Query Autocompletion [\#590](https://github.com/liyasthomas/postwoman/pull/590) ([AndrewBastin](https://github.com/AndrewBastin))
 - Postman collection parsing [\#574](https://github.com/liyasthomas/postwoman/pull/574) ([JacobAnavisca](https://github.com/JacobAnavisca))
 - Added toggle to decide whether extensions should be used [\#551](https://github.com/liyasthomas/postwoman/pull/551) ([AndrewBastin](https://github.com/AndrewBastin))
 - Show Ctrl instead of Command for shortcuts non-Apple platforms [\#549](https://github.com/liyasthomas/postwoman/pull/549) ([AndrewBastin](https://github.com/AndrewBastin))
@@ -37,7 +142,6 @@
 - Feature Request: Subfolders [\#540](https://github.com/liyasthomas/postwoman/issues/540)
 - Add max-height and overflow: auto to "parameter list" textarea [\#532](https://github.com/liyasthomas/postwoman/issues/532)
 - IE Support [\#386](https://github.com/liyasthomas/postwoman/issues/386)
-- ⏬ Import a Postman's Collection [\#333](https://github.com/liyasthomas/postwoman/issues/333)
 
 **Merged pull requests:**
 
@@ -78,7 +182,7 @@
 - Modification of French translations [\#537](https://github.com/liyasthomas/postwoman/pull/537) ([thomasbnt](https://github.com/thomasbnt))
 - Even [\#535](https://github.com/liyasthomas/postwoman/pull/535) ([liyasthomas](https://github.com/liyasthomas))
 - Updating spanish translation [\#529](https://github.com/liyasthomas/postwoman/pull/529) ([liyasthomas](https://github.com/liyasthomas))
-- chore\(deps\): bump nuxt-i18n from 6.4.1 to 6.5.0 [\#522](https://github.com/liyasthomas/postwoman/pull/522) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- even merge [\#528](https://github.com/liyasthomas/postwoman/pull/528) ([liyasthomas](https://github.com/liyasthomas))
 
 ## [v1.8.0](https://github.com/liyasthomas/postwoman/tree/v1.8.0) (2020-01-28)
 
@@ -89,20 +193,17 @@
 - Sync collection with a cloud storage \(e.g: Google drive\) [\#507](https://github.com/liyasthomas/postwoman/issues/507)
 - Application contains many hard-coded strings that aren't translatable [\#488](https://github.com/liyasthomas/postwoman/issues/488)
 - ULR parsing and var auto creation [\#469](https://github.com/liyasthomas/postwoman/issues/469)
-- What about additional loaders: + Pug, TypeScript, SASS, material-vue ? [\#467](https://github.com/liyasthomas/postwoman/issues/467)
 - \[suggestion\] - Tests tab [\#465](https://github.com/liyasthomas/postwoman/issues/465)
 - cookie not found support [\#443](https://github.com/liyasthomas/postwoman/issues/443)
 - Feature Request: Consumer Driven Contract Testing [\#420](https://github.com/liyasthomas/postwoman/issues/420)
 - Feature Request: Support OAuth2/OIDC [\#337](https://github.com/liyasthomas/postwoman/issues/337)
 - Add DB cache [\#26](https://github.com/liyasthomas/postwoman/issues/26)
-- Update asset/\*. js to  asset/\*. ts. [\#517](https://github.com/liyasthomas/postwoman/pull/517) ([Sn005](https://github.com/Sn005))
 - Auth [\#513](https://github.com/liyasthomas/postwoman/pull/513) ([liyasthomas](https://github.com/liyasthomas))
 - Support for Google Chrome Extension [\#512](https://github.com/liyasthomas/postwoman/pull/512) ([AndrewBastin](https://github.com/AndrewBastin))
 - GraphQL query validation based on schema [\#508](https://github.com/liyasthomas/postwoman/pull/508) ([AndrewBastin](https://github.com/AndrewBastin))
 - Syntax Error marking in GraphQL query editor [\#505](https://github.com/liyasthomas/postwoman/pull/505) ([AndrewBastin](https://github.com/AndrewBastin))
 - Refactoring proxy handling to be done in strategies [\#500](https://github.com/liyasthomas/postwoman/pull/500) ([AndrewBastin](https://github.com/AndrewBastin))
 - Firefox Extension compatibility [\#494](https://github.com/liyasthomas/postwoman/pull/494) ([AndrewBastin](https://github.com/AndrewBastin))
-- Network Strategies [\#487](https://github.com/liyasthomas/postwoman/pull/487) ([AndrewBastin](https://github.com/AndrewBastin))
 - chore\(oauth\): Added method signatures as per JSDoc conventions [\#486](https://github.com/liyasthomas/postwoman/pull/486) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - GraphQL Type Highlight and Links [\#479](https://github.com/liyasthomas/postwoman/pull/479) ([AndrewBastin](https://github.com/AndrewBastin))
 
@@ -129,12 +230,11 @@
 
 - Enhancements [\#531](https://github.com/liyasthomas/postwoman/pull/531) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - Merge pull request \#530 from liyasthomas/feature/post-request-tests [\#530](https://github.com/liyasthomas/postwoman/pull/530) ([liyasthomas](https://github.com/liyasthomas))
-- even merge [\#528](https://github.com/liyasthomas/postwoman/pull/528) ([liyasthomas](https://github.com/liyasthomas))
 - Refactor [\#523](https://github.com/liyasthomas/postwoman/pull/523) ([liyasthomas](https://github.com/liyasthomas))
+- chore\(deps\): bump nuxt-i18n from 6.4.1 to 6.5.0 [\#522](https://github.com/liyasthomas/postwoman/pull/522) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - chore\(deps\): bump v-tooltip from 2.0.2 to 2.0.3 [\#521](https://github.com/liyasthomas/postwoman/pull/521) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - chore\(deps-dev\): bump cypress from 3.8.2 to 3.8.3 [\#520](https://github.com/liyasthomas/postwoman/pull/520) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - Feature/post request tests [\#518](https://github.com/liyasthomas/postwoman/pull/518) ([nickpalenchar](https://github.com/nickpalenchar))
-- Validations for edit and create collections activity [\#516](https://github.com/liyasthomas/postwoman/pull/516) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - Validate duplicate collections [\#510](https://github.com/liyasthomas/postwoman/pull/510) ([jamesgeorge007](https://github.com/jamesgeorge007))
 - Lint and refactor [\#506](https://github.com/liyasthomas/postwoman/pull/506) ([liyasthomas](https://github.com/liyasthomas))
 - Merge pull request \#504 from liyasthomas/dependabot/npm\_and\_yarn/node-sass-4.13.1 [\#504](https://github.com/liyasthomas/postwoman/pull/504) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
@@ -159,6 +259,7 @@
 
 **Implemented enhancements:**
 
+- What about additional loaders: + Pug, TypeScript, SASS, material-vue ? [\#467](https://github.com/liyasthomas/postwoman/issues/467)
 - Can WSDL be implemented, similar to SoapUI? [\#461](https://github.com/liyasthomas/postwoman/issues/461)
 - Raw Request Body should be supported  to format the JSON string [\#446](https://github.com/liyasthomas/postwoman/issues/446)
 - Ability to send Binary data using Postwoman [\#415](https://github.com/liyasthomas/postwoman/issues/415)
@@ -191,9 +292,8 @@
 - Header key autocompletion [\#421](https://github.com/liyasthomas/postwoman/pull/421) ([AndrewBastin](https://github.com/AndrewBastin))
 - Custom methods support [\#400](https://github.com/liyasthomas/postwoman/pull/400) ([liyasthomas](https://github.com/liyasthomas))
 - Two Way Data Binding \(v-model\) to Ace Editor component [\#379](https://github.com/liyasthomas/postwoman/pull/379) ([AndrewBastin](https://github.com/AndrewBastin))
-- Basic i18n support [\#351](https://github.com/liyasthomas/postwoman/pull/351) ([liyasthomas](https://github.com/liyasthomas))
 - Undo header/param/body param deletion [\#350](https://github.com/liyasthomas/postwoman/pull/350) ([AndrewBastin](https://github.com/AndrewBastin))
-- refactor: minor improvements [\#343](https://github.com/liyasthomas/postwoman/pull/343) ([jamesgeorge007](https://github.com/jamesgeorge007))
+- Added ability to run GraphQL queries [\#346](https://github.com/liyasthomas/postwoman/pull/346) ([AndrewBastin](https://github.com/AndrewBastin))
 
 **Fixed bugs:**
 
@@ -239,6 +339,7 @@
 - Intent to translate [\#367](https://github.com/liyasthomas/postwoman/issues/367)
 - Static builds on releases [\#352](https://github.com/liyasthomas/postwoman/issues/352)
 - fix:SSE onclose handle [\#349](https://github.com/liyasthomas/postwoman/issues/349)
+- ⏬ Import a Postman's Collection [\#333](https://github.com/liyasthomas/postwoman/issues/333)
 - \[Request\] Use responses for next request? [\#324](https://github.com/liyasthomas/postwoman/issues/324)
 - Make response body area expandable [\#294](https://github.com/liyasthomas/postwoman/issues/294)
 - Mobile can't see console for request errors [\#283](https://github.com/liyasthomas/postwoman/issues/283)
@@ -299,6 +400,7 @@
 - Added Farsi language support [\#357](https://github.com/liyasthomas/postwoman/pull/357) ([hosseinnedaee](https://github.com/hosseinnedaee))
 - Adding french language basic [\#355](https://github.com/liyasthomas/postwoman/pull/355) ([thomasbnt](https://github.com/thomasbnt))
 - Add Proxy URL option [\#345](https://github.com/liyasthomas/postwoman/pull/345) ([NBTX](https://github.com/NBTX))
+- ♻️ Refactor Functions [\#344](https://github.com/liyasthomas/postwoman/pull/344) ([athul](https://github.com/athul))
 
 ## [v1.0.0](https://github.com/liyasthomas/postwoman/tree/v1.0.0) (2019-11-04)
 
@@ -342,7 +444,7 @@
 - Serialize a request into JSON? [\#4](https://github.com/liyasthomas/postwoman/issues/4)
 - Add brand new logo to the project [\#244](https://github.com/liyasthomas/postwoman/pull/244) ([caneco](https://github.com/caneco))
 - Feature/pre request script [\#231](https://github.com/liyasthomas/postwoman/pull/231) ([nickpalenchar](https://github.com/nickpalenchar))
-- Add the Apollo Software proxy server [\#217](https://github.com/liyasthomas/postwoman/pull/217) ([NBTX](https://github.com/NBTX))
+- Add the ApolloTV proxy server [\#217](https://github.com/liyasthomas/postwoman/pull/217) ([NBTX](https://github.com/NBTX))
 - bug: keeping information on page change [\#211](https://github.com/liyasthomas/postwoman/pull/211) ([breno-pereira](https://github.com/breno-pereira))
 - Work in Progress: feature/allow-collections-importing [\#209](https://github.com/liyasthomas/postwoman/pull/209) ([vlad0337187](https://github.com/vlad0337187))
 - Feature/log errors [\#207](https://github.com/liyasthomas/postwoman/pull/207) ([nickpalenchar](https://github.com/nickpalenchar))

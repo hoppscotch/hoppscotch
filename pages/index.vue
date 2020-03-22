@@ -1845,7 +1845,7 @@ export default {
     },
     rawRequestBody() {
       const { bodyParams, contentType } = this
-      if (contentType === "application/json") {
+      if (contentType.endsWith("json")) {
         try {
           const obj = JSON.parse(
             `{${bodyParams

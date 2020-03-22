@@ -1435,7 +1435,13 @@ export default {
     canListParameters: {
       immediate: true,
       handler(canListParameters) {
-        this.rawInput = !canListParameters
+        if (canListParameters) {
+          this.$nextTick(() => {
+            this.rawInput = Boolean(this.rawParams && this.rawParams !== "{}")
+          })
+        } else {
+          this.rawInput = true
+        }
       },
     },
     contentType(contentType, oldContentType) {
@@ -1531,11 +1537,6 @@ export default {
   },
   computed: {
     /**
-     * These are content types that can be automatically
-     * serialized by postwoman.
-     */
-    knownContentTypes: () => ["application/json", "application/x-www-form-urlencoded"],
-    /**
      * These are a list of Content Types known to Postwoman.
      */
     validContentTypes: () => [
@@ -1546,8 +1547,12 @@ export default {
       "text/html",
       "text/plain",
     ],
+    /**
+     * Check content types that can be automatically
+     * serialized by postwoman.
+     */
     canListParameters() {
-      return this.contentType === "application/x-www-form-urlencoded"
+      return ["application/json", "application/x-www-form-urlencoded"].includes(this.contentType)
     },
     uri: {
       get() {
@@ -1764,7 +1769,7 @@ export default {
     },
     rawInput: {
       get() {
-        return this.canListParameters ? this.$store.state.request.rawInput : true
+        return this.$store.state.request.rawInput
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawInput" })

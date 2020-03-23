@@ -172,7 +172,7 @@
   "blue": "Bleue",
   "loading": "Chargement...",
   "fetching": "Récupération...",
-  "waiting_send_req": "(en attente de l'envoi de la demande)",
+  "waiting_send_req": "(en attente de l'envoie de la demande)",
   "cancel": "Annuler",
   "save": "Sauvarder",
   "dismiss": "Dismiss",

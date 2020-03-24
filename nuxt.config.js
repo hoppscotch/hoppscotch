@@ -5,6 +5,9 @@ export const options = {
   shortDescription: "A free, fast and beautiful API request builder",
   description:
     "Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
+  loading: {
+    color: "#202124",
+  },
 }
 // Sets the base path for the router.
 // Important for deploying to GitHub pages.
@@ -42,19 +45,6 @@ export default {
     title: `${options.name} \u2022 ${options.shortDescription}`,
     meta: [
       {
-        charset: "utf-8",
-      },
-      {
-        name: "viewport",
-        content:
-          "width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, minimal-ui",
-      },
-      {
-        hid: "description",
-        name: "description",
-        content: options.description || "",
-      },
-      {
         name: "keywords",
         content:
           "postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
@@ -75,22 +65,13 @@ export default {
         itemprop: "image",
         content: `https://postwoman.io/logo.jpg`,
       },
+      {
+        property: "og:image",
+        content: `https://postwoman.io/logo.jpg`,
+      },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
         name: "application-name",
-        content: options.name,
-      },
-      // Add to homescreen for Safari on iOS
-      {
-        name: "apple-mobile-web-app-capable",
-        content: "yes",
-      },
-      {
-        name: "apple-mobile-web-app-status-bar-style",
-        content: "black-translucent",
-      },
-      {
-        name: "apple-mobile-web-app-title",
         content: options.name,
       },
       // Windows phone tile icon
@@ -105,60 +86,6 @@ export default {
       {
         name: "msapplication-tap-highlight",
         content: "no",
-      },
-      // OpenGraph
-      {
-        property: "og:site_name",
-        content: options.name,
-      },
-      {
-        property: "og:url",
-        content: "https://postwoman.io",
-      },
-      {
-        property: "og:type",
-        content: "website",
-      },
-      {
-        property: "og:title",
-        content: `${options.name} \u2022 ${options.shortDescription}`,
-      },
-      {
-        property: "og:description",
-        content: options.description,
-      },
-      {
-        property: "og:image",
-        content: `https://postwoman.io/logo.jpg`,
-      },
-      // Twitter
-      {
-        name: "twitter:card",
-        content: "summary_large_image",
-      },
-      {
-        name: "twitter:site",
-        content: "@liyasthomas",
-      },
-      {
-        name: "twitter:creator",
-        content: "@liyasthomas",
-      },
-      {
-        name: "twitter:url",
-        content: "https://postwoman.io",
-      },
-      {
-        name: "twitter:title",
-        content: `${options.name} \u2022 ${options.shortDescription}`,
-      },
-      {
-        name: "twitter:description",
-        content: options.description,
-      },
-      {
-        name: "twitter:image",
-        content: "https://postwoman.io/logo.jpg",
       },
     ],
     link: [
@@ -245,28 +172,22 @@ export default {
     manifest: {
       name: options.name,
       short_name: options.name,
-      display: "standalone",
-      theme_color: "#202124",
-      background_color: "#202124",
       start_url: `${routerBase.router.base}`,
-    },
-
-    meta: {
+      display: "standalone",
+      background_color: "#202124",
       description: options.shortDescription,
       theme_color: "#202124",
     },
 
-    icons: ((sizes) => {
-      let icons = []
-      for (let size of sizes) {
-        icons.push({
-          src: `${routerBase.router.base}icons/icon-${size}x${size}.png`,
-          type: "image/png",
-          sizes: `${size}x${size}`,
-        })
-      }
-      return icons
-    })([48, 72, 96, 144, 192, 512]),
+    meta: {
+      ogHost: "https://postwoman.io",
+      twitterCard: "summary_large_image",
+      twitterSite: "@liyasthomas",
+      twitterCreator: "@liyasthomas",
+      description: options.shortDescription,
+      theme_color: "#202124",
+      nativeUI: true,
+    },
   },
   toast: {
     position: "bottom-center",

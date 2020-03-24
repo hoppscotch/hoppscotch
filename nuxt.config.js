@@ -65,6 +65,10 @@ export default {
         itemprop: "image",
         content: `https://postwoman.io/logo.jpg`,
       },
+      {
+        property: "og:image",
+        content: `https://postwoman.io/logo.jpg`,
+      },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
         name: "application-name",

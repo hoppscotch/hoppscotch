@@ -1,6 +1,6 @@
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
-export const meta = {
+export const options = {
   name: "Postwoman",
   shortDescription: "A free, fast and beautiful API request builder",
   description:
@@ -39,7 +39,7 @@ export default {
     },
   },
   head: {
-    title: `${meta.name} \u2022 ${meta.shortDescription}`,
+    title: `${options.name} \u2022 ${options.shortDescription}`,
     meta: [
       {
         charset: "utf-8",
@@ -52,7 +52,7 @@ export default {
       {
         hid: "description",
         name: "description",
-        content: meta.description || "",
+        content: options.description || "",
       },
       {
         name: "keywords",
@@ -65,11 +65,11 @@ export default {
       },
       {
         itemprop: "name",
-        content: `${meta.name} \u2022 ${meta.shortDescription}`,
+        content: `${options.name} \u2022 ${options.shortDescription}`,
       },
       {
         itemprop: "description",
-        content: meta.description,
+        content: options.description,
       },
       {
         itemprop: "image",
@@ -78,7 +78,7 @@ export default {
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
         name: "application-name",
-        content: meta.name,
+        content: options.name,
       },
       // Add to homescreen for Safari on iOS
       {
@@ -91,7 +91,7 @@ export default {
       },
       {
         name: "apple-mobile-web-app-title",
-        content: meta.name,
+        content: options.name,
       },
       // Windows phone tile icon
       {
@@ -109,7 +109,7 @@ export default {
       // OpenGraph
       {
         property: "og:site_name",
-        content: meta.name,
+        content: options.name,
       },
       {
         property: "og:url",
@@ -121,11 +121,11 @@ export default {
       },
       {
         property: "og:title",
-        content: `${meta.name} \u2022 ${meta.shortDescription}`,
+        content: `${options.name} \u2022 ${options.shortDescription}`,
       },
       {
         property: "og:description",
-        content: meta.description,
+        content: options.description,
       },
       {
         property: "og:image",
@@ -150,11 +150,11 @@ export default {
       },
       {
         name: "twitter:title",
-        content: `${meta.name} \u2022 ${meta.shortDescription}`,
+        content: `${options.name} \u2022 ${options.shortDescription}`,
       },
       {
         name: "twitter:description",
-        content: meta.description,
+        content: options.description,
       },
       {
         name: "twitter:image",
@@ -227,7 +227,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [],
+  buildModules: ["@nuxtjs/gtm"],
   /*
    ** Nuxt.js modules
    */
@@ -238,33 +238,25 @@ export default {
     ["@nuxtjs/toast"],
     ["@nuxtjs/google-analytics"],
     ["@nuxtjs/sitemap"],
-    [
-      "@nuxtjs/google-tag-manager",
-      {
-        id: process.env.GTM_ID || "GTM-MXWD8NQ",
-      },
-    ],
     ["@nuxtjs/robots"],
     ["nuxt-i18n"],
   ],
   pwa: {
     manifest: {
-      name: meta.name,
-      short_name: meta.name,
-
+      name: options.name,
+      short_name: options.name,
       display: "standalone",
-
       theme_color: "#202124",
       background_color: "#202124",
       start_url: `${routerBase.router.base}`,
     },
 
     meta: {
-      description: meta.shortDescription,
+      description: options.shortDescription,
       theme_color: "#202124",
     },
 
-    icons: (sizes => {
+    icons: ((sizes) => {
       let icons = []
       for (let size of sizes) {
         icons.push({
@@ -284,6 +276,9 @@ export default {
   },
   googleAnalytics: {
     id: process.env.GA_ID || "UA-61422507-2",
+  },
+  gtm: {
+    id: process.env.GTM_ID || "GTM-MXWD8NQ",
   },
   sitemap: {
     hostname: "https://postwoman.io",

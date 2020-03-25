@@ -186,6 +186,7 @@
                 type="url"
                 v-model="uri"
                 spellcheck="false"
+                @input="pathInputHandler"
               />
             </li>
             <div>
@@ -1341,13 +1342,13 @@ const statusCategories = [
     className: "missing-data-response",
   },
 ]
-const parseHeaders = xhr => {
+const parseHeaders = (xhr) => {
   const headers = xhr
     .getAllResponseHeaders()
     .trim()
     .split(/[\r\n]+/)
   const headerMap = {}
-  headers.forEach(line => {
+  headers.forEach((line) => {
     const parts = line.split(": ")
     const header = parts.shift().toLowerCase()
     const value = parts.join(": ")
@@ -1355,8 +1356,8 @@ const parseHeaders = xhr => {
   })
   return headerMap
 }
-export const findStatusGroup = responseStatus =>
-  statusCategories.find(status => status.statusCodeRegex.test(responseStatus))
+export const findStatusGroup = (responseStatus) =>
+  statusCategories.find((status) => status.statusCodeRegex.test(responseStatus))
 export default {
   directives: {
     textareaAutoHeight,
@@ -1445,7 +1446,7 @@ export default {
       },
     },
     contentType(contentType, oldContentType) {
-      const getDefaultParams = contentType => {
+      const getDefaultParams = (contentType) => {
         switch (contentType) {
           case "application/json":
           case "application/vnd.api+json":
@@ -1463,7 +1464,7 @@ export default {
       }
       this.setRouteQueryState()
     },
-    "response.body": function(val) {
+    "response.body": function (val) {
       if (
         this.response.body === this.$t("waiting_send_req") ||
         this.response.body === this.$t("loading")
@@ -1488,7 +1489,7 @@ export default {
       }
     },
     params: {
-      handler: function(newValue) {
+      handler: function (newValue) {
         if (!this.paramsWatchEnabled) {
           this.paramsWatchEnabled = true
           return
@@ -1566,7 +1567,7 @@ export default {
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
-        let url
+        let url = value
         if (this.preRequestScript && this.showPreRequestScript) {
           const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
           url = parseTemplateString(value, environmentVariables)
@@ -2076,7 +2077,7 @@ export default {
           : null
       let headers = {}
       let headersObject = {}
-      Object.keys(headers).forEach(id => {
+      Object.keys(headers).forEach((id) => {
         headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
@@ -2112,7 +2113,7 @@ export default {
         // specify them.
         // headers
       )
-      Object.keys(headers).forEach(id => {
+      Object.keys(headers).forEach((id) => {
         headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
@@ -2214,21 +2215,23 @@ export default {
     },
     getQueryStringFromPath() {
       let queryString
-      const pathParsed = url.parse(this.path)
+      const pathParsed = url.parse(this.uri)
       return (queryString = pathParsed.query ? pathParsed.query : "")
     },
     queryStringToArray(queryString) {
       const queryParsed = querystring.parse(queryString)
-      return Object.keys(queryParsed).map(key => ({
+      return Object.keys(queryParsed).map((key) => ({
         key,
         value: queryParsed[key],
       }))
     },
     pathInputHandler() {
-      const queryString = this.getQueryStringFromPath()
-      const params = this.queryStringToArray(queryString)
-      this.paramsWatchEnabled = false
-      this.params = params
+      if (this.uri.includes("?")) {
+        const queryString = this.getQueryStringFromPath()
+        const params = this.queryStringToArray(queryString)
+        this.paramsWatchEnabled = false
+        this.params = params
+      }
     },
     addRequestHeader() {
       this.$store.commit("addHeaders", {
@@ -2388,8 +2391,8 @@ export default {
       }
     },
     setRouteQueryState() {
-      const flat = key => (this[key] !== "" ? `${key}=${this[key]}&` : "")
-      const deep = key => {
+      const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
+      const deep = (key) => {
         const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
           return `${key}=${JSON.stringify(this[key])}&`
@@ -2406,19 +2409,14 @@ export default {
         !this.urlExcludes.bearerToken ? "bearerToken" : null,
         "contentType",
       ]
-        .filter(item => item !== null)
-        .map(item => flat(item))
-      const deeps = ["headers", "params"].map(item => deep(item))
+        .filter((item) => item !== null)
+        .map((item) => flat(item))
+      const deeps = ["headers", "params"].map((item) => deep(item))
       const bodyParams = this.rawInput ? [flat("rawParams")] : [deep("bodyParams")]
       history.replaceState(
         window.location.href,
         "",
-        `/?${encodeURI(
-          flats
-            .concat(deeps, bodyParams)
-            .join("")
-            .slice(0, -1)
-        )}`
+        `/?${encodeURI(flats.concat(deeps, bodyParams).join("").slice(0, -1))}`
       )
     },
     setRouteQueries(queries) {
@@ -2730,7 +2728,7 @@ export default {
   },
   async mounted() {
     this.observeRequestButton()
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.sendRequest()
@@ -2762,7 +2760,7 @@ export default {
     }
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
-      vm => [
+      (vm) => [
         vm.label,
         vm.method,
         vm.url,
@@ -2777,7 +2775,7 @@ export default {
         vm.contentType,
         vm.rawParams,
       ],
-      val => {
+      (val) => {
         this.setRouteQueryState()
       }
     )

@@ -368,7 +368,7 @@ h3.title {
   margin: 4px;
 }
 
-.info {
+.info:not(.toasted) {
   margin-left: 4px;
   color: var(--fg-light-color);
 }

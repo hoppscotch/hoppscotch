@@ -134,7 +134,7 @@ export default {
   loadingIndicator: {
     name: "pulse",
     color: "var(--ac-color)",
-    background: "var(--bg-color)",
+    background: "#202124",
   },
   /*
    ** Global CSS

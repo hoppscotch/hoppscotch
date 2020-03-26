@@ -1528,6 +1528,14 @@ export default {
       this.rawInput = newValue.rawInput
       this.contentType = newValue.contentType
       this.requestType = newValue.requestType
+      if (newValue.preRequestScript) {
+        this.showPreRequestScript = true
+        this.preRequestScript = newValue.preRequestScript
+      }
+      if (newValue.testScript) {
+        this.testsEnabled = true
+        this.testScript = newValue.testScript
+      }
     },
     editingRequest(newValue) {
       this.editRequest = newValue
@@ -2570,6 +2578,8 @@ export default {
         rawInput: this.rawInput,
         contentType: this.contentType,
         requestType: this.requestType,
+        preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
+        testScript: this.testsEnabled == true ? this.testScript : null,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)

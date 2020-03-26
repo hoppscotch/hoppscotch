@@ -1,20 +1,11 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('history')" ref="history">
-    <ul>
-      <div class="show-on-large-screen">
-        <li id="filter-history">
-          <input
-            aria-label="Search"
-            type="search"
-            :placeholder="$t('search')"
-            v-model="filterText"
-          />
-        </li>
-        <button class="icon">
-          <i class="material-icons">search</i>
-        </button>
-      </div>
-    </ul>
+    <div class="show-on-large-screen">
+      <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
+      <button class="icon">
+        <i class="material-icons">search</i>
+      </button>
+    </div>
     <virtual-list
       class="virtual-list"
       :class="{ filled: filteredHistory.length }"
@@ -354,9 +345,9 @@ export default {
         fb.currentUser !== null
           ? fb.currentHistory
           : JSON.parse(window.localStorage.getItem("history")) || []
-      return this.history.filter(entry => {
+      return this.history.filter((entry) => {
         const filterText = this.filterText.toLowerCase()
-        return Object.keys(entry).some(key => {
+        return Object.keys(entry).some((key) => {
           let value = entry[key]
           value = typeof value !== "string" ? value.toString() : value
           return value.toLowerCase().includes(filterText)

@@ -590,6 +590,7 @@ pre {
 
   input {
     text-transform: uppercase;
+    min-width: 128px;
   }
 
   .trigger {
@@ -690,8 +691,12 @@ ul li,
 ol li {
   display: inline-flex;
   flex-flow: column nowrap;
-  flex-grow: 1;
+  flex: 1;
   justify-content: center;
+
+  &.shrink {
+    flex-grow: 0;
+  }
 }
 
 .flex-wrap {
@@ -714,7 +719,7 @@ ol li {
 }
 
 .show-on-large-screen {
-  display: inline-flex;
+  display: flex;
   flex: 1;
 }
 
@@ -791,7 +796,7 @@ ol li {
     z-index: 10001;
     transform: translateX(-50%);
     box-shadow: 0 4px 24px rgba(black, 0.2);
-    transition: all .2s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 }
 

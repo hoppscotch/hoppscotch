@@ -186,7 +186,6 @@ export default {
       twitterCreator: "@liyasthomas",
       description: options.shortDescription,
       theme_color: "#202124",
-      nativeUI: true,
     },
   },
   toast: {

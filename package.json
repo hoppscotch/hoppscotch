@@ -30,14 +30,14 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.9.5",
+    "@nuxtjs/axios": "^5.9.6",
     "@nuxtjs/gtm": "^2.2.3",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.0.1",
     "@nuxtjs/toast": "^3.3.0",
     "ace-builds": "^1.4.8",
-    "firebase": "^7.13.0",
+    "firebase": "^7.13.1",
     "graphql": "^14.6.0",
     "graphql-language-service-interface": "^2.3.3",
     "nuxt": "^2.12.1",

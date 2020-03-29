@@ -252,6 +252,27 @@
                       @change="uploadAttachment"
                       multiple
                     />
+                    <label for="certs">
+                      <button
+                        class="icon"
+                        @click="$refs.certs.click()"
+                        v-tooltip="
+                          certs.length === 0 ? $t('upload_file') : certnames.replace('<br/>', '')
+                        "
+                      >
+                        <i class="material-icons">security</i>
+                        <span>
+                          {{
+                            certs.length === 0
+                              ? "No certs"
+                              : certs.length == 1
+                              ? "1 file"
+                              : certs.length + " files"
+                          }}
+                        </span>
+                      </button>
+                    </label>
+                    <input ref="certs" name="certs" type="file" @change="uploadCerts" multiple />
                     <label for="payload">
                       <button
                         class="icon"
@@ -1305,6 +1326,7 @@ import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
 import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
+const https = require("https")
 const statusCategories = [
   {
     name: "informational",
@@ -1409,6 +1431,8 @@ export default {
       customMethod: false,
       files: [],
       filenames: "",
+      certs: [],
+      certnames: "",
       navigatorShare: navigator.share,
 
       settings: {
@@ -2037,6 +2061,7 @@ export default {
         headers,
         data: requestBody,
         credentials: true,
+        httpsAgent: this.certs.length !== 0 ? new https.Agent({ ca: this.certs }) : null,
       }
       if (preRequestScript) {
         const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
@@ -2544,6 +2569,7 @@ export default {
           this.clientId = ""
           this.scope = ""
           this.files = []
+          this.certs = []
       }
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
@@ -2603,6 +2629,22 @@ export default {
       if (this.files.length !== 0) {
         for (let file of this.files) {
           this.filenames = `${this.filenames}<br/>${file.name}`
+        }
+        this.$toast.info(this.$t("file_imported"), {
+          icon: "attach_file",
+        })
+      } else {
+        this.$toast.error(this.$t("choose_file"), {
+          icon: "attach_file",
+        })
+      }
+    },
+    uploadCerts() {
+      this.certnames = ""
+      this.certs = this.$refs.certs.files
+      if (this.certs.length !== 0) {
+        for (let file of this.certs) {
+          this.certnames = `${this.certnames}<br/>${file.name}`
         }
         this.$toast.info(this.$t("file_imported"), {
           icon: "attach_file",

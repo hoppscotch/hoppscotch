@@ -237,6 +237,12 @@ export default {
       },
       {
         code: "pt",
+        name: "Português",
+        iso: "pt-PT",
+        file: "pt-PT.json",
+      },
+      {
+        code: "pt-br",
         name: "Português Brasileiro",
         iso: "pt-BR",
         file: "pt-BR.json",

@@ -34,7 +34,7 @@
     "@nuxtjs/gtm": "^2.2.3",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "@nuxtjs/robots": "^2.4.2",
-    "@nuxtjs/sitemap": "^2.1.0",
+    "@nuxtjs/sitemap": "^2.2.0",
     "@nuxtjs/toast": "^3.3.0",
     "ace-builds": "^1.4.9",
     "firebase": "^7.13.2",

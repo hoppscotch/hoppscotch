@@ -302,9 +302,9 @@
           <p
             v-if="
               queryFields.length === 0 &&
-                mutationFields.length === 0 &&
-                subscriptionFields.length === 0 &&
-                gqlTypes.length === 0
+              mutationFields.length === 0 &&
+              subscriptionFields.length === 0 &&
+              gqlTypes.length === 0
             "
             class="info"
           >
@@ -505,7 +505,7 @@ export default {
 
       try {
         let headers = {}
-        this.headers.forEach(header => {
+        this.headers.forEach((header) => {
           headers[header.key] = header.value
         })
 
@@ -557,7 +557,7 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach(header => {
+        this.headers.forEach((header) => {
           headers[header.key] = header.value
         })
 
@@ -571,19 +571,8 @@ export default {
           data: query,
         }
 
-        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? {
-              method: "post",
-              url:
-                this.$store.state.postwoman.settings.PROXY_URL ||
-                `https://postwoman.apollosoftware.xyz/`,
-              data: reqOptions,
-            }
-          : reqOptions
+        const data = await sendNetworkRequest(reqOptions, this.$store)
 
-        const res = await axios(reqConfig)
-
-        const data = this.$store.state.postwoman.settings.PROXY_ENABLED ? res.data : res
         const schema = gql.buildClientSchema(data.data.data)
         this.schema = gql.printSchema(schema, {
           commentDescriptions: true,

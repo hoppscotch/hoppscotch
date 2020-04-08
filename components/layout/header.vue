@@ -165,7 +165,7 @@
                 />
               </svg>
               <span>Firefox</span>
-              <span class="icon" v-if="firefoxExtInstalled" v-tooltip="$t('installed')">
+              <span class="icon" v-if="hasFirefoxExtInstalled" v-tooltip="$t('installed')">
                 <i class="material-icons">done</i>
               </span>
             </button>
@@ -190,7 +190,7 @@
                 />
               </svg>
               <span>Chrome</span>
-              <span class="icon" v-if="chromeExtInstalled" v-tooltip="$t('installed')">
+              <span class="icon" v-if="hasChromeExtInstalled" v-tooltip="$t('installed')">
                 <i class="material-icons">done</i>
               </span>
             </button>
@@ -286,7 +286,11 @@
 
 <script>
 import intializePwa from "../../assets/js/pwa"
-import { hasExtensionInstalled } from "../../functions/strategies/ExtensionStrategy"
+import {
+  hasExtensionInstalled,
+  hasChromeExtensionInstalled,
+  hasFirefoxExtensionInstalled,
+} from "../../functions/strategies/ExtensionStrategy"
 import { getPlatformSpecialKey } from "../../functions/platformutils"
 import firebase from "firebase/app"
 import { fb } from "../../functions/fb"
@@ -306,6 +310,8 @@ export default {
       // prompt.
       showInstallPrompt: null,
       showExtensions: false,
+      hasChromeExtInstalled: hasChromeExtensionInstalled(),
+      hasFirefoxExtInstalled: hasFirefoxExtensionInstalled(),
       showShortcuts: false,
       showSupport: false,
       fb,

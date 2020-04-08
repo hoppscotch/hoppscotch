@@ -48,8 +48,8 @@
             class="icon"
             v-tooltip="
               (fb.currentUser.displayName || '<label><i>Name not found</i></label>') +
-                '<br>' +
-                (fb.currentUser.email || '<label><i>Email not found</i></label>')
+              '<br>' +
+              (fb.currentUser.email || '<label><i>Email not found</i></label>')
             "
             aria-label="Account"
           >
@@ -287,7 +287,6 @@
 <script>
 import intializePwa from "../../assets/js/pwa"
 import { hasExtensionInstalled } from "../../functions/strategies/ExtensionStrategy"
-import { hasChromeExtensionInstalled } from "../../functions/strategies/ChromeStrategy"
 import { getPlatformSpecialKey } from "../../functions/platformutils"
 import firebase from "firebase/app"
 import { fb } from "../../functions/fb"
@@ -343,7 +342,7 @@ export default {
       if (!showExtensionsToast) return
 
       setTimeout(() => {
-        if (!(hasExtensionInstalled() || hasChromeExtensionInstalled())) {
+        if (!hasExtensionInstalled()) {
           this.$toast.show(this.$t("extensions_info2"), {
             icon: "extension",
             duration: 5000,
@@ -373,7 +372,7 @@ export default {
         }
       }, 15000)
 
-      this._keyListener = function(e) {
+      this._keyListener = function (e) {
         if (e.key === "Escape") {
           e.preventDefault()
           this.showExtensions = this.showShortcuts = this.showSupport = false
@@ -404,7 +403,7 @@ export default {
 
   computed: {
     availableLocales() {
-      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale)
+      return this.$i18n.locales.filter((i) => i.code !== this.$i18n.locale)
     },
   },
 }

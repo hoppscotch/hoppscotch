@@ -272,7 +272,7 @@ You're done!
 * [Vue](https://vuejs.org/) - To add to the JavaScript magic!
 * [Nuxt](https://nuxtjs.org/) - To add to the Vue magic!
 
-## Developing 👷
+## Developing 👷‍♀️
 
 #### Use a browser based development environment:
 

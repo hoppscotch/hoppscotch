@@ -49,7 +49,7 @@
     "vuefire": "^2.2.2",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^2.2.0",
-    "yargs-parser": "^18.1.2"
+    "yargs-parser": "^18.1.3"
   },
   "devDependencies": {
     "@nuxtjs/google-analytics": "^2.2.3",

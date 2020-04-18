@@ -23,6 +23,7 @@
   display: flex;
   flex-flow: column nowrap;
   flex-grow: 1;
+  overflow: hidden;
 
   .tabs {
     -webkit-overflow-scrolling: touch;
@@ -86,7 +87,7 @@ export default {
 
   methods: {
     selectTab({ id }) {
-      this.tabs.forEach(tab => {
+      this.tabs.forEach((tab) => {
         tab.isActive = tab.id == id
       })
     },

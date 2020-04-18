@@ -87,7 +87,7 @@ export default {
 
   methods: {
     selectTab({ id }) {
-      this.tabs.forEach((tab) => {
+      this.tabs.forEach(tab => {
         tab.isActive = tab.id == id
       })
     },

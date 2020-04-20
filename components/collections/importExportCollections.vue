@@ -231,8 +231,10 @@ export default {
       let requestObjectUrl = requestObject.request.url.raw.match(
         /^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/
       )
-      pwRequest.url = requestObjectUrl[1]
-      pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+      if (requestObjectUrl) {
+        pwRequest.url = requestObjectUrl[1]
+        pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+      }
       pwRequest.method = requestObject.request.method
       let itemAuth = requestObject.request.auth ? requestObject.request.auth : ""
       let authType = itemAuth ? itemAuth.type : ""

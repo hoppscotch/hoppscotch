@@ -44,6 +44,7 @@
     "nuxt-i18n": "^6.9.1",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^2.3.0",
+    "socketio-wildcard": "^2.0.0",
     "v-tooltip": "^2.0.3",
     "vue-virtual-scroll-list": "^1.4.7",
     "vuefire": "^2.2.2",

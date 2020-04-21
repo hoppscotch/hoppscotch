@@ -78,6 +78,7 @@
 <script>
 import { socketioValid } from "~/functions/utils/valid"
 import io from "socket.io-client"
+import wildcard from "socketio-wildcard"
 
 export default {
   components: {
@@ -119,6 +120,8 @@ export default {
 
       try {
         this.io = new io(this.url)
+        // Add ability to listen to all events
+        wildcard(io.Manager)(this.io)
         this.io.on("connect", () => {
           this.connectionState = true
           this.communication.log = [
@@ -133,9 +136,10 @@ export default {
             icon: "sync",
           })
         })
-        this.io.on("message", data => {
+        this.io.on("*", ({ data }) => {
+          const [eventName, message] = data
           this.communication.log.push({
-            payload: data,
+            payload: `[${eventName}] ${message ? JSON.stringify(message) : ""}`,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })

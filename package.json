@@ -30,7 +30,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.9.7",
+    "@nuxtjs/axios": "^5.10.0",
     "@nuxtjs/gtm": "^2.2.3",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "@nuxtjs/robots": "^2.4.2",

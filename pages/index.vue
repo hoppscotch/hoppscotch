@@ -1474,7 +1474,8 @@ export default {
           this.responseType === "application/vnd.api+json"
         ) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType = this.response.body.constructor.name === "Object" ? "json" : "json5"
+          this.responseBodyType =
+            this.response.body.constructor.name === "Object" ? "json" : "json5"
         } else if (this.responseType === "text/html") {
           this.responseBodyText = this.response.body
           this.responseBodyType = "html"
@@ -1904,7 +1905,7 @@ export default {
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
+            if (key) requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
           })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
@@ -1939,7 +1940,7 @@ export default {
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            headers.push(`    "${key}": "${value}",\n`)
+            if (key) headers.push(`    "${key}": "${value}",\n`)
           })
         }
         headers = headers.join("").slice(0, -2)
@@ -1969,7 +1970,7 @@ export default {
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            requestString.push(`  -H '${key}: ${value}' \n`)
+            if (key) requestString.push(`  -H '${key}: ${value}' \n`)
           })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
@@ -2082,7 +2083,7 @@ export default {
       let headers = {}
       let headersObject = {}
       Object.keys(headers).forEach((id) => {
-        headersObject[headers[id].key] = headers[id].value
+        if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
       // If the request has a body, we want to ensure Content-Length and
@@ -2118,7 +2119,7 @@ export default {
         // headers
       )
       Object.keys(headers).forEach((id) => {
-        headersObject[headers[id].key] = headers[id].value
+        if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
       try {

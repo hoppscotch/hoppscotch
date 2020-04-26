@@ -1474,7 +1474,7 @@ export default {
           this.responseType === "application/vnd.api+json"
         ) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType = "json"
+          this.responseBodyType = this.response.body.constructor.name === "Object" ? "json" : "json5"
         } else if (this.responseType === "text/html") {
           this.responseBodyText = this.response.body
           this.responseBodyType = "html"

@@ -144,13 +144,13 @@ export default {
             ts: new Date().toLocaleTimeString(),
           })
         })
-        this.io.on("connect_error", error => {
+        this.io.on("connect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("reconnect_error", error => {
+        this.io.on("reconnect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("error", data => {
+        this.io.on("error", (data) => {
           this.handleError()
         })
         this.io.on("disconnect", () => {
@@ -194,12 +194,18 @@ export default {
     },
     sendMessage() {
       const eventName = this.communication.eventName
-      const message = this.communication.input
+      let message
+
+      try {
+        message = JSON.parse(this.communication.input)
+      } catch (err) {
+        message = this.communication.input
+      }
 
       if (this.io) {
         // TODO: support only one argument now
         // maybe should support more argument
-        this.io.emit(eventName, message, data => {
+        this.io.emit(eventName, message, (data) => {
           // receive response from server
           this.communication.log.push({
             payload: `[${eventName}] ${JSON.stringify(data)}`,
@@ -209,7 +215,7 @@ export default {
         })
 
         this.communication.log.push({
-          payload: `[${eventName}] ${message}`,
+          payload: `[${eventName}] ${JSON.stringify(message)}`,
           source: "client",
           ts: new Date().toLocaleTimeString(),
         })

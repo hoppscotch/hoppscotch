@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@nuxtjs/google-analytics": "^2.2.3",
-    "cypress": "^4.4.1",
+    "cypress": "^4.5.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.0",
     "node-sass": "^4.14.0",

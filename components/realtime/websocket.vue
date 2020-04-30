@@ -38,14 +38,10 @@
       <ul>
         <li>
           <label for="websocket-message">{{ $t("message") }}</label>
-          <input
-            id="websocket-message"
-            name="message"
-            type="text"
-            v-model="communication.input"
-            :readonly="!connectionState"
-            @keyup.enter="connectionState ? sendMessage() : null"
-          />
+          <input id="websocket-message" name="message" type="text" v-model="communication.input"
+          :readonly="!connectionState" @keyup.enter="connectionState ? sendMessage() : null"
+          @keyup.up="connectionState ? walkHistory("up") : null" @keyup.down="connectionState ?
+          walkHistory("down") : null" />
         </li>
         <div>
           <li>
@@ -79,6 +75,8 @@ export default {
       communication: {
         log: null,
         input: "",
+        messageHistory: [],
+        currentIndex: -1, //index of the messageHistory array to put in input box
       },
     }
   },
@@ -104,7 +102,7 @@ export default {
       ]
       try {
         this.socket = new WebSocket(this.url)
-        this.socket.onopen = event => {
+        this.socket.onopen = (event) => {
           this.connectionState = true
           this.communication.log = [
             {
@@ -118,10 +116,10 @@ export default {
             icon: "sync",
           })
         }
-        this.socket.onerror = event => {
+        this.socket.onerror = (event) => {
           this.handleError()
         }
-        this.socket.onclose = event => {
+        this.socket.onclose = (event) => {
           this.connectionState = false
           this.communication.log.push({
             payload: this.$t("disconnected_from", { name: this.url }),
@@ -133,7 +131,7 @@ export default {
             icon: "sync_disabled",
           })
         }
-        this.socket.onmessage = event => {
+        this.socket.onmessage = (event) => {
           this.communication.log.push({
             payload: event.data,
             source: "server",
@@ -175,7 +173,45 @@ export default {
         source: "client",
         ts: new Date().toLocaleTimeString(),
       })
+
+      //push message to history array and resets the currentIndex
+      if (
+        this.communication.messageHistory[this.communication.messageHistory.length - 1] !== message
+      ) {
+        this.communication.messageHistory.push(message)
+        this.currentIndex = -1
+      }
       this.communication.input = ""
+    },
+    walkHistory(direction) {
+      const length = this.communication.messageHistory.length
+      switch (direction) {
+        case "up":
+          if (length > 0 && this.currentIndex !== 0) {
+            //does nothing if messageHistory is empty or the currentIndex is 0 when up arrow is pressed
+            if (this.currentIndex === -1) {
+              this.currentIndex = length - 1
+              this.communication.input = this.communication.messageHistory[this.currentIndex]
+            } else if (this.currentIndex === 0) {
+              this.communication.input = this.communication.messageHistory[0]
+            } else if (this.currentIndex > 0) {
+              this.currentIndex = this.currentIndex - 1
+              this.communication.input = this.communication.messageHistory[this.currentIndex]
+            }
+          }
+          break
+        case "down":
+          if (length > 0 && this.currentIndex > -1) {
+            if (this.currentIndex === length - 1) {
+              this.currentIndex = -1
+              this.communication.input = ""
+            } else if (this.currentIndex < length - 1) {
+              this.currentIndex = this.currentIndex + 1
+              this.communication.input = this.communication.messageHistory[this.currentIndex]
+            }
+          }
+          break
+      }
     },
   },
 }

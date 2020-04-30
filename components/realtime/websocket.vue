@@ -81,9 +81,8 @@ export default {
       communication: {
         log: null,
         input: "",
-        messageHistory: [],
-        currentIndex: -1, //index of the messageHistory array to put in input box
       },
+      currentIndex: -1, //index of the message log array to put in input box
     }
   },
   computed: {
@@ -179,30 +178,23 @@ export default {
         source: "client",
         ts: new Date().toLocaleTimeString(),
       })
-
-      //push message to history array and resets the currentIndex
-      if (
-        this.communication.messageHistory[this.communication.messageHistory.length - 1] !== message
-      ) {
-        this.communication.messageHistory.push(message)
-        this.currentIndex = -1
-      }
       this.communication.input = ""
     },
     walkHistory(direction) {
-      const length = this.communication.messageHistory.length
+      const clientMessages = this.communication.log.filter((msg) => msg.source === "client")
+      const length = clientMessages.length
       switch (direction) {
         case "up":
           if (length > 0 && this.currentIndex !== 0) {
-            //does nothing if messageHistory is empty or the currentIndex is 0 when up arrow is pressed
+            //does nothing if message log is empty or the currentIndex is 0 when up arrow is pressed
             if (this.currentIndex === -1) {
               this.currentIndex = length - 1
-              this.communication.input = this.communication.messageHistory[this.currentIndex]
+              this.communication.input = clientMessages[this.currentIndex].payload
             } else if (this.currentIndex === 0) {
-              this.communication.input = this.communication.messageHistory[0]
+              this.communication.input = clientMessages[0].payload
             } else if (this.currentIndex > 0) {
               this.currentIndex = this.currentIndex - 1
-              this.communication.input = this.communication.messageHistory[this.currentIndex]
+              this.communication.input = clientMessages[this.currentIndex].payload
             }
           }
           break
@@ -213,7 +205,7 @@ export default {
               this.communication.input = ""
             } else if (this.currentIndex < length - 1) {
               this.currentIndex = this.currentIndex + 1
-              this.communication.input = this.communication.messageHistory[this.currentIndex]
+              this.communication.input = clientMessages[this.currentIndex].payload
             }
           }
           break

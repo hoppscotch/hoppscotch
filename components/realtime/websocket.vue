@@ -38,10 +38,16 @@
       <ul>
         <li>
           <label for="websocket-message">{{ $t("message") }}</label>
-          <input id="websocket-message" name="message" type="text" v-model="communication.input"
-          :readonly="!connectionState" @keyup.enter="connectionState ? sendMessage() : null"
-          @keyup.up="connectionState ? walkHistory("up") : null" @keyup.down="connectionState ?
-          walkHistory("down") : null" />
+          <input
+            id="websocket-message"
+            name="message"
+            type="text"
+            v-model="communication.input"
+            :readonly="!connectionState"
+            @keyup.enter="connectionState ? sendMessage() : null"
+            @keyup.up="connectionState ? walkHistory('up') : null"
+            @keyup.down="connectionState ? walkHistory('down') : null"
+          />
         </li>
         <div>
           <li>

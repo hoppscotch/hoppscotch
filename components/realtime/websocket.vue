@@ -45,6 +45,8 @@
             v-model="communication.input"
             :readonly="!connectionState"
             @keyup.enter="connectionState ? sendMessage() : null"
+            @keyup.up="connectionState ? walkHistory('up') : null"
+            @keyup.down="connectionState ? walkHistory('down') : null"
           />
         </li>
         <div>
@@ -80,6 +82,7 @@ export default {
         log: null,
         input: "",
       },
+      currentIndex: -1, //index of the message log array to put in input box
     }
   },
   computed: {
@@ -104,7 +107,7 @@ export default {
       ]
       try {
         this.socket = new WebSocket(this.url)
-        this.socket.onopen = event => {
+        this.socket.onopen = (event) => {
           this.connectionState = true
           this.communication.log = [
             {
@@ -118,10 +121,10 @@ export default {
             icon: "sync",
           })
         }
-        this.socket.onerror = event => {
+        this.socket.onerror = (event) => {
           this.handleError()
         }
-        this.socket.onclose = event => {
+        this.socket.onclose = (event) => {
           this.connectionState = false
           this.communication.log.push({
             payload: this.$t("disconnected_from", { name: this.url }),
@@ -133,7 +136,7 @@ export default {
             icon: "sync_disabled",
           })
         }
-        this.socket.onmessage = event => {
+        this.socket.onmessage = (event) => {
           this.communication.log.push({
             payload: event.data,
             source: "server",
@@ -176,6 +179,37 @@ export default {
         ts: new Date().toLocaleTimeString(),
       })
       this.communication.input = ""
+    },
+    walkHistory(direction) {
+      const clientMessages = this.communication.log.filter((msg) => msg.source === "client")
+      const length = clientMessages.length
+      switch (direction) {
+        case "up":
+          if (length > 0 && this.currentIndex !== 0) {
+            //does nothing if message log is empty or the currentIndex is 0 when up arrow is pressed
+            if (this.currentIndex === -1) {
+              this.currentIndex = length - 1
+              this.communication.input = clientMessages[this.currentIndex].payload
+            } else if (this.currentIndex === 0) {
+              this.communication.input = clientMessages[0].payload
+            } else if (this.currentIndex > 0) {
+              this.currentIndex = this.currentIndex - 1
+              this.communication.input = clientMessages[this.currentIndex].payload
+            }
+          }
+          break
+        case "down":
+          if (length > 0 && this.currentIndex > -1) {
+            if (this.currentIndex === length - 1) {
+              this.currentIndex = -1
+              this.communication.input = ""
+            } else if (this.currentIndex < length - 1) {
+              this.currentIndex = this.currentIndex + 1
+              this.communication.input = clientMessages[this.currentIndex].payload
+            }
+          }
+          break
+      }
     },
   },
 }

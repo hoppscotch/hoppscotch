@@ -904,7 +904,7 @@
               />
             </li>
           </ul>
-          <ul v-for="(value, key) in response.headers" :key="key">
+          <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
             <li>
               <label :for="key">{{ key }}</label>
               <input :id="key" :value="value" :name="key" readonly />

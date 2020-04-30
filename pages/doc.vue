@@ -341,6 +341,7 @@ export default {
     getDoc() {
       try {
         this.items = JSON.parse(this.collectionJSON)
+        this.$toast.clear()
         this.$toast.info(this.$t("docs_generated"), {
           icon: "book",
         })

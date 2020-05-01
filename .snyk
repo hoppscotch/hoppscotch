@@ -1,0 +1,80 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.14.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - v-tooltip > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-config > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt-i18n > @babel/traverse > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - '@nuxtjs/axios > @nuxtjs/proxy > http-proxy-middleware > lodash':
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-config > graphql-import > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-types > graphql-config > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-parser > graphql-config > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-utils > graphql-config > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt-i18n > @babel/traverse > @babel/generator > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > @babel/core > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > hard-source-webpack-plugin > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > html-webpack-plugin > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > webpack-bundle-analyzer > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-parser > graphql-config > graphql-import > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-utils > graphql-config > graphql-import > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-parser > graphql-language-service-types > graphql-config > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-utils > graphql-language-service-types > graphql-config > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @babel/core > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt-i18n > @babel/traverse > @babel/helper-split-export-declaration > @babel/types > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > hard-source-webpack-plugin > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > html-webpack-plugin > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > optimize-css-assets-webpack-plugin > last-call-webpack-plugin > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > webpack-bundle-analyzer > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-parser > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - graphql-language-service-interface > graphql-language-service-utils > graphql-language-service-types > graphql-config > graphql-import > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-block-scoping > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt-i18n > @babel/traverse > @babel/helper-function-name > @babel/template > @babel/types > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > optimize-css-assets-webpack-plugin > last-call-webpack-plugin > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-classes > @babel/helper-define-map > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-classes > @babel/helper-define-map > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-unicode-regex > @babel/helper-create-regexp-features-plugin > @babel/helper-regex > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/preset-modules > @babel/plugin-transform-dotall-regex > @babel/helper-create-regexp-features-plugin > @babel/helper-regex > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-exponentiation-operator > @babel/helper-builder-binary-assignment-operator-visitor > @babel/helper-explode-assignable-expression > @babel/traverse > @babel/generator > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-exponentiation-operator > @babel/helper-builder-binary-assignment-operator-visitor > @babel/helper-explode-assignable-expression > @babel/traverse > @babel/helper-split-export-declaration > @babel/types > lodash:
+        patched: '2020-05-01T00:04:16.493Z'
+    - nuxt > @nuxt/builder > @nuxt/webpack > @nuxt/babel-preset-app > @babel/preset-env > @babel/plugin-transform-exponentiation-operator > @babel/helper-builder-binary-assignment-operator-visitor > @babel/helper-explode-assignable-expression > @babel/traverse > @babel/helper-function-name > @babel/template > @babel/types > lodash:
+        patched: '2020-05-01T00:04:16.493Z'

@@ -30,7 +30,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.10.2",
+    "@nuxtjs/axios": "^5.10.3",
     "@nuxtjs/gtm": "^2.2.3",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "@nuxtjs/robots": "^2.4.2",
@@ -41,7 +41,7 @@
     "graphql": "^14.6.0",
     "graphql-language-service-interface": "^2.3.3",
     "nuxt": "^2.12.2",
-    "nuxt-i18n": "^6.10.1",
+    "nuxt-i18n": "^6.11.0",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^2.3.0",
     "socketio-wildcard": "^2.0.0",
@@ -56,7 +56,7 @@
     "@nuxtjs/google-analytics": "^2.2.3",
     "cypress": "^4.5.0",
     "husky": "^4.2.5",
-    "lint-staged": "^10.2.0",
+    "lint-staged": "^10.2.2",
     "node-sass": "^4.14.0",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",

@@ -41,10 +41,6 @@ export default {
       type: String,
       required: false,
     },
-    lang: {
-      type: String,
-      default: "gql-query",
-    },
     onRunGQLQuery: {
       type: Function,
       default: () => {},
@@ -79,9 +75,6 @@ export default {
         })
       })
     },
-    lang(value) {
-      this.editor.getSession().setMode(`ace/mode/${value}`)
-    },
     options(value) {
       this.editor.setOptions(value)
     },
@@ -93,7 +86,7 @@ export default {
     let langTools = ace.require("ace/ext/language_tools")
 
     const editor = ace.edit(this.$refs.editor, {
-      mode: `ace/mode/${this.lang}`,
+      mode: `ace/mode/gql-query`,
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
       ...this.options,

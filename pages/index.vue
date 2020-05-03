@@ -920,12 +920,6 @@
               />
             </li>
           </ul>
-          <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
-            <li>
-              <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
-            </li>
-          </ul>
           <ul v-if="response.body">
             <li>
               <div class="flex-wrap">
@@ -995,6 +989,12 @@
                   </span>
                 </button>
               </div>
+            </li>
+          </ul>
+          <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
+            <li>
+              <label :for="key">{{ key }}</label>
+              <input :id="key" :value="value" :name="key" readonly />
             </li>
           </ul>
         </pw-section>

@@ -22,10 +22,13 @@
 const DEFAULT_THEME = "twilight"
 
 import ace from "ace-builds"
-import * as gql from "graphql"
-import { getAutocompleteSuggestions } from "graphql-language-service-interface"
 import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
+import "ace-builds/src-noconflict/mode-graphqlschema"
+import { defineGQLLanguageMode } from "~/functions/syntax/gqlQueryLangMode"
+
+import * as gql from "graphql"
+import { getAutocompleteSuggestions } from "graphql-language-service-interface"
 import debounce from "../../functions/utils/debounce"
 
 export default {
@@ -37,10 +40,6 @@ export default {
     theme: {
       type: String,
       required: false,
-    },
-    lang: {
-      type: String,
-      default: "json",
     },
     onRunGQLQuery: {
       type: Function,
@@ -76,19 +75,18 @@ export default {
         })
       })
     },
-    lang(value) {
-      this.editor.getSession().setMode(`ace/mode/${value}`)
-    },
     options(value) {
       this.editor.setOptions(value)
     },
   },
 
   mounted() {
+    defineGQLLanguageMode(ace)
+
     let langTools = ace.require("ace/ext/language_tools")
 
     const editor = ace.edit(this.$refs.editor, {
-      mode: `ace/mode/${this.lang}`,
+      mode: `ace/mode/gql-query`,
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
       ...this.options,
@@ -190,7 +188,7 @@ export default {
       this.parseContents(this.cacheValue)
     },
 
-    parseContents: debounce(function(content) {
+    parseContents: debounce(function (content) {
       if (content !== "") {
         try {
           const doc = gql.parse(content)

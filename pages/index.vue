@@ -1590,11 +1590,10 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
         let url = value
-
         if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
           let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
           environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-          url = parseTemplateString(url, environmentVariables)
+          url = parseTemplateString(value, environmentVariables)
         }
         try {
           url = new URL(url)
@@ -2161,6 +2160,7 @@ export default {
           const body = (this.response.body = payload.data)
           const date = new Date().toLocaleDateString()
           const time = new Date().toLocaleTimeString()
+
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
@@ -2175,6 +2175,13 @@ export default {
             duration,
             star: false,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {
@@ -2200,6 +2207,13 @@ export default {
             usesScripts: Boolean(this.preRequestScript),
             preRequestScript: this.preRequestScript,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {

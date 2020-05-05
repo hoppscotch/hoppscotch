@@ -55,6 +55,8 @@
   "devDependencies": {
     "@nuxtjs/google-analytics": "^2.2.3",
     "cypress": "^4.5.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",
     "node-sass": "^4.14.0",
     "prettier": "^2.0.5",

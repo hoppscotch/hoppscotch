@@ -230,6 +230,12 @@ export default {
       },
       {
         code: "pt",
+        name: "Português",
+        iso: "pt-PT",
+        file: "pt-PT.json",
+      },
+      {
+        code: "pt-br",
         name: "Português Brasileiro",
         iso: "pt-BR",
         file: "pt-BR.json",
@@ -239,6 +245,12 @@ export default {
         name: "简体中文",
         iso: "zh-CN",
         file: "zh-CN.json",
+      },
+      {
+        code: "tw",
+        name: "繁體中文",
+        iso: "zh-TW",
+        file: "zh-TW.json",
       },
       {
         code: "id",

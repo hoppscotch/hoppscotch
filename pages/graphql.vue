@@ -432,6 +432,13 @@ export default {
       return result === "" ? "" : `${result}`
     },
   },
+  mounted() {
+    if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {
+      const gqlSchema = gql.buildClientSchema(JSON.parse(this.$store.state.gql.schemaIntrospection))
+
+      this.getDocsFromSchema(gqlSchema)
+    }
+  },
   methods: {
     getSpecialKey: getPlatformSpecialKey,
     doPrettifyQuery() {

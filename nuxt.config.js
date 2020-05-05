@@ -254,6 +254,12 @@ export default {
         file: "zh-CN.json",
       },
       {
+        code: "tw",
+        name: "繁體中文",
+        iso: "zh-TW",
+        file: "zh-TW.json",
+      },
+      {
         code: "id",
         name: "Bahasa Indonesia",
         iso: "id-ID",

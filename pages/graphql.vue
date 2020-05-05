@@ -541,6 +541,56 @@ export default {
         console.log("Error", error)
       }
     },
+
+    // NOTE : schema required here is the GQL Schema document object, not the schema string
+    getDocsFromSchema(schema) {
+      if (schema.getQueryType()) {
+        const fields = schema.getQueryType().getFields()
+        const qFields = []
+        for (const field in fields) {
+          qFields.push(fields[field])
+        }
+        this.queryFields = qFields
+      }
+
+      if (schema.getMutationType()) {
+        const fields = schema.getMutationType().getFields()
+        const mFields = []
+        for (const field in fields) {
+          mFields.push(fields[field])
+        }
+        this.mutationFields = mFields
+      }
+
+      if (schema.getSubscriptionType()) {
+        const fields = schema.getSubscriptionType().getFields()
+        const sFields = []
+        for (const field in fields) {
+          sFields.push(fields[field])
+        }
+        this.subscriptionFields = sFields
+      }
+
+      const typeMap = schema.getTypeMap()
+      const types = []
+
+      const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ""
+      const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ""
+      const subscriptionTypeName = schema.getSubscriptionType()
+        ? schema.getSubscriptionType().name
+        : ""
+
+      for (const type in typeMap) {
+        if (
+          !typeMap[type].name.startsWith("__") &&
+          ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
+          typeMap[type] instanceof gql.GraphQLObjectType
+        ) {
+          types.push(typeMap[type])
+        }
+      }
+      this.gqlTypes = types
+    },
     async getSchema() {
       const startTime = Date.now()
 
@@ -574,56 +624,18 @@ export default {
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
         const schema = gql.buildClientSchema(data.data.data)
+
+        this.$store.commit("setGQLState", {
+          value: JSON.stringify(data.data.data),
+          attribute: "schemaIntrospection",
+        })
+
         this.schema = gql.printSchema(schema, {
           commentDescriptions: true,
         })
 
-        if (schema.getQueryType()) {
-          const fields = schema.getQueryType().getFields()
-          const qFields = []
-          for (const field in fields) {
-            qFields.push(fields[field])
-          }
-          this.queryFields = qFields
-        }
+        this.getDocsFromSchema(schema)
 
-        if (schema.getMutationType()) {
-          const fields = schema.getMutationType().getFields()
-          const mFields = []
-          for (const field in fields) {
-            mFields.push(fields[field])
-          }
-          this.mutationFields = mFields
-        }
-
-        if (schema.getSubscriptionType()) {
-          const fields = schema.getSubscriptionType().getFields()
-          const sFields = []
-          for (const field in fields) {
-            sFields.push(fields[field])
-          }
-          this.subscriptionFields = sFields
-        }
-
-        const typeMap = schema.getTypeMap()
-        const types = []
-
-        const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ""
-        const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ""
-        const subscriptionTypeName = schema.getSubscriptionType()
-          ? schema.getSubscriptionType().name
-          : ""
-
-        for (const type in typeMap) {
-          if (
-            !typeMap[type].name.startsWith("__") &&
-            ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
-            typeMap[type] instanceof gql.GraphQLObjectType
-          ) {
-            types.push(typeMap[type])
-          }
-        }
-        this.gqlTypes = types
         this.$refs.queryEditor.setValidationSchema(schema)
         this.$nuxt.$loading.finish()
         const duration = Date.now() - startTime

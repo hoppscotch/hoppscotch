@@ -848,6 +848,22 @@
                       "
                     />
                   </li>
+                  <li>
+                    <span class="select-wrapper">
+                      <select 
+                        :name="'type' + index" 
+                        @change="
+                          $store.commit('setTypeParams', {
+                            index,
+                            value: $event.target.value,
+                          })
+                        "
+                      >
+                        <option value="query" :selected="param.type === 'query'">{{ $t("query") }}</option>
+                        <option value="path" :selected="param.type === 'path'">{{ $t("path") }}</option>
+                      </select>
+                    </span>
+                  </li>
                   <div>
                     <li>
                       <button
@@ -1305,6 +1321,7 @@ import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
 import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
+import { hasPathParams, addPathParamsToVariables, getQueryParams } from "../functions/requestParams.js"
 const statusCategories = [
   {
     name: "informational",
@@ -1492,8 +1509,7 @@ export default {
           return
         }
         let path = this.path
-        let queryString = newValue
-          .filter(({ key }) => !!key)
+        let queryString = getQueryParams(newValue)
           .map(({ key, value }) => `${key}=${value}`)
           .join("&")
         queryString = queryString === "" ? "" : `?${queryString}`
@@ -1503,6 +1519,7 @@ export default {
           path = path + queryString
         }
         this.path = path
+        this.setRouteQueryState()
       },
       deep: true,
     },
@@ -1573,8 +1590,9 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
         let url = value
-        if (this.preRequestScript && this.showPreRequestScript) {
-          const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
           url = parseTemplateString(value, environmentVariables)
         }
         try {
@@ -1882,8 +1900,7 @@ export default {
       return result === "" ? "" : `${result}`
     },
     queryString() {
-      const result = this.params
-        .filter(({ key }) => !!key)
+      const result = getQueryParams(this.params)
         .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
@@ -2039,8 +2056,10 @@ export default {
         data: requestBody,
         credentials: true,
       }
-      if (preRequestScript) {
-        const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
+
+      if (preRequestScript || hasPathParams(this.params)) {
+        let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
         requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
         for (let k in requestOptions.headers) {
@@ -2141,6 +2160,7 @@ export default {
           const body = (this.response.body = payload.data)
           const date = new Date().toLocaleDateString()
           const time = new Date().toLocaleTimeString()
+
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
@@ -2155,6 +2175,13 @@ export default {
             duration,
             star: false,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {
@@ -2180,6 +2207,13 @@ export default {
             usesScripts: Boolean(this.preRequestScript),
             preRequestScript: this.preRequestScript,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {
@@ -2261,7 +2295,7 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "" })
+      this.$store.commit("addParams", { key: "", value: "", type: "query" })
       return false
     },
     removeRequestParam(index) {

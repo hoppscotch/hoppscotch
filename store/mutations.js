@@ -61,6 +61,10 @@ export default {
     request.params[index].value = value
   },
 
+  setTypeParams({ request }, { index, value }) {
+    request.params[index].type = value
+  },
+
   addBodyParams({ request }, value) {
     request.bodyParams.push(value)
   },

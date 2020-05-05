@@ -30,6 +30,7 @@ export default () => ({
   }
 }`,
     response: "",
+    schemaIntrospection: "",
   },
   theme: {
     collapsedSections: [],

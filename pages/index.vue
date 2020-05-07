@@ -262,6 +262,14 @@
                       </button>
                     </label>
                     <input ref="payload" name="payload" type="file" @change="uploadPayload" />
+                    <button
+                        class="icon"
+                        @click="prettifyRequestBody()"
+                        v-tooltip="$t('prettify_body')"
+                        v-if="rawInput && this.contentType.endsWith('json')"
+                      >
+                        <i class="material-icons">assistant</i>
+                      </button>
                   </div>
                 </div>
               </li>
@@ -2331,6 +2339,16 @@ export default {
           },
         },
       })
+    },
+    prettifyRequestBody() {
+      try {
+        const jsonObj = JSON.parse(this.rawParams)
+        this.rawParams = JSON.stringify(jsonObj, null, 2)
+      } catch (e) {
+        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
+          icon: "error",
+        })
+      }
     },
     copyRequest() {
       if (navigator.share) {

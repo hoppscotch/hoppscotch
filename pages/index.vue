@@ -266,7 +266,7 @@
                         class="icon"
                         @click="prettifyRequestBody()"
                         v-tooltip="$t('prettify_body')"
-                        v-if="this.contentType.endsWith('json')"
+                        v-if="rawInput && this.contentType.endsWith('json')"
                       >
                         <i class="material-icons">assistant</i>
                       </button>

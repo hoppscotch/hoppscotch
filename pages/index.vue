@@ -1330,6 +1330,7 @@ import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
 import { hasPathParams, addPathParamsToVariables, getQueryParams } from "../functions/requestParams.js"
+import { parseUrlAndPath } from "../functions/utils/uri.js"
 const statusCategories = [
   {
     name: "informational",
@@ -1603,16 +1604,9 @@ export default {
           environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
           url = parseTemplateString(value, environmentVariables)
         }
-        try {
-          url = new URL(url)
-          this.url = url.origin
-          this.path = url.pathname
-        } catch (error) {
-          console.log(error)
-          let uriRegex = value.match(/^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/)
-          this.url = uriRegex[1]
-          this.path = uriRegex[4]
-        }
+        let result = parseUrlAndPath(url)
+        this.url = result.url
+        this.path = result.path
       },
     },
     url: {
@@ -2633,6 +2627,9 @@ export default {
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
       }
+      let result = parseUrlAndPath(this.uri)
+      this.url = result.url
+      this.path = result.path
       this.showRequestModal = true
     },
     hideRequestModal() {

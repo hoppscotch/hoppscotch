@@ -2182,6 +2182,7 @@ export default {
             let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
             environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
             entry.path = parseTemplateString(entry.path, environmentVariables)
+            entry.url = parseTemplateString(entry.url, environmentVariables)
           }
 
           this.$refs.historyComponent.addEntry(entry)
@@ -2214,6 +2215,7 @@ export default {
             let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
             environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
             entry.path = parseTemplateString(entry.path, environmentVariables)
+            entry.url = parseTemplateString(entry.url, environmentVariables)
           }
 
           this.$refs.historyComponent.addEntry(entry)
@@ -2605,9 +2607,10 @@ export default {
         })
         return
       }
+      let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
-        url: this.url,
-        path: this.path,
+        url: urlAndPath.url,
+        path: urlAndPath.path,
         method: this.method,
         auth: this.auth,
         httpUser: this.httpUser,
@@ -2627,9 +2630,6 @@ export default {
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
       }
-      let result = parseUrlAndPath(this.uri)
-      this.url = result.url
-      this.path = result.path
       this.showRequestModal = true
     },
     hideRequestModal() {

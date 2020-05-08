@@ -372,8 +372,14 @@ export default {
       this.settings[key] = !this.settings[key]
       this.$store.commit("postwoman/applySetting", [key, this.settings[key]])
     },
-    toggleSettings(s, v) {
-      fb.writeSettings(s, !v)
+    toggleSettings(name, value) {
+      fb.writeSettings(name, !value)
+      if (name === "syncCollections" && value) {
+        syncCollections()
+      }
+      if (name === "syncEnvironments" && value) {
+        syncEnvironments()
+      }
     },
     initSettings() {
       fb.writeSettings("syncHistory", true)
@@ -387,6 +393,20 @@ export default {
         icon: "clear_all",
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+    },
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
+    syncEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
     },
   },
 

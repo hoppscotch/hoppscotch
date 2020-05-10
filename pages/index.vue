@@ -263,13 +263,13 @@
                     </label>
                     <input ref="payload" name="payload" type="file" @change="uploadPayload" />
                     <button
-                        class="icon"
-                        @click="prettifyRequestBody()"
-                        v-tooltip="$t('prettify_body')"
-                        v-if="rawInput && this.contentType.endsWith('json')"
-                      >
-                        <i class="material-icons">assistant</i>
-                      </button>
+                      class="icon"
+                      @click="prettifyRequestBody()"
+                      v-tooltip="$t('prettify_body')"
+                      v-if="rawInput && this.contentType.endsWith('json')"
+                    >
+                      <i class="material-icons">assistant</i>
+                    </button>
                   </div>
                 </div>
               </li>
@@ -858,8 +858,8 @@
                   </li>
                   <li>
                     <span class="select-wrapper">
-                      <select 
-                        :name="'type' + index" 
+                      <select
+                        :name="'type' + index"
                         @change="
                           $store.commit('setTypeParams', {
                             index,
@@ -867,8 +867,12 @@
                           })
                         "
                       >
-                        <option value="query" :selected="param.type === 'query'">{{ $t("query") }}</option>
-                        <option value="path" :selected="param.type === 'path'">{{ $t("path") }}</option>
+                        <option value="query" :selected="param.type === 'query'">{{
+                          $t("query")
+                        }}</option>
+                        <option value="path" :selected="param.type === 'path'">{{
+                          $t("path")
+                        }}</option>
                       </select>
                     </span>
                   </li>
@@ -1329,7 +1333,11 @@ import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
 import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
-import { hasPathParams, addPathParamsToVariables, getQueryParams } from "../functions/requestParams.js"
+import {
+  hasPathParams,
+  addPathParamsToVariables,
+  getQueryParams,
+} from "../functions/requestParams.js"
 import { parseUrlAndPath } from "../functions/utils/uri.js"
 const statusCategories = [
   {
@@ -2193,7 +2201,7 @@ export default {
           }
         })()
       } catch (error) {
-        console.error(error)
+        console.log(error)
         if (error.response) {
           this.response.headers = error.response.headers
           this.response.status = error.response.status
@@ -2357,7 +2365,7 @@ export default {
             url: window.location.href,
           })
           .then(() => {})
-          .catch(console.error)
+          .catch(() => {})
       } else {
         const dummy = document.createElement("input")
         document.body.appendChild(dummy)

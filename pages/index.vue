@@ -1938,7 +1938,7 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify("${requestBody}")`
+              requestBody = `JSON.stringify(${requestBody})`
             } else if (this.contentType.includes("x-www-form-urlencoded")) {
                 requestBody = `"${requestBody}"`
             }
@@ -1967,7 +1967,7 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify("${requestBody}")`
+              requestBody = `JSON.stringify(${requestBody})`
             } else if (this.contentType.includes("x-www-form-urlencoded")) {
                 requestBody = `"${requestBody}"`
             }

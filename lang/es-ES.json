@@ -242,6 +242,7 @@
   "enter_curl": "Intruduzca cURL",
   "empty": "Vacío",
   "extensions": "Extensiones",
+  "extensions_use_toggle": "Usar la extensión del navegador para enviar peticiones (si está presente)",
   "extensions_info1": "Extensión del navegador que simplifica el acceso a Postwoman",
   "extensions_info2": "Obtener la extensión del navegador de Postwoman!",
   "installed": "Instalado",

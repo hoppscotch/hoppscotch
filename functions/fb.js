@@ -1,6 +1,7 @@
 import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
+require("dotenv").config()
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {

@@ -1,3 +1,4 @@
+require("dotenv").config()
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const options = {
@@ -147,19 +148,18 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ["@nuxtjs/gtm"],
+  buildModules: ["@nuxtjs/gtm", "@nuxtjs/dotenv", "@nuxtjs/google-analytics"],
   /*
    ** Nuxt.js modules
    */
   modules: [
     // See https://goo.gl/OOhYW5
-    ["@nuxtjs/pwa"],
-    ["@nuxtjs/axios"],
-    ["@nuxtjs/toast"],
-    ["@nuxtjs/google-analytics"],
-    ["@nuxtjs/sitemap"],
-    ["@nuxtjs/robots"],
-    ["nuxt-i18n"],
+    "@nuxtjs/pwa",
+    "@nuxtjs/axios",
+    "@nuxtjs/toast",
+    "@nuxtjs/sitemap",
+    "@nuxtjs/robots",
+    "nuxt-i18n",
   ],
   pwa: {
     manifest: {
@@ -188,10 +188,10 @@ export default {
     keepOnHover: true,
   },
   googleAnalytics: {
-    id: process.env.GA_ID || "UA-61422507-2",
+    id: process.env.GA_ID,
   },
   gtm: {
-    id: process.env.GTM_ID || "GTM-MXWD8NQ",
+    id: process.env.GTM_ID,
   },
   sitemap: {
     hostname: "https://postwoman.io",

@@ -1936,12 +1936,17 @@ export default {
           })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
+          let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
+          if (this.contentType.includes("json")) {
+              requestBody = `JSON.stringify("${requestBody}")`
+            } else if (this.contentType.includes("x-www-form-urlencoded")) {
+                requestBody = `"${requestBody}"`
+            }
           requestString.push(`xhr.setRequestHeader('Content-Length', ${requestBody.length})`)
           requestString.push(
             `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
           )
-          requestString.push(`xhr.send("${requestBody}")`)
+          requestString.push(`xhr.send(${requestBody})`)
         } else {
           requestString.push("xhr.send()")
         }
@@ -1962,9 +1967,9 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify("${requestBody}")`;
+              requestBody = `JSON.stringify("${requestBody}")`
             } else if (this.contentType.includes("x-www-form-urlencoded")) {
-                requestBody = `"${requestBody}"`;
+                requestBody = `"${requestBody}"`
             }
 
           requestString.push(`  body: ${requestBody},\n`)

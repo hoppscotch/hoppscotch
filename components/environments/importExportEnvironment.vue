@@ -119,14 +119,27 @@ export default {
       let reader = new FileReader()
       reader.onload = event => {
         let content = event.target.result
-        let environments = JSON.parse(content)
-        let confirmation = this.$t("file_imported")
-        this.$store.commit("postwoman/importAddEnvironments", {
-          environments,
-          confirmation,
-        })
+        let importFileObj = JSON.parse(content)
+        if (importFileObj["_postman_variable_scope"] === "environment") {
+          this.importFromPostman(importFileObj)
+        } else {
+          this.importFromPostwoman(importFileObj)
+        }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
+    },
+    importFromPostwoman(environments) {
+      let confirmation = this.$t("file_imported")
+      this.$store.commit("postwoman/importAddEnvironments", {
+        environments,
+        confirmation,
+      })
+    },
+    importFromPostman(importFileObj) {
+      let environment = { name: importFileObj.name, variables: [] }
+      importFileObj.values.forEach(element => environment.variables.push({ key: element.key, value: element.value }));
+      let environments = [ environment ]
+      this.importFromPostwoman(environments)
     },
     exportJSON() {
       let text = this.environmentJson

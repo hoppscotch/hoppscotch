@@ -123,6 +123,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "sboulema",
+      "name": "Samir Boulema",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1820661?v=4",
+      "profile": "http://www.sboulema.nl",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

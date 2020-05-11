@@ -342,7 +342,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 * ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
 ### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-13-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -365,6 +365,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
     <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://avatars2.githubusercontent.com/u/42691357?v=4" width="100px;" alt=""/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=hosseinnedaee" title="Code">💻</a></td>
     <td align="center"><a href="https://ghuser.io/jamesgeorge007"><img src="https://avatars2.githubusercontent.com/u/25279263?v=4" width="100px;" alt=""/><br /><sub><b>James George</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=jamesgeorge007" title="Code">💻</a></td>
     <td align="center"><a href="https://dmitryyankowski.com"><img src="https://avatars0.githubusercontent.com/u/20114263?v=4" width="100px;" alt=""/><br /><sub><b>Dmitry Yankowski</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=dmitryyankowski" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.sboulema.nl"><img src="https://avatars2.githubusercontent.com/u/1820661?v=4" width="100px;" alt=""/><br /><sub><b>Samir Boulema</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=sboulema" title="Code">💻</a></td>
   </tr>
 </table>
 

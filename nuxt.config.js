@@ -1,3 +1,4 @@
+require("dotenv").config()
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const options = {
@@ -147,19 +148,30 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ["@nuxtjs/gtm"],
+  buildModules: [
+    // See https://goo.gl/OOhYW5
+    "@nuxtjs/pwa",
+    // Doc: https://github.com/nuxt-community/dotenv-module
+    "@nuxtjs/dotenv",
+    // Doc: https://github.com/nuxt-community/analytics-module
+    "@nuxtjs/google-analytics",
+    // Doc: https://github.com/nuxt-community/gtm-module
+    "@nuxtjs/gtm",
+  ],
   /*
    ** Nuxt.js modules
    */
   modules: [
-    // See https://goo.gl/OOhYW5
-    ["@nuxtjs/pwa"],
-    ["@nuxtjs/axios"],
-    ["@nuxtjs/toast"],
-    ["@nuxtjs/google-analytics"],
-    ["@nuxtjs/sitemap"],
-    ["@nuxtjs/robots"],
-    ["nuxt-i18n"],
+    // Doc: https://axios.nuxtjs.org/usage
+    "@nuxtjs/axios",
+    // https://github.com/nuxt-community/modules/tree/master/packages/toast
+    "@nuxtjs/toast",
+    // Doc: https://github.com/nuxt-community/nuxt-i18n
+    "nuxt-i18n",
+    // Doc: https://github.com/nuxt-community/sitemap-module
+    "@nuxtjs/sitemap",
+    // Doc: https://github.com/nuxt-community/robots-module
+    "@nuxtjs/robots",
   ],
   pwa: {
     manifest: {
@@ -188,10 +200,10 @@ export default {
     keepOnHover: true,
   },
   googleAnalytics: {
-    id: process.env.GA_ID || "UA-61422507-2",
+    id: process.env.GA_ID,
   },
   gtm: {
-    id: process.env.GTM_ID || "GTM-MXWD8NQ",
+    id: process.env.GTM_ID,
   },
   sitemap: {
     hostname: "https://postwoman.io",
@@ -201,6 +213,16 @@ export default {
     Disallow: "",
     Allow: "/",
     Sitemap: "https://postwoman.io/sitemap.xml",
+  },
+  env: {
+    API_KEY: process.env.API_KEY,
+    AUTH_DOMAIN: process.env.AUTH_DOMAIN,
+    DATABASE_URL: process.env.DATABASE_URL,
+    PROJECT_ID: process.env.PROJECT_ID,
+    STORAGE_BUCKET: process.env.STORAGE_BUCKET,
+    MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
+    APP_ID: process.env.APP_ID,
+    MEASUREMENT_ID: process.env.MEASUREMENT_ID,
   },
   i18n: {
     locales: [
@@ -297,7 +319,11 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {},
+    extend(config, ctx) {
+      config.node = {
+        fs: "empty",
+      }
+    },
   },
   /*
    ** Generate configuration

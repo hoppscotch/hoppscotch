@@ -200,10 +200,10 @@ export default {
     keepOnHover: true,
   },
   googleAnalytics: {
-    id: process.env.GA_ID,
+    id: process.env.GA_ID || "UA-61422507-2",
   },
   gtm: {
-    id: process.env.GTM_ID,
+    id: process.env.GTM_ID || "GTM-MXWD8NQ",
   },
   sitemap: {
     hostname: "https://postwoman.io",

@@ -148,18 +148,30 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ["@nuxtjs/gtm", "@nuxtjs/dotenv", "@nuxtjs/google-analytics"],
+  buildModules: [
+    // See https://goo.gl/OOhYW5
+    "@nuxtjs/pwa",
+    // Doc: https://github.com/nuxt-community/dotenv-module
+    "@nuxtjs/dotenv",
+    // Doc: https://github.com/nuxt-community/analytics-module
+    "@nuxtjs/google-analytics",
+    // Doc: https://github.com/nuxt-community/gtm-module
+    "@nuxtjs/gtm",
+  ],
   /*
    ** Nuxt.js modules
    */
   modules: [
-    // See https://goo.gl/OOhYW5
-    "@nuxtjs/pwa",
+    // Doc: https://axios.nuxtjs.org/usage
     "@nuxtjs/axios",
+    // https://github.com/nuxt-community/modules/tree/master/packages/toast
     "@nuxtjs/toast",
-    "@nuxtjs/sitemap",
-    "@nuxtjs/robots",
+    // Doc: https://github.com/nuxt-community/nuxt-i18n
     "nuxt-i18n",
+    // Doc: https://github.com/nuxt-community/sitemap-module
+    "@nuxtjs/sitemap",
+    // Doc: https://github.com/nuxt-community/robots-module
+    "@nuxtjs/robots",
   ],
   pwa: {
     manifest: {

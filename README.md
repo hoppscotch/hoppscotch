@@ -274,6 +274,10 @@ You're done!
 
 ## Developing 👷
 
+0. Update [`.env.example`](https://github.com/liyasthomas/postwoman/blob/master/.env.example) file found in repository's root directory with your own keys and rename it to `.env`.
+
+_Sample keys only works with the [production build](https://postwoman.io)._
+
 #### Use a browser based development environment:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/liyasthomas/postwoman)

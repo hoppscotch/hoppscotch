@@ -359,7 +359,7 @@ export default {
     },
     getActiveColor() {
       // This strips extra spaces and # signs from the strings.
-      const strip = str => str.replace(/#/g, "").replace(/ /g, "")
+      const strip = (str) => str.replace(/#/g, "").replace(/ /g, "")
       return `#${strip(
         window.getComputedStyle(document.documentElement).getPropertyValue("--ac-color")
       ).toUpperCase()}`
@@ -375,10 +375,10 @@ export default {
     toggleSettings(name, value) {
       fb.writeSettings(name, !value)
       if (name === "syncCollections" && value) {
-        syncCollections()
+        this.syncCollections()
       }
       if (name === "syncEnvironments" && value) {
-        syncEnvironments()
+        this.syncEnvironments()
       }
     },
     initSettings() {

@@ -116,7 +116,7 @@ export default {
       this.$data.editingEnvironment = environment
       this.$data.editingEnvironmentIndex = environmentIndex
       this.displayModalEdit(true)
-      this.syncEnvironments
+      this.syncEnvironments()
     },
     resetSelectedData() {
       this.$data.editingEnvironment = undefined

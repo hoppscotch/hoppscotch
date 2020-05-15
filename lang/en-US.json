@@ -284,5 +284,13 @@
   "mqtt_topic_title": "Publish / Subscribe topic",
   "mqtt_publish": "Publish",
   "mqtt_subscribe": "Subscribe",
-  "mqtt_unsubscribe": "Unsubscribe"
+  "mqtt_unsubscribe": "Unsubscribe",
+  "teams": "Teams",
+  "new_team": "New Team",
+  "my_new_team": "My New Team",
+  "edit_team": "Edit Team",
+  "team_member_list": "Member List",
+  "invalid_team_name": "Please provide a valid name for the team",
+  "use_team": "Use Team",
+  "add_one_member": "(add at least one member)"
 }

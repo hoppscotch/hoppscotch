@@ -51,6 +51,8 @@
       </ul>
     </pw-section>
 
+    <teams @use-environment="useSelectedEnvironment($event)" />
+
     <pw-section class="cyan" :label="$t('theme')" ref="theme">
       <ul>
         <li>
@@ -218,6 +220,7 @@ export default {
     swatch: () => import("../components/settings/swatch"),
     login: () => import("../components/firebase/login"),
     logout: () => import("../components/firebase/logout"),
+    teams: () => import("../components/teams"),
   },
 
   data() {

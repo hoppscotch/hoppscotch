@@ -27,6 +27,7 @@ export const fb = {
   currentHistory: [],
   currentCollections: [],
   currentEnvironments: [],
+  currentTeams: [],
   writeFeeds: async (message, label) => {
     const dt = {
       createdOn: new Date(),
@@ -129,6 +130,21 @@ export const fb = {
       .set(ev)
       .catch((e) => console.error("error updating", ev, e))
   },
+  writeTeams: async (team) => {
+    const ev = {
+      updatedOn: new Date(),
+      author: fb.currentUser.uid,
+      author_name: fb.currentUser.displayName,
+      author_image: fb.currentUser.photoURL,
+      team: team,
+    }
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("teams")
+      .doc("sync")
+      .set(ev)
+      .catch((e) => console.error("error updating", ev, e))
+  },
 }
 
 // When a user logs in or out, save that in the store
@@ -214,6 +230,19 @@ firebase.auth().onAuthStateChanged((user) => {
           environments.push(environment)
         })
         fb.currentEnvironments = environments[0].environment
+      })
+
+    usersCollection
+      .doc(fb.currentUser.uid)
+      .collection("teams")
+      .onSnapshot((teamsRef) => {
+        const teams = []
+        teamsRef.forEach((doc) => {
+          const team = doc.data()
+          team.id = doc.id
+          teams.push(team)
+        })
+        fb.currentTeams = teams[0].team
       })
   } else {
     fb.currentUser = null

@@ -87,6 +87,13 @@ export const state = () => ({
     },
   ],
   editingEnvironment: {},
+  teams: [
+    {
+      name: "My Team Variables",
+      members: [],
+    },
+  ],
+  editingTeam: {},
   selectedRequest: {},
   editingRequest: {},
 })
@@ -138,8 +145,8 @@ export const mutations = {
   },
 
   importAddEnvironments(state, { environments, confirmation }) {
-    const duplicateEnvironment = environments.some(item => {
-      return state.environments.some(item2 => {
+    const duplicateEnvironment = environments.some((item) => {
+      return state.environments.some((item2) => {
         return item.name.toLowerCase() === item2.name.toLowerCase()
       })
     })
@@ -170,7 +177,7 @@ export const mutations = {
       environments.length === 1
         ? false
         : environments.some(
-            item =>
+            (item) =>
               item.environmentIndex !== environmentIndex &&
               item.name.toLowerCase() === name.toLowerCase()
           )
@@ -179,6 +186,76 @@ export const mutations = {
       return
     }
     environments[environmentIndex] = environment
+  },
+
+  removeMembers({ editingTeam }, value) {
+    editingTeam.members = value
+  },
+
+  setEditingTeam(state, value) {
+    state.editingTeam = { ...value }
+  },
+
+  setMemberKey({ editingTeam }, { index, value }) {
+    editingTeam.members[index].key = value
+  },
+
+  setMemberValue({ editingTeam }, { index, value }) {
+    editingTeam.members[index].value = testValue(value)
+  },
+
+  removeMember({ editingTeam }, members) {
+    editingTeam.members = members
+  },
+
+  addMember({ editingTeam }, value) {
+    editingTeam.members.push(value)
+  },
+
+  replaceTeams(state, teams) {
+    state.teams = teams
+  },
+
+  importAddTeams(state, { teams, confirmation }) {
+    const duplicateTeam = teams.some((item) => {
+      return state.teams.some((item2) => {
+        return item.name.toLowerCase() === item2.name.toLowerCase()
+      })
+    })
+    if (duplicateTeam) {
+      this.$toast.info("Duplicate team")
+      return
+    }
+    state.teams = [...state.teams, ...teams]
+
+    let index = 0
+    for (let team of state.teams) {
+      team.teamIndex = index
+      index += 1
+    }
+    this.$toast.info(confirmation, {
+      icon: "folder_shared",
+    })
+  },
+
+  removeTeam({ teams }, teamIndex) {
+    teams.splice(teamIndex, 1)
+  },
+
+  saveTeam({ teams }, payload) {
+    const { team, teamIndex } = payload
+    const { name } = team
+    const duplicateTeam =
+      teams.length === 1
+        ? false
+        : teams.some(
+            (item) => item.teamIndex !== teamIndex && item.name.toLowerCase() === name.toLowerCase()
+          )
+    if (duplicateTeam) {
+      this.$toast.info("Duplicate team")
+      return
+    }
+    teams[teamIndex] = team
   },
 
   replaceCollections(state, collections) {
@@ -198,7 +275,7 @@ export const mutations = {
   addNewCollection({ collections }, collection) {
     const { name } = collection
     const duplicateCollection = collections.some(
-      item => item.name.toLowerCase() === name.toLowerCase()
+      (item) => item.name.toLowerCase() === name.toLowerCase()
     )
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection")
@@ -221,7 +298,7 @@ export const mutations = {
     const { collection, collectionIndex } = payload
     const { name } = collection
     const duplicateCollection = collections.some(
-      item => item.name.toLowerCase() === name.toLowerCase()
+      (item) => item.name.toLowerCase() === name.toLowerCase()
     )
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection")

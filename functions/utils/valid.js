@@ -1,11 +1,6 @@
-function generateIPRE(protocol) {
+function generateREForProtocol(protocol) {
   return new RegExp(
-    `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-  )
-}
-function generateHostnameRE(protocol) {
-  return new RegExp(
-    `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
+    `${protocol}[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)`
   )
 }
 
@@ -14,9 +9,7 @@ function generateHostnameRE(protocol) {
  */
 export function wsValid(url) {
   const protocol = "^(wss?:\\/\\/)?"
-  const validIP = generateIPRE(protocol)
-  const validHostname = generateHostnameRE(protocol)
-  return validIP.test(url) || validHostname.test(url)
+  return generateREForProtocol(protocol).test(url)
 }
 
 /**
@@ -24,9 +17,7 @@ export function wsValid(url) {
  */
 export function sseValid(url) {
   const protocol = "^(https?:\\/\\/)?"
-  const validIP = generateIPRE(protocol)
-  const validHostname = generateHostnameRE(protocol)
-  return validIP.test(url) || validHostname.test(url)
+  return generateREForProtocol(protocol).test(url)
 }
 
 /**
@@ -34,7 +25,5 @@ export function sseValid(url) {
  */
 export function socketioValid(url) {
   const protocol = "^((wss?:\\/\\/)|(https?:\\/\\/))?"
-  const validIP = generateIPRE(protocol)
-  const validHostname = generateHostnameRE(protocol)
-  return validIP.test(url) || validHostname.test(url)
+  return generateREForProtocol(protocol).test(url)
 }

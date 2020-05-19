@@ -416,6 +416,12 @@
                 </i>
                 <i class="material-icons" :class="testsEnabled" v-else>close</i>
               </button>
+              <pw-toggle
+                :on="rejectUnauthorized"
+                @change="rejectUnauthorized = !rejectUnauthorized"
+              >
+                {{ rejectUnauthorized ? "Reject" : "Accept" }} unauthorized
+              </pw-toggle>
             </span>
             <span>
               <button
@@ -1339,6 +1345,7 @@ import {
   getQueryParams,
 } from "../functions/requestParams.js"
 import { parseUrlAndPath } from "../functions/utils/uri.js"
+import https from "https"
 const statusCategories = [
   {
     name: "informational",
@@ -1444,6 +1451,7 @@ export default {
       files: [],
       filenames: "",
       navigatorShare: navigator.share,
+      rejectUnauthorized: true,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -1938,10 +1946,10 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify(${requestBody})`
-            } else if (this.contentType.includes("x-www-form-urlencoded")) {
-                requestBody = `"${requestBody}"`
-            }
+            requestBody = `JSON.stringify(${requestBody})`
+          } else if (this.contentType.includes("x-www-form-urlencoded")) {
+            requestBody = `"${requestBody}"`
+          }
           requestString.push(`xhr.setRequestHeader('Content-Length', ${requestBody.length})`)
           requestString.push(
             `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
@@ -1967,10 +1975,10 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify(${requestBody})`
-            } else if (this.contentType.includes("x-www-form-urlencoded")) {
-                requestBody = `"${requestBody}"`
-            }
+            requestBody = `JSON.stringify(${requestBody})`
+          } else if (this.contentType.includes("x-www-form-urlencoded")) {
+            requestBody = `"${requestBody}"`
+          }
 
           requestString.push(`  body: ${requestBody},\n`)
           headers.push(`    "Content-Length": ${requestBody.length},\n`)
@@ -2069,6 +2077,9 @@ export default {
       return getEnvironmentVariablesFromScript(this.preRequestScript)
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
+      const agent = new https.Agent({
+        rejectUnauthorized: this.rejectUnauthorized,
+      })
       const requestOptions = {
         method: this.method,
         url: this.url + this.pathName + this.queryString,
@@ -2076,6 +2087,7 @@ export default {
         headers,
         data: requestBody,
         credentials: true,
+        httpsAgent: agent,
       }
 
       if (preRequestScript || hasPathParams(this.params)) {

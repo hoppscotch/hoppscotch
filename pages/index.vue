@@ -747,7 +747,7 @@
                     ></textarea>
                   </li>
                 </ul>
-                <ul v-for="(header, index) in headers" :key="index">
+                <ul v-for="(header, index) in headers" :key="`${header.key}_${index}`">
                   <li>
                     <autocomplete
                       :placeholder="$t('header_count', { count: index + 1 })"
@@ -1938,10 +1938,10 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify(${requestBody})`
-            } else if (this.contentType.includes("x-www-form-urlencoded")) {
-                requestBody = `"${requestBody}"`
-            }
+            requestBody = `JSON.stringify(${requestBody})`
+          } else if (this.contentType.includes("x-www-form-urlencoded")) {
+            requestBody = `"${requestBody}"`
+          }
           requestString.push(`xhr.setRequestHeader('Content-Length', ${requestBody.length})`)
           requestString.push(
             `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
@@ -1967,10 +1967,10 @@ export default {
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (this.contentType.includes("json")) {
-              requestBody = `JSON.stringify(${requestBody})`
-            } else if (this.contentType.includes("x-www-form-urlencoded")) {
-                requestBody = `"${requestBody}"`
-            }
+            requestBody = `JSON.stringify(${requestBody})`
+          } else if (this.contentType.includes("x-www-form-urlencoded")) {
+            requestBody = `"${requestBody}"`
+          }
 
           requestString.push(`  body: ${requestBody},\n`)
           headers.push(`    "Content-Length": ${requestBody.length},\n`)

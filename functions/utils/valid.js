@@ -1,30 +1,37 @@
-const wsRegex = generateREForProtocol("^(wss?:\\/\\/)?")
-const sseRegex = generateREForProtocol("^(https?:\\/\\/)?")
-const socketioRegex = generateREForProtocol("^((wss?:\\/\\/)|(https?:\\/\\/))?")
+const [wsRegexIP, wsRegexHostname] = generateREForProtocol("^(wss?:\\/\\/)?")
+const [sseRegexIP, sseRegexHostname] = generateREForProtocol("^(https?:\\/\\/)?")
+const [socketioRegexIP, socketioRegexHostname] = generateREForProtocol(
+  "^((wss?:\\/\\/)|(https?:\\/\\/))?"
+)
 
 function generateREForProtocol(protocol) {
-  return new RegExp(
-    `${protocol}[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)`
-  )
+  return [
+    new RegExp(
+      `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
+    ),
+    new RegExp(
+      `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
+    ),
+  ]
 }
 
 /**
  * valid url for ws/wss
  */
 export function wsValid(url) {
-  return wsRegex.test(url)
+  return wsRegexIP.test(url) || wsRegexHostname.test(url)
 }
 
 /**
  * valid url for http/https
  */
 export function sseValid(url) {
-  return sseRegex.test(url)
+  return sseRegexIP.test(url) || sseRegexHostname.test(url)
 }
 
 /**
  * valid url for ws/wss/http/https
  */
 export function socketioValid(url) {
-  return socketioRegex.test(url)
+  return socketioRegexIP.test(url) || socketioRegexHostname.test(url)
 }

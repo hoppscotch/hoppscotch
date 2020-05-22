@@ -25,7 +25,7 @@ export function wsValid(url) {
 /**
  * valid url for http/https
  */
-export function sseValid(url) {
+export function httpValid(url) {
   return sseRegexIP.test(url) || sseRegexHostname.test(url)
 }
 

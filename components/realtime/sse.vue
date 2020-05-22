@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { sseValid } from "~/functions/utils/valid"
+import { httpValid } from "~/functions/utils/valid"
 
 export default {
   components: {
@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     serverValid() {
-      return sseValid(this.server)
+      return httpValid(this.server)
     },
   },
   methods: {
@@ -81,7 +81,7 @@ export default {
       if (typeof EventSource !== "undefined") {
         try {
           this.sse = new EventSource(this.server)
-          this.sse.onopen = event => {
+          this.sse.onopen = (event) => {
             this.connectionSSEState = true
             this.events.log = [
               {
@@ -95,10 +95,10 @@ export default {
               icon: "sync",
             })
           }
-          this.sse.onerror = event => {
+          this.sse.onerror = (event) => {
             this.handleSSEError()
           }
-          this.sse.onclose = event => {
+          this.sse.onclose = (event) => {
             this.connectionSSEState = false
             this.events.log.push({
               payload: this.$t("disconnected_from", { name: this.server }),
@@ -110,7 +110,7 @@ export default {
               icon: "sync_disabled",
             })
           }
-          this.sse.onmessage = event => {
+          this.sse.onmessage = (event) => {
             this.events.log.push({
               payload: event.data,
               source: "server",

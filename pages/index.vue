@@ -1339,6 +1339,9 @@ import {
   getQueryParams,
 } from "../functions/requestParams.js"
 import { parseUrlAndPath } from "../functions/utils/uri.js"
+import { httpValid } from "../functions/utils/valid"
+import { knownContentTypes, isJSONContentType } from "../functions/utils/contenttypes"
+
 const statusCategories = [
   {
     name: "informational",
@@ -1425,6 +1428,7 @@ export default {
         headers: "",
         body: "",
       },
+      validContentTypes: knownContentTypes,
       previewEnabled: false,
       paramsWatchEnabled: true,
       expandResponse: false,
@@ -1477,11 +1481,9 @@ export default {
     },
     contentType(contentType, oldContentType) {
       const getDefaultParams = (contentType) => {
+        if (isJSONContentType(contentType)) return "{}"
+
         switch (contentType) {
-          case "application/json":
-          case "application/vnd.api+json":
-          case "application/hal+json":
-            return "{}"
           case "application/xml":
             return "<?xml version='1.0' encoding='utf-8'?>"
           case "text/html":
@@ -1502,11 +1504,7 @@ export default {
         this.responseBodyText = this.response.body
         this.responseBodyType = "text"
       } else {
-        if (
-          this.responseType === "application/json" ||
-          this.responseType === "application/hal+json" ||
-          this.responseType === "application/vnd.api+json"
-        ) {
+        if (isJSONContentType(this.responseType)) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
           this.responseBodyType =
             this.response.body.constructor.name === "Object" ? "json" : "json5"
@@ -1579,25 +1577,13 @@ export default {
   },
   computed: {
     /**
-     * These are a list of Content Types known to Postwoman.
-     */
-    validContentTypes: () => [
-      "application/json",
-      "application/vnd.api+json",
-      "application/hal+json",
-      "application/xml",
-      "application/x-www-form-urlencoded",
-      "text/html",
-      "text/plain",
-    ],
-    /**
      * Check content types that can be automatically
      * serialized by postwoman.
      */
     canListParameters() {
       return (
         this.contentType === "application/x-www-form-urlencoded" ||
-        this.contentType.endsWith("json")
+        isJSONContentType(this.contentType)
       )
     },
     uri: {
@@ -1858,18 +1844,8 @@ export default {
       return findStatusGroup(this.response.status)
     },
     isValidURL() {
-      if (this.showPreRequestScript) {
-        // we cannot determine if a URL is valid because the full string is not known ahead of time
-        return true
-      }
-      const protocol = "^(https?:\\/\\/)?"
-      const validIP = new RegExp(
-        `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      )
-      const validHostname = new RegExp(
-        `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      )
-      return validIP.test(this.url) || validHostname.test(this.url)
+      // if showPreRequestScript, we cannot determine if a URL is valid because the full string is not known ahead of time
+      return this.showPreRequestScript || httpValid(this.url)
     },
     hasRequestBody() {
       return ["POST", "PUT", "PATCH"].includes(this.method)
@@ -1879,7 +1855,7 @@ export default {
     },
     rawRequestBody() {
       const { bodyParams, contentType } = this
-      if (contentType.endsWith("json")) {
+      if (isJSONContentType(contentType)) {
         try {
           const obj = JSON.parse(
             `{${bodyParams
@@ -1937,7 +1913,7 @@ export default {
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          if (this.contentType.includes("json")) {
+          if (isJSONContentType(this.contentType)) {
             requestBody = `JSON.stringify(${requestBody})`
           } else if (this.contentType.includes("x-www-form-urlencoded")) {
             requestBody = `"${requestBody}"`
@@ -1966,7 +1942,7 @@ export default {
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          if (this.contentType.includes("json")) {
+          if (isJSONContentType(this.contentType)) {
             requestBody = `JSON.stringify(${requestBody})`
           } else if (this.contentType.includes("x-www-form-urlencoded")) {
             requestBody = `"${requestBody}"`
@@ -2410,10 +2386,9 @@ export default {
         icon: "done",
       })
       const aux = document.createElement("textarea")
-      const copy =
-        this.responseType === "application/json"
-          ? JSON.stringify(this.response.body, null, 2)
-          : this.response.body
+      const copy = isJSONContentType(this.responseType)
+        ? JSON.stringify(this.response.body, null, 2)
+        : this.response.body
       aux.innerText = copy
       document.body.appendChild(aux)
       aux.select()

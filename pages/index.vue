@@ -1339,6 +1339,8 @@ import {
   getQueryParams,
 } from "../functions/requestParams.js"
 import { parseUrlAndPath } from "../functions/utils/uri.js"
+import { httpValid } from "../functions/utils/valid"
+
 const statusCategories = [
   {
     name: "informational",
@@ -1858,18 +1860,8 @@ export default {
       return findStatusGroup(this.response.status)
     },
     isValidURL() {
-      if (this.showPreRequestScript) {
-        // we cannot determine if a URL is valid because the full string is not known ahead of time
-        return true
-      }
-      const protocol = "^(https?:\\/\\/)?"
-      const validIP = new RegExp(
-        `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      )
-      const validHostname = new RegExp(
-        `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      )
-      return validIP.test(this.url) || validHostname.test(this.url)
+      // if showPreRequestScript, we cannot determine if a URL is valid because the full string is not known ahead of time
+      return this.showPreRequestScript || httpValid(this.url)
     },
     hasRequestBody() {
       return ["POST", "PUT", "PATCH"].includes(this.method)

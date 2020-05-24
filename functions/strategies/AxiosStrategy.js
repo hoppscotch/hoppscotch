@@ -15,9 +15,10 @@ const axiosWithoutProxy = async (req, _store) => {
       (data, headers) => {
         // If the response has a JSON content type, try parsing it
         if (
-          headers["content-type"].startsWith("application/json") ||
-          headers["content-type"].startsWith("application/vnd.api+json") ||
-          headers["content-type"].startsWith("application/hal+json")
+          headers["content-type"] &&
+          (headers["content-type"].startsWith("application/json") ||
+            headers["content-type"].startsWith("application/vnd.api+json") ||
+            headers["content-type"].startsWith("application/hal+json"))
         ) {
           try {
             const jsonData = JSON.parse(data)

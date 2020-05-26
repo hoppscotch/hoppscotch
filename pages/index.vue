@@ -1872,6 +1872,14 @@ export default {
           )
           return JSON.stringify(obj, null, 2)
         } catch (ex) {
+          console.log(ex)
+          this.$toast.clear()
+          this.$toast.error(
+            "Parameter value must be a string, switch to Raw input for other formats",
+            {
+              icon: "error",
+            }
+          )
           return "invalid"
         }
       } else {

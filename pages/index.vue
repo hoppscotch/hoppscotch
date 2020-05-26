@@ -1574,6 +1574,9 @@ export default {
       // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
       this.contentType = ["POST", "PUT", "PATCH"].includes(this.method) ? "application/json" : ""
     },
+    preRequestScript: function (val, oldVal) {
+      this.uri = this.uri
+    },
   },
   computed: {
     /**

@@ -55,7 +55,7 @@
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.3.0",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
-    "cypress": "^4.6.0",
+    "cypress": "^4.7.0",
     "eslint": "^6.8.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",

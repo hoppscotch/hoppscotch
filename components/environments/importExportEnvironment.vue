@@ -107,7 +107,7 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let environments = JSON.parse(content)
         this.$store.commit("postwoman/replaceEnvironments", environments)
@@ -117,10 +117,13 @@ export default {
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let importFileObj = JSON.parse(content)
-        if (importFileObj["_postman_variable_scope"] === "environment") {
+        if (
+          importFileObj["_postman_variable_scope"] === "environment" ||
+          importFileObj["_postman_variable_scope"] === "globals"
+        ) {
           this.importFromPostman(importFileObj)
         } else {
           this.importFromPostwoman(importFileObj)
@@ -137,8 +140,10 @@ export default {
     },
     importFromPostman(importFileObj) {
       let environment = { name: importFileObj.name, variables: [] }
-      importFileObj.values.forEach(element => environment.variables.push({ key: element.key, value: element.value }));
-      let environments = [ environment ]
+      importFileObj.values.forEach((element) =>
+        environment.variables.push({ key: element.key, value: element.value })
+      )
+      let environments = [environment]
       this.importFromPostwoman(environments)
     },
     exportJSON() {

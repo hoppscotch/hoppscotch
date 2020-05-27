@@ -109,6 +109,9 @@ export default {
     "requestData.folderIndex": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined
     },
+    editingRequest(request) {
+      this.defaultRequestName = request.label || "My Request"
+    },
   },
   computed: {
     folders() {

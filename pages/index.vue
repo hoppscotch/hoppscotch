@@ -1565,6 +1565,7 @@ export default {
         this.testsEnabled = true
         this.testScript = newValue.testScript
       }
+      this.label = newValue.label
     },
     editingRequest(newValue) {
       this.editRequest = newValue
@@ -2631,6 +2632,7 @@ export default {
         requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
+        label: this.requestName,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)

@@ -342,27 +342,34 @@ export default {
         })
       }
 
-      setTimeout(() => {
-        this.$toast.clear()
-        this.$toast.show(
-          "<span>Get <u><a href='https://gum.co/keky' target='_blank'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Postwoman</span>",
-          {
-            icon: "",
-            duration: 0,
-            theme: "toasted-ad",
-            action: [
-              {
-                text: "Get",
-                icon: "chevron_right",
-                onClick: (e, toastObject) => {
-                  toastObject.goAway(0)
-                  window.open("https://gum.co/keky")
+      let showAd = localStorage.getItem("showAd") === "no"
+      if (!showAd) {
+        setTimeout(() => {
+          this.$toast.clear()
+          this.$toast.show(
+            "<span>Get <u><a href='https://gum.co/keky' target='_blank'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Postwoman. Whoosh this away to dimiss →</span>",
+            {
+              icon: "",
+              duration: 0,
+              theme: "toasted-ad",
+              action: [
+                {
+                  text: "Get",
+                  icon: "chevron_right",
+                  onClick: (e, toastObject) => {
+                    localStorage.setItem("showAd", "no")
+                    toastObject.goAway(0)
+                    window.open("https://gum.co/keky")
+                  },
                 },
+              ],
+              onComplete() {
+                localStorage.setItem("showAd", "no")
               },
-            ],
-          }
-        )
-      }, 11000)
+            }
+          )
+        }, 11000)
+      }
 
       let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
 

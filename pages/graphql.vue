@@ -47,7 +47,7 @@
               ></textarea>
             </li>
           </ul>
-          <ul v-for="(header, index) in headers" :key="index">
+          <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
             <li>
               <autocomplete
                 :placeholder="$t('header_count', { count: index + 1 })"

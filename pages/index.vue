@@ -211,9 +211,11 @@
             <ul>
               <li>
                 <label for="contentType">{{ $t("content_type") }}</label>
-                <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType"
-                  >Content Type</autocomplete
-                >
+                <autocomplete
+                  :source="validContentTypes"
+                  :spellcheck="false"
+                  v-model="contentType"
+                />
               </li>
             </ul>
             <ul>
@@ -747,7 +749,7 @@
                     ></textarea>
                   </li>
                 </ul>
-                <ul v-for="(header, index) in headers" :key="`${header.key}_${index}`">
+                <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
                   <li>
                     <autocomplete
                       :placeholder="$t('header_count', { count: index + 1 })"

@@ -1,11 +1,5 @@
 <template>
-  <virtual-list
-    v-if="fb.currentFeeds.length !== 0"
-    class="virtual-list"
-    :class="{ filled: fb.currentFeeds.length }"
-    :size="180"
-    :remain="Math.min(6, fb.currentFeeds.length)"
-  >
+  <div v-if="fb.currentFeeds.length !== 0" class="virtual-list">
     <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
       <div class="show-on-large-screen">
         <li class="info">
@@ -23,7 +17,7 @@
         </li>
       </div>
     </ul>
-  </virtual-list>
+  </div>
   <ul v-else>
     <li>
       <label class="info">{{ $t("empty") }}</label>
@@ -58,9 +52,6 @@ ol {
 import { fb } from "../../functions/fb"
 
 export default {
-  components: {
-    VirtualList: () => import("vue-virtual-scroll-list"),
-  },
   data() {
     return {
       fb,

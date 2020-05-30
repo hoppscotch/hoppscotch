@@ -27,12 +27,7 @@
     <p v-if="environments.length === 0" class="info">
       Create new environment
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: environments.length }"
-      :size="152"
-      :remain="Math.min(5, environments.length)"
-    >
+    <div class="virtual-list">
       <ul>
         <li v-for="(environment, index) in environments" :key="environment.name">
           <environment
@@ -46,7 +41,7 @@
           <label>Environments are empty</label>
         </li>
       </ul>
-    </virtual-list>
+    </div>
   </pw-section>
 </template>
 
@@ -75,7 +70,6 @@ export default {
     addEnvironment: () => import("./addEnvironment"),
     editEnvironment: () => import("./editEnvironment"),
     importExportEnvironment: () => import("./importExportEnvironment"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -92,7 +86,7 @@ export default {
     },
   },
   async mounted() {
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
         this.showModalImportExport = false

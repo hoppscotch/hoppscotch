@@ -64,12 +64,7 @@ TODO:
     <p v-if="collections.length === 0" class="info">
       Create new collection
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: collections.length }"
-      :size="152"
-      :remain="Math.min(5, collections.length)"
-    >
+    <div class="virtual-list">
       <ul>
         <li v-for="(collection, index) in collections" :key="collection.name">
           <collection
@@ -85,7 +80,7 @@ TODO:
           <label>Collections are empty</label>
         </li>
       </ul>
-    </virtual-list>
+    </div>
     <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
       <button class="icon">
         <i class="material-icons">books</i>
@@ -120,7 +115,6 @@ export default {
     editFolder: () => import("./editFolder"),
     editRequest: () => import("./editRequest"),
     importExportCollections: () => import("./importExportCollections"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -144,7 +138,7 @@ export default {
     },
   },
   async mounted() {
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
         this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false

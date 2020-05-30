@@ -6,12 +6,7 @@
         <i class="material-icons">search</i>
       </button>
     </div>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: filteredHistory.length }"
-      :size="185"
-      :remain="Math.min(5, filteredHistory.length)"
-    >
+    <div class="virtual-list" :class="{ filled: filteredHistory.length }">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-large-screen">
           <button
@@ -152,7 +147,7 @@
           </div>
         </transition>
       </ul>
-    </virtual-list>
+    </div>
     <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
         <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
@@ -320,7 +315,6 @@ const updateOnLocalStorage = (propertyName, property) =>
 export default {
   components: {
     "pw-section": () => import("../layout/section"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {

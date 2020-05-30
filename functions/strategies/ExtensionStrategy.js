@@ -7,6 +7,12 @@ export const hasChromeExtensionInstalled = () =>
 export const hasFirefoxExtensionInstalled = () =>
   hasExtensionInstalled() && /Firefox/i.test(navigator.userAgent)
 
+export const cancelRunningExtensionRequest = () => {
+  if (hasExtensionInstalled() && window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest) {
+    window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest()
+  }
+}
+
 const extensionWithProxy = async (req, { state }) => {
   const { data } = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     method: "post",

@@ -189,10 +189,23 @@
             </li>
             <li class="shrink">
               <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
+              <button
+                v-if="!runningRequest"
+                :disabled="!isValidURL"
+                @click="sendRequest"
+                id="send"
+                ref="sendButton"
+              >
                 {{ $t("send") }}
                 <span>
                   <i class="material-icons">send</i>
+                </span>
+              </button>
+
+              <button v-else @click="cancelRequest" id="send" ref="sendButton">
+                {{ $t("cancel") }}
+                <span>
+                  <i class="material-icons">clear</i>
                 </span>
               </button>
             </li>
@@ -1332,7 +1345,7 @@ import runTestScriptWithVariables from "../functions/postwomanTesting"
 import parseTemplateString from "../functions/templating"
 import AceEditor from "../components/ui/ace-editor"
 import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
-import { sendNetworkRequest } from "../functions/network"
+import { cancelRunningRequest, sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
 import {
@@ -1450,6 +1463,7 @@ export default {
       files: [],
       filenames: "",
       navigatorShare: navigator.share,
+      runningRequest: false,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -2085,6 +2099,9 @@ export default {
       }
       return await sendNetworkRequest(requestOptions, this.$store)
     },
+    cancelRequest() {
+      cancelRunningRequest(this.$store)
+    },
     async sendRequest() {
       this.$toast.clear()
       if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
@@ -2154,12 +2171,16 @@ export default {
       headers = headersObject
       try {
         const startTime = Date.now()
+
+        this.runningRequest = true
         const payload = await this.makeRequest(
           auth,
           headers,
           requestBody,
           this.showPreRequestScript && this.preRequestScript
         )
+        this.runningRequest = false
+
         const duration = Date.now() - startTime
         this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done",
@@ -2202,55 +2223,66 @@ export default {
           }
         })()
       } catch (error) {
-        console.log(error)
-        if (error.response) {
-          this.response.headers = error.response.headers
-          this.response.status = error.response.status
-          this.response.body = error.response.data
-          // Addition of an entry to the history component.
-          const entry = {
-            label: this.requestName,
-            status: this.response.status,
-            date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString(),
-            method: this.method,
-            url: this.url,
-            path: this.path,
-            usesScripts: Boolean(this.preRequestScript),
-            preRequestScript: this.preRequestScript,
-          }
+        this.runningRequest = false
 
-          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
-            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-            entry.path = parseTemplateString(entry.path, environmentVariables)
-            entry.url = parseTemplateString(entry.url, environmentVariables)
-          }
-
-          this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null) {
-            if (fb.currentSettings[2].value) {
-              fb.writeHistory(entry)
-            }
-          }
-          return
+        // If the error is caused by cancellation, do nothing
+        if (error === "cancellation") {
+          this.response.status = this.$t("cancelled")
+          this.response.body = this.$t("cancelled")
         } else {
-          this.response.status = error.message
-          this.response.body = `${error}. ${this.$t("check_console_details")}`
-          this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-            icon: "error",
-          })
-          if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
-            this.$toast.info(this.$t("enable_proxy"), {
-              icon: "help",
-              duration: 8000,
-              action: {
-                text: this.$t("yes"),
-                onClick: (e, toastObject) => {
-                  this.$router.push({ path: "/settings" })
-                },
-              },
+          console.log(error)
+          if (error.response) {
+            this.response.headers = error.response.headers
+            this.response.status = error.response.status
+            this.response.body = error.response.data
+            // Addition of an entry to the history component.
+            const entry = {
+              label: this.requestName,
+              status: this.response.status,
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              method: this.method,
+              url: this.url,
+              path: this.path,
+              usesScripts: Boolean(this.preRequestScript),
+              preRequestScript: this.preRequestScript,
+            }
+
+            if (
+              (this.preRequestScript && this.showPreRequestScript) ||
+              hasPathParams(this.params)
+            ) {
+              let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+              environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+              entry.path = parseTemplateString(entry.path, environmentVariables)
+              entry.url = parseTemplateString(entry.url, environmentVariables)
+            }
+
+            this.$refs.historyComponent.addEntry(entry)
+            if (fb.currentUser !== null) {
+              if (fb.currentSettings[2].value) {
+                fb.writeHistory(entry)
+              }
+            }
+            return
+          } else {
+            this.response.status = error.message
+            this.response.body = `${error}. ${this.$t("check_console_details")}`
+            this.$toast.error(`${error} ${this.$t("f12_details")}`, {
+              icon: "error",
             })
+            if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
+              this.$toast.info(this.$t("enable_proxy"), {
+                icon: "help",
+                duration: 8000,
+                action: {
+                  text: this.$t("yes"),
+                  onClick: (e, toastObject) => {
+                    this.$router.push({ path: "/settings" })
+                  },
+                },
+              })
+            }
           }
         }
       }

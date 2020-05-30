@@ -187,6 +187,7 @@
   "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
   "prettify_body": "Prettify body",
   "cancel": "Cancel",
+  "cancelled": "Cancelled",
   "save": "Save",
   "dismiss": "Dismiss",
   "are_you_sure": "Are you sure?",

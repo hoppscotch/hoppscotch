@@ -1,5 +1,16 @@
-import AxiosStrategy from "./strategies/AxiosStrategy"
-import ExtensionStrategy, { hasExtensionInstalled } from "./strategies/ExtensionStrategy"
+import AxiosStrategy, { cancelRunningAxiosRequest } from "./strategies/AxiosStrategy"
+import ExtensionStrategy, {
+  cancelRunningExtensionRequest,
+  hasExtensionInstalled,
+} from "./strategies/ExtensionStrategy"
+
+export const cancelRunningRequest = (store) => {
+  if (isExtensionsAllowed(store) && hasExtensionInstalled()) {
+    cancelRunningExtensionRequest()
+  } else {
+    cancelRunningAxiosRequest()
+  }
+}
 
 const isExtensionsAllowed = ({ state }) =>
   typeof state.postwoman.settings.EXTENSIONS_ENABLED === "undefined" ||
@@ -13,7 +24,5 @@ const runAppropriateStrategy = (req, store) => {
   return AxiosStrategy(req, store)
 }
 
-const sendNetworkRequest = (req, store) =>
+export const sendNetworkRequest = (req, store) =>
   runAppropriateStrategy(req, store).finally(() => window.$nuxt.$loading.finish())
-
-export { sendNetworkRequest }

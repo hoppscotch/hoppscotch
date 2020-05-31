@@ -15,7 +15,7 @@
   "subscribe": "Subscribe",
   "choose_language": "Choose Language",
   "shortcuts": "Shortcuts",
-  "send_request": "Send Request",
+  "send_request": "Send/Cancel Request",
   "save_to_collections": "Save to Collections",
   "copy_request_link": "Copy Request Link",
   "reset_request": "Reset Request",

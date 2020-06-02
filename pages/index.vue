@@ -220,7 +220,11 @@
               :placeholder="$t('optional')"
             />
           </div>
-          <div class="blue" label="Request Body" v-if="['POST', 'PUT', 'PATCH'].includes(method)">
+          <div
+            class="blue"
+            label="Request Body"
+            v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)"
+          >
             <ul>
               <li>
                 <label for="contentType">{{ $t("content_type") }}</label>
@@ -1588,8 +1592,10 @@ export default {
       this.showRequestModal = true
     },
     method() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method) ? "application/json" : ""
+      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH", "DELETE"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
+      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
+        ? "application/json"
+        : ""
     },
     preRequestScript: function (val, oldVal) {
       this.uri = this.uri
@@ -1868,7 +1874,7 @@ export default {
       return this.showPreRequestScript || httpValid(this.url)
     },
     hasRequestBody() {
-      return ["POST", "PUT", "PATCH"].includes(this.method)
+      return ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
     },
     pathName() {
       return this.path.match(/^([^?]*)\??/)[1]
@@ -1939,7 +1945,7 @@ export default {
             if (key) requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
           })
         }
-        if (["POST", "PUT", "PATCH"].includes(this.method)) {
+        if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (isJSONContentType(this.contentType)) {
             requestBody = `JSON.stringify(${requestBody})`
@@ -1968,7 +1974,7 @@ export default {
         } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
           headers.push(`    "Authorization": "Bearer ${this.bearerToken}",\n`)
         }
-        if (["POST", "PUT", "PATCH"].includes(this.method)) {
+        if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
           let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           if (isJSONContentType(this.contentType)) {
             requestBody = `JSON.stringify(${requestBody})`
@@ -2015,7 +2021,7 @@ export default {
             if (key) requestString.push(`  -H '${key}: ${value}' \n`)
           })
         }
-        if (["POST", "PUT", "PATCH"].includes(this.method)) {
+        if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
           requestString.push(`  -H 'Content-Length: ${requestBody.length}' \n`)
           requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8' \n`)
@@ -2828,7 +2834,6 @@ export default {
     this._keyListener = function (e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
-        console.log(this.runningRequest)
         if (!this.runningRequest) {
           this.sendRequest()
         } else {

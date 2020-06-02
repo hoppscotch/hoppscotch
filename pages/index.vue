@@ -2828,7 +2828,12 @@ export default {
     this._keyListener = function (e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
-        this.sendRequest()
+        console.log(this.runningRequest)
+        if (!this.runningRequest) {
+          this.sendRequest()
+        } else {
+          this.cancelRequest()
+        }
       } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.saveRequest()

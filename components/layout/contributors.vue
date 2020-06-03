@@ -89,6 +89,15 @@
       <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
     </p>
     <div class="contributors">
+      <a href="https://tyk.io" target="_blank" rel="noopener">
+        <img
+          style="max-width: 320px;"
+          src="~assets/images/Tyk-side-project-logo-tagline-blk.png"
+          alt="Tyk Banner"
+        />
+      </a>
+    </div>
+    <div class="contributors">
       <a href="https://opencollective.com/postwoman/organization/0/website">
         <img src="https://opencollective.com/postwoman/organization/0/avatar.svg" />
       </a>

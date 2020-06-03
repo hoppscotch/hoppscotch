@@ -156,7 +156,7 @@ nav.primary-nav {
   }
 
   a {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -202,7 +202,7 @@ nav.secondary-nav {
       display: flex;
 
       a {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;

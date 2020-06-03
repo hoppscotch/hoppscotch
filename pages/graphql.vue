@@ -118,8 +118,8 @@
               </button>
               <button
                 class="icon"
-                @click="downloadResponse"
-                ref="downloadResponse"
+                @click="downloadSchema"
+                ref="downloadSchema"
                 v-tooltip="$t('download_file')"
               >
                 <i class="material-icons">get_app</i>
@@ -666,7 +666,7 @@ export default {
       this.expandResponse = !this.expandResponse
       this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
     },
-    downloadResponse() {
+    downloadSchema() {
       const dataToWrite = JSON.stringify(this.schema, null, 2)
       const file = new Blob([dataToWrite], { type: "application/json" })
       const a = document.createElement("a")
@@ -675,14 +675,14 @@ export default {
       a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
       document.body.appendChild(a)
       a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
+      this.$refs.downloadSchema.innerHTML = this.doneButton
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
+        this.$refs.downloadSchema.innerHTML = this.downloadButton
       }, 1000)
     },
     addRequestHeader(index) {

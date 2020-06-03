@@ -223,6 +223,14 @@
             <div>
               <button
                 class="icon"
+                @click="downloadResponse"
+                ref="downloadResponse"
+                v-tooltip="$t('download_file')"
+              >
+                <i class="material-icons">get_app</i>
+              </button>
+              <button
+                class="icon"
                 @click="copyResponse"
                 ref="copyResponseButton"
                 v-tooltip="$t('copy_response')"
@@ -665,6 +673,25 @@ export default {
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse
       this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
+    },
+    downloadResponse() {
+      const dataToWrite = this.response
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      a.download = `Response ${this.url} on ${Date()}.json`.replace(/\./g, "[dot]")
+      document.body.appendChild(a)
+      a.click()
+      this.$refs.downloadResponse.innerHTML = this.doneButton
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done",
+      })
+      setTimeout(() => {
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        this.$refs.downloadResponse.innerHTML = this.downloadButton
+      }, 1000)
     },
     downloadSchema() {
       const dataToWrite = JSON.stringify(this.schema, null, 2)

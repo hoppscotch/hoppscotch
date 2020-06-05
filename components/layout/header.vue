@@ -347,7 +347,7 @@ export default {
         setTimeout(() => {
           this.$toast.clear()
           this.$toast.show(
-            "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Postwoman. Whoosh this away to dimiss →</span>",
+            "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Postwoman. Whoosh this away to dismiss →</span>",
             {
               icon: "",
               duration: 0,

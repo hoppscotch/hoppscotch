@@ -33,7 +33,7 @@
     "@nuxtjs/axios": "^5.10.3",
     "@nuxtjs/gtm": "^2.3.0",
     "@nuxtjs/robots": "^2.4.2",
-    "@nuxtjs/sitemap": "^2.3.0",
+    "@nuxtjs/sitemap": "^2.3.1",
     "@nuxtjs/toast": "^3.3.0",
     "ace-builds": "^1.4.11",
     "firebase": "^7.15.0",

@@ -225,6 +225,7 @@
                 class="icon"
                 @click="downloadResponse"
                 ref="downloadResponse"
+                v-if="response"
                 v-tooltip="$t('download_file')"
               >
                 <i class="material-icons">get_app</i>
@@ -233,6 +234,7 @@
                 class="icon"
                 @click="copyResponse"
                 ref="copyResponseButton"
+                v-if="response"
                 v-tooltip="$t('copy_response')"
               >
                 <i class="material-icons">file_copy</i>

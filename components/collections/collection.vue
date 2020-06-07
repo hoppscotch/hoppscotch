@@ -87,6 +87,8 @@ ul li {
 </style>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   components: {
     folder: () => import("./folder"),
@@ -103,6 +105,13 @@ export default {
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
@@ -111,6 +120,7 @@ export default {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })
+      this.syncCollections();
     },
     editFolder(collectionIndex, folder, folderIndex) {
       this.$emit("edit-folder", { collectionIndex, folder, folderIndex })

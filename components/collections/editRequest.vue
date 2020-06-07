@@ -69,6 +69,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   props: {
     show: Boolean,
@@ -106,6 +108,13 @@ export default {
     },
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     saveRequest() {
       const userSelectedAnyCollection = this.$data.requestUpdateData.collectionIndex !== undefined
 
@@ -130,6 +139,7 @@ export default {
       })
 
       this.hideModal()
+      this.syncCollections();
     },
     hideModal() {
       this.$emit("hide-modal")

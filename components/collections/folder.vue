@@ -70,6 +70,8 @@ ul li {
 </style>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   props: {
     folder: Object,
@@ -85,6 +87,13 @@ export default {
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
@@ -97,6 +106,7 @@ export default {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
       })
+      this.syncCollections();
     },
     editFolder() {
       this.$emit("edit-folder")

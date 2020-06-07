@@ -115,6 +115,7 @@
 
 <script>
 import textareaAutoHeight from "../../directives/textareaAutoHeight"
+import { fb } from "../../functions/fb"
 
 export default {
   directives: {
@@ -152,6 +153,13 @@ export default {
     },
   },
   methods: {
+    syncEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
+    },
     clearContent(e) {
       this.$store.commit("postwoman/removeVariables", [])
       e.target.innerHTML = this.doneButton
@@ -163,6 +171,7 @@ export default {
     addEnvironmentVariable() {
       let value = { key: "", value: "" }
       this.$store.commit("postwoman/addVariable", value)
+      this.syncEnvironments()
     },
     removeEnvironmentVariable(index) {
       let variableIndex = index
@@ -182,6 +191,7 @@ export default {
           },
         },
       })
+      this.syncEnvironments()
     },
     saveEnvironment() {
       if (!this.$data.name) {
@@ -197,6 +207,7 @@ export default {
         environmentIndex: this.$props.editingEnvironmentIndex,
       })
       this.$emit("hide-modal")
+      this.syncEnvironments()
     },
     hideModal() {
       this.$data.name = undefined

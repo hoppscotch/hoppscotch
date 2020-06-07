@@ -200,7 +200,9 @@ firebase.auth().onAuthStateChanged((user) => {
           collection.id = doc.id
           collections.push(collection)
         })
-        fb.currentCollections = collections[0].collection
+        if (collections.length > 0) {
+          fb.currentCollections = collections[0].collection
+        }
       })
 
     usersCollection
@@ -213,7 +215,9 @@ firebase.auth().onAuthStateChanged((user) => {
           environment.id = doc.id
           environments.push(environment)
         })
-        fb.currentEnvironments = environments[0].environment
+        if (environments.length > 0) {
+          fb.currentEnvironments = environments[0].environment
+        }
       })
   } else {
     fb.currentUser = null

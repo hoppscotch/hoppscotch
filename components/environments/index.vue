@@ -82,7 +82,7 @@ export default {
   },
   computed: {
     environments() {
-      return this.$store.state.postwoman.environments
+      return fb.currentEnvironments;
     },
   },
   async mounted() {

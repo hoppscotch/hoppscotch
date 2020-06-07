@@ -134,7 +134,7 @@ export default {
   },
   computed: {
     collections() {
-      return this.$store.state.postwoman.collections
+      return fb.currentCollections;
     },
   },
   async mounted() {

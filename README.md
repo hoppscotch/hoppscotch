@@ -27,7 +27,7 @@
 
 **Chat: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
 
-**Donate: _[PayPal](https://www.paypal.me/liyascthomas), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas)_**
+**Donate: _[Open Collective](https://opencollective.com/postwoman), [PayPal](https://www.paypal.me/liyascthomas), [Patreon](https://www.patreon.com/liyasthomas), [:octocat: GitHub Sponsor](https://github.com/sponsors/postwoman-io)_**
 
 <div align="center">
   <br>

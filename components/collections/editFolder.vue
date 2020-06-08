@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   props: {
     show: Boolean,
@@ -55,6 +57,13 @@ export default {
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     editFolder() {
       this.$store.commit("postwoman/editFolder", {
         collectionIndex: this.$props.collectionIndex,
@@ -62,6 +71,7 @@ export default {
         folderIndex: this.$props.folderIndex,
       })
       this.hideModal()
+      this.syncCollections();
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -42,6 +42,8 @@ ul li {
 </style>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   props: {
     request: Object,
@@ -50,6 +52,13 @@ export default {
     requestIndex: Number,
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     selectRequest() {
       this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
@@ -60,6 +69,7 @@ export default {
         folderIndex: this.folderIndex,
         requestIndex: this.requestIndex,
       })
+      this.syncCollections();
     },
   },
 }

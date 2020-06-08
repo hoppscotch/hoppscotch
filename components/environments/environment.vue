@@ -42,15 +42,25 @@ ul li {
 </style>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   props: {
     environment: Object,
     environmentIndex: Number,
   },
   methods: {
+    syncEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
+    },
     removeEnvironment() {
       if (!confirm("Are you sure you want to remove this environment?")) return
       this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
+      this.syncEnvironments()
     },
   },
 }

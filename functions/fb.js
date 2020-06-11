@@ -105,7 +105,7 @@ export const fb = {
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      collection: collection,
+      collection,
     }
     usersCollection
       .doc(fb.currentUser.uid)
@@ -120,7 +120,7 @@ export const fb = {
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      environment: environment,
+      environment,
     }
     usersCollection
       .doc(fb.currentUser.uid)

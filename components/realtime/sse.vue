@@ -110,9 +110,9 @@ export default {
               icon: "sync_disabled",
             })
           }
-          this.sse.onmessage = (event) => {
+          this.sse.onmessage = ({ data }) => {
             this.events.log.push({
-              payload: event.data,
+              payload: data,
               source: "server",
               ts: new Date().toLocaleTimeString(),
             })

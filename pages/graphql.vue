@@ -522,8 +522,8 @@ export default {
 
       try {
         let headers = {}
-        this.headers.forEach((header) => {
-          headers[header.key] = header.value
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
         })
 
         let variables = JSON.parse(this.variableString || "{}")
@@ -624,8 +624,8 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach((header) => {
-          headers[header.key] = header.value
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
         })
 
         const reqOptions = {

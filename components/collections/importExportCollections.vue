@@ -107,7 +107,7 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
@@ -127,7 +127,7 @@ export default {
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
@@ -177,7 +177,7 @@ export default {
         icon: "error",
       })
     },
-    parsePostmanCollection(collection, folders = true) {
+    parsePostmanCollection({ item, info, name }, folders = true) {
       let postwomanCollection = folders
         ? [
             {
@@ -190,13 +190,13 @@ export default {
             name: "",
             requests: [],
           }
-      for (let collectionItem of collection.item) {
+      for (let collectionItem of item) {
         if (collectionItem.request) {
           if (postwomanCollection[0]) {
-            postwomanCollection[0].name = collection.info ? collection.info.name : ""
+            postwomanCollection[0].name = info ? info.name : ""
             postwomanCollection[0].requests.push(this.parsePostmanRequest(collectionItem))
           } else {
-            postwomanCollection.name = collection.name ? collection.name : ""
+            postwomanCollection.name = name ? name : ""
             postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
           }
         } else if (collectionItem.item) {
@@ -207,7 +207,7 @@ export default {
       }
       return postwomanCollection
     },
-    parsePostmanRequest(requestObject) {
+    parsePostmanRequest({ name, request }) {
       let pwRequest = {
         url: "",
         path: "",
@@ -227,16 +227,14 @@ export default {
         name: "",
       }
 
-      pwRequest.name = requestObject.name
-      let requestObjectUrl = requestObject.request.url.raw.match(
-        /^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/
-      )
+      pwRequest.name = name
+      let requestObjectUrl = request.url.raw.match(/^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/)
       if (requestObjectUrl) {
         pwRequest.url = requestObjectUrl[1]
         pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
       }
-      pwRequest.method = requestObject.request.method
-      let itemAuth = requestObject.request.auth ? requestObject.request.auth : ""
+      pwRequest.method = request.method
+      let itemAuth = request.auth ? request.auth : ""
       let authType = itemAuth ? itemAuth.type : ""
       if (authType === "basic") {
         pwRequest.auth = "Basic Auth"
@@ -254,7 +252,7 @@ export default {
         pwRequest.auth = "Bearer Token"
         pwRequest.bearerToken = itemAuth.bearer[0].value
       }
-      let requestObjectHeaders = requestObject.request.header
+      let requestObjectHeaders = request.header
       if (requestObjectHeaders) {
         pwRequest.headers = requestObjectHeaders
         for (let header of pwRequest.headers) {
@@ -262,23 +260,23 @@ export default {
           delete header.type
         }
       }
-      let requestObjectParams = requestObject.request.url.query
+      let requestObjectParams = request.url.query
       if (requestObjectParams) {
         pwRequest.params = requestObjectParams
         for (let param of pwRequest.params) {
           delete param.disabled
         }
       }
-      if (requestObject.request.body) {
-        if (requestObject.request.body.mode === "urlencoded") {
-          let params = requestObject.request.body.urlencoded
+      if (request.body) {
+        if (request.body.mode === "urlencoded") {
+          let params = request.body.urlencoded
           pwRequest.bodyParams = params ? params : []
           for (let param of pwRequest.bodyParams) {
             delete param.type
           }
-        } else if (requestObject.request.body.mode === "raw") {
+        } else if (request.body.mode === "raw") {
           pwRequest.rawInput = true
-          pwRequest.rawParams = requestObject.request.body.raw
+          pwRequest.rawParams = request.body.raw
         }
       }
       return pwRequest

@@ -177,7 +177,7 @@ export default {
         icon: "error",
       })
     },
-    parsePostmanCollection({ item, info, name }, folders = true) {
+    parsePostmanCollection(collection, folders = true) {
       let postwomanCollection = folders
         ? [
             {
@@ -190,13 +190,13 @@ export default {
             name: "",
             requests: [],
           }
-      for (let collectionItem of item) {
+      for (let collectionItem of collection.item) {
         if (collectionItem.request) {
           if (postwomanCollection[0]) {
-            postwomanCollection[0].name = info ? info.name : ""
+            postwomanCollection[0].name = collection.info ? collection.info.name : ""
             postwomanCollection[0].requests.push(this.parsePostmanRequest(collectionItem))
           } else {
-            postwomanCollection.name = name ? name : ""
+            postwomanCollection.name = collection.name ? collection.name : ""
             postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
           }
         } else if (collectionItem.item) {

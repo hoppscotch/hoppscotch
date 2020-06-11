@@ -973,7 +973,7 @@
                     class="icon"
                     @click="downloadResponse"
                     ref="downloadResponse"
-                    v-if="response.body"
+                    v-if="response.body && canDownloadResponse"
                     v-tooltip="$t('download_file')"
                   >
                     <i class="material-icons">get_app</i>
@@ -1610,6 +1610,14 @@ export default {
       return (
         this.contentType === "application/x-www-form-urlencoded" ||
         isJSONContentType(this.contentType)
+      )
+    },
+    canDownloadResponse() {
+      return (
+        this.response &&
+        this.response.headers &&
+        this.response.headers["content-type"] &&
+        isJSONContentType(this.response.headers["content-type"])
       )
     },
     uri: {

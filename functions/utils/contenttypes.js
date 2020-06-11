@@ -9,9 +9,19 @@ export const knownContentTypes = [
 ]
 
 export function isJSONContentType(contentType) {
-  return (
-    contentType === "application/json" ||
-    contentType === "application/vnd.api+json" ||
-    contentType === "application/hal+json"
-  )
+  if (contentType.includes(";")) {
+    const [justContentType] = contentType.split(";")
+
+    return (
+      justContentType === "application/json" ||
+      justContentType === "application/vnd.api+json" ||
+      justContentType === "application/hal+json"
+    )
+  } else {
+    return (
+      contentType === "application/json" ||
+      contentType === "application/vnd.api+json" ||
+      contentType === "application/hal+json"
+    )
+  }
 }

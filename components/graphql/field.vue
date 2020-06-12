@@ -64,14 +64,11 @@ export default {
 
   computed: {
     fieldString() {
-      const args = (this.gqlField.args || []).reduce((acc, arg, index) => {
-        return (
-          acc +
-          `${arg.name}: ${arg.type.toString()}${
-            index !== this.gqlField.args.length - 1 ? ", " : ""
-          }`
-        )
-      }, "")
+      const args = (this.gqlField.args || []).reduce(
+        (acc, { name, type }, index) =>
+          acc + `${name}: ${type.toString()}${index !== this.gqlField.args.length - 1 ? ", " : ""}`,
+        ""
+      )
       const argsString = args.length > 0 ? `(${args})` : ""
       return `${this.gqlField.name}${argsString}: ${this.gqlField.type.toString()}`
     },

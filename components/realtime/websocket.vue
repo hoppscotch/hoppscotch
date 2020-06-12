@@ -136,9 +136,9 @@ export default {
             icon: "sync_disabled",
           })
         }
-        this.socket.onmessage = (event) => {
+        this.socket.onmessage = ({ data }) => {
           this.communication.log.push({
-            payload: event.data,
+            payload: data,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })
@@ -181,7 +181,7 @@ export default {
       this.communication.input = ""
     },
     walkHistory(direction) {
-      const clientMessages = this.communication.log.filter((msg) => msg.source === "client")
+      const clientMessages = this.communication.log.filter(({ source }) => source === "client")
       const length = clientMessages.length
       switch (direction) {
         case "up":

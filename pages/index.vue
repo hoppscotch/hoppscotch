@@ -1409,7 +1409,7 @@ const parseHeaders = (xhr) => {
   return headerMap
 }
 export const findStatusGroup = (responseStatus) =>
-  statusCategories.find((status) => status.statusCodeRegex.test(responseStatus))
+  statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
 export default {
   directives: {
     textareaAutoHeight,

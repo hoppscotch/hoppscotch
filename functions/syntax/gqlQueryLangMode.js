@@ -9,16 +9,16 @@ export function defineGQLLanguageMode(ace) {
       const TextHighlightRules = aceRequire("ace/mode/text_highlight_rules").TextHighlightRules
 
       const GQLQueryTextHighlightRules = function () {
-        var keywords =
+        const keywords =
           "type|interface|union|enum|schema|input|implements|extends|scalar|fragment|query|mutation|subscription"
 
-        var dataTypes = "Int|Float|String|ID|Boolean"
+        const dataTypes = "Int|Float|String|ID|Boolean"
 
-        var literalValues = "true|false|null"
+        const literalValues = "true|false|null"
 
-        var escapeRe = /\\(?:u[\da-fA-f]{4}|.)/
+        const escapeRe = /\\(?:u[\da-fA-f]{4}|.)/
 
-        var keywordMapper = this.createKeywordMapper(
+        const keywordMapper = this.createKeywordMapper(
           {
             keyword: keywords,
             "storage.type": dataTypes,
@@ -48,7 +48,7 @@ export function defineGQLLanguageMode(ace) {
             },
             {
               token: "string", // character
-              regex: "'(?:" + escapeRe + "|.)?'",
+              regex: `'(?:${escapeRe}|.)?'`,
             },
             {
               token: "string.start",

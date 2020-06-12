@@ -138,11 +138,9 @@ export const mutations = {
   },
 
   importAddEnvironments(state, { environments, confirmation }) {
-    const duplicateEnvironment = environments.some(item => {
-      return state.environments.some(item2 => {
-        return item.name.toLowerCase() === item2.name.toLowerCase()
-      })
-    })
+    const duplicateEnvironment = environments.some(({ name }) =>
+      state.environments.some(({ name }) => name.toLowerCase() === name.toLowerCase())
+    )
     if (duplicateEnvironment) {
       this.$toast.info("Duplicate environment")
       return
@@ -170,7 +168,7 @@ export const mutations = {
       environments.length === 1
         ? false
         : environments.some(
-            item =>
+            (item) =>
               item.environmentIndex !== environmentIndex &&
               item.name.toLowerCase() === name.toLowerCase()
           )
@@ -198,7 +196,7 @@ export const mutations = {
   addNewCollection({ collections }, collection) {
     const { name } = collection
     const duplicateCollection = collections.some(
-      item => item.name.toLowerCase() === name.toLowerCase()
+      (item) => item.name.toLowerCase() === name.toLowerCase()
     )
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection")
@@ -221,7 +219,7 @@ export const mutations = {
     const { collection, collectionIndex } = payload
     const { name } = collection
     const duplicateCollection = collections.some(
-      item => item.name.toLowerCase() === name.toLowerCase()
+      (item) => item.name.toLowerCase() === name.toLowerCase()
     )
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection")

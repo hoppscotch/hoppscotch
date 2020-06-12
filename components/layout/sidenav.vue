@@ -276,20 +276,20 @@ export default {
   },
 
   mounted() {
-    window.addEventListener("scroll", event => {
+    window.addEventListener("scroll", (event) => {
       let mainNavLinks = document.querySelectorAll("nav ul li a")
       let fromTop = window.scrollY
-      mainNavLinks.forEach(link => {
-        let section = document.querySelector(link.hash)
+      mainNavLinks.forEach(({ hash, classList }) => {
+        let section = document.querySelector(hash)
 
         if (
           section &&
           section.offsetTop <= fromTop &&
           section.offsetTop + section.offsetHeight > fromTop
         ) {
-          link.classList.add("current")
+          classList.add("current")
         } else {
-          link.classList.remove("current")
+          classList.remove("current")
         }
       })
     })

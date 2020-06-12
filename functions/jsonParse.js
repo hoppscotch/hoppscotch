@@ -120,10 +120,10 @@ function expect(str) {
   if (kind === "EOF") {
     found = "[end of file]"
   } else if (end - start > 1) {
-    found = "`" + string.slice(start, end) + "`"
+    found = `\`${string.slice(start, end)}\``
   } else {
     const match = string.slice(start).match(/^.+?\b/)
-    found = "`" + (match ? match[0] : string[start]) + "`"
+    found = `\`${match ? match[0] : string[start]}\``
   }
 
   throw syntaxError(`Expected ${str} but found ${found}.`)

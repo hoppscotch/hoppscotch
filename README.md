@@ -10,7 +10,7 @@
   </p>
   <p>
 
-  [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
+[![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
   </p>
   <p>
@@ -23,15 +23,15 @@
 
 ---
 
-**Read: _[Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)_**
+**Read: [Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)**
 
-**Chat: _[Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)_**
+**Chat: [Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)**
 
-**Donate: _[Open Collective](https://opencollective.com/postwoman), [PayPal](https://www.paypal.me/liyascthomas), [Patreon](https://www.patreon.com/liyasthomas), [:octocat: GitHub Sponsor](https://github.com/sponsors/postwoman-io)_**
+**Donate: [Open Collective](https://opencollective.com/postwoman), [PayPal](https://www.paypal.me/liyascthomas), [Patreon](https://www.patreon.com/liyasthomas), [:octocat: GitHub Sponsors](https://github.com/sponsors/postwoman-io)**
 
 <div align="center">
   <br>
-  <img src="static/images/screenshot1.png" alt="Screenshot1" width="100%">
+  <a href="https://postwoman.io"><img src="static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
   <br>
 </div>
 
@@ -42,53 +42,57 @@
 ⚡️ **Fast**: Send requests and get/copy responses in real-time - fast software is the best software.
 
 **Methods:**
- - `GET` - Retrieve information about the REST API resource
- - `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
- - `POST` - Create a REST API resource
- - `PUT` - Update a REST API resource
- - `DELETE` - Delete a REST API resource or related component
- - `CONNECT` - Establishes a tunnel to the server identified by the target resource
- - `OPTIONS` - Describe the communication options for the target resource
- - `TRACE` - Performs a message loop-back test along the path to the target resource
- - `PATCH` - Apply partial modifications to a REST API resource
- - `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
+
+- `GET` - Retrieve information about the REST API resource
+- `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
+- `POST` - Create a REST API resource
+- `PUT` - Update a REST API resource
+- `DELETE` - Delete a REST API resource or related component
+- `CONNECT` - Establishes a tunnel to the server identified by the target resource
+- `OPTIONS` - Describe the communication options for the target resource
+- `TRACE` - Performs a message loop-back test along the path to the target resource
+- `PATCH` - Apply partial modifications to a REST API resource
+- `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
 🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization is freedom. [Customize now ✨](https://postwoman.io/settings).
 
 **Customizations:**
- - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
- - Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
- - Toggle multi-colored headings
+
+- Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
+- Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
+- Toggle multi-colored headings
 
 _Customized themes are synced with local session storage_
 
 🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
 **Features:**
- - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
- - Offline support
- - Low RAM/memory and CPU usage
- - Add to Home Screen
- - Desktop PWA
- - ([full features](https://developers.google.com/web/progressive-web-apps))
+
+- Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
+- Offline support
+- Low RAM/memory and CPU usage
+- Add to Home Screen
+- Desktop PWA
+- ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve response from endpoint instantly.
 
- - Choose `method`
- - Enter `URL` and `Path`
- - Send
+- Choose `method`
+- Enter `URL` and `Path`
+- Send
 
 **Features:**
- - Copy/share public "Share URL"
- - Generate request code for `JavaScript XHR`, `Fetch` and `cURL`
- - Copy generated request code to clipboard
- - Import `cURL`
- - Label requests
+
+- Copy/share public "Share URL"
+- Generate request code for `JavaScript XHR`, `Fetch` and `cURL`
+- Copy generated request code to clipboard
+- Import `cURL`
+- Label requests
 
 🔌 **WebSocket**: Establish full-duplex communication channels over a single TCP connection.
 
- - Send and receive data
- - Basic and Bearer Token authentication
+- Send and receive data
+- Basic and Bearer Token authentication
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
 
@@ -98,52 +102,55 @@ _Customized themes are synced with local session storage_
 
 🔮 **GraphQL**: GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
- - Set endpoint and get schemas
- - Multi-column docs
- - Set custom request headers
- - Query schema
- - Get query response
+- Set endpoint and get schemas
+- Multi-column docs
+- Set custom request headers
+- Query schema
+- Get query response
 
 🔐 **Authentication**: Allows to identify the end user.
 
 **Types:**
- - None
- - Basic
- - Bearer Token
- - OAuth 2.0
- - OIDC Access Token/PKCE (Proof Key for Code Exchange)
+
+- None
+- Basic
+- Bearer Token
+- OAuth 2.0
+- OIDC Access Token/PKCE (Proof Key for Code Exchange)
 
 📢 **Headers**: Describes the format the body of your request is being sent as.
 
- - Add or remove Header list
+- Add or remove Header list
 
 📫 **Parameters**: Use request parameters to set varying parts in simulated requests.
 
 📃 **Request Body**: Used to send and receive data via the REST API.
 
 **Options:**
- - Set `Content Type`
- - Add or remove Parameter list
- - Toggle between key-value and RAW input Parameter list
+
+- Set `Content Type`
+- Add or remove Parameter list
+- Toggle between key-value and RAW input Parameter list
 
 👋 **Responses**: Contains the status line, headers and the message/response body.
 
- - Copy response to clipboard
- - Download response to as a file
- - View preview of HTML responses
+- Copy response to clipboard
+- Download response to as a file
+- View preview of HTML responses
 
 ⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
 
 **Fields:**
- - Star
- - Label
- - Method
- - Status code
- - URL
- - Path
- - Timestamp
- - Duration
- - Pre-request script
+
+- Star
+- Label
+- Method
+- Status code
+- URL
+- Path
+- Timestamp
+- Duration
+- Pre-request script
 
 _History entries can be sorted by any fields_
 
@@ -152,49 +159,54 @@ _Histories can be deleted one-by-one or all together_
 📁 **Collections**: Keep your API requests organized with collections and folders. Reuse them with a single click.
 
 **Options:**
- - Create infinite collections, folders and requests
- - Edit, delete, move, export, import and replace
+
+- Create infinite collections, folders and requests
+- Edit, delete, move, export, import and replace
 
 _Collections are synced with local session storage_
 
 🌐 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs.
 
 **Features:**
- - Hide your IP address
- - Fixes [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
- - Access APIs served in non-HTTPS (`http://`)
- - Use custom Proxy URL
+
+- Hide your IP address
+- Fixes [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
+- Access APIs served in non-HTTPS (`http://`)
+- Use custom Proxy URL
 
 _Official Postwoman Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
 
 📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
 
 **Use-cases:**
- - Include timestamp in the request headers
- - Send a random alphanumeric string in the URL parameters
+
+- Include timestamp in the request headers
+- Send a random alphanumeric string in the URL parameters
 
 _Requests with Pre-Request Scripts are indicated in History entries_
 
 📄 **API Documentation**: Create and share dynamic API documentation easily, quickly.
 
 **Usage:**
- 1. Add your requests to Collections and Folders
- 2. Export Collections and easily share your APIs with the rest of your team
- 3. Import Collections and Generate Documentation on-the-go
+
+1. Add your requests to Collections and Folders
+2. Export Collections and easily share your APIs with the rest of your team
+3. Import Collections and Generate Documentation on-the-go
 
 ⌨️ **Keyboard Shortcuts**: Optimized for efficiency.
 
 **Shortcuts:**
- - Send Request <kbd>Ctrl</kbd> + <kbd>G</kbd>
- - Save to Collections <kbd>Ctrl</kbd> + <kbd>S</kbd>
- - Copy Request Link <kbd>Ctrl</kbd> + <kbd>K</kbd>
- - Reset Request <kbd>Ctrl</kbd> + <kbd>L</kbd>
+
+- Send/Cancel Request <kbd>Ctrl</kbd> + <kbd>G</kbd>
+- Save to Collections <kbd>Ctrl</kbd> + <kbd>S</kbd>
+- Copy Request Link <kbd>Ctrl</kbd> + <kbd>K</kbd>
+- Reset Request <kbd>Ctrl</kbd> + <kbd>L</kbd>
 
 🌎 **i18n β**: Experience the app in your own language.
 
- 1. Scroll down to the footer
- 2. Click "Choose Language" icon button
- 3. Select your language from the menu
+1. Scroll down to the footer
+2. Click "Choose Language" icon button
+3. Select your language from the menu
 
 _Keep in mind: Translations aren't available for all source and target language combinations_
 
@@ -204,34 +216,37 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
 
 📦 **Add-ons**: Official add-ons for Postwoman.
 
- - **[Proxy β](https://github.com/postwoman-io/postwoman-proxy)** - A simple proxy server created for Postwoman
- - **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
- - **Browser Extensions** - Browser extensions that simplifies access to Postwoman
+- **[Proxy](https://github.com/postwoman-io/proxywoman)** - A simple proxy server created for Postwoman
+- **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
+- **Browser Extensions** - Browser extensions that simplifies access to Postwoman
 
-   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-extension))
+  [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-extension))
 
-   >**Extensions fixes `CORS` issues.**
+  > **Extensions fixes `CORS` issues.**
 
 _Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**._
 
 ☁️ **Auth + Sync**: Sign in and sync in real-time.
 
 **Sign in with:**
- - Google
- - GitHub
+
+- Google
+- GitHub
 
 **Sync:**
- - History
- - Collections
- - Environments
- - Notes
+
+- History
+- Collections
+- Environments
+- Notes
 
 ✅ **Post-Request Tests β**: Write tests associated with a request that are executed after the request response.
 
 **Use-cases:**
- - Check the status code as an integer
- - Filter response headers
- - Parse the response data
+
+- Check the status code as an integer
+- Filter response headers
+- Parse the response data
 
 📝 **Notes** : Instantly jot down notes, tasks or whatever you feel like as they come to your mind.
 
@@ -240,9 +255,10 @@ _Notes are only available for signed-in users_
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 
 **Use-cases:**
- - By storing a value in a variable, you can reference it throughout your request section
- - If you need to update the value, you only have to change it in one place
- - Using variables increases your ability to work efficiently and minimizes the likelihood of error
+
+- By storing a value in a variable, you can reference it throughout your request section
+- If you need to update the value, you only have to change it in one place
+- Using variables increases your ability to work efficiently and minimizes the likelihood of error
 
 **To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
 
@@ -265,12 +281,12 @@ You're done!
 
 ## Built with 🔧
 
-* [Chromium](https://github.com/chromium/chromium) - Thanks for being so fast!
-* HTML - For the web framework
-* CSS - For styling components
-* JavaScript - For magic!
-* [Vue](https://vuejs.org/) - To add to the JavaScript magic!
-* [Nuxt](https://nuxtjs.org/) - To add to the Vue magic!
+- [Chromium](https://github.com/chromium/chromium) - Thanks for being so fast!
+- HTML - For the web framework
+- CSS - For styling components
+- JavaScript - For magic!
+- [Vue](https://vuejs.org/) - To add to the JavaScript magic!
+- [Nuxt](https://nuxtjs.org/) - To add to the Vue magic!
 
 ## Developing 👷
 
@@ -335,18 +351,20 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 ### Lead Developers
 
-* **[Liyas Thomas](https://github.com/liyasthomas)** - *Author*
-* **[John Harker](https://github.com/NBTX)** - *Lead developer*
-* **[Andrew Bastin](https://github.com/andrewbastin)** - *Lead developer*
-* **[James George](https://github.com/jamesgeorge007)** - *Lead maintainer*
-* **[Caneco](https://twitter.com/caneco)** - *Logo and banner designer*
+- **[Liyas Thomas](https://github.com/liyasthomas)** - _Author_
+- **[John Harker](https://github.com/NBTX)** - _Lead developer_
+- **[Andrew Bastin](https://github.com/andrewbastin)** - _Lead developer_
+- **[James George](https://github.com/jamesgeorge007)** - _Lead maintainer_
+- **[Caneco](https://twitter.com/caneco)** - _Logo and banner designer_
 
 ### Testing and Debugging
 
-* ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
+- ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
 
 ### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -375,13 +393,14 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
 
 ### Thanks
 
-* [dev.to 👩‍💻👨‍💻](https://dev.to)
+- [dev.to 👩‍💻👨‍💻](https://dev.to)
 
 ### Financial Contributors
 
@@ -418,39 +437,94 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Acknowledgements 🙏
 
-* Hat tip to anyone whose code was used
-* Inspirations:
-  * [Dribbble](https://dribbble.com)
+- Hat tip to anyone whose code was used
+- Inspirations:
+  - [Dribbble](https://dribbble.com)
 
 ## Badges
 
 <table>
-<tr>
-<th>Preview</th>
-<th>Markdown code</th>
-</tr>
-<tbody>
-<tr>
-<td align="center" width="200px"><a href="https://postwoman.io"><br/><img src="https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman"/></a><br/><sub>Default<sub></td>
-<td><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)</code></td>
-</tr>
-<tr>
-<td align="center" width="200px"><a href="https://postwoman.io"><br/><img src="https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman"/></a><br/><sub>Success<sub></td>
-<td><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)</code></td>
-</tr>
-<tr>
-<td align="center" width="200px"><a href="https://postwoman.io"><br/><img src="https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman"/></a><br/><sub>Critical<sub></td>
-<td><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)</code></td>
-</tr>
-<tr>
-<td align="center" width="200px"><a href="https://postwoman.io"><br/><img src="https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman"/></a><br/><sub>Custom<sub></td>
-<td><code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)</code></td>
-</tr>
-<tr>
-<td align="center" width="200px"><a href="https://postwoman.io"><br/><img src="https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman"/></a><br/><sub>Customize<sub></td>
-<td><code>[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)</code></td>
-</tr>
-</tbody>
+	<tr>
+		<th>Preview</th>
+		<th>Markdown code</th>
+	</tr>
+	<tbody>
+		<tr>
+			<td align="center" width="200px">
+				<a href="https://postwoman.io">
+					<br/>
+					<img src="https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman"/>
+				</a>
+				<br/>
+				<sub>
+          Default
+        </sub>
+			</td>
+			<td>
+				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)</code>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" width="200px">
+				<a href="https://postwoman.io">
+					<br/>
+					<img src="https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman"/>
+				</a>
+				<br/>
+				<sub>
+          Success
+        </sub>
+			</td>
+			<td>
+				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)</code>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" width="200px">
+				<a href="https://postwoman.io">
+					<br/>
+					<img src="https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman"/>
+				</a>
+				<br/>
+				<sub>
+          Critical
+        </sub>
+			</td>
+			<td>
+				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)</code>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" width="200px">
+				<a href="https://postwoman.io">
+					<br/>
+					<img src="https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman"/>
+				</a>
+				<br/>
+				<sub>
+          Custom
+        </sub>
+			</td>
+			<td>
+				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)</code>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" width="200px">
+				<a href="https://postwoman.io">
+					<br/>
+					<img src="https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman"/>
+				</a>
+				<br/>
+				<sub>
+          Customize
+        </sub>
+			</td>
+			<td>
+				<code>[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)</code>
+			</td>
+		</tr>
+	</tbody>
 </table>
 
 <div align="center">

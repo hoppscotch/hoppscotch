@@ -114,6 +114,7 @@ export default {
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
+      this.syncToFBEnvironments()
     },
     importFromJSON() {
       let reader = new FileReader()
@@ -130,6 +131,7 @@ export default {
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
+      this.syncToFBEnvironments()
     },
     importFromPostwoman(environments) {
       let confirmation = this.$t("file_imported")
@@ -179,7 +181,6 @@ export default {
       this.$toast.info(this.$t("file_imported"), {
         icon: "folder_shared",
       })
-      this.syncToFBEnvironments()
     },
   },
 }

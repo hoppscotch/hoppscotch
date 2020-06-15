@@ -84,8 +84,8 @@ export default {
       this.syncEnvironments()
     },
     hideModal() {
-      this.$data.name = undefined
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://postwoman.io"><img src="static/logo.png" alt="Postwoman.io logo" height="160"></a>
+  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/postwoman/master/static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
   <p>
@@ -8,7 +8,7 @@
   <p>
      <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
   </p>
-  <p>
+  <p style="width: 80%;">
 
 [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
@@ -30,10 +30,30 @@
 **Donate: [Open Collective](https://opencollective.com/postwoman), [PayPal](https://www.paypal.me/liyascthomas), [Patreon](https://www.patreon.com/liyasthomas), [:octocat: GitHub Sponsors](https://github.com/sponsors/postwoman-io)**
 
 <div align="center">
-  <br>
-  <a href="https://postwoman.io"><img src="static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
-  <br>
+  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/postwoman/master/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
 </div>
+
+<details>
+  <summary>Table of contents</summary>
+
+---
+1. [Features](#features-)
+2. [Demo](#demo--)
+3. [Usage](#usage-)
+4. [Built with](#built-with-)
+5. [Developing](#developing-)
+6. [Docker](#docker--)
+7. [Releasing](#releasing-)
+8. [Contributing](#contributing-)
+9. [Continuous Integration](#continuous-integration--)
+10. [Versioning](#versioning--)
+11. [Change log](#change-log-)
+12. [Authors](#authors-)
+13. [License](#license-)
+14. [Acknowledgements](#acknowledgements-)
+15. [Badges](#badges-)
+---
+</details>
 
 ### Features ✨
 
@@ -324,7 +344,7 @@ docker run -p 3000:3000 liyasthomas/postwoman:latest
 docker build -t postwoman:latest
 ```
 
-## Releasing 🏷️
+## Releasing 🧞
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
@@ -347,7 +367,7 @@ This project is developed by [Liyas Thomas](https://github.com/liyasthomas) usin
 
 See the [CHANGELOG](CHANGELOG.md) file for details.
 
-## Authors 🔮
+## Authors 🧙
 
 ### Lead Developers
 
@@ -441,7 +461,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 - Inspirations:
   - [Dribbble](https://dribbble.com)
 
-## Badges
+## Badges 📛
 
 <table>
 	<tr>

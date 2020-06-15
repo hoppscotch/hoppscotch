@@ -168,10 +168,18 @@ export default {
       this.$store.commit("postwoman/replaceEnvironments", fb.currentEnvironments)
       this.fileImported()
     },
+    syncToFBEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
+    },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {
         icon: "folder_shared",
       })
+      this.syncToFBEnvironments()
     },
   },
 }

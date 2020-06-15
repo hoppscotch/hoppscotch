@@ -138,9 +138,11 @@ export const mutations = {
   },
 
   importAddEnvironments(state, { environments, confirmation }) {
-    const duplicateEnvironment = environments.some(({ name }) =>
-      state.environments.some(({ name }) => name.toLowerCase() === name.toLowerCase())
-    )
+    const duplicateEnvironment = environments.some((item) => {
+      return state.environments.some((item2) => {
+        return item.name.toLowerCase() === item2.name.toLowerCase()
+      })
+    })
     if (duplicateEnvironment) {
       this.$toast.info("Duplicate environment")
       return

@@ -122,6 +122,7 @@ export default {
         }
         this.$store.commit("postwoman/importCollections", collections)
         this.fileImported()
+        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
     },
@@ -142,6 +143,7 @@ export default {
         }
         this.$store.commit("postwoman/importCollections", collections)
         this.fileImported()
+        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
     },
@@ -166,6 +168,13 @@ export default {
     syncCollections() {
       this.$store.commit("postwoman/replaceCollections", fb.currentCollections)
       this.fileImported()
+    },
+    syncToFBCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

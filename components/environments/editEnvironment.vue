@@ -135,7 +135,7 @@ export default {
     }
   },
   watch: {
-    editingEnvironment: function(update) {
+    editingEnvironment: function (update) {
       this.name =
         this.$props.editingEnvironment && this.$props.editingEnvironment.name
           ? this.$props.editingEnvironment.name
@@ -210,8 +210,8 @@ export default {
       this.syncEnvironments()
     },
     hideModal() {
-      this.$data.name = undefined
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

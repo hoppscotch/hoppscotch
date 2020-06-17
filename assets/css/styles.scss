@@ -344,6 +344,12 @@ p {
       box-shadow: 0 5px 30px rgba(black, 0.1);
       max-height: 256px;
       overflow: auto;
+
+      div {
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+      }
     }
 
     .popover-arrow {
@@ -380,7 +386,7 @@ h3.title {
 button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  // justify-content: center;
   margin: 4px;
   padding: 6px 16px;
   border-radius: 20px;

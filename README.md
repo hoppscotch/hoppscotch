@@ -8,7 +8,7 @@
   <p>
      <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
   </p>
-  <p style="width: 80%;">
+  <p>
 
 [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
@@ -37,22 +37,36 @@
   <summary>Table of contents</summary>
 
 ---
-1. [Features](#features-)
-2. [Demo](#demo--)
-3. [Usage](#usage-)
-4. [Built with](#built-with-)
-5. [Developing](#developing-)
-6. [Docker](#docker--)
-7. [Releasing](#releasing-)
-8. [Contributing](#contributing-)
-9. [Continuous Integration](#continuous-integration--)
-10. [Versioning](#versioning--)
-11. [Change log](#change-log-)
-12. [Authors](#authors-)
-13. [License](#license-)
-14. [Acknowledgements](#acknowledgements-)
-15. [Badges](#badges-)
+
+- [Features](#features-)
+- [Demo](#demo--)
+- [Usage](#usage-)
+- [Built with](#built-with-)
+- [Developing](#developing-)
+  - [Browser based development environment](#browser-based-development-environment)
+  - [Local development environment](#local-development-environment)
+  - [Docker compose](#docker-compose)
+- [Docker](#docker--)
+- [Releasing](#releasing-)
+- [Contributing](#contributing-)
+- [Continuous Integration](#continuous-integration--)
+- [Versioning](#versioning--)
+- [Change log](#change-log-)
+- [Authors](#authors-)
+  - [Lead Developers](#lead-developers)
+  - [Testing and Debugging](#testing-and-debugging)
+  - [Collaborators](#collaborators-)
+  - [Thanks](#thanks)
+  - [Financial Contributors](#financial-contributors)
+    - [Organizations](#organizations)
+    - [Individuals](#individuals)
+  - [Code Contributors](#code-contributors)
+- [License](#license-)
+- [Acknowledgements](#acknowledgements-)
+- [Badges](#badges-)
+
 ---
+
 </details>
 
 ### Features ✨
@@ -314,18 +328,18 @@ You're done!
 
 _Sample keys only works with the [production build](https://postwoman.io)._
 
-#### Use a browser based development environment:
+#### Browser based development environment
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/liyasthomas/postwoman)
 
-#### Or, with local development environment:
+#### Local development environment
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
 3. Start the development server with `npm run dev`.
 4. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
 
-#### Or, with docker-compose:
+#### Docker compose
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Run `docker-compose up`

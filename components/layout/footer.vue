@@ -35,7 +35,7 @@
             🦄
           </button>
         </a>
-        <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
+        <a href="mailto:hello@postwoman.io" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="$t('contact_us')">
             <i class="material-icons">email</i>
           </button>

@@ -31,7 +31,7 @@ export default function runTestScriptWithVariables(script, variables) {
   // run pre-request script within this function so that it has access to the pw object.
   new Function("pw", script)(pw)
   //
-  const testReports = pw._testReports.map(item => {
+  const testReports = pw._testReports.map((item) => {
     if (item.result) {
       item.styles = styles[item.result]
     } else {
@@ -64,7 +64,7 @@ class Expectation {
     this.expectValue = expectValue
     this.not = _not || new Expectation(this.expectValue, true, _testReports)
     this._testReports = _testReports // this values is used within Test.it, which wraps Expectation and passes _testReports value.
-    this._satisfies = function(expectValue, targetValue) {
+    this._satisfies = function (expectValue, targetValue) {
       // Used for testing if two values match the expectation, which could be === OR !==, depending on if not
       // was used. Expectation#_satisfies prevents the need to have an if(this.not) branch in every test method.
       // Signature is _satisfies([expectValue,] targetValue): if only one argument is given, it is assumed the targetValue, and expectValue is set to this.expectValue

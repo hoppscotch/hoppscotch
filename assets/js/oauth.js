@@ -12,7 +12,7 @@ const redirectUri = `${window.location.origin}/`
 
 const sendPostRequest = async (url, params) => {
   const body = Object.keys(params)
-    .map(key => `${key}=${params[key]}`)
+    .map((key) => `${key}=${params[key]}`)
     .join("&")
   const options = {
     method: "post",
@@ -38,11 +38,11 @@ const sendPostRequest = async (url, params) => {
  * @returns {Object}
  */
 
-const parseQueryString = searchQuery => {
+const parseQueryString = (searchQuery) => {
   if (searchQuery === "") {
     return {}
   }
-  const segments = searchQuery.split("&").map(s => s.split("="))
+  const segments = searchQuery.split("&").map((s) => s.split("="))
   const queryString = segments.reduce((obj, el) => ({ ...obj, [el[0]]: el[1] }), {})
   return queryString
 }
@@ -53,7 +53,7 @@ const parseQueryString = searchQuery => {
  * @returns {Object}
  */
 
-const getTokenConfiguration = async endpoint => {
+const getTokenConfiguration = async (endpoint) => {
   const options = {
     method: "GET",
     headers: {
@@ -81,7 +81,7 @@ const getTokenConfiguration = async endpoint => {
 const generateRandomString = () => {
   const array = new Uint32Array(28)
   window.crypto.getRandomValues(array)
-  return Array.from(array, dec => `0${dec.toString(16)}`.substr(-2)).join("")
+  return Array.from(array, (dec) => `0${dec.toString(16)}`.substr(-2)).join("")
 }
 
 /**
@@ -90,7 +90,7 @@ const generateRandomString = () => {
  * @returns {Promise<ArrayBuffer>}
  */
 
-const sha256 = plain => {
+const sha256 = (plain) => {
   const encoder = new TextEncoder()
   const data = encoder.encode(plain)
   return window.crypto.subtle.digest("SHA-256", data)
@@ -121,7 +121,7 @@ const base64urlencode = (
  * @returns {String}
  */
 
-const pkceChallengeFromVerifier = async v => {
+const pkceChallengeFromVerifier = async (v) => {
   const hashed = await sha256(v)
   return base64urlencode(hashed)
 }

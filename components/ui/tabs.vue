@@ -2,7 +2,7 @@
   <div class="tabs-wrapper">
     <div class="tabs">
       <ul>
-        <li v-for="tab in tabs" :class="{ 'is-active': tab.isActive }">
+        <li v-for="(tab, index) in tabs" :class="{ 'is-active': tab.isActive }" :key="index">
           <a :href="tab.href" @click="selectTab(tab)">
             <i v-if="tab.icon" class="material-icons">
               {{ tab.icon }}
@@ -45,7 +45,7 @@
         justify-content: center;
         padding: 8px 16px;
         color: var(--fg-light-color);
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
 
         .material-icons {
@@ -87,7 +87,7 @@ export default {
 
   methods: {
     selectTab({ id }) {
-      this.tabs.forEach(tab => {
+      this.tabs.forEach((tab) => {
         tab.isActive = tab.id == id
       })
     },

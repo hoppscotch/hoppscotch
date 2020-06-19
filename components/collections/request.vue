@@ -69,7 +69,7 @@ export default {
         folderIndex: this.folderIndex,
         requestIndex: this.requestIndex,
       })
-      this.syncCollections();
+      this.syncCollections()
     },
   },
 }

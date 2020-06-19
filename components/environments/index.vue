@@ -83,7 +83,8 @@ export default {
   computed: {
     environments() {
       return fb.currentUser !== null
-          ? fb.currentEnvironments : this.$store.state.postwoman.environments
+        ? fb.currentEnvironments
+        : this.$store.state.postwoman.environments
     },
   },
   async mounted() {

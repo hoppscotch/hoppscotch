@@ -120,7 +120,7 @@ export default {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })
-      this.syncCollections();
+      this.syncCollections()
     },
     editFolder(collectionIndex, folder, folderIndex) {
       this.$emit("edit-folder", { collectionIndex, folder, folderIndex })

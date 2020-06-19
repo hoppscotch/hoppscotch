@@ -389,7 +389,7 @@ button {
   // justify-content: center;
   margin: 4px;
   padding: 6px 16px;
-  border-radius: 20px;
+  border-radius: 8px;
   background-color: var(--ac-color);
   color: var(--act-color);
   font-size: 16px;
@@ -457,7 +457,7 @@ button {
 
 fieldset {
   margin: 16px 0;
-  border-radius: 16px;
+  border-radius: 8px;
   background-color: var(--bg-dark-color);
   transition: all 0.2s ease-in-out;
 
@@ -814,7 +814,7 @@ ol li {
 section {
   display: flex;
   flex-wrap: wrap;
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 .toasted-container .toasted {

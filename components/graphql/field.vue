@@ -38,7 +38,7 @@
   display: inline-block;
   padding: 4px 8px;
   margin: 4px 0;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
 }

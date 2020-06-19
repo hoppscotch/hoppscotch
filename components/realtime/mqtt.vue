@@ -77,7 +77,7 @@ export default {
     "pw-section": () => import("../../components/layout/section"),
     realtimeLog: () => import("./log"),
   },
-  data: function() {
+  data: function () {
     return {
       url: "wss://test.mosquitto.org:8081",
       client: null,

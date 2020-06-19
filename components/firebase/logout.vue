@@ -24,7 +24,7 @@ export default {
       firebase
         .auth()
         .signOut()
-        .catch(err => {
+        .catch((err) => {
           self.$toast.show(err.message || err, {
             icon: "error",
           })

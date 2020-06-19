@@ -80,8 +80,8 @@ export default {
         collection: collectionUpdated,
         collectionIndex: this.$props.editingCollectionIndex,
       })
-      this.$emit("hide-modal");
-      this.syncCollections();
+      this.$emit("hide-modal")
+      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

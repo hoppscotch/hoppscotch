@@ -113,14 +113,11 @@
                 </svg>
                 <span>{{ $t("tweet") }}</span>
               </button>
-              <button
-                v-if="navigatorShare"
-                class="icon"
-                @click="nativeShare"
-                v-close-popover
-                v-tooltip="$t('more')"
-              >
+            </div>
+            <div v-if="navigatorShare">
+              <button class="icon" @click="nativeShare" v-close-popover v-tooltip="$t('more')">
                 <i class="material-icons">share</i>
+                <span>Share</span>
               </button>
             </div>
           </template>

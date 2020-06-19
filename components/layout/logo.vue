@@ -5,7 +5,7 @@
     x="0px"
     y="0px"
     viewBox="0 0 612.001 612.001"
-    style="enable-background:new 0 0 612.001 612.001;"
+    style="enable-background: new 0 0 612.001 612.001;"
     xml:space="preserve"
   >
     <defs id="defs11" />
@@ -13,7 +13,7 @@
       <circle
         :fill="color"
         transform="scale(1,-1)"
-        style="stroke-width:1.19531453"
+        style="stroke-width: 1.19531453;"
         r="178.70923"
         cy="-501.55591"
         cx="822.40845"

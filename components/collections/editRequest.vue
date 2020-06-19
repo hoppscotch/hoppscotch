@@ -139,7 +139,7 @@ export default {
       })
 
       this.hideModal()
-      this.syncCollections();
+      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

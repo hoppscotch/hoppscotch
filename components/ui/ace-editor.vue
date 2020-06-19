@@ -120,7 +120,7 @@ export default {
       return this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
     },
 
-    provideLinting: debounce(function(code) {
+    provideLinting: debounce(function (code) {
       if (this.lang === "json") {
         try {
           jsonParse(code)

@@ -106,7 +106,7 @@ export default {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
       })
-      this.syncCollections();
+      this.syncCollections()
     },
     editFolder() {
       this.$emit("edit-folder")

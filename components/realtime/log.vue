@@ -47,8 +47,8 @@ export default {
   methods: {
     getSourcePrefix,
   },
-  updated: function() {
-    this.$nextTick(function() {
+  updated: function () {
+    this.$nextTick(function () {
       if (this.$refs.log) {
         this.$refs.log.scrollBy(0, this.$refs.log.scrollHeight + 100)
       }

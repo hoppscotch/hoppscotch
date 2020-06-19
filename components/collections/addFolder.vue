@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { fb } from "../../functions/fb"
+
 export default {
   props: {
     show: Boolean,

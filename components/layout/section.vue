@@ -13,6 +13,67 @@
 </template>
 
 <style scoped lang="scss">
+fieldset {
+  margin: 16px 0;
+  border-radius: 8px;
+  background-color: var(--bg-dark-color);
+  transition: all 0.2s ease-in-out;
+
+  legend {
+    display: inline-block;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-color);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    * {
+      vertical-align: middle;
+    }
+
+    i {
+      margin-left: 8px;
+    }
+  }
+
+  &.blue legend {
+    color: #57b5f9;
+  }
+
+  &.gray legend {
+    color: #bcc2cd;
+  }
+
+  &.green legend {
+    color: #50fa7b;
+  }
+
+  &.cyan legend {
+    color: #8be9fd;
+  }
+
+  &.purple legend {
+    color: #bd93f9;
+  }
+
+  &.orange legend {
+    color: #ffb86c;
+  }
+
+  &.pink legend {
+    color: #ff79c6;
+  }
+
+  &.red legend {
+    color: #ff5555;
+  }
+
+  &.yellow legend {
+    color: #f1fa8c;
+  }
+}
+
 fieldset.no-colored-frames legend {
   color: var(--fg-color);
 }

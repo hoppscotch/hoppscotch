@@ -8,7 +8,6 @@
           <nuxt />
           <pw-footer />
         </div>
-        <!-- <aside class="nav-second"></aside> -->
       </div>
     </div>
   </div>

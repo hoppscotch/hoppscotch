@@ -44,7 +44,7 @@
       <ul>
         <li>
           <button class="icon" @click="getDoc">
-            <i class="material-icons">book</i>
+            <i class="material-icons">topic</i>
             <span>{{ $t("generate_docs") }}</span>
           </button>
         </li>

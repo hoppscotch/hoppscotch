@@ -18,7 +18,7 @@
         :class="linkActive('/realtime')"
         v-tooltip.right="$t('realtime')"
       >
-        <i class="material-icons">settings_input_hdmi</i>
+        <i class="material-icons">language</i>
       </nuxt-link>
       <nuxt-link
         :to="localePath('graphql')"
@@ -141,7 +141,7 @@
         v-tooltip.right="$t('documentation')"
         :aria-label="$t('documentation')"
       >
-        <i class="material-icons">books</i>
+        <i class="material-icons">topic</i>
       </nuxt-link>
       <nuxt-link
         :to="localePath('settings')"

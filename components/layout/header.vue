@@ -37,7 +37,7 @@
         </button>
         <v-popover v-if="fb.currentUser === null">
           <button class="icon" v-tooltip="$t('login_with')">
-            <i class="material-icons">vpn_key</i>
+            <i class="material-icons">login</i>
           </button>
           <template slot="popover">
             <login />
@@ -79,7 +79,7 @@
         </v-popover>
         <v-popover>
           <button class="icon" v-tooltip="$t('more')">
-            <i class="material-icons">more_vert</i>
+            <i class="material-icons">drag_indicator</i>
           </button>
           <template slot="popover">
             <div>

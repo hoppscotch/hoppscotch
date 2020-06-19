@@ -147,7 +147,7 @@
               rel="noopener"
             >
               <button class="icon" v-tooltip="$t('wiki')">
-                <i class="material-icons">help</i>
+                <i class="material-icons">help_outline</i>
               </button>
             </a>
           </div>

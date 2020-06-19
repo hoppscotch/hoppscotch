@@ -122,7 +122,7 @@
                 ref="downloadSchema"
                 v-tooltip="$t('download_file')"
               >
-                <i class="material-icons">get_app</i>
+                <i class="material-icons">save_alt</i>
               </button>
               <button
                 class="icon"
@@ -130,7 +130,7 @@
                 @click="copySchema"
                 v-tooltip="$t('copy_schema')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
             </div>
           </div>
@@ -176,7 +176,7 @@
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
               <button
                 class="icon"
@@ -228,7 +228,7 @@
                 v-if="response"
                 v-tooltip="$t('download_file')"
               >
-                <i class="material-icons">get_app</i>
+                <i class="material-icons">save_alt</i>
               </button>
               <button
                 class="icon"
@@ -237,7 +237,7 @@
                 v-if="response"
                 v-tooltip="$t('copy_response')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
             </div>
           </div>
@@ -367,8 +367,8 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      copyButton: '<i class="material-icons">file_copy</i>',
-      downloadButton: '<i class="material-icons">get_app</i>',
+      copyButton: '<i class="material-icons">content_copy</i>',
+      downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,

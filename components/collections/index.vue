@@ -56,7 +56,7 @@ TODO:
           rel="noopener"
         >
           <button class="icon" v-tooltip="'Wiki'">
-            <i class="material-icons">help</i>
+            <i class="material-icons">help_outline</i>
           </button>
         </a> -->
       </div>
@@ -83,7 +83,7 @@ TODO:
     </div>
     <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
       <button class="icon">
-        <i class="material-icons">books</i>
+        <i class="material-icons">topic</i>
         <span>{{ $t("generate_docs") }}</span>
       </button>
     </nuxt-link>

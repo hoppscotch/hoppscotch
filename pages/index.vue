@@ -14,7 +14,7 @@
                     rel="noopener"
                   >
                     <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help</i>
+                      <i class="material-icons">help_outline</i>
                     </button>
                   </a>
                 </div>
@@ -287,7 +287,7 @@
                       v-tooltip="$t('prettify_body')"
                       v-if="rawInput && this.contentType.endsWith('json')"
                     >
-                      <i class="material-icons">assistant</i>
+                      <i class="material-icons">notes</i>
                     </button>
                   </div>
                 </div>
@@ -446,7 +446,7 @@
                 v-tooltip.bottom="$t('copy_request_link')"
               >
                 <i v-if="navigatorShare" class="material-icons">share</i>
-                <i v-else class="material-icons">file_copy</i>
+                <i v-else class="material-icons">content_copy</i>
               </button>
               <button
                 class="icon"
@@ -456,7 +456,7 @@
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('save_to_collections')"
               >
-                <i class="material-icons">save</i>
+                <i class="material-icons">create_new_folder</i>
               </button>
               <button
                 class="icon"
@@ -482,7 +482,7 @@
                     rel="noopener"
                   >
                     <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help</i>
+                      <i class="material-icons">help_outline</i>
                     </button>
                   </a>
                 </div>
@@ -976,7 +976,7 @@
                     v-if="response.body && canDownloadResponse"
                     v-tooltip="$t('download_file')"
                   >
-                    <i class="material-icons">get_app</i>
+                    <i class="material-icons">save_alt</i>
                   </button>
                   <button
                     class="icon"
@@ -985,7 +985,7 @@
                     v-if="response.body"
                     v-tooltip="$t('copy_response')"
                   >
-                    <i class="material-icons">file_copy</i>
+                    <i class="material-icons">content_copy</i>
                   </button>
                 </div>
               </div>
@@ -1156,7 +1156,7 @@
                     ref="copyRequestCode"
                     v-tooltip="$t('copy_code')"
                   >
-                    <i class="material-icons">file_copy</i>
+                    <i class="material-icons">content_copy</i>
                   </button>
                 </div>
               </div>
@@ -1438,8 +1438,8 @@ export default {
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
       testReports: null,
-      copyButton: '<i class="material-icons">file_copy</i>',
-      downloadButton: '<i class="material-icons">get_app</i>',
+      copyButton: '<i class="material-icons">content_copy</i>',
+      downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
       isHidden: true,
       response: {

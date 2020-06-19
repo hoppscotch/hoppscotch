@@ -283,11 +283,12 @@
                     <input ref="payload" name="payload" type="file" @change="uploadPayload" />
                     <button
                       class="icon"
-                      @click="prettifyRequestBody()"
+                      ref="prettifyRequest"
+                      @click="prettifyRequestBody"
                       v-tooltip="$t('prettify_body')"
                       v-if="rawInput && this.contentType.endsWith('json')"
                     >
-                      <i class="material-icons">notes</i>
+                      <i class="material-icons">photo_filter</i>
                     </button>
                   </div>
                 </div>
@@ -2395,6 +2396,9 @@ export default {
       try {
         const jsonObj = JSON.parse(this.rawParams)
         this.rawParams = JSON.stringify(jsonObj, null, 2)
+        let oldIcon = this.$refs.prettifyRequest.innerHTML
+        this.$refs.prettifyRequest.innerHTML = this.doneButton
+        setTimeout(() => (this.$refs.prettifyRequest.innerHTML = oldIcon), 1000)
       } catch (e) {
         this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
           icon: "error",

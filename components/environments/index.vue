@@ -47,7 +47,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 241px);
+  max-height: calc(100vh - 245px);
 }
 
 ul {
@@ -59,9 +59,6 @@ ul {
 <script>
 import environment from "./environment"
 import { fb } from "../../functions/fb"
-
-const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
@@ -91,7 +88,7 @@ export default {
     this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModalImportExport = false
+        this.showModalImportExport = this.showModalAdd = this.showModalEdit = false
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))

@@ -304,6 +304,12 @@ export default {
         iso: "ko-KR",
         file: "ko-KR.json",
       },
+      {
+        code: "mn",
+        name: "Монгол",
+        iso: "mn-MN",
+        file: "mn-MN.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

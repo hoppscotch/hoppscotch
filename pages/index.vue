@@ -2071,14 +2071,27 @@ export default {
         behavior: "smooth",
       })
     },
-    handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
-      this.label = label
-      this.method = method
-      this.uri = url + path
-      this.url = url
-      this.path = path
-      this.showPreRequestScript = usesScripts
-      this.preRequestScript = preRequestScript
+    handleUseHistory(entry) {
+      this.label = entry.label
+      this.method = entry.method
+      this.uri = entry.url + entry.path
+      this.url = entry.url
+      this.path = entry.path
+      this.showPreRequestScript = entry.usesPreScripts
+      this.preRequestScript = entry.preRequestScript
+      this.auth = entry.auth
+      this.httpUser = entry.httpUser
+      this.httpPassword = entry.httpPassword
+      this.bearerToken = entry.bearerToken
+      this.headers = entry.headers
+      this.params = entry.params
+      this.bodyParams = entry.bodyParams
+      this.rawParams = entry.rawParams
+      this.rawInput = entry.rawInput
+      this.contentType = entry.contentType
+      this.requestType = entry.requestType
+      this.testScript = entry.testScript
+      this.testsEnabled = entry.usesPostScripts
       if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
@@ -2205,22 +2218,32 @@ export default {
           const headers = (this.response.headers = payload.headers)
           // We don't need to bother parsing JSON, axios already handles it for us!
           const body = (this.response.body = payload.data)
-          const date = new Date().toLocaleDateString()
-          const time = new Date().toLocaleTimeString()
-
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
             status,
-            date,
-            time,
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString(),
             method: this.method,
             url: this.url,
             path: this.path,
-            usesScripts: Boolean(this.preRequestScript),
+            usesPreScripts: this.showPreRequestScript,
             preRequestScript: this.preRequestScript,
             duration,
             star: false,
+            auth: this.auth,
+            httpUser: this.httpUser,
+            httpPassword: this.httpPassword,
+            bearerToken: this.bearerToken,
+            headers: this.headers,
+            params: this.params,
+            bodyParams: this.bodyParams,
+            rawParams: this.rawParams,
+            rawInput: this.rawInput,
+            contentType: this.contentType,
+            requestType: this.requestType,
+            testScript: this.testScript,
+            usesPostScripts: this.testsEnabled,
           }
 
           if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
@@ -2259,8 +2282,22 @@ export default {
               method: this.method,
               url: this.url,
               path: this.path,
-              usesScripts: Boolean(this.preRequestScript),
+              usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
+              star: false,
+              auth: this.auth,
+              httpUser: this.httpUser,
+              httpPassword: this.httpPassword,
+              bearerToken: this.bearerToken,
+              headers: this.headers,
+              params: this.params,
+              bodyParams: this.bodyParams,
+              rawParams: this.rawParams,
+              rawInput: this.rawInput,
+              contentType: this.contentType,
+              requestType: this.requestType,
+              testScript: this.testScript,
+              usesPostScripts: this.testsEnabled,
             }
 
             if (

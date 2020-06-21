@@ -16,9 +16,9 @@
 <script>
 export default {
   components: {
-    sidenav: () => import("../components/layout/sidenav"),
-    "pw-header": () => import("../components/layout/header"),
-    "pw-footer": () => import("../components/layout/footer"),
+    sidenav: () => import("~/components/layout/sidenav"),
+    "pw-header": () => import("~/components/layout/header"),
+    "pw-footer": () => import("~/components/layout/footer"),
   },
 
   beforeMount() {

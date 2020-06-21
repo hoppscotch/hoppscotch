@@ -209,15 +209,15 @@
 
 <script>
 import firebase from "firebase/app"
-import { fb } from "../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {
-    "pw-section": () => import("../components/layout/section"),
-    "pw-toggle": () => import("../components/ui/toggle"),
-    swatch: () => import("../components/settings/swatch"),
-    login: () => import("../components/firebase/login"),
-    logout: () => import("../components/firebase/logout"),
+    "pw-section": () => import("~/components/layout/section"),
+    "pw-toggle": () => import("~/components/ui/toggle"),
+    swatch: () => import("~/components/settings/swatch"),
+    login: () => import("~/components/firebase/login"),
+    logout: () => import("~/components/firebase/logout"),
   },
 
   data() {

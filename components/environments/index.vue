@@ -58,7 +58,7 @@ ul {
 
 <script>
 import environment from "./environment"
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {

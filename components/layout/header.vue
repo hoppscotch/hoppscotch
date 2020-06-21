@@ -282,15 +282,15 @@
 </style>
 
 <script>
-import intializePwa from "../../assets/js/pwa"
+import intializePwa from "~/assets/js/pwa"
 import {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,
   hasFirefoxExtensionInstalled,
-} from "../../functions/strategies/ExtensionStrategy"
-import { getPlatformSpecialKey } from "../../functions/platformutils"
+} from "~/helpers/strategies/ExtensionStrategy"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import firebase from "firebase/app"
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {

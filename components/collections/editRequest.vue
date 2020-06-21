@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   props: {
@@ -80,7 +80,7 @@ export default {
     requestIndex: Number,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {

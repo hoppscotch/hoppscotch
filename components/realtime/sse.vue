@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { httpValid } from "~/functions/utils/valid"
+import { httpValid } from "~/helpers/utils/valid"
 
 export default {
   components: {

@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { wsValid } from "~/functions/utils/valid"
+import { wsValid } from "~/helpers/utils/valid"
 
 export default {
   components: {

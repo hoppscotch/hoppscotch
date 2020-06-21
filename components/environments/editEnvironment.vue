@@ -114,8 +114,8 @@
 </template>
 
 <script>
-import textareaAutoHeight from "../../directives/textareaAutoHeight"
-import { fb } from "../../functions/fb"
+import textareaAutoHeight from "~/directives/textareaAutoHeight"
+import { fb } from "~/helpers/fb"
 
 export default {
   directives: {
@@ -127,7 +127,7 @@ export default {
     editingEnvironmentIndex: Number,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {

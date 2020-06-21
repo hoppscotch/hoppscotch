@@ -13,7 +13,7 @@
 
 describe("Proxy enabled - external request", () => {
   it("Enable proxy and make a GET request to Postwoman API", () => {
-    cy.enableProxy("/?url=https://postwoman.io&path=/.netlify/functions/api")
+    cy.enableProxy("/?url=https://postwoman.io&path=/.netlify/netlify/api")
       .get("#send")
       .click()
       .get("#response-details-wrapper", { timeout: 24000 })

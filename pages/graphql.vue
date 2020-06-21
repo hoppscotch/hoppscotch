@@ -339,26 +339,26 @@
 <script>
 import axios from "axios"
 import * as gql from "graphql"
-import textareaAutoHeight from "../directives/textareaAutoHeight"
-import { commonHeaders } from "../functions/headers"
-import AceEditor from "../components/ui/ace-editor"
-import QueryEditor from "../components/graphql/queryeditor"
-import { getPlatformSpecialKey } from "~/functions/platformutils"
-import { sendNetworkRequest } from "../functions/network"
+import textareaAutoHeight from "~/directives/textareaAutoHeight"
+import { commonHeaders } from "~/helpers/headers"
+import AceEditor from "~/components/ui/ace-editor"
+import QueryEditor from "~/components/graphql/queryeditor"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { sendNetworkRequest } from "~/helpers/network"
 
 export default {
   directives: {
     textareaAutoHeight,
   },
   components: {
-    "pw-section": () => import("../components/layout/section"),
-    "gql-field": () => import("../components/graphql/field"),
-    "gql-type": () => import("../components/graphql/type"),
-    autocomplete: () => import("../components/ui/autocomplete"),
+    "pw-section": () => import("~/components/layout/section"),
+    "gql-field": () => import("~/components/graphql/field"),
+    "gql-type": () => import("~/components/graphql/type"),
+    autocomplete: () => import("~/components/ui/autocomplete"),
     Editor: AceEditor,
     QueryEditor: QueryEditor,
-    tabs: () => import("../components/ui/tabs"),
-    tab: () => import("../components/ui/tab"),
+    tabs: () => import("~/components/ui/tabs"),
+    tab: () => import("~/components/ui/tab"),
   },
   data() {
     return {

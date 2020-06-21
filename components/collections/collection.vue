@@ -87,7 +87,7 @@ ul li {
 </style>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {

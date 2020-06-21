@@ -25,13 +25,13 @@
 <script>
 export default {
   components: {
-    "pw-section": () => import("../components/layout/section"),
-    tabs: () => import("../components/ui/tabs"),
-    tab: () => import("../components/ui/tab"),
-    websocket: () => import("../components/realtime/websocket"),
-    sse: () => import("../components/realtime/sse"),
-    socketio: () => import("../components/realtime/socketio"),
-    mqtt: () => import("../components/realtime/mqtt"),
+    "pw-section": () => import("~/components/layout/section"),
+    tabs: () => import("~/components/ui/tabs"),
+    tab: () => import("~/components/ui/tab"),
+    websocket: () => import("~/components/realtime/websocket"),
+    sse: () => import("~/components/realtime/sse"),
+    socketio: () => import("~/components/realtime/socketio"),
+    mqtt: () => import("~/components/realtime/mqtt"),
   },
 }
 </script>

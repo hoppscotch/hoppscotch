@@ -310,14 +310,12 @@ export default {
     "pw-section": () => import("~/components/layout/section"),
     Editor: AceEditor,
   },
-
   data() {
     return {
       collectionJSON: "[]",
       items: [],
     }
   },
-
   methods: {
     uploadCollection() {
       this.rawInput = true
@@ -351,6 +349,11 @@ export default {
         })
       }
     },
+  },
+  head() {
+    return {
+      title: `Documentation • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

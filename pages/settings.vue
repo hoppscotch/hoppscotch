@@ -219,7 +219,6 @@ export default {
     login: () => import("~/components/firebase/login"),
     logout: () => import("~/components/firebase/logout"),
   },
-
   data() {
     return {
       // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
@@ -327,7 +326,6 @@ export default {
       fb,
     }
   },
-
   watch: {
     proxySettings: {
       deep: true,
@@ -337,7 +335,6 @@ export default {
       },
     },
   },
-
   methods: {
     applyTheme({ class: name, color, aceEditor }) {
       this.applySetting("THEME_CLASS", name)
@@ -409,12 +406,10 @@ export default {
       }
     },
   },
-
   beforeMount() {
     this.settings.THEME_CLASS = document.documentElement.className
     this.settings.THEME_COLOR = this.getActiveColor()
   },
-
   computed: {
     proxySettings() {
       return {
@@ -422,6 +417,11 @@ export default {
         key: this.settings.PROXY_KEY,
       }
     },
+  },
+  head() {
+    return {
+      title: `Settings • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

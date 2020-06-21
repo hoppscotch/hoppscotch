@@ -381,7 +381,6 @@ export default {
       },
     }
   },
-
   computed: {
     url: {
       get() {
@@ -445,7 +444,6 @@ export default {
   mounted() {
     if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {
       const gqlSchema = gql.buildClientSchema(JSON.parse(this.$store.state.gql.schemaIntrospection))
-
       this.getDocsFromSchema(gqlSchema)
     }
   },
@@ -743,6 +741,11 @@ export default {
         behavior: "smooth",
       })
     },
+  },
+  head() {
+    return {
+      title: `GraphQL • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

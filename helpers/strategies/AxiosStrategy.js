@@ -1,4 +1,5 @@
 import axios from "axios"
+import { isJSONContentType } from "../utils/contenttypes"
 
 let cancelSource = axios.CancelToken.source()
 
@@ -34,28 +35,9 @@ const axiosWithoutProxy = async (req, _store) => {
     const res = await axios({
       ...req,
       cancelToken: cancelSource.token,
-      transformResponse: [
-        (data, headers) => {
-          // If the response has a JSON content type, try parsing it
-          if (
-            headers["content-type"] &&
-            (headers["content-type"].startsWith("application/json") ||
-              headers["content-type"].startsWith("application/vnd.api+json") ||
-              headers["content-type"].startsWith("application/hal+json"))
-          ) {
-            try {
-              const jsonData = JSON.parse(data)
-              return jsonData
-            } catch (e) {
-              return data
-            }
-          }
-
-          // Else return the string itself without any transformations
-          return data
-        },
-      ],
+      responseType: "arraybuffer",
     })
+
     return res
   } catch (e) {
     if (axios.isCancel(e)) {

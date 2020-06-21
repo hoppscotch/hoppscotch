@@ -952,6 +952,10 @@
               />
             </li>
           </ul>
+          <div v-if="response.body">
+            <response-renderer :response="response" />
+          </div>
+          <!--
           <ul v-if="response.body">
             <li>
               <div class="flex-wrap">
@@ -1023,6 +1027,7 @@
               </div>
             </li>
           </ul>
+          -->
           <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
             <li>
               <label :for="key">{{ key }}</label>
@@ -1420,12 +1425,13 @@ export default {
     collections: () => import("~/components/collections"),
     saveRequestAs: () => import("~/components/collections/saveRequestAs"),
     Editor: AceEditor,
-    environments: () => import("~/components/environments"),
-    inputform: () => import("~/components/firebase/inputform"),
-    notes: () => import("~/components/firebase/feeds"),
-    login: () => import("~/components/firebase/login"),
-    tabs: () => import("~/components/ui/tabs"),
-    tab: () => import("~/components/ui/tab"),
+    environments: () => import("../components/environments"),
+    inputform: () => import("../components/firebase/inputform"),
+    notes: () => import("../components/firebase/feeds"),
+    login: () => import("../components/firebase/login"),
+    tabs: () => import("../components/ui/tabs"),
+    tab: () => import("../components/ui/tab"),
+    "response-renderer": () => import("../components/lenses/ResponseBodyRenderer"),
   },
   data() {
     return {

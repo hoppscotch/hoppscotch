@@ -41,7 +41,7 @@ div.realtime-log {
 </style>
 
 <script>
-import { getSourcePrefix } from "~/functions/utils/string"
+import { getSourcePrefix } from "~/helpers/utils/string"
 
 export default {
   props: ["log", "title"],

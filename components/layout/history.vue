@@ -306,8 +306,8 @@ ol {
 </style>
 
 <script>
-import { findStatusGroup } from "../../pages/index"
-import { fb } from "../../functions/fb"
+import { findStatusGroup } from "~/pages/index"
+import { fb } from "~/helpers/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))

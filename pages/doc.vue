@@ -303,11 +303,11 @@
 </style>
 
 <script>
-import AceEditor from "../components/ui/ace-editor"
+import AceEditor from "~/components/ui/ace-editor"
 
 export default {
   components: {
-    "pw-section": () => import("../components/layout/section"),
+    "pw-section": () => import("~/components/layout/section"),
     Editor: AceEditor,
   },
 

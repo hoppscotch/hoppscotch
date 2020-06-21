@@ -103,7 +103,7 @@ ul {
 
 <script>
 import collection from "./collection"
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {

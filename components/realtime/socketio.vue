@@ -76,13 +76,13 @@
 </template>
 
 <script>
-import { socketioValid } from "~/functions/utils/valid"
+import { socketioValid } from "~/helpers/utils/valid"
 import io from "socket.io-client"
 import wildcard from "socketio-wildcard"
 
 export default {
   components: {
-    "pw-section": () => import("../../components/layout/section"),
+    "pw-section": () => import("~/components/layout/section"),
     realtimeLog: () => import("./log"),
   },
   data() {

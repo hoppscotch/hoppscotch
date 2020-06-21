@@ -1339,28 +1339,24 @@
 </template>
 
 <script>
-import section from "../components/layout/section"
+import section from "~/components/layout/section"
 import url from "url"
 import querystring from "querystring"
-import { commonHeaders } from "../functions/headers"
-import textareaAutoHeight from "../directives/textareaAutoHeight"
-import parseCurlCommand from "../assets/js/curlparser.js"
-import getEnvironmentVariablesFromScript from "../functions/preRequest"
-import runTestScriptWithVariables from "../functions/postwomanTesting"
-import parseTemplateString from "../functions/templating"
-import AceEditor from "../components/ui/ace-editor"
-import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
-import { cancelRunningRequest, sendNetworkRequest } from "../functions/network"
-import { fb } from "../functions/fb"
-import { getEditorLangForMimeType } from "~/functions/editorutils"
-import {
-  hasPathParams,
-  addPathParamsToVariables,
-  getQueryParams,
-} from "../functions/requestParams.js"
-import { parseUrlAndPath } from "../functions/utils/uri.js"
-import { httpValid } from "../functions/utils/valid"
-import { knownContentTypes, isJSONContentType } from "../functions/utils/contenttypes"
+import { commonHeaders } from "~/helpers/headers"
+import textareaAutoHeight from "~/directives/textareaAutoHeight"
+import parseCurlCommand from "~/assets/js/curlparser.js"
+import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
+import runTestScriptWithVariables from "~/helpers/postwomanTesting"
+import parseTemplateString from "~/helpers/templating"
+import AceEditor from "~/components/ui/ace-editor"
+import { tokenRequest, oauthRedirect } from "~/assets/js/oauth"
+import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
+import { fb } from "~/helpers/fb"
+import { getEditorLangForMimeType } from "~/helpers/editorutils"
+import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpers/requestParams.js"
+import { parseUrlAndPath } from "~/helpers/utils/uri.js"
+import { httpValid } from "~/helpers/utils/valid"
+import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 
 const statusCategories = [
   {
@@ -1417,19 +1413,19 @@ export default {
   },
   components: {
     "pw-section": section,
-    "pw-toggle": () => import("../components/ui/toggle"),
-    "pw-modal": () => import("../components/ui/modal"),
-    autocomplete: () => import("../components/ui/autocomplete"),
-    history: () => import("../components/layout/history"),
-    collections: () => import("../components/collections"),
-    saveRequestAs: () => import("../components/collections/saveRequestAs"),
+    "pw-toggle": () => import("~/components/ui/toggle"),
+    "pw-modal": () => import("~/components/ui/modal"),
+    autocomplete: () => import("~/components/ui/autocomplete"),
+    history: () => import("~/components/layout/history"),
+    collections: () => import("~/components/collections"),
+    saveRequestAs: () => import("~/components/collections/saveRequestAs"),
     Editor: AceEditor,
-    environments: () => import("../components/environments"),
-    inputform: () => import("../components/firebase/inputform"),
-    notes: () => import("../components/firebase/feeds"),
-    login: () => import("../components/firebase/login"),
-    tabs: () => import("../components/ui/tabs"),
-    tab: () => import("../components/ui/tab"),
+    environments: () => import("~/components/environments"),
+    inputform: () => import("~/components/firebase/inputform"),
+    notes: () => import("~/components/firebase/feeds"),
+    login: () => import("~/components/firebase/login"),
+    tabs: () => import("~/components/ui/tabs"),
+    tab: () => import("~/components/ui/tab"),
   },
   data() {
     return {

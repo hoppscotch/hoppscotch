@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -88,7 +88,7 @@ export default {
     show: Boolean,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   computed: {
     environmentJson() {

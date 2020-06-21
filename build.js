@@ -5,7 +5,7 @@ const runCommand = (command, args) => spawnSync(command, args).stdout.toString()
 
 const FAIL_ON_ERROR = false
 const PW_BUILD_DATA_DIR = "./.postwoman"
-const IS_DEV_MODE = process.argv.includes("--dev")
+// const IS_DEV_MODE = process.argv.includes("--dev")
 
 try {
   ;(async () => {

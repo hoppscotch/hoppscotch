@@ -59,7 +59,7 @@
         <i class="material-icons">settings</i>
       </nuxt-link>
     </nav>
-    <div v-if="$route.path === '/'">
+    <div v-if="$route.path == '/'">
       <nav class="secondary-nav">
         <ul>
           <li>
@@ -80,7 +80,7 @@
         </ul>
       </nav>
     </div>
-    <div v-else-if="$route.path === '/realtime'">
+    <div v-else-if="$route.path.includes('/realtime')">
       <nav class="secondary-nav">
         <ul>
           <li>
@@ -96,7 +96,7 @@
         </ul>
       </nav>
     </div>
-    <div v-else-if="$route.path === '/graphql'">
+    <div v-else-if="$route.path.includes('/graphql')">
       <nav class="secondary-nav">
         <ul>
           <li>
@@ -122,7 +122,7 @@
         </ul>
       </nav>
     </div>
-    <div v-else-if="$route.path === '/doc'">
+    <div v-else-if="$route.path.includes('/doc')">
       <nav class="secondary-nav">
         <ul>
           <li>
@@ -138,7 +138,7 @@
         </ul>
       </nav>
     </div>
-    <div v-else-if="$route.path === '/settings'">
+    <div v-else-if="$route.path.includes('/settings')">
       <nav class="secondary-nav">
         <ul>
           <li>

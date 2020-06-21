@@ -33,5 +33,10 @@ export default {
     socketio: () => import("~/components/realtime/socketio"),
     mqtt: () => import("~/components/realtime/mqtt"),
   },
+  head() {
+    return {
+      title: `Realtime • ${this.$store.state.name}`,
+    }
+  },
 }
 </script>

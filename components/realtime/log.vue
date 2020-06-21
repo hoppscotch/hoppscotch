@@ -28,6 +28,7 @@ div.realtime-log {
     font-size: 16px;
     font-family: "Roboto Mono", monospace;
     font-weight: 400;
+    user-select: text;
   }
 
   span {

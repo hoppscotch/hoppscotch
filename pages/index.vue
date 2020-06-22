@@ -1453,7 +1453,7 @@ export default {
       validContentTypes: knownContentTypes,
       previewEnabled: false,
       paramsWatchEnabled: true,
-      expandResponse: false,
+      // expandResponse: false,
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
@@ -1463,7 +1463,7 @@ export default {
       urlExcludes: {},
       responseBodyText: "",
       responseBodyType: "text",
-      responseBodyMaxLines: 16,
+      // responseBodyMaxLines: 16,
       activeSidebar: true,
       fb,
       customMethod: false,
@@ -1615,14 +1615,14 @@ export default {
         isJSONContentType(this.contentType)
       )
     },
-    canDownloadResponse() {
-      return (
-        this.response &&
-        this.response.headers &&
-        this.response.headers["content-type"] &&
-        isJSONContentType(this.response.headers["content-type"])
-      )
-    },
+    // canDownloadResponse() {
+    //   return (
+    //     this.response &&
+    //     this.response.headers &&
+    //     this.response.headers["content-type"] &&
+    //     isJSONContentType(this.response.headers["content-type"])
+    //   )
+    // },
     uri: {
       get() {
         return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path
@@ -2479,45 +2479,45 @@ export default {
       document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
     },
-    ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
-    },
-    copyResponse() {
-      this.$refs.copyResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      const aux = document.createElement("textarea")
-      const copy = isJSONContentType(this.responseType)
-        ? JSON.stringify(this.response.body, null, 2)
-        : this.response.body
-      aux.innerText = copy
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
-      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
-    },
-    downloadResponse() {
-      const dataToWrite = JSON.stringify(this.response.body, null, 2)
-      const file = new Blob([dataToWrite], { type: this.responseType })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, "[dot]")
-      document.body.appendChild(a)
-      a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("download_started"), {
-        icon: "done",
-      })
-      setTimeout(() => {
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
-      }, 1000)
-    },
+    // ToggleExpandResponse() {
+    //   this.expandResponse = !this.expandResponse
+    //   this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
+    // },
+    // copyResponse() {
+    //   this.$refs.copyResponse.innerHTML = this.doneButton
+    //   this.$toast.success(this.$t("copied_to_clipboard"), {
+    //     icon: "done",
+    //   })
+    //   const aux = document.createElement("textarea")
+    //   const copy = isJSONContentType(this.responseType)
+    //     ? JSON.stringify(this.response.body, null, 2)
+    //     : this.response.body
+    //   aux.innerText = copy
+    //   document.body.appendChild(aux)
+    //   aux.select()
+    //   document.execCommand("copy")
+    //   document.body.removeChild(aux)
+    //   setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
+    // },
+    // downloadResponse() {
+    //   const dataToWrite = JSON.stringify(this.response.body, null, 2)
+    //   const file = new Blob([dataToWrite], { type: this.responseType })
+    //   const a = document.createElement("a")
+    //   const url = URL.createObjectURL(file)
+    //   a.href = url
+    //   a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, "[dot]")
+    //   document.body.appendChild(a)
+    //   a.click()
+    //   this.$refs.downloadResponse.innerHTML = this.doneButton
+    //   this.$toast.success(this.$t("download_started"), {
+    //     icon: "done",
+    //   })
+    //   setTimeout(() => {
+    //     document.body.removeChild(a)
+    //     window.URL.revokeObjectURL(url)
+    //     this.$refs.downloadResponse.innerHTML = this.downloadButton
+    //   }, 1000)
+    // },
     togglePreview() {
       this.previewEnabled = !this.previewEnabled
       if (this.previewEnabled) {

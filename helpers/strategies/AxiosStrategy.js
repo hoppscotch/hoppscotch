@@ -1,5 +1,5 @@
 import axios from "axios"
-import { isJSONContentType } from "../utils/contenttypes"
+// import { isJSONContentType } from "../utils/contenttypes"
 
 let cancelSource = axios.CancelToken.source()
 

@@ -11,15 +11,15 @@
 //   })
 // })
 
-describe("Proxy enabled - external request", () => {
-  it("Enable proxy and make a GET request to Postwoman API", () => {
-    cy.enableProxy("/?url=https://postwoman.io&path=/.netlify/functions/api")
-      .get("#send")
-      .click()
-      .get("#response-details-wrapper", { timeout: 24000 })
-      .should("be.visible")
-      .should(($wrapper) => {
-        expect($wrapper).to.contain("Hello World")
-      })
-  })
-})
+// describe("Proxy enabled - external request", () => {
+//   it("Enable proxy and make a GET request to Postwoman API", () => {
+//     cy.enableProxy("/?url=https://postwoman.io&path=/.netlify/functions/api")
+//       .get("#send")
+//       .click()
+//       .get("#response-details-wrapper", { timeout: 24000 })
+//       .should("be.visible")
+//       .should(($wrapper) => {
+//         expect($wrapper).to.contain("Hello World")
+//       })
+//   })
+// })

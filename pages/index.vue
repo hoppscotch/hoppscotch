@@ -952,7 +952,7 @@
               />
             </li>
           </ul>
-          <div v-if="response.body">
+          <div v-if="response.body && response.body !== $t('loading')">
             <response-renderer :response="response" />
           </div>
           <!--

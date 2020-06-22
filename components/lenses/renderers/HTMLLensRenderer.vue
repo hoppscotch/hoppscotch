@@ -158,7 +158,7 @@ export default {
           if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
           // Use DOMParser to parse document HTML.
           const previewDocument = new DOMParser().parseFromString(
-            this.response.body,
+            this.responseBodyText,
             this.responseType
           )
           // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.

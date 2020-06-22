@@ -151,23 +151,18 @@ export default {
     togglePreview() {
       this.previewEnabled = !this.previewEnabled
       if (this.previewEnabled) {
-        // If you want to add 'preview' support for other response types,
-        // just add them here.
-        if (this.responseType === "text/html") {
-          // If the preview already has that URL loaded, let's not bother re-loading it all.
-          if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
-          // Use DOMParser to parse document HTML.
-          const previewDocument = new DOMParser().parseFromString(
-            this.responseBodyText,
-            this.responseType
-          )
-          // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-          previewDocument.head.innerHTML =
-            `<base href="${this.url}">` + previewDocument.head.innerHTML
-          // Finally, set the iframe source to the resulting HTML.
-          this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
-          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
-        }
+        if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
+        // Use DOMParser to parse document HTML.
+        const previewDocument = new DOMParser().parseFromString(
+          this.responseBodyText,
+          this.responseType
+        )
+        // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
+        previewDocument.head.innerHTML =
+          `<base href="${this.url}">` + previewDocument.head.innerHTML
+        // Finally, set the iframe source to the resulting HTML.
+        this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
+        this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
       }
     },
   },

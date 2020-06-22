@@ -1451,7 +1451,7 @@ export default {
         body: "",
       },
       validContentTypes: knownContentTypes,
-      previewEnabled: false,
+      // previewEnabled: false,
       paramsWatchEnabled: true,
       // expandResponse: false,
       showTokenList: false,
@@ -2518,28 +2518,28 @@ export default {
     //     this.$refs.downloadResponse.innerHTML = this.downloadButton
     //   }, 1000)
     // },
-    togglePreview() {
-      this.previewEnabled = !this.previewEnabled
-      if (this.previewEnabled) {
-        // If you want to add 'preview' support for other response types,
-        // just add them here.
-        if (this.responseType === "text/html") {
-          // If the preview already has that URL loaded, let's not bother re-loading it all.
-          if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
-          // Use DOMParser to parse document HTML.
-          const previewDocument = new DOMParser().parseFromString(
-            this.response.body,
-            this.responseType
-          )
-          // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-          previewDocument.head.innerHTML =
-            `<base href="${this.url}">` + previewDocument.head.innerHTML
-          // Finally, set the iframe source to the resulting HTML.
-          this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
-          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
-        }
-      }
-    },
+    // togglePreview() {
+    //   this.previewEnabled = !this.previewEnabled
+    //   if (this.previewEnabled) {
+    //     // If you want to add 'preview' support for other response types,
+    //     // just add them here.
+    //     if (this.responseType === "text/html") {
+    //       // If the preview already has that URL loaded, let's not bother re-loading it all.
+    //       if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
+    //       // Use DOMParser to parse document HTML.
+    //       const previewDocument = new DOMParser().parseFromString(
+    //         this.response.body,
+    //         this.responseType
+    //       )
+    //       // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
+    //       previewDocument.head.innerHTML =
+    //         `<base href="${this.url}">` + previewDocument.head.innerHTML
+    //       // Finally, set the iframe source to the resulting HTML.
+    //       this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
+    //       this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
+    //     }
+    //   }
+    // },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {

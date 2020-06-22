@@ -94,6 +94,7 @@ export default {
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
+      // TODO get uri from meta
       a.download = `response on ${Date()}`.replace(/\./g, "[dot]")
       document.body.appendChild(a)
       a.click()

@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <li>
+    <li id="response-details-wrapper">
       <Editor
         :value="responseBodyText"
         :lang="'plain_text'"

@@ -23,7 +23,7 @@
 
 ---
 
-**Read: [Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md), [Postwoman v1.0](https://dev.to/liyasthomas/postwoman-v1-0-a-free-fast-beautiful-alternative-to-postman-mn0)**
+**Read: [Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md)**
 
 **Chat: [Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)**
 
@@ -71,9 +71,9 @@
 
 ### Features ✨
 
-❤️ **Lightweight**: Crafted with minimalistic UI design - simple design is the best design.
+❤️ **Lightweight**: Crafted with minimalistic UI design.
 
-⚡️ **Fast**: Send requests and get/copy responses in real-time - fast software is the best software.
+⚡️ **Fast**: Send requests and get/copy responses in real-time.
 
 **Methods:**
 
@@ -88,38 +88,37 @@
 - `PATCH` - Apply partial modifications to a REST API resource
 - `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
-🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors: because customization is freedom. [Customize now ✨](https://postwoman.io/settings).
+🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors.
 
-**Customizations:**
+**Theming:** [Customize now ✨](https://postwoman.io/settings)
 
 - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
 - Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
 - Toggle multi-colored headings
+- Toggle auto-scroll to response
 
 _Customized themes are synced with local session storage_
 
 🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
-**Features:**
+**Features:** [Full features](https://developers.google.com/web/progressive-web-apps)
 
 - Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
 - Offline support
 - Low RAM/memory and CPU usage
 - Add to Home Screen
 - Desktop PWA
-- ([full features](https://developers.google.com/web/progressive-web-apps))
 
 🚀 **Request**: Retrieve response from endpoint instantly.
 
 - Choose `method`
-- Enter `URL` and `Path`
+- Enter `URL`
 - Send
 
 **Features:**
 
 - Copy/share public "Share URL"
-- Generate request code for `JavaScript XHR`, `Fetch` and `cURL`
-- Copy generated request code to clipboard
+- Generate/copy request code for `JavaScript XHR`, `Fetch` and `cURL`
 - Import `cURL`
 - Label requests
 
@@ -130,7 +129,7 @@ _Customized themes are synced with local session storage_
 
 📡 **Server Sent Events**: Receive a stream of updates from a server over a HTTP connection without resorting to polling.
 
-🌩 **Socket.IO**: Send and Receive data with socketio server. SocketIO is popular websocket solution.
+🌩 **Socket.IO**: Send and Receive data with SocketIO server.
 
 🦟 **MQTT**: Subscribe and Publish to topics of a MQTT Broker.
 
@@ -150,11 +149,9 @@ _Customized themes are synced with local session storage_
 - Basic
 - Bearer Token
 - OAuth 2.0
-- OIDC Access Token/PKCE (Proof Key for Code Exchange)
+- OIDC Access Token/PKCE
 
 📢 **Headers**: Describes the format the body of your request is being sent as.
-
-- Add or remove Header list
 
 📫 **Parameters**: Use request parameters to set varying parts in simulated requests.
 
@@ -164,40 +161,19 @@ _Customized themes are synced with local session storage_
 
 - Set `Content Type`
 - Add or remove Parameter list
-- Toggle between key-value and RAW input Parameter list
+- Toggle between key-value and RAW input parameter list
 
 👋 **Responses**: Contains the status line, headers and the message/response body.
 
 - Copy response to clipboard
-- Download response to as a file
+- Download response as a file
 - View preview of HTML responses
 
-⏰ **History**: Request entries are synced with local session storage to reuse with a single click.
-
-**Fields:**
-
-- Star
-- Label
-- Method
-- Status code
-- URL
-- Path
-- Timestamp
-- Duration
-- Pre-request script
-
-_History entries can be sorted by any fields_
-
-_Histories can be deleted one-by-one or all together_
+⏰ **History**: Request entries are synced with cloud / local session storage to restore with a single click.
 
 📁 **Collections**: Keep your API requests organized with collections and folders. Reuse them with a single click.
 
-**Options:**
-
-- Create infinite collections, folders and requests
-- Edit, delete, move, export, import and replace
-
-_Collections are synced with local session storage_
+_Collections are synced with cloud / local session storage_
 
 🌐 **Proxy**: Enable Proxy Mode from Settings to access blocked APIs.
 
@@ -216,8 +192,6 @@ _Official Postwoman Proxy is hosted by Apollo Software - **[Privacy Policy](http
 
 - Include timestamp in the request headers
 - Send a random alphanumeric string in the URL parameters
-
-_Requests with Pre-Request Scripts are indicated in History entries_
 
 📄 **API Documentation**: Create and share dynamic API documentation easily, quickly.
 
@@ -300,27 +274,20 @@ _Notes are only available for signed-in users_
 
 [postwoman.io](https://postwoman.io)
 
-<a href="https://www.netlify.com">
-  <img src="https://www.netlify.com/img/global/badges/netlify-light.svg"/>
-</a>
-
 ## Usage 💡
 
-1. Specify your request `method`
-2. Type in your API `URL` and `path`
+1. Choose `method`
+2. Enter `URL`
 3. Send request
 4. Get response
 
-You're done!
-
 ## Built with 🔧
 
-- [Chromium](https://github.com/chromium/chromium) - Thanks for being so fast!
 - HTML - For the web framework
 - CSS - For styling components
 - JavaScript - For magic!
-- [Vue](https://vuejs.org/) - To add to the JavaScript magic!
-- [Nuxt](https://nuxtjs.org/) - To add to the Vue magic!
+- [Vue](https://vuejs.org/)
+- [Nuxt](https://nuxtjs.org/)
 
 ## Developing 👷
 

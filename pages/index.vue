@@ -2,39 +2,6 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request" ref="preRequest">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="generatedCode">{{ $t("javascript_code") }}</label>
-                <div>
-                  <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help_outline</i>
-                    </button>
-                  </a>
-                </div>
-              </div>
-              <Editor
-                v-model="preRequestScript"
-                :lang="'javascript'"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-              />
-            </li>
-          </ul>
-        </pw-section>
-
         <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li class="shrink">
@@ -402,40 +369,6 @@
               >
                 <i class="material-icons">code</i>
               </button>
-              <button
-                class="icon"
-                id="preRequestScriptButton"
-                v-tooltip.bottom="{
-                  content: !showPreRequestScript
-                    ? $t('show_prerequest_script')
-                    : $t('hide_prerequest_script'),
-                }"
-                @click="showPreRequestScript = !showPreRequestScript"
-              >
-                <i
-                  class="material-icons"
-                  :class="showPreRequestScript"
-                  v-if="!showPreRequestScript"
-                >
-                  playlist_add
-                </i>
-                <i class="material-icons" :class="showPreRequestScript" v-else>
-                  close
-                </i>
-              </button>
-              <button
-                class="icon"
-                id="preRequestScriptButto"
-                v-tooltip.bottom="{
-                  content: !testsEnabled ? 'Enable Tests' : 'Disable Tests',
-                }"
-                @click="testsEnabled = !testsEnabled"
-              >
-                <i class="material-icons" :class="testsEnabled" v-if="!testsEnabled">
-                  playlist_add_check
-                </i>
-                <i class="material-icons" :class="testsEnabled" v-else>close</i>
-              </button>
             </span>
             <span>
               <button
@@ -471,73 +404,107 @@
           </div>
         </pw-section>
 
-        <pw-section v-if="testsEnabled" class="orange" label="Tests" ref="postRequestTests">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="generatedCode">{{ $t("javascript_code") }}</label>
-                <div>
-                  <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help_outline</i>
-                    </button>
-                  </a>
-                </div>
-              </div>
-              <Editor
-                v-model="testScript"
-                :lang="'javascript'"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-              />
-              <div v-if="testReports">
-                <div class="flex-wrap">
-                  <label>Test Reports</label>
-                  <div>
-                    <button
-                      class="icon"
-                      @click="clearContent('tests', $event)"
-                      v-tooltip.bottom="$t('clear')"
-                    >
-                      <i class="material-icons">clear_all</i>
-                    </button>
-                  </div>
-                </div>
-                <div v-for="(testReport, index) in testReports" :key="index">
-                  <div v-if="testReport.startBlock" class="info">
-                    <h4>{{ testReport.startBlock }}</h4>
-                  </div>
-                  <p v-else-if="testReport.result" class="flex-wrap info">
-                    <span :class="testReport.styles.class">
-                      <i class="material-icons">
-                        {{ testReport.styles.icon }}
-                      </i>
-                      <span>&nbsp; {{ testReport.result }}</span>
-                      <span v-if="testReport.message">
-                        <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
-                      </span>
-                    </span>
-                  </p>
-                  <div v-else-if="testReport.endBlock"><hr /></div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </pw-section>
-
         <section id="options">
           <tabs>
-            <tab :id="'authentication'" :label="$t('authentication')" :selected="true">
+            <tab :id="'params'" :label="$t('parameters')" :selected="true">
+              <pw-section class="pink" label="Parameters" ref="parameters">
+                <ul>
+                  <li>
+                    <div class="flex-wrap">
+                      <label for="paramList">{{ $t("parameter_list") }}</label>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="clearContent('parameters', $event)"
+                          v-tooltip.bottom="$t('clear')"
+                        >
+                          <i class="material-icons">clear_all</i>
+                        </button>
+                      </div>
+                    </div>
+                    <textarea
+                      id="paramList"
+                      readonly
+                      v-textarea-auto-height="queryString"
+                      v-model="queryString"
+                      :placeholder="$t('add_one_parameter')"
+                      rows="1"
+                    ></textarea>
+                  </li>
+                </ul>
+                <ul v-for="(param, index) in params" :key="index">
+                  <li>
+                    <input
+                      :placeholder="$t('parameter_count', { count: index + 1 })"
+                      :name="'param' + index"
+                      :value="param.key"
+                      @change="
+                        $store.commit('setKeyParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                      autofocus
+                    />
+                  </li>
+                  <li>
+                    <input
+                      :placeholder="$t('value_count', { count: index + 1 })"
+                      :name="'value' + index"
+                      :value="param.value"
+                      @change="
+                        $store.commit('setValueParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                    />
+                  </li>
+                  <li>
+                    <span class="select-wrapper">
+                      <select
+                        :name="'type' + index"
+                        @change="
+                          $store.commit('setTypeParams', {
+                            index,
+                            value: $event.target.value,
+                          })
+                        "
+                      >
+                        <option value="query" :selected="param.type === 'query'">{{
+                          $t("query")
+                        }}</option>
+                        <option value="path" :selected="param.type === 'path'">{{
+                          $t("path")
+                        }}</option>
+                      </select>
+                    </span>
+                  </li>
+                  <div>
+                    <li>
+                      <button
+                        class="icon"
+                        @click="removeRequestParam(index)"
+                        v-tooltip.bottom="$t('delete')"
+                        id="param"
+                      >
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </li>
+                  </div>
+                </ul>
+                <ul>
+                  <li>
+                    <button class="icon" @click="addRequestParam">
+                      <i class="material-icons">add</i>
+                      <span>{{ $t("add_new") }}</span>
+                    </button>
+                  </li>
+                </ul>
+              </pw-section>
+            </tab>
+
+            <tab :id="'authentication'" :label="$t('authentication')">
               <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
@@ -822,99 +789,112 @@
               </pw-section>
             </tab>
 
-            <tab :id="'params'" :label="$t('parameters')">
-              <pw-section class="pink" label="Parameters" ref="parameters">
+            <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
+              <pw-section
+                v-if="showPreRequestScript"
+                class="orange"
+                :label="$t('pre_request_script')"
+                ref="preRequest"
+              >
                 <ul>
                   <li>
                     <div class="flex-wrap">
-                      <label for="paramList">{{ $t("parameter_list") }}</label>
+                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
-                        <button
-                          class="icon"
-                          @click="clearContent('parameters', $event)"
-                          v-tooltip.bottom="$t('clear')"
+                        <a
+                          href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
+                          target="_blank"
+                          rel="noopener"
                         >
-                          <i class="material-icons">clear_all</i>
-                        </button>
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
                       </div>
                     </div>
-                    <textarea
-                      id="paramList"
-                      readonly
-                      v-textarea-auto-height="queryString"
-                      v-model="queryString"
-                      :placeholder="$t('add_one_parameter')"
-                      rows="1"
-                    ></textarea>
-                  </li>
-                </ul>
-                <ul v-for="(param, index) in params" :key="index">
-                  <li>
-                    <input
-                      :placeholder="$t('parameter_count', { count: index + 1 })"
-                      :name="'param' + index"
-                      :value="param.key"
-                      @change="
-                        $store.commit('setKeyParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                      autofocus
+                    <Editor
+                      v-model="preRequestScript"
+                      :lang="'javascript'"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
                     />
                   </li>
-                  <li>
-                    <input
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="'value' + index"
-                      :value="param.value"
-                      @change="
-                        $store.commit('setValueParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                    />
-                  </li>
-                  <li>
-                    <span class="select-wrapper">
-                      <select
-                        :name="'type' + index"
-                        @change="
-                          $store.commit('setTypeParams', {
-                            index,
-                            value: $event.target.value,
-                          })
-                        "
-                      >
-                        <option value="query" :selected="param.type === 'query'">{{
-                          $t("query")
-                        }}</option>
-                        <option value="path" :selected="param.type === 'path'">{{
-                          $t("path")
-                        }}</option>
-                      </select>
-                    </span>
-                  </li>
-                  <div>
-                    <li>
-                      <button
-                        class="icon"
-                        @click="removeRequestParam(index)"
-                        v-tooltip.bottom="$t('delete')"
-                        id="param"
-                      >
-                        <i class="material-icons">delete</i>
-                      </button>
-                    </li>
-                  </div>
                 </ul>
+              </pw-section>
+            </tab>
+
+            <tab :id="'tests'" :label="$t('tests')">
+              <pw-section
+                v-if="testsEnabled"
+                class="orange"
+                :label="$t('tests')"
+                ref="postRequestTests"
+              >
                 <ul>
                   <li>
-                    <button class="icon" @click="addRequestParam">
-                      <i class="material-icons">add</i>
-                      <span>{{ $t("add_new") }}</span>
-                    </button>
+                    <div class="flex-wrap">
+                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <div>
+                        <a
+                          href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
+                      </div>
+                    </div>
+                    <Editor
+                      v-model="testScript"
+                      :lang="'javascript'"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
+                    />
+                    <div v-if="testReports && testReports.length !== 0">
+                      <div class="flex-wrap">
+                        <label>Test Reports</label>
+                        <div>
+                          <button
+                            class="icon"
+                            @click="clearContent('tests', $event)"
+                            v-tooltip.bottom="$t('clear')"
+                          >
+                            <i class="material-icons">clear_all</i>
+                          </button>
+                        </div>
+                      </div>
+                      <div v-for="(testReport, index) in testReports" :key="index">
+                        <div v-if="testReport.startBlock" class="info">
+                          <h4>{{ testReport.startBlock }}</h4>
+                        </div>
+                        <p v-else-if="testReport.result" class="flex-wrap info">
+                          <span :class="testReport.styles.class">
+                            <i class="material-icons">
+                              {{ testReport.styles.icon }}
+                            </i>
+                            <span>&nbsp; {{ testReport.result }}</span>
+                            <span v-if="testReport.message">
+                              <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
+                            </span>
+                          </span>
+                        </p>
+                        <div v-else-if="testReport.endBlock"><hr /></div>
+                      </div>
+                    </div>
                   </li>
                 </ul>
               </pw-section>
@@ -1342,8 +1322,8 @@ export default {
   data() {
     return {
       showModal: false,
-      showPreRequestScript: false,
-      testsEnabled: false,
+      showPreRequestScript: true,
+      testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
       testReports: null,
@@ -2015,9 +1995,6 @@ export default {
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-      if (this.$refs.response.$el.classList.contains("hidden")) {
-        this.$refs.response.$el.classList.toggle("hidden")
-      }
       this.previewEnabled = false
       this.response.status = this.$t("fetching")
       this.response.body = this.$t("loading")

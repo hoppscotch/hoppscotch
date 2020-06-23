@@ -285,5 +285,7 @@
   "mqtt_topic_title": "Publish / Subscribe topic",
   "mqtt_publish": "Publish",
   "mqtt_subscribe": "Subscribe",
-  "mqtt_unsubscribe": "Unsubscribe"
+  "mqtt_unsubscribe": "Unsubscribe",
+  "pre_request_script": "Pre-request Script",
+  "tests": "Tests"
 }

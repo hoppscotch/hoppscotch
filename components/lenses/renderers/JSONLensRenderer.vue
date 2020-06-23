@@ -19,15 +19,6 @@
           </button>
           <button
             class="icon"
-            ref="prettifyResponse"
-            @click="prettifyResponseBody"
-            v-tooltip="$t('prettify_body')"
-            v-if="response.body && this.responseType.endsWith('json')"
-          >
-            <i class="material-icons">photo_filter</i>
-          </button>
-          <button
-            class="icon"
             @click="downloadResponse"
             ref="downloadResponse"
             v-if="response.body && canDownloadResponse"
@@ -85,25 +76,28 @@ export default {
     }
   },
   computed: {
-    responseBodyText: {
-      get: function () {
-        try {
-          return JSON.stringify(
-            JSON.parse(new TextDecoder("utf-8").decode(new Uint8Array(this.response.body))),
-            null,
-            2
-          )
-        } catch (e) {
-          // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
-          return new TextDecoder("utf-8").decode(new Uint8Array(this.response.body))
-        }
-      },
-      set: function (newValue) {
-        return newValue
-      },
+    responseBodyText() {
+      try {
+        return JSON.stringify(
+          JSON.parse(new TextDecoder("utf-8").decode(new Uint8Array(this.response.body))),
+          null,
+          2
+        )
+      } catch (e) {
+        // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
+        return new TextDecoder("utf-8").decode(new Uint8Array(this.response.body))
+      }
     },
     responseType() {
       return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
+    },
+    canDownloadResponse() {
+      return (
+        this.response &&
+        this.response.headers &&
+        this.response.headers["content-type"] &&
+        isJSONContentType(this.response.headers["content-type"])
+      )
     },
   },
   methods: {
@@ -131,14 +125,6 @@ export default {
         this.$refs.downloadResponse.innerHTML = this.downloadButton
       }, 1000)
     },
-    canDownloadResponse() {
-      return (
-        this.response &&
-        this.response.headers &&
-        this.response.headers["content-type"] &&
-        isJSONContentType(this.response.headers["content-type"])
-      )
-    },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton
       this.$toast.success(this.$t("copied_to_clipboard"), {
@@ -152,19 +138,6 @@ export default {
       document.execCommand("copy")
       document.body.removeChild(aux)
       setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
-    },
-    prettifyResponseBody() {
-      try {
-        const jsonObj = JSON.parse(this.responseBodyText)
-        this.responseBodyText = JSON.stringify(jsonObj, null, 2)
-        let oldIcon = this.$refs.prettifyResponse.innerHTML
-        this.$refs.prettifyResponse.innerHTML = this.doneButton
-        setTimeout(() => (this.$refs.prettifyResponse.innerHTML = oldIcon), 1000)
-      } catch (e) {
-        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
-          icon: "error",
-        })
-      }
     },
   },
 }

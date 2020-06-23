@@ -3,14 +3,7 @@ import rawLens from "./rawLens"
 import imageLens from "./imageLens"
 import htmlLens from "./htmlLens"
 
-const lenses = [
-  jsonLens,
-  imageLens,
-  htmlLens,
-
-  // Keep Raw Lens as the last option
-  rawLens,
-]
+const lenses = [jsonLens, imageLens, htmlLens, rawLens]
 
 function getSuitableLenses(response) {
   const result = []

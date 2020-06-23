@@ -2,11 +2,11 @@
   <div>
     <tabs>
       <tab
-        v-for="lens in validLenses"
-        :id="lens.lensName"
+        v-for="(lens, index) in validLenses"
         :key="lens.lensName"
+        :id="lens.lensName"
         :label="lens.lensName"
-        :selected="lens.lensName === 'Raw'"
+        :selected="index == 0"
       >
         <component :is="lens.renderer" :response="response" />
       </tab>

@@ -26,6 +26,7 @@ export default {
     json: () => import("../lenses/renderers/JSONLensRenderer"),
     imageres: () => import("../lenses/renderers/ImageLensRenderer"),
     htmlres: () => import("../lenses/renderers/HTMLLensRenderer"),
+    xmlres: () => import("../lenses/renderers/XMLLensRenderer"),
   },
   props: {
     response: {},

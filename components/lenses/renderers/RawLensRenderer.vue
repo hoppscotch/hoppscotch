@@ -19,15 +19,6 @@
           </button>
           <button
             class="icon"
-            ref="prettifyResponse"
-            @click="prettifyResponseBody"
-            v-tooltip="$t('prettify_body')"
-            v-if="response.body && this.responseType.endsWith('json')"
-          >
-            <i class="material-icons">photo_filter</i>
-          </button>
-          <button
-            class="icon"
             @click="downloadResponse"
             ref="downloadResponse"
             v-if="response.body && canDownloadResponse"
@@ -136,19 +127,6 @@ export default {
       document.execCommand("copy")
       document.body.removeChild(aux)
       setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
-    },
-    prettifyResponseBody() {
-      try {
-        const jsonObj = JSON.parse(this.responseBodyText)
-        this.responseBodyText = JSON.stringify(jsonObj, null, 2)
-        let oldIcon = this.$refs.prettifyResponse.innerHTML
-        this.$refs.prettifyResponse.innerHTML = this.doneButton
-        setTimeout(() => (this.$refs.prettifyResponse.innerHTML = oldIcon), 1000)
-      } catch (e) {
-        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
-          icon: "error",
-        })
-      }
     },
   },
 }

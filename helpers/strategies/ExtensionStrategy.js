@@ -23,7 +23,10 @@ const extensionWithProxy = async (req, { state }) => {
 }
 
 const extensionWithoutProxy = async (req, _store) => {
-  const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest(req)
+  const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
+    ...req,
+    wantsBinary: true,
+  })
   return res
 }
 

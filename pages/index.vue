@@ -920,21 +920,6 @@
               </pw-section>
             </tab>
           </tabs>
-
-          <!-- <div class="flex-wrap">
-            <span></span>
-            <button
-              class="icon hide-on-small-screen"
-              @click="activeSidebar = !activeSidebar"
-              v-tooltip="{
-                content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar'
-              }"
-            >
-              <i class="material-icons">
-                {{ activeSidebar ? "last_page" : "first_page" }}
-              </i>
-            </button>
-          </div> -->
         </section>
 
         <pw-section class="purple" id="response" :label="$t('response')" ref="response">
@@ -955,79 +940,6 @@
           <div v-if="response.body && response.body !== $t('loading')">
             <response-renderer :response="response" />
           </div>
-          <!--
-          <ul v-if="response.body">
-            <li>
-              <div class="flex-wrap">
-                <label for="body">{{ $t("response") }}</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="ToggleExpandResponse"
-                    ref="ToggleExpandResponse"
-                    v-if="response.body"
-                    v-tooltip="{
-                      content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-                    }"
-                  >
-                    <i class="material-icons">
-                      {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-                    </i>
-                  </button>
-                  <button
-                    class="icon"
-                    @click="downloadResponse"
-                    ref="downloadResponse"
-                    v-if="response.body && canDownloadResponse"
-                    v-tooltip="$t('download_file')"
-                  >
-                    <i class="material-icons">save_alt</i>
-                  </button>
-                  <button
-                    class="icon"
-                    @click="copyResponse"
-                    ref="copyResponse"
-                    v-if="response.body"
-                    v-tooltip="$t('copy_response')"
-                  >
-                    <i class="material-icons">content_copy</i>
-                  </button>
-                </div>
-              </div>
-              <div id="response-details-wrapper">
-                <Editor
-                  :value="responseBodyText"
-                  :lang="responseBodyType"
-                  :options="{
-                    maxLines: responseBodyMaxLines,
-                    minLines: '16',
-                    fontSize: '16px',
-                    autoScrollEditorIntoView: true,
-                    readOnly: true,
-                    showPrintMargin: false,
-                    useWorker: false,
-                  }"
-                />
-                <iframe
-                  :class="{ hidden: !previewEnabled }"
-                  class="covers-response"
-                  ref="previewFrame"
-                  src="about:blank"
-                ></iframe>
-              </div>
-              <div class="align-right" v-if="response.body && responseType === 'text/html'">
-                <button class="icon" @click.prevent="togglePreview">
-                  <i class="material-icons">
-                    {{ !previewEnabled ? "visibility" : "visibility_off" }}
-                  </i>
-                  <span>
-                    {{ previewEnabled ? $t("hide_preview") : $t("preview_html") }}
-                  </span>
-                </button>
-              </div>
-            </li>
-          </ul>
-          -->
           <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
             <li>
               <label :for="key">{{ key }}</label>
@@ -1451,9 +1363,7 @@ export default {
         body: "",
       },
       validContentTypes: knownContentTypes,
-      // previewEnabled: false,
       paramsWatchEnabled: true,
-      // expandResponse: false,
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
@@ -1461,9 +1371,6 @@ export default {
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
-      responseBodyText: "",
-      responseBodyType: "text",
-      // responseBodyMaxLines: 16,
       activeSidebar: true,
       fb,
       customMethod: false,
@@ -1518,27 +1425,6 @@ export default {
         this.rawParams = getDefaultParams(contentType)
       }
       this.setRouteQueryState()
-    },
-    "response.body": function (val) {
-      if (
-        this.response.body === this.$t("waiting_send_req") ||
-        this.response.body === this.$t("loading")
-      ) {
-        this.responseBodyText = this.response.body
-        this.responseBodyType = "text"
-      } else {
-        if (isJSONContentType(this.responseType)) {
-          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType =
-            this.response.body.constructor.name === "Object" ? "json" : "json5"
-        } else if (this.responseType === "text/html") {
-          this.responseBodyText = this.response.body
-          this.responseBodyType = "html"
-        } else {
-          this.responseBodyText = this.response.body
-          this.responseBodyType = "text"
-        }
-      }
     },
     params: {
       handler: function (newValue) {
@@ -1595,7 +1481,6 @@ export default {
       this.showRequestModal = true
     },
     method() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH", "DELETE"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
         ? "application/json"
         : ""
@@ -1615,14 +1500,6 @@ export default {
         isJSONContentType(this.contentType)
       )
     },
-    // canDownloadResponse() {
-    //   return (
-    //     this.response &&
-    //     this.response.headers &&
-    //     this.response.headers["content-type"] &&
-    //     isJSONContentType(this.response.headers["content-type"])
-    //   )
-    // },
     uri: {
       get() {
         return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path
@@ -2479,67 +2356,6 @@ export default {
       document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
     },
-    // ToggleExpandResponse() {
-    //   this.expandResponse = !this.expandResponse
-    //   this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
-    // },
-    // copyResponse() {
-    //   this.$refs.copyResponse.innerHTML = this.doneButton
-    //   this.$toast.success(this.$t("copied_to_clipboard"), {
-    //     icon: "done",
-    //   })
-    //   const aux = document.createElement("textarea")
-    //   const copy = isJSONContentType(this.responseType)
-    //     ? JSON.stringify(this.response.body, null, 2)
-    //     : this.response.body
-    //   aux.innerText = copy
-    //   document.body.appendChild(aux)
-    //   aux.select()
-    //   document.execCommand("copy")
-    //   document.body.removeChild(aux)
-    //   setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
-    // },
-    // downloadResponse() {
-    //   const dataToWrite = JSON.stringify(this.response.body, null, 2)
-    //   const file = new Blob([dataToWrite], { type: this.responseType })
-    //   const a = document.createElement("a")
-    //   const url = URL.createObjectURL(file)
-    //   a.href = url
-    //   a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, "[dot]")
-    //   document.body.appendChild(a)
-    //   a.click()
-    //   this.$refs.downloadResponse.innerHTML = this.doneButton
-    //   this.$toast.success(this.$t("download_started"), {
-    //     icon: "done",
-    //   })
-    //   setTimeout(() => {
-    //     document.body.removeChild(a)
-    //     window.URL.revokeObjectURL(url)
-    //     this.$refs.downloadResponse.innerHTML = this.downloadButton
-    //   }, 1000)
-    // },
-    // togglePreview() {
-    //   this.previewEnabled = !this.previewEnabled
-    //   if (this.previewEnabled) {
-    //     // If you want to add 'preview' support for other response types,
-    //     // just add them here.
-    //     if (this.responseType === "text/html") {
-    //       // If the preview already has that URL loaded, let's not bother re-loading it all.
-    //       if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
-    //       // Use DOMParser to parse document HTML.
-    //       const previewDocument = new DOMParser().parseFromString(
-    //         this.response.body,
-    //         this.responseType
-    //       )
-    //       // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-    //       previewDocument.head.innerHTML =
-    //         `<base href="${this.url}">` + previewDocument.head.innerHTML
-    //       // Finally, set the iframe source to the resulting HTML.
-    //       this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
-    //       this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
-    //     }
-    //   }
-    // },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {

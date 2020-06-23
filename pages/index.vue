@@ -406,7 +406,13 @@
 
         <section id="options">
           <tabs>
-            <tab :id="'params'" :label="$t('parameters')" :selected="true">
+            <tab
+              :id="'params'"
+              :label="
+                $t('parameters') + `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
+              "
+              :selected="true"
+            >
               <pw-section class="pink" label="Parameters" ref="parameters">
                 <ul>
                   <li>
@@ -708,7 +714,12 @@
               </pw-section>
             </tab>
 
-            <tab :id="'headers'" :label="$t('headers')">
+            <tab
+              :id="'headers'"
+              :label="
+                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+              "
+            >
               <pw-section class="orange" label="Headers" ref="headers">
                 <ul>
                   <li>
@@ -829,7 +840,13 @@
               </pw-section>
             </tab>
 
-            <tab :id="'tests'" :label="$t('tests')">
+            <tab
+              :id="'tests'"
+              :label="
+                $t('tests') +
+                `${testReports.length !== 0 ? ' \xA0 • \xA0 ' + testReports.length : ''}`
+              "
+            >
               <pw-section
                 v-if="testsEnabled"
                 class="orange"
@@ -864,7 +881,7 @@
                         useWorker: false,
                       }"
                     />
-                    <div v-if="testReports && testReports.length !== 0">
+                    <div v-if="testReports.length !== 0">
                       <div class="flex-wrap">
                         <label>Test Reports</label>
                         <div>
@@ -1326,7 +1343,7 @@ export default {
       testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
-      testReports: null,
+      testReports: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -2422,6 +2439,9 @@ export default {
     },
     clearContent(name, { target }) {
       switch (name) {
+        case "parameters":
+          this.params = []
+          break
         case "auth":
           this.auth = "None"
           this.httpUser = ""
@@ -2431,12 +2451,6 @@ export default {
           this.tokens = []
           this.tokenReqs = []
           break
-        case "headers":
-          this.headers = []
-          break
-        case "parameters":
-          this.params = []
-          break
         case "access_token":
           this.accessTokenName = ""
           this.oidcDiscoveryUrl = ""
@@ -2445,13 +2459,14 @@ export default {
           this.clientId = ""
           this.scope = ""
           break
+        case "headers":
+          this.headers = []
+          break
+        case "tests":
+          this.testReports = []
+          break
         case "tokens":
           this.tokens = []
-          break
-        case "tokenReqs":
-          this.tokenReqs = []
-        case "tests":
-          this.testReports = null
           break
         default:
           this.method = "GET"
@@ -2459,14 +2474,14 @@ export default {
           this.path = "/get"
           this.uri = this.url + this.path
           this.label = ""
+          this.bodyParams = []
+          this.rawParams = ""
+          this.files = []
+          this.params = []
           this.auth = "None"
           this.httpUser = ""
           this.httpPassword = ""
           this.bearerToken = ""
-          this.headers = []
-          this.params = []
-          this.bodyParams = []
-          this.rawParams = ""
           this.showTokenRequest = false
           this.tokens = []
           this.tokenReqs = []
@@ -2476,7 +2491,8 @@ export default {
           this.accessTokenUrl = ""
           this.clientId = ""
           this.scope = ""
-          this.files = []
+          this.headers = []
+          this.testReports = []
       }
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {

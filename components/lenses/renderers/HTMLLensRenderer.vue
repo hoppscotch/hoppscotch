@@ -33,7 +33,7 @@
             class="icon"
             @click="downloadResponse"
             ref="downloadResponse"
-            v-if="response.body && canDownloadResponse"
+            v-if="response.body"
             v-tooltip="$t('download_file')"
           >
             <i class="material-icons">save_alt</i>
@@ -125,14 +125,6 @@ export default {
         window.URL.revokeObjectURL(url)
         this.$refs.downloadResponse.innerHTML = this.downloadButton
       }, 1000)
-    },
-    canDownloadResponse() {
-      return (
-        this.response &&
-        this.response.headers &&
-        this.response.headers["content-type"] &&
-        isJSONContentType(this.response.headers["content-type"])
-      )
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton

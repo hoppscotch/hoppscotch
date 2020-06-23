@@ -6,7 +6,7 @@
         :key="lens.lensName"
         :id="lens.lensName"
         :label="lens.lensName"
-        :selected="index == 0"
+        :selected="index === 0"
       >
         <component :is="lens.renderer" :response="response" />
       </tab>

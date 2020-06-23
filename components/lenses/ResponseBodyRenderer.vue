@@ -10,6 +10,13 @@
       >
         <component :is="lens.renderer" :response="response" />
       </tab>
+      <tab
+        v-if="Object.keys(response.headers).length !== 0"
+        id="headers"
+        :label="`Headers \xA0 • \xA0 ${Object.keys(response.headers).length}`"
+      >
+        <headers :headers="response.headers" />
+      </tab>
     </tabs>
   </div>
 </template>
@@ -22,11 +29,12 @@ export default {
     tabs: () => import("../ui/tabs"),
     tab: () => import("../ui/tab"),
     // Lens Renderers
-    raw: () => import("../lenses/renderers/RawLensRenderer"),
-    json: () => import("../lenses/renderers/JSONLensRenderer"),
-    imageres: () => import("../lenses/renderers/ImageLensRenderer"),
-    htmlres: () => import("../lenses/renderers/HTMLLensRenderer"),
-    xmlres: () => import("../lenses/renderers/XMLLensRenderer"),
+    raw: () => import("./renderers/RawLensRenderer"),
+    json: () => import("./renderers/JSONLensRenderer"),
+    imageres: () => import("./renderers/ImageLensRenderer"),
+    htmlres: () => import("./renderers/HTMLLensRenderer"),
+    xmlres: () => import("./renderers/XMLLensRenderer"),
+    headers: () => import("./headers"),
   },
   props: {
     response: {},

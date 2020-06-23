@@ -940,12 +940,6 @@
           <div v-if="response.body && response.body !== $t('loading')">
             <response-renderer :response="response" />
           </div>
-          <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
-            <li>
-              <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
-            </li>
-          </ul>
         </pw-section>
       </div>
 

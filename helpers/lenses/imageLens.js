@@ -4,7 +4,10 @@ const imageLens = {
     "image/gif",
     "image/jpeg",
     "image/png",
-    // TODO : Add more image types!
+    "image/bmp",
+    "image/svg+xml",
+    "image/x-icon",
+    "image/vnd.microsoft.icon",
   ],
   renderer: "imageres",
 }

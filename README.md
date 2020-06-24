@@ -322,7 +322,7 @@ docker pull liyasthomas/postwoman
 docker run -p 3000:3000 liyasthomas/postwoman:latest
 
 #build
-docker build -t postwoman:latest
+docker build -t postwoman:latest .
 ```
 
 ## Releasing 🧞

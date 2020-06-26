@@ -57,11 +57,13 @@
 </template>
 <script>
 import AceEditor from "../../ui/ace-editor"
+import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 
 export default {
   components: {
     Editor: AceEditor,
   },
+  mixins: [TextContentRendererMixin],
   props: {
     response: {},
   },
@@ -75,9 +77,6 @@ export default {
     }
   },
   computed: {
-    responseBodyText() {
-      return new TextDecoder("utf-8").decode(this.response.body)
-    },
     responseType() {
       return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },

@@ -58,11 +58,13 @@
 <script>
 import AceEditor from "../../ui/ace-editor"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
+import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 
 export default {
   components: {
     Editor: AceEditor,
   },
+  mixins: [TextContentRendererMixin],
   props: {
     response: {},
   },
@@ -73,7 +75,6 @@ export default {
       doneButton: '<i class="material-icons">done</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       copyButton: '<i class="material-icons">content_copy</i>',
-      responseBodyText: new TextDecoder("utf-8").decode(new Uint8Array(this.response.body)),
     }
   },
   computed: {

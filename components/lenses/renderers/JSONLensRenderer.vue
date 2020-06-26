@@ -39,7 +39,7 @@
       </div>
       <div id="response-details-wrapper">
         <Editor
-          :value="responseBodyText"
+          :value="jsonBodyText"
           :lang="'json'"
           :options="{
             maxLines: responseBodyMaxLines,
@@ -58,11 +58,13 @@
 <script>
 import AceEditor from "../../ui/ace-editor"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
+import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 
 export default {
   components: {
     Editor: AceEditor,
   },
+  mixins: [TextContentRendererMixin],
   props: {
     response: {},
   },
@@ -76,16 +78,12 @@ export default {
     }
   },
   computed: {
-    responseBodyText() {
+    jsonBodyText() {
       try {
-        return JSON.stringify(
-          JSON.parse(new TextDecoder("utf-8").decode(new Uint8Array(this.response.body))),
-          null,
-          2
-        )
+        return JSON.stringify(JSON.parse(this.responseBodyText), null, 2)
       } catch (e) {
         // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
-        return new TextDecoder("utf-8").decode(new Uint8Array(this.response.body))
+        return new this.responseBodyText()
       }
     },
     responseType() {

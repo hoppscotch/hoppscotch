@@ -18,7 +18,7 @@
             </i>
           </button>
           <button
-            v-if="response.body && responseType === 'text/html'"
+            v-if="response.body"
             class="icon"
             @click.prevent="togglePreview"
             v-tooltip="{
@@ -95,11 +95,6 @@ export default {
       previewEnabled: false,
     }
   },
-  computed: {
-    responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
-    },
-  },
   methods: {
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse
@@ -107,7 +102,7 @@ export default {
     },
     downloadResponse() {
       const dataToWrite = this.responseBodyText
-      const file = new Blob([dataToWrite], { type: this.responseType })
+      const file = new Blob([dataToWrite], { type: "text/html" })
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
@@ -144,10 +139,7 @@ export default {
       if (this.previewEnabled) {
         if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
         // Use DOMParser to parse document HTML.
-        const previewDocument = new DOMParser().parseFromString(
-          this.responseBodyText,
-          this.responseType
-        )
+        const previewDocument = new DOMParser().parseFromString(this.responseBodyText, "text/html")
         // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
         previewDocument.head.innerHTML =
           `<base href="${this.url}">` + previewDocument.head.innerHTML

@@ -27,7 +27,7 @@
 
 **Chat: [Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)**
 
-**Donate: [Open Collective](https://opencollective.com/postwoman), [PayPal](https://www.paypal.me/liyascthomas), [Patreon](https://www.patreon.com/liyasthomas), [:octocat: GitHub Sponsors](https://github.com/sponsors/postwoman-io)**
+**Donate: [GitHub Sponsors](https://github.com/sponsors/postwoman-io), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas), [PayPal](https://www.paypal.me/liyascthomas)**
 
 <div align="center">
   <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/postwoman/master/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
@@ -101,9 +101,9 @@ _Customized themes are synced with local session storage_
 
 🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
-**Features:** [Full features](https://developers.google.com/web/progressive-web-apps)
+**Features:**
 
-- Instant loading with [Service Workers](https://developers.google.com/web/fundamentals/primers/service-workers)
+- Instant loading with Service Workers
 - Offline support
 - Low RAM/memory and CPU usage
 - Add to Home Screen
@@ -180,7 +180,7 @@ _Collections are synced with cloud / local session storage_
 **Features:**
 
 - Hide your IP address
-- Fixes [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
+- Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
 - Access APIs served in non-HTTPS (`http://`)
 - Use custom Proxy URL
 
@@ -226,9 +226,9 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/li
 
 - **[Proxy](https://github.com/postwoman-io/proxywoman)** - A simple proxy server created for Postwoman
 - **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
-- **Browser Extensions** - Browser extensions that simplifies access to Postwoman
+- **[Browser Extensions](https://github.com/AndrewBastin/postwoman-extension)** - Browser extensions that simplifies access to Postwoman
 
-  [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld) ([GitHub](https://github.com/AndrewBastin/postwoman-extension))
+  [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
 
   > **Extensions fixes `CORS` issues.**
 
@@ -304,13 +304,13 @@ _Sample keys only works with the [production build](https://postwoman.io)._
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
 3. Start the development server with `npm run dev`.
-4. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
+4. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
 #### Docker compose
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Run `docker-compose up`
-3. Open development site by going to [http://localhost:3000](http://localhost:3000) in your browser.
+3. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
 ## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/postwoman?logo=Docker)](https://hub.docker.com/r/liyasthomas/postwoman)
 
@@ -322,7 +322,7 @@ docker pull liyasthomas/postwoman
 docker run -p 3000:3000 liyasthomas/postwoman:latest
 
 #build
-docker build -t postwoman:latest
+docker build -t postwoman:latest .
 ```
 
 ## Releasing 🧞
@@ -334,7 +334,7 @@ docker build -t postwoman:latest
 
 ## Contributing 🍰
 
-Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our [CODE OF CONDUCT](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
+Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
 ## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman)
 
@@ -346,7 +346,7 @@ This project is developed by [Liyas Thomas](https://github.com/liyasthomas) usin
 
 ## Change log 📝
 
-See the [CHANGELOG](CHANGELOG.md) file for details.
+See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 ## Authors 🧙
 
@@ -360,7 +360,7 @@ See the [CHANGELOG](CHANGELOG.md) file for details.
 
 ### Testing and Debugging
 
-- ([contributors](https://github.com/liyasthomas/postwoman/graphs/contributors))
+- [Contributors](https://github.com/liyasthomas/postwoman/graphs/contributors)
 
 ### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
@@ -405,11 +405,11 @@ See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/c
 
 ### Financial Contributors
 
-Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/postwoman/contribute)]
+Become a financial contributor and help us sustain our community [[Contribute](https://opencollective.com/postwoman/contribute)].
 
 #### Organizations
 
-Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/postwoman/contribute)]
+Support this project with your organization. Your logo will show up here with a link to your website [[Contribute](https://opencollective.com/postwoman/contribute)].
 
 <a href="https://opencollective.com/postwoman/organization/0/website"><img src="https://opencollective.com/postwoman/organization/0/avatar.svg"></a>
 <a href="https://opencollective.com/postwoman/organization/1/website"><img src="https://opencollective.com/postwoman/organization/1/avatar.svg"></a>
@@ -428,13 +428,13 @@ Support this project with your organization. Your logo will show up here with a 
 
 ### Code Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute [[Contribute](CONTRIBUTING.md)].
 
 <a href="https://github.com/liyasthomas/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
 
 ## License 📄
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [`LICENSE`](LICENSE) file for details.
 
 ## Acknowledgements 🙏
 

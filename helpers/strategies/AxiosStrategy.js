@@ -1,5 +1,5 @@
 import axios from "axios"
-// import { isJSONContentType } from "../utils/contenttypes"
+import { decodeB64StringToArrayBuffer } from "../utils/b64"
 
 let cancelSource = axios.CancelToken.source()
 
@@ -14,11 +14,19 @@ const axiosWithProxy = async (req, { state }) => {
   try {
     const { data } = await axios.post(
       state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
-      req,
+      {
+        ...req,
+        wantsBinary: true,
+      },
       {
         cancelToken: cancelSource.token,
       }
     )
+
+    if (data.isBinary) {
+      data.data = decodeB64StringToArrayBuffer(data.data)
+    }
+
     return data
   } catch (e) {
     // Check if the throw is due to a cancellation

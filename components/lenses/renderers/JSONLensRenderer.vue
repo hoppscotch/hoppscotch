@@ -83,7 +83,7 @@ export default {
         return JSON.stringify(JSON.parse(this.responseBodyText), null, 2)
       } catch (e) {
         // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
-        return new this.responseBodyText()
+        return this.responseBodyText
       }
     },
     responseType() {

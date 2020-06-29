@@ -37,6 +37,9 @@
           </button>
         </div>
       </div>
+      <div class="valid-warning" v-if="jsonInvalid">
+        Invalid JSON detected
+      </div>
       <div id="response-details-wrapper">
         <Editor
           :value="jsonBodyText"
@@ -55,6 +58,13 @@
     </li>
   </ul>
 </template>
+
+<style scoped lang="scss">
+.valid-warning {
+  color: yellow;
+}
+</style>
+
 <script>
 import AceEditor from "../../ui/ace-editor"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
@@ -71,6 +81,7 @@ export default {
   data() {
     return {
       expandResponse: false,
+      jsonInvalid: false,
       responseBodyMaxLines: 16,
       doneButton: '<i class="material-icons">done</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
@@ -80,9 +91,11 @@ export default {
   computed: {
     jsonBodyText() {
       try {
+        this.jsonInvalid = false
         return JSON.stringify(JSON.parse(this.responseBodyText), null, 2)
       } catch (e) {
         // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
+        this.jsonInvalid = true
         return this.responseBodyText
       }
     },

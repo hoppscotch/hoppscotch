@@ -10,7 +10,7 @@
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+        <button class="tooltip-target icon" v-tooltip.left="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">

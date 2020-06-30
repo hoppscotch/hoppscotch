@@ -6,7 +6,7 @@ import xmlLens from "./xmlLens"
 
 const lenses = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
 
-function getSuitableLenses(response) {
+export function getSuitableLenses(response) {
   const result = []
 
   if (response && response.headers && response.headers["content-type"]) {
@@ -28,4 +28,10 @@ function getSuitableLenses(response) {
   return result
 }
 
-export default getSuitableLenses
+export function getLensRenderers() {
+  const response = {}
+  for (const lens of lenses) {
+    response[lens.renderer] = lens.rendererImport
+  }
+  return response
+}

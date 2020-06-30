@@ -22,19 +22,14 @@
 </template>
 
 <script>
-import getSuitableLenses from "~/helpers/lenses/lenses"
+import { getSuitableLenses, getLensRenderers } from "~/helpers/lenses/lenses"
 
 export default {
   components: {
     tabs: () => import("../ui/tabs"),
     tab: () => import("../ui/tab"),
     // Lens Renderers
-    raw: () => import("./renderers/RawLensRenderer"),
-    json: () => import("./renderers/JSONLensRenderer"),
-    imageres: () => import("./renderers/ImageLensRenderer"),
-    htmlres: () => import("./renderers/HTMLLensRenderer"),
-    xmlres: () => import("./renderers/XMLLensRenderer"),
-    headers: () => import("./headers"),
+    ...getLensRenderers(),
   },
   props: {
     response: {},

@@ -10,6 +10,7 @@ const imageLens = {
     "image/vnd.microsoft.icon",
   ],
   renderer: "imageres",
+  rendererImport: () => import("~/components/lenses/renderers/ImageLensRenderer"),
 }
 
 export default imageLens

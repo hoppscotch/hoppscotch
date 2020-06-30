@@ -1,7 +1,11 @@
 <template>
   <div class="flex-wrap">
     <div>
-      <button class="icon" @click="$emit('select-environment')" v-tooltip="$t('use_environment')">
+      <button
+        class="icon"
+        @click="$emit('select-environment')"
+        v-tooltip.bottom="$t('use_environment')"
+      >
         <i class="material-icons">insert_drive_file</i>
         <span>{{ environment.name }}</span>
       </button>

@@ -25,7 +25,7 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      Create new environment
+      <i class="material-icons">help_outline</i> Create new environment
     </p>
     <div class="virtual-list">
       <ul>
@@ -36,9 +36,6 @@
             @edit-environment="editEnvironment(environment, index)"
             @select-environment="$emit('use-environment', environment)"
           />
-        </li>
-        <li v-if="environments.length === 0">
-          <label>Environments are empty</label>
         </li>
       </ul>
     </div>

@@ -286,6 +286,11 @@ hr {
 .info:not(.toasted) {
   margin-left: 4px;
   color: var(--fg-light-color);
+
+  .material-icons {
+    vertical-align: middle;
+    margin-right: 8px;
+  }
 }
 
 .bg-color {

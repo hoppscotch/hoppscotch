@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="valid-warning" v-if="jsonInvalid">
-        Invalid JSON detected
+        <p class="info"><i class="material-icons">error_outline</i> Invalid JSON</p>
       </div>
       <div id="response-details-wrapper">
         <Editor
@@ -58,12 +58,6 @@
     </li>
   </ul>
 </template>
-
-<style scoped lang="scss">
-.valid-warning {
-  color: yellow;
-}
-</style>
 
 <script>
 import AceEditor from "../../ui/ace-editor"

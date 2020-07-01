@@ -28,6 +28,7 @@ export default {
   components: {
     tabs: () => import("../ui/tabs"),
     tab: () => import("../ui/tab"),
+    headers: () => import("./headers"),
     // Lens Renderers
     ...getLensRenderers(),
   },

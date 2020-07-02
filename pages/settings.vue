@@ -34,7 +34,7 @@
                 {{ setting.value ? $t("enabled") : $t("disabled") }}
               </pw-toggle>
             </p>
-            <p v-if="fb.currentSettings.length !== 3">
+            <p v-if="fb.currentSettings.length !== 4">
               <button class="" @click="initSettings">
                 <i class="material-icons">sync</i>
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
@@ -51,7 +51,7 @@
       </ul>
     </pw-section>
 
-    <teams @use-environment="useSelectedEnvironment($event)" />
+    <teams />
 
     <pw-section class="cyan" :label="$t('theme')" ref="theme">
       <ul>
@@ -215,12 +215,12 @@ import { fb } from "~/helpers/fb"
 
 export default {
   components: {
-    "pw-section": () => import("../components/layout/section"),
-    "pw-toggle": () => import("../components/ui/toggle"),
-    swatch: () => import("../components/settings/swatch"),
-    login: () => import("../components/firebase/login"),
-    logout: () => import("../components/firebase/logout"),
-    teams: () => import("../components/teams"),
+    "pw-section": () => import("~/components/layout/section"),
+    "pw-toggle": () => import("~/components/ui/toggle"),
+    swatch: () => import("~/components/settings/swatch"),
+    login: () => import("~/components/firebase/login"),
+    logout: () => import("~/components/firebase/logout"),
+    teams: () => import("~/components/teams"),
   },
   data() {
     return {
@@ -374,17 +374,24 @@ export default {
     },
     toggleSettings(name, value) {
       fb.writeSettings(name, !value)
+      if (name === "syncHistory" && value) {
+        this.syncHistory()
+      }
       if (name === "syncCollections" && value) {
         this.syncCollections()
       }
       if (name === "syncEnvironments" && value) {
         this.syncEnvironments()
       }
+      if (name === "syncTeams" && value) {
+        this.syncTeams()
+      }
     },
     initSettings() {
       fb.writeSettings("syncHistory", true)
       fb.writeSettings("syncCollections", true)
       fb.writeSettings("syncEnvironments", true)
+      fb.writeSettings("syncTeams", true)
     },
     resetProxy({ target }) {
       this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`
@@ -393,6 +400,13 @@ export default {
         icon: "clear_all",
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+    },
+    syncHistory() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[2].value) {
+          fb.writeHistory(JSON.parse(JSON.stringify(this.$store.state.postwoman.history)))
+        }
+      }
     },
     syncCollections() {
       if (fb.currentUser !== null) {
@@ -405,6 +419,13 @@ export default {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[1].value) {
           fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
+    },
+    syncTeams() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[3].value) {
+          fb.writeTeams(JSON.parse(JSON.stringify(this.$store.state.postwoman.teams)))
         }
       }
     },

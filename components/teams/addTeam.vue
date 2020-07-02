@@ -43,14 +43,14 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   props: {
     show: Boolean,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {
@@ -60,7 +60,7 @@ export default {
   methods: {
     syncTeams() {
       if (fb.currentUser !== null) {
-        if (fb.currentSettings[1].value) {
+        if (fb.currentSettings[3].value) {
           fb.writeTeams(JSON.parse(JSON.stringify(this.$store.state.postwoman.teams)))
         }
       }

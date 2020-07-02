@@ -24,26 +24,16 @@
     <p v-if="teams.length === 0" class="info">
       Create new team
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: teams.length }"
-      :size="152"
-      :remain="Math.min(5, teams.length)"
-    >
+    <div class="virtual-list">
       <ul>
         <li v-for="(team, index) in teams" :key="team.name">
-          <team
-            :teamIndex="index"
-            :team="team"
-            @edit-team="editTeam(team, index)"
-            @select-team="$emit('use-team', team)"
-          />
+          <team :teamIndex="index" :team="team" @edit-team="editTeam(team, index)" />
         </li>
         <li v-if="teams.length === 0">
           <label>Teams are empty</label>
         </li>
       </ul>
-    </virtual-list>
+    </div>
   </pw-section>
 </template>
 
@@ -60,10 +50,7 @@ ul {
 
 <script>
 import team from "./team"
-import { fb } from "../../functions/fb"
-
-const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property))
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {
@@ -72,7 +59,6 @@ export default {
     addTeam: () => import("./addTeam"),
     editTeam: () => import("./editTeam"),
     importExportTeam: () => import("./importExportTeam"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -85,7 +71,7 @@ export default {
   },
   computed: {
     teams() {
-      return this.$store.state.postwoman.teams
+      return fb.currentUser !== null ? fb.currentTeams : this.$store.state.postwoman.teams
     },
   },
   async mounted() {
@@ -121,7 +107,7 @@ export default {
     },
     syncTeams() {
       if (fb.currentUser !== null) {
-        if (fb.currentSettings[1].value) {
+        if (fb.currentSettings[3].value) {
           fb.writeTeams(JSON.parse(JSON.stringify(this.$store.state.postwoman.teams)))
         }
       }

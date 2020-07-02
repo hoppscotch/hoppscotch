@@ -45,7 +45,7 @@
           ></textarea>
         </li>
       </ul>
-      <ul v-for="(member, index) in this.editingEnvCopy.members" :key="index">
+      <ul v-for="(member, index) in this.editingTeamCopy.members" :key="index">
         <li>
           <input
             :placeholder="$t('parameter_count', { count: index + 1 })"
@@ -113,6 +113,7 @@
 
 <script>
 import textareaAutoHeight from "../../directives/textareaAutoHeight"
+import { fb } from "~/helpers/fb"
 
 export default {
   directives: {
@@ -141,15 +142,22 @@ export default {
     },
   },
   computed: {
-    editingEnvCopy() {
+    editingTeamCopy() {
       return this.$store.state.postwoman.editingTeam
     },
     memberString() {
-      const result = this.editingEnvCopy.members
+      const result = this.editingTeamCopy.members
       return result === "" ? "" : JSON.stringify(result)
     },
   },
   methods: {
+    syncTeams() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[3].value) {
+          fb.writeTeams(JSON.parse(JSON.stringify(this.$store.state.postwoman.teams)))
+        }
+      }
+    },
     clearContent(e) {
       this.$store.commit("postwoman/removeMembers", [])
       e.target.innerHTML = this.doneButton
@@ -161,11 +169,12 @@ export default {
     addTeamMember() {
       let value = { key: "", value: "" }
       this.$store.commit("postwoman/addMember", value)
+      this.syncTeams()
     },
     removeTeamMember(index) {
       let memberIndex = index
-      const oldMembers = this.editingEnvCopy.members.slice()
-      const newMembers = this.editingEnvCopy.members.filter(
+      const oldMembers = this.editingTeamCopy.members.slice()
+      const newMembers = this.editingTeamCopy.members.filter(
         (member, index) => memberIndex !== index
       )
 
@@ -180,6 +189,7 @@ export default {
           },
         },
       })
+      this.syncTeams()
     },
     saveTeam() {
       if (!this.$data.name) {
@@ -187,7 +197,7 @@ export default {
         return
       }
       const teamUpdated = {
-        ...this.editingEnvCopy,
+        ...this.editingTeamCopy,
         name: this.$data.name,
       }
       this.$store.commit("postwoman/saveTeam", {
@@ -195,10 +205,11 @@ export default {
         teamIndex: this.$props.editingTeamIndex,
       })
       this.$emit("hide-modal")
+      this.syncTeams()
     },
     hideModal() {
-      this.$data.name = undefined
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

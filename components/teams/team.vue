@@ -1,13 +1,13 @@
 <template>
   <div class="flex-wrap">
     <div>
-      <button class="icon" @click="$emit('select-team')" v-tooltip="$t('use_team')">
+      <button class="icon" v-tooltip.right="$t('use_team')">
         <i class="material-icons">insert_drive_file</i>
         <span>{{ team.name }}</span>
       </button>
     </div>
     <v-popover>
-      <button class="tooltip-target icon" v-tooltip="$t('more')">
+      <button class="tooltip-target icon" v-tooltip.left="$t('more')">
         <i class="material-icons">more_vert</i>
       </button>
       <template slot="popover">
@@ -42,15 +42,25 @@ ul li {
 </style>
 
 <script>
+import { fb } from "~/helpers/fb"
+
 export default {
   props: {
     team: Object,
     teamIndex: Number,
   },
   methods: {
+    syncTeams() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[3].value) {
+          fb.writeTeams(JSON.parse(JSON.stringify(this.$store.state.postwoman.teams)))
+        }
+      }
+    },
     removeTeam() {
       if (!confirm("Are you sure you want to remove this team?")) return
       this.$store.commit("postwoman/removeTeam", this.teamIndex)
+      this.syncTeams()
     },
   },
 }

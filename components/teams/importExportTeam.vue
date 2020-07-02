@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -114,6 +114,7 @@ export default {
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
+      this.syncToFBTeams()
     },
     importFromJSON() {
       let reader = new FileReader()
@@ -127,6 +128,7 @@ export default {
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
+      this.syncToFBTeams()
     },
     importFromPostwoman(teams) {
       let confirmation = this.$t("file_imported")
@@ -164,6 +166,13 @@ export default {
     syncTeams() {
       this.$store.commit("postwoman/replaceTeams", fb.currentTeams)
       this.fileImported()
+    },
+    syncToFBTeams() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[3].value) {
+          fb.writeTeams(JSON.parse(JSON.stringify(this.$store.state.postwoman.teams)))
+        }
+      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

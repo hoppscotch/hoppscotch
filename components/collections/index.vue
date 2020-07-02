@@ -56,7 +56,7 @@ TODO:
           rel="noopener"
         >
           <button class="icon" v-tooltip="'Wiki'">
-            <i class="material-icons">help</i>
+            <i class="material-icons">help_outline</i>
           </button>
         </a> -->
       </div>
@@ -64,12 +64,7 @@ TODO:
     <p v-if="collections.length === 0" class="info">
       Create new collection
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: collections.length }"
-      :size="152"
-      :remain="Math.min(5, collections.length)"
-    >
+    <div class="virtual-list">
       <ul>
         <li v-for="(collection, index) in collections" :key="collection.name">
           <collection
@@ -85,10 +80,10 @@ TODO:
           <label>Collections are empty</label>
         </li>
       </ul>
-    </virtual-list>
+    </div>
     <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
       <button class="icon">
-        <i class="material-icons">books</i>
+        <i class="material-icons">topic</i>
         <span>{{ $t("generate_docs") }}</span>
       </button>
     </nuxt-link>
@@ -97,7 +92,7 @@ TODO:
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 286px);
+  max-height: calc(100vh - 290px);
 }
 
 ul {
@@ -108,7 +103,7 @@ ul {
 
 <script>
 import collection from "./collection"
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {
@@ -120,7 +115,6 @@ export default {
     editFolder: () => import("./editFolder"),
     editRequest: () => import("./editRequest"),
     importExportCollections: () => import("./importExportCollections"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -140,11 +134,13 @@ export default {
   },
   computed: {
     collections() {
-      return this.$store.state.postwoman.collections
+      return fb.currentUser !== null
+        ? fb.currentCollections
+        : this.$store.state.postwoman.collections
     },
   },
   async mounted() {
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
         this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false

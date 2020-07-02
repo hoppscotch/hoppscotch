@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -88,7 +88,7 @@ export default {
     show: Boolean,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   computed: {
     environmentJson() {
@@ -107,26 +107,31 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let environments = JSON.parse(content)
         this.$store.commit("postwoman/replaceEnvironments", environments)
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
+      this.syncToFBEnvironments()
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let importFileObj = JSON.parse(content)
-        if (importFileObj["_postman_variable_scope"] === "environment") {
+        if (
+          importFileObj["_postman_variable_scope"] === "environment" ||
+          importFileObj["_postman_variable_scope"] === "globals"
+        ) {
           this.importFromPostman(importFileObj)
         } else {
           this.importFromPostwoman(importFileObj)
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
+      this.syncToFBEnvironments()
     },
     importFromPostwoman(environments) {
       let confirmation = this.$t("file_imported")
@@ -137,8 +142,10 @@ export default {
     },
     importFromPostman(importFileObj) {
       let environment = { name: importFileObj.name, variables: [] }
-      importFileObj.values.forEach(element => environment.variables.push({ key: element.key, value: element.value }));
-      let environments = [ environment ]
+      importFileObj.values.forEach((element) =>
+        environment.variables.push({ key: element.key, value: element.value })
+      )
+      let environments = [environment]
       this.importFromPostwoman(environments)
     },
     exportJSON() {
@@ -162,6 +169,13 @@ export default {
     syncEnvironments() {
       this.$store.commit("postwoman/replaceEnvironments", fb.currentEnvironments)
       this.fileImported()
+    },
+    syncToFBEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

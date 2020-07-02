@@ -36,7 +36,7 @@ export default {
     host: "0.0.0.0", // default: localhost
   },
   head: {
-    title: `${options.name} \u2022 ${options.shortDescription}`,
+    title: `${options.name} • ${options.shortDescription}`,
     meta: [
       {
         name: "keywords",
@@ -49,7 +49,7 @@ export default {
       },
       {
         itemprop: "name",
-        content: `${options.name} \u2022 ${options.shortDescription}`,
+        content: `${options.name} • ${options.shortDescription}`,
       },
       {
         itemprop: "description",

@@ -194,14 +194,14 @@ export default {
 
       return (
         this.source
-          .filter(entry => {
+          .filter((entry) => {
             return (
               entry.toLowerCase().startsWith(input.toLowerCase()) &&
               input.toLowerCase() !== entry.toLowerCase()
             )
           })
           // Cut off the part that's already been typed.
-          .map(entry => entry.substring(this.selectionStart))
+          .map((entry) => entry.substring(this.selectionStart))
           // We only want the top 6 suggestions.
           .slice(0, 6)
       )

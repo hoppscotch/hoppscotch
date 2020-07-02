@@ -18,7 +18,7 @@ describe("Proxy enabled - external request", () => {
       .click()
       .get("#response-details-wrapper", { timeout: 24000 })
       .should("be.visible")
-      .should($wrapper => {
+      .should(($wrapper) => {
         expect($wrapper).to.contain("Hello World")
       })
   })

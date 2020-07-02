@@ -3,13 +3,13 @@ describe("Authentication", () => {
     cy.visit(`?&auth=Basic Auth&httpUser=foo&httpPassword=bar`, { retryOnStatusCodeFailure: true })
       .get('input[name="http_basic_user"]', { timeout: 500 })
       .invoke("val")
-      .then(user => {
+      .then((user) => {
         expect(user === "foo").to.equal(true)
       })
 
       .get('input[name="http_basic_passwd"]')
       .invoke("val")
-      .then(pass => {
+      .then((pass) => {
         expect(pass === "bar").to.equal(true)
       })
   })

@@ -44,7 +44,7 @@
       <ul>
         <li>
           <button class="icon" @click="getDoc">
-            <i class="material-icons">book</i>
+            <i class="material-icons">topic</i>
             <span>{{ $t("generate_docs") }}</span>
           </button>
         </li>
@@ -303,21 +303,19 @@
 </style>
 
 <script>
-import AceEditor from "../components/ui/ace-editor"
+import AceEditor from "~/components/ui/ace-editor"
 
 export default {
   components: {
-    "pw-section": () => import("../components/layout/section"),
+    "pw-section": () => import("~/components/layout/section"),
     Editor: AceEditor,
   },
-
   data() {
     return {
       collectionJSON: "[]",
       items: [],
     }
   },
-
   methods: {
     uploadCollection() {
       this.rawInput = true
@@ -351,6 +349,11 @@ export default {
         })
       }
     },
+  },
+  head() {
+    return {
+      title: `Documentation • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

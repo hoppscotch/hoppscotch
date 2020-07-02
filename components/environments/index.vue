@@ -27,12 +27,7 @@
     <p v-if="environments.length === 0" class="info">
       Create new environment
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: environments.length }"
-      :size="152"
-      :remain="Math.min(5, environments.length)"
-    >
+    <div class="virtual-list">
       <ul>
         <li v-for="(environment, index) in environments" :key="environment.name">
           <environment
@@ -46,13 +41,13 @@
           <label>Environments are empty</label>
         </li>
       </ul>
-    </virtual-list>
+    </div>
   </pw-section>
 </template>
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 241px);
+  max-height: calc(100vh - 245px);
 }
 
 ul {
@@ -63,10 +58,7 @@ ul {
 
 <script>
 import environment from "./environment"
-import { fb } from "../../functions/fb"
-
-const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property))
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {
@@ -75,7 +67,6 @@ export default {
     addEnvironment: () => import("./addEnvironment"),
     editEnvironment: () => import("./editEnvironment"),
     importExportEnvironment: () => import("./importExportEnvironment"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
   },
   data() {
     return {
@@ -88,14 +79,16 @@ export default {
   },
   computed: {
     environments() {
-      return this.$store.state.postwoman.environments
+      return fb.currentUser !== null
+        ? fb.currentEnvironments
+        : this.$store.state.postwoman.environments
     },
   },
   async mounted() {
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModalImportExport = false
+        this.showModalImportExport = this.showModalAdd = this.showModalEdit = false
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))

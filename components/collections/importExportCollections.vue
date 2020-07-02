@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -88,7 +88,7 @@ export default {
     show: Boolean,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   computed: {
     collectionJson() {
@@ -107,7 +107,7 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
@@ -122,12 +122,13 @@ export default {
         }
         this.$store.commit("postwoman/importCollections", collections)
         this.fileImported()
+        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = event => {
+      reader.onload = (event) => {
         let content = event.target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
@@ -142,6 +143,7 @@ export default {
         }
         this.$store.commit("postwoman/importCollections", collections)
         this.fileImported()
+        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
     },
@@ -166,6 +168,13 @@ export default {
     syncCollections() {
       this.$store.commit("postwoman/replaceCollections", fb.currentCollections)
       this.fileImported()
+    },
+    syncToFBCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {
@@ -207,7 +216,7 @@ export default {
       }
       return postwomanCollection
     },
-    parsePostmanRequest(requestObject) {
+    parsePostmanRequest({ name, request }) {
       let pwRequest = {
         url: "",
         path: "",
@@ -227,16 +236,14 @@ export default {
         name: "",
       }
 
-      pwRequest.name = requestObject.name
-      let requestObjectUrl = requestObject.request.url.raw.match(
-        /^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/
-      )
+      pwRequest.name = name
+      let requestObjectUrl = request.url.raw.match(/^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/)
       if (requestObjectUrl) {
         pwRequest.url = requestObjectUrl[1]
         pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
       }
-      pwRequest.method = requestObject.request.method
-      let itemAuth = requestObject.request.auth ? requestObject.request.auth : ""
+      pwRequest.method = request.method
+      let itemAuth = request.auth ? request.auth : ""
       let authType = itemAuth ? itemAuth.type : ""
       if (authType === "basic") {
         pwRequest.auth = "Basic Auth"
@@ -254,7 +261,7 @@ export default {
         pwRequest.auth = "Bearer Token"
         pwRequest.bearerToken = itemAuth.bearer[0].value
       }
-      let requestObjectHeaders = requestObject.request.header
+      let requestObjectHeaders = request.header
       if (requestObjectHeaders) {
         pwRequest.headers = requestObjectHeaders
         for (let header of pwRequest.headers) {
@@ -262,23 +269,23 @@ export default {
           delete header.type
         }
       }
-      let requestObjectParams = requestObject.request.url.query
+      let requestObjectParams = request.url.query
       if (requestObjectParams) {
         pwRequest.params = requestObjectParams
         for (let param of pwRequest.params) {
           delete param.disabled
         }
       }
-      if (requestObject.request.body) {
-        if (requestObject.request.body.mode === "urlencoded") {
-          let params = requestObject.request.body.urlencoded
+      if (request.body) {
+        if (request.body.mode === "urlencoded") {
+          let params = request.body.urlencoded
           pwRequest.bodyParams = params ? params : []
           for (let param of pwRequest.bodyParams) {
             delete param.type
           }
-        } else if (requestObject.request.body.mode === "raw") {
+        } else if (request.body.mode === "raw") {
           pwRequest.rawInput = true
-          pwRequest.rawParams = requestObject.request.body.raw
+          pwRequest.rawParams = request.body.raw
         }
       }
       return pwRequest

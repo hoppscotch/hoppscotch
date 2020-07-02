@@ -9,7 +9,7 @@
 
 <script>
 import firebase from "firebase/app"
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -24,7 +24,7 @@ export default {
       firebase
         .auth()
         .signOut()
-        .catch(err => {
+        .catch((err) => {
           self.$toast.show(err.message || err, {
             icon: "error",
           })

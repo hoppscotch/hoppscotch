@@ -149,7 +149,7 @@
               rel="noopener"
             >
               <button class="icon" v-tooltip="$t('wiki')">
-                <i class="material-icons">help</i>
+                <i class="material-icons">help_outline</i>
               </button>
             </a>
           </div>
@@ -211,7 +211,7 @@
 
 <script>
 import firebase from "firebase/app"
-import { fb } from "../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   components: {
@@ -222,7 +222,6 @@ export default {
     logout: () => import("../components/firebase/logout"),
     teams: () => import("../components/teams"),
   },
-
   data() {
     return {
       // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
@@ -330,7 +329,6 @@ export default {
       fb,
     }
   },
-
   watch: {
     proxySettings: {
       deep: true,
@@ -340,7 +338,6 @@ export default {
       },
     },
   },
-
   methods: {
     applyTheme({ class: name, color, aceEditor }) {
       this.applySetting("THEME_CLASS", name)
@@ -412,12 +409,10 @@ export default {
       }
     },
   },
-
   beforeMount() {
     this.settings.THEME_CLASS = document.documentElement.className
     this.settings.THEME_COLOR = this.getActiveColor()
   },
-
   computed: {
     proxySettings() {
       return {
@@ -425,6 +420,11 @@ export default {
         key: this.settings.PROXY_KEY,
       }
     },
+  },
+  head() {
+    return {
+      title: `Settings • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

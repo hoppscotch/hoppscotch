@@ -43,6 +43,8 @@
 </template>
 
 <script>
+import { fb } from "~/helpers/fb"
+
 export default {
   props: {
     show: Boolean,
@@ -50,7 +52,7 @@ export default {
     collectionIndex: Number,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {
@@ -64,6 +66,14 @@ export default {
         collectionIndex: this.$props.collectionIndex,
       })
       this.hideModal()
+      this.syncCollections()
+    },
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -28,6 +28,7 @@ div.realtime-log {
     font-size: 16px;
     font-family: "Roboto Mono", monospace;
     font-weight: 400;
+    user-select: text;
   }
 
   span {
@@ -40,15 +41,15 @@ div.realtime-log {
 </style>
 
 <script>
-import { getSourcePrefix } from "~/functions/utils/string"
+import { getSourcePrefix } from "~/helpers/utils/string"
 
 export default {
   props: ["log", "title"],
   methods: {
     getSourcePrefix,
   },
-  updated: function() {
-    this.$nextTick(function() {
+  updated: function () {
+    this.$nextTick(function () {
       if (this.$refs.log) {
         this.$refs.log.scrollBy(0, this.$refs.log.scrollHeight + 100)
       }

@@ -6,14 +6,9 @@
  * @param { String } method The fake request method
  */
 Cypress.Commands.add("seedAndVisit", (seedData, path = "/", method = "GET") => {
-  cy.server()
-    .route(method, "https://api.thecatapi.com/", `fixture:${seedData}`)
-    .as("load")
+  cy.server().route(method, "https://api.thecatapi.com/", `fixture:${seedData}`).as("load")
 
-  cy.visit(path)
-    .get("#send")
-    .click()
-    .wait("@load")
+  cy.visit(path).get("#send").click().wait("@load")
 })
 
 /**
@@ -21,7 +16,7 @@ Cypress.Commands.add("seedAndVisit", (seedData, path = "/", method = "GET") => {
  * This function will enable the proxy and navigate back to a given path
  * @param { String } goBackPath The page go back
  */
-Cypress.Commands.add("enableProxy", goBackPath => {
+Cypress.Commands.add("enableProxy", (goBackPath) => {
   cy.visit("/settings")
     .get("#proxy")
     .find(".toggle")

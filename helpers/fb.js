@@ -106,7 +106,7 @@ export const fb = {
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      collection: collection,
+      collection,
     }
     usersCollection
       .doc(fb.currentUser.uid)
@@ -121,7 +121,7 @@ export const fb = {
       author: fb.currentUser.uid,
       author_name: fb.currentUser.displayName,
       author_image: fb.currentUser.photoURL,
-      environment: environment,
+      environment,
     }
     usersCollection
       .doc(fb.currentUser.uid)
@@ -216,7 +216,9 @@ firebase.auth().onAuthStateChanged((user) => {
           collection.id = doc.id
           collections.push(collection)
         })
-        fb.currentCollections = collections[0].collection
+        if (collections.length > 0) {
+          fb.currentCollections = collections[0].collection
+        }
       })
 
     usersCollection
@@ -229,7 +231,9 @@ firebase.auth().onAuthStateChanged((user) => {
           environment.id = doc.id
           environments.push(environment)
         })
-        fb.currentEnvironments = environments[0].environment
+        if (environments.length > 0) {
+          fb.currentEnvironments = environments[0].environment
+        }
       })
 
     usersCollection

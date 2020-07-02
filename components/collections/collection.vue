@@ -10,7 +10,7 @@
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+        <button class="tooltip-target icon" v-tooltip.left="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
@@ -87,6 +87,8 @@ ul li {
 </style>
 
 <script>
+import { fb } from "~/helpers/fb"
+
 export default {
   components: {
     folder: () => import("./folder"),
@@ -103,6 +105,13 @@ export default {
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
@@ -111,6 +120,7 @@ export default {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })
+      this.syncCollections()
     },
     editFolder(collectionIndex, folder, folderIndex) {
       this.$emit("edit-folder", { collectionIndex, folder, folderIndex })

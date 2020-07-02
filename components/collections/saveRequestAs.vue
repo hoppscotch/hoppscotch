@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
   props: {
@@ -86,7 +86,7 @@ export default {
     editingRequest: Object,
   },
   components: {
-    modal: () => import("../../components/ui/modal"),
+    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {
@@ -108,6 +108,9 @@ export default {
     },
     "requestData.folderIndex": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined
+    },
+    editingRequest(request) {
+      this.defaultRequestName = request.label || "My Request"
     },
   },
   computed: {

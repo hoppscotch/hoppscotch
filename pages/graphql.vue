@@ -47,7 +47,7 @@
               ></textarea>
             </li>
           </ul>
-          <ul v-for="(header, index) in headers" :key="index">
+          <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
             <li>
               <autocomplete
                 :placeholder="$t('header_count', { count: index + 1 })"
@@ -118,11 +118,11 @@
               </button>
               <button
                 class="icon"
-                @click="downloadResponse"
-                ref="downloadResponse"
+                @click="downloadSchema"
+                ref="downloadSchema"
                 v-tooltip="$t('download_file')"
               >
-                <i class="material-icons">get_app</i>
+                <i class="material-icons">save_alt</i>
               </button>
               <button
                 class="icon"
@@ -130,7 +130,7 @@
                 @click="copySchema"
                 v-tooltip="$t('copy_schema')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
             </div>
           </div>
@@ -176,7 +176,7 @@
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
               <button
                 class="icon"
@@ -223,11 +223,21 @@
             <div>
               <button
                 class="icon"
+                @click="downloadResponse"
+                ref="downloadResponse"
+                v-if="response"
+                v-tooltip="$t('download_file')"
+              >
+                <i class="material-icons">save_alt</i>
+              </button>
+              <button
+                class="icon"
                 @click="copyResponse"
                 ref="copyResponseButton"
+                v-if="response"
                 v-tooltip="$t('copy_response')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
             </div>
           </div>
@@ -318,7 +328,7 @@
 
 <style scoped lang="scss">
 .gqlTabs {
-  max-height: calc(100vh - 186px);
+  max-height: calc(100vh - 192px);
   overflow: auto;
 }
 .gqlRunQuery {
@@ -329,26 +339,26 @@
 <script>
 import axios from "axios"
 import * as gql from "graphql"
-import textareaAutoHeight from "../directives/textareaAutoHeight"
-import { commonHeaders } from "../functions/headers"
-import AceEditor from "../components/ui/ace-editor"
-import QueryEditor from "../components/graphql/queryeditor"
-import { getPlatformSpecialKey } from "~/functions/platformutils"
-import { sendNetworkRequest } from "../functions/network"
+import textareaAutoHeight from "~/directives/textareaAutoHeight"
+import { commonHeaders } from "~/helpers/headers"
+import AceEditor from "~/components/ui/ace-editor"
+import QueryEditor from "~/components/graphql/queryeditor"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { sendNetworkRequest } from "~/helpers/network"
 
 export default {
   directives: {
     textareaAutoHeight,
   },
   components: {
-    "pw-section": () => import("../components/layout/section"),
-    "gql-field": () => import("../components/graphql/field"),
-    "gql-type": () => import("../components/graphql/type"),
-    autocomplete: () => import("../components/ui/autocomplete"),
+    "pw-section": () => import("~/components/layout/section"),
+    "gql-field": () => import("~/components/graphql/field"),
+    "gql-type": () => import("~/components/graphql/type"),
+    autocomplete: () => import("~/components/ui/autocomplete"),
     Editor: AceEditor,
     QueryEditor: QueryEditor,
-    tabs: () => import("../components/ui/tabs"),
-    tab: () => import("../components/ui/tab"),
+    tabs: () => import("~/components/ui/tabs"),
+    tab: () => import("~/components/ui/tab"),
   },
   data() {
     return {
@@ -357,8 +367,8 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      copyButton: '<i class="material-icons">file_copy</i>',
-      downloadButton: '<i class="material-icons">get_app</i>',
+      copyButton: '<i class="material-icons">content_copy</i>',
+      downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,
@@ -371,7 +381,6 @@ export default {
       },
     }
   },
-
   computed: {
     url: {
       get() {
@@ -435,7 +444,6 @@ export default {
   mounted() {
     if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {
       const gqlSchema = gql.buildClientSchema(JSON.parse(this.$store.state.gql.schemaIntrospection))
-
       this.getDocsFromSchema(gqlSchema)
     }
   },
@@ -512,8 +520,8 @@ export default {
 
       try {
         let headers = {}
-        this.headers.forEach((header) => {
-          headers[header.key] = header.value
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
         })
 
         let variables = JSON.parse(this.variableString || "{}")
@@ -614,8 +622,8 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach((header) => {
-          headers[header.key] = header.value
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
         })
 
         const reqOptions = {
@@ -667,12 +675,12 @@ export default {
       this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
     },
     downloadResponse() {
-      const dataToWrite = JSON.stringify(this.schema, null, 2)
+      const dataToWrite = this.response
       const file = new Blob([dataToWrite], { type: "application/json" })
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
+      a.download = `Response ${this.url} on ${Date()}.json`.replace(/\./g, "[dot]")
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton
@@ -683,6 +691,25 @@ export default {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
         this.$refs.downloadResponse.innerHTML = this.downloadButton
+      }, 1000)
+    },
+    downloadSchema() {
+      const dataToWrite = JSON.stringify(this.schema, null, 2)
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
+      document.body.appendChild(a)
+      a.click()
+      this.$refs.downloadSchema.innerHTML = this.doneButton
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done",
+      })
+      setTimeout(() => {
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        this.$refs.downloadSchema.innerHTML = this.downloadButton
       }, 1000)
     },
     addRequestHeader(index) {
@@ -714,6 +741,11 @@ export default {
         behavior: "smooth",
       })
     },
+  },
+  head() {
+    return {
+      title: `GraphQL • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

@@ -40,7 +40,7 @@
     "graphql": "^15.2.0",
     "graphql-language-service-interface": "^2.4.0",
     "nuxt": "^2.12.2",
-    "nuxt-i18n": "^6.12.2",
+    "nuxt-i18n": "^6.13.0",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^2.3.0",
     "socketio-wildcard": "^2.0.0",
@@ -61,7 +61,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^9.0.0",
     "start-server-and-test": "^1.11.0"
   }
 }

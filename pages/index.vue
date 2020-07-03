@@ -264,15 +264,18 @@
             <div v-if="!rawInput">
               <ul>
                 <li>
-                  <label for="reqParamList">{{ $t("parameter_list") }}</label>
-                  <textarea
-                    id="reqParamList"
-                    readonly
-                    v-textarea-auto-height="rawRequestBody"
-                    v-model="rawRequestBody"
-                    :placeholder="$t('add_one_parameter')"
-                    rows="1"
-                  ></textarea>
+                  <div class="flex-wrap">
+                    <label for="reqParamList">{{ $t("parameter_list") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('bodyParams', $event)"
+                        v-tooltip.bottom="$t('clear')"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <ul v-for="(param, index) in bodyParams" :key="index">
@@ -331,7 +334,18 @@
             <div v-else>
               <ul>
                 <li>
-                  <label for="rawBody">{{ $t("raw_request_body") }}</label>
+                  <div class="flex-wrap">
+                    <label for="rawBody">{{ $t("raw_request_body") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('rawParams', $event)"
+                        v-tooltip.bottom="$t('clear')"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
                   <Editor
                     v-model="rawParams"
                     :lang="rawInputEditorLang"
@@ -414,7 +428,7 @@
               :selected="true"
             >
               <pw-section class="pink" label="Parameters" ref="parameters">
-                <ul>
+                <ul v-if="params.length !== 0">
                   <li>
                     <div class="flex-wrap">
                       <label for="paramList">{{ $t("parameter_list") }}</label>
@@ -428,14 +442,6 @@
                         </button>
                       </div>
                     </div>
-                    <textarea
-                      id="paramList"
-                      readonly
-                      v-textarea-auto-height="queryString"
-                      v-model="queryString"
-                      :placeholder="$t('add_one_parameter')"
-                      rows="1"
-                    ></textarea>
                   </li>
                 </ul>
                 <ul v-for="(param, index) in params" :key="index">
@@ -721,7 +727,7 @@
               "
             >
               <pw-section class="orange" label="Headers" ref="headers">
-                <ul>
+                <ul v-if="headers.length !== 0">
                   <li>
                     <div class="flex-wrap">
                       <label for="headerList">{{ $t("header_list") }}</label>
@@ -735,14 +741,6 @@
                         </button>
                       </div>
                     </div>
-                    <textarea
-                      id="headerList"
-                      readonly
-                      v-textarea-auto-height="headerString"
-                      v-model="headerString"
-                      :placeholder="$t('add_one_header')"
-                      rows="1"
-                    ></textarea>
                   </li>
                 </ul>
                 <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
@@ -1251,7 +1249,6 @@ import section from "~/components/layout/section"
 import url from "url"
 import querystring from "querystring"
 import { commonHeaders } from "~/helpers/headers"
-import textareaAutoHeight from "~/directives/textareaAutoHeight"
 import parseCurlCommand from "~/assets/js/curlparser.js"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
@@ -1316,9 +1313,6 @@ const parseHeaders = (xhr) => {
 export const findStatusGroup = (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
 export default {
-  directives: {
-    textareaAutoHeight,
-  },
   components: {
     "pw-section": section,
     "pw-toggle": () => import("~/components/ui/toggle"),
@@ -2439,6 +2433,12 @@ export default {
     },
     clearContent(name, { target }) {
       switch (name) {
+        case "bodyParams":
+          this.bodyParams = []
+          break
+        case "rawParams":
+          this.rawParams = "{}"
+          break
         case "parameters":
           this.params = []
           break
@@ -2475,7 +2475,7 @@ export default {
           this.uri = this.url + this.path
           this.label = ""
           this.bodyParams = []
-          this.rawParams = ""
+          this.rawParams = "{}"
           this.files = []
           this.params = []
           this.auth = "None"

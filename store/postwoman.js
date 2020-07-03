@@ -89,7 +89,7 @@ export const state = () => ({
   editingEnvironment: {},
   teams: [
     {
-      name: "My Team Variables",
+      name: "My Teams",
       members: [],
     },
   ],

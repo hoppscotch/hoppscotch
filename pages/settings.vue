@@ -51,7 +51,9 @@
       </ul>
     </pw-section>
 
-    <teams />
+    <div v-if="fb.currentUser">
+      <teams />
+    </div>
 
     <pw-section class="cyan" :label="$t('theme')" ref="theme">
       <ul>

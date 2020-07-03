@@ -294,5 +294,7 @@
   "team_member_list": "Member List",
   "invalid_team_name": "Please provide a valid name for the team",
   "use_team": "Use Team",
-  "add_one_member": "(add at least one member)"
+  "add_one_member": "(add at least one member)",
+  "permissions": "Permissions",
+  "email": "E-mail"
 }

@@ -35,20 +35,20 @@
               </button>
             </div>
           </div>
-          <textarea
+          <!-- <textarea
             id="memberList"
             readonly
             v-textarea-auto-height="memberString"
             v-model="memberString"
             :placeholder="$t('add_one_member')"
             rows="1"
-          ></textarea>
+          ></textarea> -->
         </li>
       </ul>
       <ul v-for="(member, index) in this.editingTeamCopy.members" :key="index">
         <li>
           <input
-            :placeholder="$t('parameter_count', { count: index + 1 })"
+            :placeholder="$t('email')"
             :name="'param' + index"
             :value="member.key"
             @change="
@@ -61,17 +61,54 @@
           />
         </li>
         <li>
-          <input
-            :placeholder="$t('value_count', { count: index + 1 })"
-            :name="'value' + index"
-            :value="typeof member.value === 'string' ? member.value : JSON.stringify(member.value)"
-            @change="
-              $store.commit('postwoman/setMemberValue', {
-                index,
-                value: $event.target.value,
-              })
-            "
-          />
+          <span class="select-wrapper">
+            <v-popover>
+              <input
+                :placeholder="$t('permissions')"
+                :name="'value' + index"
+                :value="
+                  typeof member.value === 'string' ? member.value : JSON.stringify(member.value)
+                "
+                @change="
+                  $store.commit('postwoman/setMemberValue', {
+                    index,
+                    value: $event.target.value,
+                  })
+                "
+                readonly
+              />
+              <template slot="popover">
+                <div>
+                  <button
+                    class="icon"
+                    @click="
+                      $store.commit('postwoman/setMemberValue', {
+                        index,
+                        value: 'READ',
+                      })
+                    "
+                    v-close-popover
+                  >
+                    READ
+                  </button>
+                </div>
+                <div>
+                  <button
+                    class="icon"
+                    @click="
+                      $store.commit('postwoman/setMemberValue', {
+                        index,
+                        value: 'WRITE',
+                      })
+                    "
+                    v-close-popover
+                  >
+                    WRITE
+                  </button>
+                </div>
+              </template>
+            </v-popover>
+          </span>
         </li>
         <div>
           <li>

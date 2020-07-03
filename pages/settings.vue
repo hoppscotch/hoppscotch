@@ -374,9 +374,6 @@ export default {
     },
     toggleSettings(name, value) {
       fb.writeSettings(name, !value)
-      if (name === "syncHistory" && value) {
-        this.syncHistory()
-      }
       if (name === "syncCollections" && value) {
         this.syncCollections()
       }
@@ -400,13 +397,6 @@ export default {
         icon: "clear_all",
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
-    },
-    syncHistory() {
-      if (fb.currentUser !== null) {
-        if (fb.currentSettings[2].value) {
-          fb.writeHistory(JSON.parse(JSON.stringify(this.$store.state.postwoman.history)))
-        }
-      }
     },
     syncCollections() {
       if (fb.currentUser !== null) {

@@ -2,7 +2,13 @@
   <div class="tabs-wrapper">
     <div class="tabs">
       <ul>
-        <li v-for="(tab, index) in tabs" :class="{ 'is-active': tab.isActive }" :key="index">
+        <li
+          v-for="(tab, index) in tabs"
+          @keypress="handleKey($event, tab)"
+          :class="{ 'is-active': tab.isActive }"
+          :tabindex="0"
+          :key="index"
+        >
           <a :href="tab.href" @click="selectTab(tab)">
             <i v-if="tab.icon" class="material-icons">
               {{ tab.icon }}
@@ -57,6 +63,10 @@
         }
       }
 
+      &.focus-visible a {
+        color: var(--fg-color);
+      }
+
       &.is-active a {
         background-color: var(--brd-color);
         color: var(--fg-color);
@@ -90,6 +100,11 @@ export default {
       this.tabs.forEach((tab) => {
         tab.isActive = tab.id == id
       })
+    },
+    handleKey(e, tabItem) {
+      if (e.key === "Enter" || e.key === "space") {
+        this.selectTab(tabItem)
+      }
     },
   },
 }

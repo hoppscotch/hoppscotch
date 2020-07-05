@@ -2,7 +2,13 @@
   <div class="tabs-wrapper">
     <div class="tabs">
       <ul>
-        <li v-for="(tab, index) in tabs" :class="{ 'is-active': tab.isActive }" :key="index">
+        <li
+          v-for="(tab, index) in tabs"
+          :class="{ 'is-active': tab.isActive }"
+          :key="index"
+          :tabindex="0"
+          @keyup.enter="selectTab(tab)"
+        >
           <a :href="tab.href" @click="selectTab(tab)">
             <i v-if="tab.icon" class="material-icons">
               {{ tab.icon }}
@@ -55,6 +61,10 @@
         &:hover {
           color: var(--fg-color);
         }
+      }
+
+      &:focus a {
+        color: var(--fg-color);
       }
 
       &.is-active a {

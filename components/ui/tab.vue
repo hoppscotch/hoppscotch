@@ -25,7 +25,7 @@ export default {
 
   // computed: {
   //   href() {
-  //     return `#${this.name.toLowerCase().replace(/ /g, "-")}`
+  //     return `#${this.label.toLowerCase().replace(/ /g, "-")}`
   //   },
   // },
 

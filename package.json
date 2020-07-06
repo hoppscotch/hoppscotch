@@ -61,7 +61,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "sass-loader": "^9.0.0",
+    "sass-loader": "^9.0.1",
     "start-server-and-test": "^1.11.0"
   }
 }

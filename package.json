@@ -61,6 +61,6 @@
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
     "sass-loader": "^9.0.2",
-    "start-server-and-test": "^1.11.1"
+    "start-server-and-test": "^1.11.2"
   }
 }

@@ -30,13 +30,13 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.11.0",
+    "@nuxtjs/axios": "^5.12.0",
     "@nuxtjs/gtm": "^2.3.0",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.0",
     "ace-builds": "^1.4.12",
-    "firebase": "^7.15.5",
+    "firebase": "^7.16.0",
     "graphql": "^15.3.0",
     "graphql-language-service-interface": "^2.4.0",
     "nuxt": "^2.12.2",
@@ -53,14 +53,14 @@
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.3.0",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
-    "cypress": "^4.9.0",
+    "cypress": "^4.10.0",
     "eslint": "^7.4.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "sass-loader": "^9.0.1",
-    "start-server-and-test": "^1.11.0"
+    "sass-loader": "^9.0.2",
+    "start-server-and-test": "^1.11.2"
   }
 }

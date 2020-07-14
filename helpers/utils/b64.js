@@ -1,5 +1,5 @@
 export const decodeB64StringToArrayBuffer = (input) => {
-  const bytes = Math.floor((input / 4) * 3)
+  const bytes = Math.floor((input.length / 4) * 3)
   const ab = new ArrayBuffer(bytes)
   const uarray = new Uint8Array(ab)
 

@@ -76,7 +76,6 @@ export default {
       })
     },
     lang(value) {
-      console.log("ace/mode/" + value)
       this.editor.getSession().setMode("ace/mode/" + value)
     },
     options(value) {

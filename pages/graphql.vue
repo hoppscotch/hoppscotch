@@ -526,8 +526,11 @@ export default {
           data: JSON.stringify({ query: gqlQueryString, variables }),
         }
 
-        const data = await sendNetworkRequest(reqOptions, this.$store)
-        this.response = JSON.stringify(data.data, null, 2)
+        const res = await sendNetworkRequest(reqOptions, this.$store)
+
+        const responseText = new TextDecoder("utf-8").decode(new Uint8Array(res.data))
+
+        this.response = JSON.stringify(JSON.parse(responseText), null, 2)
 
         this.$nuxt.$loading.finish()
         const duration = Date.now() - startTime
@@ -626,10 +629,13 @@ export default {
 
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
-        const schema = gql.buildClientSchema(data.data.data)
+        const response = new TextDecoder("utf-8").decode(new Uint8Array(data.data))
+        const introspectResponse = JSON.parse(response)
+
+        const schema = gql.buildClientSchema(introspectResponse.data)
 
         this.$store.commit("setGQLState", {
-          value: JSON.stringify(data.data.data),
+          value: JSON.stringify(introspectResponse.data),
           attribute: "schemaIntrospection",
         })
 

@@ -286,6 +286,11 @@ hr {
 .info:not(.toasted) {
   margin-left: 4px;
   color: var(--fg-light-color);
+
+  .material-icons {
+    vertical-align: middle;
+    margin-right: 8px;
+  }
 }
 
 .bg-color {
@@ -534,11 +539,6 @@ ol {
   margin: 4px 0 4px;
   padding: 0;
   list-style-type: none;
-
-  &.response-headers {
-    display: inline-flex;
-    width: 50%;
-  }
 
   ul,
   ol {

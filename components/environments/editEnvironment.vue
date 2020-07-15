@@ -35,14 +35,6 @@
               </button>
             </div>
           </div>
-          <textarea
-            id="variableList"
-            readonly
-            v-textarea-auto-height="variableString"
-            v-model="variableString"
-            :placeholder="$t('add_one_variable')"
-            rows="1"
-          ></textarea>
         </li>
       </ul>
       <ul v-for="(variable, index) in this.editingEnvCopy.variables" :key="index">
@@ -114,13 +106,9 @@
 </template>
 
 <script>
-import textareaAutoHeight from "~/directives/textareaAutoHeight"
 import { fb } from "~/helpers/fb"
 
 export default {
-  directives: {
-    textareaAutoHeight,
-  },
   props: {
     show: Boolean,
     editingEnvironment: Object,

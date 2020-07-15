@@ -27,7 +27,7 @@
         </pw-section>
 
         <pw-section class="orange" :label="$t('headers')" ref="headers">
-          <ul>
+          <ul v-if="headers.length !== 0">
             <li>
               <div class="flex-wrap">
                 <label for="headerList">{{ $t("header_list") }}</label>
@@ -37,14 +37,6 @@
                   </button>
                 </div>
               </div>
-              <textarea
-                id="headerList"
-                readonly
-                v-textarea-auto-height="headerString"
-                v-model="headerString"
-                :placeholder="$t('add_one_header')"
-                rows="1"
-              ></textarea>
             </li>
           </ul>
           <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
@@ -339,7 +331,6 @@
 <script>
 import axios from "axios"
 import * as gql from "graphql"
-import textareaAutoHeight from "~/directives/textareaAutoHeight"
 import { commonHeaders } from "~/helpers/headers"
 import AceEditor from "~/components/ui/ace-editor"
 import QueryEditor from "~/components/graphql/queryeditor"
@@ -347,9 +338,6 @@ import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 
 export default {
-  directives: {
-    textareaAutoHeight,
-  },
   components: {
     "pw-section": () => import("~/components/layout/section"),
     "gql-field": () => import("~/components/graphql/field"),

@@ -154,7 +154,7 @@
       </li>
     </ul>
     <p v-if="history.length === 0" class="info">
-      {{ $t("history_empty") }}
+      <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
       <div class="flex-wrap" v-if="!isClearingHistory">
@@ -221,7 +221,7 @@
       </div>
       <div class="flex-wrap" v-else>
         <label for="clear-history-button" class="info">
-          {{ $t("are_you_sure") }}
+          <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
         </label>
         <div>
           <button

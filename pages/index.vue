@@ -2,39 +2,6 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request" ref="preRequest">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="generatedCode">{{ $t("javascript_code") }}</label>
-                <div>
-                  <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help_outline</i>
-                    </button>
-                  </a>
-                </div>
-              </div>
-              <Editor
-                v-model="preRequestScript"
-                :lang="'javascript'"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-              />
-            </li>
-          </ul>
-        </pw-section>
-
         <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li class="shrink">
@@ -297,15 +264,18 @@
             <div v-if="!rawInput">
               <ul>
                 <li>
-                  <label for="reqParamList">{{ $t("parameter_list") }}</label>
-                  <textarea
-                    id="reqParamList"
-                    readonly
-                    v-textarea-auto-height="rawRequestBody"
-                    v-model="rawRequestBody"
-                    :placeholder="$t('add_one_parameter')"
-                    rows="1"
-                  ></textarea>
+                  <div class="flex-wrap">
+                    <label for="reqParamList">{{ $t("parameter_list") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('bodyParams', $event)"
+                        v-tooltip.bottom="$t('clear')"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <ul v-for="(param, index) in bodyParams" :key="index">
@@ -364,7 +334,18 @@
             <div v-else>
               <ul>
                 <li>
-                  <label for="rawBody">{{ $t("raw_request_body") }}</label>
+                  <div class="flex-wrap">
+                    <label for="rawBody">{{ $t("raw_request_body") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('rawParams', $event)"
+                        v-tooltip.bottom="$t('clear')"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
                   <Editor
                     v-model="rawParams"
                     :lang="rawInputEditorLang"
@@ -402,40 +383,6 @@
               >
                 <i class="material-icons">code</i>
               </button>
-              <button
-                class="icon"
-                id="preRequestScriptButton"
-                v-tooltip.bottom="{
-                  content: !showPreRequestScript
-                    ? $t('show_prerequest_script')
-                    : $t('hide_prerequest_script'),
-                }"
-                @click="showPreRequestScript = !showPreRequestScript"
-              >
-                <i
-                  class="material-icons"
-                  :class="showPreRequestScript"
-                  v-if="!showPreRequestScript"
-                >
-                  playlist_add
-                </i>
-                <i class="material-icons" :class="showPreRequestScript" v-else>
-                  close
-                </i>
-              </button>
-              <button
-                class="icon"
-                id="preRequestScriptButto"
-                v-tooltip.bottom="{
-                  content: !testsEnabled ? 'Enable Tests' : 'Disable Tests',
-                }"
-                @click="testsEnabled = !testsEnabled"
-              >
-                <i class="material-icons" :class="testsEnabled" v-if="!testsEnabled">
-                  playlist_add_check
-                </i>
-                <i class="material-icons" :class="testsEnabled" v-else>close</i>
-              </button>
             </span>
             <span>
               <button
@@ -471,73 +418,105 @@
           </div>
         </pw-section>
 
-        <pw-section v-if="testsEnabled" class="orange" label="Tests" ref="postRequestTests">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="generatedCode">{{ $t("javascript_code") }}</label>
-                <div>
-                  <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help_outline</i>
-                    </button>
-                  </a>
-                </div>
-              </div>
-              <Editor
-                v-model="testScript"
-                :lang="'javascript'"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-              />
-              <div v-if="testReports">
-                <div class="flex-wrap">
-                  <label>Test Reports</label>
-                  <div>
-                    <button
-                      class="icon"
-                      @click="clearContent('tests', $event)"
-                      v-tooltip.bottom="$t('clear')"
-                    >
-                      <i class="material-icons">clear_all</i>
-                    </button>
-                  </div>
-                </div>
-                <div v-for="(testReport, index) in testReports" :key="index">
-                  <div v-if="testReport.startBlock" class="info">
-                    <h4>{{ testReport.startBlock }}</h4>
-                  </div>
-                  <p v-else-if="testReport.result" class="flex-wrap info">
-                    <span :class="testReport.styles.class">
-                      <i class="material-icons">
-                        {{ testReport.styles.icon }}
-                      </i>
-                      <span>&nbsp; {{ testReport.result }}</span>
-                      <span v-if="testReport.message">
-                        <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
-                      </span>
-                    </span>
-                  </p>
-                  <div v-else-if="testReport.endBlock"><hr /></div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </pw-section>
-
         <section id="options">
           <tabs>
-            <tab :id="'authentication'" :label="$t('authentication')" :selected="true">
+            <tab
+              :id="'params'"
+              :label="
+                $t('parameters') + `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
+              "
+              :selected="true"
+            >
+              <pw-section class="pink" label="Parameters" ref="parameters">
+                <ul v-if="params.length !== 0">
+                  <li>
+                    <div class="flex-wrap">
+                      <label for="paramList">{{ $t("parameter_list") }}</label>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="clearContent('parameters', $event)"
+                          v-tooltip.bottom="$t('clear')"
+                        >
+                          <i class="material-icons">clear_all</i>
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <ul v-for="(param, index) in params" :key="index">
+                  <li>
+                    <input
+                      :placeholder="$t('parameter_count', { count: index + 1 })"
+                      :name="'param' + index"
+                      :value="param.key"
+                      @change="
+                        $store.commit('setKeyParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                      autofocus
+                    />
+                  </li>
+                  <li>
+                    <input
+                      :placeholder="$t('value_count', { count: index + 1 })"
+                      :name="'value' + index"
+                      :value="param.value"
+                      @change="
+                        $store.commit('setValueParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                    />
+                  </li>
+                  <li>
+                    <span class="select-wrapper">
+                      <select
+                        :name="'type' + index"
+                        @change="
+                          $store.commit('setTypeParams', {
+                            index,
+                            value: $event.target.value,
+                          })
+                        "
+                      >
+                        <option value="query" :selected="param.type === 'query'">{{
+                          $t("query")
+                        }}</option>
+                        <option value="path" :selected="param.type === 'path'">{{
+                          $t("path")
+                        }}</option>
+                      </select>
+                    </span>
+                  </li>
+                  <div>
+                    <li>
+                      <button
+                        class="icon"
+                        @click="removeRequestParam(index)"
+                        v-tooltip.bottom="$t('delete')"
+                        id="param"
+                      >
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </li>
+                  </div>
+                </ul>
+                <ul>
+                  <li>
+                    <button class="icon" @click="addRequestParam">
+                      <i class="material-icons">add</i>
+                      <span>{{ $t("add_new") }}</span>
+                    </button>
+                  </li>
+                </ul>
+              </pw-section>
+            </tab>
+
+            <tab :id="'authentication'" :label="$t('authentication')">
               <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
@@ -741,9 +720,14 @@
               </pw-section>
             </tab>
 
-            <tab :id="'headers'" :label="$t('headers')">
+            <tab
+              :id="'headers'"
+              :label="
+                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+              "
+            >
               <pw-section class="orange" label="Headers" ref="headers">
-                <ul>
+                <ul v-if="headers.length !== 0">
                   <li>
                     <div class="flex-wrap">
                       <label for="headerList">{{ $t("header_list") }}</label>
@@ -757,14 +741,6 @@
                         </button>
                       </div>
                     </div>
-                    <textarea
-                      id="headerList"
-                      readonly
-                      v-textarea-auto-height="headerString"
-                      v-model="headerString"
-                      :placeholder="$t('add_one_header')"
-                      rows="1"
-                    ></textarea>
                   </li>
                 </ul>
                 <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
@@ -822,119 +798,123 @@
               </pw-section>
             </tab>
 
-            <tab :id="'params'" :label="$t('parameters')">
-              <pw-section class="pink" label="Parameters" ref="parameters">
+            <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
+              <pw-section
+                v-if="showPreRequestScript"
+                class="orange"
+                :label="$t('pre_request_script')"
+                ref="preRequest"
+              >
                 <ul>
                   <li>
                     <div class="flex-wrap">
-                      <label for="paramList">{{ $t("parameter_list") }}</label>
+                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
-                        <button
-                          class="icon"
-                          @click="clearContent('parameters', $event)"
-                          v-tooltip.bottom="$t('clear')"
+                        <a
+                          href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
+                          target="_blank"
+                          rel="noopener"
                         >
-                          <i class="material-icons">clear_all</i>
-                        </button>
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
                       </div>
                     </div>
-                    <textarea
-                      id="paramList"
-                      readonly
-                      v-textarea-auto-height="queryString"
-                      v-model="queryString"
-                      :placeholder="$t('add_one_parameter')"
-                      rows="1"
-                    ></textarea>
-                  </li>
-                </ul>
-                <ul v-for="(param, index) in params" :key="index">
-                  <li>
-                    <input
-                      :placeholder="$t('parameter_count', { count: index + 1 })"
-                      :name="'param' + index"
-                      :value="param.key"
-                      @change="
-                        $store.commit('setKeyParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                      autofocus
+                    <Editor
+                      v-model="preRequestScript"
+                      :lang="'javascript'"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
                     />
                   </li>
-                  <li>
-                    <input
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="'value' + index"
-                      :value="param.value"
-                      @change="
-                        $store.commit('setValueParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                    />
-                  </li>
-                  <li>
-                    <span class="select-wrapper">
-                      <select
-                        :name="'type' + index"
-                        @change="
-                          $store.commit('setTypeParams', {
-                            index,
-                            value: $event.target.value,
-                          })
-                        "
-                      >
-                        <option value="query" :selected="param.type === 'query'">{{
-                          $t("query")
-                        }}</option>
-                        <option value="path" :selected="param.type === 'path'">{{
-                          $t("path")
-                        }}</option>
-                      </select>
-                    </span>
-                  </li>
-                  <div>
-                    <li>
-                      <button
-                        class="icon"
-                        @click="removeRequestParam(index)"
-                        v-tooltip.bottom="$t('delete')"
-                        id="param"
-                      >
-                        <i class="material-icons">delete</i>
-                      </button>
-                    </li>
-                  </div>
                 </ul>
+              </pw-section>
+            </tab>
+
+            <tab
+              :id="'tests'"
+              :label="
+                $t('tests') +
+                `${testReports.length !== 0 ? ' \xA0 • \xA0 ' + testReports.length : ''}`
+              "
+            >
+              <pw-section
+                v-if="testsEnabled"
+                class="orange"
+                :label="$t('tests')"
+                ref="postRequestTests"
+              >
                 <ul>
                   <li>
-                    <button class="icon" @click="addRequestParam">
-                      <i class="material-icons">add</i>
-                      <span>{{ $t("add_new") }}</span>
-                    </button>
+                    <div class="flex-wrap">
+                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <div>
+                        <a
+                          href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
+                      </div>
+                    </div>
+                    <Editor
+                      v-model="testScript"
+                      :lang="'javascript'"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
+                    />
+                    <div v-if="testReports.length !== 0">
+                      <div class="flex-wrap">
+                        <label>Test Reports</label>
+                        <div>
+                          <button
+                            class="icon"
+                            @click="clearContent('tests', $event)"
+                            v-tooltip.bottom="$t('clear')"
+                          >
+                            <i class="material-icons">clear_all</i>
+                          </button>
+                        </div>
+                      </div>
+                      <div v-for="(testReport, index) in testReports" :key="index">
+                        <div v-if="testReport.startBlock" class="info">
+                          <h4>{{ testReport.startBlock }}</h4>
+                        </div>
+                        <p v-else-if="testReport.result" class="flex-wrap info">
+                          <span :class="testReport.styles.class">
+                            <i class="material-icons">
+                              {{ testReport.styles.icon }}
+                            </i>
+                            <span>&nbsp; {{ testReport.result }}</span>
+                            <span v-if="testReport.message">
+                              <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
+                            </span>
+                          </span>
+                        </p>
+                        <div v-else-if="testReport.endBlock"><hr /></div>
+                      </div>
+                    </div>
                   </li>
                 </ul>
               </pw-section>
             </tab>
           </tabs>
-
-          <!-- <div class="flex-wrap">
-            <span></span>
-            <button
-              class="icon hide-on-small-screen"
-              @click="activeSidebar = !activeSidebar"
-              v-tooltip="{
-                content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar'
-              }"
-            >
-              <i class="material-icons">
-                {{ activeSidebar ? "last_page" : "first_page" }}
-              </i>
-            </button>
-          </div> -->
         </section>
 
         <pw-section class="purple" id="response" :label="$t('response')" ref="response">
@@ -952,83 +932,9 @@
               />
             </li>
           </ul>
-          <ul v-if="response.body">
-            <li>
-              <div class="flex-wrap">
-                <label for="body">{{ $t("response") }}</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="ToggleExpandResponse"
-                    ref="ToggleExpandResponse"
-                    v-if="response.body"
-                    v-tooltip="{
-                      content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-                    }"
-                  >
-                    <i class="material-icons">
-                      {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-                    </i>
-                  </button>
-                  <button
-                    class="icon"
-                    @click="downloadResponse"
-                    ref="downloadResponse"
-                    v-if="response.body && canDownloadResponse"
-                    v-tooltip="$t('download_file')"
-                  >
-                    <i class="material-icons">save_alt</i>
-                  </button>
-                  <button
-                    class="icon"
-                    @click="copyResponse"
-                    ref="copyResponse"
-                    v-if="response.body"
-                    v-tooltip="$t('copy_response')"
-                  >
-                    <i class="material-icons">content_copy</i>
-                  </button>
-                </div>
-              </div>
-              <div id="response-details-wrapper">
-                <Editor
-                  :value="responseBodyText"
-                  :lang="responseBodyType"
-                  :options="{
-                    maxLines: responseBodyMaxLines,
-                    minLines: '16',
-                    fontSize: '16px',
-                    autoScrollEditorIntoView: true,
-                    readOnly: true,
-                    showPrintMargin: false,
-                    useWorker: false,
-                  }"
-                />
-                <iframe
-                  :class="{ hidden: !previewEnabled }"
-                  class="covers-response"
-                  ref="previewFrame"
-                  src="about:blank"
-                ></iframe>
-              </div>
-              <div class="align-right" v-if="response.body && responseType === 'text/html'">
-                <button class="icon" @click.prevent="togglePreview">
-                  <i class="material-icons">
-                    {{ !previewEnabled ? "visibility" : "visibility_off" }}
-                  </i>
-                  <span>
-                    {{ previewEnabled ? $t("hide_preview") : $t("preview_html") }}
-                  </span>
-                </button>
-              </div>
-            </li>
-          </ul>
-          <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
-            <li>
-              <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
-            </li>
-          </ul>
+          <div v-if="response.body && response.body !== $t('loading')">
+            <response-renderer :response="response" />
+          </div>
         </pw-section>
       </div>
 
@@ -1343,7 +1249,6 @@ import section from "~/components/layout/section"
 import url from "url"
 import querystring from "querystring"
 import { commonHeaders } from "~/helpers/headers"
-import textareaAutoHeight from "~/directives/textareaAutoHeight"
 import parseCurlCommand from "~/assets/js/curlparser.js"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
@@ -1408,9 +1313,6 @@ const parseHeaders = (xhr) => {
 export const findStatusGroup = (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
 export default {
-  directives: {
-    textareaAutoHeight,
-  },
   components: {
     "pw-section": section,
     "pw-toggle": () => import("~/components/ui/toggle"),
@@ -1426,15 +1328,16 @@ export default {
     login: () => import("~/components/firebase/login"),
     tabs: () => import("~/components/ui/tabs"),
     tab: () => import("~/components/ui/tab"),
+    "response-renderer": () => import("~/components/lenses/ResponseBodyRenderer"),
   },
   data() {
     return {
       showModal: false,
-      showPreRequestScript: false,
-      testsEnabled: false,
+      showPreRequestScript: true,
+      testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
-      testReports: null,
+      testReports: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -1445,9 +1348,7 @@ export default {
         body: "",
       },
       validContentTypes: knownContentTypes,
-      previewEnabled: false,
       paramsWatchEnabled: true,
-      expandResponse: false,
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
@@ -1455,9 +1356,6 @@ export default {
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
-      responseBodyText: "",
-      responseBodyType: "text",
-      responseBodyMaxLines: 16,
       activeSidebar: true,
       fb,
       customMethod: false,
@@ -1512,27 +1410,6 @@ export default {
         this.rawParams = getDefaultParams(contentType)
       }
       this.setRouteQueryState()
-    },
-    "response.body": function (val) {
-      if (
-        this.response.body === this.$t("waiting_send_req") ||
-        this.response.body === this.$t("loading")
-      ) {
-        this.responseBodyText = this.response.body
-        this.responseBodyType = "text"
-      } else {
-        if (isJSONContentType(this.responseType)) {
-          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType =
-            this.response.body.constructor.name === "Object" ? "json" : "json5"
-        } else if (this.responseType === "text/html") {
-          this.responseBodyText = this.response.body
-          this.responseBodyType = "html"
-        } else {
-          this.responseBodyText = this.response.body
-          this.responseBodyType = "text"
-        }
-      }
     },
     params: {
       handler: function (newValue) {
@@ -1589,7 +1466,6 @@ export default {
       this.showRequestModal = true
     },
     method() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH", "DELETE"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
         ? "application/json"
         : ""
@@ -1607,14 +1483,6 @@ export default {
       return (
         this.contentType === "application/x-www-form-urlencoded" ||
         isJSONContentType(this.contentType)
-      )
-    },
-    canDownloadResponse() {
-      return (
-        this.response &&
-        this.response.headers &&
-        this.response.headers["content-type"] &&
-        isJSONContentType(this.response.headers["content-type"])
       )
     },
     uri: {
@@ -2138,9 +2006,6 @@ export default {
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-      if (this.$refs.response.$el.classList.contains("hidden")) {
-        this.$refs.response.$el.classList.toggle("hidden")
-      }
       this.previewEnabled = false
       this.response.status = this.$t("fetching")
       this.response.body = this.$t("loading")
@@ -2473,67 +2338,6 @@ export default {
       document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
     },
-    ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
-    },
-    copyResponse() {
-      this.$refs.copyResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      const aux = document.createElement("textarea")
-      const copy = isJSONContentType(this.responseType)
-        ? JSON.stringify(this.response.body, null, 2)
-        : this.response.body
-      aux.innerText = copy
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
-      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
-    },
-    downloadResponse() {
-      const dataToWrite = JSON.stringify(this.response.body, null, 2)
-      const file = new Blob([dataToWrite], { type: this.responseType })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, "[dot]")
-      document.body.appendChild(a)
-      a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("download_started"), {
-        icon: "done",
-      })
-      setTimeout(() => {
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
-      }, 1000)
-    },
-    togglePreview() {
-      this.previewEnabled = !this.previewEnabled
-      if (this.previewEnabled) {
-        // If you want to add 'preview' support for other response types,
-        // just add them here.
-        if (this.responseType === "text/html") {
-          // If the preview already has that URL loaded, let's not bother re-loading it all.
-          if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
-          // Use DOMParser to parse document HTML.
-          const previewDocument = new DOMParser().parseFromString(
-            this.response.body,
-            this.responseType
-          )
-          // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-          previewDocument.head.innerHTML =
-            `<base href="${this.url}">` + previewDocument.head.innerHTML
-          // Finally, set the iframe source to the resulting HTML.
-          this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
-          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
-        }
-      }
-    },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {
@@ -2629,6 +2433,15 @@ export default {
     },
     clearContent(name, { target }) {
       switch (name) {
+        case "bodyParams":
+          this.bodyParams = []
+          break
+        case "rawParams":
+          this.rawParams = "{}"
+          break
+        case "parameters":
+          this.params = []
+          break
         case "auth":
           this.auth = "None"
           this.httpUser = ""
@@ -2638,12 +2451,6 @@ export default {
           this.tokens = []
           this.tokenReqs = []
           break
-        case "headers":
-          this.headers = []
-          break
-        case "parameters":
-          this.params = []
-          break
         case "access_token":
           this.accessTokenName = ""
           this.oidcDiscoveryUrl = ""
@@ -2652,13 +2459,14 @@ export default {
           this.clientId = ""
           this.scope = ""
           break
+        case "headers":
+          this.headers = []
+          break
+        case "tests":
+          this.testReports = []
+          break
         case "tokens":
           this.tokens = []
-          break
-        case "tokenReqs":
-          this.tokenReqs = []
-        case "tests":
-          this.testReports = null
           break
         default:
           this.method = "GET"
@@ -2666,14 +2474,14 @@ export default {
           this.path = "/get"
           this.uri = this.url + this.path
           this.label = ""
+          this.bodyParams = []
+          this.rawParams = "{}"
+          this.files = []
+          this.params = []
           this.auth = "None"
           this.httpUser = ""
           this.httpPassword = ""
           this.bearerToken = ""
-          this.headers = []
-          this.params = []
-          this.bodyParams = []
-          this.rawParams = ""
           this.showTokenRequest = false
           this.tokens = []
           this.tokenReqs = []
@@ -2683,7 +2491,8 @@ export default {
           this.accessTokenUrl = ""
           this.clientId = ""
           this.scope = ""
-          this.files = []
+          this.headers = []
+          this.testReports = []
       }
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {

@@ -62,7 +62,7 @@ TODO:
       </div>
     </div>
     <p v-if="collections.length === 0" class="info">
-      Create new collection
+      <i class="material-icons">help_outline</i> Create new collection
     </p>
     <div class="virtual-list">
       <ul>
@@ -75,9 +75,6 @@ TODO:
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
           />
-        </li>
-        <li v-if="collections.length === 0">
-          <label>Collections are empty</label>
         </li>
       </ul>
     </div>

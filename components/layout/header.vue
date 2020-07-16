@@ -21,14 +21,6 @@
             </svg>
           </button>
         </a>
-        <button
-          class="icon"
-          id="installPWA"
-          @click.prevent="showInstallPrompt()"
-          v-tooltip="$t('install_pwa')"
-        >
-          <i class="material-icons">offline_bolt</i>
-        </button>
         <v-popover v-if="fb.currentUser === null">
           <button class="icon" v-tooltip="$t('login_with')">
             <i class="material-icons">login</i>
@@ -76,44 +68,49 @@
             <i class="material-icons">drag_indicator</i>
           </button>
           <template slot="popover">
-            <div>
-              <button class="icon" @click="showExtensions = true" v-close-popover>
-                <i class="material-icons">extension</i>
-                <span>{{ $t("extensions") }}</span>
-              </button>
-            </div>
-            <div>
-              <button class="icon" @click="showShortcuts = true" v-close-popover>
-                <i class="material-icons">keyboard</i>
-                <span>{{ $t("shortcuts") }}</span>
-              </button>
-            </div>
-            <div>
-              <button class="icon" @click="showSupport = true" v-close-popover>
-                <i class="material-icons">favorite</i>
-                <span>{{ $t("support_us") }}</span>
-              </button>
-            </div>
-            <div>
-              <button
-                class="icon"
-                onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
-                v-close-popover
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-                  <path
-                    d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-3.594-1.555c-3.179 0-5.515 2.966-4.797 6.045A13.978 13.978 0 011.671 3.149a4.93 4.93 0 001.523 6.574 4.903 4.903 0 01-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.084 4.928 4.928 0 004.6 3.419A9.9 9.9 0 010 19.54a13.94 13.94 0 007.548 2.212c9.142 0 14.307-7.721 13.995-14.646A10.025 10.025 0 0024 4.557z"
-                  />
-                </svg>
-                <span>{{ $t("tweet") }}</span>
-              </button>
-            </div>
-            <div v-if="navigatorShare">
-              <button class="icon" @click="nativeShare" v-close-popover v-tooltip="$t('more')">
-                <i class="material-icons">share</i>
-                <span>Share</span>
-              </button>
-            </div>
+            <button class="icon" @click="showExtensions = true" v-close-popover>
+              <i class="material-icons">extension</i>
+              <span>{{ $t("extensions") }}</span>
+            </button>
+            <button class="icon" @click="showShortcuts = true" v-close-popover>
+              <i class="material-icons">keyboard</i>
+              <span>{{ $t("shortcuts") }}</span>
+            </button>
+            <button class="icon" @click="showSupport = true" v-close-popover>
+              <i class="material-icons">favorite</i>
+              <span>{{ $t("support_us") }}</span>
+            </button>
+            <button
+              class="icon"
+              onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+              v-close-popover
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                <path
+                  d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-3.594-1.555c-3.179 0-5.515 2.966-4.797 6.045A13.978 13.978 0 011.671 3.149a4.93 4.93 0 001.523 6.574 4.903 4.903 0 01-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.084 4.928 4.928 0 004.6 3.419A9.9 9.9 0 010 19.54a13.94 13.94 0 007.548 2.212c9.142 0 14.307-7.721 13.995-14.646A10.025 10.025 0 0024 4.557z"
+                />
+              </svg>
+              <span>{{ $t("tweet") }}</span>
+            </button>
+            <button
+              v-if="navigatorShare"
+              class="icon"
+              @click="nativeShare"
+              v-close-popover
+              v-tooltip="$t('more')"
+            >
+              <i class="material-icons">share</i>
+              <span>Share</span>
+            </button>
+            <button
+              class="icon"
+              id="installPWA"
+              @click.prevent="showInstallPrompt()"
+              v-close-popover
+            >
+              <i class="material-icons">offline_bolt</i>
+              <span>{{ $t("install_pwa") }}</span>
+            </button>
           </template>
         </v-popover>
       </span>

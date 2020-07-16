@@ -63,6 +63,14 @@
             </div>
           </template>
         </v-popover>
+        <button
+          class="icon"
+          id="installPWA"
+          @click.prevent="showInstallPrompt()"
+          v-tooltip="$t('install_pwa')"
+        >
+          <i class="material-icons">offline_bolt</i>
+        </button>
         <v-popover>
           <button class="icon" v-tooltip="$t('more')">
             <i class="material-icons">drag_indicator</i>
@@ -101,15 +109,6 @@
             >
               <i class="material-icons">share</i>
               <span>Share</span>
-            </button>
-            <button
-              class="icon"
-              id="installPWA"
-              @click.prevent="showInstallPrompt()"
-              v-close-popover
-            >
-              <i class="material-icons">offline_bolt</i>
-              <span>{{ $t("install_pwa") }}</span>
             </button>
           </template>
         </v-popover>

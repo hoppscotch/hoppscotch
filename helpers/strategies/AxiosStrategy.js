@@ -12,6 +12,10 @@ export const cancelRunningAxiosRequest = () => {
 
 const axiosWithProxy = async (req, { state }) => {
   try {
+    console.log({
+      ...req,
+      wantsBinary: true,
+    })
     const { data } = await axios.post(
       state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
       {
@@ -22,6 +26,10 @@ const axiosWithProxy = async (req, { state }) => {
         cancelToken: cancelSource.token,
       }
     )
+
+    if (!data.data.success) {
+      throw new Error(data.data.message || "Proxy Error")
+    }
 
     if (data.isBinary) {
       data.data = decodeB64StringToArrayBuffer(data.data)

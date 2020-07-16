@@ -25,11 +25,17 @@ const extensionWithProxy = async (req, { state }) => {
     },
   })
 
-  if (data.isBinary) {
-    data.data = decodeB64StringToArrayBuffer(data.data)
+  const parsedData = JSON.parse(data)
+
+  if (!parsedData.data.success) {
+    throw new Error(parsedData.data.message || "Proxy Error")
   }
 
-  return data
+  if (parsedData.isBinary) {
+    parsedData.data = decodeB64StringToArrayBuffer(data.data)
+  }
+
+  return parsedData
 }
 
 const extensionWithoutProxy = async (req, _store) => {

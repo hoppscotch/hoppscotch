@@ -36,7 +36,7 @@
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
-    "firebase": "^7.16.0",
+    "firebase": "^7.16.1",
     "graphql": "^15.3.0",
     "graphql-language-service-interface": "^2.4.0",
     "nuxt": "^2.12.2",

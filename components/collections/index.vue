@@ -70,20 +70,22 @@ TODO:
           <collection
             :collection-index="index"
             :collection="collection"
+            :doc="doc"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder(collection, index)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
+            @select-collection="$emit('use-collection', collection)"
           />
         </li>
       </ul>
     </div>
-    <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
+    <!-- <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
       <button class="icon">
         <i class="material-icons">topic</i>
         <span>{{ $t("generate_docs") }}</span>
       </button>
-    </nuxt-link>
+    </nuxt-link> -->
   </pw-section>
 </template>
 
@@ -112,6 +114,9 @@ export default {
     editFolder: () => import("./editFolder"),
     editRequest: () => import("./editRequest"),
     importExportCollections: () => import("./importExportCollections"),
+  },
+  props: {
+    doc: Boolean,
   },
   data() {
     return {

@@ -14,6 +14,8 @@
 
 <style scoped lang="scss">
 fieldset {
+  display: flex;
+  flex: 1;
   margin: 16px 0;
   border-radius: 8px;
   background-color: var(--bg-dark-color);

@@ -126,7 +126,7 @@
       <nav class="secondary-nav">
         <ul>
           <li>
-            <a href="#collections" v-tooltip.right="$t('collections')">
+            <a href="#import" v-tooltip.right="$t('import')">
               <i class="material-icons">folder</i>
             </a>
           </li>

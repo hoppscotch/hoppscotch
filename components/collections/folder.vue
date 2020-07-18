@@ -38,6 +38,7 @@
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :request-index="index"
+            :doc="doc"
             @edit-request="
               $emit('edit-request', {
                 request,
@@ -77,6 +78,7 @@ export default {
     folder: Object,
     collectionIndex: Number,
     folderIndex: Number,
+    doc: Boolean,
   },
   components: {
     request: () => import("./request"),

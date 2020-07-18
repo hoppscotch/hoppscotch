@@ -1,7 +1,11 @@
 <template>
   <div class="flex-wrap">
     <div>
-      <button class="icon" @click="selectRequest()" v-tooltip="$t('use_request')">
+      <button
+        class="icon"
+        @click="!doc ? selectRequest() : {}"
+        v-tooltip="!doc ? $t('use_request') : ''"
+      >
         <i class="material-icons">insert_drive_file</i>
         <span>{{ request.name }}</span>
       </button>
@@ -50,6 +54,7 @@ export default {
     collectionIndex: Number,
     folderIndex: Number,
     requestIndex: Number,
+    doc: Boolean,
   },
   methods: {
     syncCollections() {

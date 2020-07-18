@@ -80,18 +80,12 @@ TODO:
         </li>
       </ul>
     </div>
-    <!-- <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
-      <button class="icon">
-        <i class="material-icons">topic</i>
-        <span>{{ $t("generate_docs") }}</span>
-      </button>
-    </nuxt-link> -->
   </pw-section>
 </template>
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 290px);
+  max-height: calc(100vh - 245px);
 }
 
 ul {

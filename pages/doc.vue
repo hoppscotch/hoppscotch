@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section class="blue" :label="$t('import')" ref="collections">
+        <pw-section class="blue" :label="$t('import')" ref="import">
           <ul>
             <li>
               <p class="info">
@@ -277,9 +277,7 @@
       </div>
 
       <aside class="sticky-inner inner-right">
-        <section>
-          <collections @use-collection="useSelectedCollection($event)" :doc="true" />
-        </section>
+        <collections @use-collection="useSelectedCollection($event)" :doc="true" />
       </aside>
     </div>
   </div>

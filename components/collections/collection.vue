@@ -14,7 +14,7 @@
           @click="$emit('select-collection')"
           v-tooltip.left="$t('import')"
         >
-          <i class="material-icons">keyboard_backspace</i>
+          <i class="material-icons">topic</i>
         </button>
         <v-popover>
           <button class="tooltip-target icon" v-tooltip.left="$t('more')">
@@ -51,6 +51,7 @@
             :folder="folder"
             :folderIndex="index"
             :collection-index="collectionIndex"
+            :doc="doc"
             @edit-folder="editFolder(collectionIndex, folder, index)"
             @edit-request="$emit('edit-request', $event)"
           />
@@ -66,6 +67,7 @@
             :collection-index="collectionIndex"
             :folder-index="-1"
             :request-index="index"
+            :doc="doc"
             @edit-request="
               $emit('edit-request', {
                 request,

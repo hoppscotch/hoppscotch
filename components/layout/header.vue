@@ -7,6 +7,14 @@
         </nuxt-link>
       </span>
       <span>
+        <button
+          class="icon"
+          id="installPWA"
+          @click.prevent="showInstallPrompt()"
+          v-tooltip="$t('install_pwa')"
+        >
+          <i class="material-icons">offline_bolt</i>
+        </button>
         <a
           href="https://github.com/liyasthomas/postwoman"
           target="_blank"
@@ -63,14 +71,6 @@
             </div>
           </template>
         </v-popover>
-        <button
-          class="icon"
-          id="installPWA"
-          @click.prevent="showInstallPrompt()"
-          v-tooltip="$t('install_pwa')"
-        >
-          <i class="material-icons">offline_bolt</i>
-        </button>
         <v-popover>
           <button class="icon" v-tooltip="$t('more')">
             <i class="material-icons">drag_indicator</i>

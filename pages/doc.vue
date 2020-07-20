@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="content">
-      <div class="page-columns inner-left">
+      <div class="sticky-inner inner-left">
         <pw-section class="blue" :label="$t('import')" ref="import">
           <ul>
             <li>
@@ -67,17 +67,22 @@
             </li>
           </ul>
         </pw-section>
+        <collections @use-collection="useSelectedCollection($event)" :doc="true" />
+      </div>
 
+      <aside class="page-columns inner-right">
         <pw-section class="green" label="Documentation" ref="documentation">
           <p v-if="this.items.length === 0" class="info">
             {{ $t("generate_docs_first") }}
           </p>
           <div>
             <span class="collection" v-for="(collection, index) in this.items" :key="index">
-              <h2>
-                <i class="material-icons">folder</i>
-                {{ collection.name || $t("none") }}
-              </h2>
+              <a :href="`#${collection.name}`">
+                <h2 :id="collection.name">
+                  <i class="material-icons">folder</i>
+                  {{ collection.name || $t("none") }}
+                </h2>
+              </a>
               <span class="folder" v-for="(folder, index) in collection.folders" :key="index">
                 <h3>
                   <i class="material-icons">folder_open</i>
@@ -181,10 +186,12 @@
                 v-for="(request, index) in collection.requests"
                 :key="`request-${index}`"
               >
-                <h4>
-                  <i class="material-icons">insert_drive_file</i>
-                  {{ request.name || $t("none") }}
-                </h4>
+                <a :href="`#${request.name}`">
+                  <h4 :id="request.name">
+                    <i class="material-icons">insert_drive_file</i>
+                    {{ request.name || $t("none") }}
+                  </h4>
+                </a>
                 <p class="doc-desc" v-if="request.url">
                   <span>
                     {{ $t("url") }}: <code>{{ request.url || $t("none") }}</code>
@@ -274,10 +281,6 @@
             </span>
           </div>
         </pw-section>
-      </div>
-
-      <aside class="sticky-inner inner-right">
-        <collections @use-collection="useSelectedCollection($event)" :doc="true" />
       </aside>
     </div>
   </div>
@@ -292,25 +295,25 @@
   flex-flow: column;
   justify-content: center;
   flex: 1;
-  padding: 16px;
+  padding: 0px 10px;
 
   .material-icons {
-    margin-right: 16px;
+    margin-right: 4px;
   }
 }
 
 .folder {
   border-left: 1px solid var(--brd-color);
-  margin: 16px 0 0;
+  margin: 8px 0 0;
 }
 
 .request {
   border: 1px solid var(--brd-color);
   border-radius: 8px;
-  margin: 16px 0 0;
+  margin: 8px 0 0;
 
   h4 {
-    margin: 8px 0;
+    margin: 8px 0 4px;
   }
 }
 
@@ -318,6 +321,7 @@
   color: var(--fg-light-color);
   border-bottom: 1px dashed var(--brd-color);
   margin: 0;
+  padding: 0 10px;
 
   &:last-child {
     border-bottom: none;

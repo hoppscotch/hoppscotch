@@ -327,6 +327,14 @@
     border-bottom: none;
   }
 }
+
+.page-columns.inner-right {
+  width: 100%;
+}
+
+.code {
+  word-break: break-word;
+}
 </style>
 
 <script>

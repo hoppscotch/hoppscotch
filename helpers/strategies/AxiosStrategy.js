@@ -23,6 +23,10 @@ const axiosWithProxy = async (req, { state }) => {
       }
     )
 
+    if (!data.data.success) {
+      throw new Error(data.data.message || "Proxy Error")
+    }
+
     if (data.isBinary) {
       data.data = decodeB64StringToArrayBuffer(data.data)
     }

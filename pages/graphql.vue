@@ -528,7 +528,7 @@ export default {
 
         const res = await sendNetworkRequest(reqOptions, this.$store)
 
-        const responseText = new TextDecoder("utf-8").decode(new Uint8Array(res.data))
+        const responseText = new TextDecoder("utf-8").decode(res.data)
 
         this.response = JSON.stringify(JSON.parse(responseText), null, 2)
 
@@ -629,7 +629,7 @@ export default {
 
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
-        const response = new TextDecoder("utf-8").decode(new Uint8Array(data.data))
+        const response = new TextDecoder("utf-8").decode(data.data)
         const introspectResponse = JSON.parse(response)
 
         const schema = gql.buildClientSchema(introspectResponse.data)

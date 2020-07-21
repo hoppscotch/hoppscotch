@@ -12,10 +12,6 @@ export const cancelRunningAxiosRequest = () => {
 
 const axiosWithProxy = async (req, { state }) => {
   try {
-    console.log({
-      ...req,
-      wantsBinary: true,
-    })
     const { data } = await axios.post(
       state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
       {

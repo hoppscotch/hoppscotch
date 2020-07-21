@@ -332,7 +332,7 @@
   width: 100%;
 }
 
-.code {
+code {
   word-break: break-word;
 }
 </style>

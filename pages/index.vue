@@ -309,6 +309,21 @@
                     @keyup.prevent="setRouteQueryState"
                   />
                 </li>
+                <li>
+                  <input
+                    :placeholder="'description ' + (index + 1)"
+                    :id="'bdescription' + index"
+                    :name="'bdescription' + index"
+                    :value="param.description"
+                    @change="
+                      $store.commit('setDescriptionBodyParams', {
+                        index,
+                        value: $event.target.value,
+                      })
+                    "
+                    @keyup.prevent="setRouteQueryState"
+                  />
+                </li>
                 <div>
                   <li>
                     <button
@@ -466,6 +481,19 @@
                       :value="param.value"
                       @change="
                         $store.commit('setValueParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                    />
+                  </li>
+                  <li>
+                    <input
+                      :placeholder="'description_count' + (index + 1)"
+                      :name="'description' + index"
+                      :value="param.description"
+                      @change="
+                        $store.commit('setDescriptionParams', {
                           index,
                           value: $event.target.value,
                         })

@@ -61,6 +61,10 @@ export default {
     request.params[index].value = value
   },
 
+  setDescriptionParams({ request }, { index, value }) {
+    request.params[index].description = value
+  },
+
   setTypeParams({ request }, { index, value }) {
     request.params[index].type = value
   },
@@ -79,6 +83,10 @@ export default {
 
   setValueBodyParams({ request }, { index, value }) {
     request.bodyParams[index].value = value
+  },
+
+  setDescriptionBodyParams({ request }, { index, value }) {
+    request.bodyParams[index].description = value
   },
 
   setOAuth2({ oauth2 }, { attribute, value }) {

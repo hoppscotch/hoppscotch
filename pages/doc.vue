@@ -145,19 +145,35 @@
                   </span>
                   <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
                   <span v-if="request.params">
-                    <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
+                    <p
+                      v-for="parameter in request.params"
+                      :key="parameter.key"
+                      class="doc-desc params-item"
+                    >
                       <span>
                         {{ parameter.key || $t("none") }}:
                         <code>{{ parameter.value || $t("none") }}</code>
+                      </span>
+                      <span>
+                        description:
+                        <code>{{ parameter.description || $t("none") }}</code>
                       </span>
                     </p>
                   </span>
                   <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
                   <span v-if="request.bodyParam">
-                    <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
+                    <p
+                      v-for="payload in request.bodyParam"
+                      :key="payload.key"
+                      class="doc-desc params-item"
+                    >
                       <span>
                         {{ payload.key || $t("none") }}:
                         <code>{{ payload.value || $t("none") }}</code>
+                      </span>
+                      <span>
+                        description:
+                        <code>{{ payload.description || $t("none") }}</code>
                       </span>
                     </p>
                   </span>
@@ -243,19 +259,35 @@
                 </span>
                 <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
                 <span v-if="request.params">
-                  <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
+                  <p
+                    v-for="parameter in request.params"
+                    :key="parameter.key"
+                    class="doc-desc params-item"
+                  >
                     <span>
                       {{ parameter.key || $t("none") }}:
                       <code>{{ parameter.value || $t("none") }}</code>
+                    </span>
+                    <span>
+                      description:
+                      <code>{{ parameter.description || $t("none") }}</code>
                     </span>
                   </p>
                 </span>
                 <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
                 <span v-if="request.bodyParam">
-                  <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
+                  <p
+                    v-for="payload in request.bodyParam"
+                    :key="payload.key"
+                    class="doc-desc params-item"
+                  >
                     <span>
                       {{ payload.key || $t("none") }}:
                       <code>{{ payload.value || $t("none") }}</code>
+                    </span>
+                    <span>
+                      description:
+                      <code>{{ payload.description || $t("none") }}</code>
                     </span>
                   </p>
                 </span>
@@ -326,6 +358,14 @@
   &:last-child {
     border-bottom: none;
   }
+
+  &.params-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    span {
+      flex: 1;
+    }
+  }
 }
 
 .page-columns.inner-right {
@@ -334,6 +374,12 @@
 
 code {
   word-break: break-word;
+}
+
+@media (max-width: 720px) {
+  .doc-desc.params-item {
+    flex-direction: column;
+  }
 }
 </style>
 

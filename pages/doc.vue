@@ -160,10 +160,10 @@
                       </span>
                     </p>
                   </span>
-                  <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-                  <span v-if="request.bodyParam">
+                  <h4 v-if="request.bodyParams">{{ $t("payload") }}</h4>
+                  <span v-if="request.bodyParams">
                     <p
-                      v-for="payload in request.bodyParam"
+                      v-for="payload in request.bodyParams"
                       :key="payload.key"
                       class="doc-desc params-item"
                     >
@@ -274,10 +274,10 @@
                     </span>
                   </p>
                 </span>
-                <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-                <span v-if="request.bodyParam">
+                <h4 v-if="request.bodyParams">{{ $t("payload") }}</h4>
+                <span v-if="request.bodyParams">
                   <p
-                    v-for="payload in request.bodyParam"
+                    v-for="payload in request.bodyParams"
                     :key="payload.key"
                     class="doc-desc params-item"
                   >

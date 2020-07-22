@@ -28,7 +28,7 @@ before_script:
   - npm install -g firebase-tools
 
 script:
-  - nuxt build && nuxt export
+  - nuxt generate
 
 after_success:
   - firebase deploy --token $FIREBASE_TOKEN

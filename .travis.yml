@@ -15,11 +15,6 @@ node_js:
 
 os: linux
 
-addons:
-  apt:
-    packages:
-      - libgconf-2-4 # cypress binary dependency
-
 cache: npm
 
 branches:
@@ -30,10 +25,13 @@ install:
   - npm ci
 
 before_script:
-  - npm run build # use nuxt build and start to run tests
+  - npm install -g firebase-tools
 
 script:
-  - npm test
+  - nuxt build && nuxt export
+
+after_success:
+  - firebase deploy --token $FIREBASE_TOKEN
 
 notifications:
   webhooks: https://www.travisbuddy.com

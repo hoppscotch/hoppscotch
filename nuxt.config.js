@@ -10,31 +10,11 @@ export const options = {
     color: "#202124",
   },
 }
-// Sets the base path for the router.
-// Important for deploying to GitHub pages.
-// -- Travis includes the author in the repo slug,
-//    so if there's a /, we need to get everything after it.
-let repoName = (process.env.TRAVIS_REPO_SLUG || "").split("/").pop()
-export const routerBase =
-  process.env.DEPLOY_ENV === "GH_PAGES"
-    ? {
-        router: {
-          base: `/${repoName}/`,
-        },
-      }
-    : {
-        router: {
-          base: "/",
-        },
-      }
 export default {
   mode: "spa",
   /*
    ** Headers of the page
    */
-  server: {
-    host: "0.0.0.0", // default: localhost
-  },
   head: {
     title: `${options.name} • ${options.shortDescription}`,
     meta: [
@@ -71,7 +51,7 @@ export default {
       // Windows phone tile icon
       {
         name: "msapplication-TileImage",
-        content: `${routerBase.router.base}icons/icon-144x144.png`,
+        content: `/icons/icon-144x144.png`,
       },
       {
         name: "msapplication-TileColor",
@@ -86,32 +66,32 @@ export default {
       {
         rel: "icon",
         type: "image/x-icon",
-        href: `${routerBase.router.base}favicon.ico`,
+        href: `/favicon.ico`,
       },
       // Home-screen icons (iOS)
       {
         rel: "apple-touch-icon",
-        href: `${routerBase.router.base}icons/icon-48x48.png`,
+        href: `/icons/icon-48x48.png`,
       },
       {
         rel: "apple-touch-icon",
         sizes: "72x72",
-        href: `${routerBase.router.base}icons/icon-72x72.png`,
+        href: `/icons/icon-72x72.png`,
       },
       {
         rel: "apple-touch-icon",
         sizes: "96x96",
-        href: `${routerBase.router.base}icons/icon-96x96.png`,
+        href: `/icons/icon-96x96.png`,
       },
       {
         rel: "apple-touch-icon",
         sizes: "144x144",
-        href: `${routerBase.router.base}icons/icon-144x144.png`,
+        href: `/icons/icon-144x144.png`,
       },
       {
         rel: "apple-touch-icon",
         sizes: "192x192",
-        href: `${routerBase.router.base}icons/icon-192x192.png`,
+        href: `/icons/icon-192x192.png`,
       },
     ],
   },
@@ -137,14 +117,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [
-    {
-      src: "~/plugins/vuex-persist",
-    },
-    {
-      src: "~/plugins/v-tooltip",
-    },
-  ],
+  plugins: ["~/plugins/vuex-persist", "~/plugins/v-tooltip"],
   /*
    ** Nuxt.js dev-modules
    */
@@ -177,7 +150,7 @@ export default {
     manifest: {
       name: options.name,
       short_name: options.name,
-      start_url: `${routerBase.router.base}`,
+      start_url: `/`,
       display: "standalone",
       background_color: "#202124",
       description: options.shortDescription,
@@ -331,8 +304,4 @@ export default {
   generate: {
     fallback: true,
   },
-  /*
-   ** Router configuration
-   */
-  ...routerBase,
 }

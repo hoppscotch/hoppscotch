@@ -26,6 +26,8 @@ import "ace-builds/webpack-resolver"
 import jsonParse from "~/helpers/jsonParse"
 import debounce from "~/helpers/utils/debounce"
 
+import * as esprima from "esprima"
+
 export default {
   props: {
     value: {
@@ -132,6 +134,41 @@ export default {
               row: pos.row,
               column: pos.column,
               text: e.message,
+              type: "error",
+            },
+          ])
+        }
+      } else if (this.lang === "javascript") {
+        try {
+          const res = esprima.parseScript(code, { tolerant: true })
+          console.log(res)
+          if (res.errors && res.errors.length > 0) {
+            this.editor.session.setAnnotations(
+              res.errors.map((err) => {
+                const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+                console.log({
+                  row: pos.row,
+                  column: pos.column,
+                  text: err.description,
+                  type: "error",
+                })
+                return {
+                  row: pos.row,
+                  column: pos.column,
+                  text: err.description,
+                  type: "error",
+                }
+              })
+            )
+          }
+        } catch (e) {
+          const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+          this.editor.session.setAnnotations([
+            {
+              row: pos.row,
+              column: pos.column,
+              text: e.description,
               type: "error",
             },
           ])

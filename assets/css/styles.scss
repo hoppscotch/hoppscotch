@@ -316,6 +316,7 @@ button {
   span {
     display: inline-flex;
     margin-left: 8px;
+    text-align: left;
   }
 
   &:not([disabled]):hover,
@@ -567,7 +568,7 @@ ol li {
 
   * {
     display: inline-flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
     align-items: center;
     justify-content: center;
   }
@@ -772,4 +773,12 @@ section {
 
 .virtual-list {
   overflow: auto;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }

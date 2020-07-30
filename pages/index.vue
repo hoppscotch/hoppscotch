@@ -1897,7 +1897,7 @@ export default {
           requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8'`)
           requestString.push(`  -d '${requestBody}'`)
         }
-        return requestString.join(" \n")
+        return requestString.join(" \\\n")
       }
     },
     tokenReqDetails() {

@@ -1825,7 +1825,6 @@ export default {
           } else if (this.contentType.includes("x-www-form-urlencoded")) {
             requestBody = `"${requestBody}"`
           }
-          requestString.push(`xhr.setRequestHeader('Content-Length', ${requestBody.length})`)
           requestString.push(
             `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
           )
@@ -1856,7 +1855,6 @@ export default {
           }
 
           requestString.push(`  body: ${requestBody},\n`)
-          headers.push(`    "Content-Length": ${requestBody.length},\n`)
           headers.push(`    "Content-Type": "${this.contentType}; charset=utf-8",\n`)
         }
         if (this.headers) {
@@ -1879,28 +1877,27 @@ export default {
         return requestString.join("")
       } else if (this.requestType === "cURL") {
         const requestString = []
-        requestString.push(`curl -X ${this.method} \n`)
-        requestString.push(`  '${this.url}${this.pathName}${this.queryString}' \n`)
+        requestString.push(`curl -X ${this.method}`)
+        requestString.push(`  '${this.url}${this.pathName}${this.queryString}'`)
         if (this.auth === "Basic Auth") {
           const basic = `${this.httpUser}:${this.httpPassword}`
           requestString.push(
-            `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}' \n`
+            `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
           )
         } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          requestString.push(`  -H 'Authorization: Bearer ${this.bearerToken}' \n`)
+          requestString.push(`  -H 'Authorization: Bearer ${this.bearerToken}'`)
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            if (key) requestString.push(`  -H '${key}: ${value}' \n`)
+            if (key) requestString.push(`  -H '${key}: ${value}'`)
           })
         }
         if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
           const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          requestString.push(`  -H 'Content-Length: ${requestBody.length}' \n`)
-          requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8' \n`)
-          requestString.push(`  -d '${requestBody}' \n`)
+          requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8'`)
+          requestString.push(`  -d '${requestBody}'`)
         }
-        return requestString.join("").slice(0, -2)
+        return requestString.join(" \\\n")
       }
     },
     tokenReqDetails() {
@@ -2022,13 +2019,11 @@ export default {
         if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
-      // If the request has a body, we want to ensure Content-Length and
-      // Content-Type are sent.
+      // If the request has a body, we want to ensure Content-Type is sent.
       let requestBody
       if (this.hasRequestBody) {
         requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
         Object.assign(headers, {
-          //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`,
         })
       }

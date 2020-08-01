@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/postwoman/master/static/logo.png" alt="Postwoman.io logo" height="160"></a>
+  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/postwoman-io/postwoman/master/static/logo.png" alt="Postwoman.io logo" height="160"></a>
   <br>
   <br>
   <p>
@@ -10,13 +10,13 @@
   </p>
   <p>
 
-[![Travis Build Status](https://img.shields.io/travis/com/postwoman-io/postwoman/master?logo=Travis)](https://travis-ci.com/postwoman/postwoman) [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
+[![Travis Build Status](https://img.shields.io/travis/com/postwoman-io/postwoman/master?logo=Travis)](https://travis-ci.com/postwoman-io/postwoman) [![GitHub release](https://img.shields.io/github/release/postwoman-io/postwoman/all?logo=GitHub)](https://github.com/postwoman-io/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
 
   </p>
   <p>
     <sub>Built with ❤︎ by
       <a href="https://github.com/liyasthomas">liyasthomas</a> and
-      <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">contributors</a>
+      <a href="https://github.com/postwoman-io/postwoman/graphs/contributors">contributors</a>
     </sub>
   </p>
 </div>
@@ -30,7 +30,7 @@
 **Donate: [GitHub Sponsors](https://github.com/sponsors/postwoman-io), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas), [PayPal](https://www.paypal.me/liyascthomas)**
 
 <div align="center">
-  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/postwoman/master/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
+  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/postwoman-io/postwoman/master/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
 </div>
 
 <details>
@@ -220,7 +220,7 @@ _Keep in mind: Translations aren't available for all source and target language 
 
 **To provide a localized experience for users around the world, you can add you own translations.**
 
-_**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/liyasthomas/postwoman/tree/i18n) only!**_
+_**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/postwoman-io/postwoman/tree/i18n) only!**_
 
 📦 **Add-ons**: Official add-ons for Postwoman.
 
@@ -268,7 +268,7 @@ _Notes are only available for signed-in users_
 - If you need to update the value, you only have to change it in one place
 - Using variables increases your ability to work efficiently and minimizes the likelihood of error
 
-**To find out more, please check out [Postwoman Wiki](https://github.com/liyasthomas/postwoman/wiki).**
+**To find out more, please check out [Postwoman Wiki](https://github.com/postwoman-io/postwoman/wiki).**
 
 ## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io)
 
@@ -291,13 +291,13 @@ _Notes are only available for signed-in users_
 
 ## Developing 👷
 
-0. Update [`.env.example`](https://github.com/liyasthomas/postwoman/blob/master/.env.example) file found in repository's root directory with your own keys and rename it to `.env`.
+0. Update [`.env.example`](https://github.com/postwoman-io/postwoman/blob/master/.env.example) file found in repository's root directory with your own keys and rename it to `.env`.
 
 _Sample keys only works with the [production build](https://postwoman.io)._
 
 #### Browser based development environment
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/liyasthomas/postwoman)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/postwoman-io/postwoman)
 
 #### Local development environment
 
@@ -336,11 +336,11 @@ docker build -t postwoman:latest .
 
 Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/liyasthomas/postwoman?logo=Travis)](https://travis-ci.com/liyasthomas/postwoman)
+## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/postwoman-io/postwoman?logo=Travis)](https://travis-ci.com/postwoman-io/postwoman)
 
-We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/liyasthomas/postwoman).
+We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/postwoman-io/postwoman).
 
-## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/liyasthomas/postwoman/all?logo=GitHub)](https://github.com/liyasthomas/postwoman/releases/latest)
+## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/postwoman-io/postwoman/all?logo=GitHub)](https://github.com/postwoman-io/postwoman/releases/latest)
 
 This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
 
@@ -360,7 +360,7 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 ### Testing and Debugging
 
-- [Contributors](https://github.com/liyasthomas/postwoman/graphs/contributors)
+- [Contributors](https://github.com/postwoman-io/postwoman/graphs/contributors)
 
 ### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
@@ -397,7 +397,7 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-See the list of [contributors](https://github.com/liyasthomas/postwoman/graphs/contributors) who participated in this project.
+See the list of [contributors](https://github.com/postwoman-io/postwoman/graphs/contributors) who participated in this project.
 
 ### Thanks
 
@@ -430,7 +430,7 @@ Support this project with your organization. Your logo will show up here with a 
 
 This project exists thanks to all the people who contribute [[Contribute](CONTRIBUTING.md)].
 
-<a href="https://github.com/liyasthomas/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/postwoman-io/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
 
 ## License 📄
 

@@ -26,6 +26,8 @@ import "ace-builds/webpack-resolver"
 import jsonParse from "~/helpers/jsonParse"
 import debounce from "~/helpers/utils/debounce"
 
+import * as esprima from "esprima"
+
 export default {
   props: {
     value: {
@@ -34,15 +36,6 @@ export default {
     },
     theme: {
       type: String,
-      required: false,
-    },
-    lang: {
-      type: String,
-      default: "json",
-    },
-    lint: {
-      type: Boolean,
-      default: true,
       required: false,
     },
     options: {
@@ -75,9 +68,6 @@ export default {
         })
       })
     },
-    lang(value) {
-      this.editor.getSession().setMode("ace/mode/" + value)
-    },
     options(value) {
       this.editor.setOptions(value)
     },
@@ -85,7 +75,7 @@ export default {
 
   mounted() {
     const editor = ace.edit(this.$refs.editor, {
-      mode: `ace/mode/${this.lang}`,
+      mode: `ace/mode/javascript`,
       ...this.options,
     })
 
@@ -105,11 +95,10 @@ export default {
       const content = editor.getValue()
       this.$emit("input", content)
       this.cacheValue = content
-      if (this.lint) this.provideLinting(content)
+      this.provideLinting(content)
     })
 
-    // Disable linting, if lint prop is false
-    if (this.lint) this.provideLinting(this.value)
+    this.provideLinting(this.value)
   },
 
   methods: {
@@ -121,21 +110,39 @@ export default {
     },
 
     provideLinting: debounce(function (code) {
-      if (this.lang === "json") {
-        try {
-          jsonParse(code)
-          this.editor.session.setAnnotations([])
-        } catch (e) {
-          const pos = this.editor.session.getDocument().indexToPosition(e.start, 0)
-          this.editor.session.setAnnotations([
-            {
-              row: pos.row,
-              column: pos.column,
-              text: e.message,
-              type: "error",
-            },
-          ])
+      try {
+        const res = esprima.parseScript(code, { tolerant: true })
+        console.log(res)
+        if (res.errors && res.errors.length > 0) {
+          this.editor.session.setAnnotations(
+            res.errors.map((err) => {
+              const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+              console.log({
+                row: pos.row,
+                column: pos.column,
+                text: err.description,
+                type: "error",
+              })
+              return {
+                row: pos.row,
+                column: pos.column,
+                text: err.description,
+                type: "error",
+              }
+            })
+          )
         }
+      } catch (e) {
+        const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+        this.editor.session.setAnnotations([
+          {
+            row: pos.row,
+            column: pos.column,
+            text: e.description,
+            type: "error",
+          },
+        ])
       }
     }, 2000),
   },

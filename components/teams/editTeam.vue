@@ -35,14 +35,6 @@
               </button>
             </div>
           </div>
-          <!-- <textarea
-            id="memberList"
-            readonly
-            v-textarea-auto-height="memberString"
-            v-model="memberString"
-            :placeholder="$t('add_one_member')"
-            rows="1"
-          ></textarea> -->
         </li>
       </ul>
       <ul v-for="(member, index) in this.editingTeamCopy.members" :key="index">
@@ -149,13 +141,9 @@
 </template>
 
 <script>
-import textareaAutoHeight from "../../directives/textareaAutoHeight"
 import { fb } from "~/helpers/fb"
 
 export default {
-  directives: {
-    textareaAutoHeight,
-  },
   props: {
     show: Boolean,
     editingTeam: Object,

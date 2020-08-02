@@ -297,4 +297,6 @@
   "add_one_member": "(add at least one member)",
   "permissions": "Permissions",
   "email": "E-mail"
+  "pre_request_script": "Pre-request Script",
+  "tests": "Tests"
 }

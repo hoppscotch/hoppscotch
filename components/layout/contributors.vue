@@ -28,10 +28,9 @@
                 />
               </svg>
             </i>
-            <span>GitHub</span>
+            <span>GitHub Sponsors</span>
           </button>
         </a>
-        🎉 NEW
       </span>
     </div>
     <div class="flex-wrap">
@@ -47,21 +46,7 @@
             <span>{{ $t("open_collective") }}</span>
           </button>
         </a>
-        🔥 HOT
       </span>
-    </div>
-    <div>
-      <a
-        href="https://www.paypal.me/liyascthomas"
-        target="_blank"
-        rel="noopener"
-        v-tooltip.right="$t('one_time')"
-      >
-        <button class="icon">
-          <i class="material-icons">payment</i>
-          <span>{{ $t("paypal") }}</span>
-        </button>
-      </a>
     </div>
     <div>
       <a
@@ -73,6 +58,19 @@
         <button class="icon">
           <i class="material-icons">local_parking</i>
           <span>{{ $t("patreon") }}</span>
+        </button>
+      </a>
+    </div>
+    <div>
+      <a
+        href="https://www.paypal.me/liyascthomas"
+        target="_blank"
+        rel="noopener"
+        v-tooltip.right="$t('one_time')"
+      >
+        <button class="icon">
+          <i class="material-icons">payment</i>
+          <span>{{ $t("paypal") }}</span>
         </button>
       </a>
     </div>

@@ -120,7 +120,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/importCollections", collections)
+        this.$store.commit("postwoman/replaceCollections", collections)
         this.fileImported()
         this.syncToFBCollections()
       }

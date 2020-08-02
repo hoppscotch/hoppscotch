@@ -112,18 +112,11 @@ export default {
     provideLinting: debounce(function (code) {
       try {
         const res = esprima.parseScript(code, { tolerant: true })
-        console.log(res)
         if (res.errors && res.errors.length > 0) {
           this.editor.session.setAnnotations(
             res.errors.map((err) => {
               const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
 
-              console.log({
-                row: pos.row,
-                column: pos.column,
-                text: err.description,
-                type: "error",
-              })
               return {
                 row: pos.row,
                 column: pos.column,

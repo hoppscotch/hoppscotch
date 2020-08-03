@@ -849,9 +849,8 @@
                         </a>
                       </div>
                     </div>
-                    <Editor
+                    <JSEditor
                       v-model="preRequestScript"
-                      :lang="'javascript'"
                       :options="{
                         maxLines: '16',
                         minLines: '8',
@@ -895,9 +894,8 @@
                         </a>
                       </div>
                     </div>
-                    <Editor
+                    <JSEditor
                       v-model="testScript"
-                      :lang="'javascript'"
                       :options="{
                         maxLines: '16',
                         minLines: '8',
@@ -1282,6 +1280,7 @@ import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
 import AceEditor from "~/components/ui/ace-editor"
+import JSEditor from "~/components/ui/js-editor"
 import { tokenRequest, oauthRedirect } from "~/assets/js/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
@@ -1350,6 +1349,7 @@ export default {
     collections: () => import("~/components/collections"),
     saveRequestAs: () => import("~/components/collections/saveRequestAs"),
     Editor: AceEditor,
+    JSEditor: JSEditor,
     environments: () => import("~/components/environments"),
     inputform: () => import("~/components/firebase/inputform"),
     notes: () => import("~/components/firebase/feeds"),

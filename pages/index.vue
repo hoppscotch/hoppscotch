@@ -2200,6 +2200,19 @@ export default {
         body: this.response.body,
         headers: this.response.headers,
       }
+
+      // Parse JSON body
+      if (
+        syntheticResponse.headers["content-type"] &&
+        isJSONContentType(syntheticResponse.headers["content-type"])
+      ) {
+        try {
+          syntheticResponse.body = JSON.parse(
+            new TextDecoder("utf-8").decode(new Uint8Array(syntheticResponse.body))
+          )
+        } catch (_e) {}
+      }
+
       const { testResults } = runTestScriptWithVariables(this.testScript, {
         response: syntheticResponse,
       })

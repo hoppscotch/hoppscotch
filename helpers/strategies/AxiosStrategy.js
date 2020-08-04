@@ -23,7 +23,7 @@ const axiosWithProxy = async (req, { state }) => {
       }
     )
 
-    if (!data.data.success) {
+    if (!data.success) {
       throw new Error(data.data.message || "Proxy Error")
     }
 

@@ -23,6 +23,7 @@
   display: flex;
   flex-flow: column nowrap;
   flex-grow: 1;
+  overflow: hidden;
 
   .tabs {
     -webkit-overflow-scrolling: touch;

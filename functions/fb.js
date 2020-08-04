@@ -21,7 +21,7 @@ const usersCollection = firebase.firestore().collection("users")
 // the shared state object that any vue component
 // can get access to
 export const fb = {
-  currentUser: {},
+  currentUser: null,
   currentFeeds: [],
   currentSettings: [],
   currentHistory: [],
@@ -40,15 +40,15 @@ export const fb = {
       .doc(fb.currentUser.uid)
       .collection("feeds")
       .add(dt)
-      .catch(e => console.error("error inserting", dt, e))
+      .catch((e) => console.error("error inserting", dt, e))
   },
-  deleteFeed: id => {
+  deleteFeed: (id) => {
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("feeds")
       .doc(id)
       .delete()
-      .catch(e => console.error("error deleting", id, e))
+      .catch((e) => console.error("error deleting", id, e))
   },
   writeSettings: async (setting, value) => {
     const st = {
@@ -64,23 +64,23 @@ export const fb = {
       .collection("settings")
       .doc(setting)
       .set(st)
-      .catch(e => console.error("error updating", st, e))
+      .catch((e) => console.error("error updating", st, e))
   },
-  writeHistory: async entry => {
+  writeHistory: async (entry) => {
     const hs = entry
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("history")
       .add(hs)
-      .catch(e => console.error("error inserting", hs, e))
+      .catch((e) => console.error("error inserting", hs, e))
   },
-  deleteHistory: entry => {
+  deleteHistory: (entry) => {
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("history")
       .doc(entry.id)
       .delete()
-      .catch(e => console.error("error deleting", entry, e))
+      .catch((e) => console.error("error deleting", entry, e))
   },
   clearHistory: () => {
     usersCollection
@@ -88,7 +88,7 @@ export const fb = {
       .collection("history")
       .get()
       .then(({ docs }) => {
-        docs.forEach(e => fb.deleteHistory(e))
+        docs.forEach((e) => fb.deleteHistory(e))
       })
   },
   toggleStar: (entry, value) => {
@@ -97,9 +97,9 @@ export const fb = {
       .collection("history")
       .doc(entry.id)
       .update({ star: value })
-      .catch(e => console.error("error deleting", entry, e))
+      .catch((e) => console.error("error deleting", entry, e))
   },
-  writeCollections: async collection => {
+  writeCollections: async (collection) => {
     const cl = {
       updatedOn: new Date(),
       author: fb.currentUser.uid,
@@ -112,9 +112,9 @@ export const fb = {
       .collection("collections")
       .doc("sync")
       .set(cl)
-      .catch(e => console.error("error updating", cl, e))
+      .catch((e) => console.error("error updating", cl, e))
   },
-  writeEnvironments: async environment => {
+  writeEnvironments: async (environment) => {
     const ev = {
       updatedOn: new Date(),
       author: fb.currentUser.uid,
@@ -127,15 +127,15 @@ export const fb = {
       .collection("environments")
       .doc("sync")
       .set(ev)
-      .catch(e => console.error("error updating", ev, e))
+      .catch((e) => console.error("error updating", ev, e))
   },
 }
 
 // When a user logs in or out, save that in the store
-firebase.auth().onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged((user) => {
   if (user) {
     fb.currentUser = user
-    fb.currentUser.providerData.forEach(profile => {
+    fb.currentUser.providerData.forEach((profile) => {
       let us = {
         updatedOn: new Date(),
         provider: profile.providerId,
@@ -147,16 +147,16 @@ firebase.auth().onAuthStateChanged(user => {
       usersCollection
         .doc(fb.currentUser.uid)
         .set(us)
-        .catch(e => console.error("error updating", us, e))
+        .catch((e) => console.error("error updating", us, e))
     })
 
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("feeds")
       .orderBy("createdOn", "desc")
-      .onSnapshot(feedsRef => {
+      .onSnapshot((feedsRef) => {
         const feeds = []
-        feedsRef.forEach(doc => {
+        feedsRef.forEach((doc) => {
           const feed = doc.data()
           feed.id = doc.id
           feeds.push(feed)
@@ -167,9 +167,9 @@ firebase.auth().onAuthStateChanged(user => {
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("settings")
-      .onSnapshot(settingsRef => {
+      .onSnapshot((settingsRef) => {
         const settings = []
-        settingsRef.forEach(doc => {
+        settingsRef.forEach((doc) => {
           const setting = doc.data()
           setting.id = doc.id
           settings.push(setting)
@@ -180,9 +180,9 @@ firebase.auth().onAuthStateChanged(user => {
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("history")
-      .onSnapshot(historyRef => {
+      .onSnapshot((historyRef) => {
         const history = []
-        historyRef.forEach(doc => {
+        historyRef.forEach((doc) => {
           const entry = doc.data()
           entry.id = doc.id
           history.push(entry)
@@ -193,9 +193,9 @@ firebase.auth().onAuthStateChanged(user => {
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("collections")
-      .onSnapshot(collectionsRef => {
+      .onSnapshot((collectionsRef) => {
         const collections = []
-        collectionsRef.forEach(doc => {
+        collectionsRef.forEach((doc) => {
           const collection = doc.data()
           collection.id = doc.id
           collections.push(collection)
@@ -206,9 +206,9 @@ firebase.auth().onAuthStateChanged(user => {
     usersCollection
       .doc(fb.currentUser.uid)
       .collection("environments")
-      .onSnapshot(environmentsRef => {
+      .onSnapshot((environmentsRef) => {
         const environments = []
-        environmentsRef.forEach(doc => {
+        environmentsRef.forEach((doc) => {
           const environment = doc.data()
           environment.id = doc.id
           environments.push(environment)

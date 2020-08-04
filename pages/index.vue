@@ -262,6 +262,14 @@
                       </button>
                     </label>
                     <input ref="payload" name="payload" type="file" @change="uploadPayload" />
+                    <button
+                      class="icon"
+                      @click="prettifyRequestBody()"
+                      v-tooltip="$t('prettify_body')"
+                      v-if="rawInput && this.contentType.endsWith('json')"
+                    >
+                      <i class="material-icons">assistant</i>
+                    </button>
                   </div>
                 </div>
               </li>
@@ -848,6 +856,26 @@
                       "
                     />
                   </li>
+                  <li>
+                    <span class="select-wrapper">
+                      <select
+                        :name="'type' + index"
+                        @change="
+                          $store.commit('setTypeParams', {
+                            index,
+                            value: $event.target.value,
+                          })
+                        "
+                      >
+                        <option value="query" :selected="param.type === 'query'">{{
+                          $t("query")
+                        }}</option>
+                        <option value="path" :selected="param.type === 'path'">{{
+                          $t("path")
+                        }}</option>
+                      </select>
+                    </span>
+                  </li>
                   <div>
                     <li>
                       <button
@@ -902,12 +930,6 @@
                 readonly
                 type="text"
               />
-            </li>
-          </ul>
-          <ul v-for="(value, key) in response.headers" :key="key">
-            <li>
-              <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
             </li>
           </ul>
           <ul v-if="response.body">
@@ -979,6 +1001,12 @@
                   </span>
                 </button>
               </div>
+            </li>
+          </ul>
+          <ul v-for="(value, key) in response.headers" :key="key" class="response-headers">
+            <li>
+              <label :for="key">{{ key }}</label>
+              <input :id="key" :value="value" :name="key" readonly />
             </li>
           </ul>
         </pw-section>
@@ -1305,6 +1333,12 @@ import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
 import { sendNetworkRequest } from "../functions/network"
 import { fb } from "../functions/fb"
 import { getEditorLangForMimeType } from "~/functions/editorutils"
+import {
+  hasPathParams,
+  addPathParamsToVariables,
+  getQueryParams,
+} from "../functions/requestParams.js"
+import { parseUrlAndPath } from "../functions/utils/uri.js"
 const statusCategories = [
   {
     name: "informational",
@@ -1474,7 +1508,8 @@ export default {
           this.responseType === "application/vnd.api+json"
         ) {
           this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType = "json"
+          this.responseBodyType =
+            this.response.body.constructor.name === "Object" ? "json" : "json5"
         } else if (this.responseType === "text/html") {
           this.responseBodyText = this.response.body
           this.responseBodyType = "html"
@@ -1491,8 +1526,7 @@ export default {
           return
         }
         let path = this.path
-        let queryString = newValue
-          .filter(({ key }) => !!key)
+        let queryString = getQueryParams(newValue)
           .map(({ key, value }) => `${key}=${value}`)
           .join("&")
         queryString = queryString === "" ? "" : `?${queryString}`
@@ -1502,6 +1536,7 @@ export default {
           path = path + queryString
         }
         this.path = path
+        this.setRouteQueryState()
       },
       deep: true,
     },
@@ -1572,20 +1607,14 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
         let url = value
-        if (this.preRequestScript && this.showPreRequestScript) {
-          const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
           url = parseTemplateString(value, environmentVariables)
         }
-        try {
-          url = new URL(url)
-          this.url = url.origin
-          this.path = url.pathname
-        } catch (error) {
-          console.log(error)
-          let uriRegex = value.match(/^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/)
-          this.url = uriRegex[1]
-          this.path = uriRegex[4]
-        }
+        let result = parseUrlAndPath(url)
+        this.url = result.url
+        this.path = result.path
       },
     },
     url: {
@@ -1881,8 +1910,7 @@ export default {
       return result === "" ? "" : `${result}`
     },
     queryString() {
-      const result = this.params
-        .filter(({ key }) => !!key)
+      const result = getQueryParams(this.params)
         .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
@@ -1904,7 +1932,7 @@ export default {
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
+            if (key) requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
           })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
@@ -1939,7 +1967,7 @@ export default {
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            headers.push(`    "${key}": "${value}",\n`)
+            if (key) headers.push(`    "${key}": "${value}",\n`)
           })
         }
         headers = headers.join("").slice(0, -2)
@@ -1969,7 +1997,7 @@ export default {
         }
         if (this.headers) {
           this.headers.forEach(({ key, value }) => {
-            requestString.push(`  -H '${key}: ${value}' \n`)
+            if (key) requestString.push(`  -H '${key}: ${value}' \n`)
           })
         }
         if (["POST", "PUT", "PATCH"].includes(this.method)) {
@@ -2038,8 +2066,10 @@ export default {
         data: requestBody,
         credentials: true,
       }
-      if (preRequestScript) {
-        const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
+
+      if (preRequestScript || hasPathParams(this.params)) {
+        let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
         requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
         for (let k in requestOptions.headers) {
@@ -2082,7 +2112,7 @@ export default {
       let headers = {}
       let headersObject = {}
       Object.keys(headers).forEach((id) => {
-        headersObject[headers[id].key] = headers[id].value
+        if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
       // If the request has a body, we want to ensure Content-Length and
@@ -2118,7 +2148,7 @@ export default {
         // headers
       )
       Object.keys(headers).forEach((id) => {
-        headersObject[headers[id].key] = headers[id].value
+        if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
       try {
@@ -2140,6 +2170,7 @@ export default {
           const body = (this.response.body = payload.data)
           const date = new Date().toLocaleDateString()
           const time = new Date().toLocaleTimeString()
+
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
@@ -2154,6 +2185,14 @@ export default {
             duration,
             star: false,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+            entry.url = parseTemplateString(entry.url, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {
@@ -2162,7 +2201,7 @@ export default {
           }
         })()
       } catch (error) {
-        console.error(error)
+        console.log(error)
         if (error.response) {
           this.response.headers = error.response.headers
           this.response.status = error.response.status
@@ -2179,6 +2218,14 @@ export default {
             usesScripts: Boolean(this.preRequestScript),
             preRequestScript: this.preRequestScript,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+            entry.url = parseTemplateString(entry.url, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {
@@ -2260,7 +2307,7 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "" })
+      this.$store.commit("addParams", { key: "", value: "", type: "query" })
       return false
     },
     removeRequestParam(index) {
@@ -2297,6 +2344,16 @@ export default {
         },
       })
     },
+    prettifyRequestBody() {
+      try {
+        const jsonObj = JSON.parse(this.rawParams)
+        this.rawParams = JSON.stringify(jsonObj, null, 2)
+      } catch (e) {
+        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
+          icon: "error",
+        })
+      }
+    },
     copyRequest() {
       if (navigator.share) {
         const time = new Date().toLocaleTimeString()
@@ -2308,7 +2365,7 @@ export default {
             url: window.location.href,
           })
           .then(() => {})
-          .catch(console.error)
+          .catch(() => {})
       } else {
         const dummy = document.createElement("input")
         document.body.appendChild(dummy)
@@ -2558,9 +2615,10 @@ export default {
         })
         return
       }
+      let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
-        url: this.url,
-        path: this.path,
+        url: urlAndPath.url,
+        path: urlAndPath.path,
         method: this.method,
         auth: this.auth,
         httpUser: this.httpUser,

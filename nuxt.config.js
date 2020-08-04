@@ -34,13 +34,6 @@ export default {
   server: {
     host: "0.0.0.0", // default: localhost
   },
-  render: {
-    bundleRenderer: {
-      shouldPreload: (file, type) => {
-        return ["script", "style", "font"].includes(type)
-      },
-    },
-  },
   head: {
     title: `${options.name} \u2022 ${options.shortDescription}`,
     meta: [
@@ -252,6 +245,12 @@ export default {
         name: "简体中文",
         iso: "zh-CN",
         file: "zh-CN.json",
+      },
+      {
+        code: "tw",
+        name: "繁體中文",
+        iso: "zh-TW",
+        file: "zh-TW.json",
       },
       {
         code: "id",

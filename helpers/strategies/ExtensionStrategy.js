@@ -27,7 +27,7 @@ const extensionWithProxy = async (req, { state }) => {
 
   const parsedData = JSON.parse(data)
 
-  if (!parsedData.data.success) {
+  if (!parsedData.success) {
     throw new Error(parsedData.data.message || "Proxy Error")
   }
 

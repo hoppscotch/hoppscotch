@@ -4,8 +4,7 @@ require("dotenv").config()
 export const options = {
   name: "Postwoman",
   shortDescription: "A free, fast and beautiful API request builder",
-  description:
-    "Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
+  description: "Helps you create requests faster, saving precious time on development.",
   loading: {
     color: "#202124",
   },

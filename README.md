@@ -99,7 +99,7 @@
 
 _Customized themes are synced with local session storage_
 
-🔥 **PWA**: Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
+🔥 **PWA**: [Install as a PWA](https://postwoman.io/) on your device. [[More Info](https://developers.google.com/web/progressive-web-apps)]
 
 **Features:**
 

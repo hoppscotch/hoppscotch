@@ -131,12 +131,10 @@
       </ul>
       <ul class="info">
         <li v-if="extensionVersion != null">
-          Extension Verison: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
         </li>
 
-        <li v-else>
-          Extension Verison: Not Reported
-        </li>
+        <li v-else>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</li>
       </ul>
     </pw-section>
 

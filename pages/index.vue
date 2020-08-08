@@ -935,19 +935,19 @@
       <aside v-if="activeSidebar" class="sticky-inner inner-right">
         <section>
           <tabs>
-            <tab :id="'history'" icon="'watch_later'" :label="$t('history')" :selected="true">
+            <tab :id="'history'" :icon="'watch_later'" :label="$t('history')" :selected="true">
               <history @useHistory="handleUseHistory" ref="historyComponent" />
             </tab>
 
-            <tab :id="'collections'" icon="'folder_special'" :label="$t('collections')">
+            <tab :id="'collections'" :icon="'folder_special'" :label="$t('collections')">
               <collections />
             </tab>
 
-            <tab :id="'env'" icon="'style'" :label="$t('environments')">
+            <tab :id="'env'" :icon="'style'" :label="$t('environments')">
               <environments @use-environment="useSelectedEnvironment($event)" />
             </tab>
 
-            <tab :id="'notes'" icon="'note'" :label="$t('notes')">
+            <tab :id="'notes'" :icon="'note'" :label="$t('notes')">
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />

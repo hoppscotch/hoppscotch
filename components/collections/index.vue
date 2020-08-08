@@ -42,7 +42,7 @@ TODO:
     <div class="flex-wrap">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
+          <icon icon="add" />
           <span>{{ $t("new") }}</span>
         </button>
       </div>
@@ -56,13 +56,13 @@ TODO:
           rel="noopener"
         >
           <button class="icon" v-tooltip="'Wiki'">
-            <i class="material-icons">help_outline</i>
+            <icon icon="help_outline"/>
           </button>
         </a> -->
       </div>
     </div>
     <p v-if="collections.length === 0" class="info">
-      <i class="material-icons">help_outline</i> Create new collection
+      <icon icon="help_outline" /> Create new collection
     </p>
     <div class="virtual-list">
       <ul>

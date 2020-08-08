@@ -8,7 +8,7 @@
           </label>
         </li>
         <button class="icon" @click="deleteFeed(feed)">
-          <i class="material-icons">delete</i>
+          <icon icon="delete" />
         </button>
       </div>
       <div class="show-on-large-screen">

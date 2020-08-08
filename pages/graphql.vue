@@ -19,7 +19,7 @@
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
                 <button id="get" name="get" @click="getSchema">
                   {{ $t("get_schema") }}
-                  <span><i class="material-icons">send</i></span>
+                  <span><icon icon="send" /></span>
                 </button>
               </li>
             </div>
@@ -33,7 +33,7 @@
                 <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
-                    <i class="material-icons">clear_all</i>
+                    <icon icon="clear_all" />
                   </button>
                 </div>
               </div>
@@ -77,7 +77,7 @@
                   v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
-                  <i class="material-icons">delete</i>
+                  <icon icon="delete" />
                 </button>
               </li>
             </div>
@@ -85,7 +85,7 @@
           <ul>
             <li>
               <button class="icon" @click="addRequestHeader">
-                <i class="material-icons">add</i>
+                <icon icon="add" />
                 <span>{{ $t("add_new") }}</span>
               </button>
             </li>
@@ -104,9 +104,8 @@
                   content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
                 }"
               >
-                <i class="material-icons">
-                  {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-                </i>
+                <icon v-if="expandResponse" icon="unfold_less" />
+                <icon v-else icon="unfold_more" />
               </button>
               <button
                 class="icon"
@@ -114,7 +113,7 @@
                 ref="downloadSchema"
                 v-tooltip="$t('download_file')"
               >
-                <i class="material-icons">save_alt</i>
+                <icon icon="save_alt" />
               </button>
               <button
                 class="icon"
@@ -122,7 +121,7 @@
                 @click="copySchema"
                 v-tooltip="$t('copy_schema')"
               >
-                <i class="material-icons">content_copy</i>
+                <icon icon="content_copy" />
               </button>
             </div>
           </div>
@@ -160,7 +159,7 @@
                 @click="runQuery()"
                 v-tooltip.bottom="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
               >
-                <i class="material-icons">play_arrow</i>
+                <icon icon="play_arrow" />
               </button>
               <button
                 class="icon"
@@ -168,14 +167,14 @@
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
               >
-                <i class="material-icons">content_copy</i>
+                <icon icon="content_copy" />
               </button>
               <button
                 class="icon"
                 @click="doPrettifyQuery"
                 v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
               >
-                <i class="material-icons">photo_filter</i>
+                <icon icon="photo_filter" />
               </button>
             </div>
           </div>
@@ -220,7 +219,7 @@
                 v-if="response"
                 v-tooltip="$t('download_file')"
               >
-                <i class="material-icons">save_alt</i>
+                <icon icon="save_alt" />
               </button>
               <button
                 class="icon"
@@ -229,7 +228,7 @@
                 v-if="response"
                 v-tooltip="$t('copy_response')"
               >
-                <i class="material-icons">content_copy</i>
+                <icon icon="content_copy" />
               </button>
             </div>
           </div>
@@ -355,9 +354,9 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      copyButton: '<i class="material-icons">content_copy</i>',
-      downloadButton: '<i class="material-icons">save_alt</i>',
-      doneButton: '<i class="material-icons">done</i>',
+      copyButton: '<icon icon="content_copy"/>',
+      downloadButton: '<icon icon="save_alt"/>',
+      doneButton: '<icon icon="done"/>',
       expandResponse: false,
       responseBodyMaxLines: 16,
 

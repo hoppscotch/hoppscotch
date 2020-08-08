@@ -30,7 +30,7 @@
           value="Save"
           @click="formPost"
         >
-          <i class="material-icons">add</i>
+          <icon icon="add" />
           <span>Add</span>
         </button>
       </div>

@@ -13,9 +13,8 @@
               content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
             }"
           >
-            <i class="material-icons">
-              {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-            </i>
+            <icon v-if="expandResponse" icon="unfold_less" />
+            <icon v-else icon="unfold_more" />
           </button>
           <button
             class="icon"
@@ -24,7 +23,7 @@
             v-if="response.body"
             v-tooltip="$t('download_file')"
           >
-            <i class="material-icons">save_alt</i>
+            <icon icon="save_alt" />
           </button>
           <button
             class="icon"
@@ -33,7 +32,7 @@
             v-if="response.body"
             v-tooltip="$t('copy_response')"
           >
-            <i class="material-icons">content_copy</i>
+            <icon icon="content_copy" />
           </button>
         </div>
       </div>
@@ -71,9 +70,9 @@ export default {
     return {
       expandResponse: false,
       responseBodyMaxLines: 16,
-      doneButton: '<i class="material-icons">done</i>',
-      downloadButton: '<i class="material-icons">save_alt</i>',
-      copyButton: '<i class="material-icons">content_copy</i>',
+      doneButton: '<icon icon="done"/>',
+      downloadButton: '<icon icon="save_alt"/>',
+      copyButton: '<icon icon="content_copy"/>',
     }
   },
   computed: {

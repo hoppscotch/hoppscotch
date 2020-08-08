@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("new_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
+                <icon icon="close" />
               </button>
             </div>
           </div>

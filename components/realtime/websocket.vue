@@ -19,9 +19,8 @@
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
               <span>
-                <i class="material-icons">
-                  {{ !connectionState ? "sync" : "sync_disabled" }}
-                </i>
+                <icon v-if="connectionState" icon="sync_disabled" />
+                <icon v-else icon="sync" />
               </span>
             </button>
           </li>
@@ -55,7 +54,7 @@
             <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
               {{ $t("send") }}
               <span>
-                <i class="material-icons">send</i>
+                <icon icon="send" />
               </span>
             </button>
           </li>

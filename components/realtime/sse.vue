@@ -18,9 +18,8 @@
             <button :disabled="!serverValid" id="start" name="start" @click="toggleSSEConnection">
               {{ !connectionSSEState ? $t("start") : $t("stop") }}
               <span>
-                <i class="material-icons">
-                  {{ !connectionSSEState ? "sync" : "sync_disabled" }}
-                </i>
+                <icon v-if="connectionState" icon="sync_disabled" />
+                <icon v-else icon="sync" />
               </span>
             </button>
           </li>

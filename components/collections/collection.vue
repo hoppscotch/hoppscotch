@@ -2,9 +2,9 @@
   <div>
     <div class="flex-wrap">
       <button class="icon" @click="toggleShowChildren">
-        <i class="material-icons" v-show="!showChildren">arrow_right</i>
-        <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
-        <i class="material-icons">folder</i>
+        <icon v-show="!showChildren" icon="arrow_right" />
+        <icon v-show="showChildren" icon="arrow_drop_down" />
+        <icon icon="folder" />
         <span>{{ collection.name }}</span>
       </button>
       <div>
@@ -14,28 +14,28 @@
           @click="$emit('select-collection')"
           v-tooltip.left="$t('import')"
         >
-          <i class="material-icons">topic</i>
+          <icon icon="topic" />
         </button>
         <v-popover>
           <button class="tooltip-target icon" v-tooltip.left="$t('more')">
-            <i class="material-icons">more_vert</i>
+            <icon icon="more_vert" />
           </button>
           <template slot="popover">
             <div>
               <button class="icon" @click="$emit('add-folder')" v-close-popover>
-                <i class="material-icons">create_new_folder</i>
+                <icon icon="create_new_folder" />
                 <span>{{ $t("new_folder") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="$emit('edit-collection')" v-close-popover>
-                <i class="material-icons">create</i>
+                <icon icon="create" />
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="removeCollection" v-close-popover>
-                <i class="material-icons">delete</i>
+                <icon icon="delete" />
                 <span>{{ $t("delete") }}</span>
               </button>
             </div>

@@ -10,14 +10,14 @@
                 :src="fb.currentUser.photoURL"
                 class="material-icons"
               />
-              <i v-else class="material-icons">account_circle</i>
+              <icon v-else icon="account_circle" />
               <span>
                 {{ fb.currentUser.displayName || $t("nothing_found") }}
               </span>
             </button>
             <br />
             <button class="icon">
-              <i class="material-icons">email</i>
+              <icon icon="email" />
               <span>
                 {{ fb.currentUser.email || $t("nothing_found") }}
               </span>
@@ -36,7 +36,7 @@
             </p>
             <p v-if="fb.currentSettings.length !== 3">
               <button class="" @click="initSettings">
-                <i class="material-icons">sync</i>
+                <icon icon="sync" />
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
               </button>
             </p>
@@ -154,7 +154,7 @@
               rel="noopener"
             >
               <button class="icon" v-tooltip="$t('wiki')">
-                <i class="material-icons">help_outline</i>
+                <icon icon="help_outline" />
               </button>
             </a>
           </div>
@@ -165,7 +165,7 @@
           <div class="flex-wrap">
             <label for="url">{{ $t("url") }}</label>
             <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
-              <i class="material-icons">clear_all</i>
+              <icon icon="clear_all" />
             </button>
           </div>
           <input
@@ -334,7 +334,7 @@ export default {
             : true,
       },
 
-      doneButton: '<i class="material-icons">done</i>',
+      doneButton: '<icon icon="done"/>',
       fb,
     }
   },
@@ -401,7 +401,7 @@ export default {
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(() => (target.innerHTML = '<icon icon="clear_all"/>'), 1000)
     },
     syncCollections() {
       if (fb.currentUser !== null) {

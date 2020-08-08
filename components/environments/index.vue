@@ -14,7 +14,7 @@
     <div class="flex-wrap">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
+          <icon icon="add" />
           <span>{{ $t("new") }}</span>
         </button>
       </div>
@@ -25,7 +25,7 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      <i class="material-icons">help_outline</i> Create new environment
+      <icon icon="help_outline" /> Create new environment
     </p>
     <div class="virtual-list">
       <ul>

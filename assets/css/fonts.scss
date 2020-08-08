@@ -1,21 +1,7 @@
 // @import url("https://fonts.googleapis.com/css?family=Poppins:500,700|Roboto+Mono:400&display=swap");
-// @import url("https://fonts.googleapis.com/icon?family=Material+Icons&display=swap");
 
 /* Material Design Icons */
-@font-face {
-  font-family: "Material Icons";
-  font-style: normal;
-  font-weight: 400;
-  // Do not use font-display: swap for the icon font - it looks really bad when the page
-  // loads.
-  font-display: block;
-  src: url("~static/fonts/material-icons-v54.woff2") format("woff2");
-}
-
 .material-icons {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   height: 24px;
   width: 24px;
   font-size: 24px;
@@ -30,6 +16,7 @@
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "liga";
   border-radius: 50%;
+  overflow: hidden;
 }
 
 /* poppins-500 - latin */

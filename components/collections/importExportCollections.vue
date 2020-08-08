@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
+                <icon icon="close" />
               </button>
             </div>
           </div>
@@ -18,7 +18,7 @@
               }"
             >
               <button :disabled="!fb.currentUser" class="icon" @click="syncCollections">
-                <i class="material-icons">folder_shared</i>
+                <icon icon="folder_shared" />
                 <span>{{ $t("import_from_sync") }}</span>
               </button>
             </span>
@@ -27,7 +27,7 @@
               @click="openDialogChooseFileToReplaceWith"
               v-tooltip="$t('replace_current')"
             >
-              <i class="material-icons">create_new_folder</i>
+              <icon icon="create_new_folder" />
               <span>{{ $t("replace_json") }}</span>
               <input
                 type="file"
@@ -42,7 +42,7 @@
               @click="openDialogChooseFileToImportFrom"
               v-tooltip="$t('preserve_current')"
             >
-              <i class="material-icons">folder_special</i>
+              <icon icon="folder_special" />
               <span>{{ $t("import_json") }}</span>
               <input
                 type="file"

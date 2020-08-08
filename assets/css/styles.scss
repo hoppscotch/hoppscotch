@@ -461,10 +461,13 @@ pre {
     display: inline-block;
     position: absolute;
     pointer-events: none;
-    content: "\e313";
-    font-family: "Material Icons";
+    content: "";
+    background: url("../icons/keyboard_arrow_down-white.svg") no-repeat;
+    background-size: 14px 14px;
     top: 14px;
     right: 14px;
+    width: 14px;
+    height: 14px;
   }
 }
 

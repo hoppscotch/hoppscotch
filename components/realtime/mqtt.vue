@@ -12,7 +12,8 @@
             <button id="connect" :disabled="!validUrl" @click="toggleConnection">
               {{ this.connectionState ? $t("disconnect") : $t("connect") }}
               <span>
-                <i class="material-icons">{{ !connectionState ? "sync" : "sync_disabled" }}</i>
+                <icon v-if="connectionState" icon="sync_disabled" />
+                <icon v-else icon="sync" />
               </span>
             </button>
           </li>
@@ -41,7 +42,7 @@
             <button id="publish" name="get" :disabled="!canpublish" @click="publish">
               {{ $t("mqtt_publish") }}
               <span>
-                <i class="material-icons">send</i>
+                <icon icon="send" />
               </span>
             </button>
           </li>
@@ -58,7 +59,8 @@
             <button id="subscribe" name="get" :disabled="!cansubscribe" @click="toggleSubscription">
               {{ subscriptionState ? $t("mqtt_unsubscribe") : $t("mqtt_subscribe") }}
               <span>
-                <i class="material-icons">{{ subscriptionState ? "sync_disabled" : "sync" }}</i>
+                <icon v-if="subscriptionState" icon="sync_disabled" />
+                <icon v-else icon="sync" />
               </span>
             </button>
           </li>

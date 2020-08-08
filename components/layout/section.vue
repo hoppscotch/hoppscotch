@@ -2,9 +2,8 @@
   <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
-      <i class="material-icons">
-        {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
-      </i>
+      <icon v-if="isCollapsed(label)" icon="expand_more" />
+      <icon v-else icon="expand_less" />
     </legend>
     <div class="collapsible" :class="{ hidden: isCollapsed(label.toLowerCase()) }">
       <slot />

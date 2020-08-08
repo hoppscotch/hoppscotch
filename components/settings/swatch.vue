@@ -6,7 +6,7 @@
     v-tooltip="{ content: name || color }"
     :style="{ backgroundColor: color }"
   >
-    <i v-if="active" class="material-icons activeTick">done</i>
+    <icon v-if="active" class="activeTick" icon="done" />
   </div>
 </template>
 

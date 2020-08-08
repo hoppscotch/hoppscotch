@@ -19,7 +19,7 @@
                     @click="$refs.collectionUpload.click()"
                     v-tooltip="$t('json')"
                   >
-                    <i class="material-icons">folder</i>
+                    <icon icon="folder" />
                     <span>{{ $t("import_collections") }}</span>
                   </button>
                 </label>
@@ -35,7 +35,7 @@
                     @click="collectionJSON = '[]'"
                     v-tooltip.bottom="$t('clear')"
                   >
-                    <i class="material-icons">clear_all</i>
+                    <icon icon="clear_all" />
                   </button>
                 </div>
               </div>
@@ -61,7 +61,7 @@
           <ul>
             <li>
               <button class="icon" @click="getDoc">
-                <i class="material-icons">topic</i>
+                <icon icon="topic" />
                 <span>{{ $t("generate_docs") }}</span>
               </button>
             </li>
@@ -75,17 +75,17 @@
           <div>
             <span class="collection" v-for="(collection, index) in this.items" :key="index">
               <h2>
-                <i class="material-icons">folder</i>
+                <icon icon="folder" />
                 {{ collection.name || $t("none") }}
               </h2>
               <span class="folder" v-for="(folder, index) in collection.folders" :key="index">
                 <h3>
-                  <i class="material-icons">folder_open</i>
+                  <icon icon="folder_open" />
                   {{ folder.name || $t("none") }}
                 </h3>
                 <span class="request" v-for="(request, index) in folder.requests" :key="index">
                   <h4>
-                    <i class="material-icons">insert_drive_file</i>
+                    <icon icon="insert_drive_file" />
                     {{ request.name || $t("none") }}
                   </h4>
                   <p class="doc-desc" v-if="request.url">
@@ -182,7 +182,7 @@
                 :key="`request-${index}`"
               >
                 <h4>
-                  <i class="material-icons">insert_drive_file</i>
+                  <icon icon="insert_drive_file" />
                   {{ request.name || $t("none") }}
                 </h4>
                 <p class="doc-desc" v-if="request.url">

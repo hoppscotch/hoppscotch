@@ -18,7 +18,7 @@
         :class="linkActive('/realtime')"
         v-tooltip.right="$t('realtime')"
       >
-        <icon icon="language" />
+        <icon :icon="'language'" />
       </nuxt-link>
       <nuxt-link
         :to="localePath('graphql')"
@@ -26,7 +26,7 @@
         v-tooltip.right="$t('graphql')"
         :aria-label="$t('graphql')"
       >
-        <icon icon="graphql" />
+        <icon :icon="'graphql'" />
       </nuxt-link>
       <nuxt-link
         :to="localePath('doc')"
@@ -34,7 +34,7 @@
         v-tooltip.right="$t('documentation')"
         :aria-label="$t('documentation')"
       >
-        <icon icon="topic" />
+        <icon :icon="'topic'" />
       </nuxt-link>
       <nuxt-link
         :to="localePath('settings')"
@@ -42,7 +42,7 @@
         v-tooltip.right="$t('settings')"
         :aria-label="$t('settings')"
       >
-        <icon icon="settings" />
+        <icon :icon="'settings'" />
       </nuxt-link>
     </nav>
     <div v-if="$route.path == '/'">
@@ -50,17 +50,17 @@
         <ul>
           <li>
             <a href="#request" v-tooltip.right="$t('request')">
-              <icon icon="cloud_upload" />
+              <icon :icon="'cloud_upload'" />
             </a>
           </li>
           <li>
             <a href="#options" v-tooltip.right="$t('options')">
-              <icon icon="toc" />
+              <icon :icon="'toc'" />
             </a>
           </li>
           <li>
             <a href="#response" v-tooltip.right="$t('response')">
-              <icon icon="cloud_download" />
+              <icon :icon="'cloud_download'" />
             </a>
           </li>
         </ul>
@@ -71,12 +71,12 @@
         <ul>
           <li>
             <a href="#request" v-tooltip.right="$t('request')">
-              <icon icon="cloud_upload" />
+              <icon :icon="'cloud_upload'" />
             </a>
           </li>
           <li>
             <a href="#response" v-tooltip.right="$t('communication')">
-              <icon icon="cloud_download" />
+              <icon :icon="'cloud_download'" />
             </a>
           </li>
         </ul>
@@ -87,22 +87,22 @@
         <ul>
           <li>
             <a href="#endpoint" v-tooltip.right="$t('endpoint')">
-              <icon icon="cloud" />
+              <icon :icon="'cloud'" />
             </a>
           </li>
           <li>
             <a href="#schema" v-tooltip.right="$t('schema')">
-              <icon icon="assignment_returned" />
+              <icon :icon="'assignment_returned'" />
             </a>
           </li>
           <li>
             <a href="#query" v-tooltip.right="$t('query')">
-              <icon icon="cloud_upload" />
+              <icon :icon="'cloud_upload'" />
             </a>
           </li>
           <li>
             <a href="#response" v-tooltip.right="$t('response')">
-              <icon icon="cloud_download" />
+              <icon :icon="'cloud_download'" />
             </a>
           </li>
         </ul>
@@ -113,12 +113,12 @@
         <ul>
           <li>
             <a href="#import" v-tooltip.right="$t('import')">
-              <icon icon="folder" />
+              <icon :icon="'folder'" />
             </a>
           </li>
           <li>
             <a href="#documentation" v-tooltip.right="'Documentation'">
-              <icon icon="insert_drive_file" />
+              <icon :icon="'insert_drive_file'" />
             </a>
           </li>
         </ul>
@@ -129,22 +129,22 @@
         <ul>
           <li>
             <a href="#account" v-tooltip.right="$t('account')">
-              <icon icon="person" />
+              <icon :icon="'person'" />
             </a>
           </li>
           <li>
             <a href="#theme" v-tooltip.right="$t('theme')">
-              <icon icon="brush" />
+              <icon :icon="'brush'" />
             </a>
           </li>
           <li>
             <a href="#extensions" v-tooltip.right="$t('extensions')">
-              <icon icon="extensions" />
+              <icon :icon="'extensions'" />
             </a>
           </li>
           <li>
             <a href="#proxy" v-tooltip.right="$t('proxy')">
-              <icon icon="public" />
+              <icon :icon="'public'" />
             </a>
           </li>
         </ul>

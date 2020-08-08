@@ -15,7 +15,7 @@
           v-tooltip.right="$t('recurring')"
         >
           <button class="icon">
-            <icon icon="github" />
+            <icon :icon="'github'" />
             <span>GitHub Sponsors</span>
           </button>
         </a>
@@ -30,7 +30,7 @@
           v-tooltip.right="$t('one_time_recurring')"
         >
           <button class="icon">
-            <icon icon="donut_large" />
+            <icon :icon="'donut_large'" />
             <span>{{ $t("open_collective") }}</span>
           </button>
         </a>
@@ -44,7 +44,7 @@
         v-tooltip.right="$t('recurring')"
       >
         <button class="icon">
-          <icon icon="local_parking" />
+          <icon :icon="'local_parking'" />
           <span>{{ $t("patreon") }}</span>
         </button>
       </a>
@@ -57,7 +57,7 @@
         v-tooltip.right="$t('one_time')"
       >
         <button class="icon">
-          <icon icon="payment" />
+          <icon :icon="'payment'" />
           <span>{{ $t("paypal") }}</span>
         </button>
       </a>

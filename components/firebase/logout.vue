@@ -1,7 +1,7 @@
 <template>
   <div>
     <button class="icon" @click="logout" v-close-popover>
-      <icon icon="exit_to_app" />
+      <icon :icon="'exit_to_app'" />
       <span>{{ $t("logout") }}</span>
     </button>
   </div>

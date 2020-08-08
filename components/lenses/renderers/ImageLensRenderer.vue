@@ -11,7 +11,7 @@
             v-if="response.body"
             v-tooltip="$t('download_file')"
           >
-            <icon icon="save_alt" />
+            <icon :icon="'save_alt'" />
           </button>
         </div>
       </div>
@@ -36,8 +36,8 @@ export default {
   data() {
     return {
       imageSource: "",
-      doneButton: '<icon icon="done"/>',
-      downloadButton: '<icon icon="save_alt"/>',
+      doneButton: "<icon :icon=\"'done'\"/>",
+      downloadButton: "<icon :icon=\"'save_alt'\"/>",
     }
   },
   computed: {

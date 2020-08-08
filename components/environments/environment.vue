@@ -6,24 +6,24 @@
         @click="$emit('select-environment')"
         v-tooltip.bottom="$t('use_environment')"
       >
-        <icon icon="insert_drive_file" />
+        <icon :icon="'insert_drive_file'" />
         <span>{{ environment.name }}</span>
       </button>
     </div>
     <v-popover>
       <button class="tooltip-target icon" v-tooltip.left="$t('more')">
-        <icon icon="more_vert" />
+        <icon :icon="'more_vert'" />
       </button>
       <template slot="popover">
         <div>
           <button class="icon" @click="$emit('edit-environment')" v-close-popover>
-            <icon icon="create" />
+            <icon :icon="'create'" />
             <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div>
           <button class="icon" @click="removeEnvironment" v-close-popover>
-            <icon icon="delete" />
+            <icon :icon="'delete'" />
             <span>{{ $t("delete") }}</span>
           </button>
         </div>

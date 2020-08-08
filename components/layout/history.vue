@@ -3,7 +3,7 @@
     <div class="show-on-large-screen">
       <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
       <button class="icon">
-        <icon icon="search" />
+        <icon :icon="'search'" />
       </button>
     </div>
     <div class="virtual-list" :class="{ filled: filteredHistory.length }">
@@ -45,7 +45,7 @@
           </li> -->
           <v-popover>
             <button class="tooltip-target icon" v-tooltip="$t('options')">
-              <icon icon="more_vert" />
+              <icon :icon="'more_vert'" />
             </button>
             <template slot="popover">
               <div>
@@ -56,7 +56,7 @@
                   :aria-label="$t('edit')"
                   v-close-popover
                 >
-                  <icon icon="restore" />
+                  <icon :icon="'restore'" />
                   <span>{{ $t("restore") }}</span>
                 </button>
               </div>
@@ -68,7 +68,7 @@
                   :aria-label="$t('delete')"
                   v-close-popover
                 >
-                  <icon icon="delete" />
+                  <icon :icon="'delete'" />
                   <span>{{ $t("delete") }}</span>
                 </button>
               </div>
@@ -152,7 +152,7 @@
       </li>
     </ul>
     <p v-if="history.length === 0" class="info">
-      <icon icon="schedule" /> {{ $t("history_empty") }}
+      <icon :icon="'schedule'" /> {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
       <div class="flex-wrap" v-if="!isClearingHistory">
@@ -162,47 +162,47 @@
           :disabled="history.length === 0"
           @click="enableHistoryClearing"
         >
-          <icon icon="clear_all" />
+          <icon :icon="'clear_all'" />
           <span>{{ $t("clear_all") }}</span>
         </button>
         <v-popover>
           <button class="tooltip-target icon" v-tooltip="$t('sort')">
-            <icon icon="sort" />
+            <icon :icon="'sort'" />
           </button>
           <template slot="popover">
             <div>
               <button class="icon" @click="sort_by_label()" v-close-popover>
-                <icon icon="sort_by_alpha" />
+                <icon :icon="'sort_by_alpha'" />
                 <span>{{ $t("label") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_time()" v-close-popover>
-                <icon icon="access_time" />
+                <icon :icon="'access_time'" />
                 <span>{{ $t("time") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_status_code()" v-close-popover>
-                <icon icon="assistant" />
+                <icon :icon="'assistant'" />
                 <span>{{ $t("status") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_url()" v-close-popover>
-                <icon icon="language" />
+                <icon :icon="'language'" />
                 <span>{{ $t("url") }}</span>
               </button>
             </div>
             <div>
               <button class="icon" @click="sort_by_path()" v-close-popover>
-                <icon icon="timeline" />
+                <icon :icon="'timeline'" />
                 <span>{{ $t("path") }}</span>
               </button>
             </div>
             <div v-if="showMore">
               <button class="icon" @click="sort_by_duration()" v-close-popover>
-                <icon icon="timer" />
+                <icon :icon="'timer'" />
                 <span>{{ $t("duration") }}</span>
               </button>
             </div>
@@ -218,7 +218,7 @@
       </div>
       <div class="flex-wrap" v-else>
         <label for="clear-history-button" class="info">
-          <icon icon="help_outline" /> {{ $t("are_you_sure") }}
+          <icon :icon="'help_outline'" /> {{ $t("are_you_sure") }}
         </label>
         <div>
           <button
@@ -227,7 +227,7 @@
             @click="clearHistory"
             v-tooltip="$t('yes')"
           >
-            <icon icon="done" />
+            <icon :icon="'done'" />
           </button>
           <button
             class="icon"
@@ -235,7 +235,7 @@
             @click="disableHistoryClearing"
             v-tooltip="$t('no')"
           >
-            <icon icon="close" />
+            <icon :icon="'close'" />
           </button>
         </div>
       </div>

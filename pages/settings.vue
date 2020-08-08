@@ -17,7 +17,7 @@
             </button>
             <br />
             <button class="icon">
-              <icon icon="email" />
+              <icon :icon="'email'" />
               <span>
                 {{ fb.currentUser.email || $t("nothing_found") }}
               </span>
@@ -36,7 +36,7 @@
             </p>
             <p v-if="fb.currentSettings.length !== 3">
               <button class="" @click="initSettings">
-                <icon icon="sync" />
+                <icon :icon="'sync'" />
                 <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
               </button>
             </p>
@@ -154,7 +154,7 @@
               rel="noopener"
             >
               <button class="icon" v-tooltip="$t('wiki')">
-                <icon icon="help_outline" />
+                <icon :icon="'help_outline'" />
               </button>
             </a>
           </div>
@@ -165,7 +165,7 @@
           <div class="flex-wrap">
             <label for="url">{{ $t("url") }}</label>
             <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
-              <icon icon="clear_all" />
+              <icon :icon="'clear_all'" />
             </button>
           </div>
           <input
@@ -334,7 +334,7 @@ export default {
             : true,
       },
 
-      doneButton: '<icon icon="done"/>',
+      doneButton: "<icon :icon=\"'done'\"/>",
       fb,
     }
   },
@@ -401,7 +401,7 @@ export default {
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<icon icon="clear_all"/>'), 1000)
+      setTimeout(() => (target.innerHTML = "<icon :icon=\"'clear_all'\"/>"), 1000)
     },
     syncCollections() {
       if (fb.currentUser !== null) {

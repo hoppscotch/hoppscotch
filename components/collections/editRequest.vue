@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("edit_request") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <icon icon="close" />
+                <icon :icon="'close'" />
               </button>
             </div>
           </div>

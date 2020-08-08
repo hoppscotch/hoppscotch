@@ -37,12 +37,12 @@
         </a>
         <a href="mailto:hello@postwoman.io" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="$t('contact_us')">
-            <icon icon="email" />
+            <icon :icon="'email'" />
           </button>
         </a>
         <v-popover>
           <button class="icon" v-tooltip="$t('choose_language')">
-            <icon icon="translate" />
+            <icon :icon="'translate'" />
           </button>
           <template slot="popover">
             <div v-for="locale in availableLocales" :key="locale.code">

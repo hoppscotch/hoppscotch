@@ -2,13 +2,13 @@
   <div>
     <div>
       <button class="icon" @click="signInWithGoogle" v-close-popover>
-        <icon icon="google" />
+        <icon :icon="'google'" />
         <span>Google</span>
       </button>
     </div>
     <div>
       <button class="icon" @click="signInWithGithub" v-close-popover>
-        <icon icon="github" />
+        <icon :icon="'github'" />
         <span>GitHub</span>
       </button>
     </div>

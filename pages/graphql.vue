@@ -19,7 +19,7 @@
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
                 <button id="get" name="get" @click="getSchema">
                   {{ $t("get_schema") }}
-                  <span><icon icon="send" /></span>
+                  <span><icon :icon="'send'" /></span>
                 </button>
               </li>
             </div>
@@ -33,7 +33,7 @@
                 <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
-                    <icon icon="clear_all" />
+                    <icon :icon="'clear_all'" />
                   </button>
                 </div>
               </div>
@@ -77,7 +77,7 @@
                   v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
-                  <icon icon="delete" />
+                  <icon :icon="'delete'" />
                 </button>
               </li>
             </div>
@@ -85,7 +85,7 @@
           <ul>
             <li>
               <button class="icon" @click="addRequestHeader">
-                <icon icon="add" />
+                <icon :icon="'add'" />
                 <span>{{ $t("add_new") }}</span>
               </button>
             </li>
@@ -113,7 +113,7 @@
                 ref="downloadSchema"
                 v-tooltip="$t('download_file')"
               >
-                <icon icon="save_alt" />
+                <icon :icon="'save_alt'" />
               </button>
               <button
                 class="icon"
@@ -121,7 +121,7 @@
                 @click="copySchema"
                 v-tooltip="$t('copy_schema')"
               >
-                <icon icon="content_copy" />
+                <icon :icon="'content_copy'" />
               </button>
             </div>
           </div>
@@ -159,7 +159,7 @@
                 @click="runQuery()"
                 v-tooltip.bottom="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
               >
-                <icon icon="play_arrow" />
+                <icon :icon="'play_arrow'" />
               </button>
               <button
                 class="icon"
@@ -167,14 +167,14 @@
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
               >
-                <icon icon="content_copy" />
+                <icon :icon="'content_copy'" />
               </button>
               <button
                 class="icon"
                 @click="doPrettifyQuery"
                 v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
               >
-                <icon icon="photo_filter" />
+                <icon :icon="'photo_filter'" />
               </button>
             </div>
           </div>
@@ -219,7 +219,7 @@
                 v-if="response"
                 v-tooltip="$t('download_file')"
               >
-                <icon icon="save_alt" />
+                <icon :icon="'save_alt'" />
               </button>
               <button
                 class="icon"
@@ -228,7 +228,7 @@
                 v-if="response"
                 v-tooltip="$t('copy_response')"
               >
-                <icon icon="content_copy" />
+                <icon :icon="'content_copy'" />
               </button>
             </div>
           </div>
@@ -354,9 +354,9 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      copyButton: '<icon icon="content_copy"/>',
-      downloadButton: '<icon icon="save_alt"/>',
-      doneButton: '<icon icon="done"/>',
+      copyButton: "<icon :icon=\"'content_copy'\"/>",
+      downloadButton: "<icon :icon=\"'save_alt'\"/>",
+      doneButton: "<icon :icon=\"'done'\"/>",
       expandResponse: false,
       responseBodyMaxLines: 16,
 

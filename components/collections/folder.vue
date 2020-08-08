@@ -3,26 +3,26 @@
     <div class="flex-wrap">
       <div>
         <button class="icon" @click="toggleShowChildren">
-          <icon icon="arrow_right" v-show="!showChildren" />
-          <icon icon="arrow_drop_down" v-show="showChildren" />
-          <icon icon="folder_open" />
+          <icon v-show="!showChildren" :icon="'arrow_right'" />
+          <icon v-show="showChildren" :icon="'arrow_drop_down'" />
+          <icon :icon="'folder_open'" />
           <span>{{ folder.name }}</span>
         </button>
       </div>
       <v-popover>
         <button class="tooltip-target icon" v-tooltip.left="$t('more')">
-          <icon icon="more_vert" />
+          <icon :icon="'more_vert'" />
         </button>
         <template slot="popover">
           <div>
             <button class="icon" @click="editFolder" v-close-popover>
-              <icon icon="edit" />
+              <icon :icon="'edit'" />
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
             <button class="icon" @click="removeFolder" v-close-popover>
-              <icon icon="delete" />
+              <icon :icon="'delete'" />
               <span>{{ $t("delete") }}</span>
             </button>
           </div>

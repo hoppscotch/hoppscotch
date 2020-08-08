@@ -42,7 +42,7 @@
             <button id="publish" name="get" :disabled="!canpublish" @click="publish">
               {{ $t("mqtt_publish") }}
               <span>
-                <icon icon="send" />
+                <icon :icon="'send'" />
               </span>
             </button>
           </li>

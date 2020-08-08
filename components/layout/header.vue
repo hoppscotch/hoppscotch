@@ -13,7 +13,7 @@
           @click.prevent="showInstallPrompt()"
           v-tooltip="$t('install_pwa')"
         >
-          <icon icon="offline_bolt" />
+          <icon :icon="'offline_bolt'" />
         </button>
         <a
           href="https://github.com/liyasthomas/postwoman"
@@ -22,12 +22,12 @@
           rel="noopener"
         >
           <button class="icon" aria-label="GitHub" v-tooltip="'GitHub'">
-            <icon icon="github" />
+            <icon :icon="'github'" />
           </button>
         </a>
         <v-popover v-if="fb.currentUser === null">
           <button class="icon" v-tooltip="$t('login_with')">
-            <icon icon="login" />
+            <icon :icon="'login'" />
           </button>
           <template slot="popover">
             <login />
@@ -55,7 +55,7 @@
             <div>
               <nuxt-link :to="localePath('settings')" v-close-popover>
                 <button class="icon">
-                  <icon icon="settings" />
+                  <icon :icon="'settings'" />
                   <span>
                     {{ $t("settings") }}
                   </span>
@@ -69,19 +69,19 @@
         </v-popover>
         <v-popover>
           <button class="icon" v-tooltip="$t('more')">
-            <icon icon="drag_indicator" />
+            <icon :icon="'drag_indicator'" />
           </button>
           <template slot="popover">
             <button class="icon" @click="showExtensions = true" v-close-popover>
-              <icon icon="extension" />
+              <icon :icon="'extension'" />
               <span>{{ $t("extensions") }}</span>
             </button>
             <button class="icon" @click="showShortcuts = true" v-close-popover>
-              <icon icon="keyboard" />
+              <icon :icon="'keyboard'" />
               <span>{{ $t("shortcuts") }}</span>
             </button>
             <button class="icon" @click="showSupport = true" v-close-popover>
-              <icon icon="favorite" />
+              <icon :icon="'favorite'" />
               <span>{{ $t("support_us") }}</span>
             </button>
             <button
@@ -89,7 +89,7 @@
               onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
               v-close-popover
             >
-              <icon icon="twitter" />
+              <icon :icon="'twitter'" />
               <span>{{ $t("tweet") }}</span>
             </button>
             <button
@@ -99,7 +99,7 @@
               v-close-popover
               v-tooltip="$t('more')"
             >
-              <icon icon="share" />
+              <icon :icon="'share'" />
               <span>Share</span>
             </button>
           </template>
@@ -114,7 +114,7 @@
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
-                  <icon icon="close" />
+                  <icon :icon="'close'" />
                 </button>
               </div>
             </div>
@@ -132,10 +132,10 @@
             rel="noopener"
           >
             <button class="icon">
-              <icon icon="firefox" />
+              <icon :icon="'firefox'" />
               <span>Firefox</span>
               <span class="icon" v-if="hasFirefoxExtInstalled" v-tooltip="$t('installed')">
-                <icon icon="done" />
+                <icon :icon="'done'" />
               </span>
             </button>
           </a>
@@ -147,10 +147,10 @@
             rel="noopener"
           >
             <button class="icon">
-              <icon icon="chrome" />
+              <icon :icon="'chrome'" />
               <span>Chrome</span>
               <span class="icon" v-if="hasChromeExtInstalled" v-tooltip="$t('installed')">
-                <icon icon="done" />
+                <icon :icon="'done'" />
               </span>
             </button>
           </a>
@@ -166,7 +166,7 @@
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
-                  <icon icon="close" />
+                  <icon :icon="'close'" />
                 </button>
               </div>
             </div>
@@ -201,7 +201,7 @@
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
-                  <icon icon="close" />
+                  <icon :icon="'close'" />
                 </button>
               </div>
             </div>

@@ -23,7 +23,7 @@
             v-if="response.body && canDownloadResponse"
             v-tooltip="$t('download_file')"
           >
-            <icon icon="save_alt" />
+            <icon :icon="'save_alt'" />
           </button>
           <button
             class="icon"
@@ -32,12 +32,12 @@
             v-if="response.body"
             v-tooltip="$t('copy_response')"
           >
-            <icon icon="content_copy" />
+            <icon :icon="'content_copy'" />
           </button>
         </div>
       </div>
       <div class="valid-warning" v-if="jsonInvalid">
-        <p class="info"><icon icon="error_outline" /> Invalid JSON</p>
+        <p class="info"><icon :icon="'error_outline'" /> Invalid JSON</p>
       </div>
       <div id="response-details-wrapper">
         <Editor
@@ -76,9 +76,9 @@ export default {
       expandResponse: false,
       jsonInvalid: false,
       responseBodyMaxLines: 16,
-      doneButton: '<icon icon="done"/>',
-      downloadButton: '<icon icon="save_alt"/>',
-      copyButton: '<icon icon="content_copy"/>',
+      doneButton: "<icon :icon=\"'done'\"/>",
+      downloadButton: "<icon :icon=\"'save_alt'\"/>",
+      copyButton: "<icon :icon=\"'content_copy'\"/>",
     }
   },
   computed: {

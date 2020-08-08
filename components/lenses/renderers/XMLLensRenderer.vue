@@ -23,7 +23,7 @@
             v-if="response.body"
             v-tooltip="$t('download_file')"
           >
-            <icon icon="save_alt" />
+            <icon :icon="'save_alt'" />
           </button>
           <button
             class="icon"
@@ -32,7 +32,7 @@
             v-if="response.body"
             v-tooltip="$t('copy_response')"
           >
-            <icon icon="content_copy" />
+            <icon :icon="'content_copy'" />
           </button>
         </div>
       </div>
@@ -70,9 +70,9 @@ export default {
     return {
       expandResponse: false,
       responseBodyMaxLines: 16,
-      doneButton: '<icon icon="done"/>',
-      downloadButton: '<icon icon="save_alt"/>',
-      copyButton: '<icon icon="content_copy"/>',
+      doneButton: "<icon :icon=\"'done'\"/>",
+      downloadButton: "<icon :icon=\"'save_alt'\"/>",
+      copyButton: "<icon :icon=\"'content_copy'\"/>",
     }
   },
   computed: {

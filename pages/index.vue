@@ -165,14 +165,14 @@
               >
                 {{ $t("send") }}
                 <span>
-                  <icon icon="send" />
+                  <icon :icon="'send'" />
                 </span>
               </button>
 
               <button v-else @click="cancelRequest" id="send" ref="sendButton">
                 {{ $t("cancel") }}
                 <span>
-                  <icon icon="clear" />
+                  <icon :icon="'clear'" />
                 </span>
               </button>
             </li>
@@ -219,7 +219,7 @@
                           files.length === 0 ? $t('upload_file') : filenames.replace('<br/>', '')
                         "
                       >
-                        <icon icon="attach_file" />
+                        <icon :icon="'attach_file'" />
                         <span>
                           {{
                             files.length === 0
@@ -244,7 +244,7 @@
                         @click="$refs.payload.click()"
                         v-tooltip="$t('import_json')"
                       >
-                        <icon icon="post_add" />
+                        <icon :icon="'post_add'" />
                       </button>
                     </label>
                     <input ref="payload" name="payload" type="file" @change="uploadPayload" />
@@ -255,7 +255,7 @@
                       v-tooltip="$t('prettify_body')"
                       v-if="rawInput && this.contentType.endsWith('json')"
                     >
-                      <icon icon="photo_filter" />
+                      <icon :icon="'photo_filter'" />
                     </button>
                   </div>
                 </div>
@@ -272,7 +272,7 @@
                         @click="clearContent('bodyParams', $event)"
                         v-tooltip.bottom="$t('clear')"
                       >
-                        <icon icon="clear_all" />
+                        <icon :icon="'clear_all'" />
                       </button>
                     </div>
                   </div>
@@ -317,7 +317,7 @@
                       v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
-                      <icon icon="delete" />
+                      <icon :icon="'delete'" />
                     </button>
                   </li>
                 </div>
@@ -325,7 +325,7 @@
               <ul>
                 <li>
                   <button class="icon" @click="addRequestBodyParam" name="addrequest">
-                    <icon icon="add" />
+                    <icon :icon="'add'" />
                     <span>{{ $t("add_new") }}</span>
                   </button>
                 </li>
@@ -342,7 +342,7 @@
                         @click="clearContent('rawParams', $event)"
                         v-tooltip.bottom="$t('clear')"
                       >
-                        <icon icon="clear_all" />
+                        <icon :icon="'clear_all'" />
                       </button>
                     </div>
                   </div>
@@ -370,7 +370,7 @@
                 @click="showModal = true"
                 v-tooltip.bottom="$t('import_curl')"
               >
-                <icon icon="import_export" />
+                <icon :icon="'import_export'" />
               </button>
               <button
                 class="icon"
@@ -381,7 +381,7 @@
                   content: isHidden ? $t('show_code') : $t('hide_code'),
                 }"
               >
-                <icon icon="code" />
+                <icon :icon="'code'" />
               </button>
             </span>
             <span>
@@ -404,7 +404,7 @@
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('save_to_collections')"
               >
-                <icon icon="create_new_folder" />
+                <icon :icon="'create_new_folder'" />
               </button>
               <button
                 class="icon"
@@ -412,7 +412,7 @@
                 v-tooltip.bottom="$t('clear_all')"
                 ref="clearAll"
               >
-                <icon icon="clear_all" />
+                <icon :icon="'clear_all'" />
               </button>
             </span>
           </div>
@@ -438,7 +438,7 @@
                           @click="clearContent('parameters', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
-                          <icon icon="clear_all" />
+                          <icon :icon="'clear_all'" />
                         </button>
                       </div>
                     </div>
@@ -500,7 +500,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="param"
                       >
-                        <icon icon="delete" />
+                        <icon :icon="'delete'" />
                       </button>
                     </li>
                   </div>
@@ -508,7 +508,7 @@
                 <ul>
                   <li>
                     <button class="icon" @click="addRequestParam">
-                      <icon icon="add" />
+                      <icon :icon="'add'" />
                       <span>{{ $t("add_new") }}</span>
                     </button>
                   </li>
@@ -528,7 +528,7 @@
                           @click="clearContent('auth', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
-                          <icon icon="clear_all" />
+                          <icon :icon="'clear_all'" />
                         </button>
                       </div>
                     </div>
@@ -578,7 +578,7 @@
                         @click="showTokenList = !showTokenList"
                         v-tooltip.bottom="$t('use_token')"
                       >
-                        <icon icon="open_in_new" />
+                        <icon :icon="'open_in_new'" />
                       </button>
                       <button
                         v-if="auth === 'OAuth 2.0'"
@@ -586,7 +586,7 @@
                         @click="showTokenRequest = !showTokenRequest"
                         v-tooltip.bottom="$t('get_token')"
                       >
-                        <icon icon="vpn_key" />
+                        <icon :icon="'vpn_key'" />
                       </button>
                     </div>
                   </li>
@@ -613,21 +613,21 @@
                           @click="showTokenRequestList = true"
                           v-tooltip.bottom="$t('manage_token_req')"
                         >
-                          <icon icon="library_add" />
+                          <icon :icon="'library_add'" />
                         </button>
                         <button
                           class="icon"
                           @click="clearContent('access_token', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
-                          <icon icon="clear_all" />
+                          <icon :icon="'clear_all'" />
                         </button>
                         <button
                           class="icon"
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
-                          <icon icon="close" />
+                          <icon :icon="'close'" />
                         </button>
                       </div>
                     </div>
@@ -710,7 +710,7 @@
                 <ul>
                   <li>
                     <button class="icon" @click="handleAccessTokenRequest">
-                      <icon icon="vpn_key" />
+                      <icon :icon="'vpn_key'" />
                       <span>{{ $t("request_token") }}</span>
                     </button>
                   </li>
@@ -735,7 +735,7 @@
                           @click="clearContent('headers', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
-                          <icon icon="clear_all" />
+                          <icon :icon="'clear_all'" />
                         </button>
                       </div>
                     </div>
@@ -780,7 +780,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="header"
                       >
-                        <icon icon="delete" />
+                        <icon :icon="'delete'" />
                       </button>
                     </li>
                   </div>
@@ -788,7 +788,7 @@
                 <ul>
                   <li>
                     <button class="icon" @click="addRequestHeader">
-                      <icon icon="add" />
+                      <icon :icon="'add'" />
                       <span>{{ $t("add_new") }}</span>
                     </button>
                   </li>
@@ -814,7 +814,7 @@
                           rel="noopener"
                         >
                           <button class="icon" v-tooltip="$t('wiki')">
-                            <icon icon="help_outline" />
+                            <icon :icon="'help_outline'" />
                           </button>
                         </a>
                       </div>
@@ -859,7 +859,7 @@
                           rel="noopener"
                         >
                           <button class="icon" v-tooltip="$t('wiki')">
-                            <icon icon="help_outline" />
+                            <icon :icon="'help_outline'" />
                           </button>
                         </a>
                       </div>
@@ -884,7 +884,7 @@
                             @click="clearContent('tests', $event)"
                             v-tooltip.bottom="$t('clear')"
                           >
-                            <icon icon="clear_all" />
+                            <icon :icon="'clear_all'" />
                           </button>
                         </div>
                       </div>
@@ -983,7 +983,7 @@
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
-                    <icon icon="close" />
+                    <icon :icon="'close'" />
                   </button>
                 </div>
               </div>
@@ -1025,7 +1025,7 @@
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
-                    <icon icon="close" />
+                    <icon :icon="'close'" />
                   </button>
                 </div>
               </div>
@@ -1057,7 +1057,7 @@
                     ref="copyRequestCode"
                     v-tooltip="$t('copy_code')"
                   >
-                    <icon icon="content_copy" />
+                    <icon :icon="'content_copy'" />
                   </button>
                 </div>
               </div>
@@ -1082,7 +1082,7 @@
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
-                    <icon icon="close" />
+                    <icon :icon="'close'" />
                   </button>
                 </div>
               </div>
@@ -1100,7 +1100,7 @@
                     @click="clearContent('tokens', $event)"
                     v-tooltip.bottom="$t('clear')"
                   >
-                    <icon icon="clear_all" />
+                    <icon :icon="'clear_all'" />
                   </button>
                 </div>
               </div>
@@ -1129,7 +1129,7 @@
                   @click="useOAuthToken(token.value)"
                   v-tooltip.bottom="$t('use_token')"
                 >
-                  <icon icon="input" />
+                  <icon :icon="'input'" />
                 </button>
               </li>
               <li>
@@ -1138,7 +1138,7 @@
                   @click="removeOAuthToken(index)"
                   v-tooltip.bottom="$t('delete')"
                 >
-                  <icon icon="delete" />
+                  <icon :icon="'delete'" />
                 </button>
               </li>
             </div>
@@ -1158,7 +1158,7 @@
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
-                    <icon icon="close" />
+                    <icon :icon="'close'" />
                   </button>
                 </div>
               </div>
@@ -1177,7 +1177,7 @@
                     @click="showTokenRequestList = false"
                     v-tooltip.bottom="$t('use_token_req')"
                   >
-                    <icon icon="input" />
+                    <icon :icon="'input'" />
                   </button>
                   <button
                     :disabled="this.tokenReqs.length === 0"
@@ -1185,7 +1185,7 @@
                     @click="removeOAuthTokenReq"
                     v-tooltip.bottom="$t('delete')"
                   >
-                    <icon icon="delete" />
+                    <icon :icon="'delete'" />
                   </button>
                 </div>
               </div>
@@ -1335,9 +1335,9 @@ export default {
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
       testReports: [],
-      copyButton: '<icon icon="content_copy"/>',
-      downloadButton: '<icon icon="save_alt"/>',
-      doneButton: '<icon icon="done"/>',
+      copyButton: "<icon :icon=\"'content_copy'\"/>",
+      downloadButton: "<icon :icon=\"'save_alt'\"/>",
+      doneButton: "<icon :icon=\"'done'\"/>",
       isHidden: true,
       response: {
         status: "",
@@ -2503,7 +2503,7 @@ export default {
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<icon icon="clear_all"/>'), 1000)
+      setTimeout(() => (target.innerHTML = "<icon :icon=\"'clear_all'\"/>"), 1000)
     },
     saveRequest() {
       if (!this.checkCollections()) {

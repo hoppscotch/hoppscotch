@@ -64,7 +64,7 @@
             <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
               {{ $t("send") }}
               <span>
-                <icon icon="send" />
+                <icon :icon="'send'" />
               </span>
             </button>
           </li>

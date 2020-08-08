@@ -30,7 +30,7 @@
           value="Save"
           @click="formPost"
         >
-          <icon icon="add" />
+          <icon :icon="'add'" />
           <span>Add</span>
         </button>
       </div>

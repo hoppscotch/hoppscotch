@@ -6,24 +6,24 @@
         @click="!doc ? selectRequest() : {}"
         v-tooltip="!doc ? $t('use_request') : ''"
       >
-        <icon icon="insert_drive_file" />
+        <icon :icon="'insert_drive_file'" />
         <span>{{ request.name }}</span>
       </button>
     </div>
     <v-popover>
       <button class="tooltip-target icon" v-tooltip="$t('more')">
-        <icon icon="more_vert" />
+        <icon :icon="'more_vert'" />
       </button>
       <template slot="popover">
         <div>
           <button class="icon" @click="$emit('edit-request')" v-close-popover>
-            <icon icon="edit" />
+            <icon :icon="'edit'" />
             <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div>
           <button class="icon" @click="removeRequest" v-close-popover>
-            <icon icon="delete" />
+            <icon :icon="'delete'" />
             <span>{{ $t("delete") }}</span>
           </button>
         </div>

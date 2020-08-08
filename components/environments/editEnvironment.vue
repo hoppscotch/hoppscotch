@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("edit_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <icon icon="close" />
+                <icon :icon="'close'" />
               </button>
             </div>
           </div>
@@ -31,7 +31,7 @@
             <label for="variableList">{{ $t("env_variable_list") }}</label>
             <div>
               <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
-                <icon icon="clear_all" />
+                <icon :icon="'clear_all'" />
               </button>
             </div>
           </div>
@@ -75,7 +75,7 @@
               v-tooltip.bottom="$t('delete')"
               id="variable"
             >
-              <icon icon="delete" />
+              <icon :icon="'delete'" />
             </button>
           </li>
         </div>
@@ -83,7 +83,7 @@
       <ul>
         <li>
           <button class="icon" @click="addEnvironmentVariable">
-            <icon icon="add" />
+            <icon :icon="'add'" />
             <span>{{ $t("add_new") }}</span>
           </button>
         </li>
@@ -154,7 +154,7 @@ export default {
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (e.target.innerHTML = '<icon icon="clear_all"/>'), 1000)
+      setTimeout(() => (e.target.innerHTML = "<icon :icon=\"'clear_all'\"/>"), 1000)
     },
     addEnvironmentVariable() {
       let value = { key: "", value: "" }

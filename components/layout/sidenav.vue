@@ -26,7 +26,7 @@
         v-tooltip.right="$t('graphql')"
         :aria-label="$t('graphql')"
       >
-        <icon :icon="graphql" />
+        <icon icon="graphql" />
       </nuxt-link>
       <nuxt-link
         :to="localePath('doc')"

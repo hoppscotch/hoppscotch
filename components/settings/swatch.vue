@@ -14,6 +14,7 @@
 .color {
   display: inline-flex;
   align-items: center;
+  position: relative;
   justify-content: center;
   margin: 8px;
   padding: 16px;
@@ -36,6 +37,11 @@
 
   .activeTick {
     position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 }
 </style>

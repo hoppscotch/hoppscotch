@@ -133,6 +133,13 @@
           </div>
         </li>
       </ul>
+      <ul class="info">
+        <li v-if="extensionVersion != null">
+          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+        </li>
+
+        <li v-else>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</li>
+      </ul>
     </pw-section>
 
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
@@ -214,6 +221,7 @@
 <script>
 import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
+import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 
 export default {
   components: {
@@ -303,6 +311,10 @@ export default {
           vibrant: false,
         },
       ],
+
+      extensionVersion: hasExtensionInstalled()
+        ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+        : null,
 
       settings: {
         SCROLL_INTO_ENABLED:

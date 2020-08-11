@@ -6,7 +6,7 @@
     <b>A free, fast and beautiful API request builder</b>
   </p>
   <p>
-     <i>Web alternative to Postman - Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
+     <i>Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
   </p>
   <p>
 

@@ -90,7 +90,7 @@
             </button>
             <button
               class="icon"
-              onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+              onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
               v-close-popover
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -400,7 +400,7 @@ export default {
           .share({
             title: "Postwoman",
             text:
-              "Postwoman • A free, fast and beautiful API request builder - Web alternative to Postman - Helps you create requests faster, saving precious time on development.",
+              "Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
             url: "https://postwoman.io/",
           })
           .then(() => {})

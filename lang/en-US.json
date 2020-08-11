@@ -260,6 +260,8 @@
   "empty": "Empty",
   "extensions": "Extensions",
   "extensions_use_toggle": "Use the browser extension to send requests (if present)",
+  "extension_version": "Extension Version",
+  "extension_ver_not_reported": "Not Reported",
   "extensions_info1": "Browser extension that simplifies access to Postwoman",
   "extensions_info2": "Get Postwoman browser extension!",
   "installed": "Installed",

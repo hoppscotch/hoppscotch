@@ -23,8 +23,6 @@
 
 ---
 
-**Read: [Story behind hoppscotch](https://dev.to/liyasthomas/i-created-hoppscotch-an-online-open-source-api-request-builder-41md)**
-
 **Chat: [Telegram](https://t.me/hoppscotch_app), [Discord](https://discord.gg/GAMWxmR)**
 
 **Donate: [GitHub Sponsors](https://github.com/sponsors/hoppscotch), [Open Collective](https://opencollective.com/hoppscotch), [Patreon](https://www.patreon.com/liyasthomas), [PayPal](https://www.paypal.me/liyascthomas)**

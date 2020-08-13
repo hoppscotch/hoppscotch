@@ -4,11 +4,11 @@ Thanks for your interest in helping translating the software!
 
 ## Starting a translation
 
-Before you start working on a translation, look through the [open pull requests](https://github.com/liyasthomas/postwoman/pulls) to see if anyone else is already working on one for your language.
+Before you start working on a translation, look through the [open pull requests](https://github.com/hoppscotch/hoppscotch/pulls) to see if anyone else is already working on one for your language.
 
 If there's not, then today is your day to lead this effort! Here's how to start:
 
-1. [Fork this repository](https://github.com/liyasthomas/postwoman/fork)
+1. [Fork this repository](https://github.com/hoppscotch/hoppscotch/fork)
 2. Create a new branch for your translation work e.g. `es`.
 3. Copy `lang/en-US.json` to your target language file e.g. `lang/es-ES.json` and translate all the strings.
 4. Add your language entry to `nuxt.config.js`.

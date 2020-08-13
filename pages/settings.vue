@@ -149,7 +149,7 @@
               </pw-toggle>
             </span>
             <a
-              href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
+              href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
               target="_blank"
               rel="noopener"
             >

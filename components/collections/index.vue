@@ -51,7 +51,7 @@ TODO:
           {{ $t("import_export") }}
         </button>
         <!-- <a
-          href="https://github.com/liyasthomas/postwoman/wiki/Collections"
+          href="https://github.com/hoppscotch/hoppscotch/wiki/Collections"
           target="_blank"
           rel="noopener"
         >

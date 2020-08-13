@@ -3,7 +3,7 @@
     <div class="flex-wrap">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="logo">Postwoman</h1>
+          <h1 class="logo">Hoppscotch</h1>
         </nuxt-link>
       </span>
       <span>
@@ -16,7 +16,7 @@
           <i class="material-icons">offline_bolt</i>
         </button>
         <a
-          href="https://github.com/liyasthomas/postwoman"
+          href="https://github.com/hoppscotch/hoppscotch"
           target="_blank"
           aria-label="GitHub"
           rel="noopener"
@@ -90,7 +90,7 @@
             </button>
             <button
               class="icon"
-              onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+              onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=liyasthomas');"
               v-close-popover
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -322,7 +322,7 @@ export default {
       //   setTimeout(() => {
       //     this.$toast.clear()
       //     this.$toast.show(
-      //       "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Postwoman. Whoosh this away to dismiss →</span>",
+      //       "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Hoppscotch. Whoosh this away to dismiss →</span>",
       //       {
       //         icon: "",
       //         duration: 0,
@@ -398,10 +398,10 @@ export default {
       if (navigator.share) {
         navigator
           .share({
-            title: "Postwoman",
+            title: "Hoppscotch",
             text:
-              "Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
-            url: "https://postwoman.io/",
+              "Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
+            url: "https://hoppscotch.io/",
           })
           .then(() => {})
           .catch(console.error)

@@ -4,7 +4,7 @@ const { spawnSync } = require("child_process")
 const runCommand = (command, args) => spawnSync(command, args).stdout.toString().replace(/\n/g, "")
 
 const FAIL_ON_ERROR = false
-const PW_BUILD_DATA_DIR = "./.postwoman"
+const PW_BUILD_DATA_DIR = "./.hoppscotch"
 // const IS_DEV_MODE = process.argv.includes("--dev")
 
 try {
@@ -23,7 +23,7 @@ try {
     if (!version.name) {
       version.name = (
         await axios
-          .get("https://api.github.com/repos/liyasthomas/postwoman/releases")
+          .get("https://api.github.com/repos/hoppscotch/hoppscotch/releases")
           // If we can't get it from GitHub, we'll resort to getting it from package.json
           .catch((ex) => ({
             data: [

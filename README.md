@@ -1,36 +1,36 @@
 <div align="center">
-  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/postwoman-io/postwoman/master/static/logo.png" alt="Postwoman.io logo" height="160"></a>
+  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/master/static/logo.png" alt="hoppscotch.io logo" height="160"></a>
   <br>
   <br>
   <p>
     <b>A free, fast and beautiful API request builder</b>
   </p>
   <p>
-     <i>Helps you create requests faster, saving precious time on development - <a href="https://postwoman.launchaco.com">Subscribe</a></i>
+     <i>Helps you create requests faster, saving precious time on development - <a href="https://hoppscotch.launchaco.com">Subscribe</a></i>
   </p>
   <p>
 
-[![Travis Build Status](https://img.shields.io/travis/com/postwoman-io/postwoman/master?logo=Travis)](https://travis-ci.com/postwoman-io/postwoman) [![GitHub release](https://img.shields.io/github/release/postwoman-io/postwoman/all?logo=GitHub)](https://github.com/postwoman-io/postwoman/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/postwoman?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/postwoman) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/postwoman_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fpostwoman.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fpostwoman.io&text=%F0%9F%91%BD%20Postwoman%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Postwoman%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fpostwoman.io%26hashtags%3Dpostwoman%26via%3Dliyasthomas&via=liyasthomas&hashtags=postwoman)
+[![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch/master?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch) [![GitHub release](https://img.shields.io/github/release/hoppscotch/hoppscotch/all?logo=GitHub)](https://github.com/hoppscotch/hoppscotch/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/hoppscotch?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/hoppscotch) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/hoppscotch_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fhoppscotch.io&text=%F0%9F%91%BD%20hoppscotch%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520hoppscotch%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fhoppscotch.io%26hashtags%3Dhoppscotch%26via%3Dliyasthomas&via=liyasthomas&hashtags=hoppscotch)
 
   </p>
   <p>
     <sub>Built with ❤︎ by
       <a href="https://github.com/liyasthomas">liyasthomas</a> and
-      <a href="https://github.com/postwoman-io/postwoman/graphs/contributors">contributors</a>
+      <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">contributors</a>
     </sub>
   </p>
 </div>
 
 ---
 
-**Read: [Story behind Postwoman](https://dev.to/liyasthomas/i-created-postwoman-an-online-open-source-api-request-builder-41md)**
+**Read: [Story behind hoppscotch](https://dev.to/liyasthomas/i-created-hoppscotch-an-online-open-source-api-request-builder-41md)**
 
-**Chat: [Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)**
+**Chat: [Telegram](https://t.me/hoppscotch_app), [Discord](https://discord.gg/GAMWxmR)**
 
-**Donate: [GitHub Sponsors](https://github.com/sponsors/postwoman-io), [Open Collective](https://opencollective.com/postwoman), [Patreon](https://www.patreon.com/liyasthomas), [PayPal](https://www.paypal.me/liyascthomas)**
+**Donate: [GitHub Sponsors](https://github.com/sponsors/hoppscotch), [Open Collective](https://opencollective.com/hoppscotch), [Patreon](https://www.patreon.com/liyasthomas), [PayPal](https://www.paypal.me/liyascthomas)**
 
 <div align="center">
-  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/postwoman-io/postwoman/master/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
+  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/master/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
 </div>
 
 <details>
@@ -90,7 +90,7 @@
 
 🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors.
 
-**Theming:** [Customize now ✨](https://postwoman.io/settings)
+**Theming:** [Customize now ✨](https://hoppscotch.io/settings)
 
 - Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
 - Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
@@ -184,7 +184,7 @@ _Collections are synced with cloud / local session storage_
 - Access APIs served in non-HTTPS (`http://`)
 - Use custom Proxy URL
 
-_Official Postwoman Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
+_Official hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/hoppscotch)**_
 
 📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
 
@@ -220,19 +220,19 @@ _Keep in mind: Translations aren't available for all source and target language 
 
 **To provide a localized experience for users around the world, you can add you own translations.**
 
-_**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/postwoman-io/postwoman/tree/i18n) only!**_
+_**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/hoppscotch/hoppscotch/tree/i18n) only!**_
 
-📦 **Add-ons**: Official add-ons for Postwoman.
+📦 **Add-ons**: Official add-ons for hoppscotch.
 
-- **[Proxy](https://github.com/postwoman-io/proxywoman)** - A simple proxy server created for Postwoman
-- **[CLI β](https://github.com/postwoman-io/postwoman-cli)** - A CLI solution for Postwoman
-- **[Browser Extensions](https://github.com/postwoman-io/postwoman-extension)** - Browser extensions that simplifies access to Postwoman
+- **[Proxy](https://github.com/hoppscotch/proxywoman)** - A simple proxy server created for hoppscotch
+- **[CLI β](https://github.com/hoppscotch/hoppscotch-cli)** - A CLI solution for hoppscotch
+- **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that simplifies access to hoppscotch
 
-  [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/postwoman) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
+  [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/hoppscotch) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/hoppscotch-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
 
   > **Extensions fixes `CORS` issues.**
 
-_Add-ons are developed and maintained under **[Official Postwoman Organization](https://github.com/postwoman-io)**._
+_Add-ons are developed and maintained under **[Official hoppscotch Organization](https://github.com/hoppscotch)**._
 
 ☁️ **Auth + Sync**: Sign in and sync in real-time.
 
@@ -268,11 +268,11 @@ _Notes are only available for signed-in users_
 - If you need to update the value, you only have to change it in one place
 - Using variables increases your ability to work efficiently and minimizes the likelihood of error
 
-**To find out more, please check out [Postwoman Wiki](https://github.com/postwoman-io/postwoman/wiki).**
+**To find out more, please check out [hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
 
-## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fpostwoman.io&logo=Postwoman)](https://postwoman.io)
+## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io)
 
-[postwoman.io](https://postwoman.io)
+[hoppscotch.io](https://hoppscotch.io)
 
 ## Usage 💡
 
@@ -291,18 +291,18 @@ _Notes are only available for signed-in users_
 
 ## Developing 👷
 
-0. Update [`.env.example`](https://github.com/postwoman-io/postwoman/blob/master/.env.example) file found in repository's root directory with your own keys and rename it to `.env`.
+0. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/master/.env.example) file found in repository's root directory with your own keys and rename it to `.env`.
 
-_Sample keys only works with the [production build](https://postwoman.io)._
+_Sample keys only works with the [production build](https://hoppscotch.io)._
 
 #### Browser based development environment
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/postwoman-io/postwoman)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
 
 #### Local development environment
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
+2. Install dependencies by running `npm install` within the directory that you cloned (probably `hoppscotch`).
 3. Start the development server with `npm run dev`.
 4. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
@@ -312,23 +312,23 @@ _Sample keys only works with the [production build](https://postwoman.io)._
 2. Run `docker-compose up`
 3. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
-## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/postwoman?logo=Docker)](https://hub.docker.com/r/liyasthomas/postwoman)
+## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/hoppscotch?logo=Docker)](https://hub.docker.com/r/liyasthomas/hoppscotch)
 
 ```bash
 #pull
-docker pull liyasthomas/postwoman
+docker pull liyasthomas/hoppscotch
 
 #run
-docker run -p 3000:3000 liyasthomas/postwoman:latest
+docker run -p 3000:3000 liyasthomas/hoppscotch:latest
 
 #build
-docker build -t postwoman:latest .
+docker build -t hoppscotch:latest .
 ```
 
 ## Releasing 🧞
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install dependencies by running `npm install` within the directory that you cloned (probably `postwoman`).
+2. Install dependencies by running `npm install` within the directory that you cloned (probably `hoppscotch`).
 3. Build the release files with `npm run build`.
 4. Find the built project in `./dist`.
 
@@ -336,13 +336,13 @@ docker build -t postwoman:latest .
 
 Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/postwoman-io/postwoman?logo=Travis)](https://travis-ci.com/postwoman-io/postwoman)
+## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch)
 
-We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/postwoman-io/postwoman).
+We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/hoppscotch/hoppscotch).
 
-## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/postwoman-io/postwoman/all?logo=GitHub)](https://github.com/postwoman-io/postwoman/releases/latest)
+## Versioning 🔖 [![GitHub release](https://img.shields.io/github/release/hoppscotch/hoppscotch/all?logo=GitHub)](https://github.com/hoppscotch/hoppscotch/releases/latest)
 
-This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/postwoman/releases).
+This project is developed by [Liyas Thomas](https://github.com/liyasthomas) using the [Semantic Versioning specification](https://semver.org). For the versions available, see the [releases on this repository](https://github.com/liyasthomas/hoppscotch/releases).
 
 ## Change log 📝
 
@@ -360,7 +360,7 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 ### Testing and Debugging
 
-- [Contributors](https://github.com/postwoman-io/postwoman/graphs/contributors)
+- [Contributors](https://github.com/hoppscotch/hoppscotch/graphs/contributors)
 
 ### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
@@ -373,22 +373,22 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://liyasthomas.web.app"><img src="https://avatars1.githubusercontent.com/u/10395817?v=4" width="100px;" alt=""/><br /><sub><b>Liyas Thomas</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=liyasthomas" title="Code">💻</a> <a href="#design-liyasthomas" title="Design">🎨</a></td>
-    <td align="center"><a href="https://github.com/NBTX"><img src="https://avatars3.githubusercontent.com/u/43181178?v=4" width="100px;" alt=""/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=NBTX" title="Code">💻</a> <a href="#design-NBTX" title="Design">🎨</a></td>
-    <td align="center"><a href="https://nicholaslaroux.com"><img src="https://avatars0.githubusercontent.com/u/1557529?v=4" width="100px;" alt=""/><br /><sub><b>Nicholas La Roux</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=larouxn" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/yubathom"><img src="https://avatars3.githubusercontent.com/u/4117768?v=4" width="100px;" alt=""/><br /><sub><b>Thomas Yuba</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=yubathom" title="Code">💻</a></td>
-    <td align="center"><a href="http://www.linkedin.com/in/nickpalenchar"><img src="https://avatars1.githubusercontent.com/u/7539781?v=4" width="100px;" alt=""/><br /><sub><b>Nick Palenchar</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nickpalenchar" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/AndrewBastin"><img src="https://avatars2.githubusercontent.com/u/9131943?v=4" width="100px;" alt=""/><br /><sub><b>Andrew Bastin</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=AndrewBastin" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/vlad0337187"><img src="https://avatars1.githubusercontent.com/u/12682937?v=4" width="100px;" alt=""/><br /><sub><b>Vladislav</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=vlad0337187" title="Code">💻</a></td>
+    <td align="center"><a href="https://liyasthomas.web.app"><img src="https://avatars1.githubusercontent.com/u/10395817?v=4" width="100px;" alt=""/><br /><sub><b>Liyas Thomas</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=liyasthomas" title="Code">💻</a> <a href="#design-liyasthomas" title="Design">🎨</a></td>
+    <td align="center"><a href="https://github.com/NBTX"><img src="https://avatars3.githubusercontent.com/u/43181178?v=4" width="100px;" alt=""/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=NBTX" title="Code">💻</a> <a href="#design-NBTX" title="Design">🎨</a></td>
+    <td align="center"><a href="https://nicholaslaroux.com"><img src="https://avatars0.githubusercontent.com/u/1557529?v=4" width="100px;" alt=""/><br /><sub><b>Nicholas La Roux</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=larouxn" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/yubathom"><img src="https://avatars3.githubusercontent.com/u/4117768?v=4" width="100px;" alt=""/><br /><sub><b>Thomas Yuba</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=yubathom" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.linkedin.com/in/nickpalenchar"><img src="https://avatars1.githubusercontent.com/u/7539781?v=4" width="100px;" alt=""/><br /><sub><b>Nick Palenchar</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=nickpalenchar" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/AndrewBastin"><img src="https://avatars2.githubusercontent.com/u/9131943?v=4" width="100px;" alt=""/><br /><sub><b>Andrew Bastin</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=AndrewBastin" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/vlad0337187"><img src="https://avatars1.githubusercontent.com/u/12682937?v=4" width="100px;" alt=""/><br /><sub><b>Vladislav</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=vlad0337187" title="Code">💻</a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/izerozlu"><img src="https://avatars3.githubusercontent.com/u/17386157?v=4" width="100px;" alt=""/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=izerozlu" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/JacobAnavisca"><img src="https://avatars2.githubusercontent.com/u/21232366?v=4" width="100px;" alt=""/><br /><sub><b>Jacob Anavisca</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=JacobAnavisca" title="Code">💻</a></td>
-    <td align="center"><a href="http://nityanandagohain.github.io"><img src="https://avatars3.githubusercontent.com/u/26831659?v=4" width="100px;" alt=""/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=nityanandagohain" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://avatars2.githubusercontent.com/u/42691357?v=4" width="100px;" alt=""/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=hosseinnedaee" title="Code">💻</a></td>
-    <td align="center"><a href="https://ghuser.io/jamesgeorge007"><img src="https://avatars2.githubusercontent.com/u/25279263?v=4" width="100px;" alt=""/><br /><sub><b>James George</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=jamesgeorge007" title="Code">💻</a></td>
-    <td align="center"><a href="https://dmitryyankowski.com"><img src="https://avatars0.githubusercontent.com/u/20114263?v=4" width="100px;" alt=""/><br /><sub><b>Dmitry Yankowski</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=dmitryyankowski" title="Code">💻</a></td>
-    <td align="center"><a href="http://www.sboulema.nl"><img src="https://avatars2.githubusercontent.com/u/1820661?v=4" width="100px;" alt=""/><br /><sub><b>Samir Boulema</b></sub></a><br /><a href="https://github.com/liyasthomas/postwoman/commits?author=sboulema" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/izerozlu"><img src="https://avatars3.githubusercontent.com/u/17386157?v=4" width="100px;" alt=""/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=izerozlu" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/JacobAnavisca"><img src="https://avatars2.githubusercontent.com/u/21232366?v=4" width="100px;" alt=""/><br /><sub><b>Jacob Anavisca</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=JacobAnavisca" title="Code">💻</a></td>
+    <td align="center"><a href="http://nityanandagohain.github.io"><img src="https://avatars3.githubusercontent.com/u/26831659?v=4" width="100px;" alt=""/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=nityanandagohain" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://avatars2.githubusercontent.com/u/42691357?v=4" width="100px;" alt=""/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=hosseinnedaee" title="Code">💻</a></td>
+    <td align="center"><a href="https://ghuser.io/jamesgeorge007"><img src="https://avatars2.githubusercontent.com/u/25279263?v=4" width="100px;" alt=""/><br /><sub><b>James George</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=jamesgeorge007" title="Code">💻</a></td>
+    <td align="center"><a href="https://dmitryyankowski.com"><img src="https://avatars0.githubusercontent.com/u/20114263?v=4" width="100px;" alt=""/><br /><sub><b>Dmitry Yankowski</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=dmitryyankowski" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.sboulema.nl"><img src="https://avatars2.githubusercontent.com/u/1820661?v=4" width="100px;" alt=""/><br /><sub><b>Samir Boulema</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=sboulema" title="Code">💻</a></td>
   </tr>
 </table>
 
@@ -397,7 +397,7 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-See the list of [contributors](https://github.com/postwoman-io/postwoman/graphs/contributors) who participated in this project.
+See the list of [contributors](https://github.com/hoppscotch/hoppscotch/graphs/contributors) who participated in this project.
 
 ### Thanks
 
@@ -405,32 +405,32 @@ See the list of [contributors](https://github.com/postwoman-io/postwoman/graphs/
 
 ### Financial Contributors
 
-Become a financial contributor and help us sustain our community [[Contribute](https://opencollective.com/postwoman/contribute)].
+Become a financial contributor and help us sustain our community [[Contribute](https://opencollective.com/hoppscotch/contribute)].
 
 #### Organizations
 
-Support this project with your organization. Your logo will show up here with a link to your website [[Contribute](https://opencollective.com/postwoman/contribute)].
+Support this project with your organization. Your logo will show up here with a link to your website [[Contribute](https://opencollective.com/hoppscotch/contribute)].
 
-<a href="https://opencollective.com/postwoman/organization/0/website"><img src="https://opencollective.com/postwoman/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/1/website"><img src="https://opencollective.com/postwoman/organization/1/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/2/website"><img src="https://opencollective.com/postwoman/organization/2/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/3/website"><img src="https://opencollective.com/postwoman/organization/3/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/4/website"><img src="https://opencollective.com/postwoman/organization/4/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/5/website"><img src="https://opencollective.com/postwoman/organization/5/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/6/website"><img src="https://opencollective.com/postwoman/organization/6/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/7/website"><img src="https://opencollective.com/postwoman/organization/7/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/8/website"><img src="https://opencollective.com/postwoman/organization/8/avatar.svg"></a>
-<a href="https://opencollective.com/postwoman/organization/9/website"><img src="https://opencollective.com/postwoman/organization/9/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/0/website"><img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/1/website"><img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/2/website"><img src="https://opencollective.com/hoppscotch/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/3/website"><img src="https://opencollective.com/hoppscotch/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/4/website"><img src="https://opencollective.com/hoppscotch/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/5/website"><img src="https://opencollective.com/hoppscotch/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/6/website"><img src="https://opencollective.com/hoppscotch/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/7/website"><img src="https://opencollective.com/hoppscotch/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/8/website"><img src="https://opencollective.com/hoppscotch/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/hoppscotch/organization/9/website"><img src="https://opencollective.com/hoppscotch/organization/9/avatar.svg"></a>
 
 #### Individuals
 
-<a href="https://opencollective.com/postwoman"><img src="https://opencollective.com/postwoman/individuals.svg"></a>
+<a href="https://opencollective.com/hoppscotch"><img src="https://opencollective.com/hoppscotch/individuals.svg"></a>
 
 ### Code Contributors
 
 This project exists thanks to all the people who contribute [[Contribute](CONTRIBUTING.md)].
 
-<a href="https://github.com/postwoman-io/postwoman/graphs/contributors"><img src="https://opencollective.com/postwoman/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors"><img src="https://opencollective.com/hoppscotch/contributors.svg?width=890&button=false" /></a>
 
 ## License 📄
 
@@ -452,9 +452,9 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 	<tbody>
 		<tr>
 			<td align="center" width="200px">
-				<a href="https://postwoman.io">
+				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman"/>
+					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-202124?logo=hoppscotch"/>
 				</a>
 				<br/>
 				<sub>
@@ -462,14 +462,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-202124?logo=Postwoman)](https://postwoman.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-202124?logo=hoppscotch)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
-				<a href="https://postwoman.io">
+				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman"/>
+					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-success?logo=hoppscotch"/>
 				</a>
 				<br/>
 				<sub>
@@ -477,14 +477,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-success?logo=hoppscotch)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
-				<a href="https://postwoman.io">
+				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman"/>
+					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-critical?logo=hoppscotch"/>
 				</a>
 				<br/>
 				<sub>
@@ -492,14 +492,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-critical?logo=hoppscotch)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
-				<a href="https://postwoman.io">
+				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman"/>
+					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-blueviolet?logo=hoppscotch"/>
 				</a>
 				<br/>
 				<sub>
@@ -507,14 +507,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-blueviolet?logo=hoppscotch)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
-				<a href="https://postwoman.io">
+				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman"/>
+					<img src="https://img.shields.io/badge/your_text-hoppscotch-hex_color_code?logo=hoppscotch"/>
 				</a>
 				<br/>
 				<sub>
@@ -522,7 +522,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/your_text-hoppscotch-hex_color_code?logo=hoppscotch)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 	</tbody>
@@ -530,7 +530,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 <div align="center">
   <br>
-  <a href="https://postwoman.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="Postwoman.io" width="200"></a>
+  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/liyasthomas/templates/master/assets/logo.gif" alt="hoppscotch.io" width="200"></a>
   <br>
   <h3>Happy Coding ❤︎</h3>
 </div>

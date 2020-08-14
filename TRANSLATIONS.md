@@ -28,7 +28,7 @@ If there's not, then today is your day to lead this effort! Here's how to start:
           code: 'es',
           name: 'Español',
           iso: 'es-ES',
-          file: 'es-ES.js'
+          file: 'es-ES.json'
         }
       ]
     }

@@ -284,5 +284,6 @@
   "mqtt_topic_title": "Publicar / Subscrever tópico",
   "mqtt_publish": "Publicar",
   "mqtt_subscribe": "Subscrever",
-  "mqtt_unsubscribe": "Cancelar subscrição"
+  "mqtt_unsubscribe": "Cancelar subscrição",
+  "create_new_collection":"Criar uma novo coleção"
 }

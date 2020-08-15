@@ -25,7 +25,7 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      <i class="material-icons">help_outline</i> Create new environment
+      <i class="material-icons">help_outline</i> {{ $t("create_new_environment") }}
     </p>
     <div class="virtual-list">
       <ul>

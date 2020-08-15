@@ -274,7 +274,7 @@
   "syncEnvironments": "Ambientes",
   "turn_on": "Ativar",
   "login_first": "Entre primeiro",
-  "paste_a_note": "Cole uma nota",
+  "paste_a_note": "Cole uma nota", 
   "import_from_sync": "Importar from Sync",
   "notes": "Notas",
   "socketio": "Socket.IO",
@@ -284,5 +284,7 @@
   "mqtt_topic_title": "Publicar / Subscrever tópico",
   "mqtt_publish": "Publicar",
   "mqtt_subscribe": "Subscrever",
-  "mqtt_unsubscribe": "Cancelar subscrição"
+  "mqtt_unsubscribe": "Cancelar subscrição",
+  "create_new_collection":"Criar uma novo coleção",
+  "create_new_environment":"Criar um novo ambiente"
 }

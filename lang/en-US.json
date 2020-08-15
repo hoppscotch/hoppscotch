@@ -291,5 +291,9 @@
   "pre_request_script": "Pre-request Script",
   "tests": "Tests",
   "create_new_collection":"Create new collection",
-  "create_new_environment":"Create new environment"
+  "create_new_environment":"Create new environment",
+  "are_you_sure_remove_collection": "Are you sure you want to remove this Collection?",
+  "are_you_sure_remove_folder": "Are you sure you want to remove this folder?",
+  "are_you_sure_remove_request": "Are you sure you want to remove this request?",
+  "are_you_sure_remove_environment": "Are you sure you want to remove this environment?"
 }

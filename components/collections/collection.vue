@@ -127,7 +127,7 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      if (!confirm("Are you sure you want to remove this Collection?")) return
+      if (!confirm( this.$t("are_you_sure_remove_collection") )) return
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })

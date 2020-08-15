@@ -258,5 +258,9 @@
   "paste_a_collection": "Coller une collection",
   "import_from_sync": "Importer depuis la synchronisation",
   "create_new_collection":"Créer une nouvelle collection",
-  "create_new_environment":"Créer une nouvelle environnement"
+  "create_new_environment":"Créer une nouvelle environnement",
+  "are_you_sure_remove_collection": "Êtes-vous sûr de vouloir supprimer cette collection?",
+  "are_you_sure_remove_folder": "Êtes-vous sûr de vouloir supprimer ce dossier?",
+  "are_you_sure_remove_request": "Êtes-vous sûr de vouloir supprimer cette requête?",
+  "are_you_sure_remove_environment": "Êtes-vous sûr de vouloir supprimer cet environnement?"
 }

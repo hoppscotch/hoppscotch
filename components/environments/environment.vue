@@ -62,7 +62,7 @@ export default {
       }
     },
     removeEnvironment() {
-      if (!confirm("Are you sure you want to remove this environment?")) return
+      if (!confirm(this.$t("are_you_sure_remove_environment"))) return
       this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
       this.syncEnvironments()
     },

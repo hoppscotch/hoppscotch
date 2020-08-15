@@ -290,5 +290,5 @@
   "json_prettify_invalid_body": "No se pudo formatear un cuerpo inválido, resuelva los errores de sintaxis y vuelva a intentarlo",
   "tests": "Pruebas",
   "create_new_collection":"Crear una nueva colección",
-  "create_new_environment":"Crear nuevo entorno"
+  "create_new_environment":"Crear un nuevo entorno"
 }

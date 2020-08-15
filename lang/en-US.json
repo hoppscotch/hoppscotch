@@ -290,5 +290,6 @@
   "mqtt_unsubscribe": "Unsubscribe",
   "pre_request_script": "Pre-request Script",
   "tests": "Tests",
-  "create_new_collection":"Create new collection"
+  "create_new_collection":"Create new collection",
+  "create_new_environment":"Create new environment"
 }

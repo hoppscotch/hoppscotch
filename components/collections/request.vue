@@ -68,7 +68,7 @@ export default {
       this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     removeRequest() {
-      if (!confirm("Are you sure you want to remove this request?")) return
+      if (!confirm( this.$t("are_you_sure_remove_request"))) return
       this.$store.commit("postwoman/removeRequest", {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,

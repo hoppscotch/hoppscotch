@@ -88,5 +88,6 @@
   "stop": "Parar",
   "syncHistory": "Histórico",
   "syncCollections": "Coleções",
-  "syncEnvironments": "Ambientes"
+  "syncEnvironments": "Ambientes",
+  "create_new_collection":"Criar uma novo coleção"
 }

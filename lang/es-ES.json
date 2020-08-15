@@ -287,5 +287,8 @@
   "mqtt": "MQTT",
   "login_success": "Logueado correctamente",
   "invalid_environment_name": "Por favor, proporcione un nombre válido para el entorno",
-  "json_prettify_invalid_body": "No se pudo formatear un cuerpo inválido, resuelva los errores de sintaxis y vuelva a intentarlo"
+  "json_prettify_invalid_body": "No se pudo formatear un cuerpo inválido, resuelva los errores de sintaxis y vuelva a intentarlo",
+  "tests": "Pruebas",
+  "create_new_collection":"Crear una nueva colección",
+  "create_new_environment":"Crear un nuevo entorno"
 }

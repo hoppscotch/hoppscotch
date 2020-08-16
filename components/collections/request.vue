@@ -74,6 +74,9 @@ export default {
         folderIndex: this.folderIndex,
         requestIndex: this.requestIndex,
       })
+	  this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+      })
       this.syncCollections()
     },
   },

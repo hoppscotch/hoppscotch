@@ -109,6 +109,9 @@ export default {
         folderIndex: this.folderIndex,
       })
       this.syncCollections()
+	  this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+      })
     },
     editFolder() {
       this.$emit("edit-folder")

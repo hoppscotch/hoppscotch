@@ -131,6 +131,9 @@ export default {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })
+	  this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+      })
       this.syncCollections()
     },
     editFolder(collectionIndex, folder, folderIndex) {

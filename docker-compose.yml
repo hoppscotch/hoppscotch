@@ -5,7 +5,7 @@ services:
     build:
       context: .
     volumes:
-      - "./.postwoman:/app/.postwoman"
+      - "./.hoppscotch:/app/.hoppscotch"
       - "./assets:/app/assets"
       - "./directives:/app/directives"
       - "./layouts:/app/layouts"

@@ -811,7 +811,7 @@
                       <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
                         <a
-                          href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
                           target="_blank"
                           rel="noopener"
                         >
@@ -856,7 +856,7 @@
                       <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
                         <a
-                          href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Requests-Tests"
                           target="_blank"
                           rel="noopener"
                         >
@@ -2317,8 +2317,8 @@ export default {
         const date = new Date().toLocaleDateString()
         navigator
           .share({
-            title: "Postwoman",
-            text: `Postwoman • API request builder at ${time} on ${date}`,
+            title: "Hoppscotch",
+            text: `Hoppscotch • API request builder at ${time} on ${date}`,
             url: window.location.href,
           })
           .then(() => {})

@@ -2,45 +2,34 @@ require("dotenv").config()
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const options = {
-  name: "Postwoman",
+  name: "Hoppscotch",
   shortDescription: "A free, fast and beautiful API request builder",
   description: "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "#202124",
+    color: "#50fa7b",
+    background: "#202124",
+  },
+  app: {
+    color: "#ffffff",
+    background: "#202124",
+    accent: "#50fa7b",
+  },
+  social: {
+    twitter: "@liyasthomas",
   },
 }
-// Sets the base path for the router.
-// Important for deploying to GitHub pages.
-// -- Travis includes the author in the repo slug,
-//    so if there's a /, we need to get everything after it.
-let repoName = (process.env.TRAVIS_REPO_SLUG || "").split("/").pop()
-export const routerBase =
-  process.env.DEPLOY_ENV === "GH_PAGES"
-    ? {
-        router: {
-          base: `/${repoName}/`,
-        },
-      }
-    : {
-        router: {
-          base: "/",
-        },
-      }
 export default {
   mode: "spa",
   /*
    ** Headers of the page
    */
-  server: {
-    host: "0.0.0.0", // default: localhost
-  },
   head: {
     title: `${options.name} • ${options.shortDescription}`,
     meta: [
       {
         name: "keywords",
         content:
-          "postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
+          "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
       },
       {
         name: "X-UA-Compatible",
@@ -56,11 +45,11 @@ export default {
       },
       {
         itemprop: "image",
-        content: `https://postwoman.io/logo.jpg`,
+        content: `${process.env.BASE_URL}logo.jpg`,
       },
       {
         property: "og:image",
-        content: `https://postwoman.io/logo.jpg`,
+        content: `${process.env.BASE_URL}logo.jpg`,
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
@@ -70,11 +59,11 @@ export default {
       // Windows phone tile icon
       {
         name: "msapplication-TileImage",
-        content: `${routerBase.router.base}icons/icon-144x144.png`,
+        content: `/icons/icon-144x144.png`,
       },
       {
         name: "msapplication-TileColor",
-        content: "#202124",
+        content: options.app.background,
       },
       {
         name: "msapplication-tap-highlight",
@@ -85,32 +74,21 @@ export default {
       {
         rel: "icon",
         type: "image/x-icon",
-        href: `${routerBase.router.base}favicon.ico`,
+        href: `/favicon.ico`,
       },
       // Home-screen icons (iOS)
       {
         rel: "apple-touch-icon",
-        href: `${routerBase.router.base}icons/icon-48x48.png`,
+        href: `/icons/icon-48x48.png`,
       },
       {
-        rel: "apple-touch-icon",
-        sizes: "72x72",
-        href: `${routerBase.router.base}icons/icon-72x72.png`,
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "96x96",
-        href: `${routerBase.router.base}icons/icon-96x96.png`,
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "144x144",
-        href: `${routerBase.router.base}icons/icon-144x144.png`,
+        rel: "apple-touch-startup-image",
+        href: `/icons/icon-72x72.png`,
       },
       {
         rel: "apple-touch-icon",
         sizes: "192x192",
-        href: `${routerBase.router.base}icons/icon-192x192.png`,
+        href: `/icons/icon-192x192.png`,
       },
     ],
   },
@@ -126,8 +104,8 @@ export default {
    */
   loadingIndicator: {
     name: "pulse",
-    color: "var(--ac-color)",
-    background: "#202124",
+    color: options.loading.color,
+    background: options.loading.background,
   },
   /*
    ** Global CSS
@@ -136,19 +114,17 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [
-    {
-      src: "~/plugins/vuex-persist",
-    },
-    {
-      src: "~/plugins/v-tooltip",
-    },
-  ],
+  plugins: ["~/plugins/vuex-persist", "~/plugins/v-tooltip"],
+  /*
+   ** Auto import components
+   ** See https://nuxtjs.org/api/configuration-components
+   */
+  components: true,
   /*
    ** Nuxt.js dev-modules
    */
   buildModules: [
-    // See https://goo.gl/OOhYW5
+    // https://pwa.nuxtjs.org
     "@nuxtjs/pwa",
     // Doc: https://github.com/nuxt-community/dotenv-module
     "@nuxtjs/dotenv",
@@ -161,35 +137,34 @@ export default {
    ** Nuxt.js modules
    */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
+    // https://axios.nuxtjs.org
     "@nuxtjs/axios",
     // https://github.com/nuxt-community/modules/tree/master/packages/toast
     "@nuxtjs/toast",
     // Doc: https://github.com/nuxt-community/nuxt-i18n
     "nuxt-i18n",
-    // Doc: https://github.com/nuxt-community/sitemap-module
-    "@nuxtjs/sitemap",
     // Doc: https://github.com/nuxt-community/robots-module
     "@nuxtjs/robots",
+    // Doc: https://github.com/nuxt-community/sitemap-module
+    "@nuxtjs/sitemap",
   ],
   pwa: {
     manifest: {
       name: options.name,
       short_name: options.name,
-      start_url: `${routerBase.router.base}`,
+      start_url: `/`,
       display: "standalone",
-      background_color: "#202124",
+      background_color: options.app.background,
       description: options.shortDescription,
-      theme_color: "#202124",
+      theme_color: options.app.background,
     },
-
     meta: {
-      ogHost: "https://postwoman.io",
+      ogHost: process.env.BASE_URL,
       twitterCard: "summary_large_image",
-      twitterSite: "@liyasthomas",
-      twitterCreator: "@liyasthomas",
+      twitterSite: options.social.twitter,
+      twitterCreator: options.social.twitter,
       description: options.shortDescription,
-      theme_color: "#202124",
+      theme_color: options.app.background,
     },
   },
   toast: {
@@ -199,19 +174,19 @@ export default {
     keepOnHover: true,
   },
   googleAnalytics: {
-    id: process.env.GA_ID || "UA-61422507-2",
+    id: process.env.GA_ID || "UA-61422507-4",
   },
   gtm: {
-    id: process.env.GTM_ID || "GTM-MXWD8NQ",
+    id: process.env.GTM_ID || "GTM-NMKVBMV",
   },
   sitemap: {
-    hostname: "https://postwoman.io",
+    hostname: process.env.BASE_URL,
   },
   robots: {
     UserAgent: "*",
     Disallow: "",
     Allow: "/",
-    Sitemap: "https://postwoman.io/sitemap.xml",
+    Sitemap: `${process.env.BASE_URL}sitemap.xml`,
   },
   env: {
     API_KEY: process.env.API_KEY,
@@ -319,10 +294,17 @@ export default {
      ** You can extend webpack config here
      */
     extend(config, ctx) {
+      // Sets webpack's mode to development if `isDev` is true.
+      if (ctx.isDev) {
+        config.mode = "development"
+      }
       config.node = {
         fs: "empty",
       }
     },
+    parallel: true,
+    cache: true,
+    // hardSource: true,
   },
   /*
    ** Generate configuration
@@ -330,8 +312,4 @@ export default {
   generate: {
     fallback: true,
   },
-  /*
-   ** Router configuration
-   */
-  ...routerBase,
 }

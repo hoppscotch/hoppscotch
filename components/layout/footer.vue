@@ -4,7 +4,7 @@
       <span v-if="version.name" class="mono">
         <a
           class="footer-link"
-          :href="'https://github.com/liyasthomas/postwoman/releases/tag/' + version.name"
+          :href="'https://github.com/hoppscotch/hoppscotch/releases/tag/' + version.name"
           target="_blank"
           rel="noopener"
           v-tooltip="'GitHub'"
@@ -22,7 +22,7 @@
         <!-- <span v-if="version.hash">
           -
           <a
-            :href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
+            :href="'https://github.com/hoppscotch/hoppscotch/commit/' + version.hash"
             target="_blank"
             rel="noopener"
           >{{version.hash}}</a>
@@ -35,7 +35,7 @@
             🦄
           </button>
         </a>
-        <a href="mailto:hello@postwoman.io" target="_blank" rel="noopener">
+        <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="$t('contact_us')">
             <i class="material-icons">email</i>
           </button>
@@ -75,7 +75,7 @@
 </style>
 
 <script>
-import * as version from "../../.postwoman/version.json"
+import * as version from "../../.hoppscotch/version.json"
 
 export default {
   data() {

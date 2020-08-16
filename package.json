@@ -1,6 +1,6 @@
 {
-  "name": "postwoman",
-  "version": "1.9.9",
+  "name": "hoppscotch",
+  "version": "2.0.0",
   "description": "A free, fast and beautiful API request builder",
   "author": "liyasthomas",
   "private": true,
@@ -12,11 +12,8 @@
     "start": "nuxt start",
     "pregenerate": "node build.js",
     "generate": "nuxt generate",
-    "e2e": "cypress run",
-    "e2e:open": "cypress open",
-    "dev:e2e": "server-test dev :3000 e2e:open",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
-    "test": "start-server-and-test start http-get://localhost:3000 e2e"
+    "test": ""
   },
   "husky": {
     "hooks": {
@@ -40,8 +37,8 @@
     "esprima": "^4.0.1",
     "graphql": "^15.3.0",
     "graphql-language-service-interface": "^2.4.1",
-    "nuxt": "^2.12.2",
-    "nuxt-i18n": "^6.13.2",
+    "nuxt": "^2.14.1",
+    "nuxt-i18n": "^6.13.8",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^2.3.0",
     "socketio-wildcard": "^2.0.0",
@@ -54,14 +51,12 @@
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
-    "cypress": "^4.12.0",
     "eslint": "^7.6.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "sass-loader": "^9.0.3",
-    "start-server-and-test": "^1.11.3"
+    "sass-loader": "^9.0.3"
   }
 }

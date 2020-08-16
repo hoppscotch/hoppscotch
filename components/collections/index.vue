@@ -62,7 +62,7 @@ TODO:
       </div>
     </div>
     <p v-if="collections.length === 0" class="info">
-      <i class="material-icons">help_outline</i> Create new collection
+      <i class="material-icons">help_outline</i> {{ $t("create_new_collection") }}
     </p>
     <div class="virtual-list">
       <ul>

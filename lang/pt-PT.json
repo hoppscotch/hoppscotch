@@ -284,5 +284,11 @@
   "mqtt_topic_title": "Publicar / Subscrever tópico",
   "mqtt_publish": "Publicar",
   "mqtt_subscribe": "Subscrever",
-  "mqtt_unsubscribe": "Cancelar subscrição"
+  "mqtt_unsubscribe": "Cancelar subscrição",
+  "create_new_collection": "Criar uma novo coleção",
+  "create_new_environment": "Criar um novo ambiente",
+  "are_you_sure_remove_collection": "Tem a certeza de que quer remover esta colecção?",
+  "are_you_sure_remove_folder": "Tem a certeza de que quer remover esta pasta?",
+  "are_you_sure_remove_request": "Tem a certeza de que pretende remover este request?",
+  "are_you_sure_remove_environment": "Tem a certeza de que pretende remover este ambiente?"
 }

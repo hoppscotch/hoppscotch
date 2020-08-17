@@ -22,7 +22,7 @@
           </div>
           <div>
             <button class="icon" @click="removeFolder" v-close-popover>
-              <i class="material-icons">delete</i>
+              <deleteIcon class="material-icons" />
               <span>{{ $t("delete") }}</span>
             </button>
           </div>
@@ -72,8 +72,10 @@ ul li {
 
 <script>
 import { fb } from "~/helpers/fb"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
+  components: { deleteIcon },
   props: {
     folder: Object,
     collectionIndex: Number,

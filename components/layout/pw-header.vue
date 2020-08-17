@@ -122,7 +122,7 @@
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
-                  <i class="material-icons">close</i>
+                  <closeIcon class="material-icons" />
                 </button>
               </div>
             </div>
@@ -182,7 +182,7 @@
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
-                  <i class="material-icons">close</i>
+                  <closeIcon class="material-icons" />
                 </button>
               </div>
             </div>
@@ -217,7 +217,7 @@
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
-                  <i class="material-icons">close</i>
+                  <closeIcon class="material-icons" />
                 </button>
               </div>
             </div>
@@ -269,8 +269,12 @@ import {
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
+  components: {
+    closeIcon,
+  },
   data() {
     return {
       // Once the PWA code is initialized, this holds a method

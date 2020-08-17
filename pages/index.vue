@@ -317,7 +317,7 @@
                       v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
-                      <i class="material-icons">delete</i>
+                      <deleteIcon class="material-icons" />
                     </button>
                   </li>
                 </div>
@@ -500,7 +500,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="param"
                       >
-                        <i class="material-icons">delete</i>
+                        <deleteIcon class="material-icons" />
                       </button>
                     </li>
                   </div>
@@ -629,7 +629,7 @@
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
-                          <i class="material-icons">close</i>
+                          <closeIcon class="material-icons" />
                         </button>
                       </div>
                     </div>
@@ -782,7 +782,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="header"
                       >
-                        <i class="material-icons">delete</i>
+                        <deleteIcon class="material-icons" />
                       </button>
                     </li>
                   </div>
@@ -987,7 +987,7 @@
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1029,7 +1029,7 @@
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1086,7 +1086,7 @@
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1142,7 +1142,7 @@
                   @click="removeOAuthToken(index)"
                   v-tooltip.bottom="$t('delete')"
                 >
-                  <i class="material-icons">delete</i>
+                  <deleteIcon class="material-icons" />
                 </button>
               </li>
             </div>
@@ -1162,7 +1162,7 @@
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1189,7 +1189,7 @@
                     @click="removeOAuthTokenReq"
                     v-tooltip.bottom="$t('delete')"
                   >
-                    <i class="material-icons">delete</i>
+                    <deleteIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1258,6 +1258,8 @@ import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpe
 import { parseUrlAndPath } from "~/helpers/utils/uri.js"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 const statusCategories = [
   {
@@ -1308,7 +1310,12 @@ const parseHeaders = (xhr) => {
 }
 export const findStatusGroup = (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
+
 export default {
+  components: {
+    closeIcon,
+    deleteIcon,
+  },
   data() {
     return {
       showModal: false,

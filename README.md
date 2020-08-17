@@ -10,7 +10,7 @@
   </p>
   <p>
 
-[![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch/master?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch) [![GitHub release](https://img.shields.io/github/release/hoppscotch/hoppscotch/all?logo=GitHub)](https://github.com/hoppscotch/hoppscotch/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/hoppscotch?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/hoppscotch) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/hoppscotch_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fhoppscotch.io&text=%F0%9F%91%BD%20hoppscotch%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520hoppscotch%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fhoppscotch.io%26hashtags%3Dhoppscotch%26via%3Dliyasthomas&via=liyasthomas&hashtags=hoppscotch)
+[![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch/master?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch) [![GitHub release](https://img.shields.io/github/release/hoppscotch/hoppscotch/all?logo=GitHub)](https://github.com/hoppscotch/hoppscotch/releases/latest) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=postwoman)](https://hoppscotch.io) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)](CONTRIBUTING.md) [![Financial Contributors on Open Collective](https://img.shields.io/opencollective/all/hoppscotch?logo=Open-Collective&label=financial+contributors)](https://opencollective.com/hoppscotch) [![Donate on PayPal](https://img.shields.io/badge/support-PayPal-blue?logo=PayPal)](https://www.paypal.me/liyascthomas) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-blueviolet?logo=Telegram)](https://t.me/hoppscotch_app) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/GAMWxmR) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fhoppscotch.io&text=%F0%9F%91%BD%20hoppscotch%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520hoppscotch%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fhoppscotch.io%26hashtags%3Dhoppscotch%26via%3Dliyasthomas&via=liyasthomas&hashtags=hoppscotch)
 
   </p>
   <p>
@@ -23,7 +23,7 @@
 
 ---
 
-**Chat: [Telegram](https://t.me/hoppscotch_app), [Discord](https://discord.gg/GAMWxmR)**
+**Chat: [Telegram](https://t.me/postwoman_app), [Discord](https://discord.gg/GAMWxmR)**
 
 **Donate: [GitHub Sponsors](https://github.com/sponsors/hoppscotch), [Open Collective](https://opencollective.com/hoppscotch), [Patreon](https://www.patreon.com/liyasthomas), [PayPal](https://www.paypal.me/liyascthomas)**
 
@@ -182,7 +182,7 @@ _Collections are synced with cloud / local session storage_
 - Access APIs served in non-HTTPS (`http://`)
 - Use custom Proxy URL
 
-_Official hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/hoppscotch)**_
+_Official hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
 
 📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
 
@@ -223,7 +223,7 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/ho
 📦 **Add-ons**: Official add-ons for hoppscotch.
 
 - **[Proxy](https://github.com/hoppscotch/proxywoman)** - A simple proxy server created for hoppscotch
-- **[CLI β](https://github.com/hoppscotch/hoppscotch-cli)** - A CLI solution for hoppscotch
+- **[CLI β](https://github.com/hoppscotch/postwoman-cli)** - A CLI solution for hoppscotch
 - **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that simplifies access to hoppscotch
 
   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/hoppscotch) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/hoppscotch-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
@@ -268,7 +268,7 @@ _Notes are only available for signed-in users_
 
 **To find out more, please check out [hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
 
-## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io)
+## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=postwoman)](https://hoppscotch.io)
 
 [hoppscotch.io](https://hoppscotch.io)
 
@@ -310,17 +310,17 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 2. Run `docker-compose up`
 3. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
-## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/hoppscotch?logo=Docker)](https://hub.docker.com/r/liyasthomas/hoppscotch)
+## Docker 🐳 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/liyasthomas/postwoman?logo=Docker)](https://hub.docker.com/r/liyasthomas/postwoman)
 
 ```bash
 #pull
-docker pull liyasthomas/hoppscotch
+docker pull liyasthomas/postwoman
 
 #run
-docker run -p 3000:3000 liyasthomas/hoppscotch:latest
+docker run -p 3000:3000 liyasthomas/postwoman:latest
 
 #build
-docker build -t hoppscotch:latest .
+docker build -t postwoman:latest .
 ```
 
 ## Releasing 🧞
@@ -452,7 +452,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 			<td align="center" width="200px">
 				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-202124?logo=hoppscotch"/>
+					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-202124?logo=postwoman"/>
 				</a>
 				<br/>
 				<sub>
@@ -460,14 +460,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-202124?logo=hoppscotch)](https://hoppscotch.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-202124?logo=postwoman)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
 				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-success?logo=hoppscotch"/>
+					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-success?logo=postwoman"/>
 				</a>
 				<br/>
 				<sub>
@@ -475,14 +475,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-success?logo=hoppscotch)](https://hoppscotch.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-success?logo=postwoman)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
 				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-critical?logo=hoppscotch"/>
+					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-critical?logo=postwoman"/>
 				</a>
 				<br/>
 				<sub>
@@ -490,14 +490,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-critical?logo=hoppscotch)](https://hoppscotch.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-critical?logo=postwoman)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
 				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-hoppscotch-blueviolet?logo=hoppscotch"/>
+					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-blueviolet?logo=postwoman"/>
 				</a>
 				<br/>
 				<sub>
@@ -505,14 +505,14 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-hoppscotch-blueviolet?logo=hoppscotch)](https://hoppscotch.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-blueviolet?logo=postwoman)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 		<tr>
 			<td align="center" width="200px">
 				<a href="https://hoppscotch.io">
 					<br/>
-					<img src="https://img.shields.io/badge/your_text-hoppscotch-hex_color_code?logo=hoppscotch"/>
+					<img src="https://img.shields.io/badge/your_text-Hoppscotch-hex_color_code?logo=postwoman"/>
 				</a>
 				<br/>
 				<sub>
@@ -520,7 +520,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
         </sub>
 			</td>
 			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/your_text-hoppscotch-hex_color_code?logo=hoppscotch)](https://hoppscotch.io)</code>
+				<code>[![hoppscotch](https://img.shields.io/badge/your_text-Hoppscotch-hex_color_code?logo=postwoman)](https://hoppscotch.io)</code>
 			</td>
 		</tr>
 	</tbody>

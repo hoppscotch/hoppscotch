@@ -22,7 +22,7 @@
           </div>
           <div>
             <button class="icon" @click="removeFolder" v-close-popover>
-              <i class="material-icons">delete</i>
+              <deleteIcon class="material-icons" />
               <span>{{ $t("delete") }}</span>
             </button>
           </div>
@@ -72,16 +72,15 @@ ul li {
 
 <script>
 import { fb } from "~/helpers/fb"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
+  components: { deleteIcon },
   props: {
     folder: Object,
     collectionIndex: Number,
     folderIndex: Number,
     doc: Boolean,
-  },
-  components: {
-    request: () => import("./request"),
   },
   data() {
     return {
@@ -103,13 +102,13 @@ export default {
       this.$store.commit("postwoman/selectRequest", { request })
     },
     removeFolder() {
-      if (!confirm( this.$t("are_you_sure_remove_folder"))) return
+      if (!confirm(this.$t("are_you_sure_remove_folder"))) return
       this.$store.commit("postwoman/removeFolder", {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
       })
       this.syncCollections()
-	  this.$toast.error(this.$t("deleted"), {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },

@@ -30,7 +30,7 @@
           value="Save"
           @click="formPost"
         >
-          <i class="material-icons">add</i>
+          <addIcon class="material-icons" />
           <span>Add</span>
         </button>
       </div>
@@ -47,8 +47,10 @@ ol {
 
 <script>
 import { fb } from "~/helpers/fb"
+import addIcon from "~/static/icons/add-24px.svg?inline"
 
 export default {
+  components: { addIcon },
   data() {
     return {
       message: null,

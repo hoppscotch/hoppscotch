@@ -77,7 +77,7 @@
                   v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
-                  <i class="material-icons">delete</i>
+                  <deleteIcon class="material-icons" />
                 </button>
               </li>
             </div>
@@ -126,7 +126,7 @@
               </button>
             </div>
           </div>
-          <Editor
+          <ace-editor
             v-if="schema"
             :value="schema"
             :lang="'graphqlschema'"
@@ -179,7 +179,7 @@
               </button>
             </div>
           </div>
-          <QueryEditor
+          <queryeditor
             ref="queryEditor"
             v-model="gqlQueryString"
             :onRunGQLQuery="runQuery"
@@ -195,7 +195,7 @@
         </pw-section>
 
         <pw-section class="yellow" label="Variables" ref="variables">
-          <Editor
+          <ace-editor
             v-model="variableString"
             :lang="'json'"
             :options="{
@@ -233,7 +233,7 @@
               </button>
             </div>
           </div>
-          <Editor
+          <ace-editor
             v-if="response"
             :value="response"
             :lang="'json'"
@@ -272,13 +272,13 @@
                   :selected="true"
                 >
                   <div v-for="field in queryFields" :key="field.name">
-                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                    <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
                 <tab v-if="mutationFields.length > 0" :id="'mutations'" :label="$t('mutations')">
                   <div v-for="field in mutationFields" :key="field.name">
-                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                    <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
@@ -288,13 +288,13 @@
                   :label="$t('subscriptions')"
                 >
                   <div v-for="field in subscriptionFields" :key="field.name">
-                    <gql-field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                    <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
                 <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
                   <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
-                    <gql-type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                    <type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
               </div>
@@ -332,22 +332,12 @@
 import axios from "axios"
 import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
-import AceEditor from "~/components/ui/ace-editor"
-import QueryEditor from "~/components/graphql/queryeditor"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: {
-    "pw-section": () => import("~/components/layout/section"),
-    "gql-field": () => import("~/components/graphql/field"),
-    "gql-type": () => import("~/components/graphql/type"),
-    autocomplete: () => import("~/components/ui/autocomplete"),
-    Editor: AceEditor,
-    QueryEditor: QueryEditor,
-    tabs: () => import("~/components/ui/tabs"),
-    tab: () => import("~/components/ui/tab"),
-  },
+  components: { deleteIcon },
   data() {
     return {
       commonHeaders,

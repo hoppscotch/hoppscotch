@@ -4,10 +4,10 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("new_environment") }}</h3>
+            <h3 class="title">{{ $t("new_collection") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
+                <closeIcon class="material-icons" />
               </button>
             </div>
           </div>
@@ -20,8 +20,8 @@
           <input
             type="text"
             v-model="name"
-            :placeholder="$t('my_new_environment')"
-            @keyup.enter="addNewEnvironment"
+            :placeholder="$t('my_new_collection')"
+            @keyup.enter="addNewCollection"
           />
         </li>
       </ul>
@@ -33,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewEnvironment">
+          <button class="icon primary" @click="addNewCollection">
             {{ $t("save") }}
           </button>
         </span>
@@ -44,13 +44,14 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
+  components: {
+    closeIcon,
+  },
   props: {
     show: Boolean,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {
@@ -58,30 +59,23 @@ export default {
     }
   },
   methods: {
-    syncEnvironments() {
+    syncCollections() {
       if (fb.currentUser !== null) {
-        if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }
       }
     },
-    addNewEnvironment() {
+    addNewCollection() {
       if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_environment_name"))
+        this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      let newEnvironment = [
-        {
-          name: this.$data.name,
-          variables: [],
-        },
-      ]
-      this.$store.commit("postwoman/importAddEnvironments", {
-        environments: newEnvironment,
-        confirmation: "Environment added",
+      this.$store.commit("postwoman/addNewCollection", {
+        name: this.$data.name,
       })
       this.$emit("hide-modal")
-      this.syncEnvironments()
+      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

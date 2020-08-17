@@ -20,6 +20,7 @@ export const options = {
 }
 export default {
   mode: "spa",
+  target: "static",
   /*
    ** Headers of the page
    */
@@ -132,6 +133,8 @@ export default {
     "@nuxtjs/google-analytics",
     // Doc: https://github.com/nuxt-community/gtm-module
     "@nuxtjs/gtm",
+    // Doc: https://github.com/nuxt-community/svg-module
+    "@nuxtjs/svg",
   ],
   /*
    ** Nuxt.js modules

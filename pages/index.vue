@@ -144,7 +144,7 @@
             <li>
               <label for="url">{{ $t("url") }}</label>
               <input
-                :class="{ error: !isValidURL }"
+                :class="{ error: !isValidURL } "
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"

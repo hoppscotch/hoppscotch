@@ -50,7 +50,7 @@
         </div>
       </div>
       <div id="response-details-wrapper">
-        <Editor
+        <ace-editor
           :value="responseBodyText"
           :lang="'html'"
           :options="{
@@ -74,13 +74,9 @@
   </ul>
 </template>
 <script>
-import AceEditor from "../../ui/ace-editor"
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 
 export default {
-  components: {
-    Editor: AceEditor,
-  },
   mixins: [TextContentRendererMixin],
   props: {
     response: {},

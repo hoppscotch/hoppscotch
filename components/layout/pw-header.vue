@@ -271,13 +271,6 @@ import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    modal: () => import("../ui/modal"),
-    login: () => import("../firebase/login"),
-    logout: () => import("../firebase/logout"),
-    contributors: () => import("./contributors"),
-  },
-
   data() {
     return {
       // Once the PWA code is initialized, this holds a method

@@ -114,9 +114,6 @@ export default {
     editingEnvironment: Object,
     editingEnvironmentIndex: Number,
   },
-  components: {
-    modal: () => import("~/components/ui/modal"),
-  },
   data() {
     return {
       name: undefined,

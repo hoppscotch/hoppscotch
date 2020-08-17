@@ -1,10 +1,10 @@
 <template>
-  <modal v-if="show" @close="show = false">
+  <modal v-if="show" @close="hideModal">
     <div slot="header">
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("edit_folder") }}</h3>
+            <h3 class="title">{{ $t("new_collection") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,7 +17,12 @@
     <div slot="body">
       <ul>
         <li>
-          <input type="text" v-model="name" :placeholder="folder.name" @keyup.enter="editFolder" />
+          <input
+            type="text"
+            v-model="name"
+            :placeholder="$t('my_new_collection')"
+            @keyup.enter="addNewCollection"
+          />
         </li>
       </ul>
     </div>
@@ -28,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="editFolder">
+          <button class="icon primary" @click="addNewCollection">
             {{ $t("save") }}
           </button>
         </span>
@@ -43,13 +48,6 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-    collection: Object,
-    collectionIndex: Number,
-    folder: Object,
-    folderIndex: Number,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
   },
   data() {
     return {
@@ -64,17 +62,20 @@ export default {
         }
       }
     },
-    editFolder() {
-      this.$store.commit("postwoman/editFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folder: { ...this.$props.folder, name: this.$data.name },
-        folderIndex: this.$props.folderIndex,
+    addNewCollection() {
+      if (!this.$data.name) {
+        this.$toast.info(this.$t("invalid_collection_name"))
+        return
+      }
+      this.$store.commit("postwoman/addNewCollection", {
+        name: this.$data.name,
       })
-      this.hideModal()
+      this.$emit("hide-modal")
       this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

@@ -87,9 +87,6 @@ export default {
   props: {
     show: Boolean,
   },
-  components: {
-    modal: () => import("~/components/ui/modal"),
-  },
   computed: {
     environmentJson() {
       return JSON.stringify(this.$store.state.postwoman.environments, null, 2)

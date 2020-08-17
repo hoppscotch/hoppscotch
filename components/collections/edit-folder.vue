@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("new_folder") }}</h3>
+            <h3 class="title">{{ $t("edit_folder") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -17,12 +17,7 @@
     <div slot="body">
       <ul>
         <li>
-          <input
-            type="text"
-            v-model="name"
-            :placeholder="$t('my_new_folder')"
-            @keyup.enter="addNewFolder"
-          />
+          <input type="text" v-model="name" :placeholder="folder.name" @keyup.enter="editFolder" />
         </li>
       </ul>
     </div>
@@ -33,7 +28,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewFolder">
+          <button class="icon primary" @click="editFolder">
             {{ $t("save") }}
           </button>
         </span>
@@ -50,9 +45,8 @@ export default {
     show: Boolean,
     collection: Object,
     collectionIndex: Number,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
+    folder: Object,
+    folderIndex: Number,
   },
   data() {
     return {
@@ -60,20 +54,21 @@ export default {
     }
   },
   methods: {
-    addNewFolder() {
-      this.$store.commit("postwoman/addNewFolder", {
-        folder: { name: this.$data.name },
-        collectionIndex: this.$props.collectionIndex,
-      })
-      this.hideModal()
-      this.syncCollections()
-    },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }
       }
+    },
+    editFolder() {
+      this.$store.commit("postwoman/editFolder", {
+        collectionIndex: this.$props.collectionIndex,
+        folder: { ...this.$props.folder, name: this.$data.name },
+        folderIndex: this.$props.folderIndex,
+      })
+      this.hideModal()
+      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

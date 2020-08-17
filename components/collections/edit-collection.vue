@@ -4,7 +4,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("new_collection") }}</h3>
+            <h3 class="title">{{ $t("edit_collection") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
@@ -20,8 +20,8 @@
           <input
             type="text"
             v-model="name"
-            :placeholder="$t('my_new_collection')"
-            @keyup.enter="addNewCollection"
+            :placeholder="editingCollection.name"
+            @keyup.enter="saveCollection"
           />
         </li>
       </ul>
@@ -33,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewCollection">
+          <button class="icon primary" @click="saveCollection">
             {{ $t("save") }}
           </button>
         </span>
@@ -48,9 +48,8 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
+    editingCollection: Object,
+    editingCollectionIndex: Number,
   },
   data() {
     return {
@@ -65,20 +64,24 @@ export default {
         }
       }
     },
-    addNewCollection() {
+    saveCollection() {
       if (!this.$data.name) {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      this.$store.commit("postwoman/addNewCollection", {
+      const collectionUpdated = {
+        ...this.$props.editingCollection,
         name: this.$data.name,
+      }
+      this.$store.commit("postwoman/editCollection", {
+        collection: collectionUpdated,
+        collectionIndex: this.$props.editingCollectionIndex,
       })
       this.$emit("hide-modal")
       this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

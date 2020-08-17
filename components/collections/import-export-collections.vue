@@ -87,9 +87,6 @@ export default {
   props: {
     show: Boolean,
   },
-  components: {
-    modal: () => import("~/components/ui/modal"),
-  },
   computed: {
     collectionJson() {
       return JSON.stringify(this.$store.state.postwoman.collections, null, 2)

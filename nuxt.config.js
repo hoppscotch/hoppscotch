@@ -197,6 +197,7 @@ export default {
     MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
+    BASE_URL: process.env.BASE_URL || "/",
   },
   i18n: {
     locales: [

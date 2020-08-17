@@ -3,7 +3,8 @@
     <div class="flex-wrap">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="logo">Hoppscotch</h1>
+          <h1 class="logo hide-on-small-screen">Hoppscotch</h1>
+          <h1 class="logo show-on-small-screen">Hs</h1>
         </nuxt-link>
       </span>
       <span>
@@ -233,6 +234,8 @@
 </template>
 
 <style scoped lang="scss">
+$responsiveWidth: 768px;
+
 @keyframes slideIn {
   0% {
     opacity: 0;
@@ -255,6 +258,16 @@
 
   &:hover {
     color: var(--ac-color);
+  }
+}
+
+.show-on-small-screen {
+  display: none;
+}
+
+@media (max-width: $responsiveWidth) {
+  .show-on-small-screen {
+    display: inline-flex;
   }
 }
 </style>

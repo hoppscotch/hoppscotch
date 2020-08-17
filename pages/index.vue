@@ -955,7 +955,7 @@
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />
-                  <notes />
+                  <feeds />
                 </div>
                 <div v-else>
                   <ul>

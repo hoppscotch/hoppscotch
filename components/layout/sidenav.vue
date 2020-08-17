@@ -307,10 +307,6 @@ nav.secondary-nav {
 
 <script>
 export default {
-  components: {
-    logo: () => import("./logo"),
-  },
-
   methods: {
     linkActive(path) {
       return {

@@ -85,9 +85,6 @@ export default {
     show: Boolean,
     editingRequest: Object,
   },
-  components: {
-    modal: () => import("~/components/ui/modal"),
-  },
   data() {
     return {
       defaultRequestName: "My Request",

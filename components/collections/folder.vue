@@ -80,9 +80,6 @@ export default {
     folderIndex: Number,
     doc: Boolean,
   },
-  components: {
-    request: () => import("./request"),
-  },
   data() {
     return {
       showChildren: false,
@@ -103,13 +100,13 @@ export default {
       this.$store.commit("postwoman/selectRequest", { request })
     },
     removeFolder() {
-      if (!confirm( this.$t("are_you_sure_remove_folder"))) return
+      if (!confirm(this.$t("are_you_sure_remove_folder"))) return
       this.$store.commit("postwoman/removeFolder", {
         collectionIndex: this.collectionIndex,
         folderIndex: this.folderIndex,
       })
       this.syncCollections()
-	  this.$toast.error(this.$t("deleted"), {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },

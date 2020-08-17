@@ -43,7 +43,7 @@
           </ul>
           <ul>
             <li>
-              <Editor
+              <ace-editor
                 v-model="collectionJSON"
                 :lang="'json'"
                 :lint="false"
@@ -326,14 +326,7 @@
 </style>
 
 <script>
-import AceEditor from "~/components/ui/ace-editor"
-
 export default {
-  components: {
-    "pw-section": () => import("~/components/layout/section"),
-    Editor: AceEditor,
-    collections: () => import("~/components/collections"),
-  },
   data() {
     return {
       collectionJSON: "[]",

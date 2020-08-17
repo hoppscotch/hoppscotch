@@ -5,20 +5,20 @@ TODO:
 
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections">
-    <addCollection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <editCollection
+    <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <edit-collection
       :show="showModalEdit"
       :editingCollection="editingCollection"
       :editingCollectionIndex="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <addFolder
+    <add-folder
       :show="showModalAddFolder"
       :collection="editingCollection"
       :collectionIndex="editingCollectionIndex"
       @hide-modal="displayModalAddFolder(false)"
     />
-    <editFolder
+    <edit-folder
       :show="showModalEditFolder"
       :collection="editingCollection"
       :collectionIndex="editingCollectionIndex"
@@ -26,7 +26,7 @@ TODO:
       :folderIndex="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
-    <editRequest
+    <edit-request
       :show="showModalEditRequest"
       :collectionIndex="editingCollectionIndex"
       :folderIndex="editingFolderIndex"
@@ -34,7 +34,7 @@ TODO:
       :requestIndex="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
-    <importExportCollections
+    <import-export-collections
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -95,20 +95,9 @@ ul {
 </style>
 
 <script>
-import collection from "./collection"
 import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    collection,
-    "pw-section": () => import("../layout/section"),
-    addCollection: () => import("./addCollection"),
-    addFolder: () => import("./addFolder"),
-    editCollection: () => import("./editCollection"),
-    editFolder: () => import("./editFolder"),
-    editRequest: () => import("./editRequest"),
-    importExportCollections: () => import("./importExportCollections"),
-  },
   props: {
     doc: Boolean,
   },

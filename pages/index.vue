@@ -346,7 +346,7 @@
                       </button>
                     </div>
                   </div>
-                  <Editor
+                  <ace-editor
                     v-model="rawParams"
                     :lang="rawInputEditorLang"
                     :options="{
@@ -821,7 +821,7 @@
                         </a>
                       </div>
                     </div>
-                    <JSEditor
+                    <js-editor
                       v-model="preRequestScript"
                       :options="{
                         maxLines: '16',
@@ -866,7 +866,7 @@
                         </a>
                       </div>
                     </div>
-                    <JSEditor
+                    <js-editor
                       v-model="testScript"
                       :options="{
                         maxLines: '16',
@@ -931,7 +931,7 @@
             </li>
           </ul>
           <div v-if="response.body && response.body !== $t('loading')">
-            <response-renderer :response="response" />
+            <response-body-renderer :response="response" />
           </div>
         </pw-section>
       </div>
@@ -955,7 +955,7 @@
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />
-                  <notes />
+                  <feeds />
                 </div>
                 <div v-else>
                   <ul>
@@ -979,7 +979,7 @@
         :editing-request="editRequest"
       />
 
-      <pw-modal v-if="showModal" @close="showModal = false">
+      <modal v-if="showModal" @close="showModal = false">
         <div slot="header">
           <ul>
             <li>
@@ -1019,9 +1019,9 @@
             </span>
           </div>
         </div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="!isHidden" @close="isHidden = true">
+      <modal v-if="!isHidden" @close="isHidden = true">
         <div slot="header">
           <ul>
             <li>
@@ -1076,9 +1076,9 @@
           </ul>
         </div>
         <div slot="footer"></div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="showTokenList" @close="showTokenList = false">
+      <modal v-if="showTokenList" @close="showTokenList = false">
         <div slot="header">
           <ul>
             <li>
@@ -1152,9 +1152,9 @@
           </p>
         </div>
         <div slot="footer"></div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+      <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
         <div slot="header">
           <ul>
             <li>
@@ -1237,13 +1237,12 @@
             </span>
           </div>
         </div>
-      </pw-modal>
+      </modal>
     </div>
   </div>
 </template>
 
 <script>
-import section from "~/components/layout/section"
 import url from "url"
 import querystring from "querystring"
 import { commonHeaders } from "~/helpers/headers"
@@ -1251,8 +1250,6 @@ import parseCurlCommand from "~/assets/js/curlparser.js"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
-import AceEditor from "~/components/ui/ace-editor"
-import JSEditor from "~/components/ui/js-editor"
 import { tokenRequest, oauthRedirect } from "~/assets/js/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
@@ -1312,24 +1309,6 @@ const parseHeaders = (xhr) => {
 export const findStatusGroup = (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
 export default {
-  components: {
-    "pw-section": section,
-    "pw-toggle": () => import("~/components/ui/toggle"),
-    "pw-modal": () => import("~/components/ui/modal"),
-    autocomplete: () => import("~/components/ui/autocomplete"),
-    history: () => import("~/components/layout/history"),
-    collections: () => import("~/components/collections"),
-    saveRequestAs: () => import("~/components/collections/saveRequestAs"),
-    Editor: AceEditor,
-    JSEditor: JSEditor,
-    environments: () => import("~/components/environments"),
-    inputform: () => import("~/components/firebase/inputform"),
-    notes: () => import("~/components/firebase/feeds"),
-    login: () => import("~/components/firebase/login"),
-    tabs: () => import("~/components/ui/tabs"),
-    tab: () => import("~/components/ui/tab"),
-    "response-renderer": () => import("~/components/lenses/ResponseBodyRenderer"),
-  },
   data() {
     return {
       showModal: false,

@@ -313,9 +313,6 @@ const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
-  components: {
-    "pw-section": () => import("../layout/section"),
-  },
   data() {
     return {
       history:

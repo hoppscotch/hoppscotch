@@ -49,9 +49,6 @@ export default {
   props: {
     show: Boolean,
   },
-  components: {
-    modal: () => import("~/components/ui/modal"),
-  },
   data() {
     return {
       name: undefined,

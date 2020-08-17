@@ -100,10 +100,6 @@ ul li {
 import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    folder: () => import("./folder"),
-    request: () => import("./request"),
-  },
   props: {
     collectionIndex: Number,
     collection: Object,
@@ -127,11 +123,11 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      if (!confirm( this.$t("are_you_sure_remove_collection") )) return
+      if (!confirm(this.$t("are_you_sure_remove_collection"))) return
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })
-	  this.$toast.error(this.$t("deleted"), {
+      this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
       this.syncCollections()

@@ -41,7 +41,7 @@
         <p class="info"><i class="material-icons">error_outline</i> Invalid JSON</p>
       </div>
       <div id="response-details-wrapper">
-        <Editor
+        <ace-editor
           :value="jsonBodyText"
           :lang="'json'"
           :options="{
@@ -60,14 +60,10 @@
 </template>
 
 <script>
-import AceEditor from "../../ui/ace-editor"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 
 export default {
-  components: {
-    Editor: AceEditor,
-  },
   mixins: [TextContentRendererMixin],
   props: {
     response: {},

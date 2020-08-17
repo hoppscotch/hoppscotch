@@ -148,7 +148,7 @@
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
-                type="url"
+                type="text"
                 v-model="uri"
                 spellcheck="false"
                 @input="pathInputHandler"

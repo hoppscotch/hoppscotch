@@ -64,7 +64,7 @@
         <ul>
           <li>
             <a href="#request" v-tooltip.right="$t('request')">
-              <i class="material-icons">cloud_upload</i>
+              <cloudUploadIcon class="material-icons" />
             </a>
           </li>
           <li>
@@ -85,7 +85,7 @@
         <ul>
           <li>
             <a href="#request" v-tooltip.right="$t('request')">
-              <i class="material-icons">cloud_upload</i>
+              <cloudUploadIcon class="material-icons" />
             </a>
           </li>
           <li>
@@ -111,7 +111,7 @@
           </li>
           <li>
             <a href="#query" v-tooltip.right="$t('query')">
-              <i class="material-icons">cloud_upload</i>
+              <cloudUploadIcon class="material-icons" />
             </a>
           </li>
           <li>
@@ -127,7 +127,7 @@
         <ul>
           <li>
             <a href="#import" v-tooltip.right="$t('import')">
-              <i class="material-icons">folder</i>
+              <folderIcon class="material-icons" />
             </a>
           </li>
           <li>
@@ -306,7 +306,14 @@ nav.secondary-nav {
 </style>
 
 <script>
+import cloudUploadIcon from "~/static/icons/cloud_upload-24px.svg?inline"
+import folderIcon from "~/static/icons/folder-24px.svg?inline"
+
 export default {
+  components: {
+    cloudUploadIcon,
+    folderIcon,
+  },
   methods: {
     linkActive(path) {
       return {
@@ -315,14 +322,12 @@ export default {
       }
     },
   },
-
   mounted() {
     window.addEventListener("scroll", (event) => {
       let mainNavLinks = document.querySelectorAll("nav ul li a")
       let fromTop = window.scrollY
       mainNavLinks.forEach(({ hash, classList }) => {
         let section = document.querySelector(hash)
-
         if (
           section &&
           section.offsetTop <= fromTop &&
@@ -335,11 +340,10 @@ export default {
       })
     })
   },
-
-  watch: {
-    $route() {
-      // this.$toast.clear();
-    },
-  },
+  // watch: {
+  //   $route() {
+  //     // this.$toast.clear();
+  //   },
+  // },
 }
 </script>

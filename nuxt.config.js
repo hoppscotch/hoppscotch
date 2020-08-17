@@ -133,6 +133,8 @@ export default {
     "@nuxtjs/google-analytics",
     // Doc: https://github.com/nuxt-community/gtm-module
     "@nuxtjs/gtm",
+    // Doc: https://github.com/nuxt-community/svg-module
+    "@nuxtjs/svg",
   ],
   /*
    ** Nuxt.js modules

@@ -51,6 +51,7 @@
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.0",
+    "@nuxtjs/svg": "^0.1.11",
     "eslint": "^7.7.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",

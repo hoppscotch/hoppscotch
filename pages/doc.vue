@@ -19,7 +19,7 @@
                     @click="$refs.collectionUpload.click()"
                     v-tooltip="$t('json')"
                   >
-                    <i class="material-icons">folder</i>
+                    <folderIcon class="material-icons" />
                     <span>{{ $t("import_collections") }}</span>
                   </button>
                 </label>
@@ -75,7 +75,7 @@
           <div>
             <span class="collection" v-for="(collection, index) in this.items" :key="index">
               <h2>
-                <i class="material-icons">folder</i>
+                <folderIcon class="material-icons" />
                 {{ collection.name || $t("none") }}
               </h2>
               <span class="folder" v-for="(folder, index) in collection.folders" :key="index">
@@ -326,7 +326,10 @@
 </style>
 
 <script>
+import folderIcon from "~/static/icons/folder-24px.svg?inline"
+
 export default {
+  components: { folderIcon },
   data() {
     return {
       collectionJSON: "[]",

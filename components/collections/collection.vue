@@ -4,7 +4,7 @@
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren">arrow_right</i>
         <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
-        <i class="material-icons">folder</i>
+        <folderIcon class="material-icons" />
         <span>{{ collection.name }}</span>
       </button>
       <div>
@@ -35,7 +35,7 @@
             </div>
             <div>
               <button class="icon" @click="removeCollection" v-close-popover>
-                <i class="material-icons">delete</i>
+                <deleteIcon class="material-icons" />
                 <span>{{ $t("delete") }}</span>
               </button>
             </div>
@@ -98,8 +98,11 @@ ul li {
 
 <script>
 import { fb } from "~/helpers/fb"
+import folderIcon from "~/static/icons/folder-24px.svg?inline"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
+  components: { folderIcon, deleteIcon },
   props: {
     collectionIndex: Number,
     collection: Object,

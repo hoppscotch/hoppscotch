@@ -13,7 +13,7 @@
     "pregenerate": "node build.js",
     "generate": "nuxt generate",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
-    "test": ""
+    "test": "jest"
   },
   "husky": {
     "hooks": {
@@ -48,16 +48,49 @@
     "yargs-parser": "^19.0.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.1",
+    "@vue/test-utils": "^1.0.4",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^26.3.0",
     "@nuxtjs/svg": "^0.1.11",
     "eslint": "^7.7.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",
+    "jest": "^26.4.0",
+    "jest-serializer-vue": "^2.0.2",
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
-    "sass-loader": "^9.0.3"
+    "sass-loader": "^9.0.3",
+    "vue-jest": "^3.0.6"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "vue"
+    ],
+    "watchman": false,
+    "moduleNameMapper": {
+      "^~/(.*)$": "<rootDir>/$1",
+      "^~~/(.*)$": "<rootDir>/$1"
+    },
+    "transform": {
+      "^.+\\.js$": "babel-jest",
+      ".*\\.(vue)$": "vue-jest"
+    },
+    "snapshotSerializers": [
+      "jest-serializer-vue"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "<rootDir>/components/**/*.vue",
+      "<rootDir>/pages/*.vue"
+    ],
+    "testURL": "http://localhost/"
   }
 }

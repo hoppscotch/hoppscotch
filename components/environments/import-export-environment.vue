@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
+                <closeIcon class="material-icons" />
               </button>
             </div>
           </div>
@@ -77,8 +77,12 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
+  components: {
+    closeIcon,
+  },
   data() {
     return {
       fb,
@@ -86,9 +90,6 @@ export default {
   },
   props: {
     show: Boolean,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
   },
   computed: {
     environmentJson() {

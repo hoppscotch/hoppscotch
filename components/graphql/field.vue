@@ -50,13 +50,7 @@
 </style>
 
 <script>
-import typelink from "./typelink"
-
 export default {
-  components: {
-    typelink: typelink,
-  },
-
   props: {
     gqlField: Object,
     jumpTypeCallback: Function,

@@ -56,6 +56,7 @@
     "@vue/test-utils": "^1.0.4",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.3.0",
+    "@nuxtjs/svg": "^0.1.11",
     "eslint": "^7.7.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",

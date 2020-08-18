@@ -148,7 +148,7 @@
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
-                type="url"
+                type="text"
                 v-model="uri"
                 spellcheck="false"
                 @input="pathInputHandler"
@@ -317,7 +317,7 @@
                       v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
-                      <i class="material-icons">delete</i>
+                      <deleteIcon class="material-icons" />
                     </button>
                   </li>
                 </div>
@@ -346,7 +346,7 @@
                       </button>
                     </div>
                   </div>
-                  <Editor
+                  <ace-editor
                     v-model="rawParams"
                     :lang="rawInputEditorLang"
                     :options="{
@@ -500,7 +500,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="param"
                       >
-                        <i class="material-icons">delete</i>
+                        <deleteIcon class="material-icons" />
                       </button>
                     </li>
                   </div>
@@ -629,7 +629,7 @@
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
-                          <i class="material-icons">close</i>
+                          <closeIcon class="material-icons" />
                         </button>
                       </div>
                     </div>
@@ -782,7 +782,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="header"
                       >
-                        <i class="material-icons">delete</i>
+                        <deleteIcon class="material-icons" />
                       </button>
                     </li>
                   </div>
@@ -821,7 +821,7 @@
                         </a>
                       </div>
                     </div>
-                    <JSEditor
+                    <js-editor
                       v-model="preRequestScript"
                       :options="{
                         maxLines: '16',
@@ -866,7 +866,7 @@
                         </a>
                       </div>
                     </div>
-                    <JSEditor
+                    <js-editor
                       v-model="testScript"
                       :options="{
                         maxLines: '16',
@@ -931,7 +931,7 @@
             </li>
           </ul>
           <div v-if="response.body && response.body !== $t('loading')">
-            <response-renderer :response="response" />
+            <response-body-renderer :response="response" />
           </div>
         </pw-section>
       </div>
@@ -955,7 +955,7 @@
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />
-                  <notes />
+                  <feeds />
                 </div>
                 <div v-else>
                   <ul>
@@ -979,7 +979,7 @@
         :editing-request="editRequest"
       />
 
-      <pw-modal v-if="showModal" @close="showModal = false">
+      <modal v-if="showModal" @close="showModal = false">
         <div slot="header">
           <ul>
             <li>
@@ -987,7 +987,7 @@
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1019,9 +1019,9 @@
             </span>
           </div>
         </div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="!isHidden" @close="isHidden = true">
+      <modal v-if="!isHidden" @close="isHidden = true">
         <div slot="header">
           <ul>
             <li>
@@ -1029,7 +1029,7 @@
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1076,9 +1076,9 @@
           </ul>
         </div>
         <div slot="footer"></div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="showTokenList" @close="showTokenList = false">
+      <modal v-if="showTokenList" @close="showTokenList = false">
         <div slot="header">
           <ul>
             <li>
@@ -1086,7 +1086,7 @@
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1142,7 +1142,7 @@
                   @click="removeOAuthToken(index)"
                   v-tooltip.bottom="$t('delete')"
                 >
-                  <i class="material-icons">delete</i>
+                  <deleteIcon class="material-icons" />
                 </button>
               </li>
             </div>
@@ -1152,9 +1152,9 @@
           </p>
         </div>
         <div slot="footer"></div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+      <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
         <div slot="header">
           <ul>
             <li>
@@ -1162,7 +1162,7 @@
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1189,7 +1189,7 @@
                     @click="removeOAuthTokenReq"
                     v-tooltip.bottom="$t('delete')"
                   >
-                    <i class="material-icons">delete</i>
+                    <deleteIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1237,13 +1237,12 @@
             </span>
           </div>
         </div>
-      </pw-modal>
+      </modal>
     </div>
   </div>
 </template>
 
 <script>
-import section from "~/components/layout/section"
 import url from "url"
 import querystring from "querystring"
 import { commonHeaders } from "~/helpers/headers"
@@ -1251,8 +1250,6 @@ import parseCurlCommand from "~/assets/js/curlparser.js"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
-import AceEditor from "~/components/ui/ace-editor"
-import JSEditor from "~/components/ui/js-editor"
 import { tokenRequest, oauthRedirect } from "~/assets/js/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
@@ -1261,6 +1258,8 @@ import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpe
 import { parseUrlAndPath } from "~/helpers/utils/uri.js"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 const statusCategories = [
   {
@@ -1311,24 +1310,11 @@ const parseHeaders = (xhr) => {
 }
 export const findStatusGroup = (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
+
 export default {
   components: {
-    "pw-section": section,
-    "pw-toggle": () => import("~/components/ui/toggle"),
-    "pw-modal": () => import("~/components/ui/modal"),
-    autocomplete: () => import("~/components/ui/autocomplete"),
-    history: () => import("~/components/layout/history"),
-    collections: () => import("~/components/collections"),
-    saveRequestAs: () => import("~/components/collections/saveRequestAs"),
-    Editor: AceEditor,
-    JSEditor: JSEditor,
-    environments: () => import("~/components/environments"),
-    inputform: () => import("~/components/firebase/inputform"),
-    notes: () => import("~/components/firebase/feeds"),
-    login: () => import("~/components/firebase/login"),
-    tabs: () => import("~/components/ui/tabs"),
-    tab: () => import("~/components/ui/tab"),
-    "response-renderer": () => import("~/components/lenses/ResponseBodyRenderer"),
+    closeIcon,
+    deleteIcon,
   },
   data() {
     return {

@@ -383,10 +383,14 @@ section:target {
 
 input[type="file"],
 input[type="radio"],
-.hide-on-large-screen,
 #installPWA,
 .hidden {
   display: none;
+}
+
+.show-on-large-screen {
+  display: flex;
+  flex: 1;
 }
 
 .method,
@@ -574,15 +578,6 @@ ol li {
   }
 }
 
-.show-on-small-screen {
-  display: flex;
-}
-
-.show-on-large-screen {
-  display: flex;
-  flex: 1;
-}
-
 .info-response {
   color: #ffeb3b;
 }
@@ -724,11 +719,6 @@ section {
 
   .hide-on-small-screen {
     display: none;
-  }
-
-  .hide-on-large-screen,
-  .show-on-small-screen {
-    display: inline-flex;
   }
 
   .sticky-inner {

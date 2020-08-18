@@ -32,7 +32,7 @@
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <realtime-log :title="$t('log')" :log="communication.log" />
+          <log :title="$t('log')" :log="communication.log" />
         </li>
       </ul>
       <ul>
@@ -81,10 +81,6 @@ import io from "socket.io-client"
 import wildcard from "socketio-wildcard"
 
 export default {
-  components: {
-    "pw-section": () => import("~/components/layout/section"),
-    realtimeLog: () => import("./log"),
-  },
   data() {
     return {
       url: "ws://",

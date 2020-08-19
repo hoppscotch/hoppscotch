@@ -3,6 +3,7 @@ const mimeToMode = {
   "text/html": "html",
   "application/xml": "xml",
   "application/hal+json": "json",
+  "application/vnd.api+json": "json",
   "application/json": "json",
 }
 

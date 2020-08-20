@@ -9,7 +9,7 @@
     <div class="flex-wrap">
       <span>
         <a
-          href="https://github.com/sponsors/postwoman-io"
+          href="https://github.com/sponsors/hoppscotch"
           target="_blank"
           rel="noopener"
           v-tooltip.right="$t('recurring')"
@@ -36,7 +36,7 @@
     <div class="flex-wrap">
       <span>
         <a
-          href="https://opencollective.com/postwoman"
+          href="https://opencollective.com/hoppscotch"
           target="_blank"
           rel="noopener"
           v-tooltip.right="$t('one_time_recurring')"
@@ -78,13 +78,13 @@
     <h3 class="title">Financial Contributors</h3>
     <p class="info">
       Become a financial contributor and help us sustain our community.
-      <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
+      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <h3 class="title">Organizations</h3>
     <p class="info">
       Support this project with your organization. Your logo will show up here with a link to your
       website.
-      <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
+      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <div class="contributors">
       <a href="https://tyk.io" target="_blank" rel="noopener">
@@ -96,42 +96,42 @@
       </a>
     </div>
     <div class="contributors">
-      <a href="https://opencollective.com/postwoman/organization/0/website">
-        <img src="https://opencollective.com/postwoman/organization/0/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/0/website">
+        <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/1/website">
-        <img src="https://opencollective.com/postwoman/organization/1/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/1/website">
+        <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/2/website">
-        <img src="https://opencollective.com/postwoman/organization/2/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/2/website">
+        <img src="https://opencollective.com/hoppscotch/organization/2/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/3/website">
-        <img src="https://opencollective.com/postwoman/organization/3/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/3/website">
+        <img src="https://opencollective.com/hoppscotch/organization/3/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/4/website">
-        <img src="https://opencollective.com/postwoman/organization/4/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/4/website">
+        <img src="https://opencollective.com/hoppscotch/organization/4/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/5/website">
-        <img src="https://opencollective.com/postwoman/organization/5/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/5/website">
+        <img src="https://opencollective.com/hoppscotch/organization/5/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/6/website">
-        <img src="https://opencollective.com/postwoman/organization/6/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/6/website">
+        <img src="https://opencollective.com/hoppscotch/organization/6/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/7/website">
-        <img src="https://opencollective.com/postwoman/organization/7/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/7/website">
+        <img src="https://opencollective.com/hoppscotch/organization/7/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/8/website">
-        <img src="https://opencollective.com/postwoman/organization/8/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/8/website">
+        <img src="https://opencollective.com/hoppscotch/organization/8/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/9/website">
-        <img src="https://opencollective.com/postwoman/organization/9/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/9/website">
+        <img src="https://opencollective.com/hoppscotch/organization/9/avatar.svg" />
       </a>
     </div>
     <h3 class="title">Individuals</h3>
     <p class="info">
       Support this project with your organization. Your logo will show up here with a link to your
       website.
-      <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
+      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <div class="contributors">
       <a href="http://tom.preston-werner.com" target="_blank" rel="noopener">
@@ -141,8 +141,8 @@
           alt="Tom Preston-Werner"
         />
       </a>
-      <a href="https://opencollective.com/postwoman">
-        <img src="https://opencollective.com/postwoman/individuals.svg" />
+      <a href="https://opencollective.com/hoppscotch">
+        <img src="https://opencollective.com/hoppscotch/individuals.svg" />
       </a>
     </div>
     <h3 class="title">Code Contributors</h3>
@@ -150,8 +150,8 @@
       This project exists thanks to all the people who contribute.
     </p>
     <div class="contributors">
-      <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">
-        <img src="https://opencollective.com/postwoman/contributors.svg" />
+      <a href="https://github.com/liyasthomas/hoppscotch/graphs/contributors">
+        <img src="https://opencollective.com/hoppscotch/contributors.svg" />
       </a>
     </div>
   </div>

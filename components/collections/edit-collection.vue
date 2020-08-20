@@ -1,13 +1,13 @@
 <template>
-  <modal v-if="show" @close="show = false">
+  <modal v-if="show" @close="hideModal">
     <div slot="header">
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("new_folder") }}</h3>
+            <h3 class="title">{{ $t("edit_collection") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
+                <closeIcon class="material-icons" />
               </button>
             </div>
           </div>
@@ -20,8 +20,8 @@
           <input
             type="text"
             v-model="name"
-            :placeholder="$t('my_new_folder')"
-            @keyup.enter="addNewFolder"
+            :placeholder="editingCollection.name"
+            @keyup.enter="saveCollection"
           />
         </li>
       </ul>
@@ -33,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewFolder">
+          <button class="icon primary" @click="saveCollection">
             {{ $t("save") }}
           </button>
         </span>
@@ -44,15 +44,16 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
+  components: {
+    closeIcon,
+  },
   props: {
     show: Boolean,
-    collection: Object,
-    collectionIndex: Number,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
+    editingCollection: Object,
+    editingCollectionIndex: Number,
   },
   data() {
     return {
@@ -60,20 +61,28 @@ export default {
     }
   },
   methods: {
-    addNewFolder() {
-      this.$store.commit("postwoman/addNewFolder", {
-        folder: { name: this.$data.name },
-        collectionIndex: this.$props.collectionIndex,
-      })
-      this.hideModal()
-      this.syncCollections()
-    },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }
       }
+    },
+    saveCollection() {
+      if (!this.$data.name) {
+        this.$toast.info(this.$t("invalid_collection_name"))
+        return
+      }
+      const collectionUpdated = {
+        ...this.$props.editingCollection,
+        name: this.$data.name,
+      }
+      this.$store.commit("postwoman/editCollection", {
+        collection: collectionUpdated,
+        collectionIndex: this.$props.editingCollectionIndex,
+      })
+      this.$emit("hide-modal")
+      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

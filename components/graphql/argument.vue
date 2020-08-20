@@ -11,13 +11,7 @@
 <style scoped lang="scss"></style>
 
 <script>
-import typelink from "./typelink"
-
 export default {
-  components: {
-    typelink: typelink,
-  },
-
   props: {
     gqlArg: Object,
   },

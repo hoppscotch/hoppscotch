@@ -23,7 +23,7 @@
         </div>
         <div>
           <button class="icon" @click="removeEnvironment" v-close-popover>
-            <i class="material-icons">delete</i>
+            <deleteIcon class="material-icons" />
             <span>{{ $t("delete") }}</span>
           </button>
         </div>
@@ -47,8 +47,10 @@ ul li {
 
 <script>
 import { fb } from "~/helpers/fb"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
+  components: { deleteIcon },
   props: {
     environment: Object,
     environmentIndex: Number,
@@ -62,8 +64,11 @@ export default {
       }
     },
     removeEnvironment() {
-      if (!confirm("Are you sure you want to remove this environment?")) return
+      if (!confirm(this.$t("are_you_sure_remove_environment"))) return
       this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+      })
       this.syncEnvironments()
     },
   },

@@ -153,7 +153,7 @@
               </pw-toggle>
             </span>
             <a
-              href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
+              href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
               target="_blank"
               rel="noopener"
             >
@@ -224,14 +224,6 @@ import { fb } from "~/helpers/fb"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 
 export default {
-  components: {
-    "pw-section": () => import("~/components/layout/section"),
-    "pw-toggle": () => import("~/components/ui/toggle"),
-    swatch: () => import("~/components/settings/swatch"),
-    login: () => import("~/components/firebase/login"),
-    logout: () => import("~/components/firebase/logout"),
-    teams: () => import("~/components/teams"),
-  },
   data() {
     return {
       // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss

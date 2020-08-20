@@ -9,7 +9,7 @@ export const knownContentTypes = [
 ]
 
 export function isJSONContentType(contentType) {
-  if (contentType.includes(";")) {
+  if (contentType && contentType.includes(";")) {
     const [justContentType] = contentType.split(";")
 
     return (

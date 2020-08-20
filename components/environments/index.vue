@@ -1,13 +1,13 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('environments')" ref="environments">
-    <addEnvironment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <editEnvironment
+    <add-environment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <edit-environment
       :show="showModalEdit"
       :editingEnvironment="editingEnvironment"
       :editingEnvironmentIndex="editingEnvironmentIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <importExportEnvironment
+    <import-export-environment
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -25,7 +25,7 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      <i class="material-icons">help_outline</i> Create new environment
+      <i class="material-icons">help_outline</i> {{ $t("create_new_environment") }}
     </p>
     <div class="virtual-list">
       <ul>
@@ -54,17 +54,9 @@ ul {
 </style>
 
 <script>
-import environment from "./environment"
 import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    environment,
-    "pw-section": () => import("../layout/section"),
-    addEnvironment: () => import("./addEnvironment"),
-    editEnvironment: () => import("./editEnvironment"),
-    importExportEnvironment: () => import("./importExportEnvironment"),
-  },
   data() {
     return {
       showModalImportExport: false,

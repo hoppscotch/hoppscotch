@@ -47,5 +47,5 @@ export default () => ({
     clientId: "",
     scope: "",
   },
-  name: "Postwoman",
+  name: "Hoppscotch",
 })

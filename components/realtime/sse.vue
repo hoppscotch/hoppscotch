@@ -31,7 +31,7 @@
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <realtime-log :title="$t('events')" :log="events.log" />
+          <log :title="$t('events')" :log="events.log" />
           <div id="result"></div>
         </li>
       </ul>
@@ -43,10 +43,6 @@
 import { httpValid } from "~/helpers/utils/valid"
 
 export default {
-  components: {
-    "pw-section": () => import("../layout/section"),
-    realtimeLog: () => import("./log"),
-  },
   data() {
     return {
       connectionSSEState: false,

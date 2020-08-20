@@ -3,7 +3,8 @@
     <div class="flex-wrap">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="logo">Postwoman</h1>
+          <h1 class="logo hide-on-small-screen">Hoppscotch</h1>
+          <h1 class="logo show-on-small-screen">Hs</h1>
         </nuxt-link>
       </span>
       <span>
@@ -16,7 +17,7 @@
           <i class="material-icons">offline_bolt</i>
         </button>
         <a
-          href="https://github.com/liyasthomas/postwoman"
+          href="https://github.com/hoppscotch/hoppscotch"
           target="_blank"
           aria-label="GitHub"
           rel="noopener"
@@ -90,7 +91,7 @@
             </button>
             <button
               class="icon"
-              onClick="window.open('https://twitter.com/share?text=👽 Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://postwoman.io&hashtags=postwoman&via=liyasthomas');"
+              onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=liyasthomas');"
               v-close-popover
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -122,7 +123,7 @@
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
-                  <i class="material-icons">close</i>
+                  <closeIcon class="material-icons" />
                 </button>
               </div>
             </div>
@@ -182,7 +183,7 @@
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
-                  <i class="material-icons">close</i>
+                  <closeIcon class="material-icons" />
                 </button>
               </div>
             </div>
@@ -217,7 +218,7 @@
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
-                  <i class="material-icons">close</i>
+                  <closeIcon class="material-icons" />
                 </button>
               </div>
             </div>
@@ -233,6 +234,8 @@
 </template>
 
 <style scoped lang="scss">
+$responsiveWidth: 768px;
+
 @keyframes slideIn {
   0% {
     opacity: 0;
@@ -257,6 +260,16 @@
     color: var(--ac-color);
   }
 }
+
+.show-on-small-screen {
+  display: none;
+}
+
+@media (max-width: $responsiveWidth) {
+  .show-on-small-screen {
+    display: inline-flex;
+  }
+}
 </style>
 
 <script>
@@ -269,15 +282,12 @@ import {
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
   components: {
-    modal: () => import("../ui/modal"),
-    login: () => import("../firebase/login"),
-    logout: () => import("../firebase/logout"),
-    contributors: () => import("./contributors"),
+    closeIcon,
   },
-
   data() {
     return {
       // Once the PWA code is initialized, this holds a method
@@ -322,7 +332,7 @@ export default {
       //   setTimeout(() => {
       //     this.$toast.clear()
       //     this.$toast.show(
-      //       "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Postwoman. Whoosh this away to dismiss →</span>",
+      //       "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Hoppscotch. Whoosh this away to dismiss →</span>",
       //       {
       //         icon: "",
       //         duration: 0,
@@ -398,10 +408,10 @@ export default {
       if (navigator.share) {
         navigator
           .share({
-            title: "Postwoman",
+            title: "Hoppscotch",
             text:
-              "Postwoman • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
-            url: "https://postwoman.io/",
+              "Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
+            url: "https://hoppscotch.io/",
           })
           .then(() => {})
           .catch(console.error)

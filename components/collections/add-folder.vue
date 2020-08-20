@@ -1,13 +1,13 @@
 <template>
-  <modal v-if="show" @close="hideModal">
+  <modal v-if="show" @close="show = false">
     <div slot="header">
       <ul>
         <li>
           <div class="flex-wrap">
-            <h3 class="title">{{ $t("new_collection") }}</h3>
+            <h3 class="title">{{ $t("new_folder") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
+                <closeIcon class="material-icons" />
               </button>
             </div>
           </div>
@@ -20,8 +20,8 @@
           <input
             type="text"
             v-model="name"
-            :placeholder="$t('my_new_collection')"
-            @keyup.enter="addNewCollection"
+            :placeholder="$t('my_new_folder')"
+            @keyup.enter="addNewFolder"
           />
         </li>
       </ul>
@@ -33,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewCollection">
+          <button class="icon primary" @click="addNewFolder">
             {{ $t("save") }}
           </button>
         </span>
@@ -44,13 +44,16 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
+  components: {
+    closeIcon,
+  },
   props: {
     show: Boolean,
-  },
-  components: {
-    modal: () => import("~/components/ui/modal"),
+    collection: Object,
+    collectionIndex: Number,
   },
   data() {
     return {
@@ -58,6 +61,14 @@ export default {
     }
   },
   methods: {
+    addNewFolder() {
+      this.$store.commit("postwoman/addNewFolder", {
+        folder: { name: this.$data.name },
+        collectionIndex: this.$props.collectionIndex,
+      })
+      this.hideModal()
+      this.syncCollections()
+    },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {
@@ -65,20 +76,8 @@ export default {
         }
       }
     },
-    addNewCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
-        return
-      }
-      this.$store.commit("postwoman/addNewCollection", {
-        name: this.$data.name,
-      })
-      this.$emit("hide-modal")
-      this.syncCollections()
-    },
     hideModal() {
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

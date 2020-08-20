@@ -463,7 +463,7 @@
                     <input
                       :placeholder="$t('value_count', { count: index + 1 })"
                       :name="'value' + index"
-                      :value="param.value"
+                      :value="decodeURI(param.value)"
                       @change="
                         $store.commit('setValueParams', {
                           index,

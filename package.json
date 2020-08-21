@@ -33,7 +33,7 @@
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
-    "firebase": "^7.18.0",
+    "firebase": "^7.19.0",
     "esprima": "^4.0.1",
     "graphql": "^15.3.0",
     "graphql-language-service-interface": "^2.4.1",
@@ -48,7 +48,7 @@
     "yargs-parser": "^19.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.1",
+    "@babel/core": "^7.11.4",
     "@babel/preset-env": "^7.11.0",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
@@ -60,11 +60,11 @@
     "eslint": "^7.7.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",
-    "jest": "^26.4.0",
+    "jest": "^26.4.1",
     "jest-serializer-vue": "^2.0.2",
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
-    "pretty-quick": "^2.0.1",
+    "pretty-quick": "^2.0.2",
     "sass-loader": "^9.0.3",
     "vue-jest": "^3.0.6"
   },

@@ -9,11 +9,12 @@
               <span class="select-wrapper">
                 <v-popover>
                   <input
+                    v-if="!customMethod"
                     id="method"
                     class="method"
-                    v-if="!customMethod"
                     v-model="method"
                     readonly
+                    autofocus
                   />
                   <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
@@ -1349,13 +1350,25 @@ export default {
       filenames: "",
       navigatorShare: navigator.share,
       runningRequest: false,
-
       settings: {
         SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
             : true,
       },
+      currentMethodIndex: 0,
+      methodMenuItems: [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE",
+        "CONNECT",
+        "OPTIONS",
+        "TRACE",
+        "PATCH",
+        "CUSTOM",
+      ],
     }
   },
   watch: {
@@ -2687,19 +2700,43 @@ export default {
         } else {
           this.cancelRequest()
         }
-      } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      }
+      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.saveRequest()
-      } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+      }
+      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.copyRequest()
-      } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
+      }
+      if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.$refs.clearAll.click()
-      } else if (e.key === "Escape") {
+      }
+      if (e.key === "Escape") {
         e.preventDefault()
         this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false
         this.isHidden = true
+      }
+      if ((e.key === "g" || e.key === "G") && e.altKey) {
+        this.method = "GET"
+      }
+      if ((e.key === "h" || e.key === "H") && e.altKey) {
+        this.method = "HEAD"
+      }
+      if ((e.key === "p" || e.key === "P") && e.altKey) {
+        this.method = "POST"
+      }
+      if ((e.key === "u" || e.key === "U") && e.altKey) {
+        this.method = "PUT"
+      }
+      if ((e.key === "x" || e.key === "x") && e.altKey) {
+        this.method = "DELETE"
+      }
+      if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
+        this.method = this.methodMenuItems[--this.currentMethodIndex % this.methodMenuItems.length]
+      } else if (e.key == "ArrowDown" && e.altKey && this.currentMethodIndex < 9) {
+        this.method = this.methodMenuItems[++this.currentMethodIndex % this.methodMenuItems.length]
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))

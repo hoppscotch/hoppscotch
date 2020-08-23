@@ -295,5 +295,12 @@
   "are_you_sure_remove_collection": "Are you sure you want to remove this Collection?",
   "are_you_sure_remove_folder": "Are you sure you want to remove this folder?",
   "are_you_sure_remove_request": "Are you sure you want to remove this request?",
-  "are_you_sure_remove_environment": "Are you sure you want to remove this environment?"
+  "are_you_sure_remove_environment": "Are you sure you want to remove this environment?",
+  "select_next_method": "Select Next method",
+  "select_previous_method": "Select Previous method",
+  "select_get_method": "Select GET method",
+  "select_head_method": "Select HEAD method",
+  "select_post_method": "Select POST method",
+  "select_put_method": "Select PUT method",
+  "select_delete_method": "Select DELETE method"
 }

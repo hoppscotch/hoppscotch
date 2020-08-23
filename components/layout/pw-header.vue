@@ -192,20 +192,55 @@
       </div>
       <div slot="body">
         <div>
+          <kbd>{{ getSpecialKey() }}</kbd>
+          +
+          <kbd>G</kbd>
           <label>{{ $t("send_request") }}</label>
-          <kbd>{{ getSpecialKey() }} G</kbd>
         </div>
         <div>
+          <kbd>{{ getSpecialKey() }}</kbd
+          >+<kbd>S</kbd>
           <label>{{ $t("save_to_collections") }}</label>
-          <kbd>{{ getSpecialKey() }} S</kbd>
         </div>
         <div>
+          <kbd>{{ getSpecialKey() }}</kbd
+          >+<kbd>K</kbd>
           <label>{{ $t("copy_request_link") }}</label>
-          <kbd>{{ getSpecialKey() }} K</kbd>
         </div>
         <div>
+          <kbd>{{ getSpecialKey() }}</kbd
+          >+<kbd>L</kbd>
           <label>{{ $t("reset_request") }}</label>
-          <kbd>{{ getSpecialKey() }} L</kbd>
+        </div>
+        <hr />
+        <div>
+          <kbd>Alt</kbd>+<kbd>🠋</kbd>
+          <label>{{ $t("select_next_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>🠉</kbd>
+          <label>{{ $t("select_previous_method") }}</label>
+        </div>
+        <hr />
+        <div>
+          <kbd>Alt</kbd>+<kbd>G</kbd>
+          <label>{{ $t("select_get_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>H</kbd>
+          <label>{{ $t("select_head_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>P</kbd>
+          <label>{{ $t("select_post_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>U</kbd>
+          <label>{{ $t("select_put_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>D</kbd>
+          <label>{{ $t("select_delete_method") }}</label>
         </div>
       </div>
       <div slot="footer"></div>

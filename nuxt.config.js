@@ -21,6 +21,9 @@ export const options = {
 export default {
   mode: "spa",
   target: "static",
+  server: {
+    host: "0.0.0.0", // default: localhost
+  },
   /*
    ** Headers of the page
    */

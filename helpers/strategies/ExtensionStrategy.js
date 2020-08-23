@@ -32,7 +32,7 @@ const extensionWithProxy = async (req, { state }) => {
   }
 
   if (parsedData.isBinary) {
-    parsedData.data = decodeB64StringToArrayBuffer(data.data)
+    parsedData.data = decodeB64StringToArrayBuffer(parsedData.data)
   }
 
   return parsedData

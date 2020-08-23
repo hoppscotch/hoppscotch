@@ -58,7 +58,7 @@ export default {
   },
 
   setValueParams({ request }, { index, value }) {
-    request.params[index].value = value
+    request.params[index].value = encodeURI(value)
   },
 
   setTypeParams({ request }, { index, value }) {

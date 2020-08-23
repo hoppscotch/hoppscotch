@@ -46,7 +46,7 @@ const axiosWithoutProxy = async (req, _store) => {
   try {
     const res = await axios({
       ...req,
-      cancelToken: cancelSource.token,
+      cancelToken: (cancelSource && cancelSource.token) || "",
       responseType: "arraybuffer",
     })
 
@@ -65,6 +65,10 @@ const axiosStrategy = (req, store) => {
     return axiosWithProxy(req, store)
   }
   return axiosWithoutProxy(req, store)
+}
+
+export const testables = {
+  cancelSource,
 }
 
 export default axiosStrategy

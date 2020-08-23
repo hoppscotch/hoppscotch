@@ -60,7 +60,7 @@ export default {
       // Windows phone tile icon
       {
         name: "msapplication-TileImage",
-        content: `/icons/icon-144x144.png`,
+        content: `/icon.png`,
       },
       {
         name: "msapplication-TileColor",
@@ -73,23 +73,12 @@ export default {
     ],
     link: [
       {
-        rel: "icon",
-        type: "image/x-icon",
-        href: `/favicon.ico`,
-      },
-      // Home-screen icons (iOS)
-      {
         rel: "apple-touch-icon",
-        href: `/icons/icon-48x48.png`,
+        href: "/icon.png",
       },
       {
         rel: "apple-touch-startup-image",
-        href: `/icons/icon-72x72.png`,
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "192x192",
-        href: `/icons/icon-192x192.png`,
+        href: "/icon.png",
       },
     ],
   },
@@ -152,21 +141,20 @@ export default {
     "@nuxtjs/sitemap",
   ],
   pwa: {
-    manifest: {
-      name: options.name,
-      short_name: options.name,
-      start_url: `/`,
-      display: "standalone",
-      background_color: options.app.background,
-      description: options.shortDescription,
-      theme_color: options.app.background,
-    },
     meta: {
       ogHost: process.env.BASE_URL,
       twitterCard: "summary_large_image",
       twitterSite: options.social.twitter,
       twitterCreator: options.social.twitter,
       description: options.shortDescription,
+      theme_color: options.app.background,
+    },
+    manifest: {
+      name: options.name,
+      short_name: options.name,
+      description: options.shortDescription,
+      start_url: "/",
+      background_color: options.app.background,
       theme_color: options.app.background,
     },
   },

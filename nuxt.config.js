@@ -46,11 +46,11 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${process.env.BASE_URL}logo.jpg`,
+        content: `${process.env.BASE_URL}banner.jpg`,
       },
       {
         property: "og:image",
-        content: `${process.env.BASE_URL}logo.jpg`,
+        content: `${process.env.BASE_URL}banner.jpg`,
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {

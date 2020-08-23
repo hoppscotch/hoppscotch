@@ -1,13 +1,16 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('teams')" ref="teams">
-    <addTeam :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <editTeam
+    <add-team :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <edit-team
       :show="showModalEdit"
       :editingTeam="editingTeam"
       :editingTeamIndex="editingTeamIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <importExportTeam :show="showModalImportExport" @hide-modal="displayModalImportExport(false)" />
+    <import-export-team
+      :show="showModalImportExport"
+      @hide-modal="displayModalImportExport(false)"
+    />
     <div class="flex-wrap">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
@@ -49,17 +52,9 @@ ul {
 </style>
 
 <script>
-import team from "./team"
 import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    team,
-    "pw-section": () => import("../layout/section"),
-    addTeam: () => import("./addTeam"),
-    editTeam: () => import("./editTeam"),
-    importExportTeam: () => import("./importExportTeam"),
-  },
   data() {
     return {
       showModalImportExport: false,

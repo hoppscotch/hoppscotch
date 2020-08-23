@@ -2718,19 +2718,19 @@ export default {
         this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false
         this.isHidden = true
       }
-      if (e.key === "G" && e.altKey) {
+      if ((e.key === "g" || e.key === "G") && e.altKey) {
         this.method = "GET"
       }
-      if (e.key === "H" && e.altKey) {
+      if ((e.key === "h" || e.key === "H") && e.altKey) {
         this.method = "HEAD"
       }
-      if (e.key === "P" && e.altKey) {
+      if ((e.key === "p" || e.key === "P") && e.altKey) {
         this.method = "POST"
       }
-      if (e.key === "U" && e.altKey) {
+      if ((e.key === "u" || e.key === "U") && e.altKey) {
         this.method = "PUT"
       }
-      if (e.key === "D" && e.altKey) {
+      if ((e.key === "x" || e.key === "x") && e.altKey) {
         this.method = "DELETE"
       }
       if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {

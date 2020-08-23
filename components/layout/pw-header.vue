@@ -239,7 +239,7 @@
           <label>{{ $t("select_put_method") }}</label>
         </div>
         <div>
-          <kbd>Alt</kbd>+<kbd>D</kbd>
+          <kbd>Alt</kbd>+<kbd>X</kbd>
           <label>{{ $t("select_delete_method") }}</label>
         </div>
       </div>

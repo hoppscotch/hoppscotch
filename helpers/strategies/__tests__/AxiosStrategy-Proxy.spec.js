@@ -152,33 +152,4 @@ describe("axiosStrategy", () => {
       await expect(axiosStrategy({}, store)).rejects.toBe("errr")
     })
   })
-
-  describe("No-Proxy Requests", () => {
-    const store = {
-      state: {
-        postwoman: {
-          settings: {
-            PROXY_ENABLED: false,
-            PROXY_URL: "test",
-          },
-        },
-      },
-    }
-
-    test("sends request to the actual sender if proxy disabled", async () => {
-      // jest.mock("axios")
-      // await axiosStrategy({ url: "test" }, store)
-      // expect(axiosFunc).toBeCalledWith(expect.objectContaining({
-      //     url: "test"
-      // }))
-    })
-
-    test("asks axios to return data as arraybuffer", () => {})
-
-    test("resolves successful requests", () => {})
-
-    test("rejects cancel errors with text 'cancellation'", () => {})
-
-    test("rejects non-cancellation errors as-is", () => {})
-  })
 })

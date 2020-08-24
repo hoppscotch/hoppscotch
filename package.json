@@ -53,10 +53,11 @@
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.1",
+    "@nuxtjs/svg": "^0.1.11",
+    "@testing-library/jest-dom": "^5.11.4",
     "@vue/test-utils": "^1.0.4",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.3.0",
-    "@nuxtjs/svg": "^0.1.11",
     "eslint": "^7.7.0",
     "eslint-plugin-vue": "^6.2.2",
     "husky": "^4.2.5",
@@ -83,6 +84,9 @@
       "^.+\\.js$": "babel-jest",
       ".*\\.(vue)$": "vue-jest"
     },
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
     "snapshotSerializers": [
       "jest-serializer-vue"
     ],

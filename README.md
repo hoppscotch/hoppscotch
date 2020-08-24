@@ -316,11 +316,11 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 #pull
 docker pull liyasthomas/postwoman
 
-#run
-docker run -p 3000:3000 liyasthomas/postwoman:latest
-
 #build
 docker build -t postwoman:latest .
+
+#run
+docker run -p 3000:3000 postwoman:latest
 ```
 
 ## Releasing 🧞

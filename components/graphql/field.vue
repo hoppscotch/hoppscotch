@@ -57,16 +57,6 @@ export default {
   },
 
   computed: {
-    fieldString() {
-      const args = (this.gqlField.args || []).reduce(
-        (acc, { name, type }, index) =>
-          acc + `${name}: ${type.toString()}${index !== this.gqlField.args.length - 1 ? ", " : ""}`,
-        ""
-      )
-      const argsString = args.length > 0 ? `(${args})` : ""
-      return `${this.gqlField.name}${argsString}: ${this.gqlField.type.toString()}`
-    },
-
     fieldName() {
       return this.gqlField.name
     },

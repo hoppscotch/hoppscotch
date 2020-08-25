@@ -280,6 +280,10 @@ export default {
     },
     lazy: true,
     langDir: "lang/",
+    detectBrowserLanguage: {
+      alwaysRedirect: true,
+      fallbackLocale: "en",
+    },
   },
   /*
    ** Build configuration

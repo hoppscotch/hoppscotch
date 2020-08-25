@@ -75,15 +75,15 @@
 
 **Methods:**
 
-- `GET` - Retrieve information about the REST API resource
+- `GET` - Requests retrieve resource information
 - `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
-- `POST` - Create a REST API resource
-- `PUT` - Update a REST API resource
-- `DELETE` - Delete a REST API resource or related component
+- `POST` - The server creates a new entry in a database
+- `PUT` - Updates an existing resource
+- `DELETE` - Deletes resource or related component
 - `CONNECT` - Establishes a tunnel to the server identified by the target resource
 - `OPTIONS` - Describe the communication options for the target resource
 - `TRACE` - Performs a message loop-back test along the path to the target resource
-- `PATCH` - Apply partial modifications to a REST API resource
+- `PATCH` - Very similar to `PUT` but makes a partial update on a resource
 - `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
 🌈 **Make it yours**: Customizable combinations for background, foreground and accent colors.
@@ -182,7 +182,7 @@ _Collections are synced with cloud / local session storage_
 - Access APIs served in non-HTTPS (`http://`)
 - Use custom Proxy URL
 
-_Official hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
+_Official Hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
 
 📜 **Pre-Request Scripts β**: Snippets of code associated with a request that are executed before the request is sent.
 
@@ -201,12 +201,7 @@ _Official hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](htt
 
 ⌨️ **Keyboard Shortcuts**: Optimized for efficiency.
 
-**Shortcuts:**
-
-- Send/Cancel Request <kbd>Ctrl</kbd> + <kbd>G</kbd>
-- Save to Collections <kbd>Ctrl</kbd> + <kbd>S</kbd>
-- Copy Request Link <kbd>Ctrl</kbd> + <kbd>K</kbd>
-- Reset Request <kbd>Ctrl</kbd> + <kbd>L</kbd>
+**[Shortcuts WIki](https://github.com/hoppscotch/hoppscotch/wiki/Shortcuts)**
 
 🌎 **i18n β**: Experience the app in your own language.
 
@@ -222,15 +217,15 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/ho
 
 📦 **Add-ons**: Official add-ons for hoppscotch.
 
-- **[Proxy](https://github.com/hoppscotch/proxywoman)** - A simple proxy server created for hoppscotch
-- **[CLI β](https://github.com/hoppscotch/postwoman-cli)** - A CLI solution for hoppscotch
-- **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that simplifies access to hoppscotch
+- **[Proxy](https://github.com/hoppscotch/proxywoman)** - A simple proxy server created for Hoppscotch
+- **[CLI β](https://github.com/hoppscotch/postwoman-cli)** - A CLI solution for Hoppscotch
+- **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that simplifies access to Hoppscotch
 
   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/hoppscotch) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/hoppscotch-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)
 
   > **Extensions fixes `CORS` issues.**
 
-_Add-ons are developed and maintained under **[Official hoppscotch Organization](https://github.com/hoppscotch)**._
+_Add-ons are developed and maintained under **[Official Hoppscotch Organization](https://github.com/hoppscotch)**._
 
 ☁️ **Auth + Sync**: Sign in and sync in real-time.
 
@@ -266,7 +261,7 @@ _Notes are only available for signed-in users_
 - If you need to update the value, you only have to change it in one place
 - Using variables increases your ability to work efficiently and minimizes the likelihood of error
 
-**To find out more, please check out [hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
+**To find out more, please check out [Hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
 
 ## Demo 🚀 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=postwoman)](https://hoppscotch.io)
 

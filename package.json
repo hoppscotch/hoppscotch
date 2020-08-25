@@ -66,7 +66,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^3.0.0",
-    "sass-loader": "^9.0.3",
+    "sass-loader": "^10.0.0",
     "vue-jest": "^3.0.6"
   },
   "jest": {

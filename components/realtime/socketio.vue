@@ -14,6 +14,16 @@
           />
         </li>
         <div>
+        <li>
+          <label for="socketio-path">{{ $t("path") }}</label>
+          <input
+            id="socketio-path"
+            spellcheck="false"
+            v-model="path"
+          />
+        </li>
+        </div>
+        <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
@@ -28,7 +38,6 @@
         </div>
       </ul>
     </pw-section>
-
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
@@ -84,6 +93,7 @@ export default {
   data() {
     return {
       url: "ws://",
+      path: "/socket.io",
       connectionState: false,
       io: null,
       communication: {
@@ -115,7 +125,12 @@ export default {
       ]
 
       try {
-        this.io = new io(this.url)
+        if(!this.path){
+          this.path = '/socket.io'
+        }
+        this.io = new io(this.url,{
+          path: this.path
+        })
         // Add ability to listen to all events
         wildcard(io.Manager)(this.io)
         this.io.on("connect", () => {

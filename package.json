@@ -64,9 +64,9 @@
     "jest": "^26.4.2",
     "jest-serializer-vue": "^2.0.2",
     "node-sass": "^4.14.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.1.0",
     "pretty-quick": "^3.0.0",
-    "sass-loader": "^9.0.3",
+    "sass-loader": "^10.0.0",
     "vue-jest": "^3.0.6"
   },
   "jest": {

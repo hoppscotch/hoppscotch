@@ -643,6 +643,8 @@ ol li {
 }
 
 #send {
+  white-space: nowrap;
+
   &.show {
     display: flex;
     position: fixed;

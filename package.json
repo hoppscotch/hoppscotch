@@ -27,7 +27,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.12.1",
+    "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/gtm": "^2.3.2",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.4.0",
@@ -66,7 +66,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.1.0",
     "pretty-quick": "^3.0.0",
-    "sass-loader": "^10.0.0",
+    "sass-loader": "^10.0.1",
     "vue-jest": "^3.0.6"
   },
   "jest": {

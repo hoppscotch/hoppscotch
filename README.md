@@ -218,7 +218,7 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/ho
 📦 **Add-ons**: Official add-ons for hoppscotch.
 
 - **[Proxy](https://github.com/hoppscotch/proxywoman)** - A simple proxy server created for Hoppscotch
-- **[CLI β](https://github.com/hoppscotch/postwoman-cli)** - A CLI solution for Hoppscotch
+- **[CLI β](https://github.com/hoppscotch/hopp-cli)** - A CLI solution for Hoppscotch
 - **[Browser Extensions](https://github.com/hoppscotch/hoppscotch-extension)** - Browser extensions that simplifies access to Hoppscotch
 
   [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_16x16.png) **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/hoppscotch) &nbsp;|&nbsp; [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_16x16.png) **Chrome**](https://chrome.google.com/webstore/detail/hoppscotch-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld)

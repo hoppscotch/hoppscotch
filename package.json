@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.11.0",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/pwa": "^3.0.1",
+    "@nuxtjs/pwa": "^3.0.2",
     "@nuxtjs/svg": "^0.1.11",
     "@testing-library/jest-dom": "^5.11.4",
     "@vue/test-utils": "^1.0.4",
@@ -64,7 +64,7 @@
     "jest": "^26.4.2",
     "jest-serializer-vue": "^2.0.2",
     "node-sass": "^4.14.1",
-    "prettier": "^2.1.0",
+    "prettier": "^2.1.1",
     "pretty-quick": "^3.0.0",
     "sass-loader": "^10.0.1",
     "vue-jest": "^3.0.6"

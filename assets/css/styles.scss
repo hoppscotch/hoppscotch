@@ -775,8 +775,8 @@ section {
   word-break: break-all;
 }
 
-@supports (padding: max(0px)) {
+@supports (padding: unquote('max(0px)')) {
   .primary-nav {
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding-bottom: unquote('max(12px, env(safe-area-inset-bottom))');
   }
 }

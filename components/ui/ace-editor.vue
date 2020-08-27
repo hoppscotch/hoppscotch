@@ -84,6 +84,8 @@ export default {
   },
 
   mounted() {
+    window.addEventListener("mouseup", this.handleResize)
+
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/${this.lang}`,
       ...this.options,
@@ -138,10 +140,24 @@ export default {
         }
       }
     }, 2000),
+
+    handleResize() {
+      console.log(this.editor.getSession().getDocument().getLength())
+      // this.editor.getSession().getDocument().getLength()
+      this.editor.setOptions({
+        minLines:
+          this.editor.getSession().getScreenLength() * this.editor.renderer.lineHeight +
+          this.editor.renderer.scrollBar.getWidth(),
+      })
+    },
   },
 
   destroyed() {
     this.editor.destroy()
+  },
+
+  beforeDestroyed() {
+    window.removeEventListener("mouseup", this.handleResize)
   },
 }
 </script>

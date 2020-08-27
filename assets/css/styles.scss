@@ -777,6 +777,6 @@ section {
 
 @supports (padding: unquote('max(0px)')) {
   .primary-nav {
-    padding-bottom: unquote('max(12px, env(safe-area-inset-bottom))');
+    padding-bottom: unquote('max(0px, env(safe-area-inset-bottom))');
   }
 }

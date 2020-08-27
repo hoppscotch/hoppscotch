@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.11.0",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/pwa": "^3.0.1",
+    "@nuxtjs/pwa": "^3.0.2",
     "@nuxtjs/svg": "^0.1.11",
     "@testing-library/jest-dom": "^5.11.4",
     "@vue/test-utils": "^1.0.4",

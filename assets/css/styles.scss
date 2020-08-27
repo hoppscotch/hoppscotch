@@ -774,3 +774,9 @@ section {
   overflow-wrap: break-word;
   word-break: break-all;
 }
+
+@supports (padding: max(0px)) {
+  .primary-nav {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}

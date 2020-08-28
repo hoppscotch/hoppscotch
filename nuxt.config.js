@@ -145,6 +145,7 @@ export default {
   ],
   pwa: {
     meta: {
+      viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
       ogHost: process.env.BASE_URL,
       twitterCard: "summary_large_image",
       twitterSite: options.social.twitter,

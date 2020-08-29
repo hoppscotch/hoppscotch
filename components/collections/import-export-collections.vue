@@ -157,7 +157,7 @@ export default {
         type: "text/json",
       })
       let anchor = document.createElement("a")
-      anchor.download = "postwoman-collection.json"
+      anchor.download = "hoppscotch-collection.json"
       anchor.href = window.URL.createObjectURL(blob)
       anchor.target = "_blank"
       anchor.style.display = "none"

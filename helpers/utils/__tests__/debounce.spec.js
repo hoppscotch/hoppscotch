@@ -1,9 +1,5 @@
 import debounce from "../debounce"
 
-function sleep(millis) {
-  return new Promise((resolve) => setTimeout(resolve, millis))
-}
-
 describe("debounce", () => {
   test("doesn't call function right after calling", () => {
     const fn = jest.fn()
@@ -17,12 +13,15 @@ describe("debounce", () => {
   test("calls the function after the given timeout", async () => {
     const fn = jest.fn()
 
+    jest.useFakeTimers()
+
     const debFunc = debounce(fn, 100)
     debFunc()
 
-    await sleep(1000)
+    jest.runAllTimers()
 
     expect(fn).toHaveBeenCalled()
+    expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 100)
   })
 
   test("calls the function only one time within the timeframe", async () => {
@@ -31,7 +30,8 @@ describe("debounce", () => {
     const debFunc = debounce(fn, 1000)
 
     for (let i = 0; i < 100; i++) debFunc()
-    await sleep(2000)
+
+    jest.runAllTimers()
 
     expect(fn).toHaveBeenCalledTimes(1)
   })

@@ -484,12 +484,12 @@
                           })
                         "
                       >
-                        <option value="query" :selected="param.type === 'query'">{{
-                          $t("query")
-                        }}</option>
-                        <option value="path" :selected="param.type === 'path'">{{
-                          $t("path")
-                        }}</option>
+                        <option value="query" :selected="param.type === 'query'">
+                          {{ $t("query") }}
+                        </option>
+                        <option value="path" :selected="param.type === 'path'">
+                          {{ $t("path") }}
+                        </option>
                       </select>
                     </span>
                   </li>
@@ -2570,6 +2570,7 @@ export default {
           icon: "attach_file",
         })
       }
+      this.$refs.attachment.value = ""
     },
     uploadPayload() {
       this.rawInput = true
@@ -2588,6 +2589,7 @@ export default {
           icon: "attach_file",
         })
       }
+      this.$refs.payload.value = ""
     },
     async handleAccessTokenRequest() {
       if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {

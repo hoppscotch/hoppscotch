@@ -354,6 +354,7 @@ export default {
           icon: "attach_file",
         })
       }
+      this.$refs.collectionUpload.value = ""
     },
 
     getDoc() {

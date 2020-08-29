@@ -362,34 +362,34 @@ export default {
         })
       }
 
-      // let showAd = localStorage.getItem("showAd") === "no"
-      // if (!showAd) {
-      //   setTimeout(() => {
-      //     this.$toast.clear()
-      //     this.$toast.show(
-      //       "<span>Get <u><a href='https://gum.co/keky' target='_blank' rel='noopener'>De-Coding The Passion Project</a></u> book, expertly crafted by the creator of Hoppscotch. Whoosh this away to dismiss →</span>",
-      //       {
-      //         icon: "",
-      //         duration: 0,
-      //         theme: "toasted-ad",
-      //         action: [
-      //           {
-      //             text: "Get",
-      //             icon: "chevron_right",
-      //             onClick: (e, toastObject) => {
-      //               localStorage.setItem("showAd", "no")
-      //               toastObject.goAway(0)
-      //               window.open("https://gum.co/keky")
-      //             },
-      //           },
-      //         ],
-      //         onComplete() {
-      //           localStorage.setItem("showAd", "no")
-      //         },
-      //       }
-      //     )
-      //   }, 11000)
-      // }
+      let showAd = localStorage.getItem("showAd") === "no"
+      if (!showAd) {
+        setTimeout(() => {
+          this.$toast.clear()
+          this.$toast.show(
+            "<span>Postwoman is now Hoppscotch 🎉<br><u><a href='https://dev.to/liyasthomas/postwoman-is-changing-name-igp' target='_blank' rel='noopener'>Read the announcement</a></u> →<br><sub>Whoosh this away to dismiss.</sub></span>",
+            {
+              icon: "",
+              duration: 0,
+              theme: "toasted-ad",
+              action: [
+                {
+                  text: "GitHub",
+                  icon: "chevron_right",
+                  onClick: (e, toastObject) => {
+                    // localStorage.setItem("showAd", "no")
+                    toastObject.goAway(0)
+                    window.open("https://github.com/hoppscotch/hoppscotch")
+                  },
+                },
+              ],
+              onComplete() {
+                // localStorage.setItem("showAd", "no")
+              },
+            }
+          )
+        }, 8000)
+      }
 
       let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
 
@@ -446,7 +446,7 @@ export default {
             title: "Hoppscotch",
             text:
               "Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
-            url: "https://hoppscotch.io/",
+            url: "https://hoppscotch.io",
           })
           .then(() => {})
           .catch(console.error)

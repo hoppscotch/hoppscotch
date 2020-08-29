@@ -32,7 +32,7 @@
               <input
                 type="file"
                 @change="replaceWithJSON"
-                style="display: none;"
+                style="display: none"
                 ref="inputChooseFileToReplaceWith"
                 accept="application/json"
               />
@@ -47,7 +47,7 @@
               <input
                 type="file"
                 @change="importFromJSON"
-                style="display: none;"
+                style="display: none"
                 ref="inputChooseFileToImportFrom"
                 accept="application/json"
               />
@@ -126,6 +126,7 @@ export default {
         this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
+      this.$refs.inputChooseFileToReplaceWith.value = ""
     },
     importFromJSON() {
       let reader = new FileReader()
@@ -147,6 +148,7 @@ export default {
         this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
+      this.$refs.inputChooseFileToImportFrom.value = ""
     },
     exportJSON() {
       let text = this.collectionJson
@@ -155,7 +157,7 @@ export default {
         type: "text/json",
       })
       let anchor = document.createElement("a")
-      anchor.download = "postwoman-collection.json"
+      anchor.download = "hoppscotch-collection.json"
       anchor.href = window.URL.createObjectURL(blob)
       anchor.target = "_blank"
       anchor.style.display = "none"

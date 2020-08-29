@@ -32,7 +32,7 @@
               <input
                 type="file"
                 @change="replaceWithJSON"
-                style="display: none;"
+                style="display: none"
                 ref="inputChooseFileToReplaceWith"
                 accept="application/json"
               />
@@ -47,7 +47,7 @@
               <input
                 type="file"
                 @change="importFromJSON"
-                style="display: none;"
+                style="display: none"
                 ref="inputChooseFileToImportFrom"
                 accept="application/json"
               />
@@ -116,6 +116,7 @@ export default {
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
       this.syncToFBEnvironments()
+      this.$refs.inputChooseFileToReplaceWith.value = ""
     },
     importFromJSON() {
       let reader = new FileReader()
@@ -133,6 +134,7 @@ export default {
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.syncToFBEnvironments()
+      this.$refs.inputChooseFileToImportFrom.value = ""
     },
     importFromPostwoman(environments) {
       let confirmation = this.$t("file_imported")
@@ -156,7 +158,7 @@ export default {
         type: "text/json",
       })
       let anchor = document.createElement("a")
-      anchor.download = "postwoman-environment.json"
+      anchor.download = "hoppscotch-environment.json"
       anchor.href = window.URL.createObjectURL(blob)
       anchor.target = "_blank"
       anchor.style.display = "none"

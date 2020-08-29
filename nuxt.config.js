@@ -118,8 +118,6 @@ export default {
   buildModules: [
     // https://pwa.nuxtjs.org
     "@nuxtjs/pwa",
-    // Doc: https://github.com/nuxt-community/dotenv-module
-    "@nuxtjs/dotenv",
     // Doc: https://github.com/nuxt-community/analytics-module
     "@nuxtjs/google-analytics",
     // Doc: https://github.com/nuxt-community/gtm-module

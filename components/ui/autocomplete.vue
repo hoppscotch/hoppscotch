@@ -76,12 +76,6 @@
 </style>
 
 <script>
-const KEY_TAB = 9
-const KEY_ESC = 27
-
-const KEY_ARROW_UP = 38
-const KEY_ARROW_DOWN = 40
-
 export default {
   props: {
     spellcheck: {
@@ -127,7 +121,7 @@ export default {
   methods: {
     updateSuggestions(event) {
       // Hide suggestions if ESC pressed.
-      if (event.which && event.which === KEY_ESC) {
+      if (event.code && event.code === "Escape") {
         event.preventDefault()
         this.suggestionsVisible = false
         this.currentSuggestionIndex = -1
@@ -151,14 +145,14 @@ export default {
     },
 
     handleKeystroke(event) {
-      switch (event.which) {
-        case KEY_ARROW_UP:
+      switch (event.code) {
+        case "ArrowUp":
           event.preventDefault()
           this.currentSuggestionIndex =
             this.currentSuggestionIndex - 1 >= 0 ? this.currentSuggestionIndex - 1 : 0
           break
 
-        case KEY_ARROW_DOWN:
+        case "ArrowDown":
           event.preventDefault()
           this.currentSuggestionIndex =
             this.currentSuggestionIndex < this.suggestions.length - 1
@@ -166,18 +160,13 @@ export default {
               : this.suggestions.length - 1
           break
 
-        case KEY_TAB:
+        case "Tab":
           event.preventDefault()
           let activeSuggestion = this.suggestions[
             this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
           ]
-          if (activeSuggestion) {
-            let input = this.text.substring(0, this.selectionStart)
-            this.text = input + activeSuggestion
-          }
-          break
-
-        default:
+          let input = this.text.substring(0, this.selectionStart)
+          this.text = input + activeSuggestion
           break
       }
     },

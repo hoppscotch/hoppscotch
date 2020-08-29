@@ -8,6 +8,9 @@ const props = {
   source: ["app", "apple", "appliance", "brian", "bob", "alice"],
 }
 
+// ["pp", "pple", "ppliance", "lice"]
+const suggestionStr = props.source.filter((str) => str.startsWith("a")).map((str) => str.slice(1))
+
 const factory = (props) =>
   mount(autocomplete, {
     propsData: props,
@@ -43,10 +46,7 @@ describe("autocomplete", () => {
 
     const suggestions = wrapper.findAll("li").wrappers.map((el) => el.text())
 
-    expect(suggestions).toContain("pp")
-    expect(suggestions).toContain("pple")
-    expect(suggestions).toContain("ppliance")
-    expect(suggestions).toContain("lice")
+    suggestionStr.forEach((str) => expect(suggestions).toContain(str))
   })
 
   test("doesnt show non-matching suggestions", async () => {
@@ -59,10 +59,7 @@ describe("autocomplete", () => {
 
     const suggestions = wrapper.findAll("li").wrappers.map((el) => el.text())
 
-    expect(suggestions).not.toContain("pp")
-    expect(suggestions).not.toContain("pple")
-    expect(suggestions).not.toContain("ppliance")
-    expect(suggestions).not.toContain("lice")
+    suggestionStr.forEach((str) => expect(suggestions).not.toContain(str))
   })
 
   test("updates suggestions on input", async () => {
@@ -75,10 +72,7 @@ describe("autocomplete", () => {
 
     const suggestions = wrapper.findAll("li").wrappers.map((el) => el.text())
 
-    expect(suggestions).not.toContain("pp")
-    expect(suggestions).not.toContain("pple")
-    expect(suggestions).not.toContain("ppliance")
-    expect(suggestions).not.toContain("lice")
+    suggestionStr.forEach((str) => expect(suggestions).not.toContain(str))
   })
 
   test("applies suggestion on clicking", async () => {

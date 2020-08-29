@@ -1,4 +1,3 @@
-require("dotenv").config()
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
 export const options = {
@@ -119,8 +118,6 @@ export default {
   buildModules: [
     // https://pwa.nuxtjs.org
     "@nuxtjs/pwa",
-    // Doc: https://github.com/nuxt-community/dotenv-module
-    "@nuxtjs/dotenv",
     // Doc: https://github.com/nuxt-community/analytics-module
     "@nuxtjs/google-analytics",
     // Doc: https://github.com/nuxt-community/gtm-module
@@ -168,30 +165,19 @@ export default {
     keepOnHover: true,
   },
   googleAnalytics: {
-    id: process.env.GA_ID || "UA-61422507-4",
+    id: process.env.GA_ID,
   },
   gtm: {
-    id: process.env.GTM_ID || "GTM-NMKVBMV",
+    id: process.env.GTM_ID,
   },
   sitemap: {
-    hostname: process.env.BASE_URL || "https://hoppscotch.io/",
+    hostname: process.env.BASE_URL,
   },
   robots: {
     UserAgent: "*",
     Disallow: "",
     Allow: "/",
     Sitemap: `${process.env.BASE_URL}sitemap.xml`,
-  },
-  env: {
-    API_KEY: process.env.API_KEY,
-    AUTH_DOMAIN: process.env.AUTH_DOMAIN,
-    DATABASE_URL: process.env.DATABASE_URL,
-    PROJECT_ID: process.env.PROJECT_ID,
-    STORAGE_BUCKET: process.env.STORAGE_BUCKET,
-    MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
-    APP_ID: process.env.APP_ID,
-    MEASUREMENT_ID: process.env.MEASUREMENT_ID,
-    BASE_URL: process.env.BASE_URL,
   },
   i18n: {
     locales: [
@@ -310,5 +296,20 @@ export default {
    */
   generate: {
     fallback: true,
+  },
+  publicRuntimeConfig: {
+    GA_ID: process.env.GA_ID || "UA-61422507-4",
+    GTM_ID: process.env.GTM_ID || "GTM-NMKVBMV",
+    BASE_URL: process.env.BASE_URL || "/",
+  },
+  privateRuntimeConfig: {
+    API_KEY: process.env.API_KEY,
+    AUTH_DOMAIN: process.env.AUTH_DOMAIN,
+    DATABASE_URL: process.env.DATABASE_URL,
+    PROJECT_ID: process.env.PROJECT_ID,
+    STORAGE_BUCKET: process.env.STORAGE_BUCKET,
+    MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
+    APP_ID: process.env.APP_ID,
+    MEASUREMENT_ID: process.env.MEASUREMENT_ID,
   },
 }

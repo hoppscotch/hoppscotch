@@ -1,14 +1,24 @@
 import tab from "../tab"
 import { mount } from "@vue/test-utils"
 
-const factory = (props, data) =>
-  mount(tab, {
-    propsData: props,
-    data: data ? () => data : undefined,
-    slots: {
-      default: '<div id="testdiv"></div>',
-    },
-  })
+const factory = (props, data) => {
+  if (data) {
+    return mount(tab, {
+      propsData: props,
+      data: () => data,
+      slots: {
+        default: '<div id="testdiv"></div>',
+      },
+    })
+  } else {
+    return mount(tab, {
+      propsData: props,
+      slots: {
+        default: '<div id="testdiv"></div>',
+      },
+    })
+  }
+}
 
 describe("tab", () => {
   test("mounts properly when needed props are passed in", () => {

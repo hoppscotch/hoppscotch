@@ -151,13 +151,12 @@ export class FirebaseInstance {
     }
   }
 
-  deleteFeed(id) {
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("feeds")
-      .doc(id)
-      .delete()
-      .catch((e) => console.error("error deleting", id, e))
+  async deleteFeed(id) {
+    try {
+      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").doc(id).delete()
+    } catch (e) {
+      console.error("error deleting", id, e)
+    }
   }
 
   async writeSettings(setting, value) {

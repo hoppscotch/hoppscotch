@@ -300,7 +300,7 @@ export default {
   publicRuntimeConfig: {
     GA_ID: process.env.GA_ID || "UA-61422507-4",
     GTM_ID: process.env.GTM_ID || "GTM-NMKVBMV",
-    BASE_URL: process.env.BASE_URL || "/",
+    BASE_URL: process.env.BASE_URL || "https://hoppscotch.io/",
   },
   privateRuntimeConfig: {
     API_KEY: process.env.API_KEY,

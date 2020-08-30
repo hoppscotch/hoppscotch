@@ -171,7 +171,7 @@ export default {
     id: process.env.GTM_ID,
   },
   sitemap: {
-    hostname: process.env.BASE_URL,
+    hostname: process.env.BASE_URL || "https://hoppscotch.io/",
   },
   robots: {
     UserAgent: "*",

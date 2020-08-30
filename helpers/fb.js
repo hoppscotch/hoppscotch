@@ -246,7 +246,7 @@ export class FirebaseInstance {
     }
   }
 
-  writeEnvironments(environment) {
+  async writeEnvironments(environment) {
     const ev = {
       updatedOn: new Date(),
       author: this.currentUser.uid,
@@ -255,12 +255,15 @@ export class FirebaseInstance {
       environment,
     }
 
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("environments")
-      .doc("sync")
-      .set(ev)
-      .catch((e) => console.error("error updating", ev, e))
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("environments")
+        .doc("sync")
+        .set(ev)
+    } catch (e) {
+      console.error("error updating", ev, e)
+    }
   }
 
   async writeTeams(team) {

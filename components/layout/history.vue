@@ -353,9 +353,9 @@ export default {
     },
   },
   methods: {
-    clearHistory() {
+    async clearHistory() {
       if (fb.currentUser !== null) {
-        fb.clearHistory()
+        await fb.clearHistory()
       }
       this.history = []
       this.filterText = ""

@@ -464,9 +464,9 @@ export default {
     toggleCollapse() {
       this.showMore = !this.showMore
     },
-    toggleStar(entry) {
+    async toggleStar(entry) {
       if (fb.currentUser !== null) {
-        fb.toggleStar(entry, !entry.star)
+        await fb.toggleStar(entry, !entry.star)
       }
       entry.star = !entry.star
       updateOnLocalStorage("history", this.history)

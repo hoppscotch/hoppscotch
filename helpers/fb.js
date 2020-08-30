@@ -214,13 +214,16 @@ export class FirebaseInstance {
     await Promise.all(docs.map((e) => this.deleteHistory(e)))
   }
 
-  toggleStar(entry, value) {
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("history")
-      .doc(entry.id)
-      .update({ star: value })
-      .catch((e) => console.error("error deleting", entry, e))
+  async toggleStar(entry, value) {
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("history")
+        .doc(entry.id)
+        .update({ star: value })
+    } catch (e) {
+      console.error("error deleting", entry, e)
+    }
   }
 
   async writeCollections(collection) {

@@ -190,13 +190,16 @@ export class FirebaseInstance {
     }
   }
 
-  deleteHistory(entry) {
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("history")
-      .doc(entry.id)
-      .delete()
-      .catch((e) => console.error("error deleting", entry, e))
+  async deleteHistory(entry) {
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("history")
+        .doc(entry.id)
+        .delete()
+    } catch (e) {
+      console.error("error deleting", entry, e)
+    }
   }
 
   clearHistory() {

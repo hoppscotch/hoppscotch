@@ -376,9 +376,9 @@ export default {
         }
       )
     },
-    deleteHistory(entry) {
+    async deleteHistory(entry) {
       if (fb.currentUser !== null) {
-        fb.deleteHistory(entry)
+        await fb.deleteHistory(entry)
       }
       this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {

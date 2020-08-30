@@ -144,11 +144,11 @@ export class FirebaseInstance {
       label,
     }
 
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("feeds")
-      .add(dt)
-      .catch((e) => console.error("error inserting", dt, e))
+    try {
+      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").add(dt)
+    } catch (e) {
+      console.error("error inserting", dt, e)
+    }
   }
 
   deleteFeed(id) {
@@ -170,21 +170,25 @@ export class FirebaseInstance {
       value,
     }
 
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("settings")
-      .doc(setting)
-      .set(st)
-      .catch((e) => console.error("error updating", st, e))
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("settings")
+        .doc(setting)
+        .set(st)
+    } catch (e) {
+      console.error("error updating", st, e)
+    }
   }
 
   async writeHistory(entry) {
     const hs = entry
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("history")
-      .add(hs)
-      .catch((e) => console.error("error inserting", hs, e))
+
+    try {
+      await this.usersCollection.doc(this.currentUser.uid).collection("history").add(hs)
+    } catch (e) {
+      console.error("error inserting", hs, e)
+    }
   }
 
   deleteHistory(entry) {
@@ -224,12 +228,15 @@ export class FirebaseInstance {
       collection,
     }
 
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("collections")
-      .doc("sync")
-      .set(cl)
-      .catch((e) => console.error("error updating", cl, e))
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("collections")
+        .doc("sync")
+        .set(cl)
+    } catch (e) {
+      console.error("error updating", cl, e)
+    }
   }
 
   writeEnvironments(environment) {
@@ -258,12 +265,11 @@ export class FirebaseInstance {
       team: team,
     }
 
-    this.usersCollection
-      .doc(this.currentUser.uid)
-      .collection("teams")
-      .doc("sync")
-      .set(ev)
-      .catch((e) => console.error("error updating", ev, e))
+    try {
+      await this.usersCollection.doc(this.currentUser.uid).collection("teams").doc("sync").set(ev)
+    } catch (e) {
+      console.error("error updating", ev, e)
+    }
   }
 }
 

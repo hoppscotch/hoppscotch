@@ -48,7 +48,7 @@
     "yargs-parser": "^19.0.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.4",
+    "@babel/core": "^7.11.5",
     "@babel/preset-env": "^7.11.0",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.2",

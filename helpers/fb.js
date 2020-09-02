@@ -148,6 +148,7 @@ export class FirebaseInstance {
       await this.usersCollection.doc(this.currentUser.uid).collection("feeds").add(dt)
     } catch (e) {
       console.error("error inserting", dt, e)
+      throw e
     }
   }
 
@@ -156,6 +157,7 @@ export class FirebaseInstance {
       await this.usersCollection.doc(this.currentUser.uid).collection("feeds").doc(id).delete()
     } catch (e) {
       console.error("error deleting", id, e)
+      throw e
     }
   }
 
@@ -177,6 +179,7 @@ export class FirebaseInstance {
         .set(st)
     } catch (e) {
       console.error("error updating", st, e)
+      throw e
     }
   }
 
@@ -187,6 +190,7 @@ export class FirebaseInstance {
       await this.usersCollection.doc(this.currentUser.uid).collection("history").add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
+      throw e
     }
   }
 
@@ -199,6 +203,7 @@ export class FirebaseInstance {
         .delete()
     } catch (e) {
       console.error("error deleting", entry, e)
+      throw e
     }
   }
 
@@ -223,6 +228,8 @@ export class FirebaseInstance {
         .update({ star: value })
     } catch (e) {
       console.error("error deleting", entry, e)
+
+      throw e
     }
   }
 
@@ -243,6 +250,8 @@ export class FirebaseInstance {
         .set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
+
+      throw e
     }
   }
 
@@ -263,6 +272,8 @@ export class FirebaseInstance {
         .set(ev)
     } catch (e) {
       console.error("error updating", ev, e)
+
+      throw e
     }
   }
 
@@ -279,6 +290,8 @@ export class FirebaseInstance {
       await this.usersCollection.doc(this.currentUser.uid).collection("teams").doc("sync").set(ev)
     } catch (e) {
       console.error("error updating", ev, e)
+
+      throw e
     }
   }
 }

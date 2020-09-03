@@ -31,7 +31,7 @@
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <realtime-log :title="$t('events')" :log="events.log" />
+          <log :title="$t('events')" :log="events.log" />
           <div id="result"></div>
         </li>
       </ul>
@@ -40,13 +40,9 @@
 </template>
 
 <script>
-import { sseValid } from "~/functions/utils/valid"
+import { httpValid } from "~/helpers/utils/valid"
 
 export default {
-  components: {
-    "pw-section": () => import("../layout/section"),
-    realtimeLog: () => import("./log"),
-  },
   data() {
     return {
       connectionSSEState: false,
@@ -60,7 +56,7 @@ export default {
   },
   computed: {
     serverValid() {
-      return sseValid(this.server)
+      return httpValid(this.server)
     },
   },
   methods: {
@@ -81,7 +77,7 @@ export default {
       if (typeof EventSource !== "undefined") {
         try {
           this.sse = new EventSource(this.server)
-          this.sse.onopen = event => {
+          this.sse.onopen = (event) => {
             this.connectionSSEState = true
             this.events.log = [
               {
@@ -95,10 +91,10 @@ export default {
               icon: "sync",
             })
           }
-          this.sse.onerror = event => {
+          this.sse.onerror = (event) => {
             this.handleSSEError()
           }
-          this.sse.onclose = event => {
+          this.sse.onclose = (event) => {
             this.connectionSSEState = false
             this.events.log.push({
               payload: this.$t("disconnected_from", { name: this.server }),
@@ -110,9 +106,9 @@ export default {
               icon: "sync_disabled",
             })
           }
-          this.sse.onmessage = event => {
+          this.sse.onmessage = ({ data }) => {
             this.events.log.push({
-              payload: event.data,
+              payload: data,
               source: "server",
               ts: new Date().toLocaleTimeString(),
             })

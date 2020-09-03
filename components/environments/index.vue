@@ -1,13 +1,13 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('environments')" ref="environments">
-    <addEnvironment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <editEnvironment
+    <add-environment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <edit-environment
       :show="showModalEdit"
       :editingEnvironment="editingEnvironment"
       :editingEnvironmentIndex="editingEnvironmentIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <importExportEnvironment
+    <import-export-environment
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -25,14 +25,9 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      Create new environment
+      <i class="material-icons">help_outline</i> {{ $t("create_new_environment") }}
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: environments.length }"
-      :size="152"
-      :remain="Math.min(5, environments.length)"
-    >
+    <div class="virtual-list">
       <ul>
         <li v-for="(environment, index) in environments" :key="environment.name">
           <environment
@@ -42,17 +37,14 @@
             @select-environment="$emit('use-environment', environment)"
           />
         </li>
-        <li v-if="environments.length === 0">
-          <label>Environments are empty</label>
-        </li>
       </ul>
-    </virtual-list>
+    </div>
   </pw-section>
 </template>
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 241px);
+  max-height: calc(100vh - 245px);
 }
 
 ul {
@@ -62,21 +54,9 @@ ul {
 </style>
 
 <script>
-import environment from "./environment"
-import { fb } from "../../functions/fb"
-
-const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property))
+import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    environment,
-    "pw-section": () => import("../layout/section"),
-    addEnvironment: () => import("./addEnvironment"),
-    editEnvironment: () => import("./editEnvironment"),
-    importExportEnvironment: () => import("./importExportEnvironment"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
-  },
   data() {
     return {
       showModalImportExport: false,
@@ -88,14 +68,16 @@ export default {
   },
   computed: {
     environments() {
-      return this.$store.state.postwoman.environments
+      return fb.currentUser !== null
+        ? fb.currentEnvironments
+        : this.$store.state.postwoman.environments
     },
   },
   async mounted() {
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModalImportExport = false
+        this.showModalImportExport = this.showModalAdd = this.showModalEdit = false
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
@@ -116,7 +98,7 @@ export default {
       this.$data.editingEnvironment = environment
       this.$data.editingEnvironmentIndex = environmentIndex
       this.displayModalEdit(true)
-      this.syncEnvironments
+      this.syncEnvironments()
     },
     resetSelectedData() {
       this.$data.editingEnvironment = undefined

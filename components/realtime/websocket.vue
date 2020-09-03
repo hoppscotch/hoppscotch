@@ -32,7 +32,7 @@
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <realtime-log :title="$t('log')" :log="communication.log" />
+          <log :title="$t('log')" :log="communication.log" />
         </li>
       </ul>
       <ul>
@@ -66,13 +66,9 @@
 </template>
 
 <script>
-import { wsValid } from "~/functions/utils/valid"
+import { wsValid } from "~/helpers/utils/valid"
 
 export default {
-  components: {
-    "pw-section": () => import("../layout/section"),
-    realtimeLog: () => import("./log"),
-  },
   data() {
     return {
       connectionState: false,
@@ -136,9 +132,9 @@ export default {
             icon: "sync_disabled",
           })
         }
-        this.socket.onmessage = (event) => {
+        this.socket.onmessage = ({ data }) => {
           this.communication.log.push({
-            payload: event.data,
+            payload: data,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })
@@ -181,7 +177,7 @@ export default {
       this.communication.input = ""
     },
     walkHistory(direction) {
-      const clientMessages = this.communication.log.filter((msg) => msg.source === "client")
+      const clientMessages = this.communication.log.filter(({ source }) => source === "client")
       const length = clientMessages.length
       switch (direction) {
         case "up":

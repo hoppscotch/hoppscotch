@@ -97,8 +97,8 @@ sw.*
 # Vim swap files
 *.swp
 
-# Postwoman build data
-.postwoman
+# Build data
+.hoppscotch
 
 # File explorer
 .directory

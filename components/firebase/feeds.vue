@@ -1,11 +1,5 @@
 <template>
-  <virtual-list
-    v-if="fb.currentFeeds.length !== 0"
-    class="virtual-list"
-    :class="{ filled: fb.currentFeeds.length }"
-    :size="180"
-    :remain="Math.min(6, fb.currentFeeds.length)"
-  >
+  <div v-if="fb.currentFeeds.length !== 0" class="virtual-list">
     <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
       <div class="show-on-large-screen">
         <li class="info">
@@ -14,7 +8,7 @@
           </label>
         </li>
         <button class="icon" @click="deleteFeed(feed)">
-          <i class="material-icons">delete</i>
+          <deleteIcon class="material-icons" />
         </button>
       </div>
       <div class="show-on-large-screen">
@@ -23,7 +17,7 @@
         </li>
       </div>
     </ul>
-  </virtual-list>
+  </div>
   <ul v-else>
     <li>
       <label class="info">{{ $t("empty") }}</label>
@@ -33,7 +27,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 294px);
+  max-height: calc(100vh - 298px);
 }
 
 ul,
@@ -55,12 +49,11 @@ ol {
 </style>
 
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: {
-    VirtualList: () => import("vue-virtual-scroll-list"),
-  },
+  components: { deleteIcon },
   data() {
     return {
       fb,

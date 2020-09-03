@@ -6,12 +6,7 @@
         <i class="material-icons">search</i>
       </button>
     </div>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: filteredHistory.length }"
-      :size="185"
-      :remain="Math.min(5, filteredHistory.length)"
-    >
+    <div class="virtual-list" :class="{ filled: filteredHistory.length }">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-large-screen">
           <button
@@ -75,7 +70,7 @@
                   :aria-label="$t('delete')"
                   v-close-popover
                 >
-                  <i class="material-icons">delete</i>
+                  <deleteIcon class="material-icons" />
                   <span>{{ $t("delete") }}</span>
                 </button>
               </div>
@@ -152,14 +147,14 @@
           </div>
         </transition>
       </ul>
-    </virtual-list>
+    </div>
     <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
         <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
     </ul>
     <p v-if="history.length === 0" class="info">
-      {{ $t("history_empty") }}
+      <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
       <div class="flex-wrap" v-if="!isClearingHistory">
@@ -226,7 +221,7 @@
       </div>
       <div class="flex-wrap" v-else>
         <label for="clear-history-button" class="info">
-          {{ $t("are_you_sure") }}
+          <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
         </label>
         <div>
           <button
@@ -243,7 +238,7 @@
             @click="disableHistoryClearing"
             v-tooltip="$t('no')"
           >
-            <i class="material-icons">close</i>
+            <closeIcon class="material-icons" />
           </button>
         </div>
       </div>
@@ -253,7 +248,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 294px);
+  max-height: calc(100vh - 290px);
 
   [readonly] {
     cursor: default;
@@ -311,16 +306,18 @@ ol {
 </style>
 
 <script>
-import { findStatusGroup } from "../../pages/index"
-import { fb } from "../../functions/fb"
+import { findStatusGroup } from "~/pages/index"
+import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
-    "pw-section": () => import("../layout/section"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
+    closeIcon,
+    deleteIcon,
   },
   data() {
     return {

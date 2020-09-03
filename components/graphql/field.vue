@@ -38,7 +38,7 @@
   display: inline-block;
   padding: 4px 8px;
   margin: 4px 0;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
 }
@@ -50,32 +50,13 @@
 </style>
 
 <script>
-import typelink from "./typelink"
-
 export default {
-  components: {
-    typelink: typelink,
-  },
-
   props: {
     gqlField: Object,
     jumpTypeCallback: Function,
   },
 
   computed: {
-    fieldString() {
-      const args = (this.gqlField.args || []).reduce((acc, arg, index) => {
-        return (
-          acc +
-          `${arg.name}: ${arg.type.toString()}${
-            index !== this.gqlField.args.length - 1 ? ", " : ""
-          }`
-        )
-      }, "")
-      const argsString = args.length > 0 ? `(${args})` : ""
-      return `${this.gqlField.name}${argsString}: ${this.gqlField.type.toString()}`
-    },
-
     fieldName() {
       return this.gqlField.name
     },

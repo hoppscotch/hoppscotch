@@ -14,6 +14,16 @@
           />
         </li>
         <div>
+        <li>
+          <label for="socketio-path">{{ $t("path") }}</label>
+          <input
+            id="socketio-path"
+            spellcheck="false"
+            v-model="path"
+          />
+        </li>
+        </div>
+        <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
@@ -28,11 +38,10 @@
         </div>
       </ul>
     </pw-section>
-
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <realtime-log :title="$t('log')" :log="communication.log" />
+          <log :title="$t('log')" :log="communication.log" />
         </li>
       </ul>
       <ul>
@@ -76,18 +85,15 @@
 </template>
 
 <script>
-import { socketioValid } from "~/functions/utils/valid"
+import { socketioValid } from "~/helpers/utils/valid"
 import io from "socket.io-client"
 import wildcard from "socketio-wildcard"
 
 export default {
-  components: {
-    "pw-section": () => import("../../components/layout/section"),
-    realtimeLog: () => import("./log"),
-  },
   data() {
     return {
       url: "ws://",
+      path: "/socket.io",
       connectionState: false,
       io: null,
       communication: {
@@ -119,7 +125,12 @@ export default {
       ]
 
       try {
-        this.io = new io(this.url)
+        if(!this.path){
+          this.path = '/socket.io'
+        }
+        this.io = new io(this.url,{
+          path: this.path
+        })
         // Add ability to listen to all events
         wildcard(io.Manager)(this.io)
         this.io.on("connect", () => {

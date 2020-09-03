@@ -129,6 +129,13 @@
           </div>
         </li>
       </ul>
+      <ul class="info">
+        <li v-if="extensionVersion != null">
+          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+        </li>
+
+        <li v-else>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</li>
+      </ul>
     </pw-section>
 
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
@@ -142,12 +149,12 @@
               </pw-toggle>
             </span>
             <a
-              href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
+              href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
               target="_blank"
               rel="noopener"
             >
               <button class="icon" v-tooltip="$t('wiki')">
-                <i class="material-icons">help</i>
+                <i class="material-icons">help_outline</i>
               </button>
             </a>
           </div>
@@ -209,17 +216,10 @@
 
 <script>
 import firebase from "firebase/app"
-import { fb } from "../functions/fb"
+import { fb } from "~/helpers/fb"
+import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 
 export default {
-  components: {
-    "pw-section": () => import("../components/layout/section"),
-    "pw-toggle": () => import("../components/ui/toggle"),
-    swatch: () => import("../components/settings/swatch"),
-    login: () => import("../components/firebase/login"),
-    logout: () => import("../components/firebase/logout"),
-  },
-
   data() {
     return {
       // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
@@ -300,6 +300,10 @@ export default {
         },
       ],
 
+      extensionVersion: hasExtensionInstalled()
+        ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+        : null,
+
       settings: {
         SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
@@ -327,7 +331,6 @@ export default {
       fb,
     }
   },
-
   watch: {
     proxySettings: {
       deep: true,
@@ -337,7 +340,6 @@ export default {
       },
     },
   },
-
   methods: {
     applyTheme({ class: name, color, aceEditor }) {
       this.applySetting("THEME_CLASS", name)
@@ -359,7 +361,7 @@ export default {
     },
     getActiveColor() {
       // This strips extra spaces and # signs from the strings.
-      const strip = str => str.replace(/#/g, "").replace(/ /g, "")
+      const strip = (str) => str.replace(/#/g, "").replace(/ /g, "")
       return `#${strip(
         window.getComputedStyle(document.documentElement).getPropertyValue("--ac-color")
       ).toUpperCase()}`
@@ -375,10 +377,10 @@ export default {
     toggleSettings(name, value) {
       fb.writeSettings(name, !value)
       if (name === "syncCollections" && value) {
-        syncCollections()
+        this.syncCollections()
       }
       if (name === "syncEnvironments" && value) {
-        syncEnvironments()
+        this.syncEnvironments()
       }
     },
     initSettings() {
@@ -409,12 +411,10 @@ export default {
       }
     },
   },
-
   beforeMount() {
     this.settings.THEME_CLASS = document.documentElement.className
     this.settings.THEME_COLOR = this.getActiveColor()
   },
-
   computed: {
     proxySettings() {
       return {
@@ -422,6 +422,11 @@ export default {
         key: this.settings.PROXY_KEY,
       }
     },
+  },
+  head() {
+    return {
+      title: `Settings • ${this.$store.state.name}`,
+    }
   },
 }
 </script>

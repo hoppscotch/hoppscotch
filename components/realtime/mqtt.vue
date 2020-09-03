@@ -23,7 +23,7 @@
     <pw-section class="blue" :label="$t('communication')">
       <ul>
         <li>
-          <realtime-log :title="$t('log')" :log="this.log" />
+          <log :title="$t('log')" :log="this.log" />
         </li>
       </ul>
       <ul>
@@ -70,14 +70,10 @@
 
 <script>
 import Paho from "paho-mqtt"
-import { wsValid } from "~/functions/utils/valid"
+import { wsValid } from "~/helpers/utils/valid"
 
 export default {
-  components: {
-    "pw-section": () => import("../../components/layout/section"),
-    realtimeLog: () => import("./log"),
-  },
-  data: function() {
+  data: function () {
     return {
       url: "wss://test.mosquitto.org:8081",
       client: null,

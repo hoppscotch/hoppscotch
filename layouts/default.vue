@@ -8,7 +8,6 @@
           <nuxt />
           <pw-footer />
         </div>
-        <!-- <aside class="nav-second"></aside> -->
       </div>
     </div>
   </div>
@@ -16,12 +15,6 @@
 
 <script>
 export default {
-  components: {
-    sidenav: () => import("../components/layout/sidenav"),
-    "pw-header": () => import("../components/layout/header"),
-    "pw-footer": () => import("../components/layout/footer"),
-  },
-
   beforeMount() {
     // Load theme settings
     ;(() => {
@@ -52,7 +45,7 @@ export default {
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
     )
     console.log(
-      "%cContribute: https://github.com/liyasthomas/postwoman",
+      "%cContribute: https://github.com/hoppscotch/hoppscotch",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
   },

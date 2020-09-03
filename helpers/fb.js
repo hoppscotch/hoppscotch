@@ -212,9 +212,6 @@ export class FirebaseInstance {
       .doc(this.currentUser.uid)
       .collection("history")
       .get()
-      .then(({ docs }) => {
-        docs.forEach((e) => this.deleteHistory(e))
-      })
 
     await Promise.all(docs.map((e) => this.deleteHistory(e)))
   }

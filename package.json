@@ -48,7 +48,7 @@
     "yargs-parser": "^19.0.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.5",
+    "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.2",
@@ -65,7 +65,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.1.1",
     "pretty-quick": "^3.0.0",
-    "sass-loader": "^10.0.1",
+    "sass-loader": "^10.0.2",
     "vue-jest": "^3.0.6"
   },
   "jest": {

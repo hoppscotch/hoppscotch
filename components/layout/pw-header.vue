@@ -362,34 +362,34 @@ export default {
         })
       }
 
-      let showAd = localStorage.getItem("showAd") === "no"
-      if (!showAd) {
-        setTimeout(() => {
-          this.$toast.clear()
-          this.$toast.show(
-            "<span>Postwoman is now Hoppscotch 🎉<br><u><a href='https://dev.to/liyasthomas/postwoman-is-changing-name-igp' target='_blank' rel='noopener'>Read the announcement</a></u> →<br><sub>Whoosh this away to dismiss.</sub></span>",
-            {
-              icon: "",
-              duration: 0,
-              theme: "toasted-ad",
-              action: [
-                {
-                  text: "GitHub",
-                  icon: "chevron_right",
-                  onClick: (e, toastObject) => {
-                    // localStorage.setItem("showAd", "no")
-                    toastObject.goAway(0)
-                    window.open("https://github.com/hoppscotch/hoppscotch")
-                  },
-                },
-              ],
-              onComplete() {
-                // localStorage.setItem("showAd", "no")
-              },
-            }
-          )
-        }, 8000)
-      }
+      // let showAd = localStorage.getItem("showAd") === "no"
+      // if (!showAd) {
+      //   setTimeout(() => {
+      //     this.$toast.clear()
+      //     this.$toast.show(
+      //       "<span>Postwoman is now Hoppscotch 🎉<br><u><a href='https://dev.to/liyasthomas/postwoman-is-changing-name-igp' target='_blank' rel='noopener'>Read the announcement</a></u> →<br><sub>Whoosh this away to dismiss.</sub></span>",
+      //       {
+      //         icon: "",
+      //         duration: 0,
+      //         theme: "toasted-ad",
+      //         action: [
+      //           {
+      //             text: "GitHub",
+      //             icon: "chevron_right",
+      //             onClick: (e, toastObject) => {
+      //               // localStorage.setItem("showAd", "no")
+      //               toastObject.goAway(0)
+      //               window.open("https://github.com/hoppscotch/hoppscotch")
+      //             },
+      //           },
+      //         ],
+      //         onComplete() {
+      //           // localStorage.setItem("showAd", "no")
+      //         },
+      //       }
+      //     )
+      //   }, 8000)
+      // }
 
       let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
 

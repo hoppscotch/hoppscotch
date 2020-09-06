@@ -1,9 +1,9 @@
 <template>
   <div v-if="fb.currentFeeds.length !== 0" class="virtual-list">
     <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
-      <div class="show-on-large-screen">
+      <div data-test="list-item" class="show-on-large-screen">
         <li class="info">
-          <label>
+          <label data-test="list-label">
             {{ feed.label || $t("no_label") }}
           </label>
         </li>
@@ -12,7 +12,7 @@
         </button>
       </div>
       <div class="show-on-large-screen">
-        <li class="info clamb-3">
+        <li data-test="list-message" class="info clamb-3">
           <label>{{ feed.message || $t("empty") }}</label>
         </li>
       </div>

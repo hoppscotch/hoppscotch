@@ -134,6 +134,13 @@
       <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <div class="contributors">
+      <a href="https://github.com/scmmishra" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/scmmishra.png?size=128"
+          alt="Shivam Mishra"
+        />
+      </a>
       <a href="https://zach.codes" target="_blank" rel="noopener">
         <img
           style="max-width: 64px; max-height: 64px; border-radius: 100%"

@@ -327,6 +327,8 @@ docker run -p 3000:3000 postwoman:latest
 
 ## Contributing 🍰
 
+Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/hoppscotch/hoppscotch/compare).
+
 Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
 ## Continuous Integration 💚 [![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch)
@@ -402,6 +404,13 @@ Become a financial contributor and help us sustain our community [[Contribute](h
 
 #### GitHub Sponsors
 
+<a href="https://github.com/scmmishra" target="_blank" rel="noopener">
+<img
+	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+	src="https://github.com/scmmishra.png?size=128"
+	alt="Shivam Mishra"
+/>
+</a>
 <a href="https://zach.codes" target="_blank" rel="noopener">
 <img
 	style="max-width: 64px; max-height: 64px; border-radius: 100%"

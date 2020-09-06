@@ -136,7 +136,7 @@
         </p>
         <div>
           <a
-            href="https://addons.mozilla.org/en-US/firefox/addon/postwoman"
+            href="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
             target="_blank"
             rel="noopener"
           >
@@ -155,7 +155,7 @@
         </div>
         <div>
           <a
-            href="https://chrome.google.com/webstore/detail/postwoman-extension-for-c/amknoiejhlmhancpahfcfcfhllgkpbld"
+            href="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
             target="_blank"
             rel="noopener"
           >

@@ -77,6 +77,7 @@
     ],
     "watchman": false,
     "moduleNameMapper": {
+      ".+\\.(svg)\\?inline$": "<rootDir>/__mocks__/svgMock.js",
       "^~/(.*)$": "<rootDir>/$1",
       "^~~/(.*)$": "<rootDir>/$1"
     },

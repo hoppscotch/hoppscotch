@@ -136,7 +136,7 @@
         </p>
         <div>
           <a
-            href="https://addons.mozilla.org/en-US/firefox/addon/postwoman"
+            href="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
             target="_blank"
             rel="noopener"
           >

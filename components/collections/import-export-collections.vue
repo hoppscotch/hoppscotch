@@ -141,11 +141,7 @@ export default {
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           //replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
           collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, '<<$1>>'))
-          // console.log(collections)
           collections.item = this.flattenPostmanFolders(collections)
-
-          console.log('collections');
-          console.log(collections);
           collections = this.parsePostmanCollection(collections)
         } else {
           return this.failedImport()

@@ -204,6 +204,9 @@ export default {
             name: "",
             requests: [],
           }
+      //check for sub folders and flatten them
+      collection = this.flattenPostmanFolders(collection)
+      console.log(collection.item)
       for (let collectionItem of collection.item) {
         if (collectionItem.request) {
           if (postwomanCollection[0]) {
@@ -294,6 +297,44 @@ export default {
         }
       }
       return pwRequest
+    },
+    flattenPostmanFolders(collection) {
+      let items = []
+
+      for (let collectionItem of collection.item) {
+        if (this.hasFolder(collectionItem)) {
+          let newFolderItems = []
+          for (let folderItem of collectionItem.item) {
+            if (this.isSubFolder(folderItem)) {
+              newFolderItems.concat(this.flattenPostmanItem(folderItem))
+            } else {
+              newFolderItems.push(folderItem)
+            }
+          }
+          collectionItem.item = newFolderItems
+        }
+        items.push(collectionItem)
+      }
+      return items;
+    },
+    hasFolder(item) {
+      return item.hasOwnProperty('item')
+    },
+    isSubFolder(item) {
+      return item.hasOwnProperty('_postman_isSubFolder') && item._postman_isSubFolder
+    },
+    flattenPostmanItem(subFolder, subFolderGlue = ' -- ') {
+      delete subFolder._postman_isSubFolder
+      let flattenedItems = []
+      for (let subFolderItem of subFolder.item) {
+        subFolderItem.name = subFolderItem.name + subFolderGlue + subFolderItem.name
+        if (this.isSubFolder(subFolderItem)) {
+          flattenedItems.concat(this.flattenPostmanItem(subFolderItem))
+        } else {
+          flattenedItems.push(subFolderItem)
+        }
+      }
+      return flattenedItems
     },
   },
 }

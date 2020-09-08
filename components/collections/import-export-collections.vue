@@ -209,7 +209,10 @@ export default {
             name: "",
             requests: [],
           }
-
+      if (folders) {
+        //pick up collection name even when all children are folders
+        postwomanCollection[0].name = collection.info ? collection.info.name : ""
+      }
       for (let collectionItem of collection.item) {
         if (collectionItem.request) {
           if (postwomanCollection[0]) {

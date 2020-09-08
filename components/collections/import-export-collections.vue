@@ -312,7 +312,7 @@ export default {
           let newFolderItems = []
           for (let folderItem of collectionItem.item) {
             if (this.isSubFolder(folderItem)) {
-              newFolderItems.concat(this.flattenPostmanItem(folderItem))
+              newFolderItems = newFolderItems.concat(this.flattenPostmanItem(folderItem))
             } else {
               newFolderItems.push(folderItem)
             }
@@ -336,7 +336,7 @@ export default {
         subFolderItem.name = subFolder.name + subFolderGlue + subFolderItem.name
         if (this.isSubFolder(subFolderItem)) {
           console.log(this.flattenPostmanItem(subFolderItem))
-          flattenedItems.concat(this.flattenPostmanItem(subFolderItem))
+          flattenedItems = flattenedItems.concat(this.flattenPostmanItem(subFolderItem))
         } else {
           console.log(subFolderItem)
           flattenedItems.push(subFolderItem)

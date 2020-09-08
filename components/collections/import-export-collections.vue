@@ -143,12 +143,9 @@ export default {
           collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, '<<$1>>'))
           // console.log(collections)
           collections.item = this.flattenPostmanFolders(collections)
-          let workingJson = JSON.parse('{"info":{"_postman_id":"e670c3f2-0394-4832-a76e-b48041cc9d15","name":"Pricing Cache API Copy 2","description":"Pricing Cache API service","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"item":[{"name":"Database","item":[{"name":"subfolder -- item","request":{"method":"GET","header":[],"url":{"raw":""}},"response":[]},{"name":"Migrate","request":{"method":"GET","header":[{"key":"Accept","type":"text","value":"application/json"},{"key":"","type":"text","value":"","disabled":true}],"url":{"raw":"https://<<pricingCacheApiUrl>>/api/database/migrate","protocol":"https","host":["<<pricingCacheApiUrl>>"],"path":["api","database","migrate"]},"description":"Property pricing for a given property, for a given date range."},"response":[]}],"protocolProfileBehavior":{}},{"name":"Property Pricing","request":{"method":"GET","header":[{"key":"Accept","type":"text","value":"application/json"}],"url":{"raw":"https://<<pricingCacheApiUrl>>/api/property/414/pricing","protocol":"https","host":["<<pricingCacheApiUrl>>"],"path":["api","property","414","pricing"],"query":[{"key":"start_date","value":"2020-12-06","disabled":true},{"key":"end_date","value":"2020-12-21","disabled":true},{"key":"page","value":"1","disabled":true},{"key":"per_page","value":"20","disabled":true}]},"description":"Property pricing for a given property, for a given date range."},"response":[]},{"name":"Property Pricing Copy","request":{"method":"GET","header":[{"key":"Accept","type":"text","value":"application/json"}],"url":{"raw":"https://<<pricingCacheApiUrl>>/api/property/<<propertyId>>/pricing","protocol":"https","host":["<<pricingCacheApiUrl>>"],"path":["api","property","<<propertyId>>","pricing"],"query":[{"key":"start_date","value":"2020-12-06","disabled":true},{"key":"end_date","value":"2020-12-21","disabled":true},{"key":"page","value":"1","disabled":true},{"key":"per_page","value":"20","disabled":true}]},"description":"Property pricing for a given property, for a given date range."},"response":[]}],"protocolProfileBehavior":{}}');
-          console.log('workingJson');
-          console.log(workingJson);
+
           console.log('collections');
           console.log(collections);
-          console.log(workingJson == collections);
           collections = this.parsePostmanCollection(collections)
         } else {
           return this.failedImport()
@@ -335,14 +332,11 @@ export default {
       for (let subFolderItem of subFolder.item) {
         subFolderItem.name = subFolder.name + subFolderGlue + subFolderItem.name
         if (this.isSubFolder(subFolderItem)) {
-          console.log(this.flattenPostmanItem(subFolderItem))
           flattenedItems = flattenedItems.concat(this.flattenPostmanItem(subFolderItem))
         } else {
-          console.log(subFolderItem)
           flattenedItems.push(subFolderItem)
         }
       }
-      console.log(flattenedItems)
       return flattenedItems
     },
   },

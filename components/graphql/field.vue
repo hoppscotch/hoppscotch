@@ -50,29 +50,13 @@
 </style>
 
 <script>
-import typelink from "./typelink"
-
 export default {
-  components: {
-    typelink: typelink,
-  },
-
   props: {
     gqlField: Object,
     jumpTypeCallback: Function,
   },
 
   computed: {
-    fieldString() {
-      const args = (this.gqlField.args || []).reduce(
-        (acc, { name, type }, index) =>
-          acc + `${name}: ${type.toString()}${index !== this.gqlField.args.length - 1 ? ", " : ""}`,
-        ""
-      )
-      const argsString = args.length > 0 ? `(${args})` : ""
-      return `${this.gqlField.name}${argsString}: ${this.gqlField.type.toString()}`
-    },
-
     fieldName() {
       return this.gqlField.name
     },

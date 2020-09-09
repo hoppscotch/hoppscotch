@@ -9,7 +9,7 @@
     <div class="flex-wrap">
       <span>
         <a
-          href="https://github.com/sponsors/postwoman-io"
+          href="https://github.com/sponsors/hoppscotch"
           target="_blank"
           rel="noopener"
           v-tooltip.right="$t('recurring')"
@@ -36,7 +36,7 @@
     <div class="flex-wrap">
       <span>
         <a
-          href="https://opencollective.com/postwoman"
+          href="https://opencollective.com/hoppscotch"
           target="_blank"
           rel="noopener"
           v-tooltip.right="$t('one_time_recurring')"
@@ -78,80 +78,190 @@
     <h3 class="title">Financial Contributors</h3>
     <p class="info">
       Become a financial contributor and help us sustain our community.
-      <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
+      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <h3 class="title">Organizations</h3>
     <p class="info">
       Support this project with your organization. Your logo will show up here with a link to your
       website.
-      <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
+      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <div class="contributors">
       <a href="https://tyk.io" target="_blank" rel="noopener">
         <img
-          style="max-width: 320px;"
+          style="max-width: 320px"
           src="~assets/images/Tyk-side-project-logo-tagline-blk.png"
           alt="Tyk Banner"
         />
       </a>
     </div>
     <div class="contributors">
-      <a href="https://opencollective.com/postwoman/organization/0/website">
-        <img src="https://opencollective.com/postwoman/organization/0/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/0/website">
+        <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/1/website">
-        <img src="https://opencollective.com/postwoman/organization/1/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/1/website">
+        <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/2/website">
-        <img src="https://opencollective.com/postwoman/organization/2/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/2/website">
+        <img src="https://opencollective.com/hoppscotch/organization/2/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/3/website">
-        <img src="https://opencollective.com/postwoman/organization/3/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/3/website">
+        <img src="https://opencollective.com/hoppscotch/organization/3/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/4/website">
-        <img src="https://opencollective.com/postwoman/organization/4/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/4/website">
+        <img src="https://opencollective.com/hoppscotch/organization/4/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/5/website">
-        <img src="https://opencollective.com/postwoman/organization/5/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/5/website">
+        <img src="https://opencollective.com/hoppscotch/organization/5/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/6/website">
-        <img src="https://opencollective.com/postwoman/organization/6/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/6/website">
+        <img src="https://opencollective.com/hoppscotch/organization/6/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/7/website">
-        <img src="https://opencollective.com/postwoman/organization/7/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/7/website">
+        <img src="https://opencollective.com/hoppscotch/organization/7/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/8/website">
-        <img src="https://opencollective.com/postwoman/organization/8/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/8/website">
+        <img src="https://opencollective.com/hoppscotch/organization/8/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/postwoman/organization/9/website">
-        <img src="https://opencollective.com/postwoman/organization/9/avatar.svg" />
+      <a href="https://opencollective.com/hoppscotch/organization/9/website">
+        <img src="https://opencollective.com/hoppscotch/organization/9/avatar.svg" />
       </a>
     </div>
     <h3 class="title">Individuals</h3>
     <p class="info">
       Support this project with your organization. Your logo will show up here with a link to your
       website.
-      <a class="link" href="https://opencollective.com/postwoman/contribute">Contribute</a>.
+      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <div class="contributors">
+      <a href="https://github.com/scmmishra" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/scmmishra.png?size=128"
+          alt="Shivam Mishra"
+        />
+      </a>
+      <a href="https://zach.codes" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/zackify.png?size=128"
+          alt="Zach Silveira"
+        />
+      </a>
+      <a href="https://github.com/pantharshit00" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/pantharshit00.png?size=128"
+          alt="Harshit Pant"
+        />
+      </a>
+      <a href="https://github.com/janpio" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/janpio.png?size=128"
+          alt="Jan Piotrowski"
+        />
+      </a>
+      <a href="https://github.com/ankumar" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/ankumar.png?size=128"
+          alt="Anil Kumar"
+        />
+      </a>
+      <a href="https://github.com/gpeal" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/gpeal.png?size=128"
+          alt="Gabriel Peal"
+        />
+      </a>
+      <a href="https://github.com/koddsson" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/koddsson.png?size=128"
+          alt="Kristján Oddsson"
+        />
+      </a>
+      <a href="https://github.com/donokuda" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/donokuda.png?size=128"
+          alt="Don Okuda"
+        />
+      </a>
+      <a href="https://github.com/ebrescia" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/ebrescia.png?size=128"
+          alt="Erica Brescia"
+        />
+      </a>
+      <a href="https://github.com/pedroapfilho" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/pedroapfilho.png?size=128"
+          alt="Pedro Filho"
+        />
+      </a>
+      <a href="https://github.com/peterp" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/peterp.png?size=128"
+          alt="Peter Pistorius"
+        />
+      </a>
       <a href="http://tom.preston-werner.com" target="_blank" rel="noopener">
         <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%;"
-          src="https://github.com/mojombo.png?size=64"
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/mojombo.png?size=128"
           alt="Tom Preston-Werner"
         />
       </a>
-      <a href="https://opencollective.com/postwoman">
-        <img src="https://opencollective.com/postwoman/individuals.svg" />
+      <a href="https://github.com/mlynch" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/mlynch.png?size=128"
+          alt="Max Lynch"
+        />
+      </a>
+      <a href="https://github.com/rawkode" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/rawkode.png?size=128"
+          alt="David McKay"
+        />
+      </a>
+      <a href="https://github.com/brianshaler" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/brianshaler.png?size=128"
+          alt="Brian Shaler"
+        />
+      </a>
+      <a href="https://github.com/mxstbr" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/mxstbr.png?size=128"
+          alt="Max Stoiber"
+        />
+      </a>
+      <a href="https://github.com/jjcaine" target="_blank" rel="noopener">
+        <img
+          style="max-width: 64px; max-height: 64px; border-radius: 100%"
+          src="https://github.com/jjcaine.png?size=128"
+          alt="John Caine"
+        />
+      </a>
+      <a href="https://opencollective.com/hoppscotch">
+        <img src="https://opencollective.com/hoppscotch/individuals.svg" />
       </a>
     </div>
     <h3 class="title">Code Contributors</h3>
-    <p class="info">
-      This project exists thanks to all the people who contribute.
-    </p>
+    <p class="info">This project exists thanks to all the people who contribute.</p>
     <div class="contributors">
-      <a href="https://github.com/liyasthomas/postwoman/graphs/contributors">
-        <img src="https://opencollective.com/postwoman/contributors.svg" />
+      <a href="https://github.com/liyasthomas/hoppscotch/graphs/contributors">
+        <img src="https://opencollective.com/hoppscotch/contributors.svg" />
       </a>
     </div>
   </div>

@@ -25,9 +25,16 @@ export default function jsonParse(str) {
   start = end = lastEnd = -1
   ch()
   lex()
-  const ast = parseObj()
-  expect("EOF")
-  return ast
+  try {
+    const ast = parseObj()
+    expect("EOF")
+    return ast
+  } catch (e) {
+    // Try parsing expecting a root array
+    const ast = parseArr()
+    expect("EOF")
+    return ast
+  }
 }
 
 let string

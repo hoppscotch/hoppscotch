@@ -8,7 +8,7 @@
           </label>
         </li>
         <button class="icon" @click="deleteFeed(feed)">
-          <i class="material-icons">delete</i>
+          <deleteIcon class="material-icons" />
         </button>
       </div>
       <div class="show-on-large-screen">
@@ -50,8 +50,10 @@ ol {
 
 <script>
 import { fb } from "~/helpers/fb"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
+  components: { deleteIcon },
   data() {
     return {
       fb,

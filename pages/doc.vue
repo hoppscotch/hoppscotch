@@ -19,7 +19,7 @@
                     @click="$refs.collectionUpload.click()"
                     v-tooltip="$t('json')"
                   >
-                    <i class="material-icons">folder</i>
+                    <folderIcon class="material-icons" />
                     <span>{{ $t("import_collections") }}</span>
                   </button>
                 </label>
@@ -43,7 +43,7 @@
           </ul>
           <ul>
             <li>
-              <Editor
+              <ace-editor
                 v-model="collectionJSON"
                 :lang="'json'"
                 :lint="false"
@@ -79,7 +79,7 @@
             <span class="collection" v-for="(collection, index) in this.items" :key="index">
               <a :href="`#${collection.name}`">
                 <h2 :id="collection.name">
-                  <i class="material-icons">folder</i>
+                  <folderIcon class="material-icons" />
                   {{ collection.name || $t("none") }}
                 </h2>
               </a>
@@ -384,14 +384,10 @@ code {
 </style>
 
 <script>
-import AceEditor from "~/components/ui/ace-editor"
+import folderIcon from "~/static/icons/folder-24px.svg?inline"
 
 export default {
-  components: {
-    "pw-section": () => import("~/components/layout/section"),
-    Editor: AceEditor,
-    collections: () => import("~/components/collections"),
-  },
+  components: { folderIcon },
   data() {
     return {
       collectionJSON: "[]",
@@ -416,6 +412,7 @@ export default {
           icon: "attach_file",
         })
       }
+      this.$refs.collectionUpload.value = ""
     },
 
     getDoc() {

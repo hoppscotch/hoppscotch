@@ -4,11 +4,11 @@ Thanks for your interest in helping translating the software!
 
 ## Starting a translation
 
-Before you start working on a translation, look through the [open pull requests](https://github.com/liyasthomas/postwoman/pulls) to see if anyone else is already working on one for your language.
+Before you start working on a translation, look through the [open pull requests](https://github.com/hoppscotch/hoppscotch/pulls) to see if anyone else is already working on one for your language.
 
 If there's not, then today is your day to lead this effort! Here's how to start:
 
-1. [Fork this repository](https://github.com/liyasthomas/postwoman/fork)
+1. [Fork this repository](https://github.com/hoppscotch/hoppscotch/fork)
 2. Create a new branch for your translation work e.g. `es`.
 3. Copy `lang/en-US.json` to your target language file e.g. `lang/es-ES.json` and translate all the strings.
 4. Add your language entry to `nuxt.config.js`.
@@ -28,7 +28,7 @@ If there's not, then today is your day to lead this effort! Here's how to start:
           code: 'es',
           name: 'Español',
           iso: 'es-ES',
-          file: 'es-ES.js'
+          file: 'es-ES.json'
         }
       ]
     }
@@ -37,7 +37,7 @@ If there's not, then today is your day to lead this effort! Here's how to start:
 5. Save & commit changes.
 6. Send a pull request. (You may send a pull request before all steps above are complete: e.g., you may want to ask for help with translations, or getting tests to pass. However your pull request will not be merged until all steps above are complete.)
 
-Completing an initial translation of the whole site is a fairly large task. One way to break that task up is to work with other translators through pull requests on your fork. You can also [add collaborators to your fork](https://help.github.com/en/github/setting-up-and-managing-your-github-user-account/inviting-collaborators-to-a-personal-repository) if you'd like to inivte other translators to commit directly to your fork and share responsibility for merging pull requests.
+Completing an initial translation of the whole site is a fairly large task. One way to break that task up is to work with other translators through pull requests on your fork. You can also [add collaborators to your fork](https://help.github.com/en/github/setting-up-and-managing-your-github-user-account/inviting-collaborators-to-a-personal-repository) if you'd like to invite other translators to commit directly to your fork and share responsibility for merging pull requests.
 
 ## Updating a translation
 

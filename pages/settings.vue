@@ -129,6 +129,13 @@
           </div>
         </li>
       </ul>
+      <ul class="info">
+        <li v-if="extensionVersion != null">
+          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+        </li>
+
+        <li v-else>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</li>
+      </ul>
     </pw-section>
 
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
@@ -142,7 +149,7 @@
               </pw-toggle>
             </span>
             <a
-              href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
+              href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
               target="_blank"
               rel="noopener"
             >
@@ -210,15 +217,9 @@
 <script>
 import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
+import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 
 export default {
-  components: {
-    "pw-section": () => import("~/components/layout/section"),
-    "pw-toggle": () => import("~/components/ui/toggle"),
-    swatch: () => import("~/components/settings/swatch"),
-    login: () => import("~/components/firebase/login"),
-    logout: () => import("~/components/firebase/logout"),
-  },
   data() {
     return {
       // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
@@ -298,6 +299,10 @@ export default {
           vibrant: false,
         },
       ],
+
+      extensionVersion: hasExtensionInstalled()
+        ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+        : null,
 
       settings: {
         SCROLL_INTO_ENABLED:

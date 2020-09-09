@@ -41,9 +41,9 @@ export default () => {
       let outcome = await deferredPrompt.userChoice
 
       if (outcome === "accepted") {
-        console.log("Postwoman was installed successfully.")
+        console.log("Hoppscotch was installed successfully.")
       } else {
-        console.log("Postwoman could not be installed. (Installation rejected by user.)")
+        console.log("Hoppscotch could not be installed. (Installation rejected by user.)")
       }
       deferredPrompt = null
     }

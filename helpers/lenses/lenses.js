@@ -4,7 +4,7 @@ import imageLens from "./imageLens"
 import htmlLens from "./htmlLens"
 import xmlLens from "./xmlLens"
 
-const lenses = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
+export const lenses = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
 
 export function getSuitableLenses(response) {
   const result = []

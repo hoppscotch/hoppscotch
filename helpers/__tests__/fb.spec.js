@@ -175,6 +175,42 @@ function signOutUser() {
 }
 
 describe("FirebaseInstance", () => {
+  describe("signOutUser", async () => {
+    test("resolves for a proper request with authentication", async () => {
+      const fb = new FirebaseInstance(mocksdk)
+      signInUser()
+
+      await expect(fb.signOutUser()).resolves.toBeUndefined()
+    })
+
+    test("rejects for a request with no user logged in", async () => {
+      const fb = new FirebaseInstance(mocksdk)
+      signOutUser()
+
+      await expect(fb.signOutUser()).rejects.toBeDefined()
+    })
+
+    test("asks firebase to signOut the user", async () => {
+      const fb = new FirebaseInstance(mocksdk)
+      signInUser()
+
+      const fn = jest.spyOn(mocksdk.auth(), "signOut")
+      fn.mockResolvedValueOnce(null)
+
+      await fb.signOutUser()
+
+      expect(fn).toHaveBeenCalledTimes(1)
+    })
+
+    test("sets the currentUser field to null", async () => {
+      const fb = new FirebaseInstance(mocksdk)
+      signInUser()
+
+      await fb.signOutUser()
+
+      expect(fb.currentUser).toBeNull()
+    })
+  })
   describe("writeFeeds", () => {
     test("resolves for a proper request with auth", async () => {
       const fb = new FirebaseInstance(mocksdk)

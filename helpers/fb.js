@@ -134,6 +134,13 @@ export class FirebaseInstance {
     })
   }
 
+  async signOutUser() {
+    if (!this.currentUser) throw new Error("No user has logged in")
+
+    await this.app.auth().signOut()
+    this.currentUser = null
+  }
+
   async writeFeeds(message, label) {
     const dt = {
       createdOn: new Date(),

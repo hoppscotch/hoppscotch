@@ -134,123 +134,17 @@
       <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
     </p>
     <div class="contributors">
-      <a href="https://github.com/scmmishra" target="_blank" rel="noopener">
+      <a
+        v-for="sponsor in githubSponsors"
+        :key="sponsor.handle"
+        :href="sponsor.profile"
+        target="_blank"
+        rel="noopener"
+      >
         <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/scmmishra.png?size=128"
-          alt="Shivam Mishra"
-        />
-      </a>
-      <a href="https://zach.codes" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/zackify.png?size=128"
-          alt="Zach Silveira"
-        />
-      </a>
-      <a href="https://github.com/pantharshit00" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/pantharshit00.png?size=128"
-          alt="Harshit Pant"
-        />
-      </a>
-      <a href="https://github.com/janpio" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/janpio.png?size=128"
-          alt="Jan Piotrowski"
-        />
-      </a>
-      <a href="https://github.com/ankumar" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/ankumar.png?size=128"
-          alt="Anil Kumar"
-        />
-      </a>
-      <a href="https://github.com/gpeal" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/gpeal.png?size=128"
-          alt="Gabriel Peal"
-        />
-      </a>
-      <a href="https://github.com/koddsson" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/koddsson.png?size=128"
-          alt="Kristján Oddsson"
-        />
-      </a>
-      <a href="https://github.com/donokuda" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/donokuda.png?size=128"
-          alt="Don Okuda"
-        />
-      </a>
-      <a href="https://github.com/ebrescia" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/ebrescia.png?size=128"
-          alt="Erica Brescia"
-        />
-      </a>
-      <a href="https://github.com/pedroapfilho" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/pedroapfilho.png?size=128"
-          alt="Pedro Filho"
-        />
-      </a>
-      <a href="https://github.com/peterp" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/peterp.png?size=128"
-          alt="Peter Pistorius"
-        />
-      </a>
-      <a href="http://tom.preston-werner.com" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/mojombo.png?size=128"
-          alt="Tom Preston-Werner"
-        />
-      </a>
-      <a href="https://github.com/mlynch" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/mlynch.png?size=128"
-          alt="Max Lynch"
-        />
-      </a>
-      <a href="https://github.com/rawkode" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/rawkode.png?size=128"
-          alt="David McKay"
-        />
-      </a>
-      <a href="https://github.com/brianshaler" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/brianshaler.png?size=128"
-          alt="Brian Shaler"
-        />
-      </a>
-      <a href="https://github.com/mxstbr" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/mxstbr.png?size=128"
-          alt="Max Stoiber"
-        />
-      </a>
-      <a href="https://github.com/jjcaine" target="_blank" rel="noopener">
-        <img
-          style="max-width: 64px; max-height: 64px; border-radius: 100%"
-          src="https://github.com/jjcaine.png?size=128"
-          alt="John Caine"
+          class="github-sponsor"
+          :src="`${sponsor.profile}.png?size=128`"
+          :alt="sponsor.handle"
         />
       </a>
       <a href="https://opencollective.com/hoppscotch">
@@ -280,5 +174,16 @@
 </style>
 
 <script>
-export default {}
+export default {
+  data() {
+    return {
+      githubSponsors: [],
+    }
+  },
+  async mounted() {
+    this.githubSponsors = await this.$axios
+      .$get("https://sponsors.trnck.dev/hoppscotch/sponsors")
+      .then((data) => data.sponsors)
+  },
+}
 </script>

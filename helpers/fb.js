@@ -14,9 +14,15 @@ const firebaseConfig = {
   measurementId: process.env.MEASUREMENT_ID || "G-ERJ6025CEB",
 }
 
+export const authProviders = {
+  google: () => new firebase.auth.GoogleAuthProvider(),
+  github: () => new firebase.auth.GithubAuthProvider(),
+}
+
 export class FirebaseInstance {
-  constructor(fbapp) {
+  constructor(fbapp, authProviders) {
     this.app = fbapp
+    this.authProviders = authProviders
 
     this.usersCollection = this.app.firestore().collection("users")
 
@@ -132,6 +138,22 @@ export class FirebaseInstance {
         this.currentUser = null
       }
     })
+  }
+
+  async signInUserWithGoogle() {
+    return await this.app.auth().signInWithPopup(this.authProviders.google())
+  }
+
+  async signInUserWithGithub() {
+    return await this.app.auth().signInWithPopup(this.authProviders.github())
+  }
+
+  async signInWithEmailAndPassword(email, password) {
+    return await this.app.auth().signInWithEmailAndPassword(email, password)
+  }
+
+  async getSignInMethodsForEmail(email) {
+    return await this.app.auth().fetchSignInMethodsForEmail(email)
   }
 
   async signOutUser() {
@@ -300,4 +322,4 @@ export class FirebaseInstance {
   }
 }
 
-export const fb = new FirebaseInstance(firebase.initializeApp(firebaseConfig))
+export const fb = new FirebaseInstance(firebase.initializeApp(firebaseConfig), authProviders)

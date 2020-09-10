@@ -175,7 +175,191 @@ function signOutUser() {
 }
 
 describe("FirebaseInstance", () => {
-  describe("signOutUser", async () => {
+  describe("signInUserWithGoogle", () => {
+    test("resolves when the firebase request resolves", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        google: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.resolve(""))
+
+      await expect(fb.signInUserWithGoogle()).resolves.toBeDefined()
+    })
+    test("rejects when the firebase request rejects", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        google: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.reject(""))
+
+      await expect(fb.signInUserWithGoogle()).rejects.toBeDefined()
+    })
+    test("throws the error the firebase request throws", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        google: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.reject("test error"))
+
+      await expect(fb.signInUserWithGoogle()).rejects.toEqual("test error")
+    })
+    test("resolves the response the firebase request resolves", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        google: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.resolve("test"))
+
+      await expect(fb.signInUserWithGoogle()).resolves.toEqual("test")
+    })
+  })
+  describe("signInUserWithGithub", () => {
+    test("resolves when the firebase request resolves", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        github: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.resolve(""))
+
+      await expect(fb.signInUserWithGithub()).resolves.toBeDefined()
+    })
+    test("rejects when the firebase request rejects", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        github: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.reject(""))
+
+      await expect(fb.signInUserWithGithub()).rejects.toBeDefined()
+    })
+    test("throws the error the firebase request throws", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        github: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.reject("test error"))
+
+      await expect(fb.signInUserWithGithub()).rejects.toEqual("test error")
+    })
+    test("resolves the response the firebase request resolves", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
+
+      const fb = new FirebaseInstance(mocksdk, {
+        github: () => {},
+      })
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.resolve("test"))
+
+      await expect(fb.signInUserWithGithub()).resolves.toEqual("test")
+    })
+  })
+  describe("signInWithEmailAndPassword", () => {
+    test("email and password are properly passed to the firebase request", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithEmailAndPassword")
+
+      const fb = new FirebaseInstance(mocksdk)
+
+      signOutUser()
+
+      let sentEmail
+      let sentPassword
+
+      fbFunc.mockImplementation((email, password) => {
+        sentEmail = email
+        sentPassword = password
+
+        return Promise.resolve("")
+      })
+
+      await fb.signInWithEmailAndPassword("test@hoppscotch.io", "testpass")
+
+      expect(sentEmail).toEqual("test@hoppscotch.io")
+      expect(sentPassword).toEqual("testpass")
+    })
+    test("resolves when the firebase request resolves", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithEmailAndPassword")
+
+      const fb = new FirebaseInstance(mocksdk)
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.resolve(""))
+
+      await expect(
+        fb.signInWithEmailAndPassword("test@hoppscotch.io", "testpass")
+      ).resolves.toBeDefined()
+    })
+    test("rejects when the firebase request rejects", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithEmailAndPassword")
+
+      const fb = new FirebaseInstance(mocksdk)
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.reject(""))
+
+      await expect(
+        fb.signInWithEmailAndPassword("test@hoppscotch.io", "testpass")
+      ).rejects.toBeDefined()
+    })
+    test("throws the error the firebase request throws", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithEmailAndPassword")
+
+      const fb = new FirebaseInstance(mocksdk)
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.reject("test error"))
+
+      await expect(fb.signInWithEmailAndPassword("test@hoppscotch.io", "testpass")).rejects.toEqual(
+        "test error"
+      )
+    })
+    test("resolves the response the firebase request resolves", async () => {
+      const fbFunc = jest.spyOn(mockAuth, "signInWithEmailAndPassword")
+
+      const fb = new FirebaseInstance(mocksdk)
+
+      signOutUser()
+
+      fbFunc.mockImplementation(() => Promise.resolve("test"))
+
+      await expect(
+        fb.signInWithEmailAndPassword("test@hoppscotch.io", "testpass")
+      ).resolves.toEqual("test")
+    })
+  })
+  describe("signOutUser", () => {
     test("resolves for a proper request with authentication", async () => {
       const fb = new FirebaseInstance(mocksdk)
       signInUser()

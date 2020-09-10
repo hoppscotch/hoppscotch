@@ -32,6 +32,8 @@ const factory = () =>
 
 beforeEach(() => {
   fb.signOutUser.mockClear()
+  $toast.info.mockClear()
+  $toast.show.mockClear()
 })
 
 describe("logout", () => {

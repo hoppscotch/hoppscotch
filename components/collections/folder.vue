@@ -53,6 +53,18 @@
           <label>{{ $t("folder_empty") }}</label>
         </li>
       </ul>
+      <ul v-if="folder.folders && folder.folders.length">
+        <li v-for="(subfolder, index) in folder.folders" :key="subfolder.name">
+          <folder
+            :folder="subfolder"
+            :folderIndex="index"
+            :collection-index="collectionIndex"
+            :doc="doc"
+            @edit-folder="editFolder(collectionIndex, subfolder, index)"
+            @edit-request="$emit('edit-request', $event)"
+          />
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -76,6 +88,7 @@ import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
   components: { deleteIcon },
+  name: "folder",
   props: {
     folder: Object,
     collectionIndex: Number,

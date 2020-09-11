@@ -21,10 +21,11 @@ const joinDataArguments = (dataArguments) => {
 }
 
 const parseCurlCommand = (curlCommand) => {
-  let newlineFound = /\r?\n|\r/.exec(curlCommand)
+  let newlineFound = /\\/gi.test(curlCommand)
   if (newlineFound) {
-    // remove newlines
-    curlCommand = curlCommand.replace(/\r?\n|\r/g, "")
+    // remove '\' and newlines
+    curlCommand = curlCommand.replace(/\\/gi, "")
+    curlCommand = curlCommand.replace(/\n/g, "")
   }
   // yargs parses -XPOST as separate arguments. just prescreen for it.
   curlCommand = curlCommand.replace(/ -XPOST/, " -X POST")
@@ -36,7 +37,7 @@ const parseCurlCommand = (curlCommand) => {
   let parsedArguments = parser(curlCommand)
   let cookieString
   let cookies
-  let url = parsedArguments._[2]
+  let url = parsedArguments._[1]
   if (!url) {
     for (let argName in parsedArguments) {
       if (typeof parsedArguments[argName] === "string") {

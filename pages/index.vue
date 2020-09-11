@@ -2413,6 +2413,7 @@ export default {
         const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
         this.url = origin
         this.path = pathname
+        this.uri = this.url + this.path
         this.headers = []
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {

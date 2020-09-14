@@ -2,13 +2,22 @@
   <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <div class="show-on-large-screen">
       <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
-      <button class="icon">
+      <!-- <button class="icon">
         <i class="material-icons">search</i>
-      </button>
+      </button> -->
     </div>
     <div class="virtual-list" :class="{ filled: filteredHistory.length }">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-large-screen">
+          <button
+            class="icon"
+            :id="'use-button#' + index"
+            @click="useHistory(entry)"
+            :aria-label="$t('edit')"
+            v-tooltip="$t('restore')"
+          >
+            <i class="material-icons">restore</i>
+          </button>
           <button
             class="icon"
             :class="{ stared: entry.star }"
@@ -21,47 +30,28 @@
               {{ entry.star ? "star" : "star_border" }}
             </i>
           </button>
-          <li>
+          <li class="method-list-item">
             <input
-              :aria-label="$t('label')"
+              :aria-label="$t('method')"
               type="text"
               readonly
-              :value="entry.label"
-              :placeholder="$t('no_label')"
+              :value="`${entry.method} ${entry.status}`"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
               class="bg-color"
             />
+            <!-- <span
+              class="entry-status-code"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
+              >{{ entry.status }}</span
+            > -->
           </li>
-          <!-- <li>
-            <button
-              class="icon"
-              v-tooltip="{
-                content: !entry.usesScripts
-                  ? 'No pre-request script'
-                  : 'Used pre-request script'
-              }"
-            >
-              <i class="material-icons">
-                {{ !entry.usesScripts ? "http" : "code" }}
-              </i>
-            </button>
-          </li> -->
           <v-popover>
             <button class="tooltip-target icon" v-tooltip="$t('options')">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
-              <div>
-                <button
-                  class="icon"
-                  :id="'use-button#' + index"
-                  @click="useHistory(entry)"
-                  :aria-label="$t('edit')"
-                  v-close-popover
-                >
-                  <i class="material-icons">restore</i>
-                  <span>{{ $t("restore") }}</span>
-                </button>
-              </div>
               <div>
                 <button
                   class="icon"
@@ -76,36 +66,45 @@
               </div>
             </template>
           </v-popover>
-        </div>
-        <div class="show-on-large-screen">
-          <li class="method-list-item">
+          <!-- <li class="method-list-item">
             <input
-              :aria-label="$t('method')"
+              :aria-label="$t('label')"
               type="text"
               readonly
-              :value="entry.method"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
+              :value="entry.label"
+              :placeholder="$t('no_label')"
+              class="bg-color"
             />
-            <span
-              class="entry-status-code"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-              >{{ entry.status }}</span
+          </li> -->
+          <!-- <li>
+            <button
+              class="icon"
+              v-tooltip="{
+                content: !entry.usesScripts
+                  ? 'No pre-request script'
+                  : 'Used pre-request script'
+              }"
             >
-          </li>
+              <i class="material-icons">
+                {{ !entry.usesScripts ? "http" : "code" }}
+              </i>
+            </button>
+          </li> -->
         </div>
+        <!-- <div class="show-on-large-screen">
+        </div> -->
         <div class="show-on-large-screen">
           <li>
             <input
               :aria-label="$t('url')"
               type="text"
               readonly
-              :value="entry.url"
+              :value="`${entry.url}${entry.path}`"
               :placeholder="$t('no_url')"
+              class="bg-color"
             />
           </li>
-          <li>
+          <!-- <li>
             <input
               :aria-label="$t('path')"
               type="text"
@@ -113,7 +112,7 @@
               :value="entry.path"
               :placeholder="$t('no_path')"
             />
-          </li>
+          </li> -->
         </div>
         <transition name="fade">
           <div v-if="showMore" class="show-on-large-screen">
@@ -349,7 +348,7 @@ export default {
           value = typeof value !== "string" ? value.toString() : value
           return value.toLowerCase().includes(filterText)
         })
-      })
+      }).reverse()
     },
   },
   methods: {

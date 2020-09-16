@@ -18,7 +18,7 @@ export const options = {
   },
 }
 export default {
-  mode: "spa",
+  ssr: false,
   target: "static",
   server: {
     host: "0.0.0.0", // default: localhost
@@ -102,7 +102,7 @@ export default {
   /*
    ** Global CSS
    */
-  css: ["~/assets/css/styles.scss", "~/assets/css/themes.scss", "~/assets/css/fonts.scss"],
+  css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss", "~/assets/scss/fonts.scss"],
   /*
    ** Plugins to load before mounting the App
    */
@@ -124,6 +124,10 @@ export default {
     "@nuxtjs/gtm",
     // Doc: https://github.com/nuxt-community/svg-module
     "@nuxtjs/svg",
+    // Doc: https://tailwindcss.nuxtjs.org
+    "@nuxtjs/tailwindcss",
+    // Doc: https://color-mode.nuxtjs.org
+    "@nuxtjs/color-mode",
   ],
   /*
    ** Nuxt.js modules
@@ -179,6 +183,7 @@ export default {
     Allow: "/",
     Sitemap: `${process.env.BASE_URL}sitemap.xml`,
   },
+  colorMode: { preference: "dark" },
   i18n: {
     locales: [
       {

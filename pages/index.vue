@@ -144,6 +144,8 @@
             </li>
             <li>
               <label for="url">{{ $t("url") }}</label>
+              <!-- TODO: add experimental url bar -->
+              <!-- {{ this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED }} -->
               <input
                 :class="{ error: !isValidURL }"
                 @keyup.enter="isValidURL ? sendRequest() : null"

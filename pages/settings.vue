@@ -358,7 +358,7 @@ export default {
         EXPERIMENTAL_URL_BAR_ENABLED:
           typeof this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED
-            : true,
+            : false,
       },
 
       doneButton: '<i class="material-icons">done</i>',

@@ -66,9 +66,6 @@ export default {
           case Node.ELEMENT_NODE:
             textSegments.splice(textSegments.length, 0, ...this.getTextSegments(node))
             break
-
-          default:
-            throw new Error(`Unexpected node type: ${node.nodeType}`)
         }
       })
       return textSegments

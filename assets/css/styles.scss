@@ -394,6 +394,7 @@ input[type="radio"],
 }
 
 .method,
+.url-field,
 kbd,
 select,
 input,
@@ -409,7 +410,7 @@ code {
   font-size: 16px;
   font-family: "Roboto Mono", monospace;
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.25;
   transition: all 0.2s ease-in-out;
   user-select: text;
   width: calc(100% - 8px);

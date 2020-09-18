@@ -209,6 +209,35 @@
 			</ul>
       -->
     </pw-section>
+
+    <pw-section class="red" :label="$t('experiments')" ref="experiments">
+      <ul class="info">
+        <li>
+          <p>
+            {{ $t("experiments_notice") }}
+            <a
+              class="link"
+              href="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ $t("contact_us") }}</a
+            >.
+          </p>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <div class="flex-wrap">
+            <pw-toggle
+              :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
+              @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
+            >
+              {{ $t("use_experimental_url_bar") }}
+            </pw-toggle>
+          </div>
+        </li>
+      </ul>
+    </pw-section>
   </div>
 </template>
 
@@ -325,6 +354,11 @@ export default {
           typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
             : true,
+
+        EXPERIMENTAL_URL_BAR_ENABLED:
+          typeof this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED !== "undefined"
+            ? this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED
+            : false,
       },
 
       doneButton: '<i class="material-icons">done</i>',

@@ -20,13 +20,6 @@ import { type } from "os"
 export default {
   props: {
     value: { type: String },
-    uri: { type: String },
-  },
-  watch: {
-    uri(val) {
-      this.$refs.editor.textContent = val
-      this.updateEditor()
-    },
   },
   mounted() {
     this.$refs.editor.addEventListener("input", this.updateEditor)

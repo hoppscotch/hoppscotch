@@ -155,7 +155,7 @@
                 spellcheck="false"
                 @input="pathInputHandler"
               />
-              <url-field v-model="uri" :uri="uri" v-else />
+              <url-field v-model="uri" v-else />
             </li>
             <li class="shrink">
               <label class="hide-on-small-screen" for="send">&nbsp;</label>

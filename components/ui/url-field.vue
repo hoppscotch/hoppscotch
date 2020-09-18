@@ -6,11 +6,27 @@
   color: var(--ac-color);
   font-weight: bold;
 }
+.highlight-TEXT {
+  overflow: auto;
+  height: 20px;
+  word-break: break-all;
+}
+.highlight-TEXT::-webkit-scrollbar {
+  display: none;
+}
 </style>
 <script>
+import { type } from "os"
 export default {
   props: {
     value: { type: String },
+    uri: { type: String },
+  },
+  watch: {
+    uri(val) {
+      this.$refs.editor.textContent = val
+      this.updateEditor()
+    },
   },
   mounted() {
     this.$refs.editor.addEventListener("input", this.updateEditor)

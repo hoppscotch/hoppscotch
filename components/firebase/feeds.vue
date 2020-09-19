@@ -32,12 +32,14 @@
 
 ul,
 ol {
-  flex-direction: column;
+  @apply flex-col;
 }
 
 .entry {
-  border-bottom: 1px dashed var(--brd-color);
-  padding: 0 0 8px;
+  @apply border-b;
+  @apply border-brdColor;
+  @apply border-dashed;
+  @apply pb-2;
 }
 
 .clamb-3 {

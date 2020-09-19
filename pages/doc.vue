@@ -288,10 +288,10 @@
 .doc-desc,
 .folder,
 .request {
-  display: flex;
+  @apply flex;
   flex-flow: column;
   justify-content: center;
-  flex: 1;
+  @apply flex-1;
   padding: 16px;
 
   .material-icons {
@@ -300,7 +300,8 @@
 }
 
 .folder {
-  border-left: 1px solid var(--brd-color);
+  @apply border-l;
+  @apply border-brdColor;
   margin: 16px 0 0;
 }
 
@@ -315,7 +316,7 @@
 }
 
 .doc-desc {
-  color: var(--fg-light-color);
+  @apply text-fgLightColor;
   border-bottom: 1px dashed var(--brd-color);
   margin: 0;
 

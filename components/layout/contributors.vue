@@ -163,12 +163,12 @@
 
 <style scoped lang="scss">
 .contributors {
-  display: flex;
-  align-items: center;
-  flex-flow: row nowrap;
-  overflow: auto;
-  padding: 8px 0;
-  margin: 8px 0;
+  @apply flex;
+  @apply items-center;
+  @apply flex-no-wrap;
+  @apply overflow-auto;
+  @apply py-4;
+  @apply my-4;
   max-width: calc(100vw - 72px);
 }
 </style>

@@ -16,11 +16,24 @@ module.exports = {
   },
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        bgColor: "var(--bg-color)",
+        bgLightColor: "var(--bg-light-color)",
+        bgDarkColor: "var(--bg-dark-color)",
+        fgColor: "var(--fg-color)",
+        fgLightColor: "var(--fg-light-color)",
+        brdColor: "var(--brd-color)",
+        errColor: "var(--err-color)",
+        acColor: "var(--ac-color)",
+        actColor: "var(--act-color)",
+        atcColor: "var(--atc-color)",
+        ttColor: "var(--tt-color)",
+      },
       inset: {},
     },
     fontFamily: {
       body: "var(--font-body)",
+      mono: "var(--font-mono)",
       icon: "var(--font-icon)",
     },
   },

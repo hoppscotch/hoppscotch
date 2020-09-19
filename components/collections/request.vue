@@ -34,14 +34,15 @@
 
 <style scoped lang="scss">
 ul {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
 }
 
 ul li {
-  display: flex;
-  padding-left: 16px;
-  border-left: 1px solid var(--brd-color);
+  @apply flex;
+  @apply pl-4;
+  @apply border-l;
+  @apply border-brdColor;
 }
 </style>
 

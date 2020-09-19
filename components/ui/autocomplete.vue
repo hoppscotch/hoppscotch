@@ -57,8 +57,8 @@
       display: block;
       padding: 8px 16px;
       font-size: 16px;
-      font-family: "Roboto Mono", monospace;
-      font-weight: 400;
+      @apply font-mono;
+      @apply font-normal;
 
       &:last-child {
         border-radius: 0 0 8px 8px;

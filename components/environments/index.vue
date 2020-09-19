@@ -48,8 +48,8 @@
 }
 
 ul {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
 }
 </style>
 

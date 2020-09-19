@@ -1,3 +1,9 @@
+@mixin baseTheme {
+  --font-body: 'Poppins', 'sans-serif';
+  --font-mono: 'Roboto Mono', 'monoscpace';
+  --font-icon: 'Material Icons';
+}
+
 /**
   Main Themes:
   - dark (default)
@@ -83,6 +89,7 @@
 }
 
 :root {
+  @include baseTheme;
   @include darkTheme;
 }
 

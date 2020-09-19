@@ -26,19 +26,19 @@
 
 <style scoped lang="scss">
 .tabs-wrapper {
-  display: flex;
+  @apply flex;
   flex-flow: column nowrap;
   flex-grow: 1;
   overflow: hidden;
 
   .tabs {
     -webkit-overflow-scrolling: touch;
-    display: flex;
+    @apply flex;
     white-space: nowrap;
     overflow: auto;
 
     ul {
-      display: flex;
+      @apply flex;
       width: 0px;
     }
 
@@ -46,11 +46,11 @@
       display: inline-flex;
 
       a {
-        display: flex;
+        @apply flex;
         align-items: center;
         justify-content: center;
         padding: 8px 16px;
-        color: var(--fg-light-color);
+        @apply text-fgLightColor;
         border-radius: 8px;
         cursor: pointer;
 

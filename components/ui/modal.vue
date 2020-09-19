@@ -28,14 +28,14 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.32);
-  display: flex;
+  @apply flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
 }
 
 .modal-wrapper {
-  display: flex;
+  @apply flex;
   align-items: center;
   justify-content: center;
   flex-grow: 1;
@@ -43,9 +43,9 @@
 
 .modal-container {
   position: relative;
-  display: flex;
+  @apply flex;
   flex-grow: 1;
-  flex-direction: column;
+  @apply flex-col;
   margin: 16px;
   padding: 16px;
   transition: all 0.2s ease;
@@ -77,7 +77,9 @@
 .modal-enter .modal-container,
 .modal-leave-active .modal-container {
   transform: scale(0.8);
-  transition: all 0.2s ease-in-out;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 }
 
 .fade {

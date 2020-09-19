@@ -11,7 +11,7 @@
         v-tooltip.right="$t('home')"
         :aria-label="$t('home')"
       >
-        <logo alt class="material-icons" style="height: 24px;"></logo>
+        <logo alt class="material-icons" style="height: 24px"></logo>
       </nuxt-link>
       <nuxt-link
         :to="localePath('realtime')"
@@ -175,18 +175,22 @@ $responsiveWidth: 768px;
   height: 100vh;
   padding: 0 8px;
   background-color: var(--bg-dark-color);
-  transition: all 0.2s ease-in-out;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 }
 
 nav.primary-nav {
-  display: flex;
+  @apply flex;
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
 
   svg {
     fill: var(--fg-light-color);
-    transition: all 0.2s ease-in-out;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
   }
 
   a {
@@ -197,7 +201,7 @@ nav.primary-nav {
     padding: 14px;
     border-radius: 50%;
     background-color: var(--bg-light-color);
-    color: var(--fg-light-color);
+    @apply text-fgLightColor;
     fill: var(--fg-light-color);
     margin: 8px 0;
 
@@ -224,40 +228,36 @@ nav.primary-nav {
 }
 
 nav.secondary-nav {
-  display: flex;
+  @apply flex;
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
   border-top: 2px dashed var(--brd-color);
-  margin-top: 4px;
+  @apply mt-2;
 
   ul {
-    display: flex;
+    @apply flex;
     flex-flow: column nowrap;
 
     li {
-      display: flex;
+      @apply flex;
 
       a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        padding: 14px;
-        border-radius: 50%;
-        background-color: var(--bg-dark-color);
-        color: var(--fg-light-color);
-        fill: var(--fg-light-color);
-        margin: 8px 0;
+        @apply p-4;
+        @apply rounded-full;
+        @apply bg-bgDarkColor;
+        @apply text-fgLightColor;
+        @apply fill-current;
+        @apply my-4;
 
         &:hover {
-          color: var(--fg-color);
-          fill: var(--fg-color);
+          @apply text-fgColor;
+          @apply fill-current;
         }
 
         &.current {
-          color: var(--ac-color);
-          fill: var(--ac-color);
+          @apply text-acColor;
+          @apply fill-current;
         }
       }
     }
@@ -266,41 +266,42 @@ nav.secondary-nav {
 
 @media (max-width: $responsiveWidth) {
   .nav-first {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    height: auto;
-    padding: 0;
-    width: 100%;
-    background-color: var(--bg-color);
+    @apply fixed;
+    @apply top-auto;
+    @apply bottom-0;
+    @apply h-auto;
+    @apply p-0;
+    @apply w-full;
+    @apply bg-bgColor;
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
   }
 
   nav.primary-nav {
-    flex-flow: row nowrap;
-    overflow: auto;
-    justify-content: space-between;
-    background-color: var(--bg-dark-color);
+    @apply flex-row;
+    @apply flex-no-wrap;
+    @apply overflow-auto;
+    @apply justify-between;
+    @apply bg-bgDarkColor;
 
     a {
-      background-color: transparent;
-      margin: 8px;
-      flex: 1;
+      @apply bg-transparent;
+      @apply m-4;
+      @apply flex-1;
 
       &.nuxt-link-exact-active {
-        background-color: transparent;
-        color: var(--ac-color);
-        fill: var(--ac-color);
+        @apply bg-transparent;
+        @apply text-acColor;
+        @apply fill-current;
 
         svg {
-          fill: var(--ac-color);
+          @apply fill-current;
         }
       }
     }
   }
 
   nav.secondary-nav {
-    display: none;
+    @apply hidden;
   }
 }
 </style>

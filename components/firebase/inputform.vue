@@ -41,7 +41,7 @@
 <style scoped lang="scss">
 ul,
 ol {
-  flex-direction: column;
+  @apply flex-col;
 }
 </style>
 

@@ -6,14 +6,14 @@
 
 <style lang="scss">
 .show-if-initialized {
-  opacity: 0;
+  @apply opacity-0;
 
   &.initialized {
-    opacity: 1;
+    @apply opacity-100;
   }
 
   & > * {
-    transition: none;
+    @apply transition-none;
   }
 }
 </style>

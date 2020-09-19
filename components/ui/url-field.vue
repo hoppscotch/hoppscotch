@@ -16,18 +16,31 @@
 }
 </style>
 <script>
-import { type } from "os"
 export default {
   props: {
     value: { type: String },
+  },
+  data() {
+    return {
+      unwatchValue: null,
+    }
   },
   mounted() {
     this.$refs.editor.addEventListener("input", this.updateEditor)
     this.$refs.editor.textContent = this.value || ""
 
+    this.unwatchValue = this.$watch(
+      () => this.value,
+      (newVal) => {
+        if (this.$refs.editor) this.$refs.editor.textContent = newVal || ""
+        this.updateEditor()
+      }
+    )
+
     this.updateEditor()
   },
   beforeDestroy() {
+    this.unwatchValue()
     this.$refs.editor.removeEventListener("input", this.updateEditor)
   },
   methods: {

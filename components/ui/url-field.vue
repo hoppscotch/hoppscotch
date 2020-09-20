@@ -22,6 +22,7 @@ export default {
   },
   data() {
     return {
+      cacheValue: null,
       unwatchValue: null,
     }
   },
@@ -29,10 +30,13 @@ export default {
     this.$refs.editor.addEventListener("input", this.updateEditor)
     this.$refs.editor.textContent = this.value || ""
 
+    this.cacheValue = this.value || ""
+
     this.unwatchValue = this.$watch(
       () => this.value,
       (newVal) => {
-        if (this.$refs.editor) this.$refs.editor.textContent = newVal || ""
+        if (this.$refs.editor && this.cacheValue !== newVal)
+          this.$refs.editor.textContent = newVal || ""
         this.updateEditor()
       }
     )
@@ -117,6 +121,8 @@ export default {
       sel.setBaseAndExtent(anchorNode, anchorIndex, focusNode, focusIndex)
     },
     updateEditor() {
+      this.cacheValue = this.$refs.editor.textContent
+
       const sel = window.getSelection()
       const textSegments = this.getTextSegments(this.$refs.editor)
       const textContent = textSegments.map(({ text }) => text).join("")

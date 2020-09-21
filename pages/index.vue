@@ -145,6 +145,7 @@
             <li>
               <label for="url">{{ $t("url") }}</label>
               <input
+                v-if="!this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
@@ -154,6 +155,7 @@
                 spellcheck="false"
                 @input="pathInputHandler"
               />
+              <url-field v-model="uri" v-else />
             </li>
             <li class="shrink">
               <label class="hide-on-small-screen" for="send">&nbsp;</label>

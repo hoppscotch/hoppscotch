@@ -69,6 +69,11 @@ export const SETTINGS_KEYS = [
    * to run the requests
    */
   "EXTENSIONS_ENABLED",
+
+  /**
+   * A boolean value indicating whether to use the URL bar experiments
+   */
+  "EXPERIMENTAL_URL_BAR_ENABLED",
 ]
 
 export const state = () => ({

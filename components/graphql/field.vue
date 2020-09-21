@@ -7,9 +7,7 @@
         <span v-for="(field, index) in fieldArgs" :key="index">
           {{ field.name }}:
           <typelink :gqlType="field.type" :jumpTypeCallback="jumpTypeCallback" />
-          <span v-if="index !== fieldArgs.length - 1">
-            ,
-          </span>
+          <span v-if="index !== fieldArgs.length - 1"> , </span>
         </span>
         ) </span
       >:
@@ -27,25 +25,28 @@
 
 <style scoped lang="scss">
 .field-box {
-  padding: 16px;
-  margin: 4px;
-  border-bottom: 1px dashed var(--brd-color);
+  @apply p-4;
+  @apply m-2;
+  @apply border-b;
+  @apply border-brdColor;
+  @apply border-dashed;
 }
 
 .field-deprecated {
-  background-color: yellow;
-  color: black;
-  display: inline-block;
-  padding: 4px 8px;
-  margin: 4px 0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 700;
+  @apply bg-yellow-200;
+  @apply text-black;
+  @apply inline-block;
+  @apply py-2;
+  @apply px-4;
+  @apply my-2;
+  @apply rounded-lg;
+  @apply text-sm;
+  @apply font-bold;
 }
 
 .field-desc {
-  color: var(--fg-light-color);
-  margin-top: 4px;
+  @apply text-fgLightColor;
+  @apply mt-2;
 }
 </style>
 

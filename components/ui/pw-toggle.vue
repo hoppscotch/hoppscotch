@@ -25,45 +25,43 @@ $handleSpacing: 4px;
 $transition: all 0.2s ease-in-out;
 
 div {
-  display: inline-block;
-  cursor: pointer;
+  @apply inline-block;
+  @apply cursor-pointer;
 }
 
 label.caption {
-  vertical-align: middle;
-  cursor: pointer;
+  @apply align-middle;
+  @apply cursor-pointer;
 }
 
 label.toggle {
-  position: relative;
-  display: inline-block;
+  @apply relative;
+  @apply inline-block;
   width: $width;
   height: $height;
   border: if($useBorder, 2px solid $borderColor, none);
   background-color: if($useBorder, transparent, $inactiveColor);
-  vertical-align: middle;
-
-  border-radius: 32px;
+  @apply align-middle;
+  @apply rounded-full;
   transition: $transition;
   box-sizing: initial;
-  padding: 0;
-  margin: 8px 4px;
-  cursor: pointer;
+  @apply p-0;
+  @apply my-4;
+  @apply mx-2;
+  @apply cursor-pointer;
 
   .handle {
-    position: absolute;
-    display: inline-block;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    @apply absolute;
+    @apply inline-block;
+    @apply inset-0;
     margin: $handleSpacing;
     background-color: $inactiveHandleColor;
 
     width: #{$height - ($handleSpacing * 2)};
     height: #{$height - ($handleSpacing * 2)};
-    border-radius: 100px;
+    @apply rounded-full;
 
-    pointer-events: none;
+    @apply pointer-events-none;
     transition: $transition;
   }
 

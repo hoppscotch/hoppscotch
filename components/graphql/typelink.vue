@@ -4,10 +4,10 @@
 
 <style scoped lang="scss">
 .typelink {
-  color: var(--ac-color);
-  font-family: "Roboto Mono", monospace;
-  font-weight: 400;
-  cursor: pointer;
+  @apply text-acColor;
+  @apply font-mono;
+  @apply font-normal;
+  @apply cursor-pointer;
 }
 </style>
 

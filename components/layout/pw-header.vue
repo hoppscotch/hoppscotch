@@ -273,36 +273,36 @@ $responsiveWidth: 768px;
 
 @keyframes slideIn {
   0% {
-    opacity: 0;
-    left: -16px;
+    @apply opacity-0;
+    @apply -left-4;
   }
 
   100% {
-    opacity: 1;
-    left: 0px;
+    @apply opacity-100;
+    @apply left-0;
   }
 }
 
 .slide-in {
-  position: relative;
+  @apply relative;
   animation: slideIn 0.2s forwards ease-in-out;
 }
 
 .logo {
-  font-size: 22px;
+  @apply text-xl;
 
   &:hover {
-    color: var(--ac-color);
+    @apply text-acColor;
   }
 }
 
 .show-on-small-screen {
-  display: none;
+  @apply hidden;
 }
 
 @media (max-width: $responsiveWidth) {
   .show-on-small-screen {
-    display: inline-flex;
+    @apply inline-flex;
   }
 }
 </style>

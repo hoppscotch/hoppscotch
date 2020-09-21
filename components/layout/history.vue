@@ -40,12 +40,6 @@
               :style="{ '--status-code': entry.status }"
               class="bg-color"
             />
-            <!-- <span
-              class="entry-status-code"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-              >{{ entry.status }}</span
-            > -->
           </li>
           <v-popover>
             <button class="tooltip-target icon" v-tooltip="$t('options')">
@@ -250,47 +244,40 @@
   max-height: calc(100vh - 290px);
 
   [readonly] {
-    cursor: default;
+    @apply cursor-default;
   }
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: all 0.2s;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 }
 
 .fade-enter,
 .fade-leave-to {
-  opacity: 0;
+  @apply opacity-0;
 }
 
 .stared {
-  color: #f8e81c !important;
+  @apply text-yellow-200;
 }
 
 ul,
 ol {
-  flex-direction: column;
+  @apply flex-col;
 }
 
 .method-list-item {
-  position: relative;
-
-  span {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 400;
-    background-color: transparent;
-    padding: 2px 6px;
-    border-radius: 8px;
-  }
+  @apply relative;
 }
 
 .entry {
-  border-bottom: 1px dashed var(--brd-color);
-  padding: 0 0 8px;
+  @apply border-b;
+  @apply border-brdColor;
+  @apply border-dashed;
+  @apply pb-2;
 }
 
 @media (max-width: 720px) {
@@ -299,7 +286,7 @@ ol {
   }
 
   .labels {
-    display: none;
+    @apply hidden;
   }
 }
 </style>
@@ -341,14 +328,16 @@ export default {
         fb.currentUser !== null
           ? fb.currentHistory
           : JSON.parse(window.localStorage.getItem("history")) || []
-      return this.history.filter((entry) => {
-        const filterText = this.filterText.toLowerCase()
-        return Object.keys(entry).some((key) => {
-          let value = entry[key]
-          value = typeof value !== "string" ? value.toString() : value
-          return value.toLowerCase().includes(filterText)
+      return this.history
+        .filter((entry) => {
+          const filterText = this.filterText.toLowerCase()
+          return Object.keys(entry).some((key) => {
+            let value = entry[key]
+            value = typeof value !== "string" ? value.toString() : value
+            return value.toLowerCase().includes(filterText)
+          })
         })
-      }).reverse()
+        .reverse()
     },
   },
   methods: {

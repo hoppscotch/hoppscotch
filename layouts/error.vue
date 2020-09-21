@@ -17,11 +17,11 @@
 <style scoped lang="scss">
 // Center the error page in the viewport.
 .page-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply flex-col;
+  @apply text-center;
 }
 
 .error_banner {

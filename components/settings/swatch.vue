@@ -12,36 +12,38 @@
 
 <style scoped lang="scss">
 .color {
-  display: inline-flex;
-  align-items: center;
-  position: relative;
-  justify-content: center;
-  margin: 8px;
-  padding: 16px;
-  border-radius: 100%;
-  border: 3px solid var(--bg-dark-color);
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  @apply inline-flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply relative;
+  @apply m-2;
+  @apply p-4;
+  @apply rounded-full;
+  @apply border-2;
+  @apply border-bgDarkColor;
+  @apply cursor-pointer;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 
   &.fg {
-    color: var(--act-color);
+    @apply text-actColor;
   }
 
   &.active {
-    border: 3px solid var(--ac-color);
+    @apply border-2;
+    @apply border-acColor;
   }
 
   &.fg.active {
-    border: 3px solid var(--fg-color);
+    @apply border-2;
+    @apply border-fgColor;
   }
 
   .activeTick {
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    @apply absolute;
+    @apply m-auto;
+    @apply inset-0;
   }
 }
 </style>

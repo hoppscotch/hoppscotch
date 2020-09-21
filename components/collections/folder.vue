@@ -59,14 +59,15 @@
 
 <style scoped lang="scss">
 ul {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
 }
 
 ul li {
-  display: flex;
-  margin-left: 32px;
-  border-left: 1px solid var(--brd-color);
+  @apply flex;
+  @apply ml-8;
+  @apply border-l;
+  @apply border-brdColor;
 }
 </style>
 

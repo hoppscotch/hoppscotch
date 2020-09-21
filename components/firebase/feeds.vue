@@ -32,19 +32,21 @@
 
 ul,
 ol {
-  flex-direction: column;
+  @apply flex-col;
 }
 
 .entry {
-  border-bottom: 1px dashed var(--brd-color);
-  padding: 0 0 8px;
+  @apply border-b;
+  @apply border-brdColor;
+  @apply border-dashed;
+  @apply pb-2;
 }
 
 .clamb-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply overflow-hidden;
 }
 </style>
 

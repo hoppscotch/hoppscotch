@@ -16,17 +16,17 @@
 
 <style scoped lang="scss">
 .type-box {
-  padding: 16px;
-  margin: 4px 0;
+  @apply p-8;
+  @apply my-2;
 }
 
 .type-desc {
-  color: var(--fg-light-color);
-  margin-top: 4px;
+  @apply text-fgLightColor;
+  @apply mt-2;
 }
 
 .type-title {
-  font-weight: 700;
+  @apply font-bold;
 }
 </style>
 

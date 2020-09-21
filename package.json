@@ -37,7 +37,7 @@
     "esprima": "^4.0.1",
     "graphql": "^15.3.0",
     "graphql-language-service-interface": "^2.4.2",
-    "nuxt": "^2.14.5",
+    "nuxt": "^2.14.6",
     "nuxt-i18n": "^6.15.1",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^2.3.0",
@@ -45,7 +45,7 @@
     "v-tooltip": "^2.0.3",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^2.2.0",
-    "yargs-parser": "^20.1.0"
+    "yargs-parser": "^20.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",

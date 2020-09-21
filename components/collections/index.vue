@@ -173,7 +173,7 @@ export default {
       this.syncCollections()
     },
     editFolder(payload) {
-      const { collectionIndex, folder, folderIndex } = payload
+      const { collection, collectionIndex, folder, folderIndex } = payload
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder

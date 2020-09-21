@@ -14,28 +14,29 @@
 
 <style scoped lang="scss">
 div.realtime-log {
-  margin: 4px;
-  padding: 8px 16px;
+  @apply m-2;
+  @apply px-4;
+  @apply py-8;
   width: calc(100% - 8px);
-  border-radius: 8px;
-  background-color: var(--bg-dark-color);
-  color: var(--fg-color);
+  @apply rounded-lg;
+  @apply bg-bgDarkColor;
+  @apply text-fgColor;
   height: 256px;
-  overflow: auto;
+  @apply overflow-auto;
 
   &,
   span {
-    font-size: 16px;
+    @apply text-sm;
     @apply font-mono;
     @apply font-normal;
-    user-select: text;
+    @apply select-text;
   }
 
   span {
-    display: block;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-all;
+    @apply block;
+    @apply whitespace-pre-wrap;
+    @apply break-words;
+    @apply break-all;
   }
 }
 </style>

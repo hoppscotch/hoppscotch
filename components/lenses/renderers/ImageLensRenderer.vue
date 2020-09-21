@@ -24,7 +24,7 @@
 
 <style scoped lang="scss">
 .response-image {
-  max-width: 100%;
+  @apply max-w-full;
 }
 </style>
 

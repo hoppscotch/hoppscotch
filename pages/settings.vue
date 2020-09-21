@@ -222,8 +222,6 @@
   </div>
 </template>
 
-<style scoped lang="scss"></style>
-
 <script>
 import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"

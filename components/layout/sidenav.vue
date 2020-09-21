@@ -171,10 +171,10 @@
 $responsiveWidth: 768px;
 
 .nav-first {
-  z-index: 1;
-  height: 100vh;
-  padding: 0 8px;
-  background-color: var(--bg-dark-color);
+  @apply z-10;
+  @apply h-screen;
+  @apply px-1;
+  @apply bg-bgDarkColor;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
@@ -182,46 +182,47 @@ $responsiveWidth: 768px;
 
 nav.primary-nav {
   @apply flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  justify-content: center;
+  @apply flex-col;
+  @apply flex-no-wrap;
+  @apply items-center;
+  @apply justify-center;
 
   svg {
-    fill: var(--fg-light-color);
+    @apply fill-current;
     @apply transition;
     @apply ease-in-out;
     @apply duration-200;
   }
 
   a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    padding: 14px;
-    border-radius: 50%;
-    background-color: var(--bg-light-color);
+    @apply inline-flex;
+    @apply items-center;
+    @apply justify-center;
+    @apply flex-shrink-0;
+    @apply p-4;
+    @apply rounded-full;
+    @apply bg-bgLightColor;
     @apply text-fgLightColor;
-    fill: var(--fg-light-color);
-    margin: 8px 0;
+    @apply fill-current;
+    @apply my-2;
 
     &:hover {
-      color: var(--fg-color);
-      fill: var(--fg-color);
+      @apply text-fgColor;
+      @apply fill-current;
 
       svg {
-        fill: var(--fg-color);
+        @apply fill-current;
       }
     }
 
     &.nuxt-link-exact-active {
-      background-color: var(--ac-color);
-      color: var(--act-color);
-      fill: var(--act-color);
+      @apply bg-acColor;
+      @apply text-actColor;
+      @apply fill-current;
       border-radius: 16px;
 
       svg {
-        fill: var(--act-color);
+        @apply fill-current;
       }
     }
   }
@@ -229,15 +230,19 @@ nav.primary-nav {
 
 nav.secondary-nav {
   @apply flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  justify-content: center;
-  border-top: 2px dashed var(--brd-color);
+  @apply flex-col;
+  @apply flex-no-wrap;
+  @apply items-center;
+  @apply justify-center;
+  @apply border-t-2;
+  @apply border-dashed;
+  @apply border-brdColor;
   @apply mt-2;
 
   ul {
     @apply flex;
-    flex-flow: column nowrap;
+    @apply flex-col;
+    @apply flex-no-wrap;
 
     li {
       @apply flex;
@@ -248,7 +253,7 @@ nav.secondary-nav {
         @apply bg-bgDarkColor;
         @apply text-fgLightColor;
         @apply fill-current;
-        @apply my-4;
+        @apply my-2;
 
         &:hover {
           @apply text-fgColor;

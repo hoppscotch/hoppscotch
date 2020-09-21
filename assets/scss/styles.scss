@@ -85,15 +85,15 @@ body.sticky-footer footer {
 }
 
 a {
-  display: inline-flex;
-  color: inherit;
-  text-decoration: none;
+  @apply inline-flex;
+  @apply text-current;
+  @apply no-underline;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
 
   &.link {
-    color: var(--ac-color);
+    @apply text-acColor;
   }
 }
 
@@ -101,17 +101,19 @@ header,
 footer {
   & > div {
     @apply flex;
-    padding: 16px 8px;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
+    @apply py-8;
+    @apply px-4;
+    @apply w-full;
+    @apply items-center;
+    @apply justify-between;
   }
 }
 
 .wrapper {
-  min-height: 100vh;
+  @apply min-h-screen;
   @apply flex;
-  flex-flow: column nowrap;
+  @apply flex-col;
+  @apply flex-no-wrap;
 }
 
 .wrapper .page {
@@ -129,20 +131,20 @@ footer {
 .nav-first,
 .sticky-inner {
   @apply flex;
-  order: 1;
-  flex-flow: column;
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
+  @apply order-1;
+  @apply flex-col;
+  @apply sticky;
+  @apply top-0;
+  @apply items-start;
 }
 
 .main {
   @apply flex;
-  flex-flow: column;
+  @apply flex-col;
   @apply flex-1;
-  order: 2;
-  position: relative;
-  padding: 0 16px;
+  @apply order-2;
+  @apply relative;
+  @apply px-8;
 }
 
 h1,
@@ -150,13 +152,13 @@ h2,
 h3,
 h4 {
   @apply flex;
-  align-items: center;
-  margin: 0;
-  font-weight: 700;
+  @apply items-center;
+  @apply m-0;
+  @apply font-bold;
 }
 
 h3.title {
-  margin: 4px;
+  @apply m-2;
 }
 
 p {
@@ -166,8 +168,10 @@ p {
 }
 
 hr {
-  border-bottom: 1px dashed var(--brd-color);
-  margin: 16px 0;
+  @apply border-b;
+  @apply border-dashed;
+  @apply border-brdColor;
+  @apply my-8;
 }
 
 .tooltip {
@@ -182,7 +186,7 @@ hr {
   .tooltip-inner {
     background: $bgcolor;
     color: $fgcolor;
-    border-radius: 8px;
+    @apply rounded-lg;
     padding: 8px 16px;
     font-size: 12px;
     font-weight: 500;
@@ -268,10 +272,10 @@ hr {
       background: $bgcolor;
       color: $fgcolor;
       padding: 4px;
-      border-radius: 8px;
+      @apply rounded-lg;
       box-shadow: 0 5px 30px rgba(black, 0.1);
       max-height: 256px;
-      overflow: auto;
+      @apply overflow-auto;
 
       div {
         @apply flex;
@@ -311,7 +315,7 @@ hr {
   @apply text-fgLightColor;
 
   .material-icons {
-    vertical-align: middle;
+    @apply align-middle;
     margin-right: 8px;
   }
 }
@@ -321,25 +325,25 @@ hr {
 }
 
 button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 4px;
+  @apply inline-flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply m-2;
   padding: 6px 16px;
-  border-radius: 8px;
+  @apply rounded-lg;
   background-color: var(--ac-color);
   color: var(--act-color);
-  font-size: 16px;
+  @apply text-sm;
   font-family: "Poppins", "Roboto", "Noto", sans-serif;
-  font-weight: 700;
+  @apply font-bold;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
   fill: var(--act-color);
-  cursor: pointer;
+  @apply cursor-pointer;
 
   span {
-    display: inline-flex;
+    @apply inline-flex;
     margin-left: 8px;
     text-align: left;
   }
@@ -356,7 +360,7 @@ button {
     background-color: transparent;
     @apply text-fgLightColor;
     fill: var(--fg-light-color);
-    border-radius: 8px;
+    @apply rounded-lg;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
@@ -447,13 +451,13 @@ input,
 textarea,
 pre,
 code {
-  display: inline-flex;
-  margin: 4px;
+  @apply inline-flex;
+  @apply m-2;
   padding: 8px;
-  border-radius: 8px;
+  @apply rounded-lg;
   background-color: var(--bg-dark-color);
   color: var(--fg-color);
-  font-size: 16px;
+  @apply text-sm;
   @apply font-mono;
   @apply font-normal;
   line-height: 1;
@@ -499,7 +503,7 @@ pre {
 }
 
 .select-wrapper {
-  position: relative;
+  @apply relative;
 
   input {
     text-transform: uppercase;
@@ -507,12 +511,12 @@ pre {
   }
 
   .trigger {
-    width: 100%;
+    @apply w-full;
   }
 
   &:after {
-    display: inline-block;
-    position: absolute;
+    @apply inline-block;
+    @apply absolute;
     pointer-events: none;
     content: "\e313";
     font-family: "Material Icons";
@@ -523,7 +527,7 @@ pre {
 
 select {
   height: 37px;
-  cursor: pointer;
+  @apply cursor-pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -542,18 +546,18 @@ input[type="checkbox"] {
 
   &,
   & + label {
-    vertical-align: middle;
-    cursor: pointer;
+    @apply align-middle;
+    @apply cursor-pointer;
 
     &:before {
       content: "\2714";
       border: 1px solid var(--fg-color);
-      border-radius: 8px;
-      display: inline-flex;
+      @apply rounded-lg;
+      @apply inline-flex;
       height: 16px;
       width: 16px;
-      align-items: center;
-      justify-content: center;
+      @apply items-center;
+      @apply justify-center;
       margin: 8px 8px 8px 0;
       color: transparent;
       @apply transition;
@@ -600,16 +604,17 @@ ol {
 
   ul,
   ol {
-    margin: 0;
+    @apply m-0;
   }
 }
 
 ul li,
 ol li {
-  display: inline-flex;
-  flex-flow: column nowrap;
+  @apply inline-flex;
+  @apply flex-col;
+  @apply flex-no-wrap;
   @apply flex-1;
-  justify-content: center;
+  @apply justify-center;
 
   &.shrink {
     flex-grow: 0;
@@ -618,16 +623,16 @@ ol li {
 
 .flex-wrap {
   @apply flex;
-  align-items: center;
+  @apply items-center;
   justify-content: space-between;
-  flex-grow: 1;
+  @apply flex-1;
   flex-direction: row;
 
   * {
-    display: inline-flex;
+    @apply inline-flex;
     flex-flow: row nowrap;
-    align-items: center;
-    justify-content: center;
+    @apply items-center;
+    @apply justify-center;
   }
 }
 
@@ -656,34 +661,34 @@ ol li {
 }
 
 #response-details-wrapper {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
+  @apply relative;
+  @apply overflow-hidden;
+  @apply rounded-lg;
 
   textarea {
-    margin: 0;
-    width: 100%;
+    @apply m-0;
+    @apply w-full;
     line-height: 1;
   }
 
   .covers-response {
-    position: absolute;
+    @apply absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background-color: white;
-    height: 100%;
-    width: 100%;
+    @apply h-full;
+    @apply w-full;
   }
 }
 
 #send {
-  white-space: nowrap;
+  @apply whitespace-no-wrap;
 
   &.show {
     @apply flex;
-    position: fixed;
+    @apply fixed;
     bottom: 86px;
     left: 50%;
     z-index: 10001;
@@ -721,7 +726,7 @@ section {
 .page-columns {
   @apply flex;
   @apply flex-1;
-  flex-flow: column;
+  @apply flex-col;
 }
 
 .inner-left {
@@ -732,14 +737,14 @@ section {
 .inner-right {
   @apply flex;
   width: 30%;
-  order: 2;
+  @apply order-2;
   margin-left: 16px;
 }
 
 @media (max-width: $responsiveWidth) {
   .content,
   .columns {
-    flex-flow: column;
+    @apply flex-col;
   }
 
   .main {
@@ -761,8 +766,8 @@ section {
   }
 
   .sticky-inner {
-    position: relative;
-    width: 100%;
+    @apply relative;
+    @apply w-full;
   }
 
   .inner-left {
@@ -782,9 +787,9 @@ section {
   background-color: #fefefe;
   color: #121212;
   padding: 16px !important;
-  font-weight: 700;
-  font-size: 16px;
-  border-radius: 8px;
+  @apply font-bold;
+  @apply text-sm;
+  @apply rounded-lg;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
   .action {
@@ -794,7 +799,7 @@ section {
     padding: 12px 16px !important;
     font-weight: 500 !important;
     font-size: 16px !important;
-    border-radius: 8px;
+    @apply rounded-lg;
     margin: 0 !important;
     margin-left: 8px !important;
   }

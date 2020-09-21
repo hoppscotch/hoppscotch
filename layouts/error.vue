@@ -18,10 +18,10 @@
 // Center the error page in the viewport.
 .page-error {
   @apply flex;
-  align-items: center;
-  justify-content: center;
+  @apply items-center;
+  @apply justify-center;
   @apply flex-col;
-  text-align: center;
+  @apply text-center;
 }
 
 .error_banner {

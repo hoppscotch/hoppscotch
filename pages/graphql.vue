@@ -321,10 +321,10 @@
 <style scoped lang="scss">
 .gqlTabs {
   max-height: calc(100vh - 192px);
-  overflow: auto;
+  @apply overflow-auto;
 }
 .gqlRunQuery {
-  margin-bottom: 12px;
+  @apply mb-8;
 }
 </style>
 

@@ -21,43 +21,46 @@
 </template>
 <style scoped lang="scss">
 .modal-backdrop {
-  position: fixed;
-  z-index: 998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  @apply fixed;
+  @apply inset-0;
+  @apply z-50;
+  @apply w-full;
+  @apply h-full;
   background-color: rgba(0, 0, 0, 0.32);
   @apply flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  @apply items-center;
+  @apply justify-center;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 }
 
 .modal-wrapper {
   @apply flex;
-  align-items: center;
-  justify-content: center;
-  flex-grow: 1;
+  @apply items-center;
+  @apply justify-center;
+  @apply flex-1;
 }
 
 .modal-container {
-  position: relative;
+  @apply relative;
   @apply flex;
-  flex-grow: 1;
+  @apply flex-1;
   @apply flex-col;
-  margin: 16px;
-  padding: 16px;
-  transition: all 0.2s ease;
-  background-color: var(--bg-color);
-  border-radius: 8px;
+  @apply m-8;
+  @apply p-8;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
+  @apply bg-bgColor;
+  @apply rounded-lg;
   box-shadow: 0px 16px 70px rgba(0, 0, 0, 0.5);
   max-height: calc(100vh - 128px);
   max-width: 720px;
 }
 
 .modal-body {
-  overflow: auto;
+  @apply overflow-auto;
 }
 
 /*
@@ -71,24 +74,27 @@
 
 .modal-enter,
 .modal-leave-active {
-  opacity: 0;
+  @apply opacity-0;
 }
 
 .modal-enter .modal-container,
 .modal-leave-active .modal-container {
-  transform: scale(0.8);
+  @apply transform;
+  @apply scale-75;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
 }
 
 .fade {
-  position: absolute;
+  @apply absolute;
+  @apply block;
   left: 16px;
   right: 20px;
-  display: block;
   height: 32px;
-  transition: all 0.2s;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 
   &.top {
     top: 68px;

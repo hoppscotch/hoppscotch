@@ -36,7 +36,7 @@
     "firebase": "^7.21.0",
     "esprima": "^4.0.1",
     "graphql": "^15.3.0",
-    "graphql-language-service-interface": "^2.4.1",
+    "graphql-language-service-interface": "^2.4.2",
     "nuxt": "^2.14.5",
     "nuxt-i18n": "^6.15.1",
     "paho-mqtt": "^1.1.0",

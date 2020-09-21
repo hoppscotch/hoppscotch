@@ -161,10 +161,15 @@ export default {
           break
 
         case "Tab":
-          event.preventDefault()
           let activeSuggestion = this.suggestions[
             this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
           ]
+
+          if (!activeSuggestion) {
+            return
+          }
+
+          event.preventDefault()
           let input = this.text.substring(0, this.selectionStart)
           this.text = input + activeSuggestion
           break

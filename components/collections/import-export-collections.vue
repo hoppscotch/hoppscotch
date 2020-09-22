@@ -3,7 +3,7 @@
     <div slot="header">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
@@ -11,7 +11,7 @@
               </button>
             </div>
           </div>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span
               v-tooltip="{
                 content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
@@ -60,7 +60,7 @@
       <textarea v-model="collectionJson" rows="8"></textarea>
     </div>
     <div slot="footer">
-      <div class="flex-wrap">
+      <div class="row-wrapper">
         <span></span>
         <span>
           <button class="icon" @click="hideModal">
@@ -140,7 +140,7 @@ export default {
           }
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           //replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
-          collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, '<<$1>>'))
+          collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
           collections.item = this.flattenPostmanFolders(collections)
           collections = this.parsePostmanCollection(collections)
         } else {
@@ -317,15 +317,15 @@ export default {
         }
         items.push(collectionItem)
       }
-      return items;
+      return items
     },
     hasFolder(item) {
-      return item.hasOwnProperty('item')
+      return item.hasOwnProperty("item")
     },
     isSubFolder(item) {
-      return item.hasOwnProperty('_postman_isSubFolder') && item._postman_isSubFolder
+      return item.hasOwnProperty("_postman_isSubFolder") && item._postman_isSubFolder
     },
-    flattenPostmanItem(subFolder, subFolderGlue = ' -- ') {
+    flattenPostmanItem(subFolder, subFolderGlue = " -- ") {
       delete subFolder._postman_isSubFolder
       let flattenedItems = []
       for (let subFolderItem of subFolder.item) {

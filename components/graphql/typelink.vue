@@ -1,15 +1,8 @@
 <template>
-  <span class="typelink" @click="jumpToType">{{ typeString }}</span>
+  <span class="font-mono font-normal cursor-pointer text-acColor" @click="jumpToType">
+    {{ typeString }}
+  </span>
 </template>
-
-<style scoped lang="scss">
-.typelink {
-  @apply text-acColor;
-  @apply font-mono;
-  @apply font-normal;
-  @apply cursor-pointer;
-}
-</style>
 
 <script>
 export default {

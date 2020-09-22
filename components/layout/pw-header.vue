@@ -1,6 +1,6 @@
 <template>
   <header class="header">
-    <div class="flex-wrap">
+    <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
           <h1 class="logo hide-on-small-screen">Hoppscotch</h1>
@@ -119,7 +119,7 @@
       <div slot="header">
         <ul>
           <li>
-            <div class="flex-wrap">
+            <div class="row-wrapper">
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
@@ -179,7 +179,7 @@
       <div slot="header">
         <ul>
           <li>
-            <div class="flex-wrap">
+            <div class="row-wrapper">
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
@@ -249,7 +249,7 @@
       <div slot="header">
         <ul>
           <li>
-            <div class="flex-wrap">
+            <div class="row-wrapper">
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">

@@ -1,13 +1,11 @@
 <template>
-  <div class="show-if-initialized" :class="{ initialized }">
+  <div class="opacity-0 show-if-initialized" :class="{ initialized }">
     <pre ref="editor"></pre>
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 .show-if-initialized {
-  @apply opacity-0;
-
   &.initialized {
     @apply opacity-100;
   }

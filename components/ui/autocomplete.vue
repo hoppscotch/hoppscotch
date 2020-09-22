@@ -43,10 +43,9 @@
     @apply hidden;
     @apply bg-atcColor;
     @apply absolute;
-    top: calc(100% - 4px);
+    top: calc(100% - 8px);
     @apply mx-2;
     @apply left-0;
-    @apply p-0;
     border-radius: 0 0 8px 8px;
     @apply z-50;
     @apply transition-transform;
@@ -57,8 +56,7 @@
     li {
       @apply w-full;
       @apply block;
-      @apply px-2;
-      @apply py-4;
+      @apply p-2;
       @apply text-sm;
       @apply font-mono;
       @apply font-normal;

@@ -26,13 +26,13 @@
   @apply z-50;
   @apply w-full;
   @apply h-full;
-  background-color: rgba(0, 0, 0, 0.32);
   @apply flex;
   @apply items-center;
   @apply justify-center;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
+  background-color: rgba(0, 0, 0, 0.32);
 }
 
 .modal-wrapper {
@@ -47,8 +47,8 @@
   @apply flex;
   @apply flex-1;
   @apply flex-col;
-  @apply m-8;
-  @apply p-8;
+  @apply m-2;
+  @apply p-2;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;

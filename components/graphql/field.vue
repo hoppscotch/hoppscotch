@@ -1,5 +1,5 @@
 <template>
-  <div class="field-box">
+  <div class="p-2 m-2 border-b border-dashed border-brdColor">
     <div class="field-title">
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
@@ -13,42 +13,17 @@
       >:
       <typelink :gqlType="gqlField.type" :jumpTypeCallback="jumpTypeCallback" />
     </div>
-    <div class="field-desc" v-if="gqlField.description">
+    <div class="mt-2 text-fgLightColor field-desc" v-if="gqlField.description">
       {{ gqlField.description }}
     </div>
-
-    <div class="field-deprecated" v-if="gqlField.isDeprecated">
+    <div
+      class="inline-block px-4 py-2 my-2 text-sm font-bold text-black bg-yellow-200 rounded-lg field-deprecated"
+      v-if="gqlField.isDeprecated"
+    >
       {{ $t("deprecated") }}
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-.field-box {
-  @apply p-4;
-  @apply m-2;
-  @apply border-b;
-  @apply border-brdColor;
-  @apply border-dashed;
-}
-
-.field-deprecated {
-  @apply bg-yellow-200;
-  @apply text-black;
-  @apply inline-block;
-  @apply py-2;
-  @apply px-4;
-  @apply my-2;
-  @apply rounded-lg;
-  @apply text-sm;
-  @apply font-bold;
-}
-
-.field-desc {
-  @apply text-fgLightColor;
-  @apply mt-2;
-}
-</style>
 
 <script>
 export default {

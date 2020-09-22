@@ -101,8 +101,8 @@ header,
 footer {
   & > div {
     @apply flex;
-    @apply py-8;
-    @apply px-4;
+    @apply py-2;
+    @apply px-2;
     @apply w-full;
     @apply items-center;
     @apply justify-between;
@@ -136,6 +136,7 @@ footer {
   @apply sticky;
   @apply top-0;
   @apply items-start;
+  @apply items-stretch;
 }
 
 .main {
@@ -144,7 +145,7 @@ footer {
   @apply flex-1;
   @apply order-2;
   @apply relative;
-  @apply px-8;
+  @apply px-4;
 }
 
 h1,
@@ -184,12 +185,13 @@ hr {
   @apply duration-200;
 
   .tooltip-inner {
+    @apply rounded-lg;
+    @apply px-4;
+    @apply py-2;
+    @apply text-xs;
+    @apply font-medium;
     background: $bgcolor;
     color: $fgcolor;
-    @apply rounded-lg;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 500;
     box-shadow: 0 4px 24px rgba(black, 0.1);
   }
 
@@ -271,20 +273,20 @@ hr {
     .popover-inner {
       background: $bgcolor;
       color: $fgcolor;
-      padding: 4px;
-      @apply rounded-lg;
       box-shadow: 0 5px 30px rgba(black, 0.1);
       max-height: 256px;
+      @apply p-0;
+      @apply rounded-lg;
       @apply overflow-auto;
 
       div {
         @apply flex;
-        align-items: stretch;
+        @apply items-stretch;
         @apply flex-col;
       }
 
       button {
-        justify-content: start;
+        @apply justify-start;
       }
     }
 
@@ -311,17 +313,13 @@ hr {
 }
 
 .info:not(.toasted) {
-  margin-left: 4px;
+  @apply ml-2;
   @apply text-fgLightColor;
 
   .material-icons {
     @apply align-middle;
-    margin-right: 8px;
+    @apply ml-4;
   }
-}
-
-.bg-color {
-  background-color: transparent;
 }
 
 button {
@@ -329,56 +327,57 @@ button {
   @apply items-center;
   @apply justify-center;
   @apply m-2;
-  padding: 6px 16px;
+  @apply py-2;
+  @apply px-4;
   @apply rounded-lg;
-  background-color: var(--ac-color);
-  color: var(--act-color);
+  @apply bg-acColor;
+  @apply text-actColor;
   @apply text-sm;
-  font-family: "Poppins", "Roboto", "Noto", sans-serif;
+  @apply font-body;
   @apply font-bold;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
-  fill: var(--act-color);
+  @apply fill-current;
   @apply cursor-pointer;
 
   span {
     @apply inline-flex;
-    margin-left: 8px;
-    text-align: left;
+    @apply ml-4;
+    @apply text-left;
   }
 
   &:not([disabled]):hover,
   &:not([disabled]):active,
   &:not([disabled]):focus {
-    color: var(--act-color);
-    fill: var(--act-color);
+    @apply text-actColor;
+    @apply fill-current;
     box-shadow: inset 0 0 0 2px var(--fg-color);
   }
 
   &.icon {
-    background-color: transparent;
+    @apply bg-transparent;
     @apply text-fgLightColor;
-    fill: var(--fg-light-color);
+    @apply fill-current;
     @apply rounded-lg;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
     &:not([disabled]):focus {
-      color: var(--fg-color);
-      fill: var(--fg-color);
-      box-shadow: none;
+      @apply text-fgColor;
+      @apply fill-current;
+      @apply shadow-none;
     }
   }
 
   &.primary {
-    color: var(--ac-color);
+    @apply text-acColor;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
     &:not([disabled]):focus {
-      background-color: var(--ac-color);
-      color: var(--act-color);
+      @apply bg-acColor;
+      @apply text-actColor;
     }
   }
 }
@@ -411,7 +410,6 @@ button {
   @apply tracking-normal;
   @apply whitespace-no-wrap;
   @apply antialiased;
-
   word-wrap: normal;
   direction: ltr;
   text-rendering: optimizeLegibility;
@@ -454,21 +452,21 @@ pre,
 code {
   @apply inline-flex;
   @apply m-2;
-  padding: 8px;
+  @apply p-2;
   @apply rounded-lg;
-  background-color: var(--bg-dark-color);
-  color: var(--fg-color);
+  @apply bg-bgDarkColor;
+  @apply text-fgColor;
   @apply text-sm;
   @apply font-mono;
   @apply font-normal;
-  line-height: 1;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
-  user-select: text;
+  @apply select-text;
+  @apply resize-y;
+  @apply truncate;
   width: calc(100% - 8px);
-  resize: vertical;
-  text-overflow: ellipsis;
+  line-height: 1;
 
   &:not([readonly]):not(.ace_editor):hover,
   &:not([readonly]):not(.ace_editor):active,
@@ -488,26 +486,26 @@ code {
 }
 
 pre {
-  display: grid;
+  @apply grid;
 }
 
 pre.ace_editor {
   @apply font-mono;
   @apply font-normal;
-  z-index: 0;
+  @apply z-0;
 }
 
 kbd,
 code,
 pre {
-  width: auto;
+  @apply w-auto;
 }
 
 .select-wrapper {
   @apply relative;
 
   input {
-    text-transform: uppercase;
+    @apply uppercase;
     min-width: 128px;
   }
 
@@ -518,9 +516,9 @@ pre {
   &:after {
     @apply inline-block;
     @apply absolute;
-    pointer-events: none;
+    @apply pointer-events-none;
     content: "\e313";
-    font-family: "Material Icons";
+    @apply font-icon;
     top: 14px;
     right: 14px;
   }
@@ -529,12 +527,10 @@ pre {
 select {
   height: 37px;
   @apply cursor-pointer;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  @apply appearance-none;
 
   &::-ms-expand {
-    display: none;
+    @apply hidden;
   }
 }
 
@@ -543,7 +539,7 @@ option {
 }
 
 input[type="checkbox"] {
-  display: none;
+  @apply hidden;
 
   &,
   & + label {
@@ -552,44 +548,45 @@ input[type="checkbox"] {
 
     &:before {
       content: "\2714";
-      border: 1px solid var(--fg-color);
+      @apply border;
+      @apply border-fgColor;
       @apply rounded-lg;
       @apply inline-flex;
-      height: 16px;
-      width: 16px;
       @apply items-center;
       @apply justify-center;
-      margin: 8px 8px 8px 0;
-      color: transparent;
+      @apply text-transparent;
       @apply transition;
       @apply ease-in-out;
       @apply duration-200;
+      height: 16px;
+      width: 16px;
+      margin: 8px 8px 8px 0;
     }
   }
 
   &:checked + label:before {
-    background-color: var(--ac-color);
-    border-color: var(--ac-color);
-    color: var(--act-color);
+    @apply bg-acColor;
+    @apply border-acColor;
+    @apply text-actColor;
   }
 }
 
 .error:not(input),
 .disabled:not(input),
 [disabled] {
-  background-color: var(--err-color);
+  @apply bg-errColor;
   @apply text-fgLightColor;
-  fill: var(--fg-light-color);
-  cursor: not-allowed;
+  @apply fill-current;
+  @apply cursor-not-allowed;
 
   &.icon {
-    color: var(--err-color);
-    fill: var(--err-color);
+    @apply text-errColor;
+    @apply fill-current;
   }
 }
 
 label {
-  padding: 4px;
+  @apply p-2;
   @apply text-fgLightColor;
   @apply transition;
   @apply ease-in-out;
@@ -599,9 +596,9 @@ label {
 ul,
 ol {
   @apply flex;
+  @apply p-0;
+  @apply list-none;
   margin: 4px 0 4px;
-  padding: 0;
-  list-style-type: none;
 
   ul,
   ol {
@@ -618,20 +615,20 @@ ol li {
   @apply justify-center;
 
   &.shrink {
-    flex-grow: 0;
+    @apply flex-grow-0;
   }
 }
 
-.flex-wrap {
+.row-wrapper {
   @apply flex;
   @apply items-center;
-  justify-content: space-between;
+  @apply justify-between;
   @apply flex-1;
-  flex-direction: row;
+  @apply flex-row;
 
   * {
     @apply inline-flex;
-    flex-flow: row nowrap;
+    @apply flex-no-wrap;
     @apply items-center;
     @apply justify-center;
   }
@@ -674,11 +671,8 @@ ol li {
 
   .covers-response {
     @apply absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: white;
+    @apply inset-0;
+    @apply bg-white;
     @apply h-full;
     @apply w-full;
   }
@@ -690,14 +684,14 @@ ol li {
   &.show {
     @apply flex;
     @apply fixed;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
     bottom: 86px;
     left: 50%;
     z-index: 10001;
     transform: translateX(-50%);
     box-shadow: 0 4px 24px rgba(black, 0.2);
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-200;
   }
 }
 
@@ -732,14 +726,14 @@ section {
 
 .inner-left {
   @apply flex;
-  order: 1;
+  @apply order-1;
 }
 
 .inner-right {
   @apply flex;
-  width: 30%;
   @apply order-2;
-  margin-left: 16px;
+  @apply ml-4;
+  width: 30%;
 }
 
 @media (max-width: $responsiveWidth) {
@@ -754,7 +748,8 @@ section {
 
   ul,
   ol {
-    flex-flow: column nowrap;
+    @apply flex-col;
+    @apply flex-no-wrap;
   }
 
   ul li,
@@ -763,7 +758,7 @@ section {
   }
 
   .hide-on-small-screen {
-    display: none;
+    @apply hidden;
   }
 
   .sticky-inner {
@@ -776,7 +771,7 @@ section {
   }
 
   .inner-right {
-    margin-left: 0;
+    @apply ml-0;
   }
 
   .toasted-container {
@@ -800,9 +795,9 @@ section {
     padding: 12px 16px !important;
     font-weight: 500 !important;
     font-size: 16px !important;
-    @apply rounded-lg;
     margin: 0 !important;
     margin-left: 8px !important;
+    @apply rounded-lg;
   }
 }
 

@@ -7,7 +7,11 @@
       </button> -->
     </div>
     <div class="virtual-list" :class="{ filled: filteredHistory.length }">
-      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+      <ul
+        v-for="(entry, index) in filteredHistory"
+        :key="index"
+        class="flex-col border-b border-dashed border-brdColor"
+      >
         <div class="show-on-large-screen">
           <button
             class="icon"
@@ -30,7 +34,7 @@
               {{ entry.star ? "star" : "star_border" }}
             </i>
           </button>
-          <li class="method-list-item">
+          <li class="relative">
             <input
               :aria-label="$t('method')"
               type="text"
@@ -38,7 +42,7 @@
               :value="`${entry.method} ${entry.status}`"
               :class="findEntryStatus(entry).className"
               :style="{ '--status-code': entry.status }"
-              class="bg-color"
+              class="bg-transparent"
             />
           </li>
           <v-popover>
@@ -60,14 +64,14 @@
               </div>
             </template>
           </v-popover>
-          <!-- <li class="method-list-item">
+          <!-- <li class="relative">
             <input
               :aria-label="$t('label')"
               type="text"
               readonly
               :value="entry.label"
               :placeholder="$t('no_label')"
-              class="bg-color"
+              class="bg-transparent"
             />
           </li> -->
           <!-- <li>
@@ -95,7 +99,7 @@
               readonly
               :value="`${entry.url}${entry.path}`"
               :placeholder="$t('no_url')"
-              class="bg-color"
+              class="bg-transparent"
             />
           </li>
           <!-- <li>
@@ -141,7 +145,7 @@
         </transition>
       </ul>
     </div>
-    <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
+    <ul class="flex-col" :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
         <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
@@ -150,7 +154,7 @@
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
-      <div class="flex-wrap" v-if="!isClearingHistory">
+      <div class="row-wrapper" v-if="!isClearingHistory">
         <button
           class="icon"
           id="clear-history-button"
@@ -212,7 +216,7 @@
           </template>
         </v-popover>
       </div>
-      <div class="flex-wrap" v-else>
+      <div class="row-wrapper" v-else>
         <label for="clear-history-button" class="info">
           <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
         </label>
@@ -262,22 +266,6 @@
 
 .stared {
   @apply text-yellow-200;
-}
-
-ul,
-ol {
-  @apply flex-col;
-}
-
-.method-list-item {
-  @apply relative;
-}
-
-.entry {
-  @apply border-b;
-  @apply border-brdColor;
-  @apply border-dashed;
-  @apply pb-2;
 }
 
 @media (max-width: 720px) {

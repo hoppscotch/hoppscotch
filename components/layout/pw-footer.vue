@@ -1,6 +1,6 @@
 <template>
-  <footer class="footer">
-    <div class="flex-wrap">
+  <footer class="flex-col flex-no-wrap">
+    <div class="row-wrapper">
       <span v-if="version.name" class="font-mono">
         <a
           class="footer-link"
@@ -58,11 +58,6 @@
 </template>
 
 <style scoped lang="scss">
-.footer {
-  @apply flex-col;
-  @apply flex-no-wrap;
-}
-
 .footer-link {
   @apply my-2;
   @apply mx-4;

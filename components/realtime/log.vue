@@ -13,16 +13,14 @@
 </template>
 
 <style scoped lang="scss">
-div.realtime-log {
+.realtime-log {
   @apply m-2;
-  @apply px-4;
-  @apply py-8;
-  width: calc(100% - 8px);
+  @apply p-2;
   @apply rounded-lg;
   @apply bg-bgDarkColor;
   @apply text-fgColor;
-  height: 256px;
   @apply overflow-auto;
+  height: 256px;
 
   &,
   span {
@@ -34,7 +32,6 @@ div.realtime-log {
 
   span {
     @apply block;
-    @apply whitespace-pre-wrap;
     @apply break-words;
     @apply break-all;
   }

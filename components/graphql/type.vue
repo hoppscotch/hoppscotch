@@ -1,10 +1,9 @@
 <template>
-  <div class="type-box">
-    <div class="type-title">{{ gqlType.name }}</div>
-    <div class="type-desc" v-if="gqlType.description">
+  <div class="p-2 m-2">
+    <div class="font-bold type-title">{{ gqlType.name }}</div>
+    <div class="mt-2 text-fgLightColor type-desc" v-if="gqlType.description">
       {{ gqlType.description }}
     </div>
-
     <div v-if="gqlType.getFields">
       <h5>{{ $t("fields") }}</h5>
       <div v-for="field in gqlType.getFields()" :key="field.name">
@@ -13,22 +12,6 @@
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-.type-box {
-  @apply p-8;
-  @apply my-2;
-}
-
-.type-desc {
-  @apply text-fgLightColor;
-  @apply mt-2;
-}
-
-.type-title {
-  @apply font-bold;
-}
-</style>
 
 <script>
 export default {

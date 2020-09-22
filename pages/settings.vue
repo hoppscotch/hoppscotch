@@ -119,7 +119,7 @@
     <pw-section class="purple" :label="$t('extensions')" ref="extensions">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <pw-toggle
               :on="settings.EXTENSIONS_ENABLED"
               @change="toggleSetting('EXTENSIONS_ENABLED')"
@@ -141,7 +141,7 @@
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span>
               <pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
                 {{ $t("proxy") }}
@@ -162,7 +162,7 @@
       </ul>
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label for="url">{{ $t("url") }}</label>
             <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
               <i class="material-icons">clear_all</i>
@@ -227,7 +227,7 @@
       </ul>
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <pw-toggle
               :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
               @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"

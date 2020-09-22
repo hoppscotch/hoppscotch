@@ -14,14 +14,11 @@ $useBorder: false;
 $borderColor: var(--fg-light-color);
 $activeColor: var(--ac-color);
 $inactiveColor: var(--fg-light-color);
-
 $inactiveHandleColor: var(--bg-color);
 $activeHandleColor: var(--act-color);
-
 $width: 32px;
 $height: 16px;
 $handleSpacing: 4px;
-
 $transition: all 0.2s ease-in-out;
 
 div {
@@ -37,32 +34,30 @@ label.caption {
 label.toggle {
   @apply relative;
   @apply inline-block;
-  width: $width;
-  height: $height;
-  border: if($useBorder, 2px solid $borderColor, none);
-  background-color: if($useBorder, transparent, $inactiveColor);
   @apply align-middle;
   @apply rounded-full;
-  transition: $transition;
-  box-sizing: initial;
   @apply p-0;
   @apply my-4;
   @apply mx-2;
   @apply cursor-pointer;
+  width: $width;
+  height: $height;
+  border: if($useBorder, 2px solid $borderColor, none);
+  background-color: if($useBorder, transparent, $inactiveColor);
+  transition: $transition;
+  box-sizing: initial;
 
   .handle {
     @apply absolute;
     @apply inline-block;
     @apply inset-0;
-    margin: $handleSpacing;
-    background-color: $inactiveHandleColor;
-
-    width: #{$height - ($handleSpacing * 2)};
-    height: #{$height - ($handleSpacing * 2)};
     @apply rounded-full;
-
     @apply pointer-events-none;
     transition: $transition;
+    margin: $handleSpacing;
+    background-color: $inactiveHandleColor;
+    width: #{$height - ($handleSpacing * 2)};
+    height: #{$height - ($handleSpacing * 2)};
   }
 
   &.on {

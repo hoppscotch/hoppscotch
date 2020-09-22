@@ -12,7 +12,7 @@
           </ul>
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="collectionUpload">
                   <button
                     class="icon"

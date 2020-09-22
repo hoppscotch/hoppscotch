@@ -191,9 +191,9 @@ hr {
     @apply py-2;
     @apply text-xs;
     @apply font-medium;
+    @apply shadow-lg;
     background: $bgcolor;
     color: $fgcolor;
-    box-shadow: 0 4px 24px rgba(black, 0.1);
   }
 
   .tooltip-arrow {
@@ -274,12 +274,12 @@ hr {
     .popover-inner {
       background: $bgcolor;
       color: $fgcolor;
-      box-shadow: 0 5px 30px rgba(black, 0.1);
       max-height: 256px;
       @apply text-base;
       @apply p-2;
       @apply rounded-lg;
       @apply overflow-auto;
+      @apply shadow-lg;
 
       button {
         @apply flex-1;
@@ -700,11 +700,11 @@ ol li {
     @apply transition;
     @apply ease-in-out;
     @apply duration-200;
+    @apply shadow-lg;
     bottom: 86px;
     left: 50%;
     z-index: 10001;
     transform: translateX(-50%);
-    box-shadow: 0 4px 24px rgba(black, 0.2);
   }
 }
 
@@ -799,7 +799,7 @@ section {
   @apply font-bold;
   @apply text-sm;
   @apply rounded-lg;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  @apply shadow-lg;
 
   .action {
     text-transform: none !important;

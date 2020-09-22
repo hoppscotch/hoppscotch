@@ -283,7 +283,7 @@ nav.secondary-nav {
     @apply p-0;
     @apply w-full;
     @apply bg-bgColor;
-    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
+    @apply shadow-2xl;
   }
 
   nav.primary-nav {

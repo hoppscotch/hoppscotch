@@ -43,15 +43,15 @@
     @apply hidden;
     @apply bg-atcColor;
     @apply absolute;
-    top: calc(100% - 8px);
     @apply mx-2;
     @apply left-0;
-    border-radius: 0 0 8px 8px;
     @apply z-50;
     @apply transition-transform;
     @apply ease-in-out;
     @apply duration-200;
-    box-shadow: 0 5px 30px rgba(black, 0.1);
+    @apply shadow-lg;
+    top: calc(100% - 8px);
+    border-radius: 0 0 8px 8px;
 
     li {
       @apply w-full;

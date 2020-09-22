@@ -54,7 +54,7 @@
   @apply duration-200;
   @apply bg-bgColor;
   @apply rounded-lg;
-  box-shadow: 0px 16px 70px rgba(0, 0, 0, 0.5);
+  @apply shadow-2xl;
   max-height: calc(100vh - 128px);
   max-width: 720px;
 }

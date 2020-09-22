@@ -371,6 +371,7 @@ button {
     @apply rounded-lg;
     @apply outline-none;
     @apply border-none;
+    @apply p-2;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
@@ -535,7 +536,7 @@ pre {
 }
 
 select {
-  height: 37px;
+  height: 40px;
   @apply cursor-pointer;
   @apply appearance-none;
 

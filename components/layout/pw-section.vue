@@ -14,7 +14,7 @@
 
 <style scoped lang="scss">
 fieldset {
-  @apply my-4;
+  @apply my-2;
   @apply p-2;
   @apply rounded-lg;
   @apply bg-bgDarkColor;
@@ -23,9 +23,6 @@ fieldset {
   @apply duration-200;
 
   legend {
-    @apply inline-flex;
-    @apply items-center;
-    @apply justify-center;
     @apply text-fgColor;
     @apply text-sm;
     @apply font-bold;
@@ -36,6 +33,7 @@ fieldset {
 
     i {
       @apply ml-2;
+      @apply align-middle;
     }
   }
 

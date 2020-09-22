@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex-wrap">
+    <div class="row-wrapper">
       <div>
         <button class="icon" @click="toggleShowChildren">
           <i class="material-icons" v-show="!showChildren">arrow_right</i>
@@ -31,8 +31,12 @@
     </div>
 
     <div v-show="showChildren">
-      <ul>
-        <li v-for="(request, index) in folder.requests" :key="index">
+      <ul class="flex-col">
+        <li
+          v-for="(request, index) in folder.requests"
+          :key="index"
+          class="flex ml-8 border-l border-brdColor"
+        >
           <request
             :request="request"
             :collection-index="collectionIndex"
@@ -49,26 +53,13 @@
             "
           />
         </li>
-        <li v-if="folder.requests.length === 0">
+        <li v-if="folder.requests.length === 0" class="flex ml-8 border-l border-brdColor">
           <label>{{ $t("folder_empty") }}</label>
         </li>
       </ul>
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-ul {
-  display: flex;
-  flex-direction: column;
-}
-
-ul li {
-  display: flex;
-  margin-left: 32px;
-  border-left: 1px solid var(--brd-color);
-}
-</style>
 
 <script>
 import { fb } from "~/helpers/fb"

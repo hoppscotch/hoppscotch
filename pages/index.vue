@@ -207,7 +207,7 @@
             </ul>
             <ul>
               <li>
-                <div class="flex-wrap">
+                <div class="row-wrapper">
                   <span>
                     <pw-toggle v-if="canListParameters" :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
@@ -267,7 +267,7 @@
             <div v-if="!rawInput">
               <ul>
                 <li>
-                  <div class="flex-wrap">
+                  <div class="row-wrapper">
                     <label for="reqParamList">{{ $t("parameter_list") }}</label>
                     <div>
                       <button
@@ -337,7 +337,7 @@
             <div v-else>
               <ul>
                 <li>
-                  <div class="flex-wrap">
+                  <div class="row-wrapper">
                     <label for="rawBody">{{ $t("raw_request_body") }}</label>
                     <div>
                       <button
@@ -365,7 +365,7 @@
               </ul>
             </div>
           </div>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span>
               <button
                 class="icon"
@@ -433,7 +433,7 @@
               <pw-section class="pink" label="Parameters" ref="parameters">
                 <ul v-if="params.length !== 0">
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="paramList">{{ $t("parameter_list") }}</label>
                       <div>
                         <button
@@ -523,7 +523,7 @@
               <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="auth">{{ $t("authentication") }}</label>
                       <div>
                         <button
@@ -575,7 +575,7 @@
                 </ul>
                 <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
                       <button
                         v-if="auth === 'OAuth 2.0'"
@@ -596,7 +596,7 @@
                     </div>
                   </li>
                 </ul>
-                <div class="flex-wrap">
+                <div class="row-wrapper">
                   <pw-toggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">
                     {{ $t("include_in_url") }}
                   </pw-toggle>
@@ -610,7 +610,7 @@
               >
                 <ul>
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="token-name">{{ $t("token_name") }}</label>
                       <div>
                         <button
@@ -732,7 +732,7 @@
               <pw-section class="orange" label="Headers" ref="headers">
                 <ul v-if="headers.length !== 0">
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="headerList">{{ $t("header_list") }}</label>
                       <div>
                         <button
@@ -810,7 +810,7 @@
               >
                 <ul>
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
                         <a
@@ -855,7 +855,7 @@
               >
                 <ul>
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
                         <a
@@ -881,7 +881,7 @@
                       }"
                     />
                     <div v-if="testReports.length !== 0">
-                      <div class="flex-wrap">
+                      <div class="row-wrapper">
                         <label>Test Reports</label>
                         <div>
                           <button
@@ -897,7 +897,7 @@
                         <div v-if="testReport.startBlock" class="info">
                           <h4>{{ testReport.startBlock }}</h4>
                         </div>
-                        <p v-else-if="testReport.result" class="flex-wrap info">
+                        <p v-else-if="testReport.result" class="row-wrapper info">
                           <span :class="testReport.styles.class">
                             <i class="material-icons">
                               {{ testReport.styles.icon }}
@@ -942,19 +942,19 @@
       <aside v-if="activeSidebar" class="sticky-inner inner-right">
         <section>
           <tabs>
-            <tab :id="'history'" :icon="'watch_later'" :label="$t('history')" :selected="true">
+            <tab :id="'history'" :label="$t('history')" :selected="true">
               <history @useHistory="handleUseHistory" ref="historyComponent" />
             </tab>
 
-            <tab :id="'collections'" :icon="'folder_special'" :label="$t('collections')">
+            <tab :id="'collections'" :label="$t('collections')">
               <collections />
             </tab>
 
-            <tab :id="'env'" :icon="'style'" :label="$t('environments')">
+            <tab :id="'env'" :label="$t('environments')">
               <environments @use-environment="useSelectedEnvironment($event)" />
             </tab>
 
-            <tab :id="'notes'" :icon="'note'" :label="$t('notes')">
+            <tab :id="'notes'" :label="$t('notes')">
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />
@@ -986,7 +986,7 @@
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
@@ -1010,7 +1010,7 @@
           </ul>
         </div>
         <div slot="footer">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span></span>
             <span>
               <button class="icon" @click="showModal = false">
@@ -1028,7 +1028,7 @@
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
@@ -1054,7 +1054,7 @@
           </ul>
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="generatedCode">{{ $t("generated_code") }}</label>
                 <div>
                   <button
@@ -1085,7 +1085,7 @@
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
@@ -1099,7 +1099,7 @@
         <div slot="body">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="token-list">{{ $t("token_list") }}</label>
                 <div v-if="tokens.length != 0">
                   <button
@@ -1129,7 +1129,7 @@
             <li>
               <input :value="token.value" readonly />
             </li>
-            <div class="flex-wrap">
+            <div class="row-wrapper">
               <li>
                 <button
                   class="icon"
@@ -1161,7 +1161,7 @@
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
@@ -1175,7 +1175,7 @@
         <div slot="body">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="token-req-list">{{ $t("token_req_list") }}</label>
                 <div>
                   <button
@@ -1231,7 +1231,7 @@
           </ul>
         </div>
         <div slot="footer">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span></span>
             <span>
               <button class="icon primary" @click="addOAuthTokenReq">

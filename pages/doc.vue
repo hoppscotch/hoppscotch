@@ -12,7 +12,7 @@
           </ul>
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="collectionUpload">
                   <button
                     class="icon"
@@ -288,39 +288,43 @@
 .doc-desc,
 .folder,
 .request {
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  flex: 1;
-  padding: 16px;
+  @apply flex;
+  @apply flex-col;
+  @apply justify-center;
+  @apply flex-1;
+  @apply p-8;
 
   .material-icons {
-    margin-right: 16px;
+    @apply mr-8;
   }
 }
 
 .folder {
-  border-left: 1px solid var(--brd-color);
-  margin: 16px 0 0;
+  @apply border-l;
+  @apply border-brdColor;
+  @apply mt-8;
 }
 
 .request {
-  border: 1px solid var(--brd-color);
-  border-radius: 8px;
-  margin: 16px 0 0;
+  @apply border;
+  @apply border-brdColor;
+  @apply rounded-lg;
+  @apply mt-8;
 
   h4 {
-    margin: 8px 0;
+    @apply mt-8;
   }
 }
 
 .doc-desc {
-  color: var(--fg-light-color);
-  border-bottom: 1px dashed var(--brd-color);
-  margin: 0;
+  @apply text-fgLightColor;
+  @apply border-b;
+  @apply border-dashed;
+  @apply border-brdColor;
+  @apply m-0;
 
   &:last-child {
-    border-bottom: none;
+    @apply border-b-0;
   }
 }
 </style>

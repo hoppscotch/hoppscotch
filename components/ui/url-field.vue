@@ -3,16 +3,16 @@
 </template>
 <style lang="scss">
 .highlight-VAR {
+  @apply font-bold;
   color: var(--ac-color);
-  font-weight: bold;
 }
 .highlight-TEXT {
-  overflow: auto;
+  @apply overflow-auto;
+  @apply break-all;
   height: 20px;
-  word-break: break-all;
 }
 .highlight-TEXT::-webkit-scrollbar {
-  display: none;
+  @apply hidden;
 }
 </style>
 <script>

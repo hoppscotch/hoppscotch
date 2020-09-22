@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex-wrap">
+    <div class="row-wrapper">
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren">arrow_right</i>
         <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
@@ -45,8 +45,12 @@
     </div>
 
     <div v-show="showChildren">
-      <ul>
-        <li v-for="(folder, index) in collection.folders" :key="folder.name">
+      <ul class="flex-col">
+        <li
+          v-for="(folder, index) in collection.folders"
+          :key="folder.name"
+          class="ml-8 border-l border-brdColor"
+        >
           <folder
             :folder="folder"
             :folderIndex="index"
@@ -56,12 +60,19 @@
             @edit-request="$emit('edit-request', $event)"
           />
         </li>
-        <li v-if="collection.folders.length === 0 && collection.requests.length === 0">
+        <li
+          v-if="collection.folders.length === 0 && collection.requests.length === 0"
+          class="ml-8 border-l border-brdColor"
+        >
           <label>{{ $t("collection_empty") }}</label>
         </li>
       </ul>
-      <ul>
-        <li v-for="(request, index) in collection.requests" :key="index">
+      <ul class="flex-col">
+        <li
+          v-for="(request, index) in collection.requests"
+          :key="index"
+          class="ml-8 border-l border-brdColor"
+        >
           <request
             :request="request"
             :collection-index="collectionIndex"
@@ -82,19 +93,6 @@
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-ul {
-  display: flex;
-  flex-direction: column;
-}
-
-ul li {
-  display: flex;
-  margin-left: 32px;
-  border-left: 1px solid var(--brd-color);
-}
-</style>
 
 <script>
 import { fb } from "~/helpers/fb"

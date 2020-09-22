@@ -14,26 +14,26 @@
 
 <style scoped lang="scss">
 fieldset {
-  margin: 16px 0;
-  border-radius: 8px;
-  background-color: var(--bg-dark-color);
-  transition: all 0.2s ease-in-out;
+  @apply my-2;
+  @apply p-2;
+  @apply rounded-lg;
+  @apply bg-bgDarkColor;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 
   legend {
-    display: inline-block;
-    align-items: center;
-    justify-content: center;
-    color: var(--fg-color);
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-
-    * {
-      vertical-align: middle;
-    }
+    @apply text-fgColor;
+    @apply text-sm;
+    @apply font-bold;
+    @apply cursor-pointer;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
 
     i {
-      margin-left: 8px;
+      @apply ml-2;
+      @apply align-middle;
     }
   }
 
@@ -75,7 +75,7 @@ fieldset {
 }
 
 fieldset.no-colored-frames legend {
-  color: var(--fg-color);
+  @apply text-fgColor;
 }
 </style>
 

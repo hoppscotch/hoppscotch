@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-wrap">
+  <div class="row-wrapper">
     <div>
       <button
         class="icon"
@@ -31,19 +31,6 @@
     </v-popover>
   </div>
 </template>
-
-<style scoped lang="scss">
-ul {
-  display: flex;
-  flex-direction: column;
-}
-
-ul li {
-  display: flex;
-  padding-left: 16px;
-  border-left: 1px solid var(--brd-color);
-}
-</style>
 
 <script>
 import { fb } from "~/helpers/fb"

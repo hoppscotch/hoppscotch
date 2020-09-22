@@ -3,7 +3,7 @@
     <div slot="header">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
@@ -11,7 +11,7 @@
               </button>
             </div>
           </div>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span
               v-tooltip="{
                 content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
@@ -60,7 +60,7 @@
       <textarea v-model="environmentJson" rows="8"></textarea>
     </div>
     <div slot="footer">
-      <div class="flex-wrap">
+      <div class="row-wrapper">
         <span></span>
         <span>
           <button class="icon" @click="hideModal">

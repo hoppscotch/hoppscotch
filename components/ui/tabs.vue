@@ -26,50 +26,55 @@
 
 <style scoped lang="scss">
 .tabs-wrapper {
-  display: flex;
-  flex-flow: column nowrap;
-  flex-grow: 1;
-  overflow: hidden;
+  @apply flex;
+  @apply flex-col;
+  @apply flex-no-wrap;
+  @apply flex-1;
+  @apply overflow-hidden;
 
   .tabs {
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    white-space: nowrap;
-    overflow: auto;
+    @apply scrolling-touch;
+    @apply flex;
+    @apply whitespace-no-wrap;
+    @apply overflow-auto;
 
     ul {
-      display: flex;
-      width: 0px;
+      @apply flex;
+      @apply w-0;
     }
 
     li {
-      display: inline-flex;
+      @apply inline-flex;
+      @apply outline-none;
+      @apply border-none;
 
       a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 16px;
-        color: var(--fg-light-color);
-        border-radius: 8px;
-        cursor: pointer;
+        @apply flex;
+        @apply items-center;
+        @apply justify-center;
+        @apply py-2;
+        @apply px-4;
+        @apply text-fgLightColor;
+        @apply text-sm;
+        @apply rounded-lg;
+        @apply cursor-pointer;
 
         .material-icons {
-          margin-right: 8px;
+          @apply m-4;
         }
 
         &:hover {
-          color: var(--fg-color);
+          @apply text-fgColor;
         }
       }
 
       &:focus a {
-        color: var(--fg-color);
+        @apply text-fgColor;
       }
 
       &.is-active a {
-        background-color: var(--brd-color);
-        color: var(--fg-color);
+        @apply bg-brdColor;
+        @apply text-fgColor;
       }
     }
   }
@@ -78,7 +83,8 @@
 @media (max-width: 768px) {
   ul,
   ol {
-    flex-flow: row nowrap;
+    @apply flex-row;
+    @apply flex-no-wrap;
   }
 }
 </style>

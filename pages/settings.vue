@@ -8,7 +8,7 @@
               <img
                 v-if="fb.currentUser.photoURL"
                 :src="fb.currentUser.photoURL"
-                class="material-icons"
+                class="rounded-full material-icons"
               />
               <i v-else class="material-icons">account_circle</i>
               <span>
@@ -119,7 +119,7 @@
     <pw-section class="purple" :label="$t('extensions')" ref="extensions">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <pw-toggle
               :on="settings.EXTENSIONS_ENABLED"
               @change="toggleSetting('EXTENSIONS_ENABLED')"
@@ -131,17 +131,22 @@
       </ul>
       <ul class="info">
         <li v-if="extensionVersion != null">
-          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+          <p>
+            {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{
+              extensionVersion.minor
+            }}
+          </p>
         </li>
-
-        <li v-else>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</li>
+        <li v-else>
+          <p>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</p>
+        </li>
       </ul>
     </pw-section>
 
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span>
               <pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
                 {{ $t("proxy") }}
@@ -162,7 +167,7 @@
       </ul>
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label for="url">{{ $t("url") }}</label>
             <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
               <i class="material-icons">clear_all</i>
@@ -227,7 +232,7 @@
       </ul>
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <pw-toggle
               :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
               @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
@@ -238,10 +243,18 @@
         </li>
       </ul>
     </pw-section>
+
+    <!-- <div>
+      <h1>Color mode: {{ $colorMode.value }}</h1>
+      <select v-model="$colorMode.preference">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="sepia">Sepia</option>
+      </select>
+    </div> -->
   </div>
 </template>
-
-<style scoped lang="scss"></style>
 
 <script>
 import firebase from "firebase/app"

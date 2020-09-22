@@ -11,7 +11,7 @@
         v-tooltip.right="$t('home')"
         :aria-label="$t('home')"
       >
-        <logo alt class="material-icons" style="height: 24px;"></logo>
+        <logo alt class="material-icons" style="height: 24px"></logo>
       </nuxt-link>
       <nuxt-link
         :to="localePath('realtime')"
@@ -171,93 +171,103 @@
 $responsiveWidth: 768px;
 
 .nav-first {
-  z-index: 1;
-  height: 100vh;
-  padding: 0 8px;
-  background-color: var(--bg-dark-color);
-  transition: all 0.2s ease-in-out;
+  @apply z-10;
+  @apply h-screen;
+  @apply p-2;
+  @apply bg-bgDarkColor;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
+  // @apply overflow-y-auto;
 }
 
 nav.primary-nav {
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply flex-col;
+  @apply flex-no-wrap;
+  @apply items-center;
+  @apply justify-center;
+  @apply space-y-2;
 
   svg {
-    fill: var(--fg-light-color);
-    transition: all 0.2s ease-in-out;
+    @apply fill-current;
   }
 
   a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    padding: 14px;
-    border-radius: 50%;
-    background-color: var(--bg-light-color);
-    color: var(--fg-light-color);
-    fill: var(--fg-light-color);
-    margin: 8px 0;
+    @apply inline-flex;
+    @apply items-center;
+    @apply justify-center;
+    @apply flex-shrink-0;
+    @apply p-4;
+    @apply rounded-full;
+    @apply bg-bgLightColor;
+    @apply text-fgLightColor;
+    @apply fill-current;
+    @apply outline-none;
 
     &:hover {
-      color: var(--fg-color);
-      fill: var(--fg-color);
+      @apply text-fgColor;
+      @apply fill-current;
 
       svg {
-        fill: var(--fg-color);
+        @apply fill-current;
       }
     }
 
     &.nuxt-link-exact-active {
-      background-color: var(--ac-color);
-      color: var(--act-color);
-      fill: var(--act-color);
+      @apply bg-acColor;
+      @apply text-actColor;
+      @apply fill-current;
       border-radius: 16px;
 
       svg {
-        fill: var(--act-color);
+        @apply fill-current;
       }
     }
   }
 }
 
+nav.primary-nav::-webkit-scrollbar,
+.nav-first::-webkit-scrollbar {
+  @apply hidden;
+}
+
 nav.secondary-nav {
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  justify-content: center;
-  border-top: 2px dashed var(--brd-color);
-  margin-top: 4px;
+  @apply flex;
+  @apply flex-col;
+  @apply flex-no-wrap;
+  @apply items-center;
+  @apply justify-center;
+  @apply border-t-2;
+  @apply border-dashed;
+  @apply border-brdColor;
+  @apply mt-2;
 
   ul {
-    display: flex;
-    flex-flow: column nowrap;
+    @apply flex;
+    @apply flex-col;
+    @apply flex-no-wrap;
+    @apply space-y-2;
 
     li {
-      display: flex;
+      @apply flex;
 
       a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        padding: 14px;
-        border-radius: 50%;
-        background-color: var(--bg-dark-color);
-        color: var(--fg-light-color);
-        fill: var(--fg-light-color);
-        margin: 8px 0;
+        @apply p-4;
+        @apply rounded-full;
+        @apply bg-bgDarkColor;
+        @apply text-fgLightColor;
+        @apply fill-current;
+        @apply outline-none;
 
         &:hover {
-          color: var(--fg-color);
-          fill: var(--fg-color);
+          @apply text-fgColor;
+          @apply fill-current;
         }
 
         &.current {
-          color: var(--ac-color);
-          fill: var(--ac-color);
+          @apply text-acColor;
+          @apply fill-current;
         }
       }
     }
@@ -266,41 +276,43 @@ nav.secondary-nav {
 
 @media (max-width: $responsiveWidth) {
   .nav-first {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    height: auto;
-    padding: 0;
-    width: 100%;
-    background-color: var(--bg-color);
-    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
+    @apply fixed;
+    @apply top-auto;
+    @apply bottom-0;
+    @apply h-auto;
+    @apply p-0;
+    @apply w-full;
+    @apply bg-bgColor;
+    @apply shadow-2xl;
   }
 
   nav.primary-nav {
-    flex-flow: row nowrap;
-    overflow: auto;
-    justify-content: space-between;
-    background-color: var(--bg-dark-color);
+    @apply flex-row;
+    @apply flex-no-wrap;
+    @apply overflow-auto;
+    @apply justify-between;
+    @apply bg-bgDarkColor;
+    @apply space-y-0;
 
     a {
-      background-color: transparent;
-      margin: 8px;
-      flex: 1;
+      @apply bg-transparent;
+      @apply m-2;
+      @apply flex-1;
 
       &.nuxt-link-exact-active {
-        background-color: transparent;
-        color: var(--ac-color);
-        fill: var(--ac-color);
+        @apply bg-transparent;
+        @apply text-acColor;
+        @apply fill-current;
 
         svg {
-          fill: var(--ac-color);
+          @apply fill-current;
         }
       }
     }
   }
 
   nav.secondary-nav {
-    display: none;
+    @apply hidden;
   }
 }
 </style>

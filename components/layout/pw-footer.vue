@@ -1,7 +1,7 @@
 <template>
-  <footer class="footer">
-    <div class="flex-wrap">
-      <span v-if="version.name" class="mono">
+  <footer class="flex-col flex-no-wrap">
+    <div class="row-wrapper">
+      <span v-if="version.name" class="font-mono">
         <a
           class="footer-link"
           :href="'https://github.com/hoppscotch/hoppscotch/releases/tag/' + version.name"
@@ -31,9 +31,7 @@
       </span>
       <span>
         <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">
-          <button class="icon" v-tooltip="'Liyas Thomas'">
-            🦄
-          </button>
+          <button class="icon" v-tooltip="'Liyas Thomas'">🦄</button>
         </a>
         <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="$t('contact_us')">
@@ -60,16 +58,13 @@
 </template>
 
 <style scoped lang="scss">
-.footer {
-  flex-flow: column nowrap;
-}
-
 .footer-link {
-  margin: 8px 16px;
-  color: var(--fg-light-color);
+  @apply my-2;
+  @apply mx-4;
+  @apply text-fgLightColor;
 
   &:hover {
-    color: var(--fg-color);
+    @apply text-fgColor;
   }
 }
 </style>

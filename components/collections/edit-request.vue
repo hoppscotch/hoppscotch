@@ -3,7 +3,7 @@
     <div slot="header">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <h3 class="title">{{ $t("edit_request") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
@@ -28,9 +28,9 @@
           <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectCollection" v-model="requestUpdateData.collectionIndex">
-              <option :key="undefined" :value="undefined" hidden disabled selected>{{
-                $t("current_collection")
-              }}</option>
+              <option :key="undefined" :value="undefined" hidden disabled selected>
+                {{ $t("current_collection") }}
+              </option>
               <option
                 v-for="(collection, index) in $store.state.postwoman.collections"
                 :key="index"
@@ -53,7 +53,7 @@
       </ul>
     </div>
     <div slot="footer">
-      <div class="flex-wrap">
+      <div class="row-wrapper">
         <span></span>
         <span>
           <button class="icon" @click="hideModal">

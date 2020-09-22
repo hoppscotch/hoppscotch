@@ -29,7 +29,7 @@
         <pw-section class="orange" :label="$t('headers')" ref="headers">
           <ul v-if="headers.length !== 0">
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
@@ -93,7 +93,7 @@
         </pw-section>
 
         <pw-section class="green" :label="$t('schema')" ref="schema">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
               <button
@@ -153,7 +153,7 @@
         </pw-section>
 
         <pw-section class="cyan" :label="$t('query')" ref="query">
-          <div class="flex-wrap gqlRunQuery">
+          <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
@@ -210,7 +210,7 @@
         </pw-section>
 
         <pw-section class="purple" label="Response" ref="response">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label for="responseField">{{ $t("response") }}</label>
             <div>
               <button
@@ -321,10 +321,10 @@
 <style scoped lang="scss">
 .gqlTabs {
   max-height: calc(100vh - 192px);
-  overflow: auto;
+  @apply overflow-auto;
 }
 .gqlRunQuery {
-  margin-bottom: 12px;
+  @apply mb-8;
 }
 </style>
 

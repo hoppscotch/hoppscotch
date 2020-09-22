@@ -1,7 +1,7 @@
 <template>
   <ul>
     <li>
-      <div class="flex-wrap">
+      <div class="row-wrapper">
         <label for="body">{{ $t("response") }}</label>
         <div>
           <button
@@ -16,17 +16,11 @@
         </div>
       </div>
       <div id="response-details-wrapper">
-        <img class="response-image" :src="imageSource" />
+        <img class="max-w-full" :src="imageSource" />
       </div>
     </li>
   </ul>
 </template>
-
-<style scoped lang="scss">
-.response-image {
-  max-width: 100%;
-}
-</style>
 
 <script>
 export default {

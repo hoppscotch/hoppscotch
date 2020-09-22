@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ul>
+    <ul class="flex-col">
       <div class="show-on-large-screen">
         <li>
           <input
@@ -37,13 +37,6 @@
     </ul>
   </div>
 </template>
-
-<style scoped lang="scss">
-ul,
-ol {
-  flex-direction: column;
-}
-</style>
 
 <script>
 import { fb } from "~/helpers/fb"

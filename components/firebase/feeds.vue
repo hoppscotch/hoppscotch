@@ -1,6 +1,10 @@
 <template>
   <div v-if="fb.currentFeeds.length !== 0" class="virtual-list">
-    <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="entry">
+    <ul
+      v-for="feed in fb.currentFeeds"
+      :key="feed.id"
+      class="flex-col py-2 border-b border-dashed border-brdColor"
+    >
       <div class="show-on-large-screen">
         <li class="info">
           <label>
@@ -18,7 +22,7 @@
       </div>
     </ul>
   </div>
-  <ul v-else>
+  <ul v-else class="flex-col">
     <li>
       <label class="info">{{ $t("empty") }}</label>
     </li>
@@ -30,21 +34,11 @@
   max-height: calc(100vh - 298px);
 }
 
-ul,
-ol {
-  flex-direction: column;
-}
-
-.entry {
-  border-bottom: 1px dashed var(--brd-color);
-  padding: 0 0 8px;
-}
-
 .clamb-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  overflow: hidden;
+  @apply overflow-hidden;
 }
 </style>
 

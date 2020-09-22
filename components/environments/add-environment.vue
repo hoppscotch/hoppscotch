@@ -3,7 +3,7 @@
     <div slot="header">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <h3 class="title">{{ $t("new_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
@@ -27,7 +27,7 @@
       </ul>
     </div>
     <div slot="footer">
-      <div class="flex-wrap">
+      <div class="row-wrapper">
         <span></span>
         <span>
           <button class="icon" @click="hideModal">

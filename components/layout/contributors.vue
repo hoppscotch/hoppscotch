@@ -6,7 +6,7 @@
     <p class="info">
       {{ $t("donate_info2") }}
     </p>
-    <div class="flex-wrap">
+    <div class="row-wrapper">
       <span>
         <a
           href="https://github.com/sponsors/hoppscotch"
@@ -33,7 +33,7 @@
         </a>
       </span>
     </div>
-    <div class="flex-wrap">
+    <div class="row-wrapper">
       <span>
         <a
           href="https://opencollective.com/hoppscotch"
@@ -78,13 +78,25 @@
     <h3 class="title">Financial Contributors</h3>
     <p class="info">
       Become a financial contributor and help us sustain our community.
-      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
+      <a
+        class="link"
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/contribute"
+        >Contribute</a
+      >.
     </p>
     <h3 class="title">Organizations</h3>
     <p class="info">
       Support this project with your organization. Your logo will show up here with a link to your
       website.
-      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
+      <a
+        class="link"
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/contribute"
+        >Contribute</a
+      >.
     </p>
     <div class="contributors">
       <a href="https://tyk.io" target="_blank" rel="noopener">
@@ -96,34 +108,74 @@
       </a>
     </div>
     <div class="contributors">
-      <a href="https://opencollective.com/hoppscotch/organization/0/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/0/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/1/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/1/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/2/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/2/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/2/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/3/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/3/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/3/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/4/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/4/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/4/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/5/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/5/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/5/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/6/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/6/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/6/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/7/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/7/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/7/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/8/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/8/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/8/avatar.svg" />
       </a>
-      <a href="https://opencollective.com/hoppscotch/organization/9/website">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/organization/9/website"
+      >
         <img src="https://opencollective.com/hoppscotch/organization/9/avatar.svg" />
       </a>
     </div>
@@ -131,7 +183,13 @@
     <p class="info">
       Support this project with your organization. Your logo will show up here with a link to your
       website.
-      <a class="link" href="https://opencollective.com/hoppscotch/contribute">Contribute</a>.
+      <a
+        class="link"
+        target="_blank"
+        rel="noopener"
+        href="https://opencollective.com/hoppscotch/contribute"
+        >Contribute</a
+      >.
     </p>
     <div class="contributors">
       <a
@@ -147,14 +205,18 @@
           :alt="sponsor.handle"
         />
       </a>
-      <a href="https://opencollective.com/hoppscotch">
+      <a target="_blank" rel="noopener" href="https://opencollective.com/hoppscotch">
         <img src="https://opencollective.com/hoppscotch/individuals.svg" />
       </a>
     </div>
     <h3 class="title">Code Contributors</h3>
     <p class="info">This project exists thanks to all the people who contribute.</p>
     <div class="contributors">
-      <a href="https://github.com/liyasthomas/hoppscotch/graphs/contributors">
+      <a
+        target="_blank"
+        rel="noopener"
+        href="https://github.com/liyasthomas/hoppscotch/graphs/contributors"
+      >
         <img src="https://opencollective.com/hoppscotch/contributors.svg" />
       </a>
     </div>
@@ -163,12 +225,12 @@
 
 <style scoped lang="scss">
 .contributors {
-  display: flex;
-  align-items: center;
-  flex-flow: row nowrap;
-  overflow: auto;
-  padding: 8px 0;
-  margin: 8px 0;
+  @apply flex;
+  @apply items-center;
+  @apply flex-no-wrap;
+  @apply overflow-auto;
+  @apply py-4;
+  @apply my-4;
   max-width: calc(100vw - 72px);
 }
 </style>

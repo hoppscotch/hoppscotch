@@ -32,33 +32,34 @@
 
 <style scoped lang="scss">
 .autocomplete-wrapper {
-  position: relative;
+  @apply relative;
 
   input:focus + ul.suggestions,
   ul.suggestions:hover {
-    display: block;
+    @apply block;
   }
 
   ul.suggestions {
-    display: none;
-    background-color: var(--atc-color);
-    position: absolute;
-    top: calc(100% - 4px);
-    margin: 0 4px;
-    left: 0;
-    padding: 0;
+    @apply hidden;
+    @apply bg-atcColor;
+    @apply absolute;
+    @apply mx-2;
+    @apply left-0;
+    @apply z-50;
+    @apply transition-transform;
+    @apply ease-in-out;
+    @apply duration-200;
+    @apply shadow-lg;
+    top: calc(100% - 8px);
     border-radius: 0 0 8px 8px;
-    z-index: 9999;
-    transition: transform 0.2s ease-out;
-    box-shadow: 0 5px 30px rgba(black, 0.1);
 
     li {
-      width: 100%;
-      display: block;
-      padding: 8px 16px;
-      font-size: 16px;
-      font-family: "Roboto Mono", monospace;
-      font-weight: 400;
+      @apply w-full;
+      @apply block;
+      @apply p-2;
+      @apply text-sm;
+      @apply font-mono;
+      @apply font-normal;
 
       &:last-child {
         border-radius: 0 0 8px 8px;
@@ -66,9 +67,9 @@
 
       &:hover,
       &.active {
-        background-color: var(--ac-color);
-        color: var(--act-color);
-        cursor: pointer;
+        @apply bg-acColor;
+        @apply text-actColor;
+        @apply cursor-pointer;
       }
     }
   }

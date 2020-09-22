@@ -136,6 +136,7 @@ footer {
   @apply top-0;
   @apply items-start;
   @apply items-stretch;
+  @apply h-full;
 }
 
 .main {
@@ -172,7 +173,7 @@ hr {
   @apply border-b;
   @apply border-dashed;
   @apply border-brdColor;
-  @apply my-8;
+  @apply my-4;
 }
 
 .tooltip {
@@ -319,12 +320,13 @@ hr {
 }
 
 .info:not(.toasted) {
-  @apply ml-2;
+  @apply m-2;
   @apply text-fgLightColor;
 
   .material-icons {
     @apply align-middle;
-    @apply ml-4;
+    @apply ml-2;
+    @apply mr-4;
   }
 }
 

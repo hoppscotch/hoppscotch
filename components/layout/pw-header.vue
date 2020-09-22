@@ -214,11 +214,11 @@
         </div>
         <hr />
         <div>
-          <kbd>Alt</kbd>+<kbd>🠋</kbd>
+          <kbd>Alt</kbd>+<kbd>▲</kbd>
           <label>{{ $t("select_next_method") }}</label>
         </div>
         <div>
-          <kbd>Alt</kbd>+<kbd>🠉</kbd>
+          <kbd>Alt</kbd>+<kbd>▼</kbd>
           <label>{{ $t("select_previous_method") }}</label>
         </div>
         <hr />
@@ -270,6 +270,11 @@
 
 <style scoped lang="scss">
 $responsiveWidth: 768px;
+
+kbd {
+  @apply inline-flex;
+  @apply resize-none;
+}
 
 @keyframes slideIn {
   0% {

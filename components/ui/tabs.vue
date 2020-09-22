@@ -45,6 +45,8 @@
 
     li {
       @apply inline-flex;
+      @apply outline-none;
+      @apply border-none;
 
       a {
         @apply flex;

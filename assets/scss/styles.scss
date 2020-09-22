@@ -367,6 +367,8 @@ button {
     @apply text-fgLightColor;
     @apply fill-current;
     @apply rounded-lg;
+    @apply outline-none;
+    @apply border-none;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
@@ -687,6 +689,8 @@ ol li {
 
 #send {
   @apply whitespace-no-wrap;
+  @apply outline-none;
+  @apply border-none;
 
   &.show {
     @apply flex;

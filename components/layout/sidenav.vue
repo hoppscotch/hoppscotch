@@ -178,7 +178,7 @@ $responsiveWidth: 768px;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
-  @apply overflow-y-auto;
+  // @apply overflow-y-auto;
 }
 
 nav.primary-nav {
@@ -203,6 +203,7 @@ nav.primary-nav {
     @apply bg-bgLightColor;
     @apply text-fgLightColor;
     @apply fill-current;
+    @apply outline-none;
 
     &:hover {
       @apply text-fgColor;
@@ -257,6 +258,7 @@ nav.secondary-nav {
         @apply bg-bgDarkColor;
         @apply text-fgLightColor;
         @apply fill-current;
+        @apply outline-none;
 
         &:hover {
           @apply text-fgColor;

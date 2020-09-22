@@ -17,8 +17,8 @@ $responsiveWidth: 768px;
 }
 
 ::-webkit-scrollbar {
-  @apply h-2;
-  @apply w-2;
+  @apply h-1;
+  @apply w-1;
   @apply rounded-lg;
 
   &:hover {
@@ -90,6 +90,7 @@ a {
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
+  @apply outline-none;
 
   &.link {
     @apply text-acColor;
@@ -179,8 +180,7 @@ hr {
 .tooltip {
   $bgcolor: var(--tt-color);
   $fgcolor: var(--fg-color);
-  display: block !important;
-  z-index: 10000;
+  @apply z-50;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;

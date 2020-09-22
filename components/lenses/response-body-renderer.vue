@@ -17,15 +17,30 @@
       >
         <headers :headers="response.headers" />
       </tab>
+      <tab id="metrics" label="Metrics">
+        <metrics />
+      </tab>
+      <tab id="errors" label="Errors">
+        <error />
+      </tab>
+      <tab id="transactions" label="Transactions">
+        <transaction />
+      </tab>
     </tabs>
   </div>
 </template>
 
 <script>
 import { getSuitableLenses, getLensRenderers } from "~/helpers/lenses/lenses"
+import Transaction from "../apm/transaction"
+import Metrics from "../apm/metrics"
+import Error from "../apm/error"
 
 export default {
   components: {
+    Error,
+    Metrics,
+    Transaction,
     // Lens Renderers
     ...getLensRenderers(),
   },

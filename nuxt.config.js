@@ -5,8 +5,8 @@ export const options = {
   shortDescription: "A free, fast and beautiful API request builder",
   description: "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "#50fa7b",
-    background: "#202124",
+    color: "var(--ac-color)",
+    background: "var(--bg-color)",
   },
   app: {
     color: "#ffffff",
@@ -88,7 +88,7 @@ export default {
    ** Customize the progress-bar color
    */
   loading: {
-    color: "var(--ac-color)",
+    color: options.loading.color,
     continuous: true,
   },
   /*

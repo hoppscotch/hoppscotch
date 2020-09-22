@@ -173,7 +173,7 @@ $responsiveWidth: 768px;
 .nav-first {
   @apply z-10;
   @apply h-screen;
-  @apply px-1;
+  @apply p-2;
   @apply bg-bgDarkColor;
   @apply transition;
   @apply ease-in-out;
@@ -186,12 +186,10 @@ nav.primary-nav {
   @apply flex-no-wrap;
   @apply items-center;
   @apply justify-center;
+  @apply space-y-2;
 
   svg {
     @apply fill-current;
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-200;
   }
 
   a {
@@ -204,7 +202,6 @@ nav.primary-nav {
     @apply bg-bgLightColor;
     @apply text-fgLightColor;
     @apply fill-current;
-    @apply my-2;
 
     &:hover {
       @apply text-fgColor;
@@ -228,6 +225,10 @@ nav.primary-nav {
   }
 }
 
+nav.primary-nav::-webkit-scrollbar {
+  @apply hidden;
+}
+
 nav.secondary-nav {
   @apply flex;
   @apply flex-col;
@@ -243,6 +244,7 @@ nav.secondary-nav {
     @apply flex;
     @apply flex-col;
     @apply flex-no-wrap;
+    @apply space-y-2;
 
     li {
       @apply flex;
@@ -253,7 +255,6 @@ nav.secondary-nav {
         @apply bg-bgDarkColor;
         @apply text-fgLightColor;
         @apply fill-current;
-        @apply my-2;
 
         &:hover {
           @apply text-fgColor;

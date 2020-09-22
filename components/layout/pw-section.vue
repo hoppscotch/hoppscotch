@@ -27,6 +27,7 @@ fieldset {
     @apply items-center;
     @apply justify-center;
     @apply text-fgColor;
+    @apply text-sm;
     @apply font-bold;
     @apply cursor-pointer;
     @apply transition;

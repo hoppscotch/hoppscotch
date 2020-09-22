@@ -47,14 +47,13 @@ html {
 body {
   @apply bg-bgColor;
   @apply text-fgColor;
-  @apply text-sm;
+  @apply text-base;
   @apply font-body;
   @apply font-medium;
   @apply select-none;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
-
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -163,6 +162,7 @@ h3.title {
 }
 
 p {
+  @apply text-sm;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
@@ -275,9 +275,15 @@ hr {
       color: $fgcolor;
       box-shadow: 0 5px 30px rgba(black, 0.1);
       max-height: 256px;
-      @apply p-0;
+      @apply text-base;
+      @apply p-2;
       @apply rounded-lg;
       @apply overflow-auto;
+
+      button {
+        @apply flex-1;
+        @apply m-0;
+      }
 
       div {
         @apply flex;
@@ -332,7 +338,6 @@ button {
   @apply rounded-lg;
   @apply bg-acColor;
   @apply text-actColor;
-  @apply text-sm;
   @apply font-body;
   @apply font-bold;
   @apply transition;
@@ -340,6 +345,8 @@ button {
   @apply duration-200;
   @apply fill-current;
   @apply cursor-pointer;
+  @apply outline-none;
+  @apply border-none;
 
   span {
     @apply inline-flex;
@@ -404,8 +411,8 @@ button {
   @apply h-6;
   @apply w-6;
   @apply text-2xl;
+  @apply leading-6;
   @apply inline-block;
-  @apply leading-none;
   @apply normal-case;
   @apply tracking-normal;
   @apply whitespace-no-wrap;
@@ -450,13 +457,12 @@ input,
 textarea,
 pre,
 code {
-  @apply inline-flex;
+  @apply flex;
   @apply m-2;
   @apply p-2;
   @apply rounded-lg;
   @apply bg-bgDarkColor;
   @apply text-fgColor;
-  @apply text-sm;
   @apply font-mono;
   @apply font-normal;
   @apply transition;
@@ -465,8 +471,8 @@ code {
   @apply select-text;
   @apply resize-y;
   @apply truncate;
-  width: calc(100% - 8px);
-  line-height: 1;
+  @apply outline-none;
+  width: calc(100% - 16px);
 
   &:not([readonly]):not(.ace_editor):hover,
   &:not([readonly]):not(.ace_editor):active,
@@ -519,8 +525,8 @@ pre {
     @apply pointer-events-none;
     content: "\e313";
     @apply font-icon;
-    top: 14px;
-    right: 14px;
+    top: 16px;
+    right: 16px;
   }
 }
 
@@ -586,8 +592,9 @@ input[type="checkbox"] {
 }
 
 label {
-  @apply p-2;
+  @apply px-2;
   @apply text-fgLightColor;
+  @apply text-sm;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
@@ -733,7 +740,7 @@ section {
   @apply flex;
   @apply order-2;
   @apply ml-4;
-  width: 30%;
+  width: 33%;
 }
 
 @media (max-width: $responsiveWidth) {

@@ -53,6 +53,7 @@
         @apply py-2;
         @apply px-4;
         @apply text-fgLightColor;
+        @apply text-sm;
         @apply rounded-lg;
         @apply cursor-pointer;
 

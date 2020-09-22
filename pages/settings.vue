@@ -8,7 +8,7 @@
               <img
                 v-if="fb.currentUser.photoURL"
                 :src="fb.currentUser.photoURL"
-                class="material-icons"
+                class="rounded-full material-icons"
               />
               <i v-else class="material-icons">account_circle</i>
               <span>
@@ -131,10 +131,15 @@
       </ul>
       <ul class="info">
         <li v-if="extensionVersion != null">
-          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+          <p>
+            {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{
+              extensionVersion.minor
+            }}
+          </p>
         </li>
-
-        <li v-else>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</li>
+        <li v-else>
+          <p>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</p>
+        </li>
       </ul>
     </pw-section>
 
@@ -239,7 +244,7 @@
       </ul>
     </pw-section>
 
-    <div>
+    <!-- <div>
       <h1>Color mode: {{ $colorMode.value }}</h1>
       <select v-model="$colorMode.preference">
         <option value="system">System</option>
@@ -247,7 +252,7 @@
         <option value="dark">Dark</option>
         <option value="sepia">Sepia</option>
       </select>
-    </div>
+    </div> -->
   </div>
 </template>
 

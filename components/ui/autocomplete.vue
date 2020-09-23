@@ -41,7 +41,7 @@
 
   ul.suggestions {
     @apply hidden;
-    @apply bg-atcColor;
+    @apply bg-actColor;
     @apply absolute;
     @apply mx-2;
     @apply left-0;

@@ -67,30 +67,24 @@
   --ac-color: rgba(80, 250, 123, 1);
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
-  // Auto-complete color
-  --atc-color: rgba(32, 33, 36, 1);
   // Editor theme
   --editor-theme: "twilight";
 }
 
-@mixin blueTheme {
+@mixin orangeTheme {
   // Acent color
-  --ac-color: rgba(74, 144, 226, 1);
+  --ac-color: rgba(255, 184, 108, 1);
   // Active text color
-  --act-color: rgba(255, 255, 255, 1);
-  // Auto-complete color
-  --atc-color: rgba(255, 255, 255, 1);
+  --act-color: rgba(32, 33, 36, 1);
   // Editor theme
   --editor-theme: "iplastic";
 }
 
 @mixin yellowTheme {
   // Acent color
-  --ac-color: rgba(248, 231, 28, 1);
+  --ac-color: rgba(248, 232, 28, 1);
   // Active text color
-  --act-color: rgba(0, 0, 0, 1);
-  // Auto-complete color
-  --atc-color: rgba(0, 0, 0, 1);
+  --act-color: rgba(32, 33, 36, 1);
   // Editor theme
   --editor-theme: "vibrant_ink";
 }
@@ -103,7 +97,7 @@
 
 :root.light {
   @include lightTheme;
-  @include blueTheme;
+  @include orangeTheme;
 }
 
 :root.dark {

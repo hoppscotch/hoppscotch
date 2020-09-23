@@ -28,7 +28,6 @@ module.exports = {
         errColor: "var(--err-color)",
         acColor: "var(--ac-color)",
         actColor: "var(--act-color)",
-        atcColor: "var(--atc-color)",
         ttColor: "var(--tt-color)",
       },
       inset: {},

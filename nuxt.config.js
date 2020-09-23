@@ -9,9 +9,7 @@ export const options = {
     background: "var(--bg-color)",
   },
   app: {
-    color: "#ffffff",
     background: "#202124",
-    accent: "#50fa7b",
   },
   social: {
     twitter: "@liyasthomas",

@@ -229,9 +229,7 @@
   @apply items-center;
   @apply flex-no-wrap;
   @apply overflow-auto;
-  @apply py-4;
   @apply my-4;
-  max-width: calc(100vw - 72px);
 }
 </style>
 

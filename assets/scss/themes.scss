@@ -1,7 +1,7 @@
 @mixin baseTheme {
-  --font-body: 'Poppins', 'sans-serif';
-  --font-mono: 'Roboto Mono', 'monoscpace';
-  --font-icon: 'Material Icons';
+  --font-body: "Poppins", "sans-serif";
+  --font-mono: "Roboto Mono", "monoscpace";
+  --font-icon: "Material Icons";
 }
 
 /**
@@ -97,18 +97,10 @@
   @include lightTheme;
 }
 
+:root.dark {
+  @include darkTheme;
+}
+
 :root.black {
   @include blackTheme;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root.auto {
-    @include darkTheme;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  :root.auto {
-    @include lightTheme;
-  }
 }

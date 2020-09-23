@@ -56,15 +56,7 @@
         <li>
           <label>{{ $t("background") }}</label>
           <div class="backgrounds">
-            <span :key="theme.class" @click="applyTheme(theme)" v-for="theme in themes">
-              <swatch
-                :active="settings.THEME_CLASS === theme.class"
-                :class="{ vibrant: theme.vibrant }"
-                :color="theme.color"
-                :name="theme.name"
-                class="bg"
-              />
-            </span>
+            <color-mode-picker />
           </div>
         </li>
       </ul>
@@ -243,16 +235,6 @@
         </li>
       </ul>
     </pw-section>
-
-    <!-- <div>
-      <h1>Color mode: {{ $colorMode.value }}</h1>
-      <select v-model="$colorMode.preference">
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="sepia">Sepia</option>
-      </select>
-    </div> -->
   </div>
 </template>
 

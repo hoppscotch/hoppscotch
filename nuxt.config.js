@@ -183,7 +183,10 @@ export default {
     Allow: "/",
     Sitemap: `${process.env.BASE_URL}sitemap.xml`,
   },
-  colorMode: { preference: "dark" },
+  colorMode: {
+    classSuffix: "",
+    preference: "dark",
+  },
   i18n: {
     locales: [
       {

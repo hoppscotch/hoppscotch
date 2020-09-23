@@ -2,7 +2,7 @@
   <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
     <legend @click.prevent="collapse">
       <span>{{ label }}</span>
-      <i class="material-icons">
+      <i class="ml-2 align-middle material-icons">
         {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
       </i>
     </legend>
@@ -30,11 +30,6 @@ fieldset {
     @apply transition;
     @apply ease-in-out;
     @apply duration-200;
-
-    i {
-      @apply ml-2;
-      @apply align-middle;
-    }
   }
 
   &.blue legend {

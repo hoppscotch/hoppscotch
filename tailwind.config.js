@@ -9,6 +9,7 @@ module.exports = {
     removeDeprecatedGapUtilities: true,
   },
   experimental: "all",
+  dark: "class",
   corePlugins: {
     clear: false,
     float: false,

@@ -11,6 +11,7 @@ export default {
     icon: { type: String, default: "" },
     id: { required: true },
     selected: {
+      type: Boolean,
       default: false,
     },
   },

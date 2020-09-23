@@ -329,7 +329,6 @@
 </style>
 
 <script>
-import axios from "axios"
 import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"

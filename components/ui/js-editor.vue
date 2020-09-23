@@ -23,7 +23,6 @@ const DEFAULT_THEME = "twilight"
 
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
-import jsonParse from "~/helpers/jsonParse"
 import debounce from "~/helpers/utils/debounce"
 
 import * as esprima from "esprima"

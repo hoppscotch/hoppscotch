@@ -320,7 +320,6 @@ import {
   hasFirefoxExtensionInstalled,
 } from "~/helpers/strategies/ExtensionStrategy"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
-import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
 import closeIcon from "~/static/icons/close-24px.svg?inline"
 

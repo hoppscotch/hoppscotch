@@ -171,7 +171,6 @@
                   <i class="material-icons">send</i>
                 </span>
               </button>
-
               <button v-else @click="cancelRequest" id="send" ref="sendButton">
                 {{ $t("cancel") }}
                 <span>
@@ -1297,20 +1296,6 @@ const statusCategories = [
     className: "missing-data-response",
   },
 ]
-const parseHeaders = (xhr) => {
-  const headers = xhr
-    .getAllResponseHeaders()
-    .trim()
-    .split(/[\r\n]+/)
-  const headerMap = {}
-  headers.forEach((line) => {
-    const parts = line.split(": ")
-    const header = parts.shift().toLowerCase()
-    const value = parts.join(": ")
-    headerMap[header] = value
-  })
-  return headerMap
-}
 export const findStatusGroup = (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
 
@@ -2071,14 +2056,14 @@ export default {
           icon: "done",
         })
         ;(() => {
-          const status = (this.response.status = payload.status)
-          const headers = (this.response.headers = payload.headers)
+          this.response.status = payload.status
+          this.response.headers = payload.headers
           // We don't need to bother parsing JSON, axios already handles it for us!
-          const body = (this.response.body = payload.data)
+          this.response.body = payload.data
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
-            status,
+            status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
             method: this.method,
@@ -2222,7 +2207,7 @@ export default {
     getQueryStringFromPath() {
       let queryString
       const pathParsed = url.parse(this.uri)
-      return (queryString = pathParsed.query ? pathParsed.query : "")
+      return pathParsed.query ? pathParsed.query : ""
     },
     queryStringToArray(queryString) {
       const queryParsed = querystring.parse(queryString)
@@ -2735,7 +2720,7 @@ export default {
       if ((e.key === "u" || e.key === "U") && e.altKey) {
         this.method = "PUT"
       }
-      if ((e.key === "x" || e.key === "x") && e.altKey) {
+      if ((e.key === "x" || e.key === "X") && e.altKey) {
         this.method = "DELETE"
       }
       if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {

@@ -37,6 +37,7 @@ export default {
     theme: {
       type: String,
       required: false,
+      default: null,
     },
     options: {
       type: Object,

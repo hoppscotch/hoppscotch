@@ -87,9 +87,6 @@ a {
   @apply inline-flex;
   @apply text-current;
   @apply no-underline;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-200;
   @apply outline-none;
 
   &.link {

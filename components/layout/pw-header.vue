@@ -3,8 +3,8 @@
     <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="text-xl logo hide-on-small-screen hover:text-acColor">Hoppscotch</h1>
-          <h1 class="text-xl logo show-on-small-screen hover:text-acColor">Hs</h1>
+          <h1 class="text-xl hide-on-small-screen hover:text-acColor">Hoppscotch</h1>
+          <h1 class="text-xl show-on-small-screen hover:text-acColor">Hs</h1>
         </nuxt-link>
       </span>
       <span>

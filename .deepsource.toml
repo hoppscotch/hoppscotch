@@ -10,3 +10,4 @@ enabled = true
     "browser"
   ]
   plugins = ["vue"]
+  module_system="es-modules"

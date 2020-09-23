@@ -36,15 +36,11 @@ fieldset {
     @apply text-blue-400;
   }
 
-  &.gray legend {
-    @apply text-gray-400;
-  }
-
   &.green legend {
     @apply text-green-400;
   }
 
-  &.cyan legend {
+  &.teal legend {
     @apply text-teal-400;
   }
 

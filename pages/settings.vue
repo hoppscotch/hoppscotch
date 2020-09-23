@@ -51,7 +51,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="cyan" :label="$t('theme')" ref="theme">
+    <pw-section class="teal" :label="$t('theme')" ref="theme">
       <ul>
         <li>
           <label>{{ $t("background") }}</label>
@@ -63,7 +63,9 @@
       <ul>
         <li>
           <label>{{ $t("color") }}</label>
-          <div class="colors"></div>
+          <div class="colors">
+            <accent-mode-picker />
+          </div>
         </li>
       </ul>
       <ul>

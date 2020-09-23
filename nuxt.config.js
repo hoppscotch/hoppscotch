@@ -184,6 +184,7 @@ export default {
   colorMode: {
     classSuffix: "",
     preference: "dark",
+    fallback: "dark",
   },
   i18n: {
     locales: [

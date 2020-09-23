@@ -22,6 +22,8 @@
   --err-color: rgba(255, 255, 255, 0.05);
   // Tooltip color
   --tt-color: rgba(53, 53, 53, 1);
+  // Editor theme
+  --editor-theme: "twilight";
 }
 
 @mixin lightTheme {
@@ -41,6 +43,8 @@
   --err-color: rgba(0, 0, 0, 0.1);
   // Tooltip color
   --tt-color: rgba(220, 220, 220, 1);
+  // Editor theme
+  --editor-theme: "iplastic";
 }
 
 @mixin blackTheme {
@@ -60,6 +64,15 @@
   --err-color: rgba(255, 255, 255, 0.05);
   // Tooltip color
   --tt-color: rgba(18, 18, 18, 1);
+  // Editor theme
+  --editor-theme: "vibrant_ink";
+}
+
+@mixin blueTheme {
+  // Acent color
+  --ac-color: rgba(139, 233, 253, 1);
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin greenTheme {
@@ -67,8 +80,20 @@
   --ac-color: rgba(80, 250, 123, 1);
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
-  // Editor theme
-  --editor-theme: "twilight";
+}
+
+@mixin tealTheme {
+  // Acent color
+  --ac-color: #8be9fd;
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin purpleTheme {
+  // Acent color
+  --ac-color: #bd93f9;
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin orangeTheme {
@@ -76,17 +101,27 @@
   --ac-color: rgba(255, 184, 108, 1);
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
-  // Editor theme
-  --editor-theme: "iplastic";
+}
+
+@mixin pinkTheme {
+  // Acent color
+  --ac-color: rgba(255, 121, 198, 1);
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin redTheme {
+  // Acent color
+  --ac-color: rgba(255, 85, 85, 1);
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin yellowTheme {
   // Acent color
-  --ac-color: rgba(248, 232, 28, 1);
+  --ac-color: rgba(241, 250, 140, 1);
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
-  // Editor theme
-  --editor-theme: "vibrant_ink";
 }
 
 :root {
@@ -97,15 +132,12 @@
 
 :root.light {
   @include lightTheme;
-  @include orangeTheme;
 }
 
 :root.dark {
   @include darkTheme;
-  @include greenTheme;
 }
 
 :root.black {
   @include blackTheme;
-  @include yellowTheme;
 }

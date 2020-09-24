@@ -938,7 +938,7 @@
         </pw-section>
       </div>
 
-      <aside v-if="activeSidebar" class="sticky-inner inner-right">
+      <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
         <section>
           <tabs>
             <tab :id="'history'" :label="$t('history')" :selected="true">

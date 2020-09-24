@@ -3,11 +3,11 @@
     <div class="content">
       <div class="columns">
         <sidenav />
-        <div class="main" id="main">
+        <main>
           <pw-header />
           <nuxt />
           <pw-footer />
-        </div>
+        </main>
       </div>
     </div>
   </div>

@@ -137,7 +137,7 @@ footer {
   @apply h-full;
 }
 
-.main {
+main {
   @apply flex;
   @apply flex-col;
   @apply flex-1;
@@ -645,23 +645,23 @@ ol li {
 }
 
 .info-response {
-  color: #ffeb3b;
+  @apply text-yellow-400;
 }
 
 .success-response {
-  color: #4bb543;
+  @apply text-green-400;
 }
 
 .redir-response {
-  color: #ff5722;
+  @apply text-orange-400;
 }
 
 .cl-error-response {
-  color: #a63232;
+  @apply text-red-400;
 }
 
 .sv-error-response {
-  color: #b71c1c;
+  @apply text-red-600;
 }
 
 .missing-data-response {
@@ -754,7 +754,7 @@ section {
     @apply flex-col;
   }
 
-  .main {
+  main {
     padding: 0 8px 68px;
   }
 
@@ -792,8 +792,8 @@ section {
 }
 
 .toasted-ad {
-  background-color: #fefefe;
-  color: #121212;
+  @apply bg-gray-50;
+  @apply text-gray-900;
   padding: 16px !important;
   @apply font-bold;
   @apply text-sm;
@@ -802,13 +802,13 @@ section {
 
   .action {
     text-transform: none !important;
-    background-color: #121212;
-    color: #fefefe;
     padding: 12px 16px !important;
     font-weight: 500 !important;
     font-size: 16px !important;
     margin: 0 !important;
     margin-left: 8px !important;
+    @apply bg-gray-50;
+    @apply text-gray-900;
     @apply rounded-lg;
   }
 }

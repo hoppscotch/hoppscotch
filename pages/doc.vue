@@ -276,7 +276,7 @@
         </pw-section>
       </div>
 
-      <aside class="sticky-inner inner-right">
+      <aside class="sticky-inner inner-right lg:max-w-md">
         <collections @use-collection="useSelectedCollection($event)" :doc="true" />
       </aside>
     </div>

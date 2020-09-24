@@ -260,7 +260,7 @@
           />
         </pw-section>
       </div>
-      <aside class="sticky-inner inner-right">
+      <aside class="sticky-inner inner-right lg:max-w-md">
         <pw-section class="purple" :label="$t('docs')" ref="docs">
           <section>
             <tabs ref="gqlTabs">

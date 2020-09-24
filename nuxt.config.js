@@ -9,9 +9,7 @@ export const options = {
     background: "var(--bg-color)",
   },
   app: {
-    color: "#ffffff",
     background: "#202124",
-    accent: "#50fa7b",
   },
   social: {
     twitter: "@liyasthomas",
@@ -183,7 +181,11 @@ export default {
     Allow: "/",
     Sitemap: `${process.env.BASE_URL}sitemap.xml`,
   },
-  colorMode: { preference: "dark" },
+  colorMode: {
+    classSuffix: "",
+    preference: "dark",
+    fallback: "dark",
+  },
   i18n: {
     locales: [
       {

@@ -16,30 +16,13 @@
 <script>
 export default {
   beforeMount() {
-    // Load theme settings
-    ;(() => {
-      // Apply theme from settings.
-      document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || ""
-      // Load theme color data from settings, or use default color.
-      let color = this.$store.state.postwoman.settings.THEME_COLOR || "#50fa7b"
-      let vibrant = this.$store.state.postwoman.settings.THEME_COLOR_VIBRANT || true
-      document.documentElement.style.setProperty("--ac-color", color)
-      document.documentElement.style.setProperty(
-        "--act-color",
-        vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
-      )
-    })()
+    let color = localStorage.getItem("THEME_COLOR") || "green"
+    document.documentElement.setAttribute("data-accent", color)
   },
-
   mounted() {
     if (process.client) {
       document.body.classList.add("afterLoad")
     }
-
-    document
-      .querySelector("meta[name=theme-color]")
-      .setAttribute("content", this.$store.state.postwoman.settings.THEME_TAB_COLOR || "#202124")
-
     console.log(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"

@@ -8,36 +8,6 @@ export const SETTINGS_KEYS = [
   "SCROLL_INTO_ENABLED",
 
   /**
-   * The CSS class that should be applied to the root element.
-   * Essentially, the name of the background theme.
-   */
-  "THEME_CLASS",
-
-  /**
-   * The hex color code for the currently active theme.
-   */
-  "THEME_COLOR",
-
-  /**
-   * The hex color code for browser tab color.
-   */
-  "THEME_TAB_COLOR",
-
-  /**
-   * Whether or not THEME_COLOR is considered 'vibrant'.
-   *
-   * For readability reasons, if the THEME_COLOR is vibrant,
-   * any text placed on the theme color will have its color
-   * inverted from white to black.
-   */
-  "THEME_COLOR_VIBRANT",
-
-  /**
-   * The Ace editor theme
-   */
-  "THEME_ACE_EDITOR",
-
-  /**
    * Normally, section frames are multicolored in the UI
    * to emphasise the different sections.
    * This setting allows that to be turned off.

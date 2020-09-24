@@ -2,7 +2,6 @@
   --font-body: "Poppins", "sans-serif";
   --font-mono: "Roboto Mono", "monoscpace";
   --font-icon: "Material Icons";
-  --editor-theme: "twilight";
 }
 
 @mixin darkTheme {
@@ -70,56 +69,56 @@
 
 @mixin blueTheme {
   // Acent color
-  --ac-color: rgba(139, 233, 253, 1);
+  --ac-color: theme("colors.blue.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin greenTheme {
   // Acent color
-  --ac-color: rgba(80, 250, 123, 1);
+  --ac-color: theme("colors.green.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin tealTheme {
   // Acent color
-  --ac-color: #8be9fd;
+  --ac-color: theme("colors.teal.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin purpleTheme {
   // Acent color
-  --ac-color: #bd93f9;
+  --ac-color: theme("colors.purple.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin orangeTheme {
   // Acent color
-  --ac-color: rgba(255, 184, 108, 1);
+  --ac-color: theme("colors.orange.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin pinkTheme {
   // Acent color
-  --ac-color: rgba(255, 121, 198, 1);
+  --ac-color: theme("colors.pink.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin redTheme {
   // Acent color
-  --ac-color: rgba(255, 85, 85, 1);
+  --ac-color: theme("colors.red.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin yellowTheme {
   // Acent color
-  --ac-color: rgba(241, 250, 140, 1);
+  --ac-color: theme("colors.yellow.400");
   // Active text color
   --act-color: rgba(32, 33, 36, 1);
 }
@@ -140,4 +139,29 @@
 
 :root.black {
   @include blackTheme;
+}
+
+:root[data-accent="blue"] {
+  @include blueTheme;
+}
+:root[data-accent="green"] {
+  @include greenTheme;
+}
+:root[data-accent="teal"] {
+  @include tealTheme;
+}
+:root[data-accent="purple"] {
+  @include purpleTheme;
+}
+:root[data-accent="orange"] {
+  @include orangeTheme;
+}
+:root[data-accent="pink"] {
+  @include pinkTheme;
+}
+:root[data-accent="red"] {
+  @include redTheme;
+}
+:root[data-accent="yellow"] {
+  @include yellowTheme;
 }

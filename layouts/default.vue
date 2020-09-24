@@ -15,6 +15,10 @@
 
 <script>
 export default {
+  beforeMount() {
+    let color = localStorage.getItem("THEME_COLOR") || "green"
+    document.documentElement.setAttribute("data-accent", color)
+  },
   mounted() {
     if (process.client) {
       document.body.classList.add("afterLoad")

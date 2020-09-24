@@ -53,20 +53,10 @@
 
     <pw-section class="teal" :label="$t('theme')" ref="theme">
       <ul>
-        <li>
-          <label>{{ $t("background") }}</label>
-          <div class="backgrounds">
-            <color-mode-picker />
-          </div>
-        </li>
+        <color-mode-picker />
       </ul>
       <ul>
-        <li>
-          <label>{{ $t("color") }}</label>
-          <div class="colors">
-            <accent-mode-picker />
-          </div>
-        </li>
+        <accent-mode-picker />
       </ul>
       <ul>
         <li>

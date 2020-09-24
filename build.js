@@ -8,7 +8,7 @@ const PW_BUILD_DATA_DIR = "./.hoppscotch"
 // const IS_DEV_MODE = process.argv.includes("--dev")
 
 try {
-  ;(async () => {
+  (async () => {
     // Create the build data directory if it does not exist.
     if (!fs.existsSync(PW_BUILD_DATA_DIR)) {
       fs.mkdirSync(PW_BUILD_DATA_DIR)

@@ -102,7 +102,7 @@ class Expectation {
       : this._fail(this._fmtNot(`Expected ${this.expectValue} (not)to be ${value}`))
   }
   toHaveProperty(value) {
-    return this._satisfies(this.expectValue.hasOwnProperty(value), true)
+    return this._satisfies(Object.prototype.hasOwnProperty.call(this.expectValue, value), true)
       ? this._pass()
       : this._fail(
           this._fmtNot(`Expected object ${this.expectValue} to (not)have property ${value}`)

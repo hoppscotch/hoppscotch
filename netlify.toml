@@ -1,9 +1,3 @@
 [build]
   command = "npm run generate"
   functions = "netlify/"
-
-[[redirects]]
-  from = "https://postwoman.io"
-  to = "https://hoppscotch.io"
-  status = 301
-  force = true

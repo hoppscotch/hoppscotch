@@ -217,7 +217,6 @@
 </template>
 
 <script>
-import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 

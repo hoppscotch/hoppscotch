@@ -204,6 +204,9 @@ nav.primary-nav {
     @apply text-fgLightColor;
     @apply fill-current;
     @apply outline-none;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
 
     &:hover {
       @apply text-fgColor;
@@ -248,6 +251,7 @@ nav.secondary-nav {
     @apply flex-col;
     @apply flex-no-wrap;
     @apply space-y-2;
+    @apply py-1;
 
     li {
       @apply flex;
@@ -259,6 +263,9 @@ nav.secondary-nav {
         @apply text-fgLightColor;
         @apply fill-current;
         @apply outline-none;
+        @apply transition;
+        @apply ease-in-out;
+        @apply duration-200;
 
         &:hover {
           @apply text-fgColor;

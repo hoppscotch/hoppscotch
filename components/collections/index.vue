@@ -85,7 +85,7 @@ TODO:
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 245px);
+  max-height: calc(100vh - 232px);
 }
 </style>
 

@@ -93,8 +93,8 @@
 
 **Theming:** [Customize now ✨](https://hoppscotch.io/settings)
 
-- Choose theme: Kinda Dark (default), Clearly White, Just Black and System theme
-- Choose accent color: Green (default), Yellow, Pink, Red, Purple, Orange, Cyan and Blue
+- Choose theme: System, Light, Dark (default) and Black
+- Choose accent color: Blue, Green (default), Teal, Purple, Orange, Pink, Red, and Yellow
 - Toggle multi-colored headings
 - Toggle auto-scroll to response
 

@@ -87,9 +87,6 @@ a {
   @apply inline-flex;
   @apply text-current;
   @apply no-underline;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-200;
   @apply outline-none;
 
   &.link {
@@ -361,6 +358,7 @@ button {
   &:not([disabled]):focus {
     @apply text-actColor;
     @apply fill-current;
+    @apply outline-none;
     box-shadow: inset 0 0 0 2px var(--fg-color);
   }
 

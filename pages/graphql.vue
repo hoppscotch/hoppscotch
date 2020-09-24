@@ -152,7 +152,7 @@
           />
         </pw-section>
 
-        <pw-section class="cyan" :label="$t('query')" ref="query">
+        <pw-section class="teal" :label="$t('query')" ref="query">
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>

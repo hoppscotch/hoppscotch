@@ -1,18 +1,9 @@
 @mixin baseTheme {
-  --font-body: 'Poppins', 'sans-serif';
-  --font-mono: 'Roboto Mono', 'monoscpace';
-  --font-icon: 'Material Icons';
+  --font-body: "Poppins", "sans-serif";
+  --font-mono: "Roboto Mono", "monoscpace";
+  --font-icon: "Material Icons";
 }
 
-/**
-  Main Themes:
-  - dark (default)
-  - light
-  - black
-  - auto
- */
-
-// Dark is the default theme variant.
 @mixin darkTheme {
   // Background color
   --bg-color: rgba(32, 33, 36, 1);
@@ -28,14 +19,10 @@
   --brd-color: rgba(255, 255, 255, 0.05);
   // Error color
   --err-color: rgba(255, 255, 255, 0.05);
-  // Acent color
-  --ac-color: rgba(80, 250, 123, 1);
-  // Active text color
-  --act-color: rgba(32, 33, 36, 1);
-  // Auto-complete color
-  --atc-color: rgba(32, 33, 36, 1);
   // Tooltip color
   --tt-color: rgba(53, 53, 53, 1);
+  // Editor theme
+  --editor-theme: "twilight";
 }
 
 @mixin lightTheme {
@@ -53,14 +40,10 @@
   --brd-color: rgba(0, 0, 0, 0.1);
   // Error color
   --err-color: rgba(0, 0, 0, 0.1);
-  // Acent color
-  --ac-color: rgba(80, 250, 123, 1);
-  // Active text color
-  --act-color: rgba(255, 255, 255, 1);
-  // Auto-complete color
-  --atc-color: rgba(255, 255, 255, 1);
   // Tooltip color
   --tt-color: rgba(220, 220, 220, 1);
+  // Editor theme
+  --editor-theme: "iplastic";
 }
 
 @mixin blackTheme {
@@ -78,37 +61,107 @@
   --brd-color: rgba(255, 255, 255, 0.05);
   // Error color
   --err-color: rgba(255, 255, 255, 0.05);
-  // Acent color
-  --ac-color: rgba(80, 250, 123, 1);
-  // Active text color
-  --act-color: rgba(0, 0, 0, 1);
-  // Auto-complete color
-  --atc-color: rgba(0, 0, 0, 1);
   // Tooltip color
   --tt-color: rgba(18, 18, 18, 1);
+  // Editor theme
+  --editor-theme: "vibrant_ink";
+}
+
+@mixin blueTheme {
+  // Acent color
+  --ac-color: theme("colors.blue.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin greenTheme {
+  // Acent color
+  --ac-color: theme("colors.green.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin tealTheme {
+  // Acent color
+  --ac-color: theme("colors.teal.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin purpleTheme {
+  // Acent color
+  --ac-color: theme("colors.purple.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin orangeTheme {
+  // Acent color
+  --ac-color: theme("colors.orange.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin pinkTheme {
+  // Acent color
+  --ac-color: theme("colors.pink.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin redTheme {
+  // Acent color
+  --ac-color: theme("colors.red.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
+}
+
+@mixin yellowTheme {
+  // Acent color
+  --ac-color: theme("colors.yellow.400");
+  // Active text color
+  --act-color: rgba(32, 33, 36, 1);
 }
 
 :root {
   @include baseTheme;
   @include darkTheme;
+  @include greenTheme;
 }
 
 :root.light {
   @include lightTheme;
 }
 
+:root.dark {
+  @include darkTheme;
+}
+
 :root.black {
   @include blackTheme;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root.auto {
-    @include darkTheme;
-  }
+:root[data-accent="blue"] {
+  @include blueTheme;
 }
-
-@media (prefers-color-scheme: light) {
-  :root.auto {
-    @include lightTheme;
-  }
+:root[data-accent="green"] {
+  @include greenTheme;
+}
+:root[data-accent="teal"] {
+  @include tealTheme;
+}
+:root[data-accent="purple"] {
+  @include purpleTheme;
+}
+:root[data-accent="orange"] {
+  @include orangeTheme;
+}
+:root[data-accent="pink"] {
+  @include pinkTheme;
+}
+:root[data-accent="red"] {
+  @include redTheme;
+}
+:root[data-accent="yellow"] {
+  @include yellowTheme;
 }

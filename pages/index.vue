@@ -519,7 +519,7 @@
             </tab>
 
             <tab :id="'authentication'" :label="$t('authentication')">
-              <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
+              <pw-section class="teal" :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
                     <div class="row-wrapper">

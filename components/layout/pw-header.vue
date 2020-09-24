@@ -3,8 +3,8 @@
     <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="logo hide-on-small-screen">Hoppscotch</h1>
-          <h1 class="logo show-on-small-screen">Hs</h1>
+          <h1 class="text-xl hide-on-small-screen hover:text-acColor">Hoppscotch</h1>
+          <h1 class="text-xl show-on-small-screen hover:text-acColor">Hs</h1>
         </nuxt-link>
       </span>
       <span>
@@ -293,14 +293,6 @@ kbd {
   animation: slideIn 0.2s forwards ease-in-out;
 }
 
-.logo {
-  @apply text-xl;
-
-  &:hover {
-    @apply text-acColor;
-  }
-}
-
 .show-on-small-screen {
   @apply hidden;
 }
@@ -346,7 +338,7 @@ export default {
   mounted() {
     // Initializes the PWA code - checks if the app is installed,
     // etc.
-    (async () => {
+    ;(async () => {
       this.showInstallPrompt = await intializePwa()
       let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes"
       if (!cookiesAllowed) {

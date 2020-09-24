@@ -35,6 +35,7 @@ export default {
     theme: {
       type: String,
       required: false,
+      default: null
     },
     lang: {
       type: String,

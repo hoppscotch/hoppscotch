@@ -17,7 +17,7 @@
 export default {
   beforeMount() {
     // Load theme settings
-    ;(() => {
+    (() => {
       // Apply theme from settings.
       document.documentElement.className = this.$store.state.postwoman.settings.THEME_CLASS || ""
       // Load theme color data from settings, or use default color.

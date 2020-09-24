@@ -38,6 +38,7 @@ export default {
     theme: {
       type: String,
       required: false,
+      default: null
     },
     onRunGQLQuery: {
       type: Function,

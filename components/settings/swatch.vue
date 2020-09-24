@@ -57,6 +57,7 @@ export default {
     },
     name: {
       type: String,
+      default: ""
     },
     active: {
       type: Boolean,

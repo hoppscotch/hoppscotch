@@ -346,7 +346,7 @@ export default {
   mounted() {
     // Initializes the PWA code - checks if the app is installed,
     // etc.
-    ;(async () => {
+    (async () => {
       this.showInstallPrompt = await intializePwa()
       let cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes"
       if (!cookiesAllowed) {

@@ -2604,7 +2604,7 @@ export default {
     },
     async oauthRedirectReq() {
       const tokenInfo = await oauthRedirect()
-      if (tokenInfo.hasOwnProperty("access_token")) {
+      if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
         this.bearerToken = tokenInfo.access_token
         this.addOAuthToken({
           name: this.accessTokenName,

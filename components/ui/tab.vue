@@ -7,10 +7,11 @@
 <script>
 export default {
   props: {
-    label: { type: String },
-    icon: { type: String },
+    label: { type: String, default: "" },
+    icon: { type: String, default: "" },
     id: { required: true },
     selected: {
+      type: Boolean,
       default: false,
     },
   },

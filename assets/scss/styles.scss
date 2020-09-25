@@ -7,8 +7,8 @@ $responsiveWidth: 768px;
 }
 
 :root {
-  font-variant-ligatures: common-ligatures;
   @apply antialiased;
+  font-variant-ligatures: common-ligatures;
 }
 
 ::selection {
@@ -18,7 +18,7 @@ $responsiveWidth: 768px;
 
 ::-webkit-scrollbar {
   @apply h-1;
-  @apply w-1;
+  @apply w-2;
   @apply rounded-lg;
 
   &:hover {
@@ -175,12 +175,7 @@ hr {
 }
 
 .tooltip {
-  $bgcolor: var(--tt-color);
-  $fgcolor: var(--fg-color);
   @apply z-50;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-200;
 
   .tooltip-inner {
     @apply rounded-lg;
@@ -189,8 +184,11 @@ hr {
     @apply text-xs;
     @apply font-medium;
     @apply shadow-lg;
-    background: $bgcolor;
-    color: $fgcolor;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
+    @apply bg-ttColor;
+    @apply text-fgColor;
   }
 
   .tooltip-arrow {
@@ -201,20 +199,23 @@ hr {
     @apply m-2;
     @apply border-ttColor;
     @apply z-30;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
   }
 
   &[x-placement^="top"] {
     @apply mb-0;
 
     .tooltip-arrow {
+      @apply mt-0;
+      @apply mb-0;
       border-width: 5px 5px 0 5px;
       border-left-color: transparent !important;
       border-right-color: transparent !important;
       border-bottom-color: transparent !important;
       bottom: -5px;
       left: calc(50% - 5px);
-      @apply mt-0;
-      @apply mb-0;
     }
   }
 
@@ -222,14 +223,14 @@ hr {
     @apply mt-0;
 
     .tooltip-arrow {
+      @apply mt-0;
+      @apply mb-0;
       border-width: 0 5px 5px 5px;
       border-left-color: transparent !important;
       border-right-color: transparent !important;
       border-top-color: transparent !important;
       top: -5px;
       left: calc(50% - 5px);
-      @apply mt-0;
-      @apply mb-0;
     }
   }
 
@@ -237,14 +238,14 @@ hr {
     @apply ml-0;
 
     .tooltip-arrow {
+      @apply ml-0;
+      @apply mr-0;
       border-width: 5px 5px 5px 0;
       border-left-color: transparent !important;
       border-top-color: transparent !important;
       border-bottom-color: transparent !important;
       left: -5px;
       top: calc(50% - 5px);
-      @apply ml-0;
-      @apply mr-0;
     }
   }
 
@@ -252,14 +253,14 @@ hr {
     @apply mr-0;
 
     .tooltip-arrow {
+      @apply ml-0;
+      @apply mr-0;
       border-width: 5px 0 5px 5px;
       border-top-color: transparent !important;
       border-right-color: transparent !important;
       border-bottom-color: transparent !important;
       right: -5px;
       top: calc(50% - 5px);
-      @apply ml-0;
-      @apply mr-0;
     }
   }
 
@@ -269,14 +270,14 @@ hr {
     }
 
     .popover-inner {
-      background: $bgcolor;
-      color: $fgcolor;
-      max-height: 256px;
+      @apply bg-ttColor;
+      @apply text-fgColor;
       @apply text-base;
       @apply p-2;
       @apply rounded-lg;
       @apply overflow-auto;
       @apply shadow-lg;
+      max-height: 256px;
 
       button {
         @apply flex-1;
@@ -295,7 +296,7 @@ hr {
     }
 
     .popover-arrow {
-      border-color: $bgcolor;
+      @apply border-ttColor;
     }
   }
 
@@ -441,6 +442,10 @@ section:target {
   }
 }
 
+input {
+  @apply truncate;
+}
+
 input[type="file"],
 input[type="radio"],
 #installPWA {
@@ -525,17 +530,17 @@ pre {
     @apply inline-block;
     @apply absolute;
     @apply pointer-events-none;
-    content: "\e313";
     @apply font-icon;
+    content: "\e313";
     top: 16px;
     right: 16px;
   }
 }
 
 select {
-  height: 40px;
   @apply cursor-pointer;
   @apply appearance-none;
+  height: 40px;
 
   &::-ms-expand {
     @apply hidden;
@@ -555,7 +560,6 @@ input[type="checkbox"] {
     @apply cursor-pointer;
 
     &:before {
-      content: "\2714";
       @apply border;
       @apply border-fgColor;
       @apply rounded-lg;
@@ -566,6 +570,7 @@ input[type="checkbox"] {
       @apply transition;
       @apply ease-in-out;
       @apply duration-200;
+      content: "\2714";
       height: 16px;
       width: 16px;
       margin: 8px 8px 8px 0;
@@ -793,22 +798,22 @@ section {
 .toasted-ad {
   @apply bg-gray-50;
   @apply text-gray-900;
-  padding: 16px !important;
   @apply font-bold;
   @apply text-sm;
   @apply rounded-lg;
   @apply shadow-lg;
+  padding: 16px !important;
 
   .action {
+    @apply bg-gray-50;
+    @apply text-gray-900;
+    @apply rounded-lg;
     text-transform: none !important;
     padding: 12px 16px !important;
     font-weight: 500 !important;
     font-size: 16px !important;
     margin: 0 !important;
     margin-left: 8px !important;
-    @apply bg-gray-50;
-    @apply text-gray-900;
-    @apply rounded-lg;
   }
 }
 
@@ -817,8 +822,8 @@ section {
 }
 
 .github-sponsor {
+  @apply rounded-full;
   @apply mr-4;
   max-width: 64px;
   max-height: 64px;
-  @apply rounded-full;
 }

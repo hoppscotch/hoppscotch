@@ -44,12 +44,13 @@ export default {
       const dataArr = []
 
       let previousDuration = 0.0
-      for (let i = 0; i < this.transactionDataObject.length; i++) {
-        labelArr.push(this.transactionDataObject[i].Name)
-        dataArr.push([previousDuration, previousDuration + this.transactionDataObject[i].Duration])
-        if (i > 0) {
-          previousDuration += this.transactionDataObject[i].Duration
-        }
+      labelArr.push(this.transactionDataObject[0].Name)
+      dataArr.push([previousDuration, previousDuration + this.transactionDataObject[0].Duration])
+      let spans = this.transactionDataObject[1]
+      for (let i = 0; i < spans.length; i++) {
+        labelArr.push(spans[i].Name)
+        dataArr.push([previousDuration, previousDuration + spans[i].Duration])
+        previousDuration += spans[i].Duration
       }
 
       const data = {

@@ -105,7 +105,7 @@ export default {
   methods: {
     async fetchTransactions() {
       const data = {
-        url: `${this.$store.state.request.method.toUpperCase()} ${
+        url: `${this.$store.state.request.method.toUpperCase()}${
           this.$store.state.request.path
         }`.toString(),
       }

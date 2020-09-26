@@ -305,7 +305,7 @@ kbd {
 </style>
 
 <script>
-import intializePwa from "~/assets/js/pwa"
+import intializePwa from "~/helpers/pwa"
 import {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,

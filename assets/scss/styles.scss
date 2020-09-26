@@ -176,6 +176,7 @@ hr {
 
 .tooltip {
   @apply z-50;
+  @apply outline-none;
 
   .tooltip-inner {
     @apply rounded-lg;
@@ -819,11 +820,4 @@ section {
 
 .virtual-list {
   @apply overflow-auto;
-}
-
-.github-sponsor {
-  @apply rounded-full;
-  @apply mr-4;
-  max-width: 64px;
-  max-height: 64px;
 }

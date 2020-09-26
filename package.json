@@ -54,7 +54,7 @@
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.0.2",
     "@nuxtjs/svg": "^0.1.12",
-    "@nuxtjs/tailwindcss": "^3.0.2",
+    "@nuxtjs/tailwindcss": "^3.1.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@vue/test-utils": "^1.1.0",
     "babel-core": "^7.0.0-bridge.0",

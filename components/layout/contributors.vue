@@ -231,6 +231,11 @@
   @apply overflow-auto;
   @apply my-4;
 }
+
+.github-sponsor {
+  @apply mr-2;
+  @apply rounded-full;
+}
 </style>
 
 <script>

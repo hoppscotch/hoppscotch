@@ -1044,9 +1044,9 @@
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
                 <select id="requestType" v-model="requestType">
-                  <option>JavaScript XHR</option>
-                  <option>Fetch</option>
-                  <option>cURL</option>
+                  <option v-for="gen in codegens" :key="gen.id" :value="gen.id">
+                    {{ gen.name }}
+                  </option>
                 </select>
               </span>
             </li>
@@ -1262,6 +1262,7 @@ import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import closeIcon from "~/static/icons/close-24px.svg?inline"
 import deleteIcon from "~/static/icons/delete-24px.svg?inline"
+import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 
 const statusCategories = [
   {
@@ -1344,6 +1345,7 @@ export default {
             : true,
       },
       currentMethodIndex: 0,
+      codegens: codegens,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1788,103 +1790,20 @@ export default {
       return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },
     requestCode() {
-      if (this.requestType === "JavaScript XHR") {
-        const requestString = []
-        requestString.push("const xhr = new XMLHttpRequest()")
-        const user = this.auth === "Basic Auth" ? `'${this.httpUser}'` : null
-        const password = this.auth === "Basic Auth" ? `'${this.httpPassword}'` : null
-        requestString.push(
-          `xhr.open('${this.method}', '${this.url}${this.pathName}${this.queryString}', true, ${user}, ${password})`
-        )
-        if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          requestString.push(`xhr.setRequestHeader('Authorization', 'Bearer ${this.bearerToken}')`)
-        }
-        if (this.headers) {
-          this.headers.forEach(({ key, value }) => {
-            if (key) requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
-          })
-        }
-        if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
-          let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          if (isJSONContentType(this.contentType)) {
-            requestBody = `JSON.stringify(${requestBody})`
-          } else if (this.contentType.includes("x-www-form-urlencoded")) {
-            requestBody = `"${requestBody}"`
-          }
-          requestString.push(
-            `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
-          )
-          requestString.push(`xhr.send(${requestBody})`)
-        } else {
-          requestString.push("xhr.send()")
-        }
-        return requestString.join("\n")
-      } else if (this.requestType === "Fetch") {
-        const requestString = []
-        let headers = []
-        requestString.push(`fetch("${this.url}${this.pathName}${this.queryString}", {\n`)
-        requestString.push(`  method: "${this.method}",\n`)
-        if (this.auth === "Basic Auth") {
-          const basic = `${this.httpUser}:${this.httpPassword}`
-          headers.push(
-            `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
-          )
-        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          headers.push(`    "Authorization": "Bearer ${this.bearerToken}",\n`)
-        }
-        if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
-          let requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          if (isJSONContentType(this.contentType)) {
-            requestBody = `JSON.stringify(${requestBody})`
-          } else if (this.contentType.includes("x-www-form-urlencoded")) {
-            requestBody = `"${requestBody}"`
-          }
-
-          requestString.push(`  body: ${requestBody},\n`)
-          headers.push(`    "Content-Type": "${this.contentType}; charset=utf-8",\n`)
-        }
-        if (this.headers) {
-          this.headers.forEach(({ key, value }) => {
-            if (key) headers.push(`    "${key}": "${value}",\n`)
-          })
-        }
-        headers = headers.join("").slice(0, -2)
-        requestString.push(`  headers: {\n${headers}\n  },\n`)
-        requestString.push('  credentials: "same-origin"\n')
-        requestString.push("}).then(function(response) {\n")
-        requestString.push("  response.status\n")
-        requestString.push("  response.statusText\n")
-        requestString.push("  response.headers\n")
-        requestString.push("  response.url\n\n")
-        requestString.push("  return response.text()\n")
-        requestString.push("}).catch(function(error) {\n")
-        requestString.push("  error.message\n")
-        requestString.push("})")
-        return requestString.join("")
-      } else if (this.requestType === "cURL") {
-        const requestString = []
-        requestString.push(`curl -X ${this.method}`)
-        requestString.push(`  '${this.url}${this.pathName}${this.queryString}'`)
-        if (this.auth === "Basic Auth") {
-          const basic = `${this.httpUser}:${this.httpPassword}`
-          requestString.push(
-            `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
-          )
-        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          requestString.push(`  -H 'Authorization: Bearer ${this.bearerToken}'`)
-        }
-        if (this.headers) {
-          this.headers.forEach(({ key, value }) => {
-            if (key) requestString.push(`  -H '${key}: ${value}'`)
-          })
-        }
-        if (["POST", "PUT", "PATCH", "DELETE"].includes(this.method)) {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8'`)
-          requestString.push(`  -d '${requestBody}'`)
-        }
-        return requestString.join(" \\\n")
-      }
+      return generateCodeWithGenerator(this.requestType, {
+        method: this.method,
+        url: this.url,
+        pathName: this.pathName,
+        queryString: this.queryString,
+        httpUser: this.httpUser,
+        httpPassword: this.httpPassword,
+        bearerToken: this.bearerToken,
+        headers: this.headers,
+        rawInputs: this.rawInputs,
+        rawParams: this.rawParams,
+        rawRequestBody: this.rawRequestBody,
+        contentType: this.contentType,
+      })
     },
     tokenReqDetails() {
       const details = {

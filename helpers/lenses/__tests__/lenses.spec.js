@@ -21,7 +21,7 @@ describe("getSuitableLenses", () => {
   })
 
   lenses
-    .filter((e) => e.lensName != rawLens.lensName)
+    .filter(({ lensName }) => lensName != rawLens.lensName)
     .forEach((el) => {
       test(`returns ${el.lensName} lens for its content-types`, () => {
         el.supportedContentTypes.forEach((contentType) => {
@@ -53,9 +53,9 @@ describe("getLensRenderers", () => {
   test("returns all the lens renderers", () => {
     const res = getLensRenderers()
 
-    lenses.forEach((lens) => {
-      expect(res).toHaveProperty(lens.renderer)
-      expect(res[lens.renderer]).toBe(lens.rendererImport)
+    lenses.forEach(({ renderer, rendererImport }) => {
+      expect(res).toHaveProperty(renderer)
+      expect(res[renderer]).toBe(rendererImport)
     })
   })
 })

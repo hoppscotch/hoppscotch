@@ -14,7 +14,7 @@ export const codegens = [JSXHRCodegen, JSFetchCodegen, CurlCodegen]
 
 export function generateCodeWithGenerator(codegenID, context) {
   if (codegenID) {
-    const gen = codegens.find((e) => e.id === codegenID)
+    const gen = codegens.find(({ id }) => id === codegenID)
     return gen ? gen.generator(context) : ""
   }
 

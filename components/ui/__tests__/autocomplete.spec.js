@@ -89,7 +89,7 @@ describe("autocomplete", () => {
     await selectedSuggestion.trigger("click")
     await wrapper.vm.$nextTick()
 
-    expect(input.element.value).toEqual("b" + selectedText)
+    expect(input.element.value).toEqual(`b${selectedText}`)
   })
 
   test("hide selection on pressing ESC", async () => {
@@ -255,7 +255,7 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(input.element.value).toEqual("a" + selectedSuggestion)
+    expect(input.element.value).toEqual(`a${selectedSuggestion}`)
   })
 
   test("pressing tab when nothing is selected selects the first suggestion", async () => {
@@ -272,7 +272,7 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(input.element.value).toEqual("a" + firstSuggestionText)
+    expect(input.element.value).toEqual(`a${firstSuggestionText}`)
   })
 
   test("pressing any non-special key doesn't do anything", async () => {
@@ -294,6 +294,6 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(input.element.value).toEqual("a" + selectedSuggestion)
+    expect(input.element.value).toEqual(`a${selectedSuggestion}`)
   })
 })

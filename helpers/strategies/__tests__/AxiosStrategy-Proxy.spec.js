@@ -1,12 +1,10 @@
 import axios from "axios"
 import axiosStrategy, { testables, cancelRunningAxiosRequest } from "../AxiosStrategy"
 
-jest.mock("../../utils/b64", () => {
-  return {
-    __esModule: true,
-    decodeB64StringToArrayBuffer: jest.fn((data) => data + "-converted"),
-  }
-})
+jest.mock("../../utils/b64", () => ({
+  __esModule: true,
+  decodeB64StringToArrayBuffer: jest.fn((data) => `${data}-converted`),
+}))
 
 describe("cancelRunningAxiosRequest", () => {
   test("cancels axios request and does that only 1 time", () => {

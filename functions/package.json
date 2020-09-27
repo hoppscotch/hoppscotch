@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "firebase-admin": "^9.2.0",
-    "firebase-functions": "^3.9.1"
+    "firebase-functions": "^3.11.0"
   },
   "devDependencies": {
-    "firebase-functions-test": "^0.2.1"
+    "firebase-functions-test": "^0.2.2"
   },
   "private": true
 }

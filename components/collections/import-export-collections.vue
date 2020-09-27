@@ -323,7 +323,10 @@ export default {
       return Object.prototype.hasOwnProperty.call(item, "item")
     },
     isSubFolder(item) {
-      return Object.prototype.hasOwnProperty.call(item, "_postman_isSubFolder") && item._postman_isSubFolder
+      return (
+        Object.prototype.hasOwnProperty.call(item, "_postman_isSubFolder") &&
+        item._postman_isSubFolder
+      )
     },
     flattenPostmanItem(subFolder, subFolderGlue = " -- ") {
       delete subFolder._postman_isSubFolder

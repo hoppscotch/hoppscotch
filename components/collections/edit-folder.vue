@@ -47,7 +47,6 @@ export default {
   },
   props: {
     show: Boolean,
-    collection: Object,
     collectionIndex: Number,
     folder: Object,
     folderIndex: Number,
@@ -70,6 +69,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folder: { ...this.$props.folder, name: this.$data.name },
         folderIndex: this.$props.folderIndex,
+        folderName: this.$props.folder.name,
       })
       this.hideModal()
       this.syncCollections()

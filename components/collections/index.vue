@@ -8,30 +8,28 @@ TODO:
     <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"
-      :editingCollection="editingCollection"
-      :editingCollectionIndex="editingCollectionIndex"
+      :editing-collection="editingCollection"
+      :editing-collection-index="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
     <add-folder
       :show="showModalAddFolder"
-      :collection="editingCollection"
-      :collectionIndex="editingCollectionIndex"
+      :folder="editingFolder"
       @hide-modal="displayModalAddFolder(false)"
     />
     <edit-folder
       :show="showModalEditFolder"
-      :collection="editingCollection"
-      :collectionIndex="editingCollectionIndex"
+      :collection-index="editingCollectionIndex"
       :folder="editingFolder"
-      :folderIndex="editingFolderIndex"
+      :folder-index="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
     <edit-request
       :show="showModalEditRequest"
-      :collectionIndex="editingCollectionIndex"
-      :folderIndex="editingFolderIndex"
+      :collection-index="editingCollectionIndex"
+      :folder-index="editingFolderIndex"
       :request="editingRequest"
-      :requestIndex="editingRequestIndex"
+      :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
     <import-export-collections
@@ -68,11 +66,12 @@ TODO:
       <ul class="flex-col">
         <li v-for="(collection, index) in collections" :key="collection.name">
           <collection
+            :name="collection.name"
             :collection-index="index"
             :collection="collection"
             :doc="doc"
             @edit-collection="editCollection(collection, index)"
-            @add-folder="addFolder(collection, index)"
+            @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
@@ -161,15 +160,14 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    addFolder(collection, collectionIndex) {
-      this.$data.editingCollection = collection
-      this.$data.editingCollectionIndex = collectionIndex
+    addFolder(payload) {
+      const { folder } = payload
+      this.$data.editingFolder = folder
       this.displayModalAddFolder(true)
       this.syncCollections()
     },
     editFolder(payload) {
-      const { collection, collectionIndex, folder, folderIndex } = payload
-      this.$data.editingCollection = collection
+      const { collectionIndex, folder, folderIndex } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder
       this.$data.editingFolderIndex = folderIndex

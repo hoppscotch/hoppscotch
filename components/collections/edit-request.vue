@@ -79,6 +79,8 @@ export default {
   props: {
     show: Boolean,
     collectionIndex: Number,
+    folder:Object,
+    folderName: String,
     folderIndex: Number,
     request: Object,
     requestIndex: Number,
@@ -107,6 +109,12 @@ export default {
       return this.$store.state.postwoman.collections[this.$data.requestUpdateData.collectionIndex]
         .folders
     },
+    subFolders(){
+      const userSelectedAnyFolder = this.$data.requestUpdateData.folderIndex !== undefined
+      if (!userSelectedAnyFolder) return []
+      return this.$store.state.postwoman.collections[this.$data.requestUpdateData.collectionIndex]
+        .folders[this.data.requestUpdateData.folderIndex]
+    }
   },
   methods: {
     syncCollections() {

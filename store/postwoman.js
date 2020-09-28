@@ -205,23 +205,39 @@ export const mutations = {
     collections[collectionIndex] = collection
   },
 
-  addNewFolder({ collections }, payload) {
-    const { collectionIndex, folder } = payload
-    collections[collectionIndex].folders.push({
-      name: "",
+  addFolder({collections}, payload) {
+    const {name, folder} = payload;
+
+    const newFolder = {
+      name: name,
       requests: [],
-      ...folder,
-    })
+      folders: [],
+    }
+    folder.folders.push(newFolder)
   },
 
-  editFolder({ collections }, payload) {
-    const { collectionIndex, folder, folderIndex } = payload
-    Vue.set(collections[collectionIndex].folders, folderIndex, folder)
+  editFolder({collections}, payload) {
+    const {collectionIndex, folder, folderIndex, folderName} = payload
+    const collection = collections[collectionIndex];
+    const folders = collection.folders;
+
+    if (folders[folderIndex] && folders[folderIndex].name === folderName) {
+      Vue.set(folders, folderIndex, folder);
+    } else {
+      replaceFolder(folder, folders, folderName, folderIndex);
+    }
   },
 
-  removeFolder({ collections }, payload) {
-    const { collectionIndex, folderIndex } = payload
-    collections[collectionIndex].folders.splice(folderIndex, 1)
+  removeFolder({collections}, payload) {
+    const {collectionIndex, folderIndex, folderName} = payload
+    const collection = collections[collectionIndex];
+    const folders = collection.folders;
+
+    if (folders[folderIndex] && folders[folderIndex].name === folderName) {
+      folders.splice(folderIndex, 1)
+    } else {
+      deleteFolder(folders, folderName, folderIndex)
+    }
   },
 
   addRequest({ collections }, payload) {
@@ -338,19 +354,33 @@ export const mutations = {
   },
 
   removeRequest({ collections }, payload) {
-    const { collectionIndex, folderIndex, requestIndex } = payload
+    const { collectionIndex, folderName,  requestIndex } = payload
 
-    // Request that is directly attached to collection
-    if (folderIndex === -1) {
+    if (collections[collectionIndex].name === folderName) {
       collections[collectionIndex].requests.splice(requestIndex, 1)
       return
     }
-
-    collections[collectionIndex].folders[folderIndex].requests.splice(requestIndex, 1)
+    deleteRequest(collections[collectionIndex].folders, folderName, requestIndex);
   },
 
   selectRequest(state, { request }) {
     state.selectedRequest = Object.assign({}, request)
+  },
+
+  moveRequest({collections}, payload) {
+    const {collectionIndex, newFolderIndex, newFolderName, oldFolderIndex, oldFolderName, requestIndex} = payload;
+    const collection = collections[collectionIndex];
+
+    // Moving from collection to another folder
+    if (collection.name === oldFolderName) {
+      const request = collection.requests[requestIndex];
+      collection.requests.splice(requestIndex, 1)
+      addRequestToFolder(collection, newFolderIndex, newFolderName, request)
+      return
+    }
+
+    const request = findRequest(oldFolderName,collection, requestIndex)
+    addRequestToFolder(collection, newFolderIndex, newFolderName, request)
   },
 }
 
@@ -360,5 +390,94 @@ function testValue(myValue) {
   } catch (ex) {
     // Now we know it's a string just leave it as a string value.
     return myValue
+  }
+}
+
+function addRequestToFolder(collection, newFolderIndex, newFolderName, request) {
+  if (newFolderIndex === -1) {
+    collection.requests.push(request)
+    return
+  }
+
+  let folder = findFolder(newFolderName, collection);
+  if (folder) {
+    folder.requests.push(request)
+  }
+}
+
+function findRequest(folderName, currentFolder, requestIndex) {
+  let selectedFolder, result;
+
+  if (folderName === currentFolder.name) {
+    let request = currentFolder.requests[requestIndex];
+    currentFolder.requests.splice(requestIndex, 1)
+    return request;
+  } else {
+
+    for (let i = 0; i < currentFolder.folders.length; i += 1) {
+      selectedFolder = currentFolder.folders[i];
+
+      result = findRequest(folderName, selectedFolder, requestIndex);
+
+      if (result !== false) {
+        return result;
+      }
+    }
+
+    return false;
+  }
+}
+
+function findFolder(folderName, currentFolder) {
+  let selectedFolder, result;
+
+  if (folderName === currentFolder.name) {
+    return currentFolder;
+  } else {
+
+    for (let i = 0; i < currentFolder.folders.length; i++) {
+      selectedFolder = currentFolder.folders[i];
+
+      result = findFolder(folderName, selectedFolder);
+
+      if (result !== false) {
+        return result;
+      }
+    }
+
+    return false;
+  }
+}
+
+function deleteRequest(folders, folderName, requestIndex) {
+  if (folders && folders.length) {
+    folders.forEach(function (subFolder) {
+      if (subFolder.name === folderName) {
+        subFolder.requests.splice(requestIndex, 1)
+      }
+      deleteRequest(subFolder.folders, folderName, requestIndex);
+    })
+  }
+}
+
+function replaceFolder(folder, folders, folderName, folderIndex) {
+  if (folders && folders.length) {
+    folders.forEach(function (subFolder) {
+      if (subFolder.name === folderName) {
+        Vue.set(folders, folderIndex, folder)
+      }
+      replaceFolder(folder, subFolder.folders, folderName, folderIndex);
+    })
+  }
+}
+
+function deleteFolder(folders, folderName, folderIndex) {
+  if (folders && folders.length) {
+    folders.forEach(function (subFolder) {
+      if (subFolder.name === folderName) {
+        folders.splice(folderIndex, 1)
+      }
+      deleteFolder(subFolder.folders, folderName, folderIndex);
+    })
   }
 }

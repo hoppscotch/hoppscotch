@@ -1,5 +1,12 @@
 <template>
-  <div class="row-wrapper">
+  <div
+    :class="['row-wrapper', dragging ? 'drag-el' : '']"
+    draggable="true"
+    @dragstart="dragStart"
+    @dragover.stop
+    @dragleave="dragging=false"
+    @dragend="dragging=false"
+  >
     <div>
       <button
         class="icon"
@@ -42,8 +49,14 @@ export default {
     request: Object,
     collectionIndex: Number,
     folderIndex: Number,
+    folderName: String,
     requestIndex: Number,
     doc: Boolean,
+  },
+  data() {
+    return {
+      dragging: false,
+    }
   },
   methods: {
     syncCollections() {
@@ -56,12 +69,19 @@ export default {
     selectRequest() {
       this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
+    dragStart(event) {
+      this.dragging = !this.dragging;
+      event.dataTransfer.setData('collectionIndex', this.$props.collectionIndex);
+      event.dataTransfer.setData('oldFolderIndex',this.$props.folderIndex)
+      event.dataTransfer.setData('oldFolderName', this.$props.folderName);
+      event.dataTransfer.setData('requestIndex', this.$props.requestIndex);
+    },
     removeRequest() {
       if (!confirm(this.$t("are_you_sure_remove_request"))) return
       this.$store.commit("postwoman/removeRequest", {
-        collectionIndex: this.collectionIndex,
-        folderIndex: this.folderIndex,
-        requestIndex: this.requestIndex,
+        collectionIndex: this.$props.collectionIndex,
+        folderName: this.$props.folderName,
+        requestIndex: this.$props.requestIndex,
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

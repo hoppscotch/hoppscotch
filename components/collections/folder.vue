@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      :class="['flex-wrap', dragging ? 'drop-zone':'' ]"
+      :class="['row-wrapper', dragging ? 'drop-zone':'' ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging=true"
@@ -23,13 +23,13 @@
         </button>
         <template slot="popover">
           <div>
-            <button class="icon" @click="$emit('add-folder', {folder})" v-close-popover>
+            <button class="icon" @click="$emit('add-folder', { folder })" v-close-popover>
               <i class="material-icons">create_new_folder</i>
               <span>{{ $t("new_folder") }}</span>
             </button>
           </div>
           <div>
-            <button class="icon"  @click="$emit('edit-folder', {folder, folderIndex, collectionIndex})"  v-close-popover>
+            <button class="icon"  @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"  v-close-popover>
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
@@ -58,18 +58,12 @@
             :folder-name="folder.name"
             :request-index="index"
             :doc="doc"
-            @edit-request="
-              $emit('edit-request', {
-                request,
-                collectionIndex,
-                requestIndex: index,
-              })
-            "
+            @edit-request="$emit('edit-request', $event)"
           />
         </li>
       </ul>
-      <ul v-if="folder.folders && folder.folders.length" >
-        <li v-for="(subFolder, subFolderIndex) in folder.folders" :key="subFolder.name" class="flex ml-8 border-l border-brdColor" >
+      <ul v-if="folder.folders && folder.folders.length" class="flex-col">
+        <li v-for="(subFolder, subFolderIndex) in folder.folders" :key="subFolder.name" >
           <folder
             :folder="subFolder"
             :folder-index="subFolderIndex"

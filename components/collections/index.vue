@@ -28,6 +28,7 @@ TODO:
       :show="showModalEditRequest"
       :collection-index="editingCollectionIndex"
       :folder-index="editingFolderIndex"
+      :folder-name="editingFolderName"
       :request="editingRequest"
       :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
@@ -106,6 +107,7 @@ export default {
       editingCollection: undefined,
       editingCollectionIndex: undefined,
       editingFolder: undefined,
+      editingFolderName:undefined,
       editingFolderIndex: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,
@@ -175,9 +177,10 @@ export default {
       this.syncCollections()
     },
     editRequest(payload) {
-      const { request, collectionIndex, folderIndex, requestIndex } = payload
+      const { collectionIndex, folderIndex, folderName, request, requestIndex } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex
+      this.$data.editingFolderName = folderName
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
       this.displayModalEditRequest(true)

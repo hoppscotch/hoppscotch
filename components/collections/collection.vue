@@ -85,14 +85,7 @@
             :folder-name="collection.name"
             :request-index="index"
             :doc="doc"
-            @edit-request="
-              $emit('edit-request', {
-                request,
-                collectionIndex,
-                folderIndex: undefined,
-                requestIndex: index,
-              })
-            "
+            @edit-request="$emit('edit-request', $event)"
           />
         </li>
       </ul>

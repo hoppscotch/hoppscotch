@@ -23,7 +23,11 @@
       </button>
       <template slot="popover">
         <div>
-          <button class="icon" @click="$emit('edit-request')" v-close-popover>
+          <button class="icon" @click="$emit('edit-request',{ collectionIndex,
+                                                              folderIndex,
+                                                              folderName,
+                                                              request,
+                                                              requestIndex } )" v-close-popover>
             <i class="material-icons">edit</i>
             <span>{{ $t("edit") }}</span>
           </button>
@@ -72,7 +76,7 @@ export default {
     dragStart(event) {
       this.dragging = !this.dragging;
       event.dataTransfer.setData('collectionIndex', this.$props.collectionIndex);
-      event.dataTransfer.setData('oldFolderIndex',this.$props.folderIndex)
+      event.dataTransfer.setData('oldFolderIndex', this.$props.folderIndex)
       event.dataTransfer.setData('oldFolderName', this.$props.folderName);
       event.dataTransfer.setData('requestIndex', this.$props.requestIndex);
     },

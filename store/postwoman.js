@@ -253,41 +253,24 @@ export const mutations = {
   },
 
   editRequest({ collections }, payload) {
-    const {
-      requestOldCollectionIndex,
-      requestOldFolderIndex,
-      requestOldIndex,
-      requestNew,
-      requestNewCollectionIndex,
-      requestNewFolderIndex,
-    } = payload
+    const { requestCollectionIndex, requestFolderName, requestFolderIndex, requestNew, requestIndex } = payload
 
-    const changedCollection = requestOldCollectionIndex !== requestNewCollectionIndex
-    const changedFolder = requestOldFolderIndex !== requestNewFolderIndex
-    const changedPlace = changedCollection || changedFolder
+    let collection = collections[requestCollectionIndex];
 
-    // set new request
-    if (requestNewFolderIndex !== undefined) {
-      Vue.set(
-        collections[requestNewCollectionIndex].folders[requestNewFolderIndex].requests,
-        requestOldIndex,
-        requestNew
-      )
-    } else {
-      Vue.set(collections[requestNewCollectionIndex].requests, requestOldIndex, requestNew)
+    if (requestFolderIndex === -1) {
+      Vue.set(collection.requests, requestIndex, requestNew)
+      return
     }
 
-    // remove old request
-    if (changedPlace) {
-      if (requestOldFolderIndex !== undefined) {
-        collections[requestOldCollectionIndex].folders[requestOldFolderIndex].requests.splice(
-          requestOldIndex,
-          1
-        )
-      } else {
-        collections[requestOldCollectionIndex].requests.splice(requestOldIndex, 1)
+    if (collection.folders && collection.folders.length) {
+      if (collection.folders[requestFolderIndex].name === requestFolderName) {
+        Vue.set(collection.folders[requestFolderIndex].requests, requestIndex, requestNew)
+        return
       }
     }
+
+    let folder = findFolder(requestFolderName, collection)
+    Vue.set(folder.requests, requestIndex, requestNew)
   },
 
   saveRequestAs({ collections }, payload) {

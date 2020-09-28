@@ -117,7 +117,7 @@ export default {
             // Do nothing
           }
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
-          collections = this.parsePostmanCollection(collections)
+          collections = [this.parsePostmanCollection(collections)]
         } else {
           return this.failedImport()
         }

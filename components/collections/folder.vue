@@ -109,9 +109,6 @@ export default {
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
-    selectRequest(request) {
-      this.$store.commit("postwoman/selectRequest", { request })
-    },
     removeFolder() {
       if (!confirm(this.$t("are_you_sure_remove_folder"))) return
       this.$store.commit("postwoman/removeFolder", {

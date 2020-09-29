@@ -1799,7 +1799,7 @@ export default {
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
         headers: this.headers,
-        rawInputs: this.rawInputs,
+        rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
         contentType: this.contentType,

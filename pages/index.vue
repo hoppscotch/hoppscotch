@@ -2124,7 +2124,6 @@ export default {
       this.testReports = testResults
     },
     getQueryStringFromPath() {
-      let queryString
       const pathParsed = url.parse(this.uri)
       return pathParsed.query ? pathParsed.query : ""
     },

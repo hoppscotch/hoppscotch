@@ -75,7 +75,7 @@ export default {
     },
     dragStart(event) {
       this.dragging = !this.dragging;
-      event.dataTransfer.setData('collectionIndex', this.$props.collectionIndex);
+      event.dataTransfer.setData('oldCollectionIndex', this.$props.collectionIndex);
       event.dataTransfer.setData('oldFolderIndex', this.$props.folderIndex)
       event.dataTransfer.setData('oldFolderName', this.$props.folderName);
       event.dataTransfer.setData('requestIndex', this.$props.requestIndex);

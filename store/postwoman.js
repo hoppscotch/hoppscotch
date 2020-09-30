@@ -236,18 +236,6 @@ export const mutations = {
     }
   },
 
-  addRequest({ collections }, payload) {
-    const { request } = payload
-
-    // Request that is directly attached to collection
-    if (request.folder === -1) {
-      collections[request.collection].requests.push(request)
-      return
-    }
-
-    collections[request.collection].folders[request.folder].requests.push(request)
-  },
-
   editRequest({ collections }, payload) {
     const { requestCollectionIndex, requestFolderName, requestFolderIndex, requestNew, requestIndex } = payload
 
@@ -256,13 +244,6 @@ export const mutations = {
     if (requestFolderIndex === -1) {
       Vue.set(collection.requests, requestIndex, requestNew)
       return
-    }
-
-    if (collection.folders && collection.folders.length) {
-      if (collection.folders[requestFolderIndex].name === requestFolderName) {
-        Vue.set(collection.folders[requestFolderIndex].requests, requestIndex, requestNew)
-        return
-      }
     }
 
     let folder = findFolder(requestFolderName, collection, false)
@@ -312,19 +293,24 @@ export const mutations = {
   },
 
   moveRequest({ collections }, payload) {
-    const { collectionIndex, newFolderIndex, newFolderName, oldFolderIndex, oldFolderName, requestIndex } = payload;
-    const collection = collections[collectionIndex];
+    const { oldCollectionIndex, newCollectionIndex, newFolderIndex, newFolderName, oldFolderName, requestIndex } = payload;
 
-    const request = findRequest(oldFolderName, collection, requestIndex)
+    const isCollection = newFolderIndex === -1;
+    const oldCollection = collections[oldCollectionIndex];
+    const newCollection = collections[newCollectionIndex];
+    const request = findRequest(oldFolderName, oldCollection, requestIndex)
 
-    if (newFolderIndex === -1) {
-      collection.requests.push(request)
+    if (isCollection) {
+      newCollection.requests.push(request)
       return
     }
 
-    let folder = findFolder(newFolderName, collection, false);
-    if (folder) {
-      folder.requests.push(request)
+    if (!isCollection) {
+      const folder = findFolder(newFolderName, newCollection, false);
+      if (folder) {
+        folder.requests.push(request)
+        return
+      }
     }
   },
 }

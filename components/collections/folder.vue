@@ -5,7 +5,7 @@
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging=true"
-      @drop="gragging=false"
+      @drop="dragging=false"
       @dragleave="dragging=false"
       @dragend="dragging=false"
     >
@@ -123,13 +123,14 @@ export default {
     },
     dropEvent(event) {
       this.dragging = !this.dragging;
-      const collectionIndex = event.dataTransfer.getData('collectionIndex');
+      const oldCollectionIndex = event.dataTransfer.getData('oldCollectionIndex');
       const oldFolderIndex = event.dataTransfer.getData('oldFolderIndex');
       const oldFolderName = event.dataTransfer.getData('oldFolderName');
       const requestIndex = event.dataTransfer.getData('requestIndex');
 
       this.$store.commit("postwoman/moveRequest", {
-        collectionIndex: collectionIndex,
+        oldCollectionIndex: oldCollectionIndex,
+        newCollectionIndex: this.$props.collectionIndex,
         newFolderIndex: this.$props.folderIndex,
         newFolderName: this.$props.folder.name,
         oldFolderIndex: oldFolderIndex,

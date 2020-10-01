@@ -265,6 +265,12 @@ export default {
         iso: "ko-KR",
         file: "ko-KR.json",
       },
+      {
+        code: "bn",
+        name: "Bengali",
+        iso: "bn-BD",
+        file: "bn-BD.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

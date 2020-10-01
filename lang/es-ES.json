@@ -282,5 +282,14 @@
   "are_you_sure_remove_collection": "¿Estás seguro de que quieres eliminar esta Colección?",
   "are_you_sure_remove_folder": "¿Estás seguro de que quieres eliminar esta carpeta?",
   "are_you_sure_remove_request": "¿Estás seguro de que quieres eliminar esta petición?",
-  "are_you_sure_remove_environment": "¿Estás seguro de que quieres eliminar este entorno?"
+  "are_you_sure_remove_environment": "¿Estás seguro de que quieres eliminar este entorno?",
+  "select_next_method": "Seleccionar siguiente método",
+  "select_get_method": "Seleccionar método GET",
+  "select_head_method": "Seleccionar método HEAD",
+  "select_post_method": "Seleccionar método POST",
+  "select_put_method": "Seleccionar método PUT",
+  "select_delete_method": "Seleccionar método DELETE",
+  "experiments": "Experimentos",
+  "experiments_notice": "Ésta es una colección de experimentos en los que trabajamos; pueden ser útiles, divertidos, ambos o ninguno. No son definitivos y pueden no ser estables así que, si pasa algo raro, no te preocupes. Simplemente apaga esa cosa. Bromas aparte, ",
+  "use_experimental_url_bar": "Usar barra URL experimental con resaltado de entorno"
 }

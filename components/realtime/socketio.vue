@@ -14,14 +14,10 @@
           />
         </li>
         <div>
-        <li>
-          <label for="socketio-path">{{ $t("path") }}</label>
-          <input
-            id="socketio-path"
-            spellcheck="false"
-            v-model="path"
-          />
-        </li>
+          <li>
+            <label for="socketio-path">{{ $t("path") }}</label>
+            <input id="socketio-path" spellcheck="false" v-model="path" />
+          </li>
         </div>
         <div>
           <li>
@@ -125,11 +121,11 @@ export default {
       ]
 
       try {
-        if(!this.path){
-          this.path = '/socket.io'
+        if (!this.path) {
+          this.path = "/socket.io"
         }
-        this.io = new io(this.url,{
-          path: this.path
+        this.io = new io(this.url, {
+          path: this.path,
         })
         // Add ability to listen to all events
         wildcard(io.Manager)(this.io)

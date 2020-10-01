@@ -17,7 +17,6 @@ export const options = {
 }
 export default {
   ssr: false,
-  target: "static",
   server: {
     host: "0.0.0.0", // default: localhost
   },

@@ -5,12 +5,10 @@ import extensionStrategy, {
   cancelRunningExtensionRequest,
 } from "../ExtensionStrategy"
 
-jest.mock("../../utils/b64", () => {
-  return {
-    __esModule: true,
-    decodeB64StringToArrayBuffer: jest.fn((data) => data + "-converted"),
-  }
-})
+jest.mock("../../utils/b64", () => ({
+  __esModule: true,
+  decodeB64StringToArrayBuffer: jest.fn((data) => `${data}-converted`),
+}))
 
 describe("hasExtensionInstalled", () => {
   test("returns true if extension is present and hooked", () => {

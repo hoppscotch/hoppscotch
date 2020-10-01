@@ -1,20 +1,24 @@
 <template>
   <div contenteditable class="url-field" ref="editor" spellcheck="false"></div>
 </template>
+
 <style lang="scss">
 .highlight-VAR {
   @apply font-bold;
-  color: var(--ac-color);
+  @apply text-acColor;
 }
+
 .highlight-TEXT {
   @apply overflow-auto;
   @apply break-all;
-  height: 20px;
+  height: 22px;
 }
+
 .highlight-TEXT::-webkit-scrollbar {
   @apply hidden;
 }
 </style>
+
 <script>
 export default {
   props: {
@@ -81,9 +85,9 @@ export default {
 
       return map
     },
-    getTextSegments(element) {
+    getTextSegments({ childNodes }) {
       const textSegments = []
-      Array.from(element.childNodes).forEach((node) => {
+      Array.from(childNodes).forEach((node) => {
         switch (node.nodeType) {
           case Node.TEXT_NODE:
             textSegments.push({ text: node.nodeValue, node })

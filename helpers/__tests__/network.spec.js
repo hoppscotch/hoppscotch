@@ -6,22 +6,18 @@ import ExtensionStrategy, {
   hasExtensionInstalled,
 } from "../strategies/ExtensionStrategy"
 
-jest.mock("../strategies/AxiosStrategy", () => {
-  return {
-    __esModule: true,
-    default: jest.fn(() => Promise.resolve()),
-    cancelRunningAxiosRequest: jest.fn(() => Promise.resolve()),
-  }
-})
+jest.mock("../strategies/AxiosStrategy", () => ({
+  __esModule: true,
+  default: jest.fn(() => Promise.resolve()),
+  cancelRunningAxiosRequest: jest.fn(() => Promise.resolve()),
+}))
 
-jest.mock("../strategies/ExtensionStrategy", () => {
-  return {
-    __esModule: true,
-    default: jest.fn(() => Promise.resolve()),
-    cancelRunningExtensionRequest: jest.fn(() => Promise.resolve()),
-    hasExtensionInstalled: jest.fn(),
-  }
-})
+jest.mock("../strategies/ExtensionStrategy", () => ({
+  __esModule: true,
+  default: jest.fn(() => Promise.resolve()),
+  cancelRunningExtensionRequest: jest.fn(() => Promise.resolve()),
+  hasExtensionInstalled: jest.fn(),
+}))
 
 const extensionAllowedStore = {
   state: {

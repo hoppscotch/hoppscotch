@@ -1799,7 +1799,7 @@ export default {
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
         headers: this.headers,
-        rawInputs: this.rawInputs,
+        rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
         contentType: this.contentType,
@@ -2124,7 +2124,6 @@ export default {
       this.testReports = testResults
     },
     getQueryStringFromPath() {
-      let queryString
       const pathParsed = url.parse(this.uri)
       return pathParsed.query ? pathParsed.query : ""
     },

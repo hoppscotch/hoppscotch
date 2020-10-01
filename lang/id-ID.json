@@ -88,5 +88,20 @@
   "stop": "Berhenti",
   "syncHistory": "History",
   "syncCollections": "Collections",
-  "syncEnvironments": "Environments"
+  "syncEnvironments": "Environments",
+  "history_empty": "Riwayat Kosong",
+  "search": "Cari",
+  "nothing_found": "Tidak ditemukan",
+  "clear_all": "Hapus Semua",
+  "are_you_sure": "Apakah Anda Yakin?",
+  "delete": "Hapus",
+  "add_star": "Tambahkan Bintang",
+  "remove_star": "Hilangkan Bintang",
+  "sort": "Urutkan",
+  "time": "Waktu",
+  "show_more": "Tampilkan Lainnya",
+  "hide_more": "Sembunyikan Lainnya",
+  "deleted": "Dihapus",
+  "history_deleted": "Riwayat Dihapus",
+  "no_duration": "Tidak Ada Durasi"
 }

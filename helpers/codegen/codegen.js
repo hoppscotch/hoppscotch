@@ -2,6 +2,7 @@ import { JSXHRCodegen } from "./generators/js-xhr"
 import { JSFetchCodegen } from "./generators/js-fetch"
 import { CurlCodegen } from "./generators/curl"
 import { JSAxiosCodegen } from "./generators/js-axios"
+import { GoNativeCodegen } from "./generators/go-native"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -11,7 +12,7 @@ import { JSAxiosCodegen } from "./generators/js-axios"
  * generator: (ctx) => string
  *
  */
-export const codegens = [JSXHRCodegen, JSFetchCodegen, CurlCodegen, JSAxiosCodegen]
+export const codegens = [JSXHRCodegen, JSFetchCodegen, CurlCodegen, JSAxiosCodegen, GoNativeCodegen]
 
 export function generateCodeWithGenerator(codegenID, context) {
   if (codegenID) {

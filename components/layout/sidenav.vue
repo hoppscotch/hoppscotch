@@ -204,8 +204,11 @@ nav.primary-nav {
     @apply text-fgLightColor;
     @apply fill-current;
     @apply outline-none;
-    transition: 0.2s ease;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-200;
     border-radius: 50%;
+    transition-property: all !important;
 
     &:hover {
       @apply text-fgColor;

@@ -491,7 +491,6 @@ export default {
 
         return isFilterTextMatchingAtLeastOneField
       })
-      return types
     },
     getSpecialKey: getPlatformSpecialKey,
     doPrettifyQuery() {

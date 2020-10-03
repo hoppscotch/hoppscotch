@@ -456,8 +456,8 @@ export default {
 
       const isFilterTextFoundInDescription = graphqlFieldObject.description
         .toLowerCase()
-        .includes(text)
-      const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(text)
+        .includes(normalizedText)
+      const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(normalizedText)
 
       return isFilterTextFoundInDescription || isFilterTextFoundInName
     },
@@ -470,6 +470,7 @@ export default {
     },
     getFilteredGraphqlTypes({ filterText, types }) {
       if (!filterText) return types
+
       return types.filter((type) => {
         const isFilterTextMatching = this.isTextFoundInGraphqlFieldObject({
           text: filterText,

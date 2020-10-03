@@ -22,7 +22,13 @@ export const GoNativeCodegen = {
     let genHeaders = []
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
+    if (method == "GET") {
+      requestString.push(
+        `req, err := http.NewRequest("${method}", "${url}${pathName}${queryString}")\n`
+      )
+    }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      genHeaders.push(`req.Header.Set("Content-Type", "${contentType}")\n`)
       if (isJSONContentType(contentType)) {
         requestString.push(`var reqBody = []byte(\`${requestBody}\`)\n\n`)
         requestString.push(
@@ -36,7 +42,6 @@ export const GoNativeCodegen = {
     }
 
     // headers
-    genHeaders.push(`req.Header.Set("Content-Type", "${contentType}")\n`)
     // auth
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`

@@ -262,7 +262,8 @@
       </div>
       <aside class="sticky-inner inner-right lg:max-w-md">
         <pw-section class="purple" :label="$t('docs')" ref="docs">
-          <section>
+          <section class="flex-col">
+            <input type="text" :placeholder="$t('search')" v-model="graphqlFieldsFilterText" />
             <tabs ref="gqlTabs">
               <div class="gqlTabs">
                 <tab
@@ -271,13 +272,13 @@
                   :label="$t('queries')"
                   :selected="true"
                 >
-                  <div v-for="field in queryFields" :key="field.name">
+                  <div v-for="field in filteredQueryFields" :key="field.name">
                     <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
                 <tab v-if="mutationFields.length > 0" :id="'mutations'" :label="$t('mutations')">
-                  <div v-for="field in mutationFields" :key="field.name">
+                  <div v-for="field in filteredMutationFields" :key="field.name">
                     <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
@@ -287,13 +288,13 @@
                   :id="'subscriptions'"
                   :label="$t('subscriptions')"
                 >
-                  <div v-for="field in subscriptionFields" :key="field.name">
+                  <div v-for="field in filteredSubscriptionFields" :key="field.name">
                     <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
                 <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
-                  <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
+                  <div v-for="type in filteredGqlTypes" :key="type.name" :id="`type_${type.name}`">
                     <type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
@@ -349,6 +350,7 @@ export default {
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,
+      graphqlFieldsFilterText: undefined,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -359,6 +361,30 @@ export default {
     }
   },
   computed: {
+    filteredQueryFields() {
+      return this.getFilteredGraphqlFields({
+        filterText: this.graphqlFieldsFilterText,
+        fields: this.queryFields,
+      })
+    },
+    filteredMutationFields() {
+      return this.getFilteredGraphqlFields({
+        filterText: this.graphqlFieldsFilterText,
+        fields: this.mutationFields,
+      })
+    },
+    filteredSubscriptionFields() {
+      return this.getFilteredGraphqlFields({
+        filterText: this.graphqlFieldsFilterText,
+        fields: this.subscriptionFields,
+      })
+    },
+    filteredGqlTypes() {
+      return this.getFilteredGraphqlTypes({
+        filterText: this.graphqlFieldsFilterText,
+        types: this.gqlTypes,
+      })
+    },
     url: {
       get() {
         return this.$store.state.gql.url
@@ -425,6 +451,48 @@ export default {
     }
   },
   methods: {
+    isTextFoundInGraphqlFieldObject({ text, graphqlFieldObject }) {
+      const normalizedText = text.toLowerCase()
+
+      const isFilterTextFoundInDescription = graphqlFieldObject.description
+        .toLowerCase()
+        .includes(text)
+      const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(text)
+
+      return isFilterTextFoundInDescription || isFilterTextFoundInName
+    },
+    getFilteredGraphqlFields({ filterText, fields }) {
+      if (!filterText) return fields
+
+      return fields.filter((field) => {
+        return this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
+      })
+    },
+    getFilteredGraphqlTypes({ filterText, types }) {
+      if (!filterText) return types
+      return types.filter((type) => {
+        const isFilterTextMatching = this.isTextFoundInGraphqlFieldObject({
+          text: filterText,
+          graphqlFieldObject: type,
+        })
+
+        if (isFilterTextMatching) {
+          return true
+        }
+
+        const isFilterTextMatchingAtLeastOneField = Object.values(type._fields || {}).some(
+          (field) => {
+            return this.isTextFoundInGraphqlFieldObject({
+              text: filterText,
+              graphqlFieldObject: field,
+            })
+          }
+        )
+
+        return isFilterTextMatchingAtLeastOneField
+      })
+      return types
+    },
     getSpecialKey: getPlatformSpecialKey,
     doPrettifyQuery() {
       this.$refs.queryEditor.prettifyQuery()

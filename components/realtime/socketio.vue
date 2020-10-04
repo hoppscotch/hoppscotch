@@ -246,8 +246,6 @@ export default {
         .filter((message) => !!message)
 
       if (this.io) {
-        // TODO: support only one argument now
-        // maybe should support more argument
         this.io.emit(eventName, ...messages, (data) => {
           // receive response from server
           this.communication.log.push({

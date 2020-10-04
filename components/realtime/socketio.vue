@@ -54,19 +54,35 @@
       </ul>
       <ul>
         <li>
-          <label for="socketio-message">{{ $t("message") }}</label>
+          <div class="row-wrapper">
+            <label>{{ $t("message") }}s</label>
+          </div>
+        </li>
+      </ul>
+      <ul v-for="(input, index) of communication.inputs" :key="`input-${index}`">
+        <li>
           <input
-            id="socketio-message"
             name="message"
             type="text"
-            v-model="communication.input"
+            v-model="communication.inputs[index]"
             :readonly="!connectionState"
             @keyup.enter="connectionState ? sendMessage() : null"
           />
         </li>
-        <div>
+        <div v-if="index + 1 !== communication.inputs.length">
           <li>
-            <label for="send" class="hide-on-small-screen">&nbsp;</label>
+            <button
+              class="icon"
+              @click="removeCommunicationInput({ index })"
+              v-tooltip.bottom="$t('delete')"
+              :id="`delete-socketio-message-${index}`"
+            >
+              <deleteIcon class="material-icons" />
+            </button>
+          </li>
+        </div>
+        <div v-if="index + 1 === communication.inputs.length">
+          <li>
             <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
               {{ $t("send") }}
               <span>
@@ -76,6 +92,14 @@
           </li>
         </div>
       </ul>
+      <ul>
+        <li>
+          <button class="icon" @click="addCommunicationInput">
+            <i class="material-icons">add</i>
+            <span>{{ $t("add_new") }}</span>
+          </button>
+        </li>
+      </ul>
     </pw-section>
   </div>
 </template>
@@ -84,8 +108,12 @@
 import { socketioValid } from "~/helpers/utils/valid"
 import io from "socket.io-client"
 import wildcard from "socketio-wildcard"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
+  components: {
+    deleteIcon,
+  },
   data() {
     return {
       url: "ws://",
@@ -95,7 +123,7 @@ export default {
       communication: {
         log: null,
         eventName: "",
-        input: "",
+        inputs: [""],
       },
     }
   },
@@ -105,6 +133,12 @@ export default {
     },
   },
   methods: {
+    removeCommunicationInput({ index }) {
+      this.$delete(this.communication.inputs, index)
+    },
+    addCommunicationInput() {
+      this.communication.inputs.push("")
+    },
     toggleConnection() {
       // If it is connecting:
       if (!this.connectionState) return this.connect()
@@ -201,18 +235,18 @@ export default {
     },
     sendMessage() {
       const eventName = this.communication.eventName
-      let message
-
-      try {
-        message = JSON.parse(this.communication.input)
-      } catch (err) {
-        message = this.communication.input
-      }
+      const messages = (this.communication.inputs || [])
+        .map((input) => {
+          try {
+            return JSON.parse(input)
+          } catch (err) {
+            return input
+          }
+        })
+        .filter((message) => !!message)
 
       if (this.io) {
-        // TODO: support only one argument now
-        // maybe should support more argument
-        this.io.emit(eventName, message, (data) => {
+        this.io.emit(eventName, ...messages, (data) => {
           // receive response from server
           this.communication.log.push({
             payload: `[${eventName}] ${JSON.stringify(data)}`,
@@ -222,11 +256,11 @@ export default {
         })
 
         this.communication.log.push({
-          payload: `[${eventName}] ${JSON.stringify(message)}`,
+          payload: `[${eventName}] ${JSON.stringify(messages)}`,
           source: "client",
           ts: new Date().toLocaleTimeString(),
         })
-        this.communication.input = ""
+        this.communication.inputs = [""]
       }
     },
   },

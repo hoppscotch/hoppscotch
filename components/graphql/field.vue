@@ -27,7 +27,8 @@
 
 <style scoped lang="scss">
 .field-highlighted {
-  color: #ffff00;
+  @apply border-b-2;
+  @apply border-acColor;
 }
 </style>
 

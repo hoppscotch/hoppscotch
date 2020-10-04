@@ -21,7 +21,7 @@
 
 <style scoped lang="scss">
 .type-highlighted {
-  color: #ffff00;
+  @apply text-acColor;
 }
 </style>
 

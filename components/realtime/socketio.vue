@@ -55,7 +55,7 @@
       <ul>
         <li>
           <div class="row-wrapper">
-            <label>{{ $t("Messages") }}</label>
+            <label>{{ $t("message") }}s</label>
           </div>
         </li>
       </ul>

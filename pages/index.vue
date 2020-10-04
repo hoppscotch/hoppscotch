@@ -1791,7 +1791,6 @@ export default {
     },
     requestCode() {
       return generateCodeWithGenerator(this.requestType, {
-        auth: this.auth,
         method: this.method,
         url: this.url,
         pathName: this.pathName,

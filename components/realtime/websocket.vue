@@ -62,17 +62,39 @@
         </div>
       </ul>
     </pw-section>
+
+    <section id="parameters">
+      <tabs>
+        <tab
+          :id="'headers'"
+          :label="$t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`"
+          :selected="true"
+        >
+          <pw-section class="orange" label="Headers" ref="headers">
+            <http-headers
+              v-model="headers"
+              @add-request-header="addWebsocketHeader"
+              @remove-request-header="removeWebsocketHeader"
+              @clear-request-header-content="({ key, event }) => clearContent(key, event)"
+            />
+          </pw-section>
+        </tab>
+      </tabs>
+    </section>
   </div>
 </template>
 
 <script>
 import { wsValid } from "~/helpers/utils/valid"
+import HttpHeaders from "~/components/http/headers.vue"
 
 export default {
+  components: {
+    HttpHeaders,
+  },
   data() {
     return {
       connectionState: false,
-      url: "wss://echo.websocket.org",
       socket: null,
       communication: {
         log: null,
@@ -85,8 +107,116 @@ export default {
     urlValid() {
       return wsValid(this.url)
     },
+    url: {
+      get() {
+        return this.$store.state.websocket.url
+      },
+      set(value) {
+        this.$store.commit("setWebsocketState", { value, attribute: "url" })
+      },
+    },
+    headers: {
+      get() {
+        return this.$store.state.websocket.headers
+      },
+      set(value) {
+        this.$store.commit("setWebsocketState", { value, attribute: "headers" })
+      },
+    },
   },
   methods: {
+    addWebsocketHeader() {
+      this.$store.commit("addWebsocketHeaders", {
+        key: "",
+        value: "",
+      })
+      return false
+    },
+    removeWebsocketHeader({ index }) {
+      // .slice() gives us an entirely new array rather than giving us just the reference
+      const oldHeaders = this.headers.slice()
+      this.$store.commit("removeWebsocketHeaders", index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+        action: {
+          text: this.$t("undo"),
+          onClick: (e, toastObject) => {
+            this.headers = oldHeaders
+            toastObject.remove()
+          },
+        },
+      })
+    },
+
+    clearContent(name, { target }) {
+      switch (name) {
+        case "bodyParams":
+          this.bodyParams = []
+          break
+        case "rawParams":
+          this.rawParams = "{}"
+          break
+        case "parameters":
+          this.params = []
+          break
+        case "auth":
+          this.auth = "None"
+          this.httpUser = ""
+          this.httpPassword = ""
+          this.bearerToken = ""
+          this.showTokenRequest = false
+          this.tokens = []
+          this.tokenReqs = []
+          break
+        case "access_token":
+          this.accessTokenName = ""
+          this.oidcDiscoveryUrl = ""
+          this.authUrl = ""
+          this.accessTokenUrl = ""
+          this.clientId = ""
+          this.scope = ""
+          break
+        case "headers":
+          this.headers = []
+          break
+        case "tests":
+          this.testReports = []
+          break
+        case "tokens":
+          this.tokens = []
+          break
+        default:
+          this.method = "GET"
+          this.url = "https://httpbin.org"
+          this.path = "/get"
+          this.uri = this.url + this.path
+          this.label = ""
+          this.bodyParams = []
+          this.rawParams = "{}"
+          this.files = []
+          this.params = []
+          this.auth = "None"
+          this.httpUser = ""
+          this.httpPassword = ""
+          this.bearerToken = ""
+          this.showTokenRequest = false
+          this.tokens = []
+          this.tokenReqs = []
+          this.accessTokenName = ""
+          this.oidcDiscoveryUrl = ""
+          this.authUrl = ""
+          this.accessTokenUrl = ""
+          this.clientId = ""
+          this.scope = ""
+          this.headers = []
+          this.testReports = []
+      }
+      target.innerHTML = this.doneButton
+      this.$toast.info(this.$t("cleared"), {
+        icon: "clear_all",
+      })
+      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+    },
     toggleConnection() {
       // If it is connecting:
       if (!this.connectionState) return this.connect()

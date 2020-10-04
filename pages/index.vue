@@ -729,74 +729,12 @@
               "
             >
               <pw-section class="orange" label="Headers" ref="headers">
-                <ul v-if="headers.length !== 0">
-                  <li>
-                    <div class="row-wrapper">
-                      <label for="headerList">{{ $t("header_list") }}</label>
-                      <div>
-                        <button
-                          class="icon"
-                          @click="clearContent('headers', $event)"
-                          v-tooltip.bottom="$t('clear')"
-                        >
-                          <i class="material-icons">clear_all</i>
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-                <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
-                  <li>
-                    <autocomplete
-                      :placeholder="$t('header_count', { count: index + 1 })"
-                      :source="commonHeaders"
-                      :spellcheck="false"
-                      :value="header.key"
-                      @input="
-                        $store.commit('setKeyHeader', {
-                          index,
-                          value: $event,
-                        })
-                      "
-                      @keyup.prevent="setRouteQueryState"
-                      autofocus
-                    />
-                  </li>
-                  <li>
-                    <input
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="'value' + index"
-                      :value="header.value"
-                      @change="
-                        $store.commit('setValueHeader', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                      @keyup.prevent="setRouteQueryState"
-                    />
-                  </li>
-                  <div>
-                    <li>
-                      <button
-                        class="icon"
-                        @click="removeRequestHeader(index)"
-                        v-tooltip.bottom="$t('delete')"
-                        id="header"
-                      >
-                        <deleteIcon class="material-icons" />
-                      </button>
-                    </li>
-                  </div>
-                </ul>
-                <ul>
-                  <li>
-                    <button class="icon" @click="addRequestHeader">
-                      <i class="material-icons">add</i>
-                      <span>{{ $t("add_new") }}</span>
-                    </button>
-                  </li>
-                </ul>
+                <http-headers
+                  v-model="headers"
+                  @add-request-header="addRequestHeader"
+                  @remove-request-header="removeRequestHeader"
+                  @clear-request-header-content="({ key, event }) => clearContent(key, event)"
+                />
               </pw-section>
             </tab>
 
@@ -1247,7 +1185,6 @@
 <script>
 import url from "url"
 import querystring from "querystring"
-import { commonHeaders } from "~/helpers/headers"
 import parseCurlCommand from "~/helpers/curlparser"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
@@ -1263,6 +1200,7 @@ import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttyp
 import closeIcon from "~/static/icons/close-24px.svg?inline"
 import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+import HttpHeaders from "~/components/http/headers.vue"
 
 const statusCategories = [
   {
@@ -1304,6 +1242,7 @@ export default {
   components: {
     closeIcon,
     deleteIcon,
+    HttpOptionsHeaders,
   },
   data() {
     return {
@@ -1327,7 +1266,6 @@ export default {
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      commonHeaders,
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
@@ -1460,6 +1398,13 @@ export default {
     },
     preRequestScript: function (val, oldVal) {
       this.uri = this.uri
+    },
+    headers: {
+      handler(headers) {
+        this.setRouteQueryState()
+      },
+      deep: true,
+      immediate: true,
     },
   },
   computed: {
@@ -2149,7 +2094,7 @@ export default {
       })
       return false
     },
-    removeRequestHeader(index) {
+    removeRequestHeader({ index }) {
       // .slice() gives us an entirely new array rather than giving us just the reference
       const oldHeaders = this.headers.slice()
       this.$store.commit("removeHeaders", index)

@@ -7,6 +7,10 @@ export default {
     gql[attribute] = value
   },
 
+  setWebsocketState({ websocket }, { attribute, value }) {
+    websocket[attribute] = value
+  },
+
   setCollapsedSection({ theme }, value) {
     theme.collapsedSections.includes(value)
       ? (theme.collapsedSections = theme.collapsedSections.filter((section) => section !== value))
@@ -35,6 +39,14 @@ export default {
 
   removeHeaders({ request }, index) {
     request.headers.splice(index, 1)
+  },
+
+  addWebsocketHeaders({ websocket }, value) {
+    websocket.headers.push(value)
+  },
+
+  removeWebsocketHeaders({ websocket }, index) {
+    websocket.headers.splice(index, 1)
   },
 
   setKeyHeader({ request }, { index, value }) {

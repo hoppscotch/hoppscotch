@@ -18,6 +18,10 @@ export default () => ({
     requestType: "",
     contentType: "",
   },
+  websocket: {
+    url: "wss://echo.websocket.org",
+    headers: [],
+  },
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],

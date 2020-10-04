@@ -295,7 +295,12 @@
 
                 <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
                   <div v-for="type in filteredGqlTypes" :key="type.name" :id="`type_${type.name}`">
-                    <type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                    <type
+                      :gqlType="type"
+                      :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
+                      :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
+                      :jumpTypeCallback="handleJumpToType"
+                    />
                   </div>
                 </tab>
               </div>
@@ -451,6 +456,28 @@ export default {
     }
   },
   methods: {
+    isGqlTypeHighlighted({ gqlType }) {
+      if (!this.graphqlFieldsFilterText) return false
+
+      return this.isTextFoundInGraphqlFieldObject({
+        text: this.graphqlFieldsFilterText,
+        graphqlFieldObject: gqlType,
+      })
+    },
+    getGqlTypeHighlightedFields({ gqlType }) {
+      if (!this.graphqlFieldsFilterText) return []
+
+      const fields = Object.values(gqlType._fields || {})
+
+      if (!fields || fields.length === 0) return []
+
+      return fields.filter((field) => {
+        return this.isTextFoundInGraphqlFieldObject({
+          text: this.graphqlFieldsFilterText,
+          graphqlFieldObject: field,
+        })
+      })
+    },
     isTextFoundInGraphqlFieldObject({ text, graphqlFieldObject }) {
       const normalizedText = text.toLowerCase()
 

@@ -24,7 +24,7 @@ export const NodeJsRequestCodegen = {
     requestString.push(`const request = require('request');\n`)
     requestString.push(`const options = {\n`)
     requestString.push(`  method: '${method.toLowerCase()}',\n`)
-    requestString.push(`  url: '${url}${pathName}${queryString}',\n`)
+    requestString.push(`  url: '${url}${pathName}${queryString}'`)
 
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
@@ -47,9 +47,10 @@ export const NodeJsRequestCodegen = {
         }
         reqBodyType = 'form'
       }
-
-      genHeaders.push(`    "Content-Type": "${contentType}; charset=utf-8",\n`)
-      requestString.push(`  ${reqBodyType}: ${requestBody},\n`)
+      if (contentType) {
+        genHeaders.push(`    "Content-Type": "${contentType}; charset=utf-8",\n`)
+      }
+      requestString.push(`,\n  ${reqBodyType}: ${requestBody}`)
     }
 
     if (headers.length > 0) {
@@ -58,7 +59,7 @@ export const NodeJsRequestCodegen = {
       })
     }
     if (genHeaders.length > 0 || headers.length > 0) {
-      requestString.push(`  headers: {\n${genHeaders.join("").slice(0, -2)}\n  }`)
+      requestString.push(`,\n  headers: {\n${genHeaders.join("").slice(0, -2)}\n  }`)
     }
 
     requestString.push(`\n}`)

@@ -22,9 +22,7 @@ export const JSjQueryCodegen = {
     requestString.push(`jQuery.ajax({\n  url: "${url}${pathName}${queryString}"`)
     requestString.push(`,\n  method: "${method.toUpperCase()}"`)
     const requestBody = rawInput ? rawParams : rawRequestBody
-    console.log("rawInput", rawInput)
-    console.log("rawParams", rawParams)
-    console.log("rawRequestBody", rawRequestBody)
+
     if (requestBody.length !== 0) {
       requestString.push(`,\n  body: ${requestBody}`)
     }
@@ -33,12 +31,12 @@ export const JSjQueryCodegen = {
         if (key) genHeaders.push(`    "${key}": "${value}",\n`)
       })
     }
-    console.log("Content-Type", contentType)
+
     if (contentType) {
       genHeaders.push(`    "Content-Type": "${contentType}; charset=utf-8",\n`)
       requestString.push(`,\n  contentType: "${contentType}; charset=utf-8"`)
     }
-    console.log("Auth", auth)
+
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(

@@ -116,7 +116,7 @@ export default {
   },
   data() {
     return {
-      url: "ws://",
+      url: "wss://socketio-chat-h9jt.herokuapp.com",
       path: "/socket.io",
       connectionState: false,
       io: null,

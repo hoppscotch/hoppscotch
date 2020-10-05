@@ -2,7 +2,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
 export const PhpCurlCodegen = {
   id: "php-curl",
-  name: "PHP Curl",
+  name: "PHP cURL",
   generator: ({
     url,
     pathName,

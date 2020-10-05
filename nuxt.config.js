@@ -271,6 +271,12 @@ export default {
         iso: "bn-BD",
         file: "bn-BD.json",
       },
+      {
+        code: "ml",
+        name: "Malayalam",
+        iso: "ml-ML",
+        file: "ml-ML.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

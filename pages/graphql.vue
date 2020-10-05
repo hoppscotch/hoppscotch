@@ -822,7 +822,7 @@ export default {
   },
   head() {
     return {
-      title: `GraphQL • ${this.$store.state.name}`,
+      title: `GraphQL • Hoppscotch`,
     }
   },
 }

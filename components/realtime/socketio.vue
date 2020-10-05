@@ -116,7 +116,7 @@ export default {
   },
   data() {
     return {
-      url: "wss://socketio-chat-h9jt.herokuapp.com",
+      url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
       path: "/socket.io",
       connectionState: false,
       io: null,

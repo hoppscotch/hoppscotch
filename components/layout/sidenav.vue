@@ -300,6 +300,7 @@ nav.secondary-nav {
     @apply justify-between;
     @apply bg-bgDarkColor;
     @apply space-y-0;
+    padding-bottom: env(safe-area-inset-bottom);
 
     a {
       @apply bg-transparent;

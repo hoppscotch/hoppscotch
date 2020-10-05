@@ -30,7 +30,6 @@
   @apply flex-col;
   @apply flex-no-wrap;
   @apply flex-1;
-  @apply overflow-hidden;
 
   .tabs {
     @apply scrolling-touch;

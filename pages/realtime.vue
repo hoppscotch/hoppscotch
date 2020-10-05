@@ -26,7 +26,7 @@
 export default {
   head() {
     return {
-      title: `Realtime • ${this.$store.state.name}`,
+      title: `Realtime • Hoppscotch`,
     }
   },
 }

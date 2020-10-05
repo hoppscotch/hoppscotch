@@ -6,6 +6,7 @@ import { GoNativeCodegen } from "./generators/go-native"
 import { NodeJsRequestCodegen } from "./generators/nodejs-request"
 import { JSjQueryCodegen } from "./generators/js-jQuery"
 import { PowerShellRestMethod } from "./generators/powershell"
+import { PhpCurlCodegen } from "./generators/php-curl"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -16,13 +17,14 @@ import { PowerShellRestMethod } from "./generators/powershell"
  *
  */
 export const codegens = [
-  JSXHRCodegen,
-  JSFetchCodegen,
   CurlCodegen,
-  JSAxiosCodegen,
   GoNativeCodegen,
-  NodeJsRequestCodegen,
+  JSAxiosCodegen,
+  JSFetchCodegen,
   JSjQueryCodegen,
+  JSXHRCodegen,
+  NodeJsRequestCodegen,
+  PhpCurlCodegen,
   PowerShellRestMethod,
 ]
 

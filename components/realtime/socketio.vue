@@ -88,7 +88,7 @@ import wildcard from "socketio-wildcard"
 export default {
   data() {
     return {
-      url: "ws://",
+      url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
       path: "/socket.io",
       connectionState: false,
       io: null,

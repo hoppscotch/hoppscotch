@@ -382,7 +382,7 @@ export default {
   },
   head() {
     return {
-      title: `Documentation • ${this.$store.state.name}`,
+      title: `Documentation • Hoppscotch`,
     }
   },
 }

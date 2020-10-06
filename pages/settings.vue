@@ -319,7 +319,7 @@ export default {
   },
   head() {
     return {
-      title: `Settings • ${this.$store.state.name}`,
+      title: `Settings • Hoppscotch`,
     }
   },
 }

@@ -10,7 +10,7 @@ const printHeaders = (headers) => {
 
 export const PythonRequestsCodegen = {
   id: "python-requests",
-  name: "Python requests",
+  name: "Python Requests",
   generator: ({
     url,
     pathName,

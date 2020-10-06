@@ -1,6 +1,6 @@
 <template>
   <div class="p-2 m-2 border-b border-dashed border-brdColor">
-    <div class="field-title">
+    <div class="field-title" :class="{ 'field-highlighted': isHighlighted }">
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
         (
@@ -25,11 +25,19 @@
   </div>
 </template>
 
+<style scoped lang="scss">
+.field-highlighted {
+  @apply border-b-2;
+  @apply border-acColor;
+}
+</style>
+
 <script>
 export default {
   props: {
     gqlField: Object,
     jumpTypeCallback: Function,
+    isHighlighted: { type: Boolean, default: false },
   },
 
   computed: {

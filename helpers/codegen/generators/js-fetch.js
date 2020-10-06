@@ -1,3 +1,5 @@
+import { isJSONContentType } from "~/helpers/utils/contenttypes"
+
 export const JSFetchCodegen = {
   id: "js-fetch",
   name: "JavaScript Fetch",

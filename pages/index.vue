@@ -1791,6 +1791,7 @@ export default {
     },
     requestCode() {
       return generateCodeWithGenerator(this.requestType, {
+        auth: this.auth,
         method: this.method,
         url: this.url,
         pathName: this.pathName,
@@ -1799,7 +1800,7 @@ export default {
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
         headers: this.headers,
-        rawInputs: this.rawInputs,
+        rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
         contentType: this.contentType,
@@ -2124,7 +2125,6 @@ export default {
       this.testReports = testResults
     },
     getQueryStringFromPath() {
-      let queryString
       const pathParsed = url.parse(this.uri)
       return pathParsed.query ? pathParsed.query : ""
     },

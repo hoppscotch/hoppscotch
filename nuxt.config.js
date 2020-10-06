@@ -17,7 +17,6 @@ export const options = {
 }
 export default {
   ssr: false,
-  target: "static",
   server: {
     host: "0.0.0.0", // default: localhost
   },
@@ -265,6 +264,18 @@ export default {
         name: "한국어",
         iso: "ko-KR",
         file: "ko-KR.json",
+      },
+      {
+        code: "bn",
+        name: "Bengali",
+        iso: "bn-BD",
+        file: "bn-BD.json",
+      },
+      {
+        code: "ml",
+        name: "Malayalam",
+        iso: "ml-ML",
+        file: "ml-ML.json",
       },
     ],
     defaultLocale: "en",

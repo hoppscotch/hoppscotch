@@ -158,6 +158,7 @@ export default {
       background_color: options.app.background,
       theme_color: options.app.background,
     },
+    workbox: false,
   },
   toast: {
     position: "bottom-center",

@@ -61,8 +61,7 @@
   - [Thanks](#thanks)
   - [Financial Contributors](#financial-contributors)
     - [GitHub Sponsors](#github-sponsors)
-    - [Organizations](#organizations)
-    - [Individuals](#individuals)
+    - [Open Collective](#open-collective)
   - [Code Contributors](#code-contributors)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -364,8 +363,6 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 ### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
-
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -374,21 +371,9 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 <table>
   <tr>
     <td align="center"><a href="https://liyasthomas.web.app"><img src="https://avatars1.githubusercontent.com/u/10395817?v=4" width="100px;" alt=""/><br /><sub><b>Liyas Thomas</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=liyasthomas" title="Code">💻</a> <a href="#design-liyasthomas" title="Design">🎨</a></td>
-    <td align="center"><a href="https://github.com/NBTX"><img src="https://avatars3.githubusercontent.com/u/43181178?v=4" width="100px;" alt=""/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=NBTX" title="Code">💻</a> <a href="#design-NBTX" title="Design">🎨</a></td>
-    <td align="center"><a href="https://nicholaslaroux.com"><img src="https://avatars0.githubusercontent.com/u/1557529?v=4" width="100px;" alt=""/><br /><sub><b>Nicholas La Roux</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=larouxn" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/yubathom"><img src="https://avatars3.githubusercontent.com/u/4117768?v=4" width="100px;" alt=""/><br /><sub><b>Thomas Yuba</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=yubathom" title="Code">💻</a></td>
-    <td align="center"><a href="http://www.linkedin.com/in/nickpalenchar"><img src="https://avatars1.githubusercontent.com/u/7539781?v=4" width="100px;" alt=""/><br /><sub><b>Nick Palenchar</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=nickpalenchar" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/AndrewBastin"><img src="https://avatars2.githubusercontent.com/u/9131943?v=4" width="100px;" alt=""/><br /><sub><b>Andrew Bastin</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=AndrewBastin" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/vlad0337187"><img src="https://avatars1.githubusercontent.com/u/12682937?v=4" width="100px;" alt=""/><br /><sub><b>Vladislav</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=vlad0337187" title="Code">💻</a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/izerozlu"><img src="https://avatars3.githubusercontent.com/u/17386157?v=4" width="100px;" alt=""/><br /><sub><b>izerozlu</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=izerozlu" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/JacobAnavisca"><img src="https://avatars2.githubusercontent.com/u/21232366?v=4" width="100px;" alt=""/><br /><sub><b>Jacob Anavisca</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=JacobAnavisca" title="Code">💻</a></td>
-    <td align="center"><a href="http://nityanandagohain.github.io"><img src="https://avatars3.githubusercontent.com/u/26831659?v=4" width="100px;" alt=""/><br /><sub><b>Nityananda Gohain</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=nityanandagohain" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/hosseinnedaee"><img src="https://avatars2.githubusercontent.com/u/42691357?v=4" width="100px;" alt=""/><br /><sub><b>Hossein Nedaee</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=hosseinnedaee" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/NBTX"><img src="https://avatars3.githubusercontent.com/u/43181178?v=4" width="100px;" alt=""/><br /><sub><b>John Harker</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=NBTX" title="Code">💻</a></td>
     <td align="center"><a href="https://ghuser.io/jamesgeorge007"><img src="https://avatars2.githubusercontent.com/u/25279263?v=4" width="100px;" alt=""/><br /><sub><b>James George</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=jamesgeorge007" title="Code">💻</a></td>
-    <td align="center"><a href="https://dmitryyankowski.com"><img src="https://avatars0.githubusercontent.com/u/20114263?v=4" width="100px;" alt=""/><br /><sub><b>Dmitry Yankowski</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=dmitryyankowski" title="Code">💻</a></td>
-    <td align="center"><a href="http://www.sboulema.nl"><img src="https://avatars2.githubusercontent.com/u/1820661?v=4" width="100px;" alt=""/><br /><sub><b>Samir Boulema</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=sboulema" title="Code">💻</a></td>
   </tr>
 </table>
 
@@ -472,20 +457,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	alt="Erica Brescia"
 />
 </a>
-<a href="https://github.com/pedroapfilho" target="_blank" rel="noopener">
-<img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
-	src="https://github.com/pedroapfilho.png?size=64"
-	alt="Pedro Filho"
-/>
-</a>
-<a href="https://github.com/peterp" target="_blank" rel="noopener">
-<img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
-	src="https://github.com/peterp.png?size=64"
-	alt="Peter Pistorius"
-/>
-</a>
 <a href="http://tom.preston-werner.com" target="_blank" rel="noopener">
 <img
 	style="max-width: 64px; max-height: 64px; border-radius: 100%"
@@ -498,13 +469,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	style="max-width: 64px; max-height: 64px; border-radius: 100%"
 	src="https://github.com/mlynch.png?size=64"
 	alt="Max Lynch"
-/>
-</a>
-<a href="https://github.com/rawkode" target="_blank" rel="noopener">
-<img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
-	src="https://github.com/rawkode.png?size=64"
-	alt="David McKay"
 />
 </a>
 <a href="https://github.com/brianshaler" target="_blank" rel="noopener">
@@ -529,24 +493,10 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 />
 </a>
 
-#### Organizations
-
-Support this project with your organization. Your logo will show up here with a link to your website [[Support](#support)].
+#### Open Collective
 
 <a href="https://opencollective.com/hoppscotch/organization/0/website"><img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg"></a>
 <a href="https://opencollective.com/hoppscotch/organization/1/website"><img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/2/website"><img src="https://opencollective.com/hoppscotch/organization/2/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/3/website"><img src="https://opencollective.com/hoppscotch/organization/3/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/4/website"><img src="https://opencollective.com/hoppscotch/organization/4/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/5/website"><img src="https://opencollective.com/hoppscotch/organization/5/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/6/website"><img src="https://opencollective.com/hoppscotch/organization/6/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/7/website"><img src="https://opencollective.com/hoppscotch/organization/7/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/8/website"><img src="https://opencollective.com/hoppscotch/organization/8/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/9/website"><img src="https://opencollective.com/hoppscotch/organization/9/avatar.svg"></a>
-
-#### Individuals
-
-<a href="https://opencollective.com/hoppscotch"><img src="https://opencollective.com/hoppscotch/individuals.svg"></a>
 
 ### Code Contributors
 

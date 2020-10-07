@@ -10,7 +10,7 @@ import {
   TEST_RAW_PARAMS_XML,
   TEST_RAW_REQUEST_BODY,
   TEST_URL,
-} from "./fixtures"
+} from "../__fixtures__/test-data"
 
 describe("generate request for NodeJs Native", () => {
   test("generate GET request", () => {

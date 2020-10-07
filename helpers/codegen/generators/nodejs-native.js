@@ -39,9 +39,6 @@ export const NodeJsNativeCodegen = {
 
     let requestBody
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      console.log("===== rawInput = " + rawInput)
-      console.log("===== rawParams = " + rawParams)
-      console.log("===== rawRequestBody = " + rawRequestBody)
       requestBody = rawInput ? rawParams : rawRequestBody
       if (isJSONContentType(contentType)) {
         requestBody = `JSON.stringify(${requestBody})`

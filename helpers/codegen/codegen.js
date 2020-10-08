@@ -9,6 +9,7 @@ import { JSjQueryCodegen } from "./generators/js-jQuery"
 import { PowerShellRestMethod } from "./generators/powershell"
 import { PhpCurlCodegen } from "./generators/php-curl"
 import { PythonRequestsCodegen } from "./generators/python-requests"
+import { PythonHttpClientCodegen } from "./generators/python-http-client"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -30,6 +31,7 @@ export const codegens = [
   PhpCurlCodegen,
   PowerShellRestMethod,
   PythonRequestsCodegen,
+  PythonHttpClientCodegen,
 ]
 
 export function generateCodeWithGenerator(codegenID, context) {

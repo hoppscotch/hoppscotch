@@ -6,8 +6,6 @@ const printHeaders = (headers) => {
   } else {
     return [`headers = {}\n`]
   }
-
-  return []
 }
 
 export const PythonHttpClientCodegen = {

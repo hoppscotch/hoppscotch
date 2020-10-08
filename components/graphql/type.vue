@@ -31,7 +31,7 @@ export default {
     gqlType: {},
     jumpTypeCallback: Function,
     isHighlighted: { type: Boolean, default: false },
-    highlightedFields: { type: Array, default: [] },
+    highlightedFields: { type: Array, default: () => [] },
   },
   methods: {
     isFieldHighlighted({ field }) {

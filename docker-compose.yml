@@ -15,6 +15,7 @@ services:
       - "./static:/app/static"
       - "./store:/app/store"
       - "./components:/app/components"
+      - "./helpers:/app/helpers"
     ports:
       - "3000:3000"
     environment:

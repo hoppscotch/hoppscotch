@@ -2,18 +2,19 @@ export const CurlCodegen = {
   id: "curl",
   name: "cURL",
   generator: ({
-    method,
     url,
     pathName,
     queryString,
+    auth,
     httpUser,
     httpPassword,
     bearerToken,
-    headers,
+    method,
     rawInput,
     rawParams,
     rawRequestBody,
     contentType,
+    headers,
   }) => {
     const requestString = []
     requestString.push(`curl -X ${method}`)

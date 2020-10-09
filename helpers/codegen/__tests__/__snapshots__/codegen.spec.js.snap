@@ -861,3 +861,41 @@ exports[`generate request for cURL generate PUT request for www-form-urlencoded 
   -H 'Content-Type: application/x-www-form-urlencoded; charset=utf-8' \\\\
   -d 'foo=bar&baz=qux'"
 `;
+
+exports[`generate request for wget generate GET request 1`] = `
+"wget -O - --method=GET \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  --header='Authorization: Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk' \\\\
+  --header='h1: h1v' \\\\
+  --header='h2: h2v'"
+`;
+
+exports[`generate request for wget generate POST request for JSON 1`] = `
+"wget -O - --method=POST \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  --header='Authorization: Bearer abcdefghijklmn' \\\\
+  --header='h1: h1v' \\\\
+  --header='h2: h2v' \\\\
+  --header='Content-Type: application/json; charset=utf-8' \\\\
+  --body-data='{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}'"
+`;
+
+exports[`generate request for wget generate POST request for XML 1`] = `
+"wget -O - --method=POST \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  --header='Authorization: Bearer abcdefghijklmn' \\\\
+  --header='h1: h1v' \\\\
+  --header='h2: h2v' \\\\
+  --header='Content-Type: application/xml; charset=utf-8' \\\\
+  --body-data='<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>'"
+`;
+
+exports[`generate request for wget generate PUT request for www-form-urlencoded 1`] = `
+"wget -O - --method=PUT \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  --header='Content-Type: application/x-www-form-urlencoded; charset=utf-8' \\\\
+  --body-data='foo=bar&baz=qux'"
+`;

@@ -1,0 +1,863 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generate request for Golang Native generate GET request 1`] = `
+"req, err := http.NewRequest(\\"GET\\", \\"https://httpbin.org/path/to?a=b\\")
+req.Header.Set(\\"Authorization\\", \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\")
+req.Header.Set(\\"h1\\", \\"h1v\\")
+req.Header.Set(\\"h2\\", \\"h2v\\")
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+client := &http.Client{}
+resp, err := client.Do(req)
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+if err != nil {
+  log.Fatalln(err)
+}
+"
+`;
+
+exports[`generate request for Golang Native generate POST request for JSON 1`] = `
+"var reqBody = []byte(\`{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}\`)
+
+req, err := http.NewRequest(\\"POST\\", \\"https://httpbin.org/path/to?a=b\\", bytes.NewBuffer(reqBody))
+req.Header.Set(\\"Content-Type\\", \\"application/json\\")
+req.Header.Set(\\"Authorization\\", \\"Bearer abcdefghijklmn\\")
+req.Header.Set(\\"h1\\", \\"h1v\\")
+req.Header.Set(\\"h2\\", \\"h2v\\")
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+client := &http.Client{}
+resp, err := client.Do(req)
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+if err != nil {
+  log.Fatalln(err)
+}
+"
+`;
+
+exports[`generate request for Golang Native generate POST request for XML 1`] = `
+"req.Header.Set(\\"Content-Type\\", \\"application/xml\\")
+req.Header.Set(\\"Authorization\\", \\"Bearer abcdefghijklmn\\")
+req.Header.Set(\\"h1\\", \\"h1v\\")
+req.Header.Set(\\"h2\\", \\"h2v\\")
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+client := &http.Client{}
+resp, err := client.Do(req)
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+if err != nil {
+  log.Fatalln(err)
+}
+"
+`;
+
+exports[`generate request for Golang Native generate PUT request for www-form-urlencoded 1`] = `
+"req, err := http.NewRequest(\\"PUT\\", \\"https://httpbin.org/path/to?a=b\\", strings.NewReader(\\"foo=bar&baz=qux\\"))
+req.Header.Set(\\"Content-Type\\", \\"application/x-www-form-urlencoded\\")
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+client := &http.Client{}
+resp, err := client.Do(req)
+if err != nil {
+  log.Fatalf(\\"An Error Occured %v\\", err)
+}
+
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+if err != nil {
+  log.Fatalln(err)
+}
+"
+`;
+
+exports[`generate request for JavaScript Axios generate GET request 1`] = `
+"axios.get('https://httpbin.org/path/to?a=b',{ 
+ headers : {    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\",
+    \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\"}
+}.then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript Axios generate POST request for JSON 1`] = `
+"axios.post('https://httpbin.org/path/to?a=b',{ 
+ headers : {    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\",
+\\"Content-Type\\": \\"application/json; charset=utf-8\\",
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\"}
+}.then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript Axios generate POST request for XML 1`] = `
+"axios.post('https://httpbin.org/path/to?a=b',{ 
+ headers : {    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\",
+\\"Content-Type\\": \\"application/xml; charset=utf-8\\",
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\"}
+}.then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript Axios generate PUT request for www-form-urlencoded 1`] = `
+"axios.put('https://httpbin.org/path/to?a=b', foo=bar&baz=qux,{ 
+ headers : {\\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"}
+}.then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript Fetch generate GET request 1`] = `
+"fetch(\\"https://httpbin.org/path/to?a=b\\", {
+  method: \\"GET\\",
+  headers: {
+    \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  },
+  credentials: \\"same-origin\\"
+}).then(function(response) {
+  response.status
+  response.statusText
+  response.headers
+  response.url
+
+  return response.text()
+}).catch(function(error) {
+  error.message
+})"
+`;
+
+exports[`generate request for JavaScript Fetch generate POST request for JSON 1`] = `
+"fetch(\\"https://httpbin.org/path/to?a=b\\", {
+  method: \\"POST\\",
+  body: JSON.stringify({\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}),
+  headers: {
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/json; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  },
+  credentials: \\"same-origin\\"
+}).then(function(response) {
+  response.status
+  response.statusText
+  response.headers
+  response.url
+
+  return response.text()
+}).catch(function(error) {
+  error.message
+})"
+`;
+
+exports[`generate request for JavaScript Fetch generate POST request for XML 1`] = `
+"fetch(\\"https://httpbin.org/path/to?a=b\\", {
+  method: \\"POST\\",
+  body: <?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>,
+  headers: {
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/xml; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  },
+  credentials: \\"same-origin\\"
+}).then(function(response) {
+  response.status
+  response.statusText
+  response.headers
+  response.url
+
+  return response.text()
+}).catch(function(error) {
+  error.message
+})"
+`;
+
+exports[`generate request for JavaScript Fetch generate PUT request for www-form-urlencoded 1`] = `
+"fetch(\\"https://httpbin.org/path/to?a=b\\", {
+  method: \\"PUT\\",
+  body: \\"foo=bar&baz=qux\\",
+  headers: {
+    \\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"
+  },
+  credentials: \\"same-origin\\"
+}).then(function(response) {
+  response.status
+  response.statusText
+  response.headers
+  response.url
+
+  return response.text()
+}).catch(function(error) {
+  error.message
+})"
+`;
+
+exports[`generate request for JavaScript XHR generate GET request 1`] = `
+"const xhr = new XMLHttpRequest()
+xhr.open('GET', 'https://httpbin.org/path/to?a=b', true, 'mockUser', 'mockPassword')
+xhr.setRequestHeader('h1', 'h1v')
+xhr.setRequestHeader('h2', 'h2v')
+xhr.send()"
+`;
+
+exports[`generate request for JavaScript XHR generate POST request for JSON 1`] = `
+"const xhr = new XMLHttpRequest()
+xhr.open('POST', 'https://httpbin.org/path/to?a=b', true, null, null)
+xhr.setRequestHeader('Authorization', 'Bearer abcdefghijklmn')
+xhr.setRequestHeader('h1', 'h1v')
+xhr.setRequestHeader('h2', 'h2v')
+xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
+xhr.send(JSON.stringify({\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}))"
+`;
+
+exports[`generate request for JavaScript XHR generate POST request for XML 1`] = `
+"const xhr = new XMLHttpRequest()
+xhr.open('POST', 'https://httpbin.org/path/to?a=b', true, null, null)
+xhr.setRequestHeader('Authorization', 'Bearer abcdefghijklmn')
+xhr.setRequestHeader('h1', 'h1v')
+xhr.setRequestHeader('h2', 'h2v')
+xhr.setRequestHeader('Content-Type', 'application/xml; charset=utf-8')
+xhr.send(<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>)"
+`;
+
+exports[`generate request for JavaScript XHR generate PUT request for www-form-urlencoded 1`] = `
+"const xhr = new XMLHttpRequest()
+xhr.open('PUT', 'https://httpbin.org/path/to?a=b', true, null, null)
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
+xhr.send(\\"foo=bar&baz=qux\\")"
+`;
+
+exports[`generate request for JavaScript jQuery generate GET request 1`] = `
+"jQuery.ajax({
+  url: \\"https://httpbin.org/path/to?a=b\\",
+  method: \\"GET\\",
+  headers: {
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\",
+    \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\"
+  }
+}).then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript jQuery generate POST request for JSON 1`] = `
+"jQuery.ajax({
+  url: \\"https://httpbin.org/path/to?a=b\\",
+  method: \\"POST\\",
+  body: {\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"},
+  contentType: \\"application/json; charset=utf-8\\",
+  headers: {
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\",
+    \\"Content-Type\\": \\"application/json; charset=utf-8\\",
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\"
+  }
+}).then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript jQuery generate POST request for XML 1`] = `
+"jQuery.ajax({
+  url: \\"https://httpbin.org/path/to?a=b\\",
+  method: \\"POST\\",
+  body: <?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>,
+  contentType: \\"application/xml; charset=utf-8\\",
+  headers: {
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\",
+    \\"Content-Type\\": \\"application/xml; charset=utf-8\\",
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\"
+  }
+}).then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for JavaScript jQuery generate PUT request for www-form-urlencoded 1`] = `
+"jQuery.ajax({
+  url: \\"https://httpbin.org/path/to?a=b\\",
+  method: \\"PUT\\",
+  body: foo=bar&baz=qux,
+  contentType: \\"application/x-www-form-urlencoded; charset=utf-8\\",
+  headers: {
+    \\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"
+  }
+}).then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(error);
+})
+"
+`;
+
+exports[`generate request for NodeJs Native generate GET request 1`] = `
+"const http = require('http');
+
+const url = 'https://httpbin.org/path/to?a=b';
+const options = {
+  method: 'GET',
+  headers: {
+    \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }};
+
+const request = http.request(url, options, (response) => {
+  console.log(response);
+});
+
+request.on('error', (e) => {
+  console.error(e);
+});
+request.end();"
+`;
+
+exports[`generate request for NodeJs Native generate POST request for JSON 1`] = `
+"const http = require('http');
+
+const url = 'https://httpbin.org/path/to?a=b';
+const options = {
+  method: 'POST',
+  headers: {
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/json; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }};
+
+const request = http.request(url, options, (response) => {
+  console.log(response);
+});
+
+request.on('error', (e) => {
+  console.error(e);
+});
+
+request.write(JSON.stringify({\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}));
+request.end();"
+`;
+
+exports[`generate request for NodeJs Native generate POST request for XML 1`] = `
+"const http = require('http');
+
+const url = 'https://httpbin.org/path/to?a=b';
+const options = {
+  method: 'POST',
+  headers: {
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/xml; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }};
+
+const request = http.request(url, options, (response) => {
+  console.log(response);
+});
+
+request.on('error', (e) => {
+  console.error(e);
+});
+
+request.write(\`<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>\`);
+request.end();"
+`;
+
+exports[`generate request for NodeJs Native generate PUT request for www-form-urlencoded 1`] = `
+"const http = require('http');
+
+const url = 'https://httpbin.org/path/to?a=b';
+const options = {
+  method: 'PUT',
+  headers: {
+    \\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"
+  }};
+
+const request = http.request(url, options, (response) => {
+  console.log(response);
+});
+
+request.on('error', (e) => {
+  console.error(e);
+});
+
+request.write(\`foo=bar&baz=qux\`);
+request.end();"
+`;
+
+exports[`generate request for NodeJs Request generate GET request 1`] = `
+"const request = require('request');
+const options = {
+  method: 'get',
+  url: 'https://httpbin.org/path/to?a=b',
+  headers: {
+    \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }
+}
+request(options, (error, response) => {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});"
+`;
+
+exports[`generate request for NodeJs Request generate POST request for JSON 1`] = `
+"const request = require('request');
+const options = {
+  method: 'post',
+  url: 'https://httpbin.org/path/to?a=b',
+  body: JSON.stringify({\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}),
+  headers: {
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/json; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }
+}
+request(options, (error, response) => {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});"
+`;
+
+exports[`generate request for NodeJs Request generate POST request for XML 1`] = `
+"const request = require('request');
+const options = {
+  method: 'post',
+  url: 'https://httpbin.org/path/to?a=b',
+  body: \`<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>\`,
+  headers: {
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/xml; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }
+}
+request(options, (error, response) => {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});"
+`;
+
+exports[`generate request for NodeJs Request generate PUT request for www-form-urlencoded 1`] = `
+"const request = require('request');
+const options = {
+  method: 'put',
+  url: 'https://httpbin.org/path/to?a=b',
+  form: {\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"},
+  headers: {
+    \\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"
+  }
+}
+request(options, (error, response) => {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});"
+`;
+
+exports[`generate request for PHP cURL generate GET request 1`] = `
+<?php
+$curl = curl_init();
+curl_setopt_array($curl, array(
+  CURLOPT_URL => "https://httpbin.org/path/to?a=b",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => array(
+    "Authorization: Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk",
+    "h1: h1v",
+    "h2: h2v"
+  )
+));
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
+`;
+
+exports[`generate request for PHP cURL generate POST request for JSON 1`] = `
+<?php
+$curl = curl_init();
+curl_setopt_array($curl, array(
+  CURLOPT_URL => "https://httpbin.org/path/to?a=b",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => "{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}",
+  CURLOPT_HTTPHEADER => array(
+    "Authorization: Bearer abcdefghijklmn",
+    "Content-Type: application/json; charset=utf-8",
+    "h1: h1v",
+    "h2: h2v"
+  )
+));
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
+`;
+
+exports[`generate request for PHP cURL generate POST request for XML 1`] = `
+<?php
+$curl = curl_init();
+curl_setopt_array($curl, array(
+  CURLOPT_URL => "https://httpbin.org/path/to?a=b",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => array(<?xmlversion='1.0'encoding='utf-8'?><xml>
+  <elementfoo="bar">
+    </element>
+</xml>),
+CURLOPT_HTTPHEADER => array(
+"Authorization: Bearer abcdefghijklmn",
+"Content-Type: application/xml; charset=utf-8",
+"h1: h1v",
+"h2: h2v"
+)
+));
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
+`;
+
+exports[`generate request for PHP cURL generate PUT request for www-form-urlencoded 1`] = `
+<?php
+$curl = curl_init();
+curl_setopt_array($curl, array(
+  CURLOPT_URL => "https://httpbin.org/path/to?a=b",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "PUT",
+  CURLOPT_POSTFIELDS => "foo=bar&baz=qux",
+  CURLOPT_HTTPHEADER => array(
+    "Content-Type: application/x-www-form-urlencoded; charset=utf-8"
+  )
+));
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
+`;
+
+exports[`generate request for Powershell RestMethod generate GET request 1`] = `
+"$headers = @{
+  'h1' = 'h1v'
+  'h2' = 'h2v'
+  'Authorization' = 'Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk'
+}
+
+Invoke-RestMethod -Method 'Get' -Uri 'https://httpbin.org/path/to?a=b' -Headers $headers"
+`;
+
+exports[`generate request for Powershell RestMethod generate POST request for JSON 1`] = `
+"$body = @'
+{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}
+'@
+
+$headers = @{
+  'h1' = 'h1v'
+  'h2' = 'h2v'
+  'Content-Type' = 'application/json; charset=utf-8'
+  'Authorization' = 'Bearer abcdefghijklmn'
+}
+
+Invoke-RestMethod -Method 'Post' -Uri 'https://httpbin.org/path/to?a=b' -ContentType 'application/json; charset=utf-8' -Headers $headers -Body $body"
+`;
+
+exports[`generate request for Powershell RestMethod generate POST request for XML 1`] = `
+"$body = @'
+<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>
+'@
+
+$headers = @{
+  'h1' = 'h1v'
+  'h2' = 'h2v'
+  'Content-Type' = 'application/xml; charset=utf-8'
+  'Authorization' = 'Bearer abcdefghijklmn'
+}
+
+Invoke-RestMethod -Method 'Post' -Uri 'https://httpbin.org/path/to?a=b' -ContentType 'application/xml; charset=utf-8' -Headers $headers -Body $body"
+`;
+
+exports[`generate request for Powershell RestMethod generate PUT request for www-form-urlencoded 1`] = `
+"$body = @'
+foo=bar&baz=qux
+'@
+
+$headers = @{
+  'Content-Type' = 'application/x-www-form-urlencoded; charset=utf-8'
+}
+
+Invoke-RestMethod -Method 'Put' -Uri 'https://httpbin.org/path/to?a=b' -ContentType 'application/x-www-form-urlencoded; charset=utf-8' -Headers $headers -Body $body"
+`;
+
+exports[`generate request for Python HTTP Client generate GET request 1`] = `
+"import http.client
+import mimetypes
+conn = http.client.HTTPSConnection(\\"httpbin.org\\")
+headers = {
+  'Authorization': 'Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk',
+  'h1': 'h1v',
+  'h2': 'h2v'
+}
+payload = ''
+conn.request(\\"GET\\", \\"/path/to?a=b\\", payload, headers)
+res = conn.getresponse()
+data = res.read()
+print(data.decode(\\"utf-8\\"))"
+`;
+
+exports[`generate request for Python HTTP Client generate POST request for JSON 1`] = `
+"import http.client
+import mimetypes
+conn = http.client.HTTPSConnection(\\"httpbin.org\\")
+headers = {
+  'Authorization': 'Bearer abcdefghijklmn',
+  'h1': 'h1v',
+  'h2': 'h2v',
+  'Content-Type': 'application/json'
+}
+payload = \\"{\\\\\\"foo\\\\\\": \\\\\\"bar\\\\\\", \\\\\\"baz\\\\\\": \\\\\\"qux\\\\\\"}\\"
+conn.request(\\"POST\\", \\"/path/to?a=b\\", payload, headers)
+res = conn.getresponse()
+data = res.read()
+print(data.decode(\\"utf-8\\"))"
+`;
+
+exports[`generate request for Python HTTP Client generate POST request for XML 1`] = `
+"import http.client
+import mimetypes
+conn = http.client.HTTPSConnection(\\"httpbin.org\\")
+headers = {
+  'Authorization': 'Bearer abcdefghijklmn',
+  'h1': 'h1v',
+  'h2': 'h2v',
+  'Content-Type': 'application/xml'
+}
+paylod = '''<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>'''
+conn.request(\\"POST\\", \\"/path/to?a=b\\", payload, headers)
+res = conn.getresponse()
+data = res.read()
+print(data.decode(\\"utf-8\\"))"
+`;
+
+exports[`generate request for Python HTTP Client generate PUT request for www-form-urlencoded 1`] = `
+"import http.client
+import mimetypes
+conn = http.client.HTTPSConnection(\\"httpbin.org\\")
+headers = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+}
+payload = [('foo', 'bar'),
+      ('baz', 'qux')]
+conn.request(\\"PUT\\", \\"/path/to?a=b\\", payload, headers)
+res = conn.getresponse()
+data = res.read()
+print(data.decode(\\"utf-8\\"))"
+`;
+
+exports[`generate request for Python Requests generate GET request 1`] = `
+"import requests
+
+url = 'https://httpbin.org/path/to?a=b'
+headers = {
+  'Authorization': 'Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk',
+  'h1': 'h1v',
+  'h2': 'h2v'
+}
+response = requests.request(
+  'GET',
+  'https://httpbin.org/path/to?a=b',
+  headers=headers,
+)
+
+print(response)"
+`;
+
+exports[`generate request for Python Requests generate POST request for JSON 1`] = `
+"import requests
+
+url = 'https://httpbin.org/path/to?a=b'
+headers = {
+  'Authorization': 'Bearer abcdefghijklmn',
+  'h1': 'h1v',
+  'h2': 'h2v',
+  'Content-Type': 'application/json'
+}
+data = \\"{\\\\\\"foo\\\\\\": \\\\\\"bar\\\\\\", \\\\\\"baz\\\\\\": \\\\\\"qux\\\\\\"}\\"
+response = requests.request(
+  'POST',
+  'https://httpbin.org/path/to?a=b',
+  data=data,
+  headers=headers,
+)
+
+print(response)"
+`;
+
+exports[`generate request for Python Requests generate POST request for XML 1`] = `
+"import requests
+
+url = 'https://httpbin.org/path/to?a=b'
+headers = {
+  'Authorization': 'Bearer abcdefghijklmn',
+  'h1': 'h1v',
+  'h2': 'h2v',
+  'Content-Type': 'application/xml'
+}
+data = '''<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>'''
+response = requests.request(
+  'POST',
+  'https://httpbin.org/path/to?a=b',
+  data=data,
+  headers=headers,
+)
+
+print(response)"
+`;
+
+exports[`generate request for Python Requests generate PUT request for www-form-urlencoded 1`] = `
+"import requests
+
+url = 'https://httpbin.org/path/to?a=b'
+headers = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+}
+data = [('foo', 'bar'),
+      ('baz', 'qux')]
+response = requests.request(
+  'PUT',
+  'https://httpbin.org/path/to?a=b',
+  data=data,
+  headers=headers,
+)
+
+print(response)"
+`;
+
+exports[`generate request for cURL generate GET request 1`] = `
+"curl -X GET \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  -H 'Authorization: Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk' \\\\
+  -H 'h1: h1v' \\\\
+  -H 'h2: h2v'"
+`;
+
+exports[`generate request for cURL generate POST request for JSON 1`] = `
+"curl -X POST \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  -H 'Authorization: Bearer abcdefghijklmn' \\\\
+  -H 'h1: h1v' \\\\
+  -H 'h2: h2v' \\\\
+  -H 'Content-Type: application/json; charset=utf-8' \\\\
+  -d '{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}'"
+`;
+
+exports[`generate request for cURL generate POST request for XML 1`] = `
+"curl -X POST \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  -H 'Authorization: Bearer abcdefghijklmn' \\\\
+  -H 'h1: h1v' \\\\
+  -H 'h2: h2v' \\\\
+  -H 'Content-Type: application/xml; charset=utf-8' \\\\
+  -d '<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>'"
+`;
+
+exports[`generate request for cURL generate PUT request for www-form-urlencoded 1`] = `
+"curl -X PUT \\\\
+  'https://httpbin.org/path/to?a=b' \\\\
+  -H 'Content-Type: application/x-www-form-urlencoded; charset=utf-8' \\\\
+  -d 'foo=bar&baz=qux'"
+`;

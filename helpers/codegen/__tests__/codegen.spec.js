@@ -1,16 +1,21 @@
 import { codegens } from "../codegen"
-import {
-  TEST_BEARER_TOKEN,
-  TEST_HEADERS,
-  TEST_HTTP_PASSWORD,
-  TEST_HTTP_USER,
-  TEST_PATH_NAME,
-  TEST_QUERY_STRING,
-  TEST_RAW_PARAMS_JSON,
-  TEST_RAW_PARAMS_XML,
-  TEST_RAW_REQUEST_BODY,
-  TEST_URL,
-} from "../__fixtures__/test-data"
+
+const TEST_URL = "https://httpbin.org"
+const TEST_PATH_NAME = "/path/to"
+const TEST_QUERY_STRING = "?a=b"
+const TEST_HTTP_USER = "mockUser"
+const TEST_HTTP_PASSWORD = "mockPassword"
+const TEST_BEARER_TOKEN = "abcdefghijklmn"
+const TEST_RAW_REQUEST_BODY = "foo=bar&baz=qux"
+const TEST_RAW_PARAMS_JSON = '{"foo": "bar", "baz": "qux"}'
+const TEST_RAW_PARAMS_XML = `<?xml version=\'1.0\' encoding=\'utf-8\'?>
+<xml>
+  <element foo="bar"></element>
+</xml>`
+const TEST_HEADERS = [
+  { key: "h1", value: "h1v" },
+  { key: "h2", value: "h2v" },
+]
 
 codegens.forEach((codegen) => {
   describe(`generate request for ${codegen.name}`, () => {

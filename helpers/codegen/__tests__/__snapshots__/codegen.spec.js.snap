@@ -1,5 +1,94 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`generate request for C# RestSharp generate GET request 1`] = `
+"var client = new RestClient(\\"https://httpbin.org\\");
+
+var request = new RestRequest(\\"/path/to?a=b\\", DataFormat.Xml);
+
+client.Authenticator = new HttpBasicAuthenticator(\\"mockUser\\", \\"mockPassword\\");
+request.AddHeader(\\"h1\\", \\"h1v\\");
+request.AddHeader(\\"h2\\", \\"h2v\\");
+
+var response = client.Get(request);
+
+if (!response.IsSuccessful)
+{
+    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+}
+
+var result = response.Content;
+"
+`;
+
+exports[`generate request for C# RestSharp generate POST request for JSON 1`] = `
+"var client = new RestClient(\\"https://httpbin.org\\");
+
+var request = new RestRequest(\\"/path/to?a=b\\", DataFormat.Json);
+
+request.AddHeader(\\"Authorization\\", \\"Bearer abcdefghijklmn\\");
+request.AddHeader(\\"Content-Type\\", \\"application/json\\");
+request.AddHeader(\\"h1\\", \\"h1v\\");
+request.AddHeader(\\"h2\\", \\"h2v\\");
+
+request.AddParameter(\\"text/json\\", @\\"{\\"\\"foo\\"\\": \\"\\"bar\\"\\", \\"\\"baz\\"\\": \\"\\"qux\\"\\"}\\", ParameterType.RequestBody);
+
+var response = client.Post(request);
+
+if (!response.IsSuccessful)
+{
+    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+}
+
+var result = response.Content;
+"
+`;
+
+exports[`generate request for C# RestSharp generate POST request for XML 1`] = `
+"var client = new RestClient(\\"https://httpbin.org\\");
+
+var request = new RestRequest(\\"/path/to?a=b\\", DataFormat.Xml);
+
+request.AddHeader(\\"Authorization\\", \\"Bearer abcdefghijklmn\\");
+request.AddHeader(\\"Content-Type\\", \\"application/xml\\");
+request.AddHeader(\\"h1\\", \\"h1v\\");
+request.AddHeader(\\"h2\\", \\"h2v\\");
+
+request.AddParameter(\\"text/xml\\", @\\"<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"\\"bar\\"\\"></element>
+</xml>\\", ParameterType.RequestBody);
+
+var response = client.Post(request);
+
+if (!response.IsSuccessful)
+{
+    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+}
+
+var result = response.Content;
+"
+`;
+
+exports[`generate request for C# RestSharp generate PUT request for www-form-urlencoded 1`] = `
+"var client = new RestClient(\\"https://httpbin.org\\");
+
+var request = new RestRequest(\\"/path/to?a=b\\", DataFormat.Xml);
+
+request.AddHeader(\\"Content-Type\\", \\"application/x-www-form-urlencoded\\");
+
+request.AddParameter(\\"text/xml\\", @\\"foo=bar&baz=qux\\", ParameterType.RequestBody);
+
+var response = client.Put(request);
+
+if (!response.IsSuccessful)
+{
+    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+}
+
+var result = response.Content;
+"
+`;
+
 exports[`generate request for Golang Native generate GET request 1`] = `
 "req, err := http.NewRequest(\\"GET\\", \\"https://httpbin.org/path/to?a=b\\")
 req.Header.Set(\\"Authorization\\", \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\")

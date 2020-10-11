@@ -5,6 +5,12 @@ TODO:
 
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections">
+    <div class="show-on-large-screen">
+      <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
+      <!-- <button class="icon">
+        <i class="material-icons">search</i>
+      </button> -->
+    </div>
     <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"
@@ -66,11 +72,12 @@ TODO:
     </p>
     <div class="virtual-list">
       <ul class="flex-col">
-        <li v-for="(collection, index) in collections" :key="collection.name">
+        <li v-for="(collection, index) in filteredCollections" :key="collection.name">
           <collection
             :collection-index="index"
             :collection="collection"
             :doc="doc"
+            :isFiltered="filterText.length > 0"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder(collection, index)"
             @edit-folder="editFolder($event)"
@@ -80,6 +87,11 @@ TODO:
         </li>
       </ul>
     </div>
+    <ul class="flex-col" v-if="filterText && filteredCollections.length === 0">
+      <li>
+        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
+      </li>
+    </ul>
   </pw-section>
 </template>
 
@@ -110,6 +122,7 @@ export default {
       editingFolderIndex: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,
+      filterText: "",
     }
   },
   computed: {
@@ -117,6 +130,45 @@ export default {
       return fb.currentUser !== null
         ? fb.currentCollections
         : this.$store.state.postwoman.collections
+    },
+    filteredCollections() {
+      const collections =
+        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+
+      if (!this.filterText) return collections
+
+      const filterText = this.filterText.toLowerCase()
+      const filteredCollections = []
+
+      for (let collection of collections) {
+        const filteredRequests = []
+        const filteredFolders = []
+        for (let request of collection.requests) {
+          console.log(request)
+          if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
+        }
+        for (let folder of collection.folders) {
+          const filteredFolderRequests = []
+          for (let request of folder.requests) {
+            if (request.name.toLowerCase().includes(filterText))
+              filteredFolderRequests.push(request)
+          }
+          if (filteredFolderRequests.length > 0) {
+            const filteredFolder = Object.assign({}, folder)
+            filteredFolder.requests = filteredFolderRequests
+            filteredFolders.push(filteredFolder)
+          }
+        }
+
+        if (filteredRequests.length + filteredFolders.length > 0) {
+          const filteredCollection = Object.assign({}, collection)
+          filteredCollection.requests = filteredRequests
+          filteredCollection.folders = filteredFolders
+          filteredCollections.push(filteredCollection)
+        }
+      }
+
+      return filteredCollections
     },
   },
   async mounted() {

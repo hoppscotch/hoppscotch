@@ -11,6 +11,7 @@ import { PhpCurlCodegen } from "./generators/php-curl"
 import { PythonRequestsCodegen } from "./generators/python-requests"
 import { PythonHttpClientCodegen } from "./generators/python-http-client"
 import { WgetCodegen } from "./generators/wget"
+import { CsRestSharpCodegen } from "./generators/cs-restsharp"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -22,6 +23,7 @@ import { WgetCodegen } from "./generators/wget"
  */
 export const codegens = [
   CurlCodegen,
+  CsRestSharpCodegen,
   GoNativeCodegen,
   JSAxiosCodegen,
   JSFetchCodegen,

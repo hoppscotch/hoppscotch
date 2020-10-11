@@ -3,6 +3,14 @@ export default {
     request[attribute] = value
   },
 
+  setWebSocketState({ ws }, { attribute, value }) {
+    ws[attribute] = value
+  },
+
+  addWebSocketLog({ ws }, object) {
+    ws.log.push(object)
+  },
+
   setGQLState({ gql }, { attribute, value }) {
     gql[attribute] = value
   },

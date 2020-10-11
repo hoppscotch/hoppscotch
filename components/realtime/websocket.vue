@@ -17,10 +17,10 @@
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
-              {{ !connectionState ? $t("connect") : $t("disconnect") }}
+              {{ !isConnected ? $t("connect") : $t("disconnect") }}
               <span>
                 <i class="material-icons">
-                  {{ !connectionState ? "sync" : "sync_disabled" }}
+                  {{ !isConnected ? "sync" : "sync_disabled" }}
                 </i>
               </span>
             </button>
@@ -32,7 +32,7 @@
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <log :title="$t('log')" :log="communication.log" />
+          <log :title="$t('log')" :log="log" />
         </li>
       </ul>
       <ul>
@@ -42,17 +42,17 @@
             id="websocket-message"
             name="message"
             type="text"
-            v-model="communication.input"
-            :readonly="!connectionState"
-            @keyup.enter="connectionState ? sendMessage() : null"
-            @keyup.up="connectionState ? walkHistory('up') : null"
-            @keyup.down="connectionState ? walkHistory('down') : null"
+            v-model="message"
+            :readonly="!isConnected"
+            @keyup.enter="isConnected ? sendMessage() : null"
+            @keyup.up="isConnected ? walkHistory('up') : null"
+            @keyup.down="isConnected ? walkHistory('down') : null"
           />
         </li>
         <div>
           <li>
             <label for="send" class="hide-on-small-screen">&nbsp;</label>
-            <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+            <button id="send" name="send" :disabled="!isConnected" @click="sendMessage">
               {{ $t("send") }}
               <span>
                 <i class="material-icons">send</i>
@@ -71,13 +71,6 @@ import { wsValid } from "~/helpers/utils/valid"
 export default {
   data() {
     return {
-      connectionState: false,
-      url: "wss://echo.websocket.org",
-      socket: null,
-      communication: {
-        log: null,
-        input: "",
-      },
       currentIndex: -1, //index of the message log array to put in input box
     }
   },
@@ -85,16 +78,51 @@ export default {
     urlValid() {
       return wsValid(this.url)
     },
+    url: {
+      get() {
+        return this.$store.state.ws.url
+      },
+      set(value) {
+        this.$store.commit("setWebSocketState", { value, attribute: "url" })
+      },
+    },
+    message: {
+      get() {
+        return this.$store.state.ws.message
+      },
+      set(value) {
+        this.$store.commit("setWebSocketState", { value, attribute: "message" })
+      },
+    },
+    log: {
+      get() {
+        return this.$store.state.ws.log
+      },
+      set(value) {
+        this.$store.commit("setWebSocketState", { value, attribute: "log" })
+      },
+    },
+    socket: {
+      get() {
+        return this.$store.state.ws.socket
+      },
+      set(value) {
+        this.$store.commit("setWebSocketState", { value, attribute: "socket" })
+      },
+    },
+    isConnected() {
+      return this.socket instanceof WebSocket
+    },
   },
   methods: {
     toggleConnection() {
       // If it is connecting:
-      if (!this.connectionState) return this.connect()
+      if (!this.isConnected) return this.connect()
       // Otherwise, it's disconnecting.
       else return this.disconnect()
     },
     connect() {
-      this.communication.log = [
+      this.log = [
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
@@ -104,8 +132,7 @@ export default {
       try {
         this.socket = new WebSocket(this.url)
         this.socket.onopen = (event) => {
-          this.connectionState = true
-          this.communication.log = [
+          this.log = [
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
@@ -121,8 +148,7 @@ export default {
           this.handleError()
         }
         this.socket.onclose = (event) => {
-          this.connectionState = false
-          this.communication.log.push({
+          this.addToLog({
             payload: this.$t("disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
@@ -133,7 +159,7 @@ export default {
           })
         }
         this.socket.onmessage = ({ data }) => {
-          this.communication.log.push({
+          this.addToLog({
             payload: data,
             source: "server",
             ts: new Date().toLocaleTimeString(),
@@ -148,18 +174,18 @@ export default {
     },
     disconnect() {
       this.socket.close()
+      this.socket = null
     },
     handleError(error) {
       this.disconnect()
-      this.connectionState = false
-      this.communication.log.push({
+      this.addToLog({
         payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
       })
       if (error !== null)
-        this.communication.log.push({
+        this.addToLog({
           payload: error,
           source: "info",
           color: "#ff5555",
@@ -167,17 +193,20 @@ export default {
         })
     },
     sendMessage() {
-      const message = this.communication.input
+      const message = this.message
       this.socket.send(message)
-      this.communication.log.push({
+      this.addToLog({
         payload: message,
         source: "client",
         ts: new Date().toLocaleTimeString(),
       })
-      this.communication.input = ""
+      this.message = ""
+    },
+    addToLog(obj) {
+      this.$store.commit("addWebSocketLog", obj)
     },
     walkHistory(direction) {
-      const clientMessages = this.communication.log.filter(({ source }) => source === "client")
+      const clientMessages = this.log.filter(({ source }) => source === "client")
       const length = clientMessages.length
       switch (direction) {
         case "up":
@@ -185,12 +214,12 @@ export default {
             //does nothing if message log is empty or the currentIndex is 0 when up arrow is pressed
             if (this.currentIndex === -1) {
               this.currentIndex = length - 1
-              this.communication.input = clientMessages[this.currentIndex].payload
+              this.message = clientMessages[this.currentIndex].payload
             } else if (this.currentIndex === 0) {
-              this.communication.input = clientMessages[0].payload
+              this.message = clientMessages[0].payload
             } else if (this.currentIndex > 0) {
               this.currentIndex = this.currentIndex - 1
-              this.communication.input = clientMessages[this.currentIndex].payload
+              this.message = clientMessages[this.currentIndex].payload
             }
           }
           break
@@ -198,10 +227,10 @@ export default {
           if (length > 0 && this.currentIndex > -1) {
             if (this.currentIndex === length - 1) {
               this.currentIndex = -1
-              this.communication.input = ""
+              this.message = ""
             } else if (this.currentIndex < length - 1) {
               this.currentIndex = this.currentIndex + 1
-              this.communication.input = clientMessages[this.currentIndex].payload
+              this.message = clientMessages[this.currentIndex].payload
             }
           }
           break

@@ -78,6 +78,7 @@ export default {
         try {
           this.sse = new EventSource(this.server)
           this.sse.onopen = (event) => {
+            console.log("here")
             this.connectionSSEState = true
             this.events.log = [
               {

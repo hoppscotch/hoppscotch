@@ -144,7 +144,6 @@ export default {
         const filteredRequests = []
         const filteredFolders = []
         for (let request of collection.requests) {
-          console.log(request)
           if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
         }
         for (let folder of collection.folders) {

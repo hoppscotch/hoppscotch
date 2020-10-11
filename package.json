@@ -59,7 +59,7 @@
     "@vue/test-utils": "^1.1.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.5.2",
-    "eslint": "^7.10.0",
+    "eslint": "^7.11.0",
     "eslint-plugin-vue": "^7.0.1",
     "husky": "^4.3.0",
     "jest": "^26.5.2",
@@ -67,7 +67,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
     "pretty-quick": "^3.0.2",
-    "sass-loader": "^10.0.2",
+    "sass-loader": "^10.0.3",
     "vue-jest": "^3.0.7"
   },
   "jest": {

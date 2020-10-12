@@ -236,6 +236,20 @@ export default {
           break
       }
     },
+    handleRefresh() {
+      // refreshing disconnects socket so we must manually add that to log
+      if (this.socket instanceof WebSocket) {
+        this.addToLog({
+          payload: this.$t("disconnected_from", { name: this.url }),
+          source: "info",
+          color: "#ff5555",
+          ts: new Date().toLocaleTimeString(),
+        })
+      }
+    },
+  },
+  beforeMount() {
+    window.addEventListener("beforeunload", this.handleRefresh)
   },
 }
 </script>

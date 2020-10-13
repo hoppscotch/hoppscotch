@@ -15,6 +15,12 @@
         </li>
         <div>
           <li>
+            <label for="socketio-path">{{ $t("path") }}</label>
+            <input id="socketio-path" spellcheck="false" v-model="path" />
+          </li>
+        </div>
+        <div>
+          <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
@@ -28,11 +34,10 @@
         </div>
       </ul>
     </pw-section>
-
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <realtime-log :title="$t('log')" :log="communication.log" />
+          <log :title="$t('log')" :log="communication.log" />
         </li>
       </ul>
       <ul>
@@ -49,19 +54,35 @@
       </ul>
       <ul>
         <li>
-          <label for="socketio-message">{{ $t("message") }}</label>
+          <div class="row-wrapper">
+            <label>{{ $t("message") }}s</label>
+          </div>
+        </li>
+      </ul>
+      <ul v-for="(input, index) of communication.inputs" :key="`input-${index}`">
+        <li>
           <input
-            id="socketio-message"
             name="message"
             type="text"
-            v-model="communication.input"
+            v-model="communication.inputs[index]"
             :readonly="!connectionState"
             @keyup.enter="connectionState ? sendMessage() : null"
           />
         </li>
-        <div>
+        <div v-if="index + 1 !== communication.inputs.length">
           <li>
-            <label for="send" class="hide-on-small-screen">&nbsp;</label>
+            <button
+              class="icon"
+              @click="removeCommunicationInput({ index })"
+              v-tooltip.bottom="$t('delete')"
+              :id="`delete-socketio-message-${index}`"
+            >
+              <deleteIcon class="material-icons" />
+            </button>
+          </li>
+        </div>
+        <div v-if="index + 1 === communication.inputs.length">
+          <li>
             <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
               {{ $t("send") }}
               <span>
@@ -71,28 +92,38 @@
           </li>
         </div>
       </ul>
+      <ul>
+        <li>
+          <button class="icon" @click="addCommunicationInput">
+            <i class="material-icons">add</i>
+            <span>{{ $t("add_new") }}</span>
+          </button>
+        </li>
+      </ul>
     </pw-section>
   </div>
 </template>
 
 <script>
-import { socketioValid } from "~/functions/utils/valid"
+import { socketioValid } from "~/helpers/utils/valid"
 import io from "socket.io-client"
+import wildcard from "socketio-wildcard"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
   components: {
-    "pw-section": () => import("../../components/layout/section"),
-    realtimeLog: () => import("./log"),
+    deleteIcon,
   },
   data() {
     return {
-      url: "ws://",
+      url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
+      path: "/socket.io",
       connectionState: false,
       io: null,
       communication: {
         log: null,
         eventName: "",
-        input: "",
+        inputs: [""],
       },
     }
   },
@@ -102,6 +133,12 @@ export default {
     },
   },
   methods: {
+    removeCommunicationInput({ index }) {
+      this.$delete(this.communication.inputs, index)
+    },
+    addCommunicationInput() {
+      this.communication.inputs.push("")
+    },
     toggleConnection() {
       // If it is connecting:
       if (!this.connectionState) return this.connect()
@@ -118,7 +155,14 @@ export default {
       ]
 
       try {
-        this.io = new io(this.url)
+        if (!this.path) {
+          this.path = "/socket.io"
+        }
+        this.io = new io(this.url, {
+          path: this.path,
+        })
+        // Add ability to listen to all events
+        wildcard(io.Manager)(this.io)
         this.io.on("connect", () => {
           this.connectionState = true
           this.communication.log = [
@@ -133,20 +177,21 @@ export default {
             icon: "sync",
           })
         })
-        this.io.on("message", data => {
+        this.io.on("*", ({ data }) => {
+          const [eventName, message] = data
           this.communication.log.push({
-            payload: data,
+            payload: `[${eventName}] ${message ? JSON.stringify(message) : ""}`,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })
         })
-        this.io.on("connect_error", error => {
+        this.io.on("connect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("reconnect_error", error => {
+        this.io.on("reconnect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("error", data => {
+        this.io.on("error", (data) => {
           this.handleError()
         })
         this.io.on("disconnect", () => {
@@ -190,12 +235,18 @@ export default {
     },
     sendMessage() {
       const eventName = this.communication.eventName
-      const message = this.communication.input
+      const messages = (this.communication.inputs || [])
+        .map((input) => {
+          try {
+            return JSON.parse(input)
+          } catch (err) {
+            return input
+          }
+        })
+        .filter((message) => !!message)
 
       if (this.io) {
-        // TODO: support only one argument now
-        // maybe should support more argument
-        this.io.emit(eventName, message, data => {
+        this.io.emit(eventName, ...messages, (data) => {
           // receive response from server
           this.communication.log.push({
             payload: `[${eventName}] ${JSON.stringify(data)}`,
@@ -205,11 +256,11 @@ export default {
         })
 
         this.communication.log.push({
-          payload: `[${eventName}] ${message}`,
+          payload: `[${eventName}] ${JSON.stringify(messages)}`,
           source: "client",
           ts: new Date().toLocaleTimeString(),
         })
-        this.communication.input = ""
+        this.communication.inputs = [""]
       }
     },
   },

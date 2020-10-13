@@ -9,7 +9,7 @@ export default {
 
   setCollapsedSection({ theme }, value) {
     theme.collapsedSections.includes(value)
-      ? (theme.collapsedSections = theme.collapsedSections.filter(section => section !== value))
+      ? (theme.collapsedSections = theme.collapsedSections.filter((section) => section !== value))
       : theme.collapsedSections.push(value)
   },
 
@@ -58,7 +58,11 @@ export default {
   },
 
   setValueParams({ request }, { index, value }) {
-    request.params[index].value = value
+    request.params[index].value = encodeURI(value)
+  },
+
+  setTypeParams({ request }, { index, value }) {
+    request.params[index].type = value
   },
 
   addBodyParams({ request }, value) {

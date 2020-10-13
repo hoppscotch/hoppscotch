@@ -13,42 +13,41 @@
 </template>
 
 <style scoped lang="scss">
-div.realtime-log {
-  margin: 4px;
-  padding: 8px 16px;
-  width: calc(100% - 8px);
-  border-radius: 8px;
-  background-color: var(--bg-dark-color);
-  color: var(--fg-color);
+.realtime-log {
+  @apply m-2;
+  @apply p-2;
+  @apply rounded-lg;
+  @apply bg-bgDarkColor;
+  @apply text-fgColor;
+  @apply overflow-auto;
   height: 256px;
-  overflow: auto;
 
   &,
   span {
-    font-size: 16px;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 400;
+    @apply text-sm;
+    @apply font-mono;
+    @apply font-normal;
+    @apply select-text;
   }
 
   span {
-    display: block;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-all;
+    @apply block;
+    @apply break-words;
+    @apply break-all;
   }
 }
 </style>
 
 <script>
-import { getSourcePrefix } from "~/functions/utils/string"
+import { getSourcePrefix } from "~/helpers/utils/string"
 
 export default {
   props: ["log", "title"],
   methods: {
     getSourcePrefix,
   },
-  updated: function() {
-    this.$nextTick(function() {
+  updated: function () {
+    this.$nextTick(function () {
       if (this.$refs.log) {
         this.$refs.log.scrollBy(0, this.$refs.log.scrollHeight + 100)
       }

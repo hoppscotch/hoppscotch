@@ -1,9 +1,0 @@
-version: 1
-update_configs:
-  - package_manager: "javascript"
-    directory: "/"
-    update_schedule: "weekly"
-    default_labels:
-      - "Dependency upgrade"
-    default_reviewers:
-      - "liyasthomas"

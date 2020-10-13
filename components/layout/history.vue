@@ -2,18 +2,26 @@
   <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <div class="show-on-large-screen">
       <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
-      <button class="icon">
+      <!-- <button class="icon">
         <i class="material-icons">search</i>
-      </button>
+      </button> -->
     </div>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: filteredHistory.length }"
-      :size="185"
-      :remain="Math.min(5, filteredHistory.length)"
-    >
-      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+    <div class="virtual-list" :class="{ filled: filteredHistory.length }">
+      <ul
+        v-for="(entry, index) in filteredHistory"
+        :key="index"
+        class="flex-col border-b border-dashed border-brdColor"
+      >
         <div class="show-on-large-screen">
+          <button
+            class="icon"
+            :id="'use-button#' + index"
+            @click="useHistory(entry)"
+            :aria-label="$t('edit')"
+            v-tooltip="$t('restore')"
+          >
+            <i class="material-icons">restore</i>
+          </button>
           <button
             class="icon"
             :class="{ stared: entry.star }"
@@ -26,16 +34,46 @@
               {{ entry.star ? "star" : "star_border" }}
             </i>
           </button>
-          <li>
+          <li class="relative">
+            <input
+              :aria-label="$t('method')"
+              type="text"
+              readonly
+              :value="`${entry.method} ${entry.status}`"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
+              class="bg-transparent"
+            />
+          </li>
+          <v-popover>
+            <button class="tooltip-target icon" v-tooltip="$t('options')">
+              <i class="material-icons">more_vert</i>
+            </button>
+            <template slot="popover">
+              <div>
+                <button
+                  class="icon"
+                  :id="'delete-button#' + index"
+                  @click="deleteHistory(entry)"
+                  :aria-label="$t('delete')"
+                  v-close-popover
+                >
+                  <deleteIcon class="material-icons" />
+                  <span>{{ $t("delete") }}</span>
+                </button>
+              </div>
+            </template>
+          </v-popover>
+          <!-- <li class="relative">
             <input
               :aria-label="$t('label')"
               type="text"
               readonly
               :value="entry.label"
               :placeholder="$t('no_label')"
-              class="bg-color"
+              class="bg-transparent"
             />
-          </li>
+          </li> -->
           <!-- <li>
             <button
               class="icon"
@@ -50,67 +88,21 @@
               </i>
             </button>
           </li> -->
-          <v-popover>
-            <button class="tooltip-target icon" v-tooltip="$t('options')">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  class="icon"
-                  :id="'use-button#' + index"
-                  @click="useHistory(entry)"
-                  :aria-label="$t('edit')"
-                  v-close-popover
-                >
-                  <i class="material-icons">restore</i>
-                  <span>{{ $t("restore") }}</span>
-                </button>
-              </div>
-              <div>
-                <button
-                  class="icon"
-                  :id="'delete-button#' + index"
-                  @click="deleteHistory(entry)"
-                  :aria-label="$t('delete')"
-                  v-close-popover
-                >
-                  <i class="material-icons">delete</i>
-                  <span>{{ $t("delete") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
         </div>
-        <div class="show-on-large-screen">
-          <li class="method-list-item">
-            <input
-              :aria-label="$t('method')"
-              type="text"
-              readonly
-              :value="entry.method"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-            />
-            <span
-              class="entry-status-code"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-              >{{ entry.status }}</span
-            >
-          </li>
-        </div>
+        <!-- <div class="show-on-large-screen">
+        </div> -->
         <div class="show-on-large-screen">
           <li>
             <input
               :aria-label="$t('url')"
               type="text"
               readonly
-              :value="entry.url"
+              :value="`${entry.url}${entry.path}`"
               :placeholder="$t('no_url')"
+              class="bg-transparent"
             />
           </li>
-          <li>
+          <!-- <li>
             <input
               :aria-label="$t('path')"
               type="text"
@@ -118,7 +110,7 @@
               :value="entry.path"
               :placeholder="$t('no_path')"
             />
-          </li>
+          </li> -->
         </div>
         <transition name="fade">
           <div v-if="showMore" class="show-on-large-screen">
@@ -152,17 +144,17 @@
           </div>
         </transition>
       </ul>
-    </virtual-list>
-    <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
+    </div>
+    <ul class="flex-col" :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
         <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
     </ul>
     <p v-if="history.length === 0" class="info">
-      {{ $t("history_empty") }}
+      <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0">
-      <div class="flex-wrap" v-if="!isClearingHistory">
+      <div class="row-wrapper" v-if="!isClearingHistory">
         <button
           class="icon"
           id="clear-history-button"
@@ -224,9 +216,9 @@
           </template>
         </v-popover>
       </div>
-      <div class="flex-wrap" v-else>
+      <div class="row-wrapper" v-else>
         <label for="clear-history-button" class="info">
-          {{ $t("are_you_sure") }}
+          <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
         </label>
         <div>
           <button
@@ -243,7 +235,7 @@
             @click="disableHistoryClearing"
             v-tooltip="$t('no')"
           >
-            <i class="material-icons">close</i>
+            <closeIcon class="material-icons" />
           </button>
         </div>
       </div>
@@ -253,50 +245,27 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 294px);
+  max-height: calc(100vh - 288px);
 
   [readonly] {
-    cursor: default;
+    @apply cursor-default;
   }
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: all 0.2s;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-200;
 }
 
 .fade-enter,
 .fade-leave-to {
-  opacity: 0;
+  @apply opacity-0;
 }
 
 .stared {
-  color: #f8e81c !important;
-}
-
-ul,
-ol {
-  flex-direction: column;
-}
-
-.method-list-item {
-  position: relative;
-
-  span {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 400;
-    background-color: transparent;
-    padding: 2px 6px;
-    border-radius: 8px;
-  }
-}
-
-.entry {
-  border-bottom: 1px dashed var(--brd-color);
-  padding: 0 0 8px;
+  @apply text-yellow-200;
 }
 
 @media (max-width: 720px) {
@@ -305,22 +274,24 @@ ol {
   }
 
   .labels {
-    display: none;
+    @apply hidden;
   }
 }
 </style>
 
 <script>
-import { findStatusGroup } from "../../pages/index"
-import { fb } from "../../functions/fb"
+import { findStatusGroup } from "~/pages/index"
+import { fb } from "~/helpers/fb"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
   components: {
-    "pw-section": () => import("../layout/section"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
+    closeIcon,
+    deleteIcon,
   },
   data() {
     return {
@@ -345,14 +316,16 @@ export default {
         fb.currentUser !== null
           ? fb.currentHistory
           : JSON.parse(window.localStorage.getItem("history")) || []
-      return this.history.filter((entry) => {
-        const filterText = this.filterText.toLowerCase()
-        return Object.keys(entry).some((key) => {
-          let value = entry[key]
-          value = typeof value !== "string" ? value.toString() : value
-          return value.toLowerCase().includes(filterText)
+      return this.history
+        .filter((entry) => {
+          const filterText = this.filterText.toLowerCase()
+          return Object.keys(entry).some((key) => {
+            let value = entry[key]
+            value = typeof value !== "string" ? value.toString() : value
+            return value.toLowerCase().includes(filterText)
+          })
         })
-      })
+        .reverse()
     },
   },
   methods: {

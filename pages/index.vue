@@ -2,39 +2,6 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request" ref="preRequest">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="generatedCode">{{ $t("javascript_code") }}</label>
-                <div>
-                  <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help</i>
-                    </button>
-                  </a>
-                </div>
-              </div>
-              <Editor
-                v-model="preRequestScript"
-                :lang="'javascript'"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-              />
-            </li>
-          </ul>
-        </pw-section>
-
         <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
             <li class="shrink">
@@ -42,11 +9,12 @@
               <span class="select-wrapper">
                 <v-popover>
                   <input
+                    v-if="!customMethod"
                     id="method"
                     class="method"
-                    v-if="!customMethod"
                     v-model="method"
                     readonly
+                    autofocus
                   />
                   <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
@@ -177,22 +145,36 @@
             <li>
               <label for="url">{{ $t("url") }}</label>
               <input
+                v-if="!this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
-                type="url"
+                type="text"
                 v-model="uri"
                 spellcheck="false"
                 @input="pathInputHandler"
               />
+              <url-field v-model="uri" v-else />
             </li>
             <li class="shrink">
               <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button :disabled="!isValidURL" @click="sendRequest" id="send" ref="sendButton">
+              <button
+                v-if="!runningRequest"
+                :disabled="!isValidURL"
+                @click="sendRequest"
+                id="send"
+                ref="sendButton"
+              >
                 {{ $t("send") }}
                 <span>
                   <i class="material-icons">send</i>
+                </span>
+              </button>
+              <button v-else @click="cancelRequest" id="send" ref="sendButton">
+                {{ $t("cancel") }}
+                <span>
+                  <i class="material-icons">clear</i>
                 </span>
               </button>
             </li>
@@ -207,18 +189,24 @@
               :placeholder="$t('optional')"
             />
           </div>
-          <div class="blue" label="Request Body" v-if="['POST', 'PUT', 'PATCH'].includes(method)">
+          <div
+            class="blue"
+            label="Request Body"
+            v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)"
+          >
             <ul>
               <li>
                 <label for="contentType">{{ $t("content_type") }}</label>
-                <autocomplete :source="validContentTypes" :spellcheck="false" v-model="contentType"
-                  >Content Type</autocomplete
-                >
+                <autocomplete
+                  :source="validContentTypes"
+                  :spellcheck="false"
+                  v-model="contentType"
+                />
               </li>
             </ul>
             <ul>
               <li>
-                <div class="flex-wrap">
+                <div class="row-wrapper">
                   <span>
                     <pw-toggle v-if="canListParameters" :on="rawInput" @change="rawInput = $event">
                       {{ $t("raw_input") }}
@@ -262,6 +250,15 @@
                       </button>
                     </label>
                     <input ref="payload" name="payload" type="file" @change="uploadPayload" />
+                    <button
+                      class="icon"
+                      ref="prettifyRequest"
+                      @click="prettifyRequestBody"
+                      v-tooltip="$t('prettify_body')"
+                      v-if="rawInput && this.contentType.endsWith('json')"
+                    >
+                      <i class="material-icons">photo_filter</i>
+                    </button>
                   </div>
                 </div>
               </li>
@@ -269,15 +266,18 @@
             <div v-if="!rawInput">
               <ul>
                 <li>
-                  <label for="reqParamList">{{ $t("parameter_list") }}</label>
-                  <textarea
-                    id="reqParamList"
-                    readonly
-                    v-textarea-auto-height="rawRequestBody"
-                    v-model="rawRequestBody"
-                    :placeholder="$t('add_one_parameter')"
-                    rows="1"
-                  ></textarea>
+                  <div class="row-wrapper">
+                    <label for="reqParamList">{{ $t("parameter_list") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('bodyParams', $event)"
+                        v-tooltip.bottom="$t('clear')"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
                 </li>
               </ul>
               <ul v-for="(param, index) in bodyParams" :key="index">
@@ -319,7 +319,7 @@
                       v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
-                      <i class="material-icons">delete</i>
+                      <deleteIcon class="material-icons" />
                     </button>
                   </li>
                 </div>
@@ -336,8 +336,19 @@
             <div v-else>
               <ul>
                 <li>
-                  <label for="rawBody">{{ $t("raw_request_body") }}</label>
-                  <Editor
+                  <div class="row-wrapper">
+                    <label for="rawBody">{{ $t("raw_request_body") }}</label>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="clearContent('rawParams', $event)"
+                        v-tooltip.bottom="$t('clear')"
+                      >
+                        <i class="material-icons">clear_all</i>
+                      </button>
+                    </div>
+                  </div>
+                  <ace-editor
                     v-model="rawParams"
                     :lang="rawInputEditorLang"
                     :options="{
@@ -353,7 +364,7 @@
               </ul>
             </div>
           </div>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span>
               <button
                 class="icon"
@@ -374,40 +385,6 @@
               >
                 <i class="material-icons">code</i>
               </button>
-              <button
-                class="icon"
-                id="preRequestScriptButton"
-                v-tooltip.bottom="{
-                  content: !showPreRequestScript
-                    ? $t('show_prerequest_script')
-                    : $t('hide_prerequest_script'),
-                }"
-                @click="showPreRequestScript = !showPreRequestScript"
-              >
-                <i
-                  class="material-icons"
-                  :class="showPreRequestScript"
-                  v-if="!showPreRequestScript"
-                >
-                  playlist_add
-                </i>
-                <i class="material-icons" :class="showPreRequestScript" v-else>
-                  close
-                </i>
-              </button>
-              <button
-                class="icon"
-                id="preRequestScriptButto"
-                v-tooltip.bottom="{
-                  content: !testsEnabled ? 'Enable Tests' : 'Disable Tests',
-                }"
-                @click="testsEnabled = !testsEnabled"
-              >
-                <i class="material-icons" :class="testsEnabled" v-if="!testsEnabled">
-                  playlist_add_check
-                </i>
-                <i class="material-icons" :class="testsEnabled" v-else>close</i>
-              </button>
             </span>
             <span>
               <button
@@ -419,7 +396,7 @@
                 v-tooltip.bottom="$t('copy_request_link')"
               >
                 <i v-if="navigatorShare" class="material-icons">share</i>
-                <i v-else class="material-icons">file_copy</i>
+                <i v-else class="material-icons">content_copy</i>
               </button>
               <button
                 class="icon"
@@ -429,7 +406,7 @@
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('save_to_collections')"
               >
-                <i class="material-icons">save</i>
+                <i class="material-icons">create_new_folder</i>
               </button>
               <button
                 class="icon"
@@ -443,77 +420,109 @@
           </div>
         </pw-section>
 
-        <pw-section v-if="testsEnabled" class="orange" label="Tests" ref="postRequestTests">
-          <ul>
-            <li>
-              <div class="flex-wrap">
-                <label for="generatedCode">{{ $t("javascript_code") }}</label>
-                <div>
-                  <a
-                    href="https://github.com/liyasthomas/postwoman/wiki/Post-Requests-Tests"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <button class="icon" v-tooltip="$t('wiki')">
-                      <i class="material-icons">help</i>
-                    </button>
-                  </a>
-                </div>
-              </div>
-              <Editor
-                v-model="testScript"
-                :lang="'javascript'"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-              />
-              <div v-if="testReports">
-                <div class="flex-wrap">
-                  <label>Test Reports</label>
-                  <div>
-                    <button
-                      class="icon"
-                      @click="clearContent('tests', $event)"
-                      v-tooltip.bottom="$t('clear')"
-                    >
-                      <i class="material-icons">clear_all</i>
-                    </button>
-                  </div>
-                </div>
-                <div v-for="(testReport, index) in testReports" :key="index">
-                  <div v-if="testReport.startBlock" class="info">
-                    <h4>{{ testReport.startBlock }}</h4>
-                  </div>
-                  <p v-else-if="testReport.result" class="flex-wrap info">
-                    <span :class="testReport.styles.class">
-                      <i class="material-icons">
-                        {{ testReport.styles.icon }}
-                      </i>
-                      <span>&nbsp; {{ testReport.result }}</span>
-                      <span v-if="testReport.message">
-                        <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
-                      </span>
-                    </span>
-                  </p>
-                  <div v-else-if="testReport.endBlock"><hr /></div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </pw-section>
-
         <section id="options">
           <tabs>
-            <tab :id="'authentication'" :label="$t('authentication')" :selected="true">
-              <pw-section class="cyan" :label="$t('authentication')" ref="authentication">
+            <tab
+              :id="'params'"
+              :label="
+                $t('parameters') + `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
+              "
+              :selected="true"
+            >
+              <pw-section class="pink" label="Parameters" ref="parameters">
+                <ul v-if="params.length !== 0">
+                  <li>
+                    <div class="row-wrapper">
+                      <label for="paramList">{{ $t("parameter_list") }}</label>
+                      <div>
+                        <button
+                          class="icon"
+                          @click="clearContent('parameters', $event)"
+                          v-tooltip.bottom="$t('clear')"
+                        >
+                          <i class="material-icons">clear_all</i>
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <ul v-for="(param, index) in params" :key="index">
+                  <li>
+                    <input
+                      :placeholder="$t('parameter_count', { count: index + 1 })"
+                      :name="'param' + index"
+                      :value="param.key"
+                      @change="
+                        $store.commit('setKeyParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                      autofocus
+                    />
+                  </li>
+                  <li>
+                    <input
+                      :placeholder="$t('value_count', { count: index + 1 })"
+                      :name="'value' + index"
+                      :value="decodeURI(param.value)"
+                      @change="
+                        $store.commit('setValueParams', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                    />
+                  </li>
+                  <li>
+                    <span class="select-wrapper">
+                      <select
+                        :name="'type' + index"
+                        @change="
+                          $store.commit('setTypeParams', {
+                            index,
+                            value: $event.target.value,
+                          })
+                        "
+                      >
+                        <option value="query" :selected="param.type === 'query'">
+                          {{ $t("query") }}
+                        </option>
+                        <option value="path" :selected="param.type === 'path'">
+                          {{ $t("path") }}
+                        </option>
+                      </select>
+                    </span>
+                  </li>
+                  <div>
+                    <li>
+                      <button
+                        class="icon"
+                        @click="removeRequestParam(index)"
+                        v-tooltip.bottom="$t('delete')"
+                        id="param"
+                      >
+                        <deleteIcon class="material-icons" />
+                      </button>
+                    </li>
+                  </div>
+                </ul>
                 <ul>
                   <li>
-                    <div class="flex-wrap">
+                    <button class="icon" @click="addRequestParam">
+                      <i class="material-icons">add</i>
+                      <span>{{ $t("add_new") }}</span>
+                    </button>
+                  </li>
+                </ul>
+              </pw-section>
+            </tab>
+
+            <tab :id="'authentication'" :label="$t('authentication')">
+              <pw-section class="teal" :label="$t('authentication')" ref="authentication">
+                <ul>
+                  <li>
+                    <div class="row-wrapper">
                       <label for="auth">{{ $t("authentication") }}</label>
                       <div>
                         <button
@@ -565,7 +574,7 @@
                 </ul>
                 <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
                       <button
                         v-if="auth === 'OAuth 2.0'"
@@ -586,7 +595,7 @@
                     </div>
                   </li>
                 </ul>
-                <div class="flex-wrap">
+                <div class="row-wrapper">
                   <pw-toggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">
                     {{ $t("include_in_url") }}
                   </pw-toggle>
@@ -600,7 +609,7 @@
               >
                 <ul>
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="token-name">{{ $t("token_name") }}</label>
                       <div>
                         <button
@@ -622,7 +631,7 @@
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
-                          <i class="material-icons">close</i>
+                          <closeIcon class="material-icons" />
                         </button>
                       </div>
                     </div>
@@ -713,11 +722,16 @@
               </pw-section>
             </tab>
 
-            <tab :id="'headers'" :label="$t('headers')">
+            <tab
+              :id="'headers'"
+              :label="
+                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+              "
+            >
               <pw-section class="orange" label="Headers" ref="headers">
-                <ul>
+                <ul v-if="headers.length !== 0">
                   <li>
-                    <div class="flex-wrap">
+                    <div class="row-wrapper">
                       <label for="headerList">{{ $t("header_list") }}</label>
                       <div>
                         <button
@@ -729,17 +743,9 @@
                         </button>
                       </div>
                     </div>
-                    <textarea
-                      id="headerList"
-                      readonly
-                      v-textarea-auto-height="headerString"
-                      v-model="headerString"
-                      :placeholder="$t('add_one_header')"
-                      rows="1"
-                    ></textarea>
                   </li>
                 </ul>
-                <ul v-for="(header, index) in headers" :key="index">
+                <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
                   <li>
                     <autocomplete
                       :placeholder="$t('header_count', { count: index + 1 })"
@@ -778,7 +784,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="header"
                       >
-                        <i class="material-icons">delete</i>
+                        <deleteIcon class="material-icons" />
                       </button>
                     </li>
                   </div>
@@ -794,99 +800,121 @@
               </pw-section>
             </tab>
 
-            <tab :id="'params'" :label="$t('parameters')">
-              <pw-section class="pink" label="Parameters" ref="parameters">
+            <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
+              <pw-section
+                v-if="showPreRequestScript"
+                class="orange"
+                :label="$t('pre_request_script')"
+                ref="preRequest"
+              >
                 <ul>
                   <li>
-                    <div class="flex-wrap">
-                      <label for="paramList">{{ $t("parameter_list") }}</label>
+                    <div class="row-wrapper">
+                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
-                        <button
-                          class="icon"
-                          @click="clearContent('parameters', $event)"
-                          v-tooltip.bottom="$t('clear')"
+                        <a
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
+                          target="_blank"
+                          rel="noopener"
                         >
-                          <i class="material-icons">clear_all</i>
-                        </button>
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
                       </div>
                     </div>
-                    <textarea
-                      id="paramList"
-                      readonly
-                      v-textarea-auto-height="queryString"
-                      v-model="queryString"
-                      :placeholder="$t('add_one_parameter')"
-                      rows="1"
-                    ></textarea>
-                  </li>
-                </ul>
-                <ul v-for="(param, index) in params" :key="index">
-                  <li>
-                    <input
-                      :placeholder="$t('parameter_count', { count: index + 1 })"
-                      :name="'param' + index"
-                      :value="param.key"
-                      @change="
-                        $store.commit('setKeyParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                      autofocus
+                    <js-editor
+                      v-model="preRequestScript"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
                     />
                   </li>
-                  <li>
-                    <input
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="'value' + index"
-                      :value="param.value"
-                      @change="
-                        $store.commit('setValueParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                    />
-                  </li>
-                  <div>
-                    <li>
-                      <button
-                        class="icon"
-                        @click="removeRequestParam(index)"
-                        v-tooltip.bottom="$t('delete')"
-                        id="param"
-                      >
-                        <i class="material-icons">delete</i>
-                      </button>
-                    </li>
-                  </div>
                 </ul>
+              </pw-section>
+            </tab>
+
+            <tab
+              :id="'tests'"
+              :label="
+                $t('tests') +
+                `${testReports.length !== 0 ? ' \xA0 • \xA0 ' + testReports.length : ''}`
+              "
+            >
+              <pw-section
+                v-if="testsEnabled"
+                class="orange"
+                :label="$t('tests')"
+                ref="postRequestTests"
+              >
                 <ul>
                   <li>
-                    <button class="icon" @click="addRequestParam">
-                      <i class="material-icons">add</i>
-                      <span>{{ $t("add_new") }}</span>
-                    </button>
+                    <div class="row-wrapper">
+                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <div>
+                        <a
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Requests-Tests"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
+                      </div>
+                    </div>
+                    <js-editor
+                      v-model="testScript"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
+                    />
+                    <div v-if="testReports.length !== 0">
+                      <div class="row-wrapper">
+                        <label>Test Reports</label>
+                        <div>
+                          <button
+                            class="icon"
+                            @click="clearContent('tests', $event)"
+                            v-tooltip.bottom="$t('clear')"
+                          >
+                            <i class="material-icons">clear_all</i>
+                          </button>
+                        </div>
+                      </div>
+                      <div v-for="(testReport, index) in testReports" :key="index">
+                        <div v-if="testReport.startBlock" class="info">
+                          <h4>{{ testReport.startBlock }}</h4>
+                        </div>
+                        <p v-else-if="testReport.result" class="row-wrapper info">
+                          <span :class="testReport.styles.class">
+                            <i class="material-icons">
+                              {{ testReport.styles.icon }}
+                            </i>
+                            <span>&nbsp; {{ testReport.result }}</span>
+                            <span v-if="testReport.message">
+                              <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
+                            </span>
+                          </span>
+                        </p>
+                        <div v-else-if="testReport.endBlock"><hr /></div>
+                      </div>
+                    </div>
                   </li>
                 </ul>
               </pw-section>
             </tab>
           </tabs>
-
-          <!-- <div class="flex-wrap">
-            <span></span>
-            <button
-              class="icon hide-on-small-screen"
-              @click="activeSidebar = !activeSidebar"
-              v-tooltip="{
-                content: activeSidebar ? 'Hide Sidebar' : 'Show Sidebar'
-              }"
-            >
-              <i class="material-icons">
-                {{ activeSidebar ? "last_page" : "first_page" }}
-              </i>
-            </button>
-          </div> -->
         </section>
 
         <pw-section class="purple" id="response" :label="$t('response')" ref="response">
@@ -904,106 +932,32 @@
               />
             </li>
           </ul>
-          <ul v-for="(value, key) in response.headers" :key="key">
-            <li>
-              <label :for="key">{{ key }}</label>
-              <input :id="key" :value="value" :name="key" readonly />
-            </li>
-          </ul>
-          <ul v-if="response.body">
-            <li>
-              <div class="flex-wrap">
-                <label for="body">{{ $t("response") }}</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="ToggleExpandResponse"
-                    ref="ToggleExpandResponse"
-                    v-if="response.body"
-                    v-tooltip="{
-                      content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-                    }"
-                  >
-                    <i class="material-icons">
-                      {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-                    </i>
-                  </button>
-                  <button
-                    class="icon"
-                    @click="downloadResponse"
-                    ref="downloadResponse"
-                    v-if="response.body"
-                    v-tooltip="$t('download_file')"
-                  >
-                    <i class="material-icons">get_app</i>
-                  </button>
-                  <button
-                    class="icon"
-                    @click="copyResponse"
-                    ref="copyResponse"
-                    v-if="response.body"
-                    v-tooltip="$t('copy_response')"
-                  >
-                    <i class="material-icons">file_copy</i>
-                  </button>
-                </div>
-              </div>
-              <div id="response-details-wrapper">
-                <Editor
-                  :value="responseBodyText"
-                  :lang="responseBodyType"
-                  :options="{
-                    maxLines: responseBodyMaxLines,
-                    minLines: '16',
-                    fontSize: '16px',
-                    autoScrollEditorIntoView: true,
-                    readOnly: true,
-                    showPrintMargin: false,
-                    useWorker: false,
-                  }"
-                />
-                <iframe
-                  :class="{ hidden: !previewEnabled }"
-                  class="covers-response"
-                  ref="previewFrame"
-                  src="about:blank"
-                ></iframe>
-              </div>
-              <div class="align-right" v-if="response.body && responseType === 'text/html'">
-                <button class="icon" @click.prevent="togglePreview">
-                  <i class="material-icons">
-                    {{ !previewEnabled ? "visibility" : "visibility_off" }}
-                  </i>
-                  <span>
-                    {{ previewEnabled ? $t("hide_preview") : $t("preview_html") }}
-                  </span>
-                </button>
-              </div>
-            </li>
-          </ul>
+          <div v-if="response.body && response.body !== $t('loading')">
+            <response-body-renderer :response="response" />
+          </div>
         </pw-section>
       </div>
 
-      <aside v-if="activeSidebar" class="sticky-inner inner-right">
+      <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
         <section>
           <tabs>
-            <tab :id="'history'" :icon="'watch_later'" :label="$t('history')" :selected="true">
+            <tab :id="'history'" :label="$t('history')" :selected="true">
               <history @useHistory="handleUseHistory" ref="historyComponent" />
             </tab>
 
-            <tab :id="'collections'" :icon="'folder_special'" :label="$t('collections')">
+            <tab :id="'collections'" :label="$t('collections')">
               <collections />
             </tab>
 
-            <tab :id="'env'" :icon="'style'" :label="$t('environments')">
+            <tab :id="'env'" :label="$t('environments')">
               <environments @use-environment="useSelectedEnvironment($event)" />
             </tab>
 
-            <tab :id="'notes'" :icon="'note'" :label="$t('notes')">
+            <tab :id="'notes'" :label="$t('notes')">
               <pw-section class="pink" :label="$t('notes')" ref="sync">
                 <div v-if="fb.currentUser">
                   <inputform />
-                  <notes />
+                  <feeds />
                 </div>
                 <div v-else>
                   <ul>
@@ -1027,15 +981,15 @@
         :editing-request="editRequest"
       />
 
-      <pw-modal v-if="showModal" @close="showModal = false">
+      <modal v-if="showModal" @close="showModal = false">
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1055,7 +1009,7 @@
           </ul>
         </div>
         <div slot="footer">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span></span>
             <span>
               <button class="icon" @click="showModal = false">
@@ -1067,17 +1021,17 @@
             </span>
           </div>
         </div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="!isHidden" @close="isHidden = true">
+      <modal v-if="!isHidden" @close="isHidden = true">
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1090,16 +1044,16 @@
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
                 <select id="requestType" v-model="requestType">
-                  <option>JavaScript XHR</option>
-                  <option>Fetch</option>
-                  <option>cURL</option>
+                  <option v-for="gen in codegens" :key="gen.id" :value="gen.id">
+                    {{ gen.name }}
+                  </option>
                 </select>
               </span>
             </li>
           </ul>
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="generatedCode">{{ $t("generated_code") }}</label>
                 <div>
                   <button
@@ -1109,7 +1063,7 @@
                     ref="copyRequestCode"
                     v-tooltip="$t('copy_code')"
                   >
-                    <i class="material-icons">file_copy</i>
+                    <i class="material-icons">content_copy</i>
                   </button>
                 </div>
               </div>
@@ -1124,17 +1078,17 @@
           </ul>
         </div>
         <div slot="footer"></div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="showTokenList" @close="showTokenList = false">
+      <modal v-if="showTokenList" @close="showTokenList = false">
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1144,7 +1098,7 @@
         <div slot="body">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="token-list">{{ $t("token_list") }}</label>
                 <div v-if="tokens.length != 0">
                   <button
@@ -1174,7 +1128,7 @@
             <li>
               <input :value="token.value" readonly />
             </li>
-            <div class="flex-wrap">
+            <div class="row-wrapper">
               <li>
                 <button
                   class="icon"
@@ -1190,7 +1144,7 @@
                   @click="removeOAuthToken(index)"
                   v-tooltip.bottom="$t('delete')"
                 >
-                  <i class="material-icons">delete</i>
+                  <deleteIcon class="material-icons" />
                 </button>
               </li>
             </div>
@@ -1200,17 +1154,17 @@
           </p>
         </div>
         <div slot="footer"></div>
-      </pw-modal>
+      </modal>
 
-      <pw-modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+      <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
         <div slot="header">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
-                    <i class="material-icons">close</i>
+                    <closeIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1220,7 +1174,7 @@
         <div slot="body">
           <ul>
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="token-req-list">{{ $t("token_req_list") }}</label>
                 <div>
                   <button
@@ -1237,7 +1191,7 @@
                     @click="removeOAuthTokenReq"
                     v-tooltip.bottom="$t('delete')"
                   >
-                    <i class="material-icons">delete</i>
+                    <deleteIcon class="material-icons" />
                   </button>
                 </div>
               </div>
@@ -1276,7 +1230,7 @@
           </ul>
         </div>
         <div slot="footer">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span></span>
             <span>
               <button class="icon primary" @click="addOAuthTokenReq">
@@ -1285,26 +1239,31 @@
             </span>
           </div>
         </div>
-      </pw-modal>
+      </modal>
     </div>
   </div>
 </template>
 
 <script>
-import section from "../components/layout/section"
 import url from "url"
 import querystring from "querystring"
-import { commonHeaders } from "../functions/headers"
-import textareaAutoHeight from "../directives/textareaAutoHeight"
-import parseCurlCommand from "../assets/js/curlparser.js"
-import getEnvironmentVariablesFromScript from "../functions/preRequest"
-import runTestScriptWithVariables from "../functions/postwomanTesting"
-import parseTemplateString from "../functions/templating"
-import AceEditor from "../components/ui/ace-editor"
-import { tokenRequest, oauthRedirect } from "../assets/js/oauth"
-import { sendNetworkRequest } from "../functions/network"
-import { fb } from "../functions/fb"
-import { getEditorLangForMimeType } from "~/functions/editorutils"
+import { commonHeaders } from "~/helpers/headers"
+import parseCurlCommand from "~/helpers/curlparser"
+import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
+import runTestScriptWithVariables from "~/helpers/postwomanTesting"
+import parseTemplateString from "~/helpers/templating"
+import { tokenRequest, oauthRedirect } from "~/helpers/oauth"
+import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
+import { fb } from "~/helpers/fb"
+import { getEditorLangForMimeType } from "~/helpers/editorutils"
+import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpers/requestParams"
+import { parseUrlAndPath } from "~/helpers/utils/uri"
+import { httpValid } from "~/helpers/utils/valid"
+import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
+import closeIcon from "~/static/icons/close-24px.svg?inline"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
+import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+
 const statusCategories = [
   {
     name: "informational",
@@ -1338,52 +1297,24 @@ const statusCategories = [
     className: "missing-data-response",
   },
 ]
-const parseHeaders = (xhr) => {
-  const headers = xhr
-    .getAllResponseHeaders()
-    .trim()
-    .split(/[\r\n]+/)
-  const headerMap = {}
-  headers.forEach((line) => {
-    const parts = line.split(": ")
-    const header = parts.shift().toLowerCase()
-    const value = parts.join(": ")
-    headerMap[header] = value
-  })
-  return headerMap
-}
 export const findStatusGroup = (responseStatus) =>
-  statusCategories.find((status) => status.statusCodeRegex.test(responseStatus))
+  statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
+
 export default {
-  directives: {
-    textareaAutoHeight,
-  },
   components: {
-    "pw-section": section,
-    "pw-toggle": () => import("../components/ui/toggle"),
-    "pw-modal": () => import("../components/ui/modal"),
-    autocomplete: () => import("../components/ui/autocomplete"),
-    history: () => import("../components/layout/history"),
-    collections: () => import("../components/collections"),
-    saveRequestAs: () => import("../components/collections/saveRequestAs"),
-    Editor: AceEditor,
-    environments: () => import("../components/environments"),
-    inputform: () => import("../components/firebase/inputform"),
-    notes: () => import("../components/firebase/feeds"),
-    login: () => import("../components/firebase/login"),
-    tabs: () => import("../components/ui/tabs"),
-    tab: () => import("../components/ui/tab"),
+    closeIcon,
+    deleteIcon,
   },
   data() {
     return {
       showModal: false,
-      showPreRequestScript: false,
-      testsEnabled: false,
+      showPreRequestScript: true,
+      testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
-      testReports: null,
-      copyButton: '<i class="material-icons">file_copy</i>',
-      downloadButton: '<i class="material-icons">get_app</i>',
+      testReports: [],
+      copyButton: '<i class="material-icons">content_copy</i>',
+      downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
       isHidden: true,
       response: {
@@ -1391,9 +1322,8 @@ export default {
         headers: "",
         body: "",
       },
-      previewEnabled: false,
+      validContentTypes: knownContentTypes,
       paramsWatchEnabled: true,
-      expandResponse: false,
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
@@ -1401,22 +1331,33 @@ export default {
       showRequestModal: false,
       editRequest: {},
       urlExcludes: {},
-      responseBodyText: "",
-      responseBodyType: "text",
-      responseBodyMaxLines: 16,
       activeSidebar: true,
       fb,
       customMethod: false,
       files: [],
       filenames: "",
       navigatorShare: navigator.share,
-
+      runningRequest: false,
       settings: {
         SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
             : true,
       },
+      currentMethodIndex: 0,
+      codegens: codegens,
+      methodMenuItems: [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE",
+        "CONNECT",
+        "OPTIONS",
+        "TRACE",
+        "PATCH",
+        "CUSTOM",
+      ],
     }
   },
   watch: {
@@ -1443,11 +1384,9 @@ export default {
     },
     contentType(contentType, oldContentType) {
       const getDefaultParams = (contentType) => {
+        if (isJSONContentType(contentType)) return "{}"
+
         switch (contentType) {
-          case "application/json":
-          case "application/vnd.api+json":
-          case "application/hal+json":
-            return "{}"
           case "application/xml":
             return "<?xml version='1.0' encoding='utf-8'?>"
           case "text/html":
@@ -1460,30 +1399,6 @@ export default {
       }
       this.setRouteQueryState()
     },
-    "response.body": function (val) {
-      if (
-        this.response.body === this.$t("waiting_send_req") ||
-        this.response.body === this.$t("loading")
-      ) {
-        this.responseBodyText = this.response.body
-        this.responseBodyType = "text"
-      } else {
-        if (
-          this.responseType === "application/json" ||
-          this.responseType === "application/hal+json" ||
-          this.responseType === "application/vnd.api+json"
-        ) {
-          this.responseBodyText = JSON.stringify(this.response.body, null, 2)
-          this.responseBodyType = "json"
-        } else if (this.responseType === "text/html") {
-          this.responseBodyText = this.response.body
-          this.responseBodyType = "html"
-        } else {
-          this.responseBodyText = this.response.body
-          this.responseBodyType = "text"
-        }
-      }
-    },
     params: {
       handler: function (newValue) {
         if (!this.paramsWatchEnabled) {
@@ -1491,8 +1406,7 @@ export default {
           return
         }
         let path = this.path
-        let queryString = newValue
-          .filter(({ key }) => !!key)
+        let queryString = getQueryParams(newValue)
           .map(({ key, value }) => `${key}=${value}`)
           .join("&")
         queryString = queryString === "" ? "" : `?${queryString}`
@@ -1502,6 +1416,7 @@ export default {
           path = path + queryString
         }
         this.path = path
+        this.setRouteQueryState()
       },
       deep: true,
     },
@@ -1532,29 +1447,22 @@ export default {
         this.testsEnabled = true
         this.testScript = newValue.testScript
       }
+      this.label = newValue.label
     },
     editingRequest(newValue) {
       this.editRequest = newValue
       this.showRequestModal = true
     },
     method() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method) ? "application/json" : ""
+      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
+        ? "application/json"
+        : ""
+    },
+    preRequestScript: function (val, oldVal) {
+      this.uri = this.uri
     },
   },
   computed: {
-    /**
-     * These are a list of Content Types known to Postwoman.
-     */
-    validContentTypes: () => [
-      "application/json",
-      "application/vnd.api+json",
-      "application/hal+json",
-      "application/xml",
-      "application/x-www-form-urlencoded",
-      "text/html",
-      "text/plain",
-    ],
     /**
      * Check content types that can be automatically
      * serialized by postwoman.
@@ -1562,7 +1470,7 @@ export default {
     canListParameters() {
       return (
         this.contentType === "application/x-www-form-urlencoded" ||
-        this.contentType.endsWith("json")
+        isJSONContentType(this.contentType)
       )
     },
     uri: {
@@ -1572,20 +1480,14 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
         let url = value
-        if (this.preRequestScript && this.showPreRequestScript) {
-          const environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
           url = parseTemplateString(value, environmentVariables)
         }
-        try {
-          url = new URL(url)
-          this.url = url.origin
-          this.path = url.pathname
-        } catch (error) {
-          console.log(error)
-          let uriRegex = value.match(/^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/)
-          this.url = uriRegex[1]
-          this.path = uriRegex[4]
-        }
+        let result = parseUrlAndPath(url)
+        this.url = result.url
+        this.path = result.path
       },
     },
     url: {
@@ -1829,28 +1731,18 @@ export default {
       return findStatusGroup(this.response.status)
     },
     isValidURL() {
-      if (this.showPreRequestScript) {
-        // we cannot determine if a URL is valid because the full string is not known ahead of time
-        return true
-      }
-      const protocol = "^(https?:\\/\\/)?"
-      const validIP = new RegExp(
-        `${protocol}(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`
-      )
-      const validHostname = new RegExp(
-        `${protocol}(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]).)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9/])$`
-      )
-      return validIP.test(this.url) || validHostname.test(this.url)
+      // if showPreRequestScript, we cannot determine if a URL is valid because the full string is not known ahead of time
+      return this.showPreRequestScript || httpValid(this.url)
     },
     hasRequestBody() {
-      return ["POST", "PUT", "PATCH"].includes(this.method)
+      return ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
     },
     pathName() {
       return this.path.match(/^([^?]*)\??/)[1]
     },
     rawRequestBody() {
       const { bodyParams, contentType } = this
-      if (contentType.endsWith("json")) {
+      if (isJSONContentType(contentType)) {
         try {
           const obj = JSON.parse(
             `{${bodyParams
@@ -1864,6 +1756,14 @@ export default {
           )
           return JSON.stringify(obj, null, 2)
         } catch (ex) {
+          console.log(ex)
+          this.$toast.clear()
+          this.$toast.error(
+            "Parameter value must be a string, switch to Raw input for other formats",
+            {
+              icon: "error",
+            }
+          )
           return "invalid"
         }
       } else {
@@ -1881,8 +1781,7 @@ export default {
       return result === "" ? "" : `${result}`
     },
     queryString() {
-      const result = this.params
-        .filter(({ key }) => !!key)
+      const result = getQueryParams(this.params)
         .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
@@ -1891,95 +1790,21 @@ export default {
       return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },
     requestCode() {
-      if (this.requestType === "JavaScript XHR") {
-        const requestString = []
-        requestString.push("const xhr = new XMLHttpRequest()")
-        const user = this.auth === "Basic Auth" ? `'${this.httpUser}'` : null
-        const password = this.auth === "Basic Auth" ? `'${this.httpPassword}'` : null
-        requestString.push(
-          `xhr.open('${this.method}', '${this.url}${this.pathName}${this.queryString}', true, ${user}, ${password})`
-        )
-        if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          requestString.push(`xhr.setRequestHeader('Authorization', 'Bearer ${this.bearerToken}')`)
-        }
-        if (this.headers) {
-          this.headers.forEach(({ key, value }) => {
-            requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
-          })
-        }
-        if (["POST", "PUT", "PATCH"].includes(this.method)) {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          requestString.push(`xhr.setRequestHeader('Content-Length', ${requestBody.length})`)
-          requestString.push(
-            `xhr.setRequestHeader('Content-Type', '${this.contentType}; charset=utf-8')`
-          )
-          requestString.push(`xhr.send(${requestBody})`)
-        } else {
-          requestString.push("xhr.send()")
-        }
-        return requestString.join("\n")
-      } else if (this.requestType === "Fetch") {
-        const requestString = []
-        let headers = []
-        requestString.push(`fetch("${this.url}${this.pathName}${this.queryString}", {\n`)
-        requestString.push(`  method: "${this.method}",\n`)
-        if (this.auth === "Basic Auth") {
-          const basic = `${this.httpUser}:${this.httpPassword}`
-          headers.push(
-            `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
-          )
-        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          headers.push(`    "Authorization": "Bearer ${this.bearerToken}",\n`)
-        }
-        if (["POST", "PUT", "PATCH"].includes(this.method)) {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          requestString.push(`  body: ${requestBody},\n`)
-          headers.push(`    "Content-Length": ${requestBody.length},\n`)
-          headers.push(`    "Content-Type": "${this.contentType}; charset=utf-8",\n`)
-        }
-        if (this.headers) {
-          this.headers.forEach(({ key, value }) => {
-            headers.push(`    "${key}": "${value}",\n`)
-          })
-        }
-        headers = headers.join("").slice(0, -2)
-        requestString.push(`  headers: {\n${headers}\n  },\n`)
-        requestString.push('  credentials: "same-origin"\n')
-        requestString.push("}).then(function(response) {\n")
-        requestString.push("  response.status\n")
-        requestString.push("  response.statusText\n")
-        requestString.push("  response.headers\n")
-        requestString.push("  response.url\n\n")
-        requestString.push("  return response.text()\n")
-        requestString.push("}).catch(function(error) {\n")
-        requestString.push("  error.message\n")
-        requestString.push("})")
-        return requestString.join("")
-      } else if (this.requestType === "cURL") {
-        const requestString = []
-        requestString.push(`curl -X ${this.method} \n`)
-        requestString.push(`  '${this.url}${this.pathName}${this.queryString}' \n`)
-        if (this.auth === "Basic Auth") {
-          const basic = `${this.httpUser}:${this.httpPassword}`
-          requestString.push(
-            `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}' \n`
-          )
-        } else if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0") {
-          requestString.push(`  -H 'Authorization: Bearer ${this.bearerToken}' \n`)
-        }
-        if (this.headers) {
-          this.headers.forEach(({ key, value }) => {
-            requestString.push(`  -H '${key}: ${value}' \n`)
-          })
-        }
-        if (["POST", "PUT", "PATCH"].includes(this.method)) {
-          const requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
-          requestString.push(`  -H 'Content-Length: ${requestBody.length}' \n`)
-          requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8' \n`)
-          requestString.push(`  -d '${requestBody}' \n`)
-        }
-        return requestString.join("").slice(0, -2)
-      }
+      return generateCodeWithGenerator(this.requestType, {
+        auth: this.auth,
+        method: this.method,
+        url: this.url,
+        pathName: this.pathName,
+        queryString: this.queryString,
+        httpUser: this.httpUser,
+        httpPassword: this.httpPassword,
+        bearerToken: this.bearerToken,
+        headers: this.headers,
+        rawInput: this.rawInput,
+        rawParams: this.rawParams,
+        rawRequestBody: this.rawRequestBody,
+        contentType: this.contentType,
+      })
     },
     tokenReqDetails() {
       const details = {
@@ -2013,14 +1838,27 @@ export default {
         behavior: "smooth",
       })
     },
-    handleUseHistory({ label, method, url, path, usesScripts, preRequestScript }) {
-      this.label = label
-      this.method = method
-      this.uri = url + path
-      this.url = url
-      this.path = path
-      this.showPreRequestScript = usesScripts
-      this.preRequestScript = preRequestScript
+    handleUseHistory(entry) {
+      this.label = entry.label
+      this.method = entry.method
+      this.uri = entry.url + entry.path
+      this.url = entry.url
+      this.path = entry.path
+      this.showPreRequestScript = entry.usesPreScripts
+      this.preRequestScript = entry.preRequestScript
+      this.auth = entry.auth
+      this.httpUser = entry.httpUser
+      this.httpPassword = entry.httpPassword
+      this.bearerToken = entry.bearerToken
+      this.headers = entry.headers
+      this.params = entry.params
+      this.bodyParams = entry.bodyParams
+      this.rawParams = entry.rawParams
+      this.rawInput = entry.rawInput
+      this.contentType = entry.contentType
+      this.requestType = entry.requestType
+      this.testScript = entry.testScript
+      this.testsEnabled = entry.usesPostScripts
       if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     getVariablesFromPreRequestScript() {
@@ -2038,8 +1876,10 @@ export default {
         data: requestBody,
         credentials: true,
       }
-      if (preRequestScript) {
-        const environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
+
+      if (preRequestScript || hasPathParams(this.params)) {
+        let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
         requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
         for (let k in requestOptions.headers) {
@@ -2054,6 +1894,9 @@ export default {
       }
       return await sendNetworkRequest(requestOptions, this.$store)
     },
+    cancelRequest() {
+      cancelRunningRequest(this.$store)
+    },
     async sendRequest() {
       this.$toast.clear()
       if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
@@ -2066,9 +1909,6 @@ export default {
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-      if (this.$refs.response.$el.classList.contains("hidden")) {
-        this.$refs.response.$el.classList.toggle("hidden")
-      }
       this.previewEnabled = false
       this.response.status = this.$t("fetching")
       this.response.body = this.$t("loading")
@@ -2082,16 +1922,14 @@ export default {
       let headers = {}
       let headersObject = {}
       Object.keys(headers).forEach((id) => {
-        headersObject[headers[id].key] = headers[id].value
+        if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
-      // If the request has a body, we want to ensure Content-Length and
-      // Content-Type are sent.
+      // If the request has a body, we want to ensure Content-Type is sent.
       let requestBody
       if (this.hasRequestBody) {
         requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
         Object.assign(headers, {
-          //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`,
         })
       }
@@ -2118,55 +1956,30 @@ export default {
         // headers
       )
       Object.keys(headers).forEach((id) => {
-        headersObject[headers[id].key] = headers[id].value
+        if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
       try {
         const startTime = Date.now()
+
+        this.runningRequest = true
         const payload = await this.makeRequest(
           auth,
           headers,
           requestBody,
           this.showPreRequestScript && this.preRequestScript
         )
+        this.runningRequest = false
+
         const duration = Date.now() - startTime
         this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done",
         })
         ;(() => {
-          const status = (this.response.status = payload.status)
-          const headers = (this.response.headers = payload.headers)
+          this.response.status = payload.status
+          this.response.headers = payload.headers
           // We don't need to bother parsing JSON, axios already handles it for us!
-          const body = (this.response.body = payload.data)
-          const date = new Date().toLocaleDateString()
-          const time = new Date().toLocaleTimeString()
-          // Addition of an entry to the history component.
-          const entry = {
-            label: this.requestName,
-            status,
-            date,
-            time,
-            method: this.method,
-            url: this.url,
-            path: this.path,
-            usesScripts: Boolean(this.preRequestScript),
-            preRequestScript: this.preRequestScript,
-            duration,
-            star: false,
-          }
-          this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null) {
-            if (fb.currentSettings[2].value) {
-              fb.writeHistory(entry)
-            }
-          }
-        })()
-      } catch (error) {
-        console.error(error)
-        if (error.response) {
-          this.response.headers = error.response.headers
-          this.response.status = error.response.status
-          this.response.body = error.response.data
+          this.response.body = payload.data
           // Addition of an entry to the history component.
           const entry = {
             label: this.requestName,
@@ -2176,33 +1989,114 @@ export default {
             method: this.method,
             url: this.url,
             path: this.path,
-            usesScripts: Boolean(this.preRequestScript),
+            usesPreScripts: this.showPreRequestScript,
             preRequestScript: this.preRequestScript,
+            duration,
+            star: false,
+            auth: this.auth,
+            httpUser: this.httpUser,
+            httpPassword: this.httpPassword,
+            bearerToken: this.bearerToken,
+            headers: this.headers,
+            params: this.params,
+            bodyParams: this.bodyParams,
+            rawParams: this.rawParams,
+            rawInput: this.rawInput,
+            contentType: this.contentType,
+            requestType: this.requestType,
+            testScript: this.testScript,
+            usesPostScripts: this.testsEnabled,
           }
+
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            entry.path = parseTemplateString(entry.path, environmentVariables)
+            entry.url = parseTemplateString(entry.url, environmentVariables)
+          }
+
           this.$refs.historyComponent.addEntry(entry)
           if (fb.currentUser !== null) {
             if (fb.currentSettings[2].value) {
               fb.writeHistory(entry)
             }
           }
-          return
+        })()
+      } catch (error) {
+        this.runningRequest = false
+
+        // If the error is caused by cancellation, do nothing
+        if (error === "cancellation") {
+          this.response.status = this.$t("cancelled")
+          this.response.body = this.$t("cancelled")
         } else {
-          this.response.status = error.message
-          this.response.body = `${error}. ${this.$t("check_console_details")}`
-          this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-            icon: "error",
-          })
-          if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
-            this.$toast.info(this.$t("enable_proxy"), {
-              icon: "help",
-              duration: 8000,
-              action: {
-                text: this.$t("yes"),
-                onClick: (e, toastObject) => {
-                  this.$router.push({ path: "/settings" })
-                },
-              },
+          console.log(error)
+          if (error.response) {
+            this.response.headers = error.response.headers
+            this.response.status = error.response.status
+            this.response.body = error.response.data
+            // Addition of an entry to the history component.
+            const entry = {
+              label: this.requestName,
+              status: this.response.status,
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              method: this.method,
+              url: this.url,
+              path: this.path,
+              usesPreScripts: this.showPreRequestScript,
+              preRequestScript: this.preRequestScript,
+              star: false,
+              auth: this.auth,
+              httpUser: this.httpUser,
+              httpPassword: this.httpPassword,
+              bearerToken: this.bearerToken,
+              headers: this.headers,
+              params: this.params,
+              bodyParams: this.bodyParams,
+              rawParams: this.rawParams,
+              rawInput: this.rawInput,
+              contentType: this.contentType,
+              requestType: this.requestType,
+              testScript: this.testScript,
+              usesPostScripts: this.testsEnabled,
+            }
+
+            if (
+              (this.preRequestScript && this.showPreRequestScript) ||
+              hasPathParams(this.params)
+            ) {
+              let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+              environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+              entry.path = parseTemplateString(entry.path, environmentVariables)
+              entry.url = parseTemplateString(entry.url, environmentVariables)
+            }
+
+            this.$refs.historyComponent.addEntry(entry)
+            if (fb.currentUser !== null) {
+              if (fb.currentSettings[2].value) {
+                fb.writeHistory(entry)
+              }
+            }
+            return
+          } else {
+            this.response.status = error.message
+            this.response.body = `${error}. ${this.$t("check_console_details")}`
+            this.$toast.error(`${error} ${this.$t("f12_details")}`, {
+              icon: "error",
             })
+            if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
+              this.$toast.info(this.$t("enable_proxy"), {
+                icon: "help",
+                duration: 8000,
+                action: {
+                  text: this.$t("yes"),
+                  onClick: (e, toastObject) => {
+                    this.$router.push({ path: "/settings" })
+                  },
+                },
+              })
+            }
           }
         }
       }
@@ -2212,15 +2106,27 @@ export default {
         body: this.response.body,
         headers: this.response.headers,
       }
+
+      // Parse JSON body
+      if (
+        syntheticResponse.headers["content-type"] &&
+        isJSONContentType(syntheticResponse.headers["content-type"])
+      ) {
+        try {
+          syntheticResponse.body = JSON.parse(
+            new TextDecoder("utf-8").decode(new Uint8Array(syntheticResponse.body))
+          )
+        } catch (_e) {}
+      }
+
       const { testResults } = runTestScriptWithVariables(this.testScript, {
         response: syntheticResponse,
       })
       this.testReports = testResults
     },
     getQueryStringFromPath() {
-      let queryString
       const pathParsed = url.parse(this.uri)
-      return (queryString = pathParsed.query ? pathParsed.query : "")
+      return pathParsed.query ? pathParsed.query : ""
     },
     queryStringToArray(queryString) {
       const queryParsed = querystring.parse(queryString)
@@ -2260,7 +2166,7 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "" })
+      this.$store.commit("addParams", { key: "", value: "", type: "query" })
       return false
     },
     removeRequestParam(index) {
@@ -2297,18 +2203,31 @@ export default {
         },
       })
     },
+    prettifyRequestBody() {
+      try {
+        const jsonObj = JSON.parse(this.rawParams)
+        this.rawParams = JSON.stringify(jsonObj, null, 2)
+        let oldIcon = this.$refs.prettifyRequest.innerHTML
+        this.$refs.prettifyRequest.innerHTML = this.doneButton
+        setTimeout(() => (this.$refs.prettifyRequest.innerHTML = oldIcon), 1000)
+      } catch (e) {
+        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
+          icon: "error",
+        })
+      }
+    },
     copyRequest() {
       if (navigator.share) {
         const time = new Date().toLocaleTimeString()
         const date = new Date().toLocaleDateString()
         navigator
           .share({
-            title: "Postwoman",
-            text: `Postwoman • API request builder at ${time} on ${date}`,
+            title: "Hoppscotch",
+            text: `Hoppscotch • API request builder at ${time} on ${date}`,
             url: window.location.href,
           })
           .then(() => {})
-          .catch(console.error)
+          .catch(() => {})
       } else {
         const dummy = document.createElement("input")
         document.body.appendChild(dummy)
@@ -2331,68 +2250,6 @@ export default {
       this.$refs.generatedCode.select()
       document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
-    },
-    ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
-    },
-    copyResponse() {
-      this.$refs.copyResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      const aux = document.createElement("textarea")
-      const copy =
-        this.responseType === "application/json"
-          ? JSON.stringify(this.response.body, null, 2)
-          : this.response.body
-      aux.innerText = copy
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
-      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
-    },
-    downloadResponse() {
-      const dataToWrite = JSON.stringify(this.response.body, null, 2)
-      const file = new Blob([dataToWrite], { type: this.responseType })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = `${this.url + this.path} [${this.method}] on ${Date()}`.replace(/\./g, "[dot]")
-      document.body.appendChild(a)
-      a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("download_started"), {
-        icon: "done",
-      })
-      setTimeout(() => {
-        document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
-      }, 1000)
-    },
-    togglePreview() {
-      this.previewEnabled = !this.previewEnabled
-      if (this.previewEnabled) {
-        // If you want to add 'preview' support for other response types,
-        // just add them here.
-        if (this.responseType === "text/html") {
-          // If the preview already has that URL loaded, let's not bother re-loading it all.
-          if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
-          // Use DOMParser to parse document HTML.
-          const previewDocument = new DOMParser().parseFromString(
-            this.response.body,
-            this.responseType
-          )
-          // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-          previewDocument.head.innerHTML =
-            `<base href="${this.url}">` + previewDocument.head.innerHTML
-          // Finally, set the iframe source to the resulting HTML.
-          this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
-          this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
-        }
-      }
     },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
@@ -2462,6 +2319,7 @@ export default {
         const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
         this.url = origin
         this.path = pathname
+        this.uri = this.url + this.path
         this.headers = []
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
@@ -2489,6 +2347,15 @@ export default {
     },
     clearContent(name, { target }) {
       switch (name) {
+        case "bodyParams":
+          this.bodyParams = []
+          break
+        case "rawParams":
+          this.rawParams = "{}"
+          break
+        case "parameters":
+          this.params = []
+          break
         case "auth":
           this.auth = "None"
           this.httpUser = ""
@@ -2498,12 +2365,6 @@ export default {
           this.tokens = []
           this.tokenReqs = []
           break
-        case "headers":
-          this.headers = []
-          break
-        case "parameters":
-          this.params = []
-          break
         case "access_token":
           this.accessTokenName = ""
           this.oidcDiscoveryUrl = ""
@@ -2512,13 +2373,14 @@ export default {
           this.clientId = ""
           this.scope = ""
           break
+        case "headers":
+          this.headers = []
+          break
+        case "tests":
+          this.testReports = []
+          break
         case "tokens":
           this.tokens = []
-          break
-        case "tokenReqs":
-          this.tokenReqs = []
-        case "tests":
-          this.testReports = null
           break
         default:
           this.method = "GET"
@@ -2526,14 +2388,14 @@ export default {
           this.path = "/get"
           this.uri = this.url + this.path
           this.label = ""
+          this.bodyParams = []
+          this.rawParams = "{}"
+          this.files = []
+          this.params = []
           this.auth = "None"
           this.httpUser = ""
           this.httpPassword = ""
           this.bearerToken = ""
-          this.headers = []
-          this.params = []
-          this.bodyParams = []
-          this.rawParams = ""
           this.showTokenRequest = false
           this.tokens = []
           this.tokenReqs = []
@@ -2543,7 +2405,8 @@ export default {
           this.accessTokenUrl = ""
           this.clientId = ""
           this.scope = ""
-          this.files = []
+          this.headers = []
+          this.testReports = []
       }
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
@@ -2558,9 +2421,10 @@ export default {
         })
         return
       }
+      let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
-        url: this.url,
-        path: this.path,
+        url: urlAndPath.url,
+        path: urlAndPath.path,
         method: this.method,
         auth: this.auth,
         httpUser: this.httpUser,
@@ -2576,6 +2440,7 @@ export default {
         requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
+        label: this.requestName,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
@@ -2612,6 +2477,7 @@ export default {
           icon: "attach_file",
         })
       }
+      this.$refs.attachment.value = ""
     },
     uploadPayload() {
       this.rawInput = true
@@ -2630,6 +2496,7 @@ export default {
           icon: "attach_file",
         })
       }
+      this.$refs.payload.value = ""
     },
     async handleAccessTokenRequest() {
       if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
@@ -2656,7 +2523,7 @@ export default {
     },
     async oauthRedirectReq() {
       const tokenInfo = await oauthRedirect()
-      if (tokenInfo.hasOwnProperty("access_token")) {
+      if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
         this.bearerToken = tokenInfo.access_token
         this.addOAuthToken({
           name: this.accessTokenName,
@@ -2737,20 +2604,48 @@ export default {
     this._keyListener = function (e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
-        this.sendRequest()
-      } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+        if (!this.runningRequest) {
+          this.sendRequest()
+        } else {
+          this.cancelRequest()
+        }
+      }
+      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.saveRequest()
-      } else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+      }
+      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.copyRequest()
-      } else if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
+      }
+      if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.$refs.clearAll.click()
-      } else if (e.key === "Escape") {
+      }
+      if (e.key === "Escape") {
         e.preventDefault()
         this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false
         this.isHidden = true
+      }
+      if ((e.key === "g" || e.key === "G") && e.altKey) {
+        this.method = "GET"
+      }
+      if ((e.key === "h" || e.key === "H") && e.altKey) {
+        this.method = "HEAD"
+      }
+      if ((e.key === "p" || e.key === "P") && e.altKey) {
+        this.method = "POST"
+      }
+      if ((e.key === "u" || e.key === "U") && e.altKey) {
+        this.method = "PUT"
+      }
+      if ((e.key === "x" || e.key === "X") && e.altKey) {
+        this.method = "DELETE"
+      }
+      if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
+        this.method = this.methodMenuItems[--this.currentMethodIndex % this.methodMenuItems.length]
+      } else if (e.key == "ArrowDown" && e.altKey && this.currentMethodIndex < 9) {
+        this.method = this.methodMenuItems[++this.currentMethodIndex % this.methodMenuItems.length]
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))

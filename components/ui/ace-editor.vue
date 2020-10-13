@@ -6,25 +6,23 @@
 
 <style lang="scss">
 .show-if-initialized {
-  opacity: 0;
+  @apply opacity-0;
 
   &.initialized {
-    opacity: 1;
+    @apply opacity-100;
   }
 
   & > * {
-    transition: none;
+    @apply transition-none;
   }
 }
 </style>
 
 <script>
-const DEFAULT_THEME = "twilight"
-
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
-import jsonParse from "../../functions/jsonParse"
-import debounce from "../../functions/utils/debounce"
+import jsonParse from "~/helpers/jsonParse"
+import debounce from "~/helpers/utils/debounce"
 
 export default {
   props: {
@@ -35,6 +33,7 @@ export default {
     theme: {
       type: String,
       required: false,
+      default: null,
     },
     lang: {
       type: String,
@@ -117,10 +116,13 @@ export default {
       if (this.theme) {
         return this.theme
       }
-      return this.$store.state.postwoman.settings.THEME_ACE_EDITOR || DEFAULT_THEME
+      const strip = (str) => str.replace(/#/g, "").replace(/ /g, "").replace(/"/g, "")
+      return strip(
+        window.getComputedStyle(document.documentElement).getPropertyValue("--editor-theme")
+      )
     },
 
-    provideLinting: debounce(function(code) {
+    provideLinting: debounce(function (code) {
       if (this.lang === "json") {
         try {
           jsonParse(code)

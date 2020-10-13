@@ -8,7 +8,7 @@
               <img
                 v-if="fb.currentUser.photoURL"
                 :src="fb.currentUser.photoURL"
-                class="material-icons"
+                class="rounded-full material-icons"
               />
               <i v-else class="material-icons">account_circle</i>
               <span>
@@ -51,42 +51,12 @@
       </ul>
     </pw-section>
 
-    <pw-section class="cyan" :label="$t('theme')" ref="theme">
+    <pw-section class="teal" :label="$t('theme')" ref="theme">
       <ul>
-        <li>
-          <label>{{ $t("background") }}</label>
-          <div class="backgrounds">
-            <span :key="theme.class" @click="applyTheme(theme)" v-for="theme in themes">
-              <swatch
-                :active="settings.THEME_CLASS === theme.class"
-                :class="{ vibrant: theme.vibrant }"
-                :color="theme.color"
-                :name="theme.name"
-                class="bg"
-              />
-            </span>
-          </div>
-        </li>
+        <color-mode-picker />
       </ul>
       <ul>
-        <li>
-          <label>{{ $t("color") }}</label>
-          <div class="colors">
-            <span
-              :key="entry.color"
-              @click="setActiveColor(entry.color, entry.vibrant)"
-              v-for="entry in colors"
-            >
-              <swatch
-                :active="settings.THEME_COLOR === entry.color.toUpperCase()"
-                :class="{ vibrant: entry.vibrant }"
-                :color="entry.color"
-                :name="entry.name"
-                class="fg"
-              />
-            </span>
-          </div>
-        </li>
+        <accent-mode-picker />
       </ul>
       <ul>
         <li>
@@ -119,7 +89,7 @@
     <pw-section class="purple" :label="$t('extensions')" ref="extensions">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <pw-toggle
               :on="settings.EXTENSIONS_ENABLED"
               @change="toggleSetting('EXTENSIONS_ENABLED')"
@@ -129,12 +99,24 @@
           </div>
         </li>
       </ul>
+      <ul class="info">
+        <li v-if="extensionVersion != null">
+          <p>
+            {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{
+              extensionVersion.minor
+            }}
+          </p>
+        </li>
+        <li v-else>
+          <p>{{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}</p>
+        </li>
+      </ul>
     </pw-section>
 
     <pw-section class="blue" :label="$t('proxy')" ref="proxy">
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <span>
               <pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
                 {{ $t("proxy") }}
@@ -142,12 +124,12 @@
               </pw-toggle>
             </span>
             <a
-              href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
+              href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
               target="_blank"
               rel="noopener"
             >
               <button class="icon" v-tooltip="$t('wiki')">
-                <i class="material-icons">help</i>
+                <i class="material-icons">help_outline</i>
               </button>
             </a>
           </div>
@@ -155,7 +137,7 @@
       </ul>
       <ul>
         <li>
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label for="url">{{ $t("url") }}</label>
             <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
               <i class="material-icons">clear_all</i>
@@ -202,114 +184,54 @@
 			</ul>
       -->
     </pw-section>
+
+    <pw-section class="red" :label="$t('experiments')" ref="experiments">
+      <ul class="info">
+        <li>
+          <p>
+            {{ $t("experiments_notice") }}
+            <a
+              class="link"
+              href="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{{ $t("contact_us") }}</a
+            >.
+          </p>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <div class="row-wrapper">
+            <pw-toggle
+              :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
+              @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
+            >
+              {{ $t("use_experimental_url_bar") }}
+            </pw-toggle>
+          </div>
+        </li>
+      </ul>
+    </pw-section>
   </div>
 </template>
 
-<style scoped lang="scss"></style>
-
 <script>
-import firebase from "firebase/app"
-import { fb } from "../functions/fb"
+import { fb } from "~/helpers/fb"
+import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 
 export default {
-  components: {
-    "pw-section": () => import("../components/layout/section"),
-    "pw-toggle": () => import("../components/ui/toggle"),
-    swatch: () => import("../components/settings/swatch"),
-    login: () => import("../components/firebase/login"),
-    logout: () => import("../components/firebase/logout"),
-  },
-
   data() {
     return {
-      // NOTE:: You need to first set the CSS for your theme in /assets/css/themes.scss
-      //        You should copy the existing light theme as a template and then just
-      //        set the relevant values.
-      themes: [
-        {
-          color: "#202124",
-          name: this.$t("kinda_dark"),
-          class: "",
-          aceEditor: "twilight",
-        },
-        {
-          color: "#ffffff",
-          name: this.$t("clearly_white"),
-          vibrant: true,
-          class: "light",
-          aceEditor: "iplastic",
-        },
-        {
-          color: "#000000",
-          name: this.$t("just_black"),
-          class: "black",
-          aceEditor: "vibrant_ink",
-        },
-        {
-          color: "var(--ac-color)",
-          name: this.$t("auto_system"),
-          vibrant: window.matchMedia("(prefers-color-scheme: light)").matches,
-          class: "auto",
-          aceEditor: window.matchMedia("(prefers-color-scheme: light)").matches
-            ? "iplastic"
-            : "twilight",
-        },
-      ],
-      // You can define a new color here! It will simply store the color value.
-      colors: [
-        // If the color is vibrant, black is used as the active foreground color.
-        {
-          color: "#50fa7b",
-          name: this.$t("green"),
-          vibrant: true,
-        },
-        {
-          color: "#f1fa8c",
-          name: this.$t("yellow"),
-          vibrant: true,
-        },
-        {
-          color: "#ff79c6",
-          name: this.$t("pink"),
-          vibrant: true,
-        },
-        {
-          color: "#ff5555",
-          name: this.$t("red"),
-          vibrant: false,
-        },
-        {
-          color: "#bd93f9",
-          name: this.$t("purple"),
-          vibrant: true,
-        },
-        {
-          color: "#ffb86c",
-          name: this.$t("orange"),
-          vibrant: true,
-        },
-        {
-          color: "#8be9fd",
-          name: this.$t("cyan"),
-          vibrant: true,
-        },
-        {
-          color: "#57b5f9",
-          name: this.$t("blue"),
-          vibrant: false,
-        },
-      ],
+      extensionVersion: hasExtensionInstalled()
+        ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+        : null,
 
       settings: {
         SCROLL_INTO_ENABLED:
           typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
             : true,
-
-        THEME_CLASS: "",
-        THEME_COLOR: "",
-        THEME_TAB_COLOR: "",
-        THEME_COLOR_VIBRANT: true,
 
         FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
@@ -321,13 +243,17 @@ export default {
           typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !== "undefined"
             ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
             : true,
+
+        EXPERIMENTAL_URL_BAR_ENABLED:
+          typeof this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED !== "undefined"
+            ? this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED
+            : false,
       },
 
       doneButton: '<i class="material-icons">done</i>',
       fb,
     }
   },
-
   watch: {
     proxySettings: {
       deep: true,
@@ -337,33 +263,7 @@ export default {
       },
     },
   },
-
   methods: {
-    applyTheme({ class: name, color, aceEditor }) {
-      this.applySetting("THEME_CLASS", name)
-      this.applySetting("THEME_ACE_EDITOR", aceEditor)
-      document.querySelector("meta[name=theme-color]").setAttribute("content", color)
-      this.applySetting("THEME_TAB_COLOR", color)
-      document.documentElement.className = name
-    },
-    setActiveColor(color, vibrant) {
-      // By default, the color is vibrant.
-      if (vibrant === null) vibrant = true
-      document.documentElement.style.setProperty("--ac-color", color)
-      document.documentElement.style.setProperty(
-        "--act-color",
-        vibrant ? "rgba(32, 33, 36, 1)" : "rgba(255, 255, 255, 1)"
-      )
-      this.applySetting("THEME_COLOR", color.toUpperCase())
-      this.applySetting("THEME_COLOR_VIBRANT", vibrant)
-    },
-    getActiveColor() {
-      // This strips extra spaces and # signs from the strings.
-      const strip = str => str.replace(/#/g, "").replace(/ /g, "")
-      return `#${strip(
-        window.getComputedStyle(document.documentElement).getPropertyValue("--ac-color")
-      ).toUpperCase()}`
-    },
     applySetting(key, value) {
       this.settings[key] = value
       this.$store.commit("postwoman/applySetting", [key, value])
@@ -372,8 +272,14 @@ export default {
       this.settings[key] = !this.settings[key]
       this.$store.commit("postwoman/applySetting", [key, this.settings[key]])
     },
-    toggleSettings(s, v) {
-      fb.writeSettings(s, !v)
+    toggleSettings(name, value) {
+      fb.writeSettings(name, !value)
+      if (name === "syncCollections" && value) {
+        this.syncCollections()
+      }
+      if (name === "syncEnvironments" && value) {
+        this.syncEnvironments()
+      }
     },
     initSettings() {
       fb.writeSettings("syncHistory", true)
@@ -388,13 +294,21 @@ export default {
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
+    syncEnvironments() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[1].value) {
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        }
+      }
+    },
   },
-
-  beforeMount() {
-    this.settings.THEME_CLASS = document.documentElement.className
-    this.settings.THEME_COLOR = this.getActiveColor()
-  },
-
   computed: {
     proxySettings() {
       return {
@@ -402,6 +316,11 @@ export default {
         key: this.settings.PROXY_KEY,
       }
     },
+  },
+  head() {
+    return {
+      title: `Settings • Hoppscotch`,
+    }
   },
 }
 </script>

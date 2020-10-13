@@ -12,11 +12,11 @@
     "node": "8"
   },
   "dependencies": {
-    "firebase-admin": "^8.0.0",
-    "firebase-functions": "^3.1.0"
+    "firebase-admin": "^9.2.0",
+    "firebase-functions": "^3.11.0"
   },
   "devDependencies": {
-    "firebase-functions-test": "^0.1.6"
+    "firebase-functions-test": "^0.2.2"
   },
   "private": true
 }

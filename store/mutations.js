@@ -11,6 +11,14 @@ export default {
     ws.log.push(object)
   },
 
+  setEventSourceState({ eventSource }, { attribute, value }) {
+    eventSource[attribute] = value
+  },
+
+  addEventSourceLog({ eventSource }, object) {
+    eventSource.log.push(object)
+  },
+
   setGQLState({ gql }, { attribute, value }) {
     gql[attribute] = value
   },

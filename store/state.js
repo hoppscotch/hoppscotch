@@ -24,6 +24,11 @@ export default () => ({
     log: [],
     socket: null,
   },
+  eventSource: {
+    server: "https://express-eventsource.herokuapp.com/events",
+    sse: null,
+    log: [],
+  },
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],

@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.11.5",
     "@nuxtjs/color-mode": "^1.1.1",
     "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/pwa": "^3.1.2",
+    "@nuxtjs/pwa": "^3.2.1",
     "@nuxtjs/svg": "^0.1.12",
     "@nuxtjs/tailwindcss": "^3.1.0",
     "@testing-library/jest-dom": "^5.11.4",

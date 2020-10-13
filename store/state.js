@@ -23,13 +23,14 @@ export default () => ({
     headers: [],
     schema: "",
     variablesJSONString: '{ "id": "1" }',
-    query: `query charcter($id: ID) {
+    query: `query GetCharacter($id: ID!) {
   character(id: $id) {
     id
     name
   }
 }`,
     response: "",
+    schemaIntrospection: "",
   },
   theme: {
     collapsedSections: [],
@@ -46,4 +47,5 @@ export default () => ({
     clientId: "",
     scope: "",
   },
+  name: "Hoppscotch",
 })

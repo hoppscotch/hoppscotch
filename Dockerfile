@@ -6,7 +6,9 @@ LABEL maintainer="Liyas Thomas (liyascthomas@gmail.com)"
 RUN apk add --update --no-cache \
   git
 
+# Create app directory
 WORKDIR /app
+ADD . /app/
 
 COPY package*.json ./
 
@@ -14,8 +16,9 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+RUN npm run generate
 
+ENV HOST 0.0.0.0
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]

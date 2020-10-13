@@ -5,20 +5,26 @@ TODO:
 
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections">
-    <addCollection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <editCollection
+    <div class="show-on-large-screen">
+      <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
+      <!-- <button class="icon">
+        <i class="material-icons">search</i>
+      </button> -->
+    </div>
+    <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <edit-collection
       :show="showModalEdit"
       :editingCollection="editingCollection"
       :editingCollectionIndex="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <addFolder
+    <add-folder
       :show="showModalAddFolder"
       :collection="editingCollection"
       :collectionIndex="editingCollectionIndex"
       @hide-modal="displayModalAddFolder(false)"
     />
-    <editFolder
+    <edit-folder
       :show="showModalEditFolder"
       :collection="editingCollection"
       :collectionIndex="editingCollectionIndex"
@@ -26,7 +32,7 @@ TODO:
       :folderIndex="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
-    <editRequest
+    <edit-request
       :show="showModalEditRequest"
       :collectionIndex="editingCollectionIndex"
       :folderIndex="editingFolderIndex"
@@ -34,12 +40,12 @@ TODO:
       :requestIndex="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
-    <importExportCollections
+    <import-export-collections
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
 
-    <div class="flex-wrap">
+    <div class="row-wrapper">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
@@ -51,76 +57,56 @@ TODO:
           {{ $t("import_export") }}
         </button>
         <!-- <a
-          href="https://github.com/liyasthomas/postwoman/wiki/Collections"
+          href="https://github.com/hoppscotch/hoppscotch/wiki/Collections"
           target="_blank"
           rel="noopener"
         >
           <button class="icon" v-tooltip="'Wiki'">
-            <i class="material-icons">help</i>
+            <i class="material-icons">help_outline</i>
           </button>
         </a> -->
       </div>
     </div>
     <p v-if="collections.length === 0" class="info">
-      Create new collection
+      <i class="material-icons">help_outline</i> {{ $t("create_new_collection") }}
     </p>
-    <virtual-list
-      class="virtual-list"
-      :class="{ filled: collections.length }"
-      :size="152"
-      :remain="Math.min(5, collections.length)"
-    >
-      <ul>
-        <li v-for="(collection, index) in collections" :key="collection.name">
+    <div class="virtual-list">
+      <ul class="flex-col">
+        <li v-for="(collection, index) in filteredCollections" :key="collection.name">
           <collection
             :collection-index="index"
             :collection="collection"
+            :doc="doc"
+            :isFiltered="filterText.length > 0"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder(collection, index)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
+            @select-collection="$emit('use-collection', collection)"
           />
         </li>
-        <li v-if="collections.length === 0">
-          <label>Collections are empty</label>
-        </li>
       </ul>
-    </virtual-list>
-    <nuxt-link :to="localePath('doc')" :aria-label="$t('documentation')">
-      <button class="icon">
-        <i class="material-icons">books</i>
-        <span>{{ $t("generate_docs") }}</span>
-      </button>
-    </nuxt-link>
+    </div>
+    <ul class="flex-col" v-if="filterText && filteredCollections.length === 0">
+      <li>
+        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
+      </li>
+    </ul>
   </pw-section>
 </template>
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 286px);
-}
-
-ul {
-  display: flex;
-  flex-direction: column;
+  max-height: calc(100vh - 232px);
 }
 </style>
 
 <script>
-import collection from "./collection"
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
 
 export default {
-  components: {
-    collection,
-    "pw-section": () => import("../layout/section"),
-    addCollection: () => import("./addCollection"),
-    addFolder: () => import("./addFolder"),
-    editCollection: () => import("./editCollection"),
-    editFolder: () => import("./editFolder"),
-    editRequest: () => import("./editRequest"),
-    importExportCollections: () => import("./importExportCollections"),
-    VirtualList: () => import("vue-virtual-scroll-list"),
+  props: {
+    doc: Boolean,
   },
   data() {
     return {
@@ -136,15 +122,56 @@ export default {
       editingFolderIndex: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,
+      filterText: "",
     }
   },
   computed: {
     collections() {
-      return this.$store.state.postwoman.collections
+      return fb.currentUser !== null
+        ? fb.currentCollections
+        : this.$store.state.postwoman.collections
+    },
+    filteredCollections() {
+      const collections =
+        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+
+      if (!this.filterText) return collections
+
+      const filterText = this.filterText.toLowerCase()
+      const filteredCollections = []
+
+      for (let collection of collections) {
+        const filteredRequests = []
+        const filteredFolders = []
+        for (let request of collection.requests) {
+          if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
+        }
+        for (let folder of collection.folders) {
+          const filteredFolderRequests = []
+          for (let request of folder.requests) {
+            if (request.name.toLowerCase().includes(filterText))
+              filteredFolderRequests.push(request)
+          }
+          if (filteredFolderRequests.length > 0) {
+            const filteredFolder = Object.assign({}, folder)
+            filteredFolder.requests = filteredFolderRequests
+            filteredFolders.push(filteredFolder)
+          }
+        }
+
+        if (filteredRequests.length + filteredFolders.length > 0) {
+          const filteredCollection = Object.assign({}, collection)
+          filteredCollection.requests = filteredRequests
+          filteredCollection.folders = filteredFolders
+          filteredCollections.push(filteredCollection)
+        }
+      }
+
+      return filteredCollections
     },
   },
   async mounted() {
-    this._keyListener = function(e) {
+    this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
         this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false
@@ -192,7 +219,7 @@ export default {
       this.syncCollections()
     },
     editFolder(payload) {
-      const { collectionIndex, folder, folderIndex } = payload
+      const { collection, collectionIndex, folder, folderIndex } = payload
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder

@@ -32,33 +32,34 @@
 
 <style scoped lang="scss">
 .autocomplete-wrapper {
-  position: relative;
+  @apply relative;
 
   input:focus + ul.suggestions,
   ul.suggestions:hover {
-    display: block;
+    @apply block;
   }
 
   ul.suggestions {
-    display: none;
-    background-color: var(--atc-color);
-    position: absolute;
-    top: calc(100% - 4px);
-    margin: 0 4px;
-    left: 0;
-    padding: 0;
+    @apply hidden;
+    @apply bg-actColor;
+    @apply absolute;
+    @apply mx-2;
+    @apply left-0;
+    @apply z-50;
+    @apply transition-transform;
+    @apply ease-in-out;
+    @apply duration-200;
+    @apply shadow-lg;
+    top: calc(100% - 8px);
     border-radius: 0 0 8px 8px;
-    z-index: 9999;
-    transition: transform 0.2s ease-out;
-    box-shadow: 0 5px 30px rgba(black, 0.1);
 
     li {
-      width: 100%;
-      display: block;
-      padding: 8px 16px;
-      font-size: 16px;
-      font-family: "Roboto Mono", monospace;
-      font-weight: 400;
+      @apply w-full;
+      @apply block;
+      @apply p-2;
+      @apply text-sm;
+      @apply font-mono;
+      @apply font-normal;
 
       &:last-child {
         border-radius: 0 0 8px 8px;
@@ -66,9 +67,9 @@
 
       &:hover,
       &.active {
-        background-color: var(--ac-color);
-        color: var(--act-color);
-        cursor: pointer;
+        @apply bg-acColor;
+        @apply text-actColor;
+        @apply cursor-pointer;
       }
     }
   }
@@ -76,12 +77,6 @@
 </style>
 
 <script>
-const KEY_TAB = 9
-const KEY_ESC = 27
-
-const KEY_ARROW_UP = 38
-const KEY_ARROW_DOWN = 40
-
 export default {
   props: {
     spellcheck: {
@@ -127,7 +122,7 @@ export default {
   methods: {
     updateSuggestions(event) {
       // Hide suggestions if ESC pressed.
-      if (event.which && event.which === KEY_ESC) {
+      if (event.code && event.code === "Escape") {
         event.preventDefault()
         this.suggestionsVisible = false
         this.currentSuggestionIndex = -1
@@ -151,14 +146,14 @@ export default {
     },
 
     handleKeystroke(event) {
-      switch (event.which) {
-        case KEY_ARROW_UP:
+      switch (event.code) {
+        case "ArrowUp":
           event.preventDefault()
           this.currentSuggestionIndex =
             this.currentSuggestionIndex - 1 >= 0 ? this.currentSuggestionIndex - 1 : 0
           break
 
-        case KEY_ARROW_DOWN:
+        case "ArrowDown":
           event.preventDefault()
           this.currentSuggestionIndex =
             this.currentSuggestionIndex < this.suggestions.length - 1
@@ -166,18 +161,18 @@ export default {
               : this.suggestions.length - 1
           break
 
-        case KEY_TAB:
-          event.preventDefault()
+        case "Tab":
           let activeSuggestion = this.suggestions[
             this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
           ]
-          if (activeSuggestion) {
-            let input = this.text.substring(0, this.selectionStart)
-            this.text = input + activeSuggestion
-          }
-          break
 
-        default:
+          if (!activeSuggestion) {
+            return
+          }
+
+          event.preventDefault()
+          let input = this.text.substring(0, this.selectionStart)
+          this.text = input + activeSuggestion
           break
       }
     },
@@ -194,14 +189,14 @@ export default {
 
       return (
         this.source
-          .filter(entry => {
+          .filter((entry) => {
             return (
               entry.toLowerCase().startsWith(input.toLowerCase()) &&
               input.toLowerCase() !== entry.toLowerCase()
             )
           })
           // Cut off the part that's already been typed.
-          .map(entry => entry.substring(this.selectionStart))
+          .map((entry) => entry.substring(this.selectionStart))
           // We only want the top 6 suggestions.
           .slice(0, 6)
       )

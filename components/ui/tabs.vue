@@ -2,7 +2,13 @@
   <div class="tabs-wrapper">
     <div class="tabs">
       <ul>
-        <li v-for="tab in tabs" :class="{ 'is-active': tab.isActive }">
+        <li
+          v-for="(tab, index) in tabs"
+          :class="{ 'is-active': tab.isActive }"
+          :key="index"
+          :tabindex="0"
+          @keyup.enter="selectTab(tab)"
+        >
           <a :href="tab.href" @click="selectTab(tab)">
             <i v-if="tab.icon" class="material-icons">
               {{ tab.icon }}
@@ -20,45 +26,54 @@
 
 <style scoped lang="scss">
 .tabs-wrapper {
-  display: flex;
-  flex-flow: column nowrap;
-  flex-grow: 1;
+  @apply flex;
+  @apply flex-col;
+  @apply flex-no-wrap;
+  @apply flex-1;
 
   .tabs {
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    white-space: nowrap;
-    overflow: auto;
+    @apply scrolling-touch;
+    @apply flex;
+    @apply whitespace-no-wrap;
+    @apply overflow-auto;
 
     ul {
-      display: flex;
-      width: 0px;
+      @apply flex;
+      @apply w-0;
     }
 
     li {
-      display: inline-flex;
+      @apply inline-flex;
+      @apply outline-none;
+      @apply border-none;
 
       a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 16px;
-        color: var(--fg-light-color);
-        border-radius: 4px;
-        cursor: pointer;
+        @apply flex;
+        @apply items-center;
+        @apply justify-center;
+        @apply py-2;
+        @apply px-4;
+        @apply text-fgLightColor;
+        @apply text-sm;
+        @apply rounded-lg;
+        @apply cursor-pointer;
 
         .material-icons {
-          margin-right: 8px;
+          @apply m-4;
         }
 
         &:hover {
-          color: var(--fg-color);
+          @apply text-fgColor;
         }
       }
 
+      &:focus a {
+        @apply text-fgColor;
+      }
+
       &.is-active a {
-        background-color: var(--brd-color);
-        color: var(--fg-color);
+        @apply bg-brdColor;
+        @apply text-fgColor;
       }
     }
   }
@@ -67,7 +82,8 @@
 @media (max-width: 768px) {
   ul,
   ol {
-    flex-flow: row nowrap;
+    @apply flex-row;
+    @apply flex-no-wrap;
   }
 }
 </style>
@@ -86,7 +102,7 @@ export default {
 
   methods: {
     selectTab({ id }) {
-      this.tabs.forEach(tab => {
+      this.tabs.forEach((tab) => {
         tab.isActive = tab.id == id
       })
     },

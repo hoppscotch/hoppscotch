@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ul>
+    <ul class="flex-col">
       <div class="show-on-large-screen">
         <li>
           <input
@@ -30,7 +30,7 @@
           value="Save"
           @click="formPost"
         >
-          <i class="material-icons">add</i>
+          <addIcon class="material-icons" />
           <span>Add</span>
         </button>
       </div>
@@ -38,17 +38,12 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-ul,
-ol {
-  flex-direction: column;
-}
-</style>
-
 <script>
-import { fb } from "../../functions/fb"
+import { fb } from "~/helpers/fb"
+import addIcon from "~/static/icons/add-24px.svg?inline"
 
 export default {
+  components: { addIcon },
   data() {
     return {
       message: null,

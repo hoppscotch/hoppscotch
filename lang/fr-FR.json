@@ -250,5 +250,15 @@
   "are_you_sure_remove_collection": "Êtes-vous sûr de vouloir supprimer cette collection?",
   "are_you_sure_remove_folder": "Êtes-vous sûr de vouloir supprimer ce dossier?",
   "are_you_sure_remove_request": "Êtes-vous sûr de vouloir supprimer cette requête?",
-  "are_you_sure_remove_environment": "Êtes-vous sûr de vouloir supprimer cet environnement?"
+  "are_you_sure_remove_environment": "Êtes-vous sûr de vouloir supprimer cet environnement?",
+  "select_next_method": "Sélectionner la méthode suivante",
+  "select_previous_method": "Sélectionner la méthode précédente",
+  "select_get_method": "Sélectionner la méthode GET",
+  "select_head_method": "Sélectionner la méthode HEAD",
+  "select_post_method": "Sélectionner la méthode POST",
+  "select_put_method": "Sélectionner la méthode PUT",
+  "select_delete_method": "Sélectionner la méthode DELETE",
+  "experiments": "Expérimentations",
+  "experiments_notice": "Il s'agit d'une collection d'expérimations sur lesquelles nous travaillons et qui pourraient s'avérer utiles, amusantes, les deux ou aucune. Elles ne sont pas définitives et peuvent ne pas être stables, donc si quelque chose d'excessivement bizarre se produit, ne paniquez pas. Il suffit d'éteindre ce fichu truc. Blagues à part,",
+  "use_experimental_url_bar": "Utiliser la barre d'URL expérimentale avec mise en évidence de l'environnement"
 }

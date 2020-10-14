@@ -50,7 +50,7 @@
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
-    "@nuxtjs/color-mode": "^1.1.1",
+    "@nuxtjs/color-mode": "^2.0.0",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.2.1",
     "@nuxtjs/svg": "^0.1.12",

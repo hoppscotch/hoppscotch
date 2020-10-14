@@ -38,7 +38,7 @@
     "graphql": "^15.3.0",
     "graphql-language-service-interface": "^2.4.2",
     "nuxt": "^2.14.6",
-    "nuxt-i18n": "^6.15.1",
+    "nuxt-i18n": "^6.15.2",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^2.3.1",
     "socketio-wildcard": "^2.0.0",

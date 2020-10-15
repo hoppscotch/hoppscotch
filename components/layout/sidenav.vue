@@ -131,7 +131,7 @@
             </a>
           </li>
           <li>
-            <a href="#documentation" v-tooltip.right="'Documentation'">
+            <a href="#documentation" v-tooltip.right="$t('documentation')">
               <i class="material-icons">insert_drive_file</i>
             </a>
           </li>

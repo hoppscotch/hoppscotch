@@ -76,28 +76,6 @@
     </div>
     <hr />
     <h3 class="title">Financial Contributors</h3>
-    <p class="info">
-      Become a financial contributor and help us sustain our community.
-      <a
-        class="link"
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/contribute"
-        >Contribute</a
-      >.
-    </p>
-    <h3 class="title">Organizations</h3>
-    <p class="info">
-      Support this project with your organization. Your logo will show up here with a link to your
-      website.
-      <a
-        class="link"
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/contribute"
-        >Contribute</a
-      >.
-    </p>
     <div class="contributors">
       <a href="https://tyk.io" target="_blank" rel="noopener">
         <img
@@ -122,75 +100,7 @@
       >
         <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
       </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/2/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/2/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/3/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/3/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/4/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/4/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/5/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/5/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/6/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/6/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/7/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/7/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/8/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/8/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/9/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/9/avatar.svg" />
-      </a>
     </div>
-    <h3 class="title">Individuals</h3>
-    <p class="info">
-      Support this project with your organization. Your logo will show up here with a link to your
-      website.
-      <a
-        class="link"
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/contribute"
-        >Contribute</a
-      >.
-    </p>
     <div class="contributors">
       <a
         v-for="sponsor in githubSponsors"
@@ -204,9 +114,6 @@
           :src="`${sponsor.profile}.png?size=128`"
           :alt="sponsor.handle"
         />
-      </a>
-      <a target="_blank" rel="noopener" href="https://opencollective.com/hoppscotch">
-        <img src="https://opencollective.com/hoppscotch/individuals.svg" />
       </a>
     </div>
     <h3 class="title">Code Contributors</h3>

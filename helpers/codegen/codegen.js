@@ -4,10 +4,14 @@ import { CurlCodegen } from "./generators/curl"
 import { JSAxiosCodegen } from "./generators/js-axios"
 import { GoNativeCodegen } from "./generators/go-native"
 import { NodeJsRequestCodegen } from "./generators/nodejs-request"
+import { NodeJsNativeCodegen } from "./generators/nodejs-native"
 import { JSjQueryCodegen } from "./generators/js-jQuery"
 import { PowerShellRestMethod } from "./generators/powershell"
 import { PhpCurlCodegen } from "./generators/php-curl"
 import { PythonRequestsCodegen } from "./generators/python-requests"
+import { PythonHttpClientCodegen } from "./generators/python-http-client"
+import { WgetCodegen } from "./generators/wget"
+import { CsRestSharpCodegen } from "./generators/cs-restsharp"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -19,15 +23,19 @@ import { PythonRequestsCodegen } from "./generators/python-requests"
  */
 export const codegens = [
   CurlCodegen,
+  CsRestSharpCodegen,
   GoNativeCodegen,
   JSAxiosCodegen,
   JSFetchCodegen,
   JSjQueryCodegen,
   JSXHRCodegen,
   NodeJsRequestCodegen,
+  NodeJsNativeCodegen,
   PhpCurlCodegen,
   PowerShellRestMethod,
   PythonRequestsCodegen,
+  PythonHttpClientCodegen,
+  WgetCodegen,
 ]
 
 export function generateCodeWithGenerator(codegenID, context) {

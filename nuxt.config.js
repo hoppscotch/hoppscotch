@@ -278,6 +278,12 @@ export default {
         iso: "ml-ML",
         file: "ml-ML.json",
       },
+      {
+        code: "vi",
+        name: "Vietnamese",
+        iso: "vi-VN",
+        file: "vi-VN.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

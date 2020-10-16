@@ -50,6 +50,7 @@
     @apply ease-in-out;
     @apply duration-200;
     @apply shadow-lg;
+
     top: calc(100% - 8px);
     border-radius: 0 0 8px 8px;
 

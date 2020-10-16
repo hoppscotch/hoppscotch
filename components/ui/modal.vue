@@ -32,6 +32,7 @@
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
+
   background-color: rgba(0, 0, 0, 0.32);
 }
 
@@ -55,6 +56,7 @@
   @apply bg-bgColor;
   @apply rounded-lg;
   @apply shadow-2xl;
+
   max-height: calc(100vh - 128px);
   max-width: 720px;
 }
@@ -89,12 +91,13 @@
 .fade {
   @apply absolute;
   @apply block;
-  left: 16px;
-  right: 20px;
-  height: 32px;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
+
+  left: 16px;
+  right: 20px;
+  height: 32px;
 
   &.top {
     top: 68px;

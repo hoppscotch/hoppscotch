@@ -12,6 +12,7 @@ import { PythonRequestsCodegen } from "./generators/python-requests"
 import { PythonHttpClientCodegen } from "./generators/python-http-client"
 import { WgetCodegen } from "./generators/wget"
 import { CsRestSharpCodegen } from "./generators/cs-restsharp"
+import { RubyNetHttpCodeGen } from "./generators/ruby-net-http"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -35,6 +36,7 @@ export const codegens = [
   PowerShellRestMethod,
   PythonRequestsCodegen,
   PythonHttpClientCodegen,
+  RubyNetHttpCodeGen,
   WgetCodegen,
 ]
 

@@ -913,6 +913,95 @@ response = requests.request(
 print(response)"
 `;
 
+exports[`generate request for Ruby Net::HTTP generate GET request 1`] = `
+"require 'net/http'
+
+uri = URI.parse('https://httpbin.org/path/to?a=b')
+
+request = Net::HTTP::Get.new(uri)
+request['h1'] = 'h1v'
+request['h2'] = 'h2v'
+request.basic_auth('mockUser', 'mockPassword')
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = uri.is_a?(URI::HTTPS)
+response = http.request(request)
+
+unless response.is_a?(Net::HTTPSuccess) then
+  raise \\"An error occurred: #{response.code} #{response.message}\\"
+else
+  puts response.body
+end"
+`;
+
+exports[`generate request for Ruby Net::HTTP generate POST request for JSON 1`] = `
+"require 'net/http'
+
+uri = URI.parse('https://httpbin.org/path/to?a=b')
+
+request = Net::HTTP::Post.new(uri)
+request['Content-Type'] = 'application/json'
+request['h1'] = 'h1v'
+request['h2'] = 'h2v'
+request['Authorization'] = 'Bearer abcdefghijklmn'
+request.body = '{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}'
+
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = uri.is_a?(URI::HTTPS)
+response = http.request(request)
+
+unless response.is_a?(Net::HTTPSuccess) then
+  raise \\"An error occurred: #{response.code} #{response.message}\\"
+else
+  puts response.body
+end"
+`;
+
+exports[`generate request for Ruby Net::HTTP generate POST request for XML 1`] = `
+"require 'net/http'
+
+uri = URI.parse('https://httpbin.org/path/to?a=b')
+
+request = Net::HTTP::Post.new(uri)
+request['Content-Type'] = 'application/xml'
+request['h1'] = 'h1v'
+request['h2'] = 'h2v'
+request['Authorization'] = 'Bearer abcdefghijklmn'
+request.body = '<?xml version=\\\\'1.0\\\\' encoding=\\\\'utf-8\\\\'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>'
+
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = uri.is_a?(URI::HTTPS)
+response = http.request(request)
+
+unless response.is_a?(Net::HTTPSuccess) then
+  raise \\"An error occurred: #{response.code} #{response.message}\\"
+else
+  puts response.body
+end"
+`;
+
+exports[`generate request for Ruby Net::HTTP generate PUT request for www-form-urlencoded 1`] = `
+"require 'net/http'
+
+uri = URI.parse('https://httpbin.org/path/to?a=b')
+
+request = Net::HTTP::Put.new(uri)
+request['Content-Type'] = 'application/x-www-form-urlencoded'
+request.body = 'foo=bar&baz=qux'
+
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = uri.is_a?(URI::HTTPS)
+response = http.request(request)
+
+unless response.is_a?(Net::HTTPSuccess) then
+  raise \\"An error occurred: #{response.code} #{response.message}\\"
+else
+  puts response.body
+end"
+`;
+
 exports[`generate request for cURL generate GET request 1`] = `
 "curl -X GET \\\\
   'https://httpbin.org/path/to?a=b' \\\\

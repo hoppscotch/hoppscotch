@@ -101,21 +101,6 @@
         <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
       </a>
     </div>
-    <div class="contributors">
-      <a
-        v-for="sponsor in githubSponsors"
-        :key="sponsor.handle"
-        :href="sponsor.profile"
-        target="_blank"
-        rel="noopener"
-      >
-        <img
-          class="github-sponsor"
-          :src="`${sponsor.profile}.png?size=128`"
-          :alt="sponsor.handle"
-        />
-      </a>
-    </div>
     <h3 class="title">Code Contributors</h3>
     <p class="info">This project exists thanks to all the people who contribute.</p>
     <div class="contributors">
@@ -144,18 +129,3 @@
   @apply rounded-full;
 }
 </style>
-
-<script>
-export default {
-  data() {
-    return {
-      githubSponsors: [],
-    }
-  },
-  async mounted() {
-    this.githubSponsors = await this.$axios
-      .$get("https://sponsors.trnck.dev/hoppscotch/sponsors")
-      .then((data) => data.sponsors)
-  },
-}
-</script>

@@ -1002,6 +1002,84 @@ else
 end"
 `;
 
+exports[`generate request for Salesforce Apex generate GET request 1`] = `
+"HttpRequest request = new HttpRequest();
+request.setMethod('GET');
+request.setEndpoint('https://httpbin.org/path/to?a=b');
+
+request.setHeader('Authorization', 'Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk');
+request.setHeader('h1', 'h1v');
+request.setHeader('h2', 'h2v');
+
+try {
+    Http client = new Http();
+    HttpResponse response = client.send(request);
+    System.debug(response.getBody());
+} catch (CalloutException ex) {
+    System.debug('An error occured ' + ex.getMessage());
+}"
+`;
+
+exports[`generate request for Salesforce Apex generate POST request for JSON 1`] = `
+"HttpRequest request = new HttpRequest();
+request.setMethod('POST');
+request.setEndpoint('https://httpbin.org/path/to?a=b');
+
+request.setHeader('Authorization', 'Bearer abcdefghijklmn');
+request.setHeader('Content-Type', 'application/json');
+request.setHeader('h1', 'h1v');
+request.setHeader('h2', 'h2v');
+
+request.setBody('{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}');
+
+try {
+    Http client = new Http();
+    HttpResponse response = client.send(request);
+    System.debug(response.getBody());
+} catch (CalloutException ex) {
+    System.debug('An error occured ' + ex.getMessage());
+}"
+`;
+
+exports[`generate request for Salesforce Apex generate POST request for XML 1`] = `
+"HttpRequest request = new HttpRequest();
+request.setMethod('POST');
+request.setEndpoint('https://httpbin.org/path/to?a=b');
+
+request.setHeader('Authorization', 'Bearer abcdefghijklmn');
+request.setHeader('Content-Type', 'application/xml');
+request.setHeader('h1', 'h1v');
+request.setHeader('h2', 'h2v');
+
+request.setBody('<?xml version=\\\\'1.0\\\\' encoding=\\\\'utf-8\\\\'?>\\\\n<xml>\\\\n  <element foo=\\"bar\\"></element>\\\\n</xml>');
+
+try {
+    Http client = new Http();
+    HttpResponse response = client.send(request);
+    System.debug(response.getBody());
+} catch (CalloutException ex) {
+    System.debug('An error occured ' + ex.getMessage());
+}"
+`;
+
+exports[`generate request for Salesforce Apex generate PUT request for www-form-urlencoded 1`] = `
+"HttpRequest request = new HttpRequest();
+request.setMethod('PUT');
+request.setEndpoint('https://httpbin.org/path/to?a=b');
+
+request.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+request.setBody('foo=bar&baz=qux');
+
+try {
+    Http client = new Http();
+    HttpResponse response = client.send(request);
+    System.debug(response.getBody());
+} catch (CalloutException ex) {
+    System.debug('An error occured ' + ex.getMessage());
+}"
+`;
+
 exports[`generate request for cURL generate GET request 1`] = `
 "curl -X GET \\\\
   'https://httpbin.org/path/to?a=b' \\\\

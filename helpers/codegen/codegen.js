@@ -13,6 +13,7 @@ import { PythonHttpClientCodegen } from "./generators/python-http-client"
 import { WgetCodegen } from "./generators/wget"
 import { CsRestSharpCodegen } from "./generators/cs-restsharp"
 import { RubyNetHttpCodeGen } from "./generators/ruby-net-http"
+import { SalesforceApexCodegen } from "./generators/salesforce-apex"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -37,6 +38,7 @@ export const codegens = [
   PythonRequestsCodegen,
   PythonHttpClientCodegen,
   RubyNetHttpCodeGen,
+  SalesforceApexCodegen,
   WgetCodegen,
 ]
 

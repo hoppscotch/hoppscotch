@@ -5,9 +5,9 @@
       :key="feed.id"
       class="flex-col py-2 border-b border-dashed border-brdColor"
     >
-      <div class="show-on-large-screen">
+      <div data-test="list-item" class="show-on-large-screen">
         <li class="info">
-          <label>
+          <label data-test="list-label">
             {{ feed.label || $t("no_label") }}
           </label>
         </li>
@@ -16,7 +16,7 @@
         </button>
       </div>
       <div class="show-on-large-screen">
-        <li class="info clamb-3">
+        <li data-test="list-message" class="info clamb-3">
           <label>{{ feed.message || $t("empty") }}</label>
         </li>
       </div>
@@ -54,8 +54,8 @@ export default {
     }
   },
   methods: {
-    deleteFeed(feed) {
-      fb.deleteFeed(feed.id)
+    async deleteFeed(feed) {
+      await fb.deleteFeed(feed.id)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })

@@ -53,16 +53,6 @@ describe("logout", () => {
     expect(fb.signOutUser).toHaveBeenCalledTimes(1)
   })
 
-  test("successful signout request fires a success toast", async () => {
-    fb.signOutUser.mockResolvedValueOnce(null)
-
-    const wrapper = factory()
-    const button = wrapper.find("button")
-    await button.trigger("click")
-
-    expect($toast.info).toHaveBeenCalledTimes(1)
-  })
-
   test("failed signout request fires a error toast", async () => {
     fb.signOutUser.mockImplementationOnce(() => Promise.reject("test reject"))
 

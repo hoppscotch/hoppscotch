@@ -2,26 +2,13 @@
   <pw-section class="green" icon="history" :label="$t('history')" ref="history">
     <div class="show-on-large-screen">
       <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
-      <!-- <button class="icon">
+      <button class="icon">
         <i class="material-icons">search</i>
-      </button> -->
+      </button>
     </div>
     <div class="virtual-list" :class="{ filled: filteredHistory.length }">
-      <ul
-        v-for="(entry, index) in filteredHistory"
-        :key="index"
-        class="flex-col border-b border-dashed border-brdColor"
-      >
+      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-large-screen">
-          <button
-            class="icon"
-            :id="'use-button#' + index"
-            @click="useHistory(entry)"
-            :aria-label="$t('edit')"
-            v-tooltip="$t('restore')"
-          >
-            <i class="material-icons">restore</i>
-          </button>
           <button
             class="icon"
             :class="{ stared: entry.star }"
@@ -34,46 +21,16 @@
               {{ entry.star ? "star" : "star_border" }}
             </i>
           </button>
-          <li class="relative">
-            <input
-              :aria-label="$t('method')"
-              type="text"
-              readonly
-              :value="`${entry.method} ${entry.status}`"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-              class="bg-transparent"
-            />
-          </li>
-          <v-popover>
-            <button class="tooltip-target icon" v-tooltip="$t('options')">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  class="icon"
-                  :id="'delete-button#' + index"
-                  @click="deleteHistory(entry)"
-                  :aria-label="$t('delete')"
-                  v-close-popover
-                >
-                  <deleteIcon class="material-icons" />
-                  <span>{{ $t("delete") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
-          <!-- <li class="relative">
+          <li>
             <input
               :aria-label="$t('label')"
               type="text"
               readonly
               :value="entry.label"
               :placeholder="$t('no_label')"
-              class="bg-transparent"
+              class="bg-color"
             />
-          </li> -->
+          </li>
           <!-- <li>
             <button
               class="icon"
@@ -88,21 +45,67 @@
               </i>
             </button>
           </li> -->
+          <v-popover>
+            <button class="tooltip-target icon" v-tooltip="$t('options')">
+              <i class="material-icons">more_vert</i>
+            </button>
+            <template slot="popover">
+              <div>
+                <button
+                  class="icon"
+                  :id="'use-button#' + index"
+                  @click="useHistory(entry)"
+                  :aria-label="$t('edit')"
+                  v-close-popover
+                >
+                  <i class="material-icons">restore</i>
+                  <span>{{ $t("restore") }}</span>
+                </button>
+              </div>
+              <div>
+                <button
+                  class="icon"
+                  :id="'delete-button#' + index"
+                  @click="deleteHistory(entry)"
+                  :aria-label="$t('delete')"
+                  v-close-popover
+                >
+                  <deleteIcon class="material-icons" />
+                  <span>{{ $t("delete") }}</span>
+                </button>
+              </div>
+            </template>
+          </v-popover>
         </div>
-        <!-- <div class="show-on-large-screen">
-        </div> -->
+        <div class="show-on-large-screen">
+          <li class="method-list-item">
+            <input
+              :aria-label="$t('method')"
+              type="text"
+              readonly
+              :value="entry.method"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
+            />
+            <span
+              class="entry-status-code"
+              :class="findEntryStatus(entry).className"
+              :style="{ '--status-code': entry.status }"
+              >{{ entry.status }}</span
+            >
+          </li>
+        </div>
         <div class="show-on-large-screen">
           <li>
             <input
               :aria-label="$t('url')"
               type="text"
               readonly
-              :value="`${entry.url}${entry.path}`"
+              :value="entry.url"
               :placeholder="$t('no_url')"
-              class="bg-transparent"
             />
           </li>
-          <!-- <li>
+          <li>
             <input
               :aria-label="$t('path')"
               type="text"
@@ -110,7 +113,7 @@
               :value="entry.path"
               :placeholder="$t('no_path')"
             />
-          </li> -->
+          </li>
         </div>
         <transition name="fade">
           <div v-if="showMore" class="show-on-large-screen">
@@ -145,7 +148,7 @@
         </transition>
       </ul>
     </div>
-    <ul class="flex-col" :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
+    <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       <li>
         <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
       </li>
@@ -245,27 +248,50 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 288px);
+  max-height: calc(100vh - 290px);
 
   [readonly] {
-    @apply cursor-default;
+    cursor: default;
   }
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-200;
+  transition: all 0.2s;
 }
 
 .fade-enter,
 .fade-leave-to {
-  @apply opacity-0;
+  opacity: 0;
 }
 
 .stared {
-  @apply text-yellow-200;
+  color: #f8e81c !important;
+}
+
+ul,
+ol {
+  flex-direction: column;
+}
+
+.method-list-item {
+  position: relative;
+
+  span {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-family: "Roboto Mono", monospace;
+    font-weight: 400;
+    background-color: transparent;
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+}
+
+.entry {
+  border-bottom: 1px dashed var(--brd-color);
+  padding: 0 0 8px;
 }
 
 @media (max-width: 720px) {
@@ -274,7 +300,7 @@
   }
 
   .labels {
-    @apply hidden;
+    display: none;
   }
 }
 </style>
@@ -316,22 +342,20 @@ export default {
         fb.currentUser !== null
           ? fb.currentHistory
           : JSON.parse(window.localStorage.getItem("history")) || []
-      return this.history
-        .filter((entry) => {
-          const filterText = this.filterText.toLowerCase()
-          return Object.keys(entry).some((key) => {
-            let value = entry[key]
-            value = typeof value !== "string" ? value.toString() : value
-            return value.toLowerCase().includes(filterText)
-          })
+      return this.history.filter((entry) => {
+        const filterText = this.filterText.toLowerCase()
+        return Object.keys(entry).some((key) => {
+          let value = entry[key]
+          value = typeof value !== "string" ? value.toString() : value
+          return value.toLowerCase().includes(filterText)
         })
-        .reverse()
+      })
     },
   },
   methods: {
-    clearHistory() {
+    async clearHistory() {
       if (fb.currentUser !== null) {
-        fb.clearHistory()
+        await fb.clearHistory()
       }
       this.history = []
       this.filterText = ""
@@ -352,9 +376,9 @@ export default {
         }
       )
     },
-    deleteHistory(entry) {
+    async deleteHistory(entry) {
       if (fb.currentUser !== null) {
-        fb.deleteHistory(entry)
+        await fb.deleteHistory(entry)
       }
       this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {
@@ -440,9 +464,9 @@ export default {
     toggleCollapse() {
       this.showMore = !this.showMore
     },
-    toggleStar(entry) {
+    async toggleStar(entry) {
       if (fb.currentUser !== null) {
-        fb.toggleStar(entry, !entry.star)
+        await fb.toggleStar(entry, !entry.star)
       }
       entry.star = !entry.star
       updateOnLocalStorage("history", this.history)

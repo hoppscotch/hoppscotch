@@ -61,6 +61,7 @@
     "babel-jest": "^26.5.2",
     "eslint": "^7.11.0",
     "eslint-plugin-vue": "^7.0.1",
+    "firebase-mock": "^2.3.2",
     "husky": "^4.3.0",
     "jest": "^26.5.3",
     "jest-serializer-vue": "^2.0.2",
@@ -78,6 +79,7 @@
     ],
     "watchman": false,
     "moduleNameMapper": {
+      ".+\\.(svg)\\?inline$": "<rootDir>/__mocks__/svgMock.js",
       "^~/(.*)$": "<rootDir>/$1",
       "^~~/(.*)$": "<rootDir>/$1"
     },

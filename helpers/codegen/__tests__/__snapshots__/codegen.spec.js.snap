@@ -1080,6 +1080,19 @@ try {
 }"
 `;
 
+exports[`generate request for Shell HTTPie generate GET request 1`] = `"http -a mockUser:mockPassword GET $'https://httpbin.org/path/to?a=b' $'h1:h1v' $'h2:h2v'"`;
+
+exports[`generate request for Shell HTTPie generate POST request for JSON 1`] = `"echo -n $'{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}' | http POST $'https://httpbin.org/path/to?a=b' 'Content-Type:application/json; charset=utf-8' $'h1:h1v' $'h2:h2v' 'Authorization:Bearer abcdefghijklmn'"`;
+
+exports[`generate request for Shell HTTPie generate POST request for XML 1`] = `
+"echo -n $'<?xml version=\\\\'1.0\\\\' encoding=\\\\'utf-8\\\\'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>' | http POST $'https://httpbin.org/path/to?a=b' 'Content-Type:application/xml; charset=utf-8' $'h1:h1v' $'h2:h2v' 'Authorization:Bearer abcdefghijklmn'"
+`;
+
+exports[`generate request for Shell HTTPie generate PUT request for www-form-urlencoded 1`] = `"echo -n $'foo=bar&baz=qux' | http PUT $'https://httpbin.org/path/to?a=b' 'Content-Type:application/x-www-form-urlencoded; charset=utf-8'"`;
+
 exports[`generate request for cURL generate GET request 1`] = `
 "curl -X GET \\\\
   'https://httpbin.org/path/to?a=b' \\\\

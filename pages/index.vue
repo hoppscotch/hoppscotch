@@ -1043,11 +1043,23 @@
             <li>
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
-                <select id="requestType" v-model="requestType">
-                  <option v-for="gen in codegens" :key="gen.id" :value="gen.id">
-                    {{ gen.name }}
-                  </option>
-                </select>
+                <v-popover>
+                  <input
+                    id="requestType"
+                    v-model="requestType"
+                    :placeholder="$t('choose_language')"
+                    class="cursor-pointer"
+                    readonly
+                    autofocus
+                  />
+                  <template slot="popover">
+                    <div v-for="gen in codegens" :key="gen.id">
+                      <button class="icon" @click="requestType = gen.id" v-close-popover>
+                        {{ gen.name }}
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
           </ul>

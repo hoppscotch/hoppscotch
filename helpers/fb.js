@@ -309,7 +309,7 @@ export class FirebaseInstance {
       author: this.currentUser.uid,
       author_name: this.currentUser.displayName,
       author_image: this.currentUser.photoURL,
-      team: team,
+      team,
     }
 
     try {

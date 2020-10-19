@@ -60,7 +60,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.5.2",
     "eslint": "^7.11.0",
-    "eslint-plugin-vue": "^7.0.1",
+    "eslint-plugin-vue": "^7.1.0",
     "firebase-mock": "^2.3.2",
     "husky": "^4.3.0",
     "jest": "^26.5.3",

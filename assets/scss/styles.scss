@@ -492,6 +492,8 @@ code {
 
 .method {
   @apply cursor-pointer;
+  @apply uppercase;
+  min-width: 128px;
 
   &:hover,
   &:active,
@@ -519,9 +521,9 @@ pre {
 .select-wrapper {
   @apply relative;
 
+  pre,
   input {
-    @apply uppercase;
-    min-width: 128px;
+    @apply cursor-pointer;
   }
 
   .trigger {

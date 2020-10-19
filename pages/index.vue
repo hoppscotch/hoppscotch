@@ -1044,7 +1044,11 @@
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
                 <v-popover>
+                  <pre v-if="requestType">{{
+                    codegens.find((x) => x.id === requestType).name
+                  }}</pre>
                   <input
+                    v-else
                     id="requestType"
                     v-model="requestType"
                     :placeholder="$t('choose_language')"

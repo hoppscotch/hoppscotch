@@ -612,7 +612,8 @@ export default {
 
         const res = await sendNetworkRequest(reqOptions, this.$store)
 
-        const responseText = new TextDecoder("utf-8").decode(res.data)
+        // HACK: Temporary trailing null character issue from the extension fix
+        const responseText = new TextDecoder("utf-8").decode(res.data).replace(/\0+$/, "")
 
         this.response = JSON.stringify(JSON.parse(responseText), null, 2)
 
@@ -713,7 +714,8 @@ export default {
 
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
-        const response = new TextDecoder("utf-8").decode(data.data)
+        // HACK : Temporary trailing null character issue from the extension fix
+        const response = new TextDecoder("utf-8").decode(data.data).replace(/\0+$/, "")
         const introspectResponse = JSON.parse(response)
 
         const schema = gql.buildClientSchema(introspectResponse.data)

@@ -9,8 +9,8 @@
          @dragend="dragging=false"
     >
       <button class="icon" @click="toggleShowChildren">
-        <i class="material-icons" v-show="!showChildren">arrow_right</i>
-        <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
+        <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
+        <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
         <folderIcon class="material-icons" />
         <span>{{ collection.name }}</span>
       </button>
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <div v-show="showChildren">
+    <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
           v-for="(folder, index) in collection.folders"
@@ -63,6 +63,7 @@
             :folder-index="index"
             :collection-index="collectionIndex"
             :doc="doc"
+            :isFiltered="isFiltered"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
@@ -104,6 +105,7 @@ export default {
     collectionIndex: Number,
     collection: Object,
     doc: Boolean,
+    isFiltered: Boolean,
   },
   data() {
     return {

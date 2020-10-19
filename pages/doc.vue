@@ -68,7 +68,7 @@
           </ul>
         </pw-section>
 
-        <pw-section class="green" label="Documentation" ref="documentation">
+        <pw-section class="green" :label="$t('documentation')" ref="documentation">
           <p v-if="this.items.length === 0" class="info">
             {{ $t("generate_docs_first") }}
           </p>

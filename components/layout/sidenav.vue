@@ -131,7 +131,7 @@
             </a>
           </li>
           <li>
-            <a href="#documentation" v-tooltip.right="'Documentation'">
+            <a href="#documentation" v-tooltip.right="$t('documentation')">
               <i class="material-icons">insert_drive_file</i>
             </a>
           </li>
@@ -221,6 +221,7 @@ nav.primary-nav {
       @apply bg-acColor;
       @apply text-actColor;
       @apply fill-current;
+
       border-radius: 16px;
 
       svg {
@@ -300,6 +301,7 @@ nav.secondary-nav {
     @apply justify-between;
     @apply bg-bgDarkColor;
     @apply space-y-0;
+
     padding-bottom: env(safe-area-inset-bottom);
 
     a {

@@ -20,6 +20,7 @@
   @apply bg-bgDarkColor;
   @apply text-fgColor;
   @apply overflow-auto;
+
   height: 256px;
 
   &,

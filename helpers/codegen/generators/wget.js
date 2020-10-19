@@ -1,6 +1,6 @@
-export const CurlCodegen = {
-  id: "curl",
-  name: "cURL",
+export const WgetCodegen = {
+  id: "wget",
+  name: "wget",
   generator: ({
     url,
     pathName,
@@ -17,25 +17,25 @@ export const CurlCodegen = {
     headers,
   }) => {
     const requestString = []
-    requestString.push(`curl -X ${method}`)
+    requestString.push(`wget -O - --method=${method}`)
     requestString.push(`  '${url}${pathName}${queryString}'`)
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(
-        `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+        `  --header='Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(`  -H 'Authorization: Bearer ${bearerToken}'`)
+      requestString.push(`  --header='Authorization: Bearer ${bearerToken}'`)
     }
     if (headers) {
       headers.forEach(({ key, value }) => {
-        if (key) requestString.push(`  -H '${key}: ${value}'`)
+        if (key) requestString.push(`  --header='${key}: ${value}'`)
       })
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       const requestBody = rawInput ? rawParams : rawRequestBody
-      requestString.push(`  -H 'Content-Type: ${contentType}; charset=utf-8'`)
-      requestString.push(`  -d '${requestBody}'`)
+      requestString.push(`  --header='Content-Type: ${contentType}; charset=utf-8'`)
+      requestString.push(`  --body-data='${requestBody}'`)
     }
     return requestString.join(" \\\n")
   },

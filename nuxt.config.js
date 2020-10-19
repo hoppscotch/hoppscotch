@@ -158,6 +158,7 @@ export default {
       background_color: options.app.background,
       theme_color: options.app.background,
     },
+    workbox: false,
   },
   toast: {
     position: "bottom-center",
@@ -276,6 +277,12 @@ export default {
         name: "Malayalam",
         iso: "ml-ML",
         file: "ml-ML.json",
+      },
+      {
+        code: "vi",
+        name: "Vietnamese",
+        iso: "vi-VN",
+        file: "vi-VN.json",
       },
     ],
     defaultLocale: "en",

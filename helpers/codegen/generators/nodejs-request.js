@@ -36,16 +36,25 @@ export const NodeJsRequestCodegen = {
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
-      let reqBodyType =  'formData'
+      let reqBodyType = "formData"
       if (isJSONContentType(contentType)) {
         requestBody = `JSON.stringify(${requestBody})`
-        reqBodyType = 'body'
+        reqBodyType = "body"
       } else if (contentType.includes("x-www-form-urlencoded")) {
-        if (requestBody.indexOf('=') > -1) {
-          const rq = requestBody.split('=')
-          requestBody = `{"${rq[0]}": "${rq[1]}"}`
+        const formData = []
+        if (requestBody.indexOf("=") > -1) {
+          requestBody.split("&").forEach((rq) => {
+            const [key, val] = rq.split("=")
+            formData.push(`"${key}": "${val}"`)
+          })
         }
-        reqBodyType = 'form'
+        if (formData.length) {
+          requestBody = `{${formData.join(", ")}}`
+        }
+        reqBodyType = "form"
+      } else if (contentType.includes("application/xml")) {
+        requestBody = `\`${requestBody}\``
+        reqBodyType = "body"
       }
       if (contentType) {
         genHeaders.push(`    "Content-Type": "${contentType}; charset=utf-8",\n`)

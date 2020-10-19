@@ -11,8 +11,8 @@
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
-          <i class="material-icons" v-show="!showChildren">arrow_right</i>
-          <i class="material-icons" v-show="showChildren">arrow_drop_down</i>
+          <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
+          <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
           <i class="material-icons">folder_open</i>
           <span>{{ folder.name }}</span>
         </button>
@@ -44,7 +44,7 @@
       </v-popover>
     </div>
 
-    <div v-show="showChildren">
+    <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
           v-for="(request, index) in folder.requests"
@@ -91,6 +91,7 @@ export default {
     folderIndex: Number,
     collectionIndex: Number,
     doc: Boolean,
+    isFiltered: Boolean,
   },
   data() {
     return {

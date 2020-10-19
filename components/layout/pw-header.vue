@@ -290,6 +290,7 @@ kbd {
 
 .slide-in {
   @apply relative;
+
   animation: slideIn 0.2s forwards ease-in-out;
 }
 

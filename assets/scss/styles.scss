@@ -815,7 +815,8 @@ section {
     @apply rounded-lg;
     text-transform: none !important;
     padding: 12px 16px !important;
-    font-weight: 500 !important;
+    // font-weight: 500 !important;
+    @apply font-bold;
     font-size: 16px !important;
     margin: 0 !important;
     margin-left: 8px !important;

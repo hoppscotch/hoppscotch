@@ -1,5 +1,12 @@
 <template>
-  <div class="row-wrapper">
+  <div
+    :class="['row-wrapper', dragging ? 'drag-el' : '']"
+    draggable="true"
+    @dragstart="dragStart"
+    @dragover.stop
+    @dragleave="dragging = false"
+    @dragend="dragging = false"
+  >
     <div>
       <button
         class="icon"
@@ -16,7 +23,19 @@
       </button>
       <template slot="popover">
         <div>
-          <button class="icon" @click="$emit('edit-request')" v-close-popover>
+          <button
+            class="icon"
+            @click="
+              $emit('edit-request', {
+                collectionIndex,
+                folderIndex,
+                folderName,
+                request,
+                requestIndex,
+              })
+            "
+            v-close-popover
+          >
             <i class="material-icons">edit</i>
             <span>{{ $t("edit") }}</span>
           </button>
@@ -42,8 +61,14 @@ export default {
     request: Object,
     collectionIndex: Number,
     folderIndex: Number,
+    folderName: String,
     requestIndex: Number,
     doc: Boolean,
+  },
+  data() {
+    return {
+      dragging: false,
+    }
   },
   methods: {
     syncCollections() {
@@ -56,12 +81,19 @@ export default {
     selectRequest() {
       this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
+    dragStart({ dataTransfer }) {
+      this.dragging = !this.dragging
+      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
+      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
+      dataTransfer.setData("oldFolderName", this.$props.folderName)
+      dataTransfer.setData("requestIndex", this.$props.requestIndex)
+    },
     removeRequest() {
       if (!confirm(this.$t("are_you_sure_remove_request"))) return
       this.$store.commit("postwoman/removeRequest", {
-        collectionIndex: this.collectionIndex,
-        folderIndex: this.folderIndex,
-        requestIndex: this.requestIndex,
+        collectionIndex: this.$props.collectionIndex,
+        folderName: this.$props.folderName,
+        requestIndex: this.$props.requestIndex,
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

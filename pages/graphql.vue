@@ -483,12 +483,12 @@ export default {
 
       if (!fields || fields.length === 0) return []
 
-      return fields.filter((field) => {
-        return this.isTextFoundInGraphqlFieldObject({
+      return fields.filter((field) =>
+        this.isTextFoundInGraphqlFieldObject({
           text: this.graphqlFieldsFilterText,
           graphqlFieldObject: field,
         })
-      })
+      )
     },
     isTextFoundInGraphqlFieldObject({ text, graphqlFieldObject }) {
       const normalizedText = text.toLowerCase()
@@ -503,9 +503,9 @@ export default {
     getFilteredGraphqlFields({ filterText, fields }) {
       if (!filterText) return fields
 
-      return fields.filter((field) => {
-        return this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
-      })
+      return fields.filter((field) =>
+        this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
+      )
     },
     getFilteredGraphqlTypes({ filterText, types }) {
       if (!filterText) return types
@@ -521,12 +521,11 @@ export default {
         }
 
         const isFilterTextMatchingAtLeastOneField = Object.values(type._fields || {}).some(
-          (field) => {
-            return this.isTextFoundInGraphqlFieldObject({
+          (field) =>
+            this.isTextFoundInGraphqlFieldObject({
               text: filterText,
               graphqlFieldObject: field,
             })
-          }
         )
 
         return isFilterTextMatchingAtLeastOneField

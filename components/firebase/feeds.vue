@@ -54,8 +54,8 @@ export default {
     }
   },
   methods: {
-    async deleteFeed(feed) {
-      await fb.deleteFeed(feed.id)
+    async deleteFeed({ id }) {
+      await fb.deleteFeed(id)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })

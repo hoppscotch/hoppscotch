@@ -17,7 +17,7 @@ export const ShellHTTPie = {
     headers,
   }) => {
     const methodsWithBody = ["POST", "PUT", "PATCH", "DELETE"]
-    const includeBody = methodsWithBody.indexOf(method) >= 0
+    const includeBody = methodsWithBody.includes(method)
     const requestString = []
 
     let requestBody = rawInput ? rawParams : rawRequestBody

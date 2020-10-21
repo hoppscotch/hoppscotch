@@ -257,9 +257,9 @@ export default {
   watch: {
     proxySettings: {
       deep: true,
-      handler(value) {
-        this.applySetting("PROXY_URL", value.url)
-        this.applySetting("PROXY_KEY", value.key)
+      handler({ url, key }) {
+        this.applySetting("PROXY_URL", url)
+        this.applySetting("PROXY_KEY", key)
       },
     },
   },

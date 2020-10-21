@@ -1,16 +1,15 @@
 import inputform from "../inputform"
 import { shallowMount } from "@vue/test-utils"
 
-jest.mock("~/helpers/fb", () => {
-  return {
-    __esModule: true,
-    fb: {
-      writeFeeds: jest.fn(() => Promise.resolve()),
-    },
-  }
-})
+jest.mock("~/helpers/fb", () => ({
+  __esModule: true,
 
-const { fb } = require("~/helpers/fb")
+  fb: {
+    writeFeeds: jest.fn(() => Promise.resolve()),
+  },
+}))
+
+import { fb } from "~/helpers/fb"
 
 const factory = () =>
   shallowMount(inputform, {

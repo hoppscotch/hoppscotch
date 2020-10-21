@@ -1043,11 +1043,27 @@
             <li>
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
-                <select id="requestType" v-model="requestType">
-                  <option v-for="gen in codegens" :key="gen.id" :value="gen.id">
-                    {{ gen.name }}
-                  </option>
-                </select>
+                <v-popover>
+                  <pre v-if="requestType">{{
+                    codegens.find((x) => x.id === requestType).name
+                  }}</pre>
+                  <input
+                    v-else
+                    id="requestType"
+                    v-model="requestType"
+                    :placeholder="$t('choose_language')"
+                    class="cursor-pointer"
+                    readonly
+                    autofocus
+                  />
+                  <template slot="popover">
+                    <div v-for="gen in codegens" :key="gen.id">
+                      <button class="icon" @click="requestType = gen.id" v-close-popover>
+                        {{ gen.name }}
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
           </ul>
@@ -1345,7 +1361,7 @@ export default {
             : true,
       },
       currentMethodIndex: 0,
-      codegens: codegens,
+      codegens,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1400,7 +1416,7 @@ export default {
       this.setRouteQueryState()
     },
     params: {
-      handler: function (newValue) {
+      handler(newValue) {
         if (!this.paramsWatchEnabled) {
           this.paramsWatchEnabled = true
           return
@@ -1458,7 +1474,7 @@ export default {
         ? "application/json"
         : ""
     },
-    preRequestScript: function (val, oldVal) {
+    preRequestScript(val, oldVal) {
       this.uri = this.uri
     },
   },
@@ -1810,7 +1826,7 @@ export default {
         httpUser: this.httpUser,
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
-        headers: headers,
+        headers,
         rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
@@ -1844,7 +1860,7 @@ export default {
         if (env.name === "Globals" || env.name === "globals") {
           preRequestScriptString += this.useSelectedEnvironment({
             environment: env,
-            environments: environments,
+            environments,
           })
         }
       }
@@ -2374,6 +2390,7 @@ export default {
       switch (name) {
         case "bodyParams":
           this.bodyParams = []
+          this.files = []
           break
         case "rawParams":
           this.rawParams = "{}"
@@ -2502,7 +2519,6 @@ export default {
           icon: "attach_file",
         })
       }
-      this.$refs.attachment.value = ""
     },
     uploadPayload() {
       this.rawInput = true

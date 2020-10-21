@@ -18,7 +18,7 @@ export const PowerShellRestMethod = {
   }) => {
     const methodsWithBody = ["Put", "Post", "Delete"]
     const formattedMethod = method[0].toUpperCase() + method.substring(1).toLowerCase()
-    const includeBody = methodsWithBody.indexOf(formattedMethod) >= 0
+    const includeBody = methodsWithBody.includes(formattedMethod)
     const requestString = []
     let genHeaders = []
     let variables = ""

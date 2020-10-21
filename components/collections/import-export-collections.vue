@@ -117,7 +117,7 @@ export default {
             // Do nothing
           }
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
-          collections = this.parsePostmanCollection(collections)
+          collections = [this.parsePostmanCollection(collections)]
         } else {
           return this.failedImport()
         }
@@ -141,8 +141,7 @@ export default {
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           //replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
           collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
-          collections.item = this.flattenPostmanFolders(collections)
-          collections = this.parsePostmanCollection(collections)
+          collections = [this.parsePostmanCollection(collections)]
         } else {
           return this.failedImport()
         }
@@ -192,35 +191,30 @@ export default {
         icon: "error",
       })
     },
-    parsePostmanCollection(collection, folders = true) {
-      let postwomanCollection = folders
-        ? [
-            {
-              name: "",
-              folders: [],
-              requests: [],
-            },
-          ]
-        : {
-            name: "",
-            requests: [],
-          }
-      if (folders) {
-        //pick up collection name even when all children are folders
-        postwomanCollection[0].name = collection.info ? collection.info.name : ""
-      }
-      for (let collectionItem of collection.item) {
-        if (collectionItem.request) {
-          if (postwomanCollection[0]) {
-            postwomanCollection[0].name = collection.info ? collection.info.name : ""
-            postwomanCollection[0].requests.push(this.parsePostmanRequest(collectionItem))
+    parsePostmanCollection(collection) {
+      let postwomanCollection =
+        {
+          name: "",
+          folders: [],
+          requests: [],
+        }
+
+      postwomanCollection.name = collection.info ? collection.info.name : collection.name
+
+      if (collection.item && collection.item.length > 0) {
+        for (let collectionItem of collection.item) {
+          if (collectionItem.request) {
+            if (postwomanCollection.hasOwnProperty('folders')) {
+              postwomanCollection.name = collection.info ? collection.info.name : collection.name
+              postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
+            } else {
+              postwomanCollection.name = collection.name ? collection.name : ""
+              postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
+            }
+          } else if (this.hasFolder(collectionItem)) {
+            postwomanCollection.folders.push(this.parsePostmanCollection(collectionItem))
           } else {
-            postwomanCollection.name = collection.name ? collection.name : ""
             postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
-          }
-        } else if (collectionItem.item) {
-          if (collectionItem.item[0]) {
-            postwomanCollection[0].folders.push(this.parsePostmanCollection(collectionItem, false))
           }
         }
       }
@@ -300,46 +294,8 @@ export default {
       }
       return pwRequest
     },
-    flattenPostmanFolders(collection) {
-      let items = []
-
-      for (let collectionItem of collection.item) {
-        if (this.hasFolder(collectionItem)) {
-          let newFolderItems = []
-          for (let folderItem of collectionItem.item) {
-            if (this.isSubFolder(folderItem)) {
-              newFolderItems = newFolderItems.concat(this.flattenPostmanItem(folderItem))
-            } else {
-              newFolderItems.push(folderItem)
-            }
-          }
-          collectionItem.item = newFolderItems
-        }
-        items.push(collectionItem)
-      }
-      return items
-    },
     hasFolder(item) {
-      return Object.prototype.hasOwnProperty.call(item, "item")
-    },
-    isSubFolder(item) {
-      return (
-        Object.prototype.hasOwnProperty.call(item, "_postman_isSubFolder") &&
-        item._postman_isSubFolder
-      )
-    },
-    flattenPostmanItem(subFolder, subFolderGlue = " -- ") {
-      delete subFolder._postman_isSubFolder
-      let flattenedItems = []
-      for (let subFolderItem of subFolder.item) {
-        subFolderItem.name = subFolder.name + subFolderGlue + subFolderItem.name
-        if (this.isSubFolder(subFolderItem)) {
-          flattenedItems = flattenedItems.concat(this.flattenPostmanItem(subFolderItem))
-        } else {
-          flattenedItems.push(subFolderItem)
-        }
-      }
-      return flattenedItems
+      return item.hasOwnProperty('item')
     },
   },
 }

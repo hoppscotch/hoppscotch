@@ -10,7 +10,7 @@
       @keydown="handleKeystroke"
       ref="acInput"
       :spellcheck="spellcheck"
-      :autocapitalize="spellcheck"
+      :autocapitalize="autocapitalize"
       :autocorrect="spellcheck"
     />
     <ul
@@ -83,6 +83,12 @@ export default {
     spellcheck: {
       type: Boolean,
       default: true,
+      required: false,
+    },
+
+    autocapitalize: {
+      type: String,
+      default: "off",
       required: false,
     },
 

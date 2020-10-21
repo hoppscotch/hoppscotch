@@ -40,15 +40,13 @@
               </option>
             </select>
           </span>
-          <label for="selectFolder">{{ $t("folder") }}</label>
-          <span class="select-wrapper">
-            <select type="text" id="selectFolder" v-model="requestData.folderIndex">
-              <option :key="undefined" :value="undefined">/</option>
-              <option v-for="(folder, index) in folders" :key="index" :value="index">
-                {{ folder.name }}
-              </option>
-            </select>
-          </span>
+          <label>{{ $t("folder") }}</label>
+          <autocomplete
+            :placeholder="$t('search')"
+            :source="folders"
+            :spellcheck="false"
+            v-model="requestData.folderName"
+          />
           <label for="selectRequest">{{ $t("request") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectRequest" v-model="requestData.requestIndex">
@@ -95,19 +93,19 @@ export default {
       requestData: {
         name: undefined,
         collectionIndex: undefined,
-        folderIndex: undefined,
+        folderName: undefined,
         requestIndex: undefined,
       },
     }
   },
   watch: {
     "requestData.collectionIndex": function resetFolderAndRequestIndex() {
-      // if user choosen some folder, than selected other collection, which doesn't have any folders
-      // than `requestUpdateData.folderIndex` won't be reseted
-      this.$data.requestData.folderIndex = undefined
+      // if user has chosen some folder, than selected other collection, which doesn't have any folders
+      // than `requestUpdateData.folderName` won't be reseted
+      this.$data.requestData.folderName = undefined
       this.$data.requestData.requestIndex = undefined
     },
-    "requestData.folderIndex": function resetRequestIndex() {
+    "requestData.folderName": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined
     },
     editingRequest(request) {
@@ -116,39 +114,41 @@ export default {
   },
   computed: {
     folders() {
-      const userSelectedAnyCollection = this.$data.requestData.collectionIndex !== undefined
+      const collections =  this.$store.state.postwoman.collections
+      const collectionIndex = this.$data.requestData.collectionIndex
+      const userSelectedAnyCollection = collectionIndex !== undefined
       if (!userSelectedAnyCollection) return []
 
-      const noCollectionAvailable =
-        this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !==
-        undefined
+      const noCollectionAvailable = collections[collectionIndex] !== undefined
       if (!noCollectionAvailable) return []
 
-      return this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex].folders
+      return getFolderNames(collections[collectionIndex].folders, [])
     },
     requests() {
-      const userSelectedAnyCollection = this.$data.requestData.collectionIndex !== undefined
-      if (!userSelectedAnyCollection) return []
+      const collections = this.$store.state.postwoman.collections
+      const collectionIndex = this.$data.requestData.collectionIndex
+      const folderName = this.$data.requestData.folderName
 
-      const userSelectedAnyFolder = this.$data.requestData.folderIndex !== undefined
+      const userSelectedAnyCollection = collectionIndex !== undefined
+      if (!userSelectedAnyCollection) {
+        return []
+      }
+
+      const userSelectedAnyFolder = folderName !== undefined && folderName !== ''
+
       if (userSelectedAnyFolder) {
-        const collection = this.$store.state.postwoman.collections[
-          this.$data.requestData.collectionIndex
-        ]
-        const folder = collection.folders[this.$data.requestData.folderIndex]
-        const requests = folder.requests
-        return requests
+        const collection = collections[collectionIndex]
+        const folder = findFolder(folderName, collection)
+        return folder.requests
       } else {
-        const collection = this.$store.state.postwoman.collections[
-          this.$data.requestData.collectionIndex
-        ]
-        const noCollectionAvailable =
-          this.$store.state.postwoman.collections[this.$data.requestData.collectionIndex] !==
-          undefined
-        if (!noCollectionAvailable) return []
+        const collection = collections[collectionIndex]
+        const noCollectionAvailable = collection !== undefined
 
-        const requests = collection.requests
-        return requests
+        if (!noCollectionAvailable){
+          return []
+        }
+
+        return collection.requests
       }
     },
   },
@@ -178,7 +178,7 @@ export default {
       this.$store.commit("postwoman/saveRequestAs", {
         request: requestUpdated,
         collectionIndex: this.$data.requestData.collectionIndex,
-        folderIndex: this.$data.requestData.folderIndex,
+        folderName: this.$data.requestData.folderName,
         requestIndex: this.$data.requestData.requestIndex,
       })
 
@@ -190,5 +190,36 @@ export default {
       this.$emit("hide-model") // for backward compatibility  // TODO: use fixed event
     },
   },
+}
+
+function getFolderNames(folders, namesList) {
+  if (folders.length) {
+    folders.forEach(folder => {
+      namesList.push(folder.name)
+      if (folder.folders && folder.folders.length) {
+        getFolderNames(folder.folders, namesList)
+      }
+    })
+  }
+  return namesList
+}
+
+function findFolder(folderName, currentFolder) {
+  let selectedFolder, result;
+
+  if (folderName === currentFolder.name){
+    return currentFolder
+  }
+
+  for (let i = 0; i < currentFolder.folders.length; i++) {
+    selectedFolder = currentFolder.folders[i];
+
+    result = findFolder(folderName, selectedFolder)
+
+    if (result !== false) {
+      return result
+    }
+  }
+  return false
 }
 </script>

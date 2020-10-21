@@ -1,6 +1,14 @@
 <template>
   <div>
-    <div class="row-wrapper">
+    <div
+      :class="['row-wrapper', dragging ? 'drop-zone':'' ]"
+      @dragover.prevent
+      @drop.prevent="dropEvent"
+      @dragover="dragging=true"
+      @drop="dragging=false"
+      @dragleave="dragging=false"
+      @dragend="dragging=false"
+    >
       <div>
         <button class="icon" @click="toggleShowChildren">
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -15,7 +23,13 @@
         </button>
         <template slot="popover">
           <div>
-            <button class="icon" @click="editFolder" v-close-popover>
+            <button class="icon" @click="$emit('add-folder', { folder })" v-close-popover>
+              <i class="material-icons">create_new_folder</i>
+              <span>{{ $t("new_folder") }}</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon"  @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"  v-close-popover>
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
@@ -41,20 +55,24 @@
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
+            :folder-name="folder.name"
             :request-index="index"
             :doc="doc"
-            @edit-request="
-              $emit('edit-request', {
-                request,
-                collectionIndex,
-                folderIndex,
-                requestIndex: index,
-              })
-            "
+            @edit-request="$emit('edit-request', $event)"
           />
         </li>
-        <li v-if="folder.requests.length === 0" class="flex ml-8 border-l border-brdColor">
-          <label>{{ $t("folder_empty") }}</label>
+      </ul>
+      <ul v-if="folder.folders && folder.folders.length" class="flex-col">
+        <li v-for="(subFolder, subFolderIndex) in folder.folders" :key="subFolder.name" >
+          <folder
+            :folder="subFolder"
+            :folder-index="subFolderIndex"
+            :collection-index="collectionIndex"
+            :doc="doc"
+            @add-folder="$emit('add-folder', $event)"
+            @edit-folder="$emit('edit-folder', $event)"
+            @edit-request="$emit('edit-request', $event)"
+          />
         </li>
       </ul>
     </div>
@@ -67,16 +85,18 @@ import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
   components: { deleteIcon },
+  name: "folder",
   props: {
     folder: Object,
-    collectionIndex: Number,
     folderIndex: Number,
+    collectionIndex: Number,
     doc: Boolean,
     isFiltered: Boolean,
   },
   data() {
     return {
       showChildren: false,
+      dragging: false,
     }
   },
   methods: {
@@ -90,23 +110,36 @@ export default {
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
-    selectRequest(request) {
-      this.$store.commit("postwoman/selectRequest", { request })
-    },
     removeFolder() {
       if (!confirm(this.$t("are_you_sure_remove_folder"))) return
       this.$store.commit("postwoman/removeFolder", {
-        collectionIndex: this.collectionIndex,
-        folderIndex: this.folderIndex,
+        collectionIndex: this.$props.collectionIndex,
+        folderName: this.$props.folder.name,
+        folderIndex: this.$props.folderIndex
       })
       this.syncCollections()
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },
-    editFolder() {
-      this.$emit("edit-folder")
+    dropEvent(event) {
+      this.dragging = !this.dragging;
+      const oldCollectionIndex = event.dataTransfer.getData('oldCollectionIndex');
+      const oldFolderIndex = event.dataTransfer.getData('oldFolderIndex');
+      const oldFolderName = event.dataTransfer.getData('oldFolderName');
+      const requestIndex = event.dataTransfer.getData('requestIndex');
+
+      this.$store.commit("postwoman/moveRequest", {
+        oldCollectionIndex: oldCollectionIndex,
+        newCollectionIndex: this.$props.collectionIndex,
+        newFolderIndex: this.$props.folderIndex,
+        newFolderName: this.$props.folder.name,
+        oldFolderIndex: oldFolderIndex,
+        oldFolderName: oldFolderName,
+        requestIndex: requestIndex
+      })
+      this.syncCollections()
     },
-  },
+  }
 }
 </script>

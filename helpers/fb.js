@@ -32,7 +32,6 @@ export class FirebaseInstance {
     this.currentHistory = []
     this.currentCollections = []
     this.currentEnvironments = []
-    this.currentTeams = []
 
     this.app.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -120,19 +119,6 @@ export class FirebaseInstance {
             if (environments.length > 0) {
               this.currentEnvironments = environments[0].environment
             }
-          })
-
-        this.usersCollection
-          .doc(this.currentUser.uid)
-          .collection("teams")
-          .onSnapshot((teamsRef) => {
-            const teams = []
-            teamsRef.forEach((doc) => {
-              const team = doc.data()
-              team.id = doc.id
-              teams.push(team)
-            })
-            this.currentTeams = teams[0].team
           })
       } else {
         this.currentUser = null
@@ -296,24 +282,6 @@ export class FirebaseInstance {
         .collection("environments")
         .doc("sync")
         .set(ev)
-    } catch (e) {
-      console.error("error updating", ev, e)
-
-      throw e
-    }
-  }
-
-  async writeTeams(team) {
-    const ev = {
-      updatedOn: new Date(),
-      author: this.currentUser.uid,
-      author_name: this.currentUser.displayName,
-      author_image: this.currentUser.photoURL,
-      team,
-    }
-
-    try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("teams").doc("sync").set(ev)
     } catch (e) {
       console.error("error updating", ev, e)
 

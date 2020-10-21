@@ -125,35 +125,6 @@ beforeEach(async () => {
     .firestore()
     .collection("users")
     .doc(testuser.uid)
-    .collection("settings")
-    .doc("syncTeams")
-    .set({
-      author: testuser.uid,
-      author_image: testuser.photoURL,
-      author_name: testuser.displayName,
-      name: "syncTeams",
-      updatedOn: new Date(1598703948000),
-      value: true,
-    })
-
-  await mocksdk
-    .firestore()
-    .collection("users")
-    .doc(testuser.uid)
-    .collection("teams")
-    .doc("sync")
-    .set({
-      author: testuser.uid,
-      author_image: testuser.photoURL,
-      author_name: testuser.displayName,
-      team: [],
-      updatedOn: new Date(1598703948000),
-    })
-
-  await mocksdk
-    .firestore()
-    .collection("users")
-    .doc(testuser.uid)
     .collection("feeds")
     .doc()
     .set({
@@ -1228,80 +1199,6 @@ describe("FirebaseInstance", () => {
           author_name: testuser.displayName,
           author_image: testuser.photoURL,
           environment: expect.anything(),
-        })
-      )
-    })
-  })
-
-  describe("writeTeams", () => {
-    test("resolves for proper authenticated request", async () => {
-      const fb = new FirebaseInstance(mocksdk)
-
-      signInUser()
-
-      await expect(fb.writeTeams([])).resolves.toBeUndefined()
-    })
-
-    test("rejects for non-authenticated request", async () => {
-      const fb = new FirebaseInstance(mocksdk)
-
-      signOutUser()
-
-      await expect(fb.writeTeams([])).rejects.toBeDefined()
-    })
-
-    test("stores data on firestore with proper structure", async () => {
-      const fb = new FirebaseInstance(mocksdk)
-
-      signInUser()
-
-      await fb.writeTeams([])
-
-      const doc = (
-        await mocksdk
-          .firestore()
-          .collection("users")
-          .doc(testuser.uid)
-          .collection("teams")
-          .doc("sync")
-          .get()
-      ).data()
-
-      expect(doc).toEqual(
-        expect.objectContaining({
-          updatedOn: expect.any(Date),
-          author: expect.any(String),
-          author_name: expect.any(String),
-          author_image: expect.any(String),
-          team: expect.anything(),
-        })
-      )
-    })
-
-    test("stores data on firestore with fields having proper values", async () => {
-      const fb = new FirebaseInstance(mocksdk)
-
-      signInUser()
-
-      await fb.writeTeams([])
-
-      const doc = (
-        await mocksdk
-          .firestore()
-          .collection("users")
-          .doc(testuser.uid)
-          .collection("teams")
-          .doc("sync")
-          .get()
-      ).data()
-
-      expect(doc).toEqual(
-        expect.objectContaining({
-          updatedOn: expect.any(Date),
-          author: testuser.uid,
-          author_name: testuser.displayName,
-          author_image: testuser.photoURL,
-          team: expect.anything(),
         })
       )
     })

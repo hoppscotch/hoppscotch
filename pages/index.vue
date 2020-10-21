@@ -1043,11 +1043,27 @@
             <li>
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
-                <select id="requestType" v-model="requestType">
-                  <option v-for="gen in codegens" :key="gen.id" :value="gen.id">
-                    {{ gen.name }}
-                  </option>
-                </select>
+                <v-popover>
+                  <pre v-if="requestType">{{
+                    codegens.find((x) => x.id === requestType).name
+                  }}</pre>
+                  <input
+                    v-else
+                    id="requestType"
+                    v-model="requestType"
+                    :placeholder="$t('choose_language')"
+                    class="cursor-pointer"
+                    readonly
+                    autofocus
+                  />
+                  <template slot="popover">
+                    <div v-for="gen in codegens" :key="gen.id">
+                      <button class="icon" @click="requestType = gen.id" v-close-popover>
+                        {{ gen.name }}
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
           </ul>
@@ -1790,6 +1806,17 @@ export default {
       return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },
     requestCode() {
+      let headers = []
+      if (this.preRequestScript || hasPathParams(this.params)) {
+        let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+        for (let k of this.headers) {
+          const kParsed = parseTemplateString(k.key, environmentVariables)
+          const valParsed = parseTemplateString(k.value, environmentVariables)
+          headers.push({ key: kParsed, value: valParsed })
+        }
+      }
+
       return generateCodeWithGenerator(this.requestType, {
         auth: this.auth,
         method: this.method,
@@ -1799,7 +1826,7 @@ export default {
         httpUser: this.httpUser,
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
-        headers: this.headers,
+        headers: headers,
         rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
@@ -1818,14 +1845,28 @@ export default {
     },
   },
   methods: {
-    useSelectedEnvironment(environment) {
+    useSelectedEnvironment(args) {
+      let environment = args.environment
+      let environments = args.environments
       let preRequestScriptString = ""
       for (let variable of environment.variables) {
-        preRequestScriptString =
-          preRequestScriptString + `pw.env.set('${variable.key}', '${variable.value}');\n`
+        preRequestScriptString += `pw.env.set('${variable.key}', '${variable.value}');\n`
+      }
+      for (let env of environments) {
+        if (env.name === environment.name) {
+          continue
+        }
+
+        if (env.name === "Globals" || env.name === "globals") {
+          preRequestScriptString += this.useSelectedEnvironment({
+            environment: env,
+            environments: environments,
+          })
+        }
       }
       this.preRequestScript = preRequestScriptString
       this.showPreRequestScript = true
+      return preRequestScriptString
     },
     checkCollections() {
       const checkCollectionAvailability =

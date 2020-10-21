@@ -11,15 +11,19 @@
                 type="url"
                 v-model="url"
                 spellcheck="false"
-                @keyup.enter="getSchema()"
+                @keyup.enter="onPollSchemaClick()"
               />
             </li>
             <div>
               <li>
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
-                <button id="get" name="get" @click="getSchema">
-                  {{ $t("get_schema") }}
-                  <span><i class="material-icons">send</i></span>
+                <button id="get" name="get" @click="onPollSchemaClick">
+                  {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
+                  <span
+                    ><i class="material-icons">{{
+                      !isPollingSchema ? "sync" : "sync_disabled"
+                    }}</i></span
+                  >
                 </button>
               </li>
             </div>
@@ -356,6 +360,8 @@ export default {
       expandResponse: false,
       responseBodyMaxLines: 16,
       graphqlFieldsFilterText: undefined,
+      isPollingSchema: false,
+      timeoutSubscription: null,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -454,6 +460,12 @@ export default {
       const gqlSchema = gql.buildClientSchema(JSON.parse(this.$store.state.gql.schemaIntrospection))
       this.getDocsFromSchema(gqlSchema)
     }
+  },
+  beforeRouteLeave(_to, _from, next) {
+    this.isPollingSchema = false
+    if (this.timeoutSubscription) clearTimeout(this.timeoutSubscription)
+
+    next()
   },
   methods: {
     isGqlTypeHighlighted({ gqlType }) {
@@ -680,6 +692,79 @@ export default {
         }
       }
       this.gqlTypes = types
+    },
+    async onPollSchemaClick() {
+      if (this.isPollingSchema) {
+        this.isPollingSchema = false
+      } else {
+        this.isPollingSchema = true
+        await this.getSchema()
+
+        this.pollSchema()
+      }
+    },
+    async pollSchema() {
+      if (!this.isPollingSchema) return
+
+      this.$nuxt.$loading.start()
+
+      try {
+        const query = JSON.stringify({
+          query: gql.getIntrospectionQuery(),
+        })
+
+        let headers = {}
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
+        })
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            ...headers,
+            "content-type": "application/json",
+          },
+          data: query,
+        }
+
+        const data = await sendNetworkRequest(reqOptions, this.$store)
+
+        // HACK : Temporary trailing null character issue from the extension fix
+        const response = new TextDecoder("utf-8").decode(data.data).replace(/\0+$/, "")
+        const introspectResponse = JSON.parse(response)
+
+        const schema = gql.buildClientSchema(introspectResponse.data)
+
+        this.$store.commit("setGQLState", {
+          value: JSON.stringify(introspectResponse.data),
+          attribute: "schemaIntrospection",
+        })
+
+        this.schema = gql.printSchema(schema, {
+          commentDescriptions: true,
+        })
+
+        this.getDocsFromSchema(schema)
+
+        this.$refs.queryEditor.setValidationSchema(schema)
+        this.$nuxt.$loading.finish()
+      } catch (error) {
+        this.$nuxt.$loading.finish()
+
+        this.schema = `${error}. ${this.$t("check_console_details")}`
+        this.$toast.error(
+          `${this.$t("graphql_introspect_failed")} ${this.$t("check_graphql_valid")}`,
+          {
+            icon: "error",
+          }
+        )
+        console.log("Error", error)
+      }
+
+      this.$nuxt.$loading.finish()
+
+      if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
     },
     async getSchema() {
       const startTime = Date.now()

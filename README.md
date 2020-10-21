@@ -326,7 +326,7 @@ docker run -p 3000:3000 postwoman:latest
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install dependencies by running `npm install` within the directory that you cloned (probably `hoppscotch`).
-3. Build the release files with `npm run build`.
+3. Build the release files with `npm run generate`.
 4. Find the built project in `./dist`.
 
 ## **Contributing**

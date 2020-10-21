@@ -205,8 +205,8 @@ export const mutations = {
     collections[collectionIndex] = collection
   },
 
-  addFolder({collections}, payload) {
-    const {name, folder} = payload;
+  addFolder({ collections }, payload) {
+    const { name, folder } = payload
 
     const newFolder = {
       name: name,
@@ -218,28 +218,34 @@ export const mutations = {
 
   editFolder({ collections }, payload) {
     const { collectionIndex, folder, folderIndex, folderName } = payload
-    const collection = collections[collectionIndex];
+    const collection = collections[collectionIndex]
 
-    let parentFolder = findFolder(folderName, collection, true);
+    let parentFolder = findFolder(folderName, collection, true)
     if (parentFolder && parentFolder.folders) {
-      Vue.set(parentFolder.folders, folderIndex, folder);
+      Vue.set(parentFolder.folders, folderIndex, folder)
     }
   },
 
   removeFolder({ collections }, payload) {
     const { collectionIndex, folderIndex, folderName } = payload
-    const collection = collections[collectionIndex];
+    const collection = collections[collectionIndex]
 
-    let parentFolder = findFolder(folderName, collection, true);
+    let parentFolder = findFolder(folderName, collection, true)
     if (parentFolder && parentFolder.folders) {
       parentFolder.folders.splice(folderIndex, 1)
     }
   },
 
   editRequest({ collections }, payload) {
-    const { requestCollectionIndex, requestFolderName, requestFolderIndex, requestNew, requestIndex } = payload
+    const {
+      requestCollectionIndex,
+      requestFolderName,
+      requestFolderIndex,
+      requestNew,
+      requestIndex,
+    } = payload
 
-    let collection = collections[requestCollectionIndex];
+    let collection = collections[requestCollectionIndex]
 
     if (requestFolderIndex === -1) {
       Vue.set(collection.requests, requestIndex, requestNew)
@@ -277,7 +283,7 @@ export const mutations = {
 
   removeRequest({ collections }, payload) {
     const { collectionIndex, folderName, requestIndex } = payload
-    let collection = collections[collectionIndex];
+    let collection = collections[collectionIndex]
 
     if (collection.name === folderName) {
       collection.requests.splice(requestIndex, 1)
@@ -295,11 +301,18 @@ export const mutations = {
   },
 
   moveRequest({ collections }, payload) {
-    const { oldCollectionIndex, newCollectionIndex, newFolderIndex, newFolderName, oldFolderName, requestIndex } = payload;
+    const {
+      oldCollectionIndex,
+      newCollectionIndex,
+      newFolderIndex,
+      newFolderName,
+      oldFolderName,
+      requestIndex,
+    } = payload
 
-    const isCollection = newFolderIndex === -1;
-    const oldCollection = collections[oldCollectionIndex];
-    const newCollection = collections[newCollectionIndex];
+    const isCollection = newFolderIndex === -1
+    const oldCollection = collections[oldCollectionIndex]
+    const newCollection = collections[newCollectionIndex]
     const request = findRequest(oldFolderName, oldCollection, requestIndex)
 
     if (isCollection) {
@@ -308,7 +321,7 @@ export const mutations = {
     }
 
     if (!isCollection) {
-      const folder = findFolder(newFolderName, newCollection, false);
+      const folder = findFolder(newFolderName, newCollection, false)
       if (folder) {
         folder.requests.push(request)
         return
@@ -327,45 +340,43 @@ function testValue(myValue) {
 }
 
 function findRequest(folderName, currentFolder, requestIndex) {
-  let selectedFolder, result;
+  let selectedFolder, result
 
   if (folderName === currentFolder.name) {
-    let request = currentFolder.requests[requestIndex];
+    let request = currentFolder.requests[requestIndex]
     currentFolder.requests.splice(requestIndex, 1)
-    return request;
+    return request
   } else {
-
     for (let i = 0; i < currentFolder.folders.length; i += 1) {
-      selectedFolder = currentFolder.folders[i];
+      selectedFolder = currentFolder.folders[i]
 
-      result = findRequest(folderName, selectedFolder, requestIndex);
+      result = findRequest(folderName, selectedFolder, requestIndex)
 
       if (result !== false) {
-        return result;
+        return result
       }
     }
-    return false;
+    return false
   }
 }
 
 function findFolder(folderName, currentFolder, returnParent, parentFolder) {
-  let selectedFolder, result;
+  let selectedFolder, result
 
   if (folderName === currentFolder.name && returnParent) {
-    return parentFolder;
+    return parentFolder
   } else if (folderName === currentFolder.name && !returnParent) {
-    return currentFolder;
+    return currentFolder
   } else {
-
     for (let i = 0; i < currentFolder.folders.length; i++) {
-      selectedFolder = currentFolder.folders[i];
+      selectedFolder = currentFolder.folders[i]
 
-      result = findFolder(folderName, selectedFolder, returnParent, currentFolder);
+      result = findFolder(folderName, selectedFolder, returnParent, currentFolder)
 
       if (result !== false) {
-        return result;
+        return result
       }
     }
-    return false;
+    return false
   }
 }

@@ -368,8 +368,8 @@ export default {
     useHistory(entry) {
       this.$emit("useHistory", entry)
     },
-    findEntryStatus(entry) {
-      const foundStatusGroup = findStatusGroup(entry.status)
+    findEntryStatus({ status }) {
+      const foundStatusGroup = findStatusGroup(status)
       return (
         foundStatusGroup || {
           className: "",

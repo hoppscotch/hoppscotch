@@ -108,13 +108,13 @@ export default {
     "requestData.folderName": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined
     },
-    editingRequest(request) {
-      this.defaultRequestName = request.label || "My Request"
+    editingRequest({ label }) {
+      this.defaultRequestName = label || "My Request"
     },
   },
   computed: {
     folders() {
-      const collections =  this.$store.state.postwoman.collections
+      const collections = this.$store.state.postwoman.collections
       const collectionIndex = this.$data.requestData.collectionIndex
       const userSelectedAnyCollection = collectionIndex !== undefined
       if (!userSelectedAnyCollection) return []
@@ -134,7 +134,7 @@ export default {
         return []
       }
 
-      const userSelectedAnyFolder = folderName !== undefined && folderName !== ''
+      const userSelectedAnyFolder = folderName !== undefined && folderName !== ""
 
       if (userSelectedAnyFolder) {
         const collection = collections[collectionIndex]
@@ -144,7 +144,7 @@ export default {
         const collection = collections[collectionIndex]
         const noCollectionAvailable = collection !== undefined
 
-        if (!noCollectionAvailable){
+        if (!noCollectionAvailable) {
           return []
         }
 
@@ -194,7 +194,7 @@ export default {
 
 function getFolderNames(folders, namesList) {
   if (folders.length) {
-    folders.forEach(folder => {
+    folders.forEach((folder) => {
       namesList.push(folder.name)
       if (folder.folders && folder.folders.length) {
         getFolderNames(folder.folders, namesList)
@@ -205,14 +205,15 @@ function getFolderNames(folders, namesList) {
 }
 
 function findFolder(folderName, currentFolder) {
-  let selectedFolder, result;
+  let selectedFolder
+  let result
 
-  if (folderName === currentFolder.name){
+  if (folderName === currentFolder.name) {
     return currentFolder
   }
 
   for (let i = 0; i < currentFolder.folders.length; i++) {
-    selectedFolder = currentFolder.folders[i];
+    selectedFolder = currentFolder.folders[i]
 
     result = findFolder(folderName, selectedFolder)
 

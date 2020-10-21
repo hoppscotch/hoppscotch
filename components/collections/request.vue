@@ -4,8 +4,8 @@
     draggable="true"
     @dragstart="dragStart"
     @dragover.stop
-    @dragleave="dragging=false"
-    @dragend="dragging=false"
+    @dragleave="dragging = false"
+    @dragend="dragging = false"
   >
     <div>
       <button
@@ -23,11 +23,19 @@
       </button>
       <template slot="popover">
         <div>
-          <button class="icon" @click="$emit('edit-request',{ collectionIndex,
-                                                              folderIndex,
-                                                              folderName,
-                                                              request,
-                                                              requestIndex } )" v-close-popover>
+          <button
+            class="icon"
+            @click="
+              $emit('edit-request', {
+                collectionIndex,
+                folderIndex,
+                folderName,
+                request,
+                requestIndex,
+              })
+            "
+            v-close-popover
+          >
             <i class="material-icons">edit</i>
             <span>{{ $t("edit") }}</span>
           </button>
@@ -73,12 +81,12 @@ export default {
     selectRequest() {
       this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
-    dragStart(event) {
-      this.dragging = !this.dragging;
-      event.dataTransfer.setData('oldCollectionIndex', this.$props.collectionIndex);
-      event.dataTransfer.setData('oldFolderIndex', this.$props.folderIndex)
-      event.dataTransfer.setData('oldFolderName', this.$props.folderName);
-      event.dataTransfer.setData('requestIndex', this.$props.requestIndex);
+    dragStart({ dataTransfer }) {
+      this.dragging = !this.dragging
+      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
+      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
+      dataTransfer.setData("oldFolderName", this.$props.folderName)
+      dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
       if (!confirm(this.$t("are_you_sure_remove_request"))) return

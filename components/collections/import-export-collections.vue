@@ -108,8 +108,8 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = (event) => {
-        let content = event.target.result
+      reader.onload = ({ target }) => {
+        let content = target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
           let [name, folders, requests] = Object.keys(collections[0])
@@ -130,8 +130,8 @@ export default {
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = (event) => {
-        let content = event.target.result
+      reader.onload = ({ target }) => {
+        let content = target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
           let [name, folders, requests] = Object.keys(collections[0])
@@ -191,24 +191,23 @@ export default {
         icon: "error",
       })
     },
-    parsePostmanCollection(collection) {
-      let postwomanCollection =
-        {
-          name: "",
-          folders: [],
-          requests: [],
-        }
+    parsePostmanCollection({ info, name, item }) {
+      let postwomanCollection = {
+        name: "",
+        folders: [],
+        requests: [],
+      }
 
-      postwomanCollection.name = collection.info ? collection.info.name : collection.name
+      postwomanCollection.name = info ? info.name : name
 
-      if (collection.item && collection.item.length > 0) {
-        for (let collectionItem of collection.item) {
+      if (item && item.length > 0) {
+        for (let collectionItem of item) {
           if (collectionItem.request) {
-            if (postwomanCollection.hasOwnProperty('folders')) {
-              postwomanCollection.name = collection.info ? collection.info.name : collection.name
+            if (postwomanCollection.hasOwnProperty("folders")) {
+              postwomanCollection.name = info ? info.name : name
               postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
             } else {
-              postwomanCollection.name = collection.name ? collection.name : ""
+              postwomanCollection.name = name ? name : ""
               postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
             }
           } else if (this.hasFolder(collectionItem)) {
@@ -295,7 +294,7 @@ export default {
       return pwRequest
     },
     hasFolder(item) {
-      return item.hasOwnProperty('item')
+      return item.hasOwnProperty("item")
     },
   },
 }

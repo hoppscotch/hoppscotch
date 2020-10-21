@@ -2390,6 +2390,7 @@ export default {
       switch (name) {
         case "bodyParams":
           this.bodyParams = []
+          this.files = []
           break
         case "rawParams":
           this.rawParams = "{}"
@@ -2518,7 +2519,6 @@ export default {
           icon: "attach_file",
         })
       }
-      this.$refs.attachment.value = ""
     },
     uploadPayload() {
       this.rawInput = true

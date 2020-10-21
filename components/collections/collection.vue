@@ -1,12 +1,13 @@
 <template>
   <div>
-    <div :class="['row-wrapper', dragging ? 'drop-zone':'' ]"
-         @dragover.prevent
-         @drop.prevent="dropEvent"
-         @dragover="dragging=true"
-         @drop="dragging=false"
-         @dragleave="dragging=false"
-         @dragend="dragging=false"
+    <div
+      :class="['row-wrapper', dragging ? 'drop-zone' : '']"
+      @dragover.prevent
+      @drop.prevent="dropEvent"
+      @dragover="dragging = true"
+      @drop="dragging = false"
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
     >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -29,7 +30,11 @@
           </button>
           <template slot="popover">
             <div>
-              <button class="icon" @click="$emit('add-folder', {folder: collection})" v-close-popover>
+              <button
+                class="icon"
+                @click="$emit('add-folder', { folder: collection })"
+                v-close-popover
+              >
                 <i class="material-icons">create_new_folder</i>
                 <span>{{ $t("new_folder") }}</span>
               </button>
@@ -135,20 +140,20 @@ export default {
       })
       this.syncCollections()
     },
-    dropEvent(event) {
-      this.dragging = !this.dragging;
-      const oldCollectionIndex = event.dataTransfer.getData('oldCollectionIndex');
-      const oldFolderIndex = event.dataTransfer.getData('oldFolderIndex');
-      const oldFolderName = event.dataTransfer.getData('oldFolderName');
-      const requestIndex = event.dataTransfer.getData('requestIndex');
+    dropEvent({ dataTransfer }) {
+      this.dragging = !this.dragging
+      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
+      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
+      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const requestIndex = dataTransfer.getData("requestIndex")
       this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex: oldCollectionIndex,
+        oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,
         newFolderIndex: -1,
         newFolderName: this.$props.collection.name,
-        oldFolderIndex: oldFolderIndex,
-        oldFolderName: oldFolderName,
-        requestIndex: requestIndex
+        oldFolderIndex,
+        oldFolderName,
+        requestIndex,
       })
       this.syncCollections()
     },

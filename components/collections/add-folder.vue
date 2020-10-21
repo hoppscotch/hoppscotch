@@ -45,6 +45,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import closeIcon from "~/static/icons/close-24px.svg?inline"
+
 export default {
   components: {
     closeIcon,
@@ -60,6 +61,13 @@ export default {
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     addFolder() {
       this.$store.commit("postwoman/addFolder", {
         name: this.$data.name,
@@ -67,13 +75,6 @@ export default {
       })
       this.hideModal()
       this.syncCollections()
-    },
-    syncCollections() {
-      if (fb.currentUser !== null) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
-      }
     },
     hideModal() {
       this.$emit("hide-modal")

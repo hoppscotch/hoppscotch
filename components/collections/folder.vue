@@ -1,13 +1,13 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper', dragging ? 'drop-zone':'' ]"
+      :class="['row-wrapper', dragging ? 'drop-zone' : '']"
       @dragover.prevent
       @drop.prevent="dropEvent"
-      @dragover="dragging=true"
-      @drop="dragging=false"
-      @dragleave="dragging=false"
-      @dragend="dragging=false"
+      @dragover="dragging = true"
+      @drop="dragging = false"
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
@@ -29,7 +29,11 @@
             </button>
           </div>
           <div>
-            <button class="icon"  @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"  v-close-popover>
+            <button
+              class="icon"
+              @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"
+              v-close-popover
+            >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
@@ -63,7 +67,7 @@
         </li>
       </ul>
       <ul v-if="folder.folders && folder.folders.length" class="flex-col">
-        <li v-for="(subFolder, subFolderIndex) in folder.folders" :key="subFolder.name" >
+        <li v-for="(subFolder, subFolderIndex) in folder.folders" :key="subFolder.name">
           <folder
             :folder="subFolder"
             :folder-index="subFolderIndex"
@@ -115,31 +119,31 @@ export default {
       this.$store.commit("postwoman/removeFolder", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folder.name,
-        folderIndex: this.$props.folderIndex
+        folderIndex: this.$props.folderIndex,
       })
       this.syncCollections()
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },
-    dropEvent(event) {
-      this.dragging = !this.dragging;
-      const oldCollectionIndex = event.dataTransfer.getData('oldCollectionIndex');
-      const oldFolderIndex = event.dataTransfer.getData('oldFolderIndex');
-      const oldFolderName = event.dataTransfer.getData('oldFolderName');
-      const requestIndex = event.dataTransfer.getData('requestIndex');
+    dropEvent({ dataTransfer }) {
+      this.dragging = !this.dragging
+      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
+      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
+      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const requestIndex = dataTransfer.getData("requestIndex")
 
       this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex: oldCollectionIndex,
+        oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,
         newFolderIndex: this.$props.folderIndex,
         newFolderName: this.$props.folder.name,
-        oldFolderIndex: oldFolderIndex,
-        oldFolderName: oldFolderName,
-        requestIndex: requestIndex
+        oldFolderIndex,
+        oldFolderName,
+        requestIndex,
       })
       this.syncCollections()
     },
-  }
+  },
 }
 </script>

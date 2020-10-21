@@ -50,8 +50,8 @@ export default {
         const blob = new Blob([bytes.buffer])
 
         const reader = new FileReader()
-        reader.onload = (e) => {
-          this.imageSource = e.target.result
+        reader.onload = ({ target }) => {
+          this.imageSource = target.result
         }
         reader.readAsDataURL(blob)
       },
@@ -65,8 +65,8 @@ export default {
     const blob = new Blob([bytes.buffer])
 
     const reader = new FileReader()
-    reader.onload = (e) => {
-      this.imageSource = e.target.result
+    reader.onload = ({ target }) => {
+      this.imageSource = target.result
     }
     reader.readAsDataURL(blob)
   },
@@ -78,7 +78,8 @@ export default {
       const url = URL.createObjectURL(file)
       a.href = url
       // TODO get uri from meta
-      a.download = `response on ${Date()}`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.${this.responseType}`
+      // `response on ${Date()}`.replace(/\./g, "[dot]")
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton

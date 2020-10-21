@@ -119,7 +119,7 @@ export default {
       editingCollection: undefined,
       editingCollectionIndex: undefined,
       editingFolder: undefined,
-      editingFolderName:undefined,
+      editingFolderName: undefined,
       editingFolderIndex: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,

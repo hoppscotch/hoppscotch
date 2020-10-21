@@ -251,16 +251,18 @@ export const mutations = {
   },
 
   saveRequestAs({ collections }, payload) {
-    const { request, collectionIndex, folderIndex, requestIndex } = payload
+    const { request, collectionIndex, folderName, requestIndex } = payload
 
     const specifiedCollection = collectionIndex !== undefined
-    const specifiedFolder = folderIndex !== undefined
+    const specifiedFolder = folderName !== undefined
     const specifiedRequest = requestIndex !== undefined
 
     if (specifiedCollection && specifiedFolder && specifiedRequest) {
-      Vue.set(collections[collectionIndex].folders[folderIndex].requests, requestIndex, request)
+      const folder = findFolder(folderName, collections[collectionIndex])
+      Vue.set(folder.requests, requestIndex, request)
     } else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
-      const requests = collections[collectionIndex].folders[folderIndex].requests
+      const folder = findFolder(folderName, collections[collectionIndex])
+      const requests = folder.requests
       const lastRequestIndex = requests.length - 1
       Vue.set(requests, lastRequestIndex + 1, request)
     } else if (specifiedCollection && !specifiedFolder && specifiedRequest) {

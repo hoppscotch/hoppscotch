@@ -191,33 +191,28 @@ export default {
         icon: "error",
       })
     },
-    parsePostmanCollection(collection, folders = true) {
-      let postwomanCollection = folders
-        ?
+    parsePostmanCollection(collection) {
+      let postwomanCollection =
         {
           name: "",
           folders: [],
           requests: [],
         }
-        : {
-          name: "",
-          requests: [],
-        }
-      if (folders) {
-        postwomanCollection.name = collection.info ? collection.info.name : collection.name;
-      }
+
+      postwomanCollection.name = collection.info ? collection.info.name : collection.name
+
       if (collection.item && collection.item.length > 0) {
         for (let collectionItem of collection.item) {
           if (collectionItem.request) {
             if (postwomanCollection.hasOwnProperty('folders')) {
-              postwomanCollection.name = collection.info ? collection.info.name : collection.name;
+              postwomanCollection.name = collection.info ? collection.info.name : collection.name
               postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
             } else {
               postwomanCollection.name = collection.name ? collection.name : ""
               postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
             }
           } else if (this.hasFolder(collectionItem)) {
-            postwomanCollection.folders.push(this.parsePostmanCollection(collectionItem, true))
+            postwomanCollection.folders.push(this.parsePostmanCollection(collectionItem))
           } else {
             postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
           }

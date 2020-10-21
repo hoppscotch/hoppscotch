@@ -144,8 +144,8 @@ export default {
       })
     },
     importFromPostman({ name, values }) {
-      let environment = { name: name, variables: [] }
-      values.forEach(({ key, value }) => environment.variables.push({ key: key, value: value }))
+      let environment = { name, variables: [] }
+      values.forEach(({ key, value }) => environment.variables.push({ key, value }))
       let environments = [environment]
       this.importFromPostwoman(environments)
     },

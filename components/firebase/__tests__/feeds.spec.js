@@ -1,34 +1,33 @@
 import feeds from "../feeds"
 import { shallowMount } from "@vue/test-utils"
 
-jest.mock("~/helpers/fb", () => {
-  return {
-    __esModule: true,
-    fb: {
-      currentFeeds: [
-        {
-          id: "test1",
-          label: "First",
-          message: "First Message",
-        },
-        {
-          id: "test2",
-          label: "Second",
-        },
-        {
-          id: "test3",
-          message: "Third Message",
-        },
-        {
-          id: "test4",
-        },
-      ],
-      deleteFeed: jest.fn(() => Promise.resolve()),
-    },
-  }
-})
+jest.mock("~/helpers/fb", () => ({
+  __esModule: true,
 
-const { fb } = require("~/helpers/fb")
+  fb: {
+    currentFeeds: [
+      {
+        id: "test1",
+        label: "First",
+        message: "First Message",
+      },
+      {
+        id: "test2",
+        label: "Second",
+      },
+      {
+        id: "test3",
+        message: "Third Message",
+      },
+      {
+        id: "test4",
+      },
+    ],
+    deleteFeed: jest.fn(() => Promise.resolve()),
+  },
+}))
+
+import { fb } from "~/helpers/fb"
 
 const factory = () =>
   shallowMount(feeds, {

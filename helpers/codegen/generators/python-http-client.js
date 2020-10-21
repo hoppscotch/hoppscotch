@@ -72,7 +72,7 @@ export const PythonHttpClientCodegen = {
         requestString.push(`payload = ${requestBody}\n`)
       } else if (contentType.includes("x-www-form-urlencoded")) {
         const formData = []
-        if (requestBody.indexOf("=") > -1) {
+        if (requestBody.includes("=")) {
           requestBody.split("&").forEach((rq) => {
             const [key, val] = rq.split("=")
             formData.push(`('${key}', '${val}')`)

@@ -34,7 +34,9 @@
             :environmentIndex="index"
             :environment="environment"
             @edit-environment="editEnvironment(environment, index)"
-            @select-environment="$emit('use-environment', environment)"
+            @select-environment="
+              $emit('use-environment', { environment: environment, environments: environments })
+            "
           />
         </li>
       </ul>

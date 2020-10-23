@@ -54,7 +54,7 @@
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.2.2",
     "@nuxtjs/svg": "^0.1.12",
-    "@nuxtjs/tailwindcss": "^3.1.0",
+    "@nuxtjs/tailwindcss": "^3.2.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@vue/test-utils": "^1.1.0",
     "babel-core": "^7.0.0-bridge.0",
@@ -68,7 +68,7 @@
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
     "pretty-quick": "^3.1.0",
-    "sass-loader": "^10.0.3",
+    "sass-loader": "^10.0.4",
     "vue-jest": "^3.0.7"
   },
   "jest": {

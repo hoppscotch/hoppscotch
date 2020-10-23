@@ -1361,7 +1361,7 @@ export default {
             : true,
       },
       currentMethodIndex: 0,
-      codegens: codegens,
+      codegens,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1416,7 +1416,7 @@ export default {
       this.setRouteQueryState()
     },
     params: {
-      handler: function (newValue) {
+      handler(newValue) {
         if (!this.paramsWatchEnabled) {
           this.paramsWatchEnabled = true
           return
@@ -1474,7 +1474,7 @@ export default {
         ? "application/json"
         : ""
     },
-    preRequestScript: function (val, oldVal) {
+    preRequestScript(val, oldVal) {
       this.uri = this.uri
     },
   },
@@ -1826,7 +1826,7 @@ export default {
         httpUser: this.httpUser,
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
-        headers: headers,
+        headers,
         rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
@@ -1860,7 +1860,7 @@ export default {
         if (env.name === "Globals" || env.name === "globals") {
           preRequestScriptString += this.useSelectedEnvironment({
             environment: env,
-            environments: environments,
+            environments,
           })
         }
       }
@@ -2390,6 +2390,7 @@ export default {
       switch (name) {
         case "bodyParams":
           this.bodyParams = []
+          this.files = []
           break
         case "rawParams":
           this.rawParams = "{}"
@@ -2518,7 +2519,6 @@ export default {
           icon: "attach_file",
         })
       }
-      this.$refs.attachment.value = ""
     },
     uploadPayload() {
       this.rawInput = true

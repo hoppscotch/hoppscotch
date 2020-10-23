@@ -126,7 +126,7 @@ export default {
     }
   },
   watch: {
-    editingEnvironment: function (update) {
+    editingEnvironment(update) {
       this.name =
         this.$props.editingEnvironment && this.$props.editingEnvironment.name
           ? this.$props.editingEnvironment.name
@@ -151,13 +151,13 @@ export default {
         }
       }
     },
-    clearContent(e) {
+    clearContent({ target }) {
       this.$store.commit("postwoman/removeVariables", [])
-      e.target.innerHTML = this.doneButton
+      target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     addEnvironmentVariable() {
       let value = { key: "", value: "" }

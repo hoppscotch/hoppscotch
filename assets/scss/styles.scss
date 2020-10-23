@@ -8,6 +8,7 @@ $responsiveWidth: 768px;
 
 :root {
   @apply antialiased;
+
   font-variant-ligatures: common-ligatures;
 }
 
@@ -54,6 +55,7 @@ body {
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
+
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -211,6 +213,7 @@ hr {
     .tooltip-arrow {
       @apply mt-0;
       @apply mb-0;
+
       border-width: 5px 5px 0 5px;
       border-left-color: transparent !important;
       border-right-color: transparent !important;
@@ -226,6 +229,7 @@ hr {
     .tooltip-arrow {
       @apply mt-0;
       @apply mb-0;
+
       border-width: 0 5px 5px 5px;
       border-left-color: transparent !important;
       border-right-color: transparent !important;
@@ -241,6 +245,7 @@ hr {
     .tooltip-arrow {
       @apply ml-0;
       @apply mr-0;
+
       border-width: 5px 5px 5px 0;
       border-left-color: transparent !important;
       border-top-color: transparent !important;
@@ -256,6 +261,7 @@ hr {
     .tooltip-arrow {
       @apply ml-0;
       @apply mr-0;
+
       border-width: 5px 0 5px 5px;
       border-top-color: transparent !important;
       border-right-color: transparent !important;
@@ -278,22 +284,20 @@ hr {
       @apply rounded-lg;
       @apply overflow-auto;
       @apply shadow-lg;
+
       max-height: 256px;
 
       button {
         @apply flex-1;
         @apply m-0;
+        @apply justify-start;
+        @apply text-left;
       }
 
       div {
         @apply flex;
         @apply items-stretch;
         @apply flex-col;
-      }
-
-      button {
-        @apply justify-start;
-        @apply text-left;
       }
     }
 
@@ -362,6 +366,7 @@ button {
     @apply text-actColor;
     @apply fill-current;
     @apply outline-none;
+
     box-shadow: inset 0 0 0 2px var(--fg-color);
   }
 
@@ -423,6 +428,7 @@ button {
   @apply tracking-normal;
   @apply whitespace-no-wrap;
   @apply antialiased;
+
   word-wrap: normal;
   direction: ltr;
   text-rendering: optimizeLegibility;
@@ -481,6 +487,7 @@ code {
   @apply select-text;
   @apply resize-y;
   @apply outline-none;
+
   width: calc(100% - 16px);
 
   &:not([readonly]):not(.ace_editor):hover,
@@ -493,6 +500,7 @@ code {
 .method {
   @apply cursor-pointer;
   @apply uppercase;
+
   min-width: 128px;
 
   &:hover,
@@ -530,11 +538,12 @@ pre {
     @apply w-full;
   }
 
-  &:after {
+  &::after {
     @apply inline-block;
     @apply absolute;
     @apply pointer-events-none;
     @apply font-icon;
+
     content: "\e313";
     top: 16px;
     right: 16px;
@@ -544,6 +553,7 @@ pre {
 select {
   @apply cursor-pointer;
   @apply appearance-none;
+
   height: 40px;
 
   &::-ms-expand {
@@ -563,7 +573,7 @@ input[type="checkbox"] {
     @apply align-middle;
     @apply cursor-pointer;
 
-    &:before {
+    &::before {
       @apply border;
       @apply border-fgColor;
       @apply rounded-lg;
@@ -574,6 +584,7 @@ input[type="checkbox"] {
       @apply transition;
       @apply ease-in-out;
       @apply duration-200;
+
       content: "\2714";
       height: 16px;
       width: 16px;
@@ -581,7 +592,7 @@ input[type="checkbox"] {
     }
   }
 
-  &:checked + label:before {
+  &:checked + label::before {
     @apply bg-acColor;
     @apply border-acColor;
     @apply text-actColor;
@@ -616,6 +627,7 @@ ol {
   @apply flex;
   @apply p-0;
   @apply list-none;
+
   margin: 4px 0 4px;
 
   ul,
@@ -684,6 +696,7 @@ ol li {
   textarea {
     @apply m-0;
     @apply w-full;
+
     line-height: 1;
   }
 
@@ -708,6 +721,7 @@ ol li {
     @apply ease-in-out;
     @apply duration-200;
     @apply shadow-lg;
+
     bottom: 86px;
     left: 50%;
     z-index: 10001;
@@ -753,6 +767,7 @@ section {
   @apply flex;
   @apply order-2;
   @apply ml-4;
+
   width: 33%;
 }
 
@@ -807,15 +822,17 @@ section {
   @apply text-sm;
   @apply rounded-lg;
   @apply shadow-lg;
+
   padding: 16px !important;
 
   .action {
     @apply bg-gray-50;
     @apply text-gray-900;
     @apply rounded-lg;
+    @apply font-bold;
+
     text-transform: none !important;
     padding: 12px 16px !important;
-    font-weight: 500 !important;
     font-size: 16px !important;
     margin: 0 !important;
     margin-left: 8px !important;

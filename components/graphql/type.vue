@@ -35,9 +35,7 @@ export default {
   },
   methods: {
     isFieldHighlighted({ field }) {
-      return !!this.highlightedFields.find(
-        (highlightedField) => highlightedField.name === field.name
-      )
+      return !!this.highlightedFields.find(({ name }) => name === field.name)
     },
   },
 }

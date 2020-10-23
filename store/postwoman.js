@@ -205,86 +205,70 @@ export const mutations = {
     collections[collectionIndex] = collection
   },
 
-  addNewFolder({ collections }, payload) {
-    const { collectionIndex, folder } = payload
-    collections[collectionIndex].folders.push({
-      name: "",
+  addFolder({ collections }, payload) {
+    const { name, folder } = payload
+
+    const newFolder = {
+      name: name,
       requests: [],
-      ...folder,
-    })
+      folders: [],
+    }
+    folder.folders.push(newFolder)
   },
 
   editFolder({ collections }, payload) {
-    const { collectionIndex, folder, folderIndex } = payload
-    Vue.set(collections[collectionIndex].folders, folderIndex, folder)
+    const { collectionIndex, folder, folderIndex, folderName } = payload
+    const collection = collections[collectionIndex]
+
+    let parentFolder = findFolder(folderName, collection, true)
+    if (parentFolder && parentFolder.folders) {
+      Vue.set(parentFolder.folders, folderIndex, folder)
+    }
   },
 
   removeFolder({ collections }, payload) {
-    const { collectionIndex, folderIndex } = payload
-    collections[collectionIndex].folders.splice(folderIndex, 1)
-  },
+    const { collectionIndex, folderIndex, folderName } = payload
+    const collection = collections[collectionIndex]
 
-  addRequest({ collections }, payload) {
-    const { request } = payload
-
-    // Request that is directly attached to collection
-    if (request.folder === -1) {
-      collections[request.collection].requests.push(request)
-      return
+    let parentFolder = findFolder(folderName, collection, true)
+    if (parentFolder && parentFolder.folders) {
+      parentFolder.folders.splice(folderIndex, 1)
     }
-
-    collections[request.collection].folders[request.folder].requests.push(request)
   },
 
   editRequest({ collections }, payload) {
     const {
-      requestOldCollectionIndex,
-      requestOldFolderIndex,
-      requestOldIndex,
+      requestCollectionIndex,
+      requestFolderName,
+      requestFolderIndex,
       requestNew,
-      requestNewCollectionIndex,
-      requestNewFolderIndex,
+      requestIndex,
     } = payload
 
-    const changedCollection = requestOldCollectionIndex !== requestNewCollectionIndex
-    const changedFolder = requestOldFolderIndex !== requestNewFolderIndex
-    const changedPlace = changedCollection || changedFolder
+    let collection = collections[requestCollectionIndex]
 
-    // set new request
-    if (requestNewFolderIndex !== undefined) {
-      Vue.set(
-        collections[requestNewCollectionIndex].folders[requestNewFolderIndex].requests,
-        requestOldIndex,
-        requestNew
-      )
-    } else {
-      Vue.set(collections[requestNewCollectionIndex].requests, requestOldIndex, requestNew)
+    if (requestFolderIndex === -1) {
+      Vue.set(collection.requests, requestIndex, requestNew)
+      return
     }
 
-    // remove old request
-    if (changedPlace) {
-      if (requestOldFolderIndex !== undefined) {
-        collections[requestOldCollectionIndex].folders[requestOldFolderIndex].requests.splice(
-          requestOldIndex,
-          1
-        )
-      } else {
-        collections[requestOldCollectionIndex].requests.splice(requestOldIndex, 1)
-      }
-    }
+    let folder = findFolder(requestFolderName, collection, false)
+    Vue.set(folder.requests, requestIndex, requestNew)
   },
 
   saveRequestAs({ collections }, payload) {
-    const { request, collectionIndex, folderIndex, requestIndex } = payload
+    const { request, collectionIndex, folderName, requestIndex } = payload
 
     const specifiedCollection = collectionIndex !== undefined
-    const specifiedFolder = folderIndex !== undefined
+    const specifiedFolder = folderName !== undefined
     const specifiedRequest = requestIndex !== undefined
 
     if (specifiedCollection && specifiedFolder && specifiedRequest) {
-      Vue.set(collections[collectionIndex].folders[folderIndex].requests, requestIndex, request)
+      const folder = findFolder(folderName, collections[collectionIndex])
+      Vue.set(folder.requests, requestIndex, request)
     } else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
-      const requests = collections[collectionIndex].folders[folderIndex].requests
+      const folder = findFolder(folderName, collections[collectionIndex])
+      const requests = folder.requests
       const lastRequestIndex = requests.length - 1
       Vue.set(requests, lastRequestIndex + 1, request)
     } else if (specifiedCollection && !specifiedFolder && specifiedRequest) {
@@ -297,60 +281,52 @@ export const mutations = {
     }
   },
 
-  saveRequest({ collections }, payload) {
-    const { request } = payload
-
-    // Remove the old request from collection
-    if (
-      Object.prototype.hasOwnProperty.call(request, "oldCollection") &&
-      request.oldCollection > -1
-    ) {
-      const folder =
-        Object.prototype.hasOwnProperty.call(request, "oldFolder") && request.oldFolder >= -1
-          ? request.oldFolder
-          : request.folder
-      if (folder > -1) {
-        collections[request.oldCollection].folders[folder].requests.splice(request.requestIndex, 1)
-      } else {
-        collections[request.oldCollection].requests.splice(request.requestIndex, 1)
-      }
-    } else if (
-      Object.prototype.hasOwnProperty.call(request, "oldFolder") &&
-      request.oldFolder !== -1
-    ) {
-      collections[request.collection].folders[folder].requests.splice(request.requestIndex, 1)
-    }
-
-    delete request.oldCollection
-    delete request.oldFolder
-
-    // Request that is directly attached to collection
-    if (request.folder === -1) {
-      Vue.set(collections[request.collection].requests, request.requestIndex, request)
-      return
-    }
-
-    Vue.set(
-      collections[request.collection].folders[request.folder].requests,
-      request.requestIndex,
-      request
-    )
-  },
-
   removeRequest({ collections }, payload) {
-    const { collectionIndex, folderIndex, requestIndex } = payload
+    const { collectionIndex, folderName, requestIndex } = payload
+    let collection = collections[collectionIndex]
 
-    // Request that is directly attached to collection
-    if (folderIndex === -1) {
-      collections[collectionIndex].requests.splice(requestIndex, 1)
+    if (collection.name === folderName) {
+      collection.requests.splice(requestIndex, 1)
       return
     }
+    let folder = findFolder(folderName, collection, false)
 
-    collections[collectionIndex].folders[folderIndex].requests.splice(requestIndex, 1)
+    if (folder) {
+      folder.requests.splice(requestIndex, 1)
+    }
   },
 
   selectRequest(state, { request }) {
     state.selectedRequest = Object.assign({}, request)
+  },
+
+  moveRequest({ collections }, payload) {
+    const {
+      oldCollectionIndex,
+      newCollectionIndex,
+      newFolderIndex,
+      newFolderName,
+      oldFolderName,
+      requestIndex,
+    } = payload
+
+    const isCollection = newFolderIndex === -1
+    const oldCollection = collections[oldCollectionIndex]
+    const newCollection = collections[newCollectionIndex]
+    const request = findRequest(oldFolderName, oldCollection, requestIndex)
+
+    if (isCollection) {
+      newCollection.requests.push(request)
+      return
+    }
+
+    if (!isCollection) {
+      const folder = findFolder(newFolderName, newCollection, false)
+      if (folder) {
+        folder.requests.push(request)
+        return
+      }
+    }
   },
 }
 
@@ -360,5 +336,47 @@ function testValue(myValue) {
   } catch (ex) {
     // Now we know it's a string just leave it as a string value.
     return myValue
+  }
+}
+
+function findRequest(folderName, currentFolder, requestIndex) {
+  let selectedFolder, result
+
+  if (folderName === currentFolder.name) {
+    let request = currentFolder.requests[requestIndex]
+    currentFolder.requests.splice(requestIndex, 1)
+    return request
+  } else {
+    for (let i = 0; i < currentFolder.folders.length; i += 1) {
+      selectedFolder = currentFolder.folders[i]
+
+      result = findRequest(folderName, selectedFolder, requestIndex)
+
+      if (result !== false) {
+        return result
+      }
+    }
+    return false
+  }
+}
+
+function findFolder(folderName, currentFolder, returnParent, parentFolder) {
+  let selectedFolder, result
+
+  if (folderName === currentFolder.name && returnParent) {
+    return parentFolder
+  } else if (folderName === currentFolder.name && !returnParent) {
+    return currentFolder
+  } else {
+    for (let i = 0; i < currentFolder.folders.length; i++) {
+      selectedFolder = currentFolder.folders[i]
+
+      result = findFolder(folderName, selectedFolder, returnParent, currentFolder)
+
+      if (result !== false) {
+        return result
+      }
+    }
+    return false
   }
 }

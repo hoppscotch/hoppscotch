@@ -61,20 +61,8 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
-      }
-    },
     addFolder() {
-      this.$store.commit("postwoman/addFolder", {
-        name: this.$data.name,
-        folder: this.$props.folder,
-      })
-      this.hideModal()
-      this.syncCollections()
+      this.$emit("add-folder", { name: this.name, folder: this.folder })
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -10,9 +10,9 @@
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button id="connect" :disabled="!validUrl" @click="toggleConnection">
-              {{ this.connectionState ? $t("disconnect") : $t("connect") }}
+              {{ isConnected ? $t("disconnect") : $t("connect") }}
               <span>
-                <i class="material-icons">{{ !connectionState ? "sync" : "sync_disabled" }}</i>
+                <i class="material-icons">{{ !isConnected ? "sync" : "sync_disabled" }}</i>
               </span>
             </button>
           </li>
@@ -75,13 +75,6 @@ import { wsValid } from "~/helpers/utils/valid"
 export default {
   data() {
     return {
-      url: "wss://test.mosquitto.org:8081",
-      client: null,
-      pub_topic: "",
-      sub_topic: "",
-      msg: "",
-      connectionState: false,
-      log: null,
       manualDisconnect: false,
       subscriptionState: false,
     }
@@ -91,10 +84,61 @@ export default {
       return wsValid(this.url)
     },
     canpublish() {
-      return this.pub_topic != "" && this.msg != "" && this.connectionState
+      return this.pub_topic != "" && this.msg != "" && this.isConnected
     },
     cansubscribe() {
-      return this.sub_topic != "" && this.connectionState
+      return this.sub_topic != "" && this.isConnected
+    },
+    url: {
+      get() {
+        return this.$store.state.mqtt.url
+      },
+      set(value) {
+        this.$store.commit("setMQTTState", { value, attribute: "url" })
+      },
+    },
+    client: {
+      get() {
+        return this.$store.state.mqtt.client
+      },
+      set(value) {
+        this.$store.commit("setMQTTState", { value, attribute: "client" })
+      },
+    },
+    pub_topic: {
+      get() {
+        return this.$store.state.mqtt.pub_topic
+      },
+      set(value) {
+        this.$store.commit("setMQTTState", { value, attribute: "pub_topic" })
+      },
+    },
+    sub_topic: {
+      get() {
+        return this.$store.state.mqtt.sub_topic
+      },
+      set(value) {
+        this.$store.commit("setMQTTState", { value, attribute: "sub_topic" })
+      },
+    },
+    msg: {
+      get() {
+        return this.$store.state.mqtt.msg
+      },
+      set(value) {
+        this.$store.commit("setMQTTState", { value, attribute: "msg" })
+      },
+    },
+    log: {
+      get() {
+        return this.$store.state.mqtt.log
+      },
+      set(value) {
+        this.$store.commit("setMQTTState", { value, attribute: "log" })
+      },
+    },
+    isConnected() {
+      return this.client instanceof Paho.Client
     },
   },
   methods: {
@@ -122,8 +166,7 @@ export default {
       this.client.onMessageArrived = this.onMessageArrived
     },
     onConnectionFailure() {
-      this.connectionState = false
-      this.log.push({
+      this.addToLog({
         payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
@@ -131,8 +174,7 @@ export default {
       })
     },
     onConnectionSuccess() {
-      this.connectionState = true
-      this.log.push({
+      this.addToLog({
         payload: this.$t("connected_to", { name: this.url }),
         source: "info",
         color: "var(--ac-color)",
@@ -143,7 +185,7 @@ export default {
       })
     },
     onMessageArrived(message) {
-      this.log.push({
+      this.addToLog({
         payload: `Message: ${message.payloadString} arrived on topic: ${message.destinationName}`,
         source: "info",
         color: "var(--ac-color)",
@@ -151,7 +193,7 @@ export default {
       })
     },
     toggleConnection() {
-      if (this.connectionState) {
+      if (this.isConnected) {
         this.disconnect()
       } else {
         this.connect()
@@ -160,7 +202,7 @@ export default {
     disconnect() {
       this.manualDisconnect = true
       this.client.disconnect()
-      this.log.push({
+      this.addToLog({
         payload: this.$t("disconnected_from", { name: this.url }),
         source: "info",
         color: "#ff5555",
@@ -168,7 +210,6 @@ export default {
       })
     },
     onConnectionLost() {
-      this.connectionState = false
       if (this.manualDisconnect) {
         this.$toast.error(this.$t("disconnected"), {
           icon: "sync_disabled",
@@ -184,14 +225,14 @@ export default {
     publish() {
       try {
         this.client.publish(this.pub_topic, this.msg, 0, false)
-        this.log.push({
+        this.addToLog({
           payload: `Published message: ${this.msg} to topic: ${this.pub_topic}`,
           ts: new Date().toLocaleTimeString(),
           source: "info",
           color: "var(--ac-color)",
         })
       } catch (e) {
-        this.log.push({
+        this.addToLog({
           payload:
             this.$t("error_occurred") +
             `while publishing msg: ${this.msg} to topic:  ${this.pub_topic}`,
@@ -215,7 +256,7 @@ export default {
           onFailure: this.usubFailure,
         })
       } catch (e) {
-        this.log.push({
+        this.addToLog({
           payload: this.$t("error_occurred") + `while subscribing to topic:  ${this.sub_topic}`,
           source: "info",
           color: "#ff5555",
@@ -225,7 +266,7 @@ export default {
     },
     usubSuccess() {
       this.subscriptionState = !this.subscriptionState
-      this.log.push({
+      this.addToLog({
         payload:
           `Successfully ` +
           (this.subscriptionState ? "subscribed" : "unsubscribed") +
@@ -236,7 +277,7 @@ export default {
       })
     },
     usubFailure() {
-      this.log.push({
+      this.addToLog({
         payload:
           `Failed to ` +
           (this.subscriptionState ? "unsubscribe" : "subscribe") +
@@ -252,6 +293,23 @@ export default {
         onFailure: this.usubFailure,
       })
     },
+    addToLog(obj) {
+      this.$store.commit("addMQTTLog", obj)
+    },
+    handleRefresh() {
+      // refreshing disconnects client so we must manually add that to log
+      if (this.client instanceof Paho.Client) {
+        this.addToLog({
+          payload: this.$t("disconnected_from", { name: this.url }),
+          source: "info",
+          color: "#ff5555",
+          ts: new Date().toLocaleTimeString(),
+        })
+      }
+    },
+  },
+  beforeMount() {
+    window.addEventListener("beforeunload", this.handleRefresh)
   },
 }
 </script>

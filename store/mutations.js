@@ -43,6 +43,14 @@ export default {
     gql[attribute] = value
   },
 
+  setMQTTState({ mqtt }, { attribute, value }) {
+    mqtt[attribute] = value
+  },
+
+  addMQTTLog({ mqtt }, object) {
+    mqtt.log.push(object)
+  },
+
   setCollapsedSection({ theme }, value) {
     theme.collapsedSections.includes(value)
       ? (theme.collapsedSections = theme.collapsedSections.filter((section) => section !== value))

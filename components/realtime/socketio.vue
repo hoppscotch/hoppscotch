@@ -145,9 +145,7 @@ export default {
         return this.$store.state.socketIO.socket
       },
       set(value) {
-        console.log("i am here")
         this.$store.commit("setSocketIOState", { value, attribute: "socket" })
-        console.log("afterwards")
       },
     },
     log: {
@@ -195,18 +193,14 @@ export default {
       ]
 
       try {
-        console.log("1")
         if (!this.path) {
           this.path = "/socket.io"
         }
-        console.log("2")
         this.socket = new io(this.url, {
           path: this.path,
         })
-        console.log("3")
         // Add ability to listen to all events
         wildcard(io.Manager)(this.socket)
-        console.log("here")
         this.socket.on("connect", () => {
           this.log = [
             {
@@ -260,7 +254,6 @@ export default {
       this.socket = null
     },
     handleError(error) {
-      console.log("now i'm here")
       this.disconnect()
       this.addToLog({
         payload: this.$t("error_occurred"),

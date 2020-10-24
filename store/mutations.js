@@ -19,6 +19,26 @@ export default {
     eventSource.log.push(object)
   },
 
+  setSocketIOState({ socketIO }, { attribute, value }) {
+    socketIO[attribute] = value
+  },
+
+  addSocketIOLog({ socketIO }, object) {
+    socketIO.log.push(object)
+  },
+
+  addSocketIOInputs({ socketIO }, str) {
+    socketIO.inputs.push(str)
+  },
+
+  removeFromSocketIOInputs({ socketIO }, index) {
+    socketIO.inputs.splice(index, 1)
+  },
+
+  setSocketIOInput({ socketIO }, { index, value }) {
+    socketIO.inputs[index] = value
+  },
+
   setGQLState({ gql }, { attribute, value }) {
     gql[attribute] = value
   },

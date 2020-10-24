@@ -29,6 +29,14 @@ export default () => ({
     sse: null,
     log: [],
   },
+  socketIO: {
+    url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
+    path: "/socket.io",
+    socket: null,
+    log: [],
+    eventName: "",
+    inputs: [],
+  },
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],

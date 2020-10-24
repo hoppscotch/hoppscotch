@@ -23,10 +23,10 @@
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
-              {{ !connectionState ? $t("connect") : $t("disconnect") }}
+              {{ !isConnected ? $t("connect") : $t("disconnect") }}
               <span>
                 <i class="material-icons">
-                  {{ !connectionState ? "sync" : "sync_disabled" }}
+                  {{ !isConnected ? "sync" : "sync_disabled" }}
                 </i>
               </span>
             </button>
@@ -37,7 +37,7 @@
     <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
       <ul>
         <li>
-          <log :title="$t('log')" :log="communication.log" />
+          <log :title="$t('log')" :log="log" />
         </li>
       </ul>
       <ul>
@@ -47,8 +47,8 @@
             id="event_name"
             name="event_name"
             type="text"
-            v-model="communication.eventName"
-            :readonly="!connectionState"
+            v-model="eventName"
+            :readonly="!isConnected"
           />
         </li>
       </ul>
@@ -59,21 +59,27 @@
           </div>
         </li>
       </ul>
-      <ul v-for="(input, index) of communication.inputs" :key="`input-${index}`">
+      <ul v-for="(input, index) of inputs" :key="`input-${index}`">
         <li>
           <input
             name="message"
             type="text"
-            v-model="communication.inputs[index]"
-            :readonly="!connectionState"
-            @keyup.enter="connectionState ? sendMessage() : null"
+            :value="input"
+            :readonly="!isConnected"
+            @change="
+              $store.commit('setSocketIOInput', {
+                index,
+                value: $event.target.value,
+              })
+            "
+            @keyup.enter="isConnected ? sendMessage() : null"
           />
         </li>
-        <div v-if="index + 1 !== communication.inputs.length">
+        <div v-if="index + 1 !== inputs.length">
           <li>
             <button
               class="icon"
-              @click="removeCommunicationInput({ index })"
+              @click="$store.commit('removeFromSocketIOInputs', index)"
               v-tooltip.bottom="$t('delete')"
               :id="`delete-socketio-message-${index}`"
             >
@@ -81,9 +87,9 @@
             </button>
           </li>
         </div>
-        <div v-if="index + 1 === communication.inputs.length">
+        <div v-if="index + 1 === inputs.length">
           <li>
-            <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+            <button id="send" name="send" :disabled="!isConnected" @click="sendMessage">
               {{ $t("send") }}
               <span>
                 <i class="material-icons">send</i>
@@ -94,7 +100,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addCommunicationInput">
+          <button class="icon" @click="addToInputs('')">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
@@ -114,39 +120,73 @@ export default {
   components: {
     deleteIcon,
   },
-  data() {
-    return {
-      url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
-      path: "/socket.io",
-      connectionState: false,
-      io: null,
-      communication: {
-        log: null,
-        eventName: "",
-        inputs: [""],
-      },
-    }
-  },
   computed: {
     urlValid() {
       return socketioValid(this.url)
     },
+    url: {
+      get() {
+        return this.$store.state.socketIO.url
+      },
+      set(value) {
+        this.$store.commit("setSocketIOState", { value, attribute: "url" })
+      },
+    },
+    path: {
+      get() {
+        return this.$store.state.socketIO.path
+      },
+      set(value) {
+        this.$store.commit("setSocketIOState", { value, attribute: "path" })
+      },
+    },
+    socket: {
+      get() {
+        return this.$store.state.socketIO.socket
+      },
+      set(value) {
+        console.log("i am here")
+        this.$store.commit("setSocketIOState", { value, attribute: "socket" })
+        console.log("afterwards")
+      },
+    },
+    log: {
+      get() {
+        return this.$store.state.socketIO.log
+      },
+      set(value) {
+        this.$store.commit("setSocketIOState", { value, attribute: "log" })
+      },
+    },
+    eventName: {
+      get() {
+        return this.$store.state.socketIO.eventName
+      },
+      set(value) {
+        this.$store.commit("setSocketIOState", { value, attribute: "eventName" })
+      },
+    },
+    inputs: {
+      get() {
+        return this.$store.state.socketIO.inputs
+      },
+      set(value) {
+        this.$store.commit("setSocketIOState", { value, attribute: "inputs" })
+      },
+    },
+    isConnected() {
+      return this.socket instanceof io
+    },
   },
   methods: {
-    removeCommunicationInput({ index }) {
-      this.$delete(this.communication.inputs, index)
-    },
-    addCommunicationInput() {
-      this.communication.inputs.push("")
-    },
     toggleConnection() {
       // If it is connecting:
-      if (!this.connectionState) return this.connect()
+      if (!this.isConnected) return this.connect()
       // Otherwise, it's disconnecting.
       else return this.disconnect()
     },
     connect() {
-      this.communication.log = [
+      this.log = [
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
@@ -155,17 +195,20 @@ export default {
       ]
 
       try {
+        console.log("1")
         if (!this.path) {
           this.path = "/socket.io"
         }
-        this.io = new io(this.url, {
+        console.log("2")
+        this.socket = new io(this.url, {
           path: this.path,
         })
+        console.log("3")
         // Add ability to listen to all events
-        wildcard(io.Manager)(this.io)
-        this.io.on("connect", () => {
-          this.connectionState = true
-          this.communication.log = [
+        wildcard(io.Manager)(this.socket)
+        console.log("here")
+        this.socket.on("connect", () => {
+          this.log = [
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
@@ -177,26 +220,25 @@ export default {
             icon: "sync",
           })
         })
-        this.io.on("*", ({ data }) => {
+        this.socket.on("*", ({ data }) => {
           const [eventName, message] = data
-          this.communication.log.push({
+          this.addToLog({
             payload: `[${eventName}] ${message ? JSON.stringify(message) : ""}`,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })
         })
-        this.io.on("connect_error", (error) => {
+        this.socket.on("connect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("reconnect_error", (error) => {
+        this.socket.on("reconnect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("error", (data) => {
+        this.socket.on("error", (data) => {
           this.handleError()
         })
-        this.io.on("disconnect", () => {
-          this.connectionState = false
-          this.communication.log.push({
+        this.socket.on("disconnect", () => {
+          this.addToLog({
             payload: this.$t("disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
@@ -214,28 +256,29 @@ export default {
       }
     },
     disconnect() {
-      this.io.close()
+      this.socket.close()
+      this.socket = null
     },
     handleError(error) {
+      console.log("now i'm here")
       this.disconnect()
-      this.connectionState = false
-      this.communication.log.push({
+      this.addToLog({
         payload: this.$t("error_occurred"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
       })
-      if (error !== null)
-        this.communication.log.push({
-          payload: error,
-          source: "info",
-          color: "#ff5555",
-          ts: new Date().toLocaleTimeString(),
-        })
+      if (error !== null) console.log(error)
+      this.addToLog({
+        payload: error,
+        source: "info",
+        color: "#ff5555",
+        ts: new Date().toLocaleTimeString(),
+      })
     },
     sendMessage() {
-      const eventName = this.communication.eventName
-      const messages = (this.communication.inputs || [])
+      const eventName = this.eventName
+      const messages = (this.inputs || [])
         .map((input) => {
           try {
             return JSON.parse(input)
@@ -245,23 +288,29 @@ export default {
         })
         .filter((message) => !!message)
 
-      if (this.io) {
-        this.io.emit(eventName, ...messages, (data) => {
+      if (this.socket) {
+        this.socket.emit(eventName, ...messages, (data) => {
           // receive response from server
-          this.communication.log.push({
+          this.addToLog({
             payload: `[${eventName}] ${JSON.stringify(data)}`,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })
         })
 
-        this.communication.log.push({
+        this.addToLog({
           payload: `[${eventName}] ${JSON.stringify(messages)}`,
           source: "client",
           ts: new Date().toLocaleTimeString(),
         })
-        this.communication.inputs = [""]
+        this.inputs = [""]
       }
+    },
+    addToLog(obj) {
+      this.$store.commit("addSocketIOLog", obj)
+    },
+    addToInputs(str) {
+      this.$store.commit("addSocketIOInputs", str)
     },
   },
 }

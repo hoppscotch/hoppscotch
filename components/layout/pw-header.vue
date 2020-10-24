@@ -364,15 +364,15 @@ export default {
         setTimeout(() => {
           this.$toast.clear()
           this.$toast.show(
-            "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Make a donation to support Hoppscotch open source project 🎉</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+            "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
             {
               icon: "",
               duration: 0,
               theme: "toasted-ad",
               action: [
                 {
-                  text: "DONATE",
-                  icon: "favorite",
+                  text: "Sponsor",
+                  icon: "chevron_right",
                   onClick: (e, toastObject) => {
                     localStorage.setItem("showAd", "no")
                     toastObject.goAway(0)

@@ -216,10 +216,9 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    onAddFolder({ name, folder, path }) {
+    onAddFolder({ name, path }) {
       this.$store.commit("postwoman/addFolder", {
         name,
-        folder,
         path,
       })
 

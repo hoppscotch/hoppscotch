@@ -206,7 +206,7 @@ export const mutations = {
   },
 
   addFolder({ collections }, payload) {
-    const { name, folder, path } = payload
+    const { name, path } = payload
 
     const newFolder = {
       name: name,

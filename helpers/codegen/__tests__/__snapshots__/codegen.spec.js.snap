@@ -236,6 +236,46 @@ Request request = new Request.Builder()
 Response response = client.newCall(request).execute();"
 `;
 
+exports[`generate request for Java Unirest generate GET request 1`] = `
+"HttpResponse<String> response = Unirest.get(\\"https://httpbin.org/path/to?a=b\\")
+.header(\\"authorization\\", \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\") 
+.header(\\"h1\\", \\"h1v\\")
+.header(\\"h2\\", \\"h2v\\")
+
+.asString();
+"
+`;
+
+exports[`generate request for Java Unirest generate POST request for JSON 1`] = `
+"HttpResponse<String> response = Unirest.post(\\"https://httpbin.org/path/to?a=b\\")
+.header(\\"authorization\\", \\"Bearer abcdefghijklmn\\") 
+.header(\\"h1\\", \\"h1v\\")
+.header(\\"h2\\", \\"h2v\\")
+.header(\\"Content-Type\\", \\"application/json\\")
+.body(\\"{\\\\\\"foo\\\\\\": \\\\\\"bar\\\\\\", \\\\\\"baz\\\\\\": \\\\\\"qux\\\\\\"}\\")
+.asString();
+"
+`;
+
+exports[`generate request for Java Unirest generate POST request for XML 1`] = `
+"HttpResponse<String> response = Unirest.post(\\"https://httpbin.org/path/to?a=b\\")
+.header(\\"authorization\\", \\"Bearer abcdefghijklmn\\") 
+.header(\\"h1\\", \\"h1v\\")
+.header(\\"h2\\", \\"h2v\\")
+.header(\\"Content-Type\\", \\"application/xml\\")
+.body(\\"<?xml version='1.0' encoding='utf-8'?>\\\\n<xml>\\\\n  <element foo=\\\\\\"bar\\\\\\"></element>\\\\n</xml>\\")
+.asString();
+"
+`;
+
+exports[`generate request for Java Unirest generate PUT request for www-form-urlencoded 1`] = `
+"HttpResponse<String> response = Unirest.put(\\"https://httpbin.org/path/to?a=b\\")
+.header(\\"Content-Type\\", \\"application/x-www-form-urlencoded\\")
+.body(\\"foo=bar&baz=qux\\")
+.asString();
+"
+`;
+
 exports[`generate request for JavaScript Axios generate GET request 1`] = `
 "axios.get('https://httpbin.org/path/to?a=b',{ 
  headers : {    \\"h1\\": \\"h1v\\",

@@ -23,6 +23,7 @@
     "printWidth": 100
   },
   "dependencies": {
+    "@apollo/client": "^3.2.5",
     "@nuxtjs/axios": "^5.12.4",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.4.2",
@@ -37,6 +38,7 @@
     "nuxt": "^2.14.12",
     "nuxt-i18n": "^6.16.0",
     "paho-mqtt": "^1.1.0",
+    "rxjs": "^6.6.3",
     "socket.io-client": "^3.0.4",
     "socketio-wildcard": "^2.0.0",
     "v-tooltip": "^2.0.3",

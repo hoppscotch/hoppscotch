@@ -1,6 +1,14 @@
 <template>
   <div>
-    <div class="row-wrapper">
+    <div
+      :class="['row-wrapper', dragging ? 'drop-zone' : '']"
+      @dragover.prevent
+      @drop.prevent="dropEvent"
+      @dragover="dragging = true"
+      @drop="dragging = false"
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
+    >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
@@ -22,7 +30,11 @@
           </button>
           <template slot="popover">
             <div>
-              <button class="icon" @click="$emit('add-folder')" v-close-popover>
+              <button
+                class="icon"
+                @click="$emit('add-folder', { folder: collection })"
+                v-close-popover
+              >
                 <i class="material-icons">create_new_folder</i>
                 <span>{{ $t("new_folder") }}</span>
               </button>
@@ -53,18 +65,16 @@
         >
           <folder
             :folder="folder"
-            :folderIndex="index"
+            :folder-index="index"
             :collection-index="collectionIndex"
             :doc="doc"
             :isFiltered="isFiltered"
-            @edit-folder="editFolder(collectionIndex, folder, index)"
+            @add-folder="$emit('add-folder', $event)"
+            @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
           />
         </li>
-        <li
-          v-if="collection.folders.length === 0 && collection.requests.length === 0"
-          class="ml-8 border-l border-brdColor"
-        >
+        <li v-if="collection.folders.length === 0 && collection.requests.length === 0">
           <label>{{ $t("collection_empty") }}</label>
         </li>
       </ul>
@@ -78,16 +88,10 @@
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
+            :folder-name="collection.name"
             :request-index="index"
             :doc="doc"
-            @edit-request="
-              $emit('edit-request', {
-                request,
-                collectionIndex,
-                folderIndex: undefined,
-                requestIndex: index,
-              })
-            "
+            @edit-request="$emit('edit-request', $event)"
           />
         </li>
       </ul>
@@ -111,6 +115,7 @@ export default {
   data() {
     return {
       showChildren: false,
+      dragging: false,
       selectedFolder: {},
     }
   },
@@ -135,8 +140,22 @@ export default {
       })
       this.syncCollections()
     },
-    editFolder(collectionIndex, folder, folderIndex) {
-      this.$emit("edit-folder", { collectionIndex, folder, folderIndex })
+    dropEvent({ dataTransfer }) {
+      this.dragging = !this.dragging
+      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
+      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
+      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const requestIndex = dataTransfer.getData("requestIndex")
+      this.$store.commit("postwoman/moveRequest", {
+        oldCollectionIndex,
+        newCollectionIndex: this.$props.collectionIndex,
+        newFolderIndex: -1,
+        newFolderName: this.$props.collection.name,
+        oldFolderIndex,
+        oldFolderName,
+        requestIndex,
+      })
+      this.syncCollections()
     },
   },
 }

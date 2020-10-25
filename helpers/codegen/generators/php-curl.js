@@ -56,7 +56,7 @@ export const PhpCurlCodegen = {
       } else if (isJSONContentType(contentType)) {
         requestBody = JSON.stringify(requestBody)
       } else if (contentType.includes("x-www-form-urlencoded")) {
-        if (requestBody.indexOf("=") > -1) {
+        if (requestBody.includes("=")) {
           requestBody = `"${requestBody}"`
         } else {
           const requestObject = JSON.parse(requestBody)

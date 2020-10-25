@@ -20,6 +20,7 @@
   @apply bg-bgDarkColor;
   @apply text-fgColor;
   @apply overflow-auto;
+
   height: 256px;
 
   &,
@@ -46,7 +47,7 @@ export default {
   methods: {
     getSourcePrefix,
   },
-  updated: function () {
+  updated() {
     this.$nextTick(function () {
       if (this.$refs.log) {
         this.$refs.log.scrollBy(0, this.$refs.log.scrollHeight + 100)

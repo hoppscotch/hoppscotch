@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
 import exitToAppIcon from "~/static/icons/exit_to_app-24px.svg?inline"
 
@@ -20,20 +19,18 @@ export default {
     }
   },
   methods: {
-    logout() {
-      fb.currentUser = null
-      const self = this
-      firebase
-        .auth()
-        .signOut()
-        .catch((err) => {
-          self.$toast.show(err.message || err, {
-            icon: "error",
-          })
+    async logout() {
+      try {
+        await fb.signOutUser()
+
+        this.$toast.info(this.$t("logged_out"), {
+          icon: "vpn_key",
         })
-      self.$toast.info(this.$t("logged_out"), {
-        icon: "vpn_key",
-      })
+      } catch (err) {
+        this.$toast.show(err.message || err, {
+          icon: "error",
+        })
+      }
     },
   },
 }

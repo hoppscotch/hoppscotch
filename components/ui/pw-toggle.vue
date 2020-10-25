@@ -40,6 +40,7 @@ label.toggle {
   @apply my-4;
   @apply mx-2;
   @apply cursor-pointer;
+
   width: $width;
   height: $height;
   border: if($useBorder, 2px solid $borderColor, none);
@@ -53,6 +54,7 @@ label.toggle {
     @apply inset-0;
     @apply rounded-full;
     @apply pointer-events-none;
+
     transition: $transition;
     margin: $handleSpacing;
     background-color: $inactiveHandleColor;

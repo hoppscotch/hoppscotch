@@ -10,7 +10,7 @@
       @keydown="handleKeystroke"
       ref="acInput"
       :spellcheck="spellcheck"
-      :autocapitalize="spellcheck"
+      :autocapitalize="autocapitalize"
       :autocorrect="spellcheck"
     />
     <ul
@@ -50,6 +50,7 @@
     @apply ease-in-out;
     @apply duration-200;
     @apply shadow-lg;
+
     top: calc(100% - 8px);
     border-radius: 0 0 8px 8px;
 
@@ -82,6 +83,12 @@ export default {
     spellcheck: {
       type: Boolean,
       default: true,
+      required: false,
+    },
+
+    autocapitalize: {
+      type: String,
+      default: "off",
       required: false,
     },
 
@@ -189,12 +196,11 @@ export default {
 
       return (
         this.source
-          .filter((entry) => {
-            return (
+          .filter(
+            (entry) =>
               entry.toLowerCase().startsWith(input.toLowerCase()) &&
               input.toLowerCase() !== entry.toLowerCase()
-            )
-          })
+          )
           // Cut off the part that's already been typed.
           .map((entry) => entry.substring(this.selectionStart))
           // We only want the top 6 suggestions.

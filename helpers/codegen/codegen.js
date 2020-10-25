@@ -16,7 +16,7 @@ import { RubyNetHttpCodeGen } from "./generators/ruby-net-http"
 import { SalesforceApexCodegen } from "./generators/salesforce-apex"
 import { ShellHTTPie } from "./generators/shell-httpie"
 import { JavaOkHttpClientCodegen } from "./generators/java-ok-http-client"
-
+import { JavaUnirestCodegen } from "./generators/java-unirest"
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
  *
@@ -30,6 +30,7 @@ export const codegens = [
   CsRestSharpCodegen,
   GoNativeCodegen,
   JavaOkHttpClientCodegen,
+  JavaUnirestCodegen,
   JSAxiosCodegen,
   JSFetchCodegen,
   JSjQueryCodegen,

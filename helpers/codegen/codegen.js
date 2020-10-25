@@ -29,6 +29,7 @@ export const codegens = [
   CurlCodegen,
   CsRestSharpCodegen,
   GoNativeCodegen,
+  JavaOkHttpClientCodegen,
   JSAxiosCodegen,
   JSFetchCodegen,
   JSjQueryCodegen,
@@ -43,7 +44,6 @@ export const codegens = [
   SalesforceApexCodegen,
   ShellHTTPie,
   WgetCodegen,
-  JavaOkHttpClientCodegen,
 ]
 
 export function generateCodeWithGenerator(codegenID, context) {

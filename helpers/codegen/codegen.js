@@ -12,6 +12,7 @@ import { PythonRequestsCodegen } from "./generators/python-requests"
 import { PythonHttpClientCodegen } from "./generators/python-http-client"
 import { WgetCodegen } from "./generators/wget"
 import { CsRestSharpCodegen } from "./generators/cs-restsharp"
+import { JavaOkHttpClientCodegen } from "./generators/java-ok-http-client"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -36,6 +37,7 @@ export const codegens = [
   PythonRequestsCodegen,
   PythonHttpClientCodegen,
   WgetCodegen,
+  JavaOkHttpClientCodegen,
 ]
 
 export function generateCodeWithGenerator(codegenID, context) {

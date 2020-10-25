@@ -53,6 +53,7 @@ export default {
   props: {
     show: Boolean,
     folder: Object,
+    folderPath: String,
     collectionIndex: Number,
   },
   data() {
@@ -62,7 +63,11 @@ export default {
   },
   methods: {
     addFolder() {
-      this.$emit("add-folder", { name: this.name, folder: this.folder })
+      this.$emit("add-folder", {
+        name: this.name,
+        folder: this.folder,
+        path: this.folderPath || `${this.collectionIndex}`,
+      })
     },
     hideModal() {
       this.$emit("hide-modal")

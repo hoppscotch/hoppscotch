@@ -23,7 +23,11 @@
         </button>
         <template slot="popover">
           <div>
-            <button class="icon" @click="$emit('add-folder', { folder })" v-close-popover>
+            <button
+              class="icon"
+              @click="$emit('add-folder', { folder, path: folderPath })"
+              v-close-popover
+            >
               <i class="material-icons">create_new_folder</i>
               <span>{{ $t("new_folder") }}</span>
             </button>
@@ -73,6 +77,7 @@
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
+            :folder-path="`${folderPath}/${subFolderIndex}`"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
@@ -94,6 +99,7 @@ export default {
     folder: Object,
     folderIndex: Number,
     collectionIndex: Number,
+    folderPath: String,
     doc: Boolean,
     isFiltered: Boolean,
   },

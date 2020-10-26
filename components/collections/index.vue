@@ -21,6 +21,8 @@ TODO:
     <add-folder
       :show="showModalAddFolder"
       :folder="editingFolder"
+      :folder-path="editingFolderPath"
+      @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
     />
     <edit-folder
@@ -121,6 +123,7 @@ export default {
       editingFolder: undefined,
       editingFolderName: undefined,
       editingFolderIndex: undefined,
+      editingFolderPath: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,
       filterText: "",
@@ -213,11 +216,20 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    addFolder(payload) {
-      const { folder } = payload
-      this.$data.editingFolder = folder
-      this.displayModalAddFolder(true)
+    onAddFolder({ name, path }) {
+      this.$store.commit("postwoman/addFolder", {
+        name,
+        path,
+      })
+
+      this.displayModalAddFolder(false)
       this.syncCollections()
+    },
+    addFolder(payload) {
+      const { folder, path } = payload
+      this.$data.editingFolder = folder
+      this.$data.editingFolderPath = path
+      this.displayModalAddFolder(true)
     },
     editFolder(payload) {
       const { collectionIndex, folder, folderIndex } = payload

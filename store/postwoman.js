@@ -206,14 +206,21 @@ export const mutations = {
   },
 
   addFolder({ collections }, payload) {
-    const { name, folder } = payload
+    const { name, path } = payload
 
     const newFolder = {
       name: name,
       requests: [],
       folders: [],
     }
-    folder.folders.push(newFolder)
+
+    // Walk from collections to destination with the path
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    let target = collections[indexPaths.shift()]
+    while (indexPaths.length > 0) target = target.folders[indexPaths.shift()]
+
+    target.folders.push(newFolder)
   },
 
   editFolder({ collections }, payload) {

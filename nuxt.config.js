@@ -157,7 +157,6 @@ export default {
       background_color: options.app.background,
       theme_color: options.app.background,
     },
-    workbox: false,
   },
 
   // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)

@@ -32,7 +32,7 @@
             <div>
               <button
                 class="icon"
-                @click="$emit('add-folder', { folder: collection })"
+                @click="$emit('add-folder', { folder: collection, path: `${collectionIndex}` })"
                 v-close-popover
               >
                 <i class="material-icons">create_new_folder</i>
@@ -66,6 +66,7 @@
           <folder
             :folder="folder"
             :folder-index="index"
+            :folder-path="`${collectionIndex}/${index}`"
             :collection-index="collectionIndex"
             :doc="doc"
             :isFiltered="isFiltered"

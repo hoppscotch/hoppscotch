@@ -53,6 +53,7 @@ export default {
   props: {
     show: Boolean,
     folder: Object,
+    folderPath: String,
     collectionIndex: Number,
   },
   data() {
@@ -61,20 +62,12 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
-      }
-    },
     addFolder() {
-      this.$store.commit("postwoman/addFolder", {
-        name: this.$data.name,
-        folder: this.$props.folder,
+      this.$emit("add-folder", {
+        name: this.name,
+        folder: this.folder,
+        path: this.folderPath || `${this.collectionIndex}`,
       })
-      this.hideModal()
-      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

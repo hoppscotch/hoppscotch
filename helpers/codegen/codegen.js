@@ -17,6 +17,8 @@ import { SalesforceApexCodegen } from "./generators/salesforce-apex"
 import { ShellHTTPie } from "./generators/shell-httpie"
 import { JavaOkHttpClientCodegen } from "./generators/java-ok-http-client"
 import { JavaUnirestCodegen } from "./generators/java-unirest"
+import { CLibCurlCodeGen } from "./generators/c-libcurl"
+
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
  *
@@ -26,6 +28,7 @@ import { JavaUnirestCodegen } from "./generators/java-unirest"
  *
  */
 export const codegens = [
+  CLibCurlCodeGen,
   CurlCodegen,
   CsRestSharpCodegen,
   GoNativeCodegen,

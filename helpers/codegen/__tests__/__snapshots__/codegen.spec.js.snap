@@ -1,5 +1,56 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`generate request for C LibCurl generate GET request 1`] = `
+"CURL *hnd = curl_easy_init();
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, \\"GET\\");
+curl_easy_setopt(hnd, CURLOPT_URL, \\"https://httpbin.org/path/to?a=b\\");
+struct curl_slist *headers = NULL;
+headers = curl_slist_append(headers, \\"h1: h1v\\");
+headers = curl_slist_append(headers, \\"h2: h2v\\");
+headers = curl_slist_append(headers, \\"Authorization: Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\");
+curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+CURLcode ret = curl_easy_perform(hnd);"
+`;
+
+exports[`generate request for C LibCurl generate POST request for JSON 1`] = `
+"CURL *hnd = curl_easy_init();
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, \\"POST\\");
+curl_easy_setopt(hnd, CURLOPT_URL, \\"https://httpbin.org/path/to?a=b\\");
+struct curl_slist *headers = NULL;
+headers = curl_slist_append(headers, \\"h1: h1v\\");
+headers = curl_slist_append(headers, \\"h2: h2v\\");
+headers = curl_slist_append(headers, \\"Authorization: Bearer abcdefghijklmn\\");
+headers = curl_slist_append(headers, \\"Content-Type: application/json\\");
+curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, \\"{\\\\\\"foo\\\\\\": \\\\\\"bar\\\\\\", \\\\\\"baz\\\\\\": \\\\\\"qux\\\\\\"}\\");
+CURLcode ret = curl_easy_perform(hnd);"
+`;
+
+exports[`generate request for C LibCurl generate POST request for XML 1`] = `
+"CURL *hnd = curl_easy_init();
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, \\"POST\\");
+curl_easy_setopt(hnd, CURLOPT_URL, \\"https://httpbin.org/path/to?a=b\\");
+struct curl_slist *headers = NULL;
+headers = curl_slist_append(headers, \\"h1: h1v\\");
+headers = curl_slist_append(headers, \\"h2: h2v\\");
+headers = curl_slist_append(headers, \\"Authorization: Bearer abcdefghijklmn\\");
+headers = curl_slist_append(headers, \\"Content-Type: application/xml\\");
+curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, \\"<?xml version='1.0' encoding='utf-8'?>\\\\n<xml>\\\\n  <element foo=\\\\\\"bar\\\\\\"></element>\\\\n</xml>\\");
+CURLcode ret = curl_easy_perform(hnd);"
+`;
+
+exports[`generate request for C LibCurl generate PUT request for www-form-urlencoded 1`] = `
+"CURL *hnd = curl_easy_init();
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, \\"PUT\\");
+curl_easy_setopt(hnd, CURLOPT_URL, \\"https://httpbin.org/path/to?a=b\\");
+struct curl_slist *headers = NULL;
+headers = curl_slist_append(headers, \\"Content-Type: application/x-www-form-urlencoded\\");
+curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
+curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, \\"foo=bar&baz=qux\\");
+CURLcode ret = curl_easy_perform(hnd);"
+`;
+
 exports[`generate request for C# RestSharp generate GET request 1`] = `
 "var client = new RestClient(\\"https://httpbin.org\\");
 

@@ -18,6 +18,7 @@ import { RubyNetHttpCodeGen } from "./generators/ruby-net-http"
 import { SalesforceApexCodegen } from "./generators/salesforce-apex"
 import { ShellHttpieCodegen } from "./generators/shell-httpie"
 import { ShellWgetCodegen } from "./generators/shell-wget"
+import { NodeJsUnirestRequestCodegen } from "~/helpers/codegen/generators/node-unirest"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -40,6 +41,7 @@ export const codegens = [
   NodejsAxiosCodegen,
   NodejsNativeCodegen,
   NodejsRequestCodegen,
+  NodeJsUnirestRequestCodegen,
   PhpCurlCodegen,
   PowershellRestmethodCodegen,
   PythonHttpClientCodegen,

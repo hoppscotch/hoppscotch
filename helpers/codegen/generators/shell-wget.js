@@ -1,6 +1,6 @@
-export const WgetCodegen = {
-  id: "wget",
-  name: "wget",
+export const ShellWgetCodegen = {
+  id: "shell-wget",
+  name: "Shell wget",
   generator: ({
     url,
     pathName,

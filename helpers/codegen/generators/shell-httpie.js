@@ -1,4 +1,4 @@
-export const ShellHTTPie = {
+export const ShellHttpieCodegen = {
   id: "shell-httpie",
   name: "Shell HTTPie",
   generator: ({

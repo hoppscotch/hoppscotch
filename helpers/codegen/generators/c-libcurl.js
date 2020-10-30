@@ -1,6 +1,6 @@
-export const CLibCurlCodeGen = {
-  id: "C LibCurl",
-  name: "C LibCurl",
+export const CLibcurlCodegen = {
+  id: "c-libcurl",
+  name: "C libcurl",
   generator: ({
     auth,
     httpUser,

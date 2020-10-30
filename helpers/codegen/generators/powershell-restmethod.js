@@ -1,6 +1,6 @@
-export const PowerShellRestMethod = {
+export const PowershellRestmethodCodegen = {
   id: "powershell-restmethod",
-  name: "Powershell RestMethod",
+  name: "PowerShell RestMethod",
   generator: ({
     url,
     pathName,

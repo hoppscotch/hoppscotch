@@ -1,6 +1,6 @@
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-export const NodeJsNativeCodegen = {
+export const NodejsNativeCodegen = {
   id: "nodejs-native",
   name: "NodeJs Native",
   generator: ({

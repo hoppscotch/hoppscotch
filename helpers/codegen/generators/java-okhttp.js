@@ -1,6 +1,6 @@
-export const JavaOkHttpClientCodegen = {
-  id: "Java OkHTTP Client",
-  name: "Java OkHTTP Client",
+export const JavaOkhttpCodegen = {
+  id: "java-okhttp",
+  name: "Java OkHttp",
   generator: ({
     auth,
     httpUser,

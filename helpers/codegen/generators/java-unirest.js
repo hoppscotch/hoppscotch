@@ -1,5 +1,3 @@
-import { isJSONContentType } from "~/helpers/utils/contenttypes"
-
 export const JavaUnirestCodegen = {
   id: "java-unirest",
   name: "Java Unirest",
@@ -32,18 +30,18 @@ export const JavaUnirestCodegen = {
     ]
     // create client and request
     const verb = verbs.find((v) => v.verb === method)
-    requestString.push(`HttpResponse<String> response = Unirest.${verb.unirestMethod}("${url}${pathName}${queryString}")\n`)
-   if (auth === "Basic Auth") {
+    requestString.push(
+      `HttpResponse<String> response = Unirest.${verb.unirestMethod}("${url}${pathName}${queryString}")\n`
+    )
+    if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(
-        `.header("authorization", "Basic ${window.btoa(
-          unescape(encodeURIComponent(basic))
-        )}") \n`
+        `.header("authorization", "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}") \n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       requestString.push(`.header("authorization", "Bearer ${bearerToken}") \n`)
     }
-   // custom headers
+    // custom headers
     if (headers) {
       headers.forEach(({ key, value }) => {
         if (key) {
@@ -52,20 +50,20 @@ export const JavaUnirestCodegen = {
       })
     }
     if (contentType) {
-    requestString.push(`.header("Content-Type", "${contentType}")\n`)
-   }
+      requestString.push(`.header("Content-Type", "${contentType}")\n`)
+    }
 
     // set body
-      if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-          if (contentType.includes("x-www-form-urlencoded")) {
-               requestBody = `"${requestBody}"`
-             }else
-             {  requestBody = JSON.stringify(requestBody)
-           }
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      if (contentType.includes("x-www-form-urlencoded")) {
+        requestBody = `"${requestBody}"`
+      } else {
+        requestBody = JSON.stringify(requestBody)
+      }
 
-          requestString.push(`.body(${requestBody})`)
-       }
-     requestString.push(`\n.asString();\n`)
+      requestString.push(`.body(${requestBody})`)
+    }
+    requestString.push(`\n.asString();\n`)
     return requestString.join("")
   },
 }

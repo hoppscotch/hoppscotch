@@ -1,6 +1,6 @@
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-export const CsRestSharpCodegen = {
+export const CsRestsharpCodegen = {
   id: "cs-restsharp",
   name: "C# RestSharp",
   generator: ({

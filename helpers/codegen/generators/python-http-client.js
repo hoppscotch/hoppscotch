@@ -10,7 +10,7 @@ const printHeaders = (headers) => {
 
 export const PythonHttpClientCodegen = {
   id: "python-http-client",
-  name: "Python HTTP Client",
+  name: "Python http.client",
   generator: ({
     url,
     pathName,

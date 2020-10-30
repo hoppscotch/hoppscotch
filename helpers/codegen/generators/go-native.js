@@ -2,7 +2,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
 export const GoNativeCodegen = {
   id: "go-native",
-  name: "Golang Native",
+  name: "Go Native",
   generator: ({
     url,
     pathName,

@@ -1,6 +1,6 @@
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-export const NodeJsRequestCodegen = {
+export const NodejsRequestCodegen = {
   id: "nodejs-request",
   name: "NodeJs Request",
   generator: ({

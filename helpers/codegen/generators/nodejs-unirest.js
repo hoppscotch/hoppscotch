@@ -1,8 +1,8 @@
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-export const NodeJsUnirestRequestCodegen = {
-  id: "nodejs-unirest-request",
-  name: "NodeJsUnirest Request",
+export const NodejsUnirestCodegen = {
+  id: "nodejs-unirest",
+  name: "NodeJs Unirest",
   generator: ({
     url,
     pathName,

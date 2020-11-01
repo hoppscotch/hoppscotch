@@ -10,6 +10,7 @@ import { JavascriptXhrCodegen } from "./generators/javascript-xhr"
 import { NodejsAxiosCodegen } from "./generators/nodejs-axios"
 import { NodejsNativeCodegen } from "./generators/nodejs-native"
 import { NodejsRequestCodegen } from "./generators/nodejs-request"
+import { NodejsUnirestCodegen } from "./generators/nodejs-unirest"
 import { PhpCurlCodegen } from "./generators/php-curl"
 import { PowershellRestmethodCodegen } from "./generators/powershell-restmethod"
 import { PythonHttpClientCodegen } from "./generators/python-http-client"
@@ -18,7 +19,6 @@ import { RubyNetHttpCodeGen } from "./generators/ruby-net-http"
 import { SalesforceApexCodegen } from "./generators/salesforce-apex"
 import { ShellHttpieCodegen } from "./generators/shell-httpie"
 import { ShellWgetCodegen } from "./generators/shell-wget"
-import { NodeJsUnirestRequestCodegen } from "~/helpers/codegen/generators/node-unirest"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
@@ -41,7 +41,7 @@ export const codegens = [
   NodejsAxiosCodegen,
   NodejsNativeCodegen,
   NodejsRequestCodegen,
-  NodeJsUnirestRequestCodegen,
+  NodejsUnirestCodegen,
   PhpCurlCodegen,
   PowershellRestmethodCodegen,
   PythonHttpClientCodegen,

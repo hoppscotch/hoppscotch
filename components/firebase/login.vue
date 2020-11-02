@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import firebase from "firebase/app"
 import { fb } from "~/helpers/fb"
 
 export default {

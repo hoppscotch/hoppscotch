@@ -34,7 +34,7 @@
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
     "esprima": "^4.0.1",
-    "firebase": "^7.24.0",
+    "firebase": "^8.0.0",
     "graphql": "^15.4.0",
     "graphql-language-service-interface": "^2.4.2",
     "nuxt": "^2.14.7",

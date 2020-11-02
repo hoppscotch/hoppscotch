@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.2.5",
+    "@nuxtjs/apollo": "^4.0.1-rc.4",
     "@nuxtjs/axios": "^5.12.4",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.4.2",

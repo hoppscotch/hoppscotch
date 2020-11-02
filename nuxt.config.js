@@ -75,16 +75,6 @@ export default {
         content: "no",
       },
     ],
-    link: [
-      {
-        rel: "apple-touch-icon",
-        href: "/icon.png",
-      },
-      {
-        rel: "apple-touch-startup-image",
-        href: "/icon.png",
-      },
-    ],
   },
 
   // Customize the progress-bar color (https://nuxtjs.org/api/configuration-loading/#customizing-the-progress-bar)

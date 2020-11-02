@@ -124,7 +124,17 @@ export default {
     "@nuxtjs/robots",
     // https://github.com/nuxt-community/sitemap-module
     "@nuxtjs/sitemap",
+    // https://github.com/nuxt-community/apollo-module
+    "@nuxtjs/apollo",
   ],
+
+  apollo: {
+    clientConfigs: {
+      default: {
+        httpEndpoint: "https://hoppscotch-backend.herokuapp.com/",
+      },
+    },
+  },
 
   // PWA module configuration (https://pwa.nuxtjs.org/setup)
   pwa: {

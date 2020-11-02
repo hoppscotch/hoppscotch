@@ -755,6 +755,84 @@ request(options, (error, response) => {
 });"
 `;
 
+exports[`generate request for NodeJs Unirest generate GET request 1`] = `
+"const unirest = require('unirest');
+const req = unirest(
+'get', 'https://httpbin.org/path/to?a=b')
+.
+  headers({
+    \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }
+)
+.end(function (res) {
+  if (res.error) throw new Error(res.error);
+  console.log(res.raw_body);
+ });
+"
+`;
+
+exports[`generate request for NodeJs Unirest generate POST request for JSON 1`] = `
+"const unirest = require('unirest');
+const req = unirest(
+'post', 'https://httpbin.org/path/to?a=b')
+.
+  send( \`{\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}\`).
+  headers({
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/json; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }
+)
+.end(function (res) {
+  if (res.error) throw new Error(res.error);
+  console.log(res.raw_body);
+ });
+"
+`;
+
+exports[`generate request for NodeJs Unirest generate POST request for XML 1`] = `
+"const unirest = require('unirest');
+const req = unirest(
+'post', 'https://httpbin.org/path/to?a=b')
+.
+  send( \`<?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>\`).
+  headers({
+    \\"Authorization\\": \\"Bearer abcdefghijklmn\\",
+    \\"Content-Type\\": \\"application/xml; charset=utf-8\\",
+    \\"h1\\": \\"h1v\\",
+    \\"h2\\": \\"h2v\\"
+  }
+)
+.end(function (res) {
+  if (res.error) throw new Error(res.error);
+  console.log(res.raw_body);
+ });
+"
+`;
+
+exports[`generate request for NodeJs Unirest generate PUT request for www-form-urlencoded 1`] = `
+"const unirest = require('unirest');
+const req = unirest(
+'put', 'https://httpbin.org/path/to?a=b')
+.
+  send( {\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"}).
+  headers({
+    \\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"
+  }
+)
+.end(function (res) {
+  if (res.error) throw new Error(res.error);
+  console.log(res.raw_body);
+ });
+"
+`;
+
 exports[`generate request for PHP cURL generate GET request 1`] = `
 <?php
 $curl = curl_init();

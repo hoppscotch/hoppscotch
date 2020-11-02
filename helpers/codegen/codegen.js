@@ -10,6 +10,7 @@ import { JavascriptXhrCodegen } from "./generators/javascript-xhr"
 import { NodejsAxiosCodegen } from "./generators/nodejs-axios"
 import { NodejsNativeCodegen } from "./generators/nodejs-native"
 import { NodejsRequestCodegen } from "./generators/nodejs-request"
+import { NodejsUnirestCodegen } from "./generators/nodejs-unirest"
 import { PhpCurlCodegen } from "./generators/php-curl"
 import { PowershellRestmethodCodegen } from "./generators/powershell-restmethod"
 import { PythonHttpClientCodegen } from "./generators/python-http-client"
@@ -40,6 +41,7 @@ export const codegens = [
   NodejsAxiosCodegen,
   NodejsNativeCodegen,
   NodejsRequestCodegen,
+  NodejsUnirestCodegen,
   PhpCurlCodegen,
   PowershellRestmethodCodegen,
   PythonHttpClientCodegen,

@@ -18,9 +18,10 @@ export const NodejsAxiosCodegen = {
   }) => {
     const requestString = []
     let genHeaders = []
+    let requestBody = rawInput ? rawParams : rawRequestBody
 
     requestString.push(`axios.${method.toLowerCase()}('${url}${pathName}${queryString}'`)
-    if (rawRequestBody.length !== 0) {
+    if (requestBody.length !== 0) {
       requestString.push(", ")
     }
     if (headers) {
@@ -39,7 +40,7 @@ export const NodejsAxiosCodegen = {
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
     }
-    requestString.push(`${rawRequestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n}`)
+    requestString.push(`${requestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n}`)
     requestString.push(".then(response => {\n")
     requestString.push("    console.log(response);\n")
     requestString.push("})")

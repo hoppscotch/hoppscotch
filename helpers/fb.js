@@ -28,6 +28,7 @@ export class FirebaseInstance {
     this.usersCollection = this.app.firestore().collection("users")
 
     this.currentUser = null
+    this.idToken = null
     this.currentFeeds = []
     this.currentSettings = []
     this.currentHistory = []
@@ -39,8 +40,12 @@ export class FirebaseInstance {
 
     this.app.auth().onIdTokenChanged((user) => {
       if (user) {
-        user.getIdToken().then((token) => this.idToken$.next(token))
+        user.getIdToken().then((token) => {
+          this.idToken = token
+          this.idToken$.next(token)
+        })
       } else {
+        this.idToken = null
         this.idToken$.next(null)
       }
     })

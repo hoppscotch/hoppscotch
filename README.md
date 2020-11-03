@@ -1,6 +1,4 @@
 <div align="center">
-  <h4><a href="https://github.com/hoppscotch/hoppscotch/issues/1190">Kick off Hacktoberfest 👩‍💻👨‍💻👌 with the next best thing DEVs will ❤️</a></h4>
-  <br>
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/master/static/logo.png" alt="hoppscotch.io logo" height="128"></a>
   <br>
   <br>
@@ -120,7 +118,7 @@ _Customized themes are synced with local session storage_
 **Features**
 
 - Copy/share public "Share URL"
-- Generate/copy request code for `JavaScript XHR`, `Fetch` and `cURL`
+- Generate/copy request code snippets for 10+ languages and frameworks
 - Import `cURL`
 - Label requests
 

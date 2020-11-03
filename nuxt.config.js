@@ -143,9 +143,7 @@ export default {
 
   apollo: {
     clientConfigs: {
-      default: {
-        httpEndpoint: "https://hoppscotch-backend.herokuapp.com/",
-      },
+      default: "~/plugins/apollo.js",
     },
   },
 

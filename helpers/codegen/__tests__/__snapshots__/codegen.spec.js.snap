@@ -546,7 +546,7 @@ exports[`generate request for NodeJs Axios generate GET request 1`] = `
 `;
 
 exports[`generate request for NodeJs Axios generate POST request for JSON 1`] = `
-"axios.post('https://httpbin.org/path/to?a=b',{ 
+"axios.post('https://httpbin.org/path/to?a=b', {\\"foo\\": \\"bar\\", \\"baz\\": \\"qux\\"},{ 
  headers : {    \\"h1\\": \\"h1v\\",
     \\"h2\\": \\"h2v\\",
 \\"Content-Type\\": \\"application/json; charset=utf-8\\",
@@ -560,7 +560,10 @@ exports[`generate request for NodeJs Axios generate POST request for JSON 1`] = 
 `;
 
 exports[`generate request for NodeJs Axios generate POST request for XML 1`] = `
-"axios.post('https://httpbin.org/path/to?a=b',{ 
+"axios.post('https://httpbin.org/path/to?a=b', <?xml version='1.0' encoding='utf-8'?>
+<xml>
+  <element foo=\\"bar\\"></element>
+</xml>,{ 
  headers : {    \\"h1\\": \\"h1v\\",
     \\"h2\\": \\"h2v\\",
 \\"Content-Type\\": \\"application/xml; charset=utf-8\\",

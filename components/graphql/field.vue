@@ -23,8 +23,8 @@
       {{ $t("deprecated") }}
     </div>
     <div v-if="fieldArgs.length > 0">
-      <h5>ARGUMENTS</h5>
-      <div>
+      <h5 class="text-xs my-2">ARGUMENTS:</h5>
+      <div class="border-l-2 border-acColor px-4">
         <div v-for="(field, index) in fieldArgs" :key="index">
           {{ field.name }}:
           <typelink :gqlType="field.type" :jumpTypeCallback="jumpTypeCallback" />

@@ -59,7 +59,7 @@
     "@vue/test-utils": "^1.1.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.6.3",
-    "eslint": "^7.12.1",
+    "eslint": "^7.13.0",
     "eslint-plugin-vue": "^7.1.0",
     "firebase-mock": "^2.3.2",
     "husky": "^4.3.0",

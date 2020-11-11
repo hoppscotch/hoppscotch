@@ -50,11 +50,11 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${process.env.BASE_URL}banner.jpg`,
+        content: `${process.env.BASE_URL}/banner.jpg`,
       },
       {
         property: "og:image",
-        content: `${process.env.BASE_URL}banner.jpg`,
+        content: `${process.env.BASE_URL}/banner.jpg`,
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
@@ -169,7 +169,7 @@ export default {
 
   // Sitemap module configuration (https://github.com/nuxt-community/sitemap-module)
   sitemap: {
-    hostname: process.env.BASE_URL || "https://hoppscotch.io/",
+    hostname: process.env.BASE_URL || "https://hoppscotch.io",
   },
 
   // Robots module configuration (https://github.com/nuxt-community/robots-module)
@@ -177,7 +177,7 @@ export default {
     UserAgent: "*",
     Disallow: "",
     Allow: "/",
-    Sitemap: `${process.env.BASE_URL}sitemap.xml`,
+    Sitemap: `${process.env.BASE_URL}/sitemap.xml`,
   },
 
   // Color Mode module configuration (https://github.com/nuxt-community/color-mode-module)
@@ -325,7 +325,7 @@ export default {
   publicRuntimeConfig: {
     GA_ID: process.env.GA_ID || "UA-61422507-4",
     GTM_ID: process.env.GTM_ID || "GTM-NMKVBMV",
-    BASE_URL: process.env.BASE_URL || "https://hoppscotch.io/",
+    BASE_URL: process.env.BASE_URL || "https://hoppscotch.io",
   },
 
   // Private runtime configuration (https://nuxtjs.org/guide/runtime-config)

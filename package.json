@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.12.2",
-    "@nuxtjs/gtm": "^2.3.2",
+    "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",

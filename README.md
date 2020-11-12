@@ -392,6 +392,20 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 
 #### GitHub Sponsors
 
+<a href="https://github.com/gianlucapisati" target="_blank" rel="noopener">
+<img
+	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+	src="https://github.com/gianlucapisati.png?size=64"
+	alt="Gianluca Pisati"
+/>
+</a>
+<a href="https://github.com/kcomain" target="_blank" rel="noopener">
+<img
+	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+	src="https://github.com/kcomain.png?size=64"
+	alt="Kenny Cheung"
+/>
+</a>
 <a href="https://github.com/scmmishra" target="_blank" rel="noopener">
 <img
 	style="max-width: 64px; max-height: 64px; border-radius: 100%"
@@ -492,6 +506,16 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 </a>
 
 #### Open Collective
+
+**🧚 Angel Sponsors**
+
+<a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">
+<img
+	style="max-width: 200px; max-height: 200px;"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Paw-Logo-for-Hoppscotsh.png"
+	alt="Paw"
+/>
+</a>
 
 <a href="https://opencollective.com/hoppscotch/organization/0/website"><img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg"></a>
 <a href="https://opencollective.com/hoppscotch/organization/1/website"><img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg"></a>

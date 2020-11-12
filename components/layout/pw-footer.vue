@@ -1,7 +1,11 @@
 <template>
   <footer class="flex-col flex-no-wrap">
     <div class="row-wrapper">
-      <span v-if="version.name" class="font-mono">
+      <span
+        v-if="version.name"
+        class="flex flex-col flex-wrap justify-start font-mono md:flex-row"
+        style="align-items: start"
+      >
         <a
           class="footer-link"
           :href="'https://github.com/hoppscotch/hoppscotch/releases/tag/' + version.name"
@@ -11,13 +15,16 @@
         >
           {{ version.name }}
         </a>
+        <a class="footer-link" href="https://www.netlify.com" target="_blank" rel="noopener">
+          Powered by Netlify
+        </a>
         <a
-          class="footer-link hide-on-small-screen"
-          href="https://www.netlify.com"
+          class="footer-link"
+          href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
           target="_blank"
           rel="noopener"
         >
-          Powered by Netlify
+          Sponsored by Paw
         </a>
         <!-- <span v-if="version.hash">
           -
@@ -29,7 +36,10 @@
         </span> -->
         <!-- <span v-if="version.variant">({{version.variant}})</span> -->
       </span>
-      <span>
+      <span
+        class="flex flex-col flex-wrap justify-start font-mono md:flex-row"
+        style="align-items: start"
+      >
         <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="'Liyas Thomas'">🦄</button>
         </a>
@@ -59,6 +69,8 @@
 
 <style scoped lang="scss">
 .footer-link {
+  @apply inline-flex;
+  @apply flex-shrink-0;
   @apply my-2;
   @apply mx-4;
   @apply text-fgLightColor;

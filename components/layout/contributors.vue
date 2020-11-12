@@ -77,6 +77,15 @@
     <hr />
     <h3 class="title">Financial Contributors</h3>
     <div class="contributors">
+      <a
+        href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
+        target="_blank"
+        rel="noopener"
+      >
+        <img style="max-width: 320px" src="~assets/images/Paw-Logo-for-Hoppscotsh.png" alt="Paw" />
+      </a>
+    </div>
+    <div class="contributors">
       <a href="https://tyk.io" target="_blank" rel="noopener">
         <img
           style="max-width: 320px"

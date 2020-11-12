@@ -86,16 +86,10 @@ export default {
       type: String,
       default: "Section",
     },
-    collapsed: {
-      type: Boolean,
-    },
   },
 
   methods: {
-    collapse({ target }) {
-      const parent = target.parentNode.parentNode
-      parent.querySelector(".collapsible").classList.toggle("hidden")
-
+    collapse() {
       // Save collapsed section into the collapsedSections array
       this.$store.commit("setCollapsedSection", this.sectionString)
     },

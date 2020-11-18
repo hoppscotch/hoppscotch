@@ -276,7 +276,7 @@ export default {
       },
       {
         code: "ml",
-        name: "Malayalam",
+        name: "മലയാളം",
         iso: "ml-ML",
         file: "ml-ML.json",
       },

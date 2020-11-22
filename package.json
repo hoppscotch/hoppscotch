@@ -11,7 +11,7 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "pregenerate": "node build.js",
-    "generate": "nuxt generate",
+    "generate": "nuxt generate --modern",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
     "test": "jest"
   },

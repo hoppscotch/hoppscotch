@@ -40,7 +40,7 @@ export default {
     },
     async signInWithGoogle() {
       try {
-        const { additionUserInfo } = await fb.signInUserWithGoogle()
+        const { additionalUserInfo } = await fb.signInUserWithGoogle()
 
         if (additionalUserInfo.isNewUser) {
           this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {

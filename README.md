@@ -1,3 +1,5 @@
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
+
 <div align="center">
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/logo.png" alt="hoppscotch.io logo" height="128"></a>
   <br>

@@ -13,7 +13,7 @@
         @click="!doc ? selectRequest() : {}"
         v-tooltip="!doc ? $t('use_request') : ''"
       >
-        <i class="material-icons">insert_drive_file</i>
+        <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
         <span>{{ request.name }}</span>
       </button>
     </div>
@@ -68,6 +68,13 @@ export default {
   data() {
     return {
       dragging: false,
+      requestMethodLabels: {
+        get: "text-green-400",
+        post: "text-yellow-400",
+        put: "text-blue-400",
+        delete: "text-red-400",
+        default: "text-gray-400",
+      },
     }
   },
   methods: {
@@ -99,6 +106,9 @@ export default {
         icon: "delete",
       })
       this.syncCollections()
+    },
+    getRequestLabelColor(method) {
+      return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default
     },
   },
 }

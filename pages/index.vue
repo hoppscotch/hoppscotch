@@ -9,14 +9,12 @@
               <span class="select-wrapper">
                 <v-popover>
                   <input
-                    v-if="!customMethod"
                     id="method"
                     class="method"
                     v-model="method"
-                    readonly
+                    :readonly="!customMethod"
                     autofocus
                   />
-                  <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
                     <div>
                       <button

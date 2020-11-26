@@ -17,12 +17,11 @@
     <div slot="body">
       <ul>
         <li>
-          <label for="selectLabel">{{ $t("label") }}</label>
+          <label for="selectLabel">{{ $t("token_req_name") }}</label>
           <input
             type="text"
             id="selectLabel"
             v-model="requestData.name"
-            :placeholder="defaultRequestName"
             @keyup.enter="saveRequestAs"
           />
           <label for="selectCollection">{{ $t("collection") }}</label>
@@ -89,7 +88,7 @@ export default {
   },
   data() {
     return {
-      defaultRequestName: "My Request",
+      defaultRequestName: "Untitled Request",
       requestData: {
         name: undefined,
         collectionIndex: undefined,
@@ -108,8 +107,8 @@ export default {
     "requestData.folderName": function resetRequestIndex() {
       this.$data.requestData.requestIndex = undefined
     },
-    editingRequest({ label }) {
-      this.defaultRequestName = label || "My Request"
+    editingRequest({ name }) {
+      this.$data.requestData.name = name || this.$data.defaultRequestName
     },
   },
   computed: {
@@ -168,10 +167,16 @@ export default {
         })
         return
       }
+      if (this.$data.requestData.name.length === 0) {
+        this.$toast.error(this.$t("empty_req_name"), {
+          icon: "error",
+        })
+        return
+      }
 
       const requestUpdated = {
         ...this.$props.editingRequest,
-        name: this.$data.requestData.name || this.$data.defaultRequestName,
+        name: this.$data.requestData.name,
         collection: this.$data.requestData.collectionIndex,
       }
 

@@ -103,6 +103,7 @@
   "manage_token_req": "Manage Token Request",
   "use_token_req": "Use Token Request",
   "token_req_name": "Request Name",
+  "empty_req_name": "Empty Request Name",
   "token_req_details": "Request Details",
   "token_name": "Token Name",
   "oidc_discovery_url": "OIDC Discovery URL",

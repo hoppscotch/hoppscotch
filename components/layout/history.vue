@@ -23,11 +23,11 @@
           </button>
           <li>
             <input
-              :aria-label="$t('label')"
+              :aria-label="$t('token_req_name')"
               type="text"
               readonly
-              :value="entry.label"
-              :placeholder="$t('no_label')"
+              :value="entry.name"
+              :placeholder="$t('empty_req_name')"
               class="bg-color"
             />
           </li>

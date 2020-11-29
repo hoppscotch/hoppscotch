@@ -102,7 +102,6 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {

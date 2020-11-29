@@ -1,5 +1,9 @@
 <template>
   <div class="page">
+    <div v-if="fb.currentUser">
+      <teams />
+    </div>
+
     <pw-section class="green" :label="$t('account')" ref="account">
       <ul>
         <li>

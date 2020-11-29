@@ -1,43 +1,30 @@
 <template>
   <div class="page">
-    <pw-section class="green" :label="$t('account')" ref="account" no-legend>
-      <div class="flex flex-col">
-        <label>{{ $t("account") }}</label>
-        <div v-if="fb.currentUser">
-          <button class="icon">
-            <img
-              v-if="fb.currentUser.photoURL"
-              :src="fb.currentUser.photoURL"
-              class="rounded-full material-icons"
-            />
-            <i v-else class="material-icons">account_circle</i>
-            <span>
-              {{ fb.currentUser.displayName || $t("nothing_found") }}
-            </span>
-          </button>
-          <br />
-          <button class="icon">
-            <i class="material-icons">email</i>
-            <span>
-              {{ fb.currentUser.email || $t("nothing_found") }}
-            </span>
-          </button>
-          <br />
-          <logout />
-          <p v-for="setting in fb.currentSettings" :key="setting.id">
-            <pw-toggle
-              :key="setting.name"
-              :on="setting.value"
-              @change="toggleSettings(setting.name, setting.value)"
-            >
-              {{ $t(setting.name) + " " + $t("sync") }}
-              {{ setting.value ? $t("enabled") : $t("disabled") }}
-            </pw-toggle>
-          </p>
-          <p v-if="fb.currentSettings.length !== 3">
-            <button class="" @click="initSettings">
-              <i class="material-icons">sync</i>
-              <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
+    <div v-if="fb.currentUser">
+      <teams />
+    </div>
+
+    <pw-section class="green" :label="$t('account')" ref="account">
+      <ul>
+        <li>
+          <div v-if="fb.currentUser">
+            <button class="icon">
+              <img
+                v-if="fb.currentUser.photoURL"
+                :src="fb.currentUser.photoURL"
+                class="rounded-full material-icons"
+              />
+              <i v-else class="material-icons">account_circle</i>
+              <span>
+                {{ fb.currentUser.displayName || $t("nothing_found") }}
+              </span>
+            </button>
+            <br />
+            <button class="icon">
+              <i class="material-icons">email</i>
+              <span>
+                {{ fb.currentUser.email || $t("nothing_found") }}
+              </span>
             </button>
           </p>
         </div>

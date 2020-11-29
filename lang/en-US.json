@@ -302,5 +302,16 @@
   "import_from_gist": "Import from Gist",
   "enter_gist_url": "Enter Gist URL",
   "account_exists": "Account exists with different credential - Login to link both accounts",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "teams": "Teams",
+  "new_team": "New Team",
+  "my_new_team": "My New Team",
+  "edit_team": "Edit Team",
+  "team_member_list": "Member List",
+  "invalid_team_name": "Please provide a valid name for the team",
+  "use_team": "Use Team",
+  "add_one_member": "(add at least one member)",
+  "permissions": "Permissions",
+  "email": "E-mail",
+  "create_new_team": "Create new team"
 }

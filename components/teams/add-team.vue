@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import closeIcon from "~/static/icons/close-24px.svg?inline"
+import gql from "graphql-tag"
 
 export default {
   props: {
@@ -60,7 +60,38 @@ export default {
   },
   methods: {
     addNewTeam() {
-      console.log("addNewTeam")
+      console.log("addNewTeam start")
+      // We save the user input in case of an error
+      const name = this.name
+      // We clear it early to give the UI a snappy feel
+      this.name = ""
+      // Call to the graphql mutation
+      this.$apollo
+        .mutate({
+          // Query
+          mutation: gql`
+            mutation($name: String!) {
+              createTeam(name: $name) {
+                name
+              }
+            }
+          `,
+          // Parameters
+          variables: {
+            name: name,
+          },
+        })
+        .then((data) => {
+          // Result
+          this.hideModal()
+          console.log(data)
+        })
+        .catch((error) => {
+          // Error
+          console.error(error)
+          // We restore the initial user input
+          this.name = name
+        })
     },
     hideModal() {
       this.$data.name = undefined

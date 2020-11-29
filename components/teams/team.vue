@@ -2,7 +2,7 @@
   <div class="row-wrapper">
     <div>
       <button class="icon" v-tooltip.right="$t('use_team')">
-        <i class="material-icons">insert_drive_file</i>
+        <i class="material-icons">group</i>
         <span>{{ team.name }}</span>
       </button>
     </div>
@@ -42,8 +42,6 @@ ul li {
 </style>
 
 <script>
-import { fb } from "~/helpers/fb"
-
 export default {
   props: {
     team: Object,

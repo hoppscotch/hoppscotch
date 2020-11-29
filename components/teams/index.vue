@@ -28,7 +28,8 @@
       <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
     </p>
     <div class="virtual-list">
-      <ul class="flex-col">
+      <div class="info" v-if="$apollo.queries.myTeams.loading">{{ $t("loading") }}</div>
+      <ul class="flex-col" v-else>
         <li v-for="(team, index) in myTeams" :key="team.name">
           <team :teamIndex="index" :team="team" @edit-team="editTeam(team, index)" />
         </li>
@@ -49,16 +50,7 @@ ul {
 </style>
 
 <script>
-import { fb } from "~/helpers/fb"
 import gql from "graphql-tag"
-
-export const myTeams = gql`
-  query GetMyTeams {
-    myTeams {
-      name
-    }
-  }
-`
 
 export default {
   data() {
@@ -74,16 +66,20 @@ export default {
         ],
       },
       editingTeamIndex: 0,
+      myTeams: [],
+      pollInterval: 300,
     }
   },
   apollo: {
     myTeams: {
-      query: myTeams,
-    },
-  },
-  computed: {
-    myTeams() {
-      return [{ name: "D", name: "3" }]
+      query: gql`
+        query GetMyTeams {
+          myTeams {
+            name
+          }
+        }
+      `,
+      pollInterval: 300,
     },
   },
   async mounted() {

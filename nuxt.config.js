@@ -29,7 +29,6 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: `${options.name} • ${options.shortDescription}`,
     meta: [
       {
         name: "keywords",
@@ -50,10 +49,6 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${process.env.BASE_URL}/banner.jpg`,
-      },
-      {
-        property: "og:image",
         content: `${process.env.BASE_URL}/banner.jpg`,
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
@@ -132,11 +127,13 @@ export default {
   // PWA module configuration (https://pwa.nuxtjs.org/setup)
   pwa: {
     meta: {
+      name: `${options.name} - ${options.shortDescription}`,
+      description: options.description,
       ogHost: process.env.BASE_URL,
+      ogImage: `${process.env.BASE_URL}/banner.jpg`,
       twitterCard: "summary_large_image",
       twitterSite: options.social.twitter,
       twitterCreator: options.social.twitter,
-      description: options.shortDescription,
       theme_color: options.app.background,
     },
     manifest: {
@@ -145,7 +142,6 @@ export default {
       description: options.shortDescription,
       start_url: "/",
       background_color: options.app.background,
-      theme_color: options.app.background,
     },
   },
 
@@ -276,7 +272,7 @@ export default {
       },
       {
         code: "ml",
-        name: "Malayalam",
+        name: "മലയാളം",
         iso: "ml-ML",
         file: "ml-ML.json",
       },
@@ -285,6 +281,12 @@ export default {
         name: "Vietnamese",
         iso: "vi-VN",
         file: "vi-VN.json",
+      },
+      {
+        code: "nl",
+        name: "Dutch",
+        iso: "nl-BE",
+        file: "nl-BE.json",
       },
     ],
     defaultLocale: "en",

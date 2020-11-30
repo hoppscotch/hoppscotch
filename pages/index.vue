@@ -831,13 +831,7 @@
               </pw-section>
             </tab>
 
-            <tab
-              :id="'tests'"
-              :label="
-                $t('tests') +
-                `${testReports.length !== 0 ? ' \xA0 • \xA0 ' + testReports.length : ''}`
-              "
-            >
+            <tab :id="'tests'" :label="$t('tests')">
               <pw-section
                 v-if="testsEnabled"
                 class="orange"
@@ -886,6 +880,7 @@
                       </div>
                       <div v-for="(testReport, index) in testReports" :key="index">
                         <div v-if="testReport.startBlock" class="info">
+                          <hr />
                           <h4>{{ testReport.startBlock }}</h4>
                         </div>
                         <p v-else-if="testReport.result" class="row-wrapper info">

@@ -306,7 +306,7 @@ ol {
 </style>
 
 <script>
-import { findStatusGroup } from "~/pages/index"
+import findStatusGroup from "~/helpers/findStatusGroup"
 import { fb } from "~/helpers/fb"
 import closeIcon from "~/static/icons/close-24px.svg?inline"
 import deleteIcon from "~/static/icons/delete-24px.svg?inline"

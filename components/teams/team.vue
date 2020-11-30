@@ -42,19 +42,47 @@ ul li {
 </style>
 
 <script>
+import gql from "graphql-tag"
+
 export default {
   props: {
     team: Object,
-    teamIndex: Number,
+    teamID: String,
   },
   methods: {
-    syncTeams() {
-      console.log("syncTeams")
-    },
     removeTeam() {
       if (!confirm("Are you sure you want to remove this team?")) return
-      console.log("removeTeam")
-      this.syncTeams()
+      console.log("removeTeam", this.teamID)
+      // Call to the graphql mutation
+      this.$apollo
+        .mutate({
+          // Query
+          mutation: gql`
+            mutation($teamID: String!) {
+              deleteTeam(teamID: $teamID) {
+                id
+              }
+            }
+          `,
+          // Parameters
+          variables: {
+            teamID: this.teamID,
+          },
+        })
+        .then((data) => {
+          // Result
+          this.$toast.success(this.$t("new_team_created"), {
+            icon: "done",
+          })
+          console.log(data)
+        })
+        .catch((error) => {
+          // Error
+          this.$toast.error(this.$t("error_occurred"), {
+            icon: "done",
+          })
+          console.error(error)
+        })
     },
   },
 }

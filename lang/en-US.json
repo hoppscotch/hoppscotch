@@ -313,5 +313,8 @@
   "add_one_member": "(add at least one member)",
   "permissions": "Permissions",
   "email": "E-mail",
-  "create_new_team": "Create new team"
+  "create_new_team": "Create new team",
+  "new_team_created": "New team created",
+  "team_saved": "Team saved",
+  "team_name_empty": "Team name empty"
 }

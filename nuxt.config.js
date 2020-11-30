@@ -272,7 +272,7 @@ export default {
       },
       {
         code: "ml",
-        name: "Malayalam",
+        name: "മലയാളം",
         iso: "ml-ML",
         file: "ml-ML.json",
       },
@@ -281,6 +281,12 @@ export default {
         name: "Vietnamese",
         iso: "vi-VN",
         file: "vi-VN.json",
+      },
+      {
+        code: "nl",
+        name: "Dutch",
+        iso: "nl-BE",
+        file: "nl-BE.json",
       },
     ],
     defaultLocale: "en",

@@ -282,6 +282,12 @@ export default {
         iso: "vi-VN",
         file: "vi-VN.json",
       },
+      {
+        code: "nl",
+        name: "Dutch",
+        iso: "nl-BE",
+        file: "nl-BE.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

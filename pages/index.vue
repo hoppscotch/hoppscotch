@@ -9,14 +9,12 @@
               <span class="select-wrapper">
                 <v-popover>
                   <input
-                    v-if="!customMethod"
                     id="method"
                     class="method"
                     v-model="method"
-                    readonly
+                    :readonly="!customMethod"
                     autofocus
                   />
-                  <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
                     <div>
                       <button
@@ -180,14 +178,8 @@
             </li>
           </ul>
           <div class="blue">
-            <label for="label">{{ $t("label") }}</label>
-            <input
-              id="label"
-              name="label"
-              type="text"
-              v-model="label"
-              :placeholder="$t('optional')"
-            />
+            <label for="name">{{ $t("token_req_name") }}</label>
+            <input id="name" name="name" type="text" v-model="name" />
           </div>
           <div
             class="blue"
@@ -1463,7 +1455,7 @@ export default {
         this.testsEnabled = true
         this.testScript = newValue.testScript
       }
-      this.label = newValue.label
+      this.name = newValue.name
     },
     editingRequest(newValue) {
       this.editRequest = newValue
@@ -1530,12 +1522,12 @@ export default {
         this.$store.commit("setState", { value, attribute: "path" })
       },
     },
-    label: {
+    name: {
       get() {
-        return this.$store.state.request.label
+        return this.$store.state.request.name
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "label" })
+        this.$store.commit("setState", { value, attribute: "name" })
       },
     },
     auth: {
@@ -1741,7 +1733,7 @@ export default {
       return this.$store.state.postwoman.editingRequest
     },
     requestName() {
-      return this.label
+      return this.name
     },
     statusCategory() {
       return findStatusGroup(this.response.status)
@@ -1880,7 +1872,7 @@ export default {
       })
     },
     handleUseHistory(entry) {
-      this.label = entry.label
+      this.name = entry.name
       this.method = entry.method
       this.uri = entry.url + entry.path
       this.url = entry.url
@@ -2023,7 +2015,7 @@ export default {
           this.response.body = payload.data
           // Addition of an entry to the history component.
           const entry = {
-            label: this.requestName,
+            name: this.requestName,
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
@@ -2078,7 +2070,7 @@ export default {
             this.response.body = error.response.data
             // Addition of an entry to the history component.
             const entry = {
-              label: this.requestName,
+              name: this.requestName,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
@@ -2429,7 +2421,7 @@ export default {
           this.url = "https://httpbin.org"
           this.path = "/get"
           this.uri = this.url + this.path
-          this.label = ""
+          this.name = "Untitled request"
           this.bodyParams = []
           this.rawParams = "{}"
           this.files = []
@@ -2482,7 +2474,7 @@ export default {
         requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
-        label: this.requestName,
+        name: this.requestName,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
@@ -2703,7 +2695,7 @@ export default {
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
       (vm) => [
-        vm.label,
+        vm.name,
         vm.method,
         vm.url,
         vm.auth,

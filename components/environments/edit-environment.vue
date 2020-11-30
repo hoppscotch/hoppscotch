@@ -123,6 +123,7 @@ export default {
   data() {
     return {
       name: undefined,
+      doneButton: '<i class="material-icons">done</i>',
     }
   },
   watch: {

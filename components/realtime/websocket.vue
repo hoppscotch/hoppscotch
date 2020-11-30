@@ -147,7 +147,9 @@ export default {
       }
     },
     disconnect() {
-      this.socket.close()
+      if (this.socket) {
+        this.socket.close()
+      }
     },
     handleError(error) {
       this.disconnect()

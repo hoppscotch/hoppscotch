@@ -394,141 +394,149 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 
 **🧞 Genie Sponsors**
 
+<p align="center">
 <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
 <img
-	style="max-width: 200px; max-height: 200px;"
+	width="200"
 	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Deta-Logo-for-Hoppscotch.svg"
 	alt="Deta"
 />
 </a>
+</p>
 
+<p align="center">
 <a href="https://github.com/gianlucapisati" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/gianlucapisati.png?size=64"
 	alt="Gianluca Pisati"
 />
 </a>
 <a href="https://github.com/kcomain" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/kcomain.png?size=64"
 	alt="Kenny Cheung"
 />
 </a>
 <a href="https://github.com/scmmishra" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/scmmishra.png?size=64"
 	alt="Shivam Mishra"
 />
 </a>
 <a href="https://zach.codes" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/zackify.png?size=64"
 	alt="Zach Silveira"
 />
 </a>
 <a href="https://github.com/pantharshit00" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/pantharshit00.png?size=64"
 	alt="Harshit Pant"
 />
 </a>
 <a href="https://github.com/janpio" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/janpio.png?size=64"
 	alt="Jan Piotrowski"
 />
 </a>
 <a href="https://github.com/ankumar" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/ankumar.png?size=64"
 	alt="Anil Kumar"
 />
 </a>
 <a href="https://github.com/gpeal" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/gpeal.png?size=64"
 	alt="Gabriel Peal"
 />
 </a>
 <a href="https://github.com/koddsson" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/koddsson.png?size=64"
 	alt="Kristján Oddsson"
 />
 </a>
 <a href="https://github.com/donokuda" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/donokuda.png?size=64"
 	alt="Don Okuda"
 />
 </a>
 <a href="https://github.com/ebrescia" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/ebrescia.png?size=64"
 	alt="Erica Brescia"
 />
 </a>
 <a href="http://tom.preston-werner.com" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/mojombo.png?size=64"
 	alt="Tom Preston-Werner"
 />
 </a>
 <a href="https://github.com/mlynch" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/mlynch.png?size=64"
 	alt="Max Lynch"
 />
 </a>
 <a href="https://github.com/brianshaler" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/brianshaler.png?size=64"
 	alt="Brian Shaler"
 />
 </a>
 <a href="https://github.com/mxstbr" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/mxstbr.png?size=64"
 	alt="Max Stoiber"
 />
 </a>
 <a href="https://github.com/jjcaine" target="_blank" rel="noopener">
 <img
-	style="max-width: 64px; max-height: 64px; border-radius: 100%"
+  width="64"
 	src="https://github.com/jjcaine.png?size=64"
 	alt="John Caine"
 />
 </a>
+</p>
 
 #### Open Collective
 
 **🧚 Angel Sponsors**
 
+<p align="center">
 <a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">
 <img
-	style="max-width: 100px; max-height: 100px;"
+  width="100"
 	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Paw-Logo-for-Hoppscotch.png"
 	alt="Paw"
 />
 </a>
+</p>
 
+<p align="center">
 <a href="https://opencollective.com/hoppscotch/organization/0/website"><img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg"></a>
 <a href="https://opencollective.com/hoppscotch/organization/1/website"><img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg"></a>
+</p>
 
 ### Code Contributors
 

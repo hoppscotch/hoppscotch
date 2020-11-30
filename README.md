@@ -392,6 +392,16 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 
 #### GitHub Sponsors
 
+**🧞 Genie Sponsors**
+
+<a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
+<img
+	style="max-width: 200px; max-height: 200px;"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Deta-Logo-for-Hoppscotch.svg"
+	alt="Deta"
+/>
+</a>
+
 <a href="https://github.com/gianlucapisati" target="_blank" rel="noopener">
 <img
 	style="max-width: 64px; max-height: 64px; border-radius: 100%"
@@ -511,8 +521,8 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 
 <a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">
 <img
-	style="max-width: 200px; max-height: 200px;"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Paw-Logo-for-Hoppscotsh.png"
+	style="max-width: 100px; max-height: 100px;"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Paw-Logo-for-Hoppscotch.png"
 	alt="Paw"
 />
 </a>

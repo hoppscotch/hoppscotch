@@ -1,4 +1,4 @@
-const statusCategories = () => [
+const statusCategories = [
   {
     name: "informational",
     statusCodeRegex: new RegExp(/[1][0-9]+/),
@@ -32,5 +32,5 @@ const statusCategories = () => [
   },
 ]
 
-export default findStatusGroup = (responseStatus) =>
+export default (responseStatus) =>
   statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))

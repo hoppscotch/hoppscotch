@@ -4,7 +4,7 @@
     <edit-team
       :show="showModalEdit"
       :editingTeam="editingTeam"
-      :editingTeamIndex="editingTeamIndex"
+      :editingteamID="editingteamID"
       @hide-modal="displayModalEdit(false)"
     />
     <import-export-team
@@ -24,14 +24,14 @@
         </button>
       </div>
     </div>
+    <p v-if="$apollo.queries.myTeams.loading" class="info">{{ $t("loading") }}</p>
     <p v-if="myTeams.length === 0" class="info">
       <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
     </p>
-    <div class="virtual-list">
-      <div class="info" v-if="$apollo.queries.myTeams.loading">{{ $t("loading") }}</div>
-      <ul class="flex-col" v-else>
-        <li v-for="(team, index) in myTeams" :key="team.name">
-          <team :teamIndex="index" :team="team" @edit-team="editTeam(team, index)" />
+    <div v-else class="virtual-list">
+      <ul class="flex-col">
+        <li v-for="(team, index) in myTeams" :key="`team-${index}`">
+          <team :teamID="team.id" :team="team" @edit-team="editTeam(team, team.id)" />
         </li>
       </ul>
     </div>
@@ -65,7 +65,7 @@ export default {
           { key: "andrew@abc.com", value: "write" },
         ],
       },
-      editingTeamIndex: 0,
+      editingteamID: "",
       myTeams: [],
       pollInterval: 300,
     }
@@ -75,11 +75,12 @@ export default {
       query: gql`
         query GetMyTeams {
           myTeams {
+            id
             name
           }
         }
       `,
-      pollInterval: 300,
+      pollInterval: 10000,
     },
   },
   async mounted() {
@@ -103,8 +104,10 @@ export default {
     displayModalImportExport(shouldDisplay) {
       this.showModalImportExport = shouldDisplay
     },
-    editTeam(team, teamIndex) {
-      console.log("editTeam")
+    editTeam(team, teamID) {
+      console.log("editTeamStart", team)
+      this.editingTeam = team
+      this.editingteamID = team.id
       this.displayModalEdit(true)
       this.syncTeams()
     },

@@ -103,25 +103,26 @@
 
 <script>
 import closeIcon from "~/static/icons/close-24px.svg?inline"
+import gql from "graphql-tag"
 
 export default {
   props: {
     show: Boolean,
     editingTeam: Object,
-    editingTeamIndex: Number,
+    editingteamID: String,
   },
   components: {
     closeIcon,
   },
   data() {
     return {
-      name: undefined,
+      rename: null,
       doneButton: '<i class="material-icons">done</i>',
     }
   },
   watch: {
     editingTeam: function (update) {
-      console.log("editingTeam")
+      console.log("editingTeam", update)
     },
   },
   computed: {
@@ -131,6 +132,14 @@ export default {
     },
     memberString() {
       console.log("memberString")
+    },
+    name: {
+      get() {
+        return this.editingTeam.name
+      },
+      set(name) {
+        this.rename = name
+      },
     },
   },
   methods: {
@@ -150,6 +159,43 @@ export default {
     },
     saveTeam() {
       console.log("saveTeam")
+      const newName = this.name == this.rename ? this.name : this.rename
+      if (!/\S/.test(newName))
+        return this.$toast.error(this.$t("team_name_empty"), {
+          icon: "error",
+        })
+      // Call to the graphql mutation
+      this.$apollo
+        .mutate({
+          // Query
+          mutation: gql`
+            mutation($newName: String!, $teamID: String!) {
+              renameTeam(newName: $newName, teamID: $teamID) {
+                id
+              }
+            }
+          `,
+          // Parameters
+          variables: {
+            newName: newName,
+            teamID: this.editingteamID,
+          },
+        })
+        .then((data) => {
+          // Result
+          this.$toast.success(this.$t("team_saved"), {
+            icon: "done",
+          })
+          this.hideModal()
+          console.log(data)
+        })
+        .catch((error) => {
+          // Error
+          this.$toast.error(this.$t("error_occurred"), {
+            icon: "done",
+          })
+          console.error(error)
+        })
     },
     hideModal() {
       this.$emit("hide-modal")

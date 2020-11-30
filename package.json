@@ -27,7 +27,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.12.2",
+    "@nuxtjs/axios": "^5.12.3",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.4.0",
@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.12.7",
     "@nuxtjs/color-mode": "^2.0.0",
     "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/pwa": "^3.3.1",
+    "@nuxtjs/pwa": "^3.3.2",
     "@nuxtjs/svg": "^0.1.12",
     "@nuxtjs/tailwindcss": "^3.2.0",
     "@testing-library/jest-dom": "^5.11.6",

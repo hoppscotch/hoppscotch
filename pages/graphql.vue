@@ -297,8 +297,17 @@
                   </div>
                 </tab>
 
-                <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
-                  <div v-for="type in filteredGqlTypes" :key="type.name" :id="`type_${type.name}`">
+                <tab
+                  v-if="graphqlTypes.length > 0"
+                  :id="'types'"
+                  :label="$t('types')"
+                  ref="typesTab"
+                >
+                  <div
+                    v-for="type in filteredGraphqlTypes"
+                    :key="type.name"
+                    :id="`type_${type.name}`"
+                  >
                     <type
                       :gqlType="type"
                       :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
@@ -316,7 +325,7 @@
               queryFields.length === 0 &&
               mutationFields.length === 0 &&
               subscriptionFields.length === 0 &&
-              gqlTypes.length === 0
+              graphqlTypes.length === 0
             "
             class="info"
           >
@@ -353,7 +362,7 @@ export default {
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
-      gqlTypes: [],
+      graphqlTypes: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
@@ -390,10 +399,10 @@ export default {
         fields: this.subscriptionFields,
       })
     },
-    filteredGqlTypes() {
+    filteredGraphqlTypes() {
       return this.getFilteredGraphqlTypes({
         filterText: this.graphqlFieldsFilterText,
-        types: this.gqlTypes,
+        types: this.graphqlTypes,
       })
     },
     url: {
@@ -494,8 +503,8 @@ export default {
       const normalizedText = text.toLowerCase()
 
       const isFilterTextFoundInDescription = graphqlFieldObject.description
-        .toLowerCase()
-        .includes(normalizedText)
+        ? graphqlFieldObject.description.toLowerCase().includes(normalizedText)
+        : false
       const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(normalizedText)
 
       return isFilterTextFoundInDescription || isFilterTextFoundInName
@@ -691,7 +700,7 @@ export default {
           types.push(typeMap[type])
         }
       }
-      this.gqlTypes = types
+      this.graphqlTypes = types
     },
     async onPollSchemaClick() {
       if (this.isPollingSchema) {

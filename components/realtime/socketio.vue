@@ -105,10 +105,10 @@
 </template>
 
 <script>
-import { socketioValid } from "~/helpers/utils/valid"
 import io from "socket.io-client"
 import wildcard from "socketio-wildcard"
 import deleteIcon from "~/static/icons/delete-24px.svg?inline"
+import debounce from "~/helpers/utils/debounce"
 
 export default {
   components: {
@@ -118,6 +118,7 @@ export default {
     return {
       url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
       path: "/socket.io",
+      isUrlValid: true,
       connectionState: false,
       io: null,
       communication: {
@@ -127,12 +128,32 @@ export default {
       },
     }
   },
+  mounted() {
+    if (process.browser) {
+      this.worker = this.$worker.createRejexWorker()
+      this.worker.addEventListener("message", this.workerResponseHandler)
+    }
+  },
+  destroyed() {
+    this.worker.terminate()
+  },
   computed: {
     urlValid() {
-      return socketioValid(this.url)
+      return this.isUrlValid
+    },
+  },
+  watch: {
+    url(val) {
+      this.debouncer()
     },
   },
   methods: {
+    debouncer: debounce(function () {
+      this.worker.postMessage({ type: "socketio", url: this.url })
+    }, 1000),
+    workerResponseHandler(message) {
+      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    },
     removeCommunicationInput({ index }) {
       this.$delete(this.communication.inputs, index)
     },

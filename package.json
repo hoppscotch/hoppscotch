@@ -69,7 +69,8 @@
     "pretty-quick": "^3.1.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
-    "vue-jest": "^3.0.7"
+    "vue-jest": "^3.0.7",
+    "worker-loader": "^3.0.5"
   },
   "jest": {
     "moduleFileExtensions": [

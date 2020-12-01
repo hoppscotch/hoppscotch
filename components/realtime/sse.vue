@@ -40,13 +40,14 @@
 </template>
 
 <script>
-import { httpValid } from "~/helpers/utils/valid"
+import debounce from "~/helpers/utils/debounce"
 
 export default {
   data() {
     return {
       connectionSSEState: false,
       server: "https://express-eventsource.herokuapp.com/events",
+      isUrlValid: true,
       sse: null,
       events: {
         log: null,
@@ -54,12 +55,32 @@ export default {
       },
     }
   },
+  watch: {
+    server(val) {
+      this.debouncer()
+    },
+  },
+  mounted() {
+    if (process.browser) {
+      this.worker = this.$worker.createRejexWorker()
+      this.worker.addEventListener("message", this.workerResponseHandler)
+    }
+  },
+  destroyed() {
+    this.worker.terminate()
+  },
   computed: {
     serverValid() {
-      return httpValid(this.server)
+      return this.isUrlValid
     },
   },
   methods: {
+    debouncer: debounce(function () {
+      this.worker.postMessage({ type: "sse", url: this.server })
+    }, 1000),
+    workerResponseHandler(message) {
+      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    },
     toggleSSEConnection() {
       // If it is connecting:
       if (!this.connectionSSEState) return this.start()

@@ -70,12 +70,13 @@
 
 <script>
 import Paho from "paho-mqtt"
-import { wsValid } from "~/helpers/utils/valid"
+import debounce from "~/helpers/utils/debounce"
 
 export default {
   data() {
     return {
       url: "wss://test.mosquitto.org:8081",
+      isUrlValid: true,
       client: null,
       pub_topic: "",
       sub_topic: "",
@@ -86,9 +87,23 @@ export default {
       subscriptionState: false,
     }
   },
+  mounted() {
+    if (process.browser) {
+      this.worker = this.$worker.createRejexWorker()
+      this.worker.addEventListener("message", this.workerResponseHandler)
+    }
+  },
+  destroyed() {
+    this.worker.terminate()
+  },
+  watch: {
+    url(val) {
+      this.debouncer()
+    },
+  },
   computed: {
     validUrl() {
-      return wsValid(this.url)
+      return this.isUrlValid
     },
     canpublish() {
       return this.pub_topic != "" && this.msg != "" && this.connectionState
@@ -98,6 +113,12 @@ export default {
     },
   },
   methods: {
+    debouncer: debounce(function () {
+      this.worker.postMessage({ type: "ws", url: this.url })
+    }, 1000),
+    workerResponseHandler(message) {
+      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    },
     connect() {
       this.log = [
         {

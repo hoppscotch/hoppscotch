@@ -66,13 +66,14 @@
 </template>
 
 <script>
-import { wsValid } from "~/helpers/utils/valid"
+import debounce from "~/helpers/utils/debounce"
 
 export default {
   data() {
     return {
       connectionState: false,
       url: "wss://echo.websocket.org",
+      isUrlValid: true,
       socket: null,
       communication: {
         log: null,
@@ -81,12 +82,32 @@ export default {
       currentIndex: -1, //index of the message log array to put in input box
     }
   },
+  mounted() {
+    if (process.browser) {
+      this.worker = this.$worker.createRejexWorker()
+      this.worker.addEventListener("message", this.workerResponseHandler)
+    }
+  },
+  destroyed() {
+    this.worker.terminate()
+  },
   computed: {
     urlValid() {
-      return wsValid(this.url)
+      return this.isUrlValid
+    },
+  },
+  watch: {
+    url(val) {
+      this.debouncer()
     },
   },
   methods: {
+    debouncer: debounce(function () {
+      this.worker.postMessage({ type: "ws", url: this.url })
+    }, 1000),
+    workerResponseHandler(message) {
+      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    },
     toggleConnection() {
       // If it is connecting:
       if (!this.connectionState) return this.connect()

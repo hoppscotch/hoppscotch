@@ -8,11 +8,12 @@ RUN apk add --update --no-cache \
 
 # Create app directory
 WORKDIR /app
-ADD . /app/
 
 COPY package*.json ./
 
 RUN npm install
+
+ADD . /app/
 
 COPY . .
 

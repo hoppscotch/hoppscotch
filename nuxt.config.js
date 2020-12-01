@@ -89,7 +89,11 @@ export default {
   css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss", "~/assets/scss/fonts.scss"],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: ["~/plugins/vuex-persist", "~/plugins/v-tooltip"],
+  plugins: [
+    "~/plugins/vuex-persist",
+    "~/plugins/v-tooltip",
+    { src: "~/plugins/web-worker", ssr: false },
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -311,6 +315,14 @@ export default {
       }
       config.node = {
         fs: "empty",
+      }
+
+      if (ctx.isClient) {
+        config.module.rules.unshift({
+          test: /\.worker\.(c|m)?js$/i,
+          use: { loader: "worker-loader" },
+          exclude: /(node_modules)/,
+        })
       }
     },
     parallel: true,

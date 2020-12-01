@@ -9,6 +9,23 @@
     <div class="virtual-list" :class="{ filled: filteredHistory.length }">
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-large-screen">
+          <span
+            class="p-2 m-2"
+            :class="findEntryStatus(entry).className"
+            :style="{ '--status-code': entry.status }"
+          >
+            {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
+          </span>
+          <li>
+            <input
+              :aria-label="$t('token_req_name')"
+              type="text"
+              readonly
+              :value="entry.name"
+              :placeholder="$t('empty_req_name')"
+              class="bg-transparent"
+            />
+          </li>
           <button
             class="icon"
             :class="{ stared: entry.star }"
@@ -21,16 +38,6 @@
               {{ entry.star ? "star" : "star_border" }}
             </i>
           </button>
-          <li>
-            <input
-              :aria-label="$t('token_req_name')"
-              type="text"
-              readonly
-              :value="entry.name"
-              :placeholder="$t('empty_req_name')"
-              class="bg-color"
-            />
-          </li>
           <!-- <li>
             <button
               class="icon"
@@ -78,40 +85,14 @@
           </v-popover>
         </div>
         <div class="show-on-large-screen">
-          <li class="method-list-item">
-            <input
-              :aria-label="$t('method')"
-              type="text"
-              readonly
-              :value="entry.method"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-            />
-            <span
-              class="entry-status-code"
-              :class="findEntryStatus(entry).className"
-              :style="{ '--status-code': entry.status }"
-              >{{ entry.status }}</span
-            >
-          </li>
-        </div>
-        <div class="show-on-large-screen">
           <li>
             <input
               :aria-label="$t('url')"
               type="text"
               readonly
-              :value="entry.url"
+              :value="`${entry.url}${entry.path}`"
               :placeholder="$t('no_url')"
-            />
-          </li>
-          <li>
-            <input
-              :aria-label="$t('path')"
-              type="text"
-              readonly
-              :value="entry.path"
-              :placeholder="$t('no_path')"
+              class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
             />
           </li>
         </div>
@@ -272,21 +253,6 @@
 ul,
 ol {
   flex-direction: column;
-}
-
-.method-list-item {
-  position: relative;
-
-  span {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 400;
-    background-color: transparent;
-    padding: 2px 6px;
-    border-radius: 8px;
-  }
 }
 
 .entry {

@@ -37,7 +37,7 @@
     "firebase": "^8.1.1",
     "graphql": "^15.4.0",
     "graphql-language-service-interface": "^2.4.3",
-    "nuxt": "^2.14.7",
+    "nuxt": "^2.14.8",
     "nuxt-i18n": "^6.15.4",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^3.0.3",

@@ -68,7 +68,37 @@
           </ul>
         </pw-section>
 
-        <pw-section class="green" :label="$t('documentation')" ref="documentation">
+        <pw-section class="green" :label="$t('export_markdown')" ref="export">
+          <p v-if="this.items.length === 0" class="info">
+            {{ $t("generate_docs_first") }}
+          </p>
+          <div class="row-wrapper" v-if="this.items.length">
+            <label for="generatedCode">{{ $t("generated_code") }}</label>
+            <span>
+              <button
+                class="icon"
+                ref="copyResponse"
+                @click="copyResponse"
+                v-if="output"
+                v-tooltip="$t('copy_response')"
+              >
+                <i class="material-icons">content_copy</i>
+              </button>
+            </span>
+          </div>
+          <div class="row-wrapper" v-if="this.items.length">
+            <textarea
+              id="generatedCode"
+              ref="generatedCode"
+              name="generatedCode"
+              rows="8"
+              v-model="output"
+              disabled
+            ></textarea>
+          </div>
+        </pw-section>
+
+        <pw-section class="teal" :label="$t('documentation')" ref="documentation">
           <p v-if="this.items.length === 0" class="info">
             {{ $t("generate_docs_first") }}
           </p>
@@ -330,7 +360,9 @@
 </style>
 
 <script>
+import Mustache from "mustache"
 import folderIcon from "~/static/icons/folder-24px.svg?inline"
+import DocTemplate from "~/templates/template.md"
 
 export default {
   components: { folderIcon },
@@ -338,6 +370,9 @@ export default {
     return {
       collectionJSON: "[]",
       items: [],
+      output: "",
+      doneButton: '<i class="material-icons">done</i>',
+      copyButton: '<i class="material-icons">content_copy</i>',
     }
   },
   methods: {
@@ -368,11 +403,43 @@ export default {
         this.$toast.info(this.$t("docs_generated"), {
           icon: "book",
         })
+        this.output = Mustache.render(DocTemplate, {
+          collections: this.items,
+          isHeaders() {
+            return this.headers.length
+          },
+          isParams() {
+            return this.params.length
+          },
+          isAuth() {
+            return this.auth !== "None"
+          },
+          isAuthBasic() {
+            return this.httpUser && this.httpPassword
+          },
+          isRawParams() {
+            return this.rawParams && this.rawParams !== "{}"
+          },
+        })
       } catch (e) {
         this.$toast.error(e, {
           icon: "code",
         })
       }
+    },
+
+    copyResponse() {
+      this.$refs.copyResponse.innerHTML = this.doneButton
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
+      })
+      const aux = document.createElement("textarea")
+      aux.textContent = this.output
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
+      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
     },
 
     useSelectedCollection(collection) {

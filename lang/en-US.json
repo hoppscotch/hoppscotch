@@ -213,6 +213,7 @@
   "generate_docs_first": "Generate documentation first",
   "docs_generated": "Documentation generated",
   "import_collections": "Import collections",
+  "export_markdown": "Export Markdown",
   "optional": "(optional)",
   "json": "JSON",
   "none": "None",

@@ -18,14 +18,26 @@
         <a class="footer-link" href="https://www.netlify.com" target="_blank" rel="noopener">
           Powered by Netlify
         </a>
-        <a
-          class="footer-link"
-          href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
-          target="_blank"
-          rel="noopener"
-        >
-          Sponsored by Paw
-        </a>
+        <span class="footer-link"> Sponsored by </span>
+        <span>
+          <a
+            class="footer-link"
+            href="https://www.deta.sh/?ref=hoppscotch"
+            target="_blank"
+            rel="noopener"
+          >
+            Deta
+          </a>
+          &
+          <a
+            class="footer-link"
+            href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
+            target="_blank"
+            rel="noopener"
+          >
+            Paw
+          </a>
+        </span>
         <!-- <span v-if="version.hash">
           -
           <a

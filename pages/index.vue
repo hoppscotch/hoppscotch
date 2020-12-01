@@ -16,124 +16,19 @@
                     autofocus
                   />
                   <template slot="popover">
-                    <div>
+                    <div
+                      v-for="(methodMenuItem, index) in methodMenuItems"
+                      :key="`method-${index}`"
+                    >
                       <button
                         class="icon"
                         @click="
-                          customMethod = false
-                          method = 'GET'
+                          customMethod = methodMenuItem == 'CUSTOM' ? true : false
+                          method = methodMenuItem
                         "
                         v-close-popover
                       >
-                        GET
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'HEAD'
-                        "
-                        v-close-popover
-                      >
-                        HEAD
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'POST'
-                        "
-                        v-close-popover
-                      >
-                        POST
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'PUT'
-                        "
-                        v-close-popover
-                      >
-                        PUT
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'DELETE'
-                        "
-                        v-close-popover
-                      >
-                        DELETE
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'CONNECT'
-                        "
-                        v-close-popover
-                      >
-                        CONNECT
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'OPTIONS'
-                        "
-                        v-close-popover
-                      >
-                        OPTIONS
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'TRACE'
-                        "
-                        v-close-popover
-                      >
-                        TRACE
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'PATCH'
-                        "
-                        v-close-popover
-                      >
-                        PATCH
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = true
-                          method = 'CUSTOM'
-                        "
-                        v-close-popover
-                      >
-                        CUSTOM
+                        {{ methodMenuItem }}
                       </button>
                     </div>
                   </template>
@@ -177,15 +72,11 @@
               </button>
             </li>
           </ul>
-          <div class="blue">
+          <div>
             <label for="name">{{ $t("token_req_name") }}</label>
             <input id="name" name="name" type="text" v-model="name" />
           </div>
-          <div
-            class="blue"
-            label="Request Body"
-            v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)"
-          >
+          <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
             <ul>
               <li>
                 <label for="contentType">{{ $t("content_type") }}</label>
@@ -1080,7 +971,6 @@
             </li>
           </ul>
         </div>
-        <div slot="footer"></div>
       </modal>
 
       <modal v-if="showTokenList" @close="showTokenList = false">
@@ -1156,7 +1046,6 @@
             {{ $t("empty") }}
           </p>
         </div>
-        <div slot="footer"></div>
       </modal>
 
       <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
@@ -1266,42 +1155,7 @@ import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttyp
 import closeIcon from "~/static/icons/close-24px.svg?inline"
 import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
-
-const statusCategories = [
-  {
-    name: "informational",
-    statusCodeRegex: new RegExp(/[1][0-9]+/),
-    className: "info-response",
-  },
-  {
-    name: "successful",
-    statusCodeRegex: new RegExp(/[2][0-9]+/),
-    className: "success-response",
-  },
-  {
-    name: "redirection",
-    statusCodeRegex: new RegExp(/[3][0-9]+/),
-    className: "redir-response",
-  },
-  {
-    name: "client error",
-    statusCodeRegex: new RegExp(/[4][0-9]+/),
-    className: "cl-error-response",
-  },
-  {
-    name: "server error",
-    statusCodeRegex: new RegExp(/[5][0-9]+/),
-    className: "sv-error-response",
-  },
-  {
-    // this object is a catch-all for when no other objects match and should always be last
-    name: "unknown",
-    statusCodeRegex: new RegExp(/.*/),
-    className: "missing-data-response",
-  },
-]
-export const findStatusGroup = (responseStatus) =>
-  statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
+import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
   components: {
@@ -1388,7 +1242,6 @@ export default {
     contentType(contentType, oldContentType) {
       const getDefaultParams = (contentType) => {
         if (isJSONContentType(contentType)) return "{}"
-
         switch (contentType) {
           case "application/xml":
             return "<?xml version='1.0' encoding='utf-8'?>"

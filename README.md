@@ -292,7 +292,7 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 
 #### Browser based development environment
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tennc/hoppscotch)
 
 #### Local development environment
 

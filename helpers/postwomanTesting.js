@@ -154,7 +154,7 @@ class Expectation {
           )
         )
   }
-  toBeOfType(expectedType) {
+  toBeType(expectedType) {
     const actualType = typeof this.expectValue
     if (
       [

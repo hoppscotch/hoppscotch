@@ -403,7 +403,7 @@ export default {
         this.$toast.info(this.$t("docs_generated"), {
           icon: "book",
         })
-        this.output = Mustache.render(DocTemplate, {
+        const output = Mustache.render(DocTemplate, {
           collections: this.items,
           isHeaders() {
             return this.headers.length
@@ -421,6 +421,7 @@ export default {
             return this.rawParams && this.rawParams !== "{}"
           },
         })
+        this.output = output.replace(/^\s*[\r\n]/gm, "\n")
       } catch (e) {
         this.$toast.error(e, {
           icon: "code",

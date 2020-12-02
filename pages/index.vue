@@ -2499,7 +2499,7 @@ export default {
         e.preventDefault()
         this.copyRequest()
       }
-      if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
+      if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.$refs.clearAll.click()
       }

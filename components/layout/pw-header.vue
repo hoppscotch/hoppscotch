@@ -209,7 +209,7 @@
         </div>
         <div>
           <kbd>{{ getSpecialKey() }}</kbd
-          >+<kbd>L</kbd>
+          >+<kbd>I</kbd>
           <label>{{ $t("reset_request") }}</label>
         </div>
         <hr />

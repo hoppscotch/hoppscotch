@@ -170,7 +170,7 @@ class Expectation {
     ) {
       return this._fail(
         this._fmtNot(
-          `Argument for toBeOfType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`
+          `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`
         )
       )
     }

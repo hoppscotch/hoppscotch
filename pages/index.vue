@@ -12,7 +12,7 @@
               <label for="method">{{ "Select Environment" }}</label>
               <span class="select-wrapper">
                 <select id="environment" v-model="selectedEnvironmentIndex">
-                  <option value="-1">No Environment</option>
+                  <option value="-1" @click="selectedEnvironmentIndex = -1">No Environment</option>
                   <option
                     v-for="(environment, environmentIndex) in environments"
                     :value="environmentIndex"
@@ -1236,9 +1236,10 @@ export default {
     }
   },
   watch: {
-    selectedEnvironmentIndex() {
-      if (this.selectedEnvironmentIndex !== -1) {
-        const environment = this.environments[this.selectedEnvironmentIndex]
+    selectedEnvironmentIndex(val) {
+      const index = parseInt(val)
+      if (index !== -1) {
+        const environment = this.environments[index]
         this.useSelectedEnvironment({ environment, environments: this.environments })
       }
     },

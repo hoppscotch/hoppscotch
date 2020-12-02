@@ -1186,6 +1186,7 @@ export default {
       testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
       preRequestScript: "// pw.env.set('variable', 'value');",
+      preRequestScriptDefault: "// pw.env.set('variable', 'value');",
       testReports: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
@@ -1238,7 +1239,8 @@ export default {
   watch: {
     selectedEnvironmentIndex(val) {
       const index = parseInt(val)
-      if (index !== -1) {
+      if (index === -1) this.preRequestScript = this.preRequestScriptDefault
+      else {
         const environment = this.environments[index]
         this.useSelectedEnvironment({ environment, environments: this.environments })
       }

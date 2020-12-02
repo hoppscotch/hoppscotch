@@ -4,6 +4,27 @@
       <div class="page-columns inner-left">
         <pw-section class="blue" :label="$t('request')" ref="request">
           <ul>
+            <li>
+              <label for="name">{{ $t("token_req_name") }}</label>
+              <input id="name" name="name" type="text" v-model="name" />
+            </li>
+            <li>
+              <label for="method">{{ "Select Environment" }}</label>
+              <span class="select-wrapper">
+                <select id="environment" v-model="selectedEnvironmentIndex">
+                  <option value="-1">No Environment</option>
+                  <option
+                    v-for="(environment, environmentIndex) in environments"
+                    :value="environmentIndex"
+                    :key="environmentIndex"
+                  >
+                    {{ environment.name }}
+                  </option>
+                </select>
+              </span>
+            </li>
+          </ul>
+          <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
@@ -72,10 +93,6 @@
               </button>
             </li>
           </ul>
-          <div>
-            <label for="name">{{ $t("token_req_name") }}</label>
-            <input id="name" name="name" type="text" v-model="name" />
-          </div>
           <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
             <ul>
               <li>
@@ -1203,6 +1220,7 @@ export default {
       },
       currentMethodIndex: 0,
       codegens,
+      selectedEnvironmentIndex: -1,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1218,6 +1236,12 @@ export default {
     }
   },
   watch: {
+    selectedEnvironmentIndex() {
+      if (this.selectedEnvironmentIndex !== -1) {
+        const environment = this.environments[this.selectedEnvironmentIndex]
+        this.useSelectedEnvironment({ environment, environments: this.environments })
+      }
+    },
     urlExcludes: {
       deep: true,
       handler() {
@@ -1328,6 +1352,11 @@ export default {
         this.contentType === "application/x-www-form-urlencoded" ||
         isJSONContentType(this.contentType)
       )
+    },
+    environments() {
+      return fb.currentUser !== null
+        ? fb.currentEnvironments
+        : this.$store.state.postwoman.environments
     },
     uri: {
       get() {
@@ -1612,7 +1641,6 @@ export default {
           )
           return JSON.stringify(obj, null, 2)
         } catch (ex) {
-          console.log(ex)
           this.$toast.clear()
           this.$toast.error(
             "Parameter value must be a string, switch to Raw input for other formats",

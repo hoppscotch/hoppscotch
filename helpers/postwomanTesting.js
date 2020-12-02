@@ -89,10 +89,10 @@ class Expectation {
     }
   }
   _fail(message) {
-    this._testReports.push({ result: FAIL, message })
+    return this._testReports.push({ result: FAIL, message })
   }
-  _pass(message) {
-    this._testReports.push({ result: PASS })
+  _pass() {
+    return this._testReports.push({ result: PASS })
   }
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)

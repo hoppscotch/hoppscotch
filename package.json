@@ -37,7 +37,7 @@
     "firebase": "^8.1.1",
     "graphql": "^15.4.0",
     "graphql-language-service-interface": "^2.4.3",
-    "nuxt": "^2.14.8",
+    "nuxt": "^2.14.9",
     "nuxt-i18n": "^6.15.4",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^3.0.3",
@@ -50,11 +50,11 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
-    "@nuxtjs/color-mode": "^2.0.0",
+    "@nuxtjs/color-mode": "^2.0.1",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.3.2",
     "@nuxtjs/svg": "^0.1.12",
-    "@nuxtjs/tailwindcss": "^3.2.0",
+    "@nuxtjs/tailwindcss": "^3.3.0",
     "@testing-library/jest-dom": "^5.11.6",
     "@vue/test-utils": "^1.1.1",
     "babel-core": "^7.0.0-bridge.0",
@@ -70,7 +70,7 @@
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
     "vue-jest": "^3.0.7",
-    "worker-loader": "^3.0.5"
+    "worker-loader": "^3.0.6"
   },
   "jest": {
     "moduleFileExtensions": [

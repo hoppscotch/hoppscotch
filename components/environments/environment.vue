@@ -1,12 +1,8 @@
 <template>
   <div class="row-wrapper">
     <div>
-      <button
-        class="icon"
-        @click="$emit('select-environment')"
-        v-tooltip.bottom="$t('use_environment')"
-      >
-        <i class="material-icons">insert_drive_file</i>
+      <button class="icon" @click="$emit('edit-environment')">
+        <i class="material-icons">layers</i>
         <span>{{ environment.name }}</span>
       </button>
     </div>

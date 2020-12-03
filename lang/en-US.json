@@ -50,7 +50,6 @@
   "edit_environment": "Edit Environment",
   "env_variable_list": "Variable List",
   "invalid_environment_name": "Please provide a valid name for the environment",
-  "use_environment": "Use Environment",
   "add_one_variable": "(add at least one variable)",
   "import_curl": "Import cURL",
   "import": "Import",
@@ -294,5 +293,6 @@
   "select_delete_method": "Select DELETE method",
   "experiments": "Experiments",
   "experiments_notice": "This is a collection of experiments we're working on that might turn out to be useful, fun, both, or neither. They're not final and may not be stable, so if something overly weird happens, don't panic. Just turn the dang thing off. Jokes aside, ",
-  "use_experimental_url_bar": "Use experimental URL bar with environment highlighting"
+  "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
+  "select_environment": "Select environment"
 }

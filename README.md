@@ -398,7 +398,7 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
 <img
 	width="200"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Deta-Logo-for-Hoppscotch.svg"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/hs-gh-banner.png"
 	alt="Deta"
 />
 </a>

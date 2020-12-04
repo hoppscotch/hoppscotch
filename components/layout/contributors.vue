@@ -78,11 +78,7 @@
     <h3 class="title">Financial Contributors</h3>
     <div class="contributors fle">
       <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
-        <img
-          style="max-width: 200px"
-          src="~assets/images/Deta-Logo-for-Hoppscotch.svg"
-          alt="Deta"
-        />
+        <img style="max-width: 200px" src="~assets/images/hs-gh-banner.png" alt="Deta" />
       </a>
     </div>
     <div class="contributors">

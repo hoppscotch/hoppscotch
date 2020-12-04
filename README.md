@@ -392,8 +392,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 
 #### GitHub Sponsors
 
-**🧞 Genie Sponsors**
-
 <p align="center">
 <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
 <img
@@ -520,8 +518,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 </p>
 
 #### Open Collective
-
-**🧚 Angel Sponsors**
 
 <p align="center">
 <a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">

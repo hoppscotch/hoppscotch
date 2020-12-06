@@ -121,7 +121,7 @@
       <a
         target="_blank"
         rel="noopener"
-        href="https://github.com/liyasthomas/hoppscotch/graphs/contributors"
+        href="https://github.com/hoppscotch/hoppscotch/graphs/contributors"
       >
         <img src="https://opencollective.com/hoppscotch/contributors.svg" />
       </a>

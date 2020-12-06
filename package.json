@@ -13,12 +13,8 @@
     "pregenerate": "node build.js",
     "generate": "nuxt generate --modern",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
-    "test": "jest"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run pretty-quick"
-    }
+    "test": "jest",
+    "postinstall": "husky install"
   },
   "prettier": {
     "trailingComma": "es5",
@@ -62,7 +58,7 @@
     "eslint": "^7.15.0",
     "eslint-plugin-vue": "^7.2.0",
     "firebase-mock": "^2.3.2",
-    "husky": "^4.3.4",
+    "husky": "^5.0.4",
     "jest": "^26.6.3",
     "jest-serializer-vue": "^2.0.2",
     "prettier": "^2.2.1",

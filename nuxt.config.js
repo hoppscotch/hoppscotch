@@ -106,8 +106,6 @@ export default {
     "@nuxtjs/google-analytics",
     // https://github.com/nuxt-community/gtm-module
     "@nuxtjs/gtm",
-    // https://github.com/nuxt-community/svg-module
-    "@nuxtjs/svg",
     // https://github.com/nuxt-community/nuxt-tailwindcss
     "@nuxtjs/tailwindcss",
     // https://github.com/nuxt-community/color-mode-module

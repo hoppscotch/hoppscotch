@@ -42,7 +42,7 @@
         </div>
         <div>
           <button class="icon" @click="removeRequest" v-close-popover>
-            <deleteIcon class="material-icons" />
+            <i class="material-icons">delete</i>
             <span>{{ $t("delete") }}</span>
           </button>
         </div>
@@ -53,10 +53,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: { deleteIcon },
   props: {
     request: Object,
     collectionIndex: Number,

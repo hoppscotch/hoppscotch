@@ -64,7 +64,7 @@
         <ul>
           <li>
             <a href="#request" v-tooltip.right="$t('request')">
-              <cloudUploadIcon class="material-icons" />
+              <i class="material-icons">cloud_upload</i>
             </a>
           </li>
           <li>
@@ -85,7 +85,7 @@
         <ul>
           <li>
             <a href="#request" v-tooltip.right="$t('request')">
-              <cloudUploadIcon class="material-icons" />
+              <i class="material-icons">cloud_upload</i>
             </a>
           </li>
           <li>
@@ -111,7 +111,7 @@
           </li>
           <li>
             <a href="#query" v-tooltip.right="$t('query')">
-              <cloudUploadIcon class="material-icons" />
+              <i class="material-icons">cloud_upload</i>
             </a>
           </li>
           <li>
@@ -127,7 +127,7 @@
         <ul>
           <li>
             <a href="#import" v-tooltip.right="$t('import')">
-              <folderIcon class="material-icons" />
+              <i class="material-icons">folder</i>
             </a>
           </li>
           <li>
@@ -328,14 +328,7 @@ nav.secondary-nav {
 </style>
 
 <script>
-import cloudUploadIcon from "~/static/icons/cloud_upload-24px.svg?inline"
-import folderIcon from "~/static/icons/folder-24px.svg?inline"
-
 export default {
-  components: {
-    cloudUploadIcon,
-    folderIcon,
-  },
   methods: {
     linkActive(path) {
       return {

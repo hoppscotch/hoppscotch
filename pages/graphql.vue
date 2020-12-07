@@ -81,7 +81,7 @@
                   v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
-                  <deleteIcon class="material-icons" />
+                  <i class="material-icons">delete</i>
                 </button>
               </li>
             </div>
@@ -352,10 +352,8 @@ import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: { deleteIcon },
   data() {
     return {
       commonHeaders,

@@ -132,7 +132,7 @@
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -192,7 +192,7 @@
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -262,7 +262,7 @@
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -323,12 +323,8 @@ import {
 } from "~/helpers/strategies/ExtensionStrategy"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-  },
   data() {
     return {
       // Once the PWA code is initialized, this holds a method

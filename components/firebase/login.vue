@@ -109,7 +109,12 @@ export default {
     },
     async signInWithGithub() {
       try {
-        const { additionalUserInfo } = await fb.signInUserWithGithub()
+        const { credential, additionalUserInfo } = await fb.signInUserWithGithub()
+
+        this.$store.commit("postwoman/setProviderInfo", {
+          providerId: "github.com",
+          accessToken: credential.accessToken,
+        })
 
         if (additionalUserInfo.isNewUser) {
           this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {

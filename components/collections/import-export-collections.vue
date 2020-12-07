@@ -6,6 +6,35 @@
           <div class="row-wrapper">
             <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
             <div>
+              <v-popover>
+                <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+                  <i class="material-icons">more_vert</i>
+                </button>
+                <template slot="popover">
+                  <div
+                    v-tooltip="{
+                      content:
+                        !fb.currentUser &&
+                        this.$store.state.postwoman.providerInfo.providerId !== 'github.com'
+                          ? $t('login_with_github_to') + $t('create_secret_gist')
+                          : null,
+                    }"
+                  >
+                    <button
+                      :disabled="
+                        !fb.currentUser &&
+                        this.$store.state.postwoman.providerInfo.providerId !== 'github.com'
+                      "
+                      class="icon"
+                      @click="createCollectionGist"
+                      v-close-popover
+                    >
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("create_secret_gist") }}</span>
+                    </button>
+                  </div>
+                </template>
+              </v-popover>
               <button class="icon" @click="hideModal">
                 <closeIcon class="material-icons" />
               </button>
@@ -97,6 +126,37 @@ export default {
     },
   },
   methods: {
+    async createCollectionGist() {
+      await this.$axios
+        .$post(
+          "https://api.github.com/gists",
+          {
+            files: {
+              "hoppscotch-collections.json": {
+                content: this.collectionJson,
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `token ${this.$store.state.postwoman.providerInfo.accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        )
+        .then((response) => {
+          this.$toast.success(this.$t("gist_created"), {
+            icon: "done",
+          })
+          window.open(response.html_url)
+        })
+        .catch((error) => {
+          this.$toast.error(this.$t("something_went_wrong"), {
+            icon: "error",
+          })
+          console.log(error)
+        })
+    },
     hideModal() {
       this.$emit("hide-modal")
     },

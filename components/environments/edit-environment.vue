@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("edit_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -75,7 +75,7 @@
               v-tooltip.bottom="$t('delete')"
               id="variable"
             >
-              <deleteIcon class="material-icons" />
+              <i class="material-icons">delete</i>
             </button>
           </li>
         </div>
@@ -107,14 +107,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-    deleteIcon,
-  },
   props: {
     show: Boolean,
     editingEnvironment: Object,

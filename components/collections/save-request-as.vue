@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("save_request_as") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -76,12 +76,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-  },
   props: {
     show: Boolean,
     editingRequest: Object,

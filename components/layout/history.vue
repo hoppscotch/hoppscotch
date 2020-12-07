@@ -77,7 +77,7 @@
                   :aria-label="$t('delete')"
                   v-close-popover
                 >
-                  <deleteIcon class="material-icons" />
+                  <i class="material-icons">delete</i>
                   <span>{{ $t("delete") }}</span>
                 </button>
               </div>
@@ -219,7 +219,7 @@
             @click="disableHistoryClearing"
             v-tooltip="$t('no')"
           >
-            <closeIcon class="material-icons" />
+            <i class="material-icons">close</i>
           </button>
         </div>
       </div>
@@ -274,17 +274,11 @@ ol {
 <script>
 import findStatusGroup from "~/helpers/findStatusGroup"
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
-  components: {
-    closeIcon,
-    deleteIcon,
-  },
   data() {
     return {
       history:

@@ -297,5 +297,7 @@
   "select_environment": "Select environment",
   "login_with_github_to": "Login with GitHub to ",
   "create_secret_gist": "Create secret Gist",
-  "gist_created": "Gist created"
+  "gist_created": "Gist created",
+  "import_from_gist": "Import from Gist",
+  "enter_gist_url": "Enter Gist URL"
 }

@@ -14,15 +14,17 @@
                   <div
                     v-tooltip="{
                       content:
-                        !fb.currentUser &&
                         this.$store.state.postwoman.providerInfo.providerId !== 'github.com'
                           ? $t('login_with_github_to') + $t('create_secret_gist')
                           : null,
                     }"
                   >
+                    <button class="icon" @click="readCollectionGist" v-close-popover>
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("import_from_gist") }}</span>
+                    </button>
                     <button
                       :disabled="
-                        !fb.currentUser &&
                         this.$store.state.postwoman.providerInfo.providerId !== 'github.com'
                       "
                       class="icon"
@@ -150,6 +152,26 @@ export default {
           this.$toast.error(this.$t("something_went_wrong"), {
             icon: "error",
           })
+          console.log(error)
+        })
+    },
+    async readCollectionGist() {
+      let gist = prompt(this.$t("enter_gist_url"))
+      if (!gist) return
+      await this.$axios
+        .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+          },
+        })
+        .then((response) => {
+          let collections = JSON.parse(Object.values(response.files)[0].content)
+          this.$store.commit("postwoman/replaceCollections", collections)
+          this.fileImported()
+          this.syncToFBCollections()
+        })
+        .catch((error) => {
+          this.failedImport()
           console.log(error)
         })
     },

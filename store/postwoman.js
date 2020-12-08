@@ -64,7 +64,6 @@ export const state = () => ({
   editingEnvironment: {},
   selectedRequest: {},
   editingRequest: {},
-  providerInfo: {},
 })
 
 export const mutations = {
@@ -335,10 +334,6 @@ export const mutations = {
         return
       }
     }
-  },
-
-  setProviderInfo(state, value) {
-    state.providerInfo = value
   },
 }
 

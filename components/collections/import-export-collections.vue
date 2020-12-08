@@ -18,16 +18,21 @@
                     </button>
                   </div>
                   <div
-                    v-tooltip="{
-                      content:
-                        this.$store.state.postwoman.providerInfo.providerId !== 'github.com'
-                          ? $t('login_with_github_to') + $t('create_secret_gist')
-                          : null,
+                    v-tooltip.bottom="{
+                      content: !fb.currentUser
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : fb.currentUser.provider !== 'github.com'
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : null,
                     }"
                   >
                     <button
                       :disabled="
-                        this.$store.state.postwoman.providerInfo.providerId !== 'github.com'
+                        !fb.currentUser
+                          ? true
+                          : fb.currentUser.provider !== 'github.com'
+                          ? true
+                          : false
                       "
                       class="icon"
                       @click="createCollectionGist"
@@ -139,7 +144,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `token ${this.$store.state.postwoman.providerInfo.accessToken}`,
+              Authorization: `token ${fb.currentUser.accessToken}`,
               Accept: "application/vnd.github.v3+json",
             },
           }

@@ -311,6 +311,22 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 
 ```bash
 #pull
+docker pull hoppscotch/hoppscotch
+
+#build
+docker build -t hoppscotch:latest .
+
+#run
+docker run -p 3000:3000 hoppscotch:latest
+```
+
+<details>
+  <summary>Legacy Container</summary>
+
+---
+
+```bash
+#pull
 docker pull liyasthomas/postwoman
 
 #build
@@ -319,6 +335,10 @@ docker build -t postwoman:latest .
 #run
 docker run -p 3000:3000 postwoman:latest
 ```
+
+---
+
+</details>
 
 ## **Releasing**
 
@@ -392,13 +412,11 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 
 #### GitHub Sponsors
 
-**🧞 Genie Sponsors**
-
 <p align="center">
 <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
 <img
 	width="200"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Deta-Logo-for-Hoppscotch.svg"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/hs-gh-banner.png"
 	alt="Deta"
 />
 </a>
@@ -520,8 +538,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 </p>
 
 #### Open Collective
-
-**🧚 Angel Sponsors**
 
 <p align="center">
 <a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">

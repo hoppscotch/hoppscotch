@@ -8,6 +8,15 @@
         </nuxt-link>
       </span>
       <span>
+        <a
+          href="https://www.deta.sh/?ref=hoppscotch"
+          target="_blank"
+          rel="noopener"
+          class="px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"
+        >
+          Deploy your api for free on Deta
+          <img class="w-8 ml-2" src="~assets/images/deta_portal.svg" alt="Deta" />
+        </a>
         <button
           class="icon"
           id="installPWA"
@@ -123,7 +132,7 @@
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -183,7 +192,7 @@
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -253,7 +262,7 @@
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -314,12 +323,8 @@ import {
 } from "~/helpers/strategies/ExtensionStrategy"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-  },
   data() {
     return {
       // Once the PWA code is initialized, this holds a method

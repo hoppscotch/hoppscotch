@@ -202,7 +202,7 @@
                       v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
-                      <deleteIcon class="material-icons" />
+                      <i class="material-icons">delete</i>
                     </button>
                   </li>
                 </div>
@@ -385,7 +385,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="param"
                       >
-                        <deleteIcon class="material-icons" />
+                        <i class="material-icons">delete</i>
                       </button>
                     </li>
                   </div>
@@ -514,7 +514,7 @@
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
-                          <closeIcon class="material-icons" />
+                          <i class="material-icons">close</i>
                         </button>
                       </div>
                     </div>
@@ -667,7 +667,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="header"
                       >
-                        <deleteIcon class="material-icons" />
+                        <i class="material-icons">delete</i>
                       </button>
                     </li>
                   </div>
@@ -867,7 +867,7 @@
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -909,7 +909,7 @@
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -981,7 +981,7 @@
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -1037,7 +1037,7 @@
                   @click="removeOAuthToken(index)"
                   v-tooltip.bottom="$t('delete')"
                 >
-                  <deleteIcon class="material-icons" />
+                  <i class="material-icons">delete</i>
                 </button>
               </li>
             </div>
@@ -1056,7 +1056,7 @@
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -1083,7 +1083,7 @@
                     @click="removeOAuthTokenReq"
                     v-tooltip.bottom="$t('delete')"
                   >
-                    <deleteIcon class="material-icons" />
+                    <i class="material-icons">delete</i>
                   </button>
                 </div>
               </div>
@@ -1152,16 +1152,10 @@ import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpe
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
-  components: {
-    closeIcon,
-    deleteIcon,
-  },
   data() {
     return {
       showModal: false,

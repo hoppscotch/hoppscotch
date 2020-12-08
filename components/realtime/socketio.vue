@@ -77,7 +77,7 @@
               v-tooltip.bottom="$t('delete')"
               :id="`delete-socketio-message-${index}`"
             >
-              <deleteIcon class="material-icons" />
+              <i class="material-icons">delete</i>
             </button>
           </li>
         </div>
@@ -107,13 +107,9 @@
 <script>
 import io from "socket.io-client"
 import wildcard from "socketio-wildcard"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
-  components: {
-    deleteIcon,
-  },
   data() {
     return {
       url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",

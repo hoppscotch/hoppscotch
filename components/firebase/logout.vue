@@ -1,7 +1,7 @@
 <template>
   <div>
     <button class="icon" @click="logout" v-close-popover>
-      <exitToAppIcon class="material-icons" />
+      <i class="material-icons">exit_to_app</i>
       <span>{{ $t("logout") }}</span>
     </button>
   </div>
@@ -9,10 +9,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import exitToAppIcon from "~/static/icons/exit_to_app-24px.svg?inline"
 
 export default {
-  components: { exitToAppIcon },
   data() {
     return {
       fb,

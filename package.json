@@ -13,12 +13,8 @@
     "pregenerate": "node build.js",
     "generate": "nuxt generate --modern",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
-    "test": "jest"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run pretty-quick"
-    }
+    "test": "jest",
+    "postinstall": "husky install"
   },
   "prettier": {
     "trailingComma": "es5",
@@ -34,14 +30,14 @@
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
     "esprima": "^4.0.1",
-    "firebase": "^8.1.1",
+    "firebase": "^8.1.2",
     "graphql": "^15.4.0",
     "graphql-language-service-interface": "^2.4.3",
     "mustache": "^4.0.1",
-    "nuxt": "^2.14.8",
+    "nuxt": "^2.14.10",
     "nuxt-i18n": "^6.15.4",
     "paho-mqtt": "^1.1.0",
-    "socket.io-client": "^3.0.3",
+    "socket.io-client": "^3.0.4",
     "socketio-wildcard": "^2.0.0",
     "v-tooltip": "^2.0.3",
     "vuejs-auto-complete": "^0.9.0",
@@ -51,27 +47,26 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
-    "@nuxtjs/color-mode": "^2.0.0",
+    "@nuxtjs/color-mode": "^2.0.2",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.3.2",
-    "@nuxtjs/svg": "^0.1.12",
-    "@nuxtjs/tailwindcss": "^3.2.0",
+    "@nuxtjs/tailwindcss": "^3.3.3",
     "@testing-library/jest-dom": "^5.11.6",
     "@vue/test-utils": "^1.1.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.6.3",
-    "eslint": "^7.14.0",
-    "eslint-plugin-vue": "^7.1.0",
+    "eslint": "^7.15.0",
+    "eslint-plugin-vue": "^7.2.0",
     "firebase-mock": "^2.3.2",
-    "husky": "^4.3.0",
+    "husky": "^5.0.4",
     "jest": "^26.6.3",
     "jest-serializer-vue": "^2.0.2",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "sass": "^1.29.0",
+    "sass": "^1.30.0",
     "sass-loader": "^10.1.0",
     "vue-jest": "^3.0.7",
-    "worker-loader": "^3.0.5"
+    "worker-loader": "^3.0.6"
   },
   "jest": {
     "moduleFileExtensions": [

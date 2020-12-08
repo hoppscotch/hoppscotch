@@ -11,6 +11,12 @@
                   <i class="material-icons">more_vert</i>
                 </button>
                 <template slot="popover">
+                  <div>
+                    <button class="icon" @click="readCollectionGist" v-close-popover>
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("import_from_gist") }}</span>
+                    </button>
+                  </div>
                   <div
                     v-tooltip="{
                       content:
@@ -19,10 +25,6 @@
                           : null,
                     }"
                   >
-                    <button class="icon" @click="readCollectionGist" v-close-popover>
-                      <i class="material-icons">code</i>
-                      <span>{{ $t("import_from_gist") }}</span>
-                    </button>
                     <button
                       :disabled="
                         this.$store.state.postwoman.providerInfo.providerId !== 'github.com'

@@ -9,7 +9,7 @@
   // Do not use font-display: swap for the icon font - it looks really bad when the page
   // loads.
   font-display: block;
-  src: url("~static/fonts/material-icons-v54.woff2") format("woff2");
+  src: url("~static/fonts/material-icons-v67.woff2") format("woff2");
 }
 
 /* poppins-500 - latin */
@@ -19,8 +19,8 @@
   font-weight: 500;
   font-display: swap;
   src: local("Poppins Medium"), local("Poppins-Medium"),
-    url("~static/fonts/poppins-v12-latin-500.woff2") format("woff2"),
-    url("~static/fonts/poppins-v12-latin-500.woff") format("woff");
+    url("~static/fonts/poppins-v15-latin-500.woff2") format("woff2"),
+    url("~static/fonts/poppins-v15-latin-500.woff") format("woff");
 }
 
 /* poppins-700 - latin */
@@ -30,8 +30,8 @@
   font-weight: 700;
   font-display: swap;
   src: local("Poppins Bold"), local("Poppins-Bold"),
-    url("~static/fonts/poppins-v12-latin-700.woff2") format("woff2"),
-    url("~static/fonts/poppins-v12-latin-700.woff") format("woff");
+    url("~static/fonts/poppins-v15-latin-700.woff2") format("woff2"),
+    url("~static/fonts/poppins-v15-latin-700.woff") format("woff");
 }
 
 /* roboto-mono-regular - latin */

@@ -36,6 +36,7 @@ export class FirebaseInstance {
     this.app.auth().onAuthStateChanged((user) => {
       if (user) {
         this.currentUser = user
+
         this.currentUser.providerData.forEach((profile) => {
           let us = {
             updatedOn: new Date(),
@@ -47,8 +48,13 @@ export class FirebaseInstance {
           }
           this.usersCollection
             .doc(this.currentUser.uid)
-            .set(us)
+            .set(us, { merge: true })
             .catch((e) => console.error("error updating", us, e))
+        })
+
+        this.usersCollection.doc(this.currentUser.uid).onSnapshot((doc) => {
+          this.currentUser.provider = doc.data().provider
+          this.currentUser.accessToken = doc.data().accessToken
         })
 
         this.usersCollection
@@ -282,6 +288,24 @@ export class FirebaseInstance {
         .collection("environments")
         .doc("sync")
         .set(ev)
+    } catch (e) {
+      console.error("error updating", ev, e)
+
+      throw e
+    }
+  }
+
+  async setProviderInfo(id, token) {
+    const us = {
+      updatedOn: new Date(),
+      provider: id,
+      accessToken: token,
+    }
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .update(us)
+        .catch((e) => console.error("error updating", us, e))
     } catch (e) {
       console.error("error updating", ev, e)
 

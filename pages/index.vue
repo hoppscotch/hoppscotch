@@ -252,7 +252,7 @@
               <button
                 class="icon"
                 id="show-modal"
-                @click="showModal = true"
+                @click="showCurlImportModal = true"
                 v-tooltip.bottom="$t('import_curl')"
               >
                 <i class="material-icons">import_export</i>
@@ -793,52 +793,16 @@
       </aside>
 
       <save-request-as
-        :show="showRequestModal"
-        @hide-model="hideRequestModal"
+        :show="showSaveRequestModal"
+        @hide-modal="hideRequestModal"
         :editing-request="editRequest"
       />
 
-      <modal v-if="showModal" @close="showModal = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("import_curl") }}</h3>
-                <div>
-                  <button class="icon" @click="showModal = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <textarea
-                id="import-text"
-                autofocus
-                rows="8"
-                :placeholder="$t('enter_curl')"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-        <div slot="footer">
-          <div class="row-wrapper">
-            <span></span>
-            <span>
-              <button class="icon" @click="showModal = false">
-                {{ $t("cancel") }}
-              </button>
-              <button class="icon primary" @click="handleImport">
-                {{ $t("import") }}
-              </button>
-            </span>
-          </div>
-        </div>
-      </modal>
+      <import-curl
+        :show="showCurlImportModal"
+        @hide-modal="showCurlImportModal = false"
+        @handle-import="handleImport"
+      />
 
       <modal v-if="!isHidden" @close="isHidden = true">
         <div slot="header">
@@ -1096,7 +1060,7 @@ import findStatusGroup from "~/helpers/findStatusGroup"
 export default {
   data() {
     return {
-      showModal: false,
+      showCurlImportModal: false,
       showPreRequestScript: true,
       testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
@@ -1116,7 +1080,7 @@ export default {
       showTokenList: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      showRequestModal: false,
+      showSaveRequestModal: false,
       editRequest: {},
       urlExcludes: {},
       activeSidebar: true,
@@ -1238,7 +1202,7 @@ export default {
     },
     editingRequest(newValue) {
       this.editRequest = newValue
-      this.showRequestModal = true
+      this.showSaveRequestModal = true
     },
     method() {
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
@@ -2125,7 +2089,7 @@ export default {
       observer.observe(requestElement)
     },
     handleImport() {
-      const { value: text } = document.getElementById("import-text")
+      const { value: text } = document.getElementById("import-curl")
       try {
         const parsedCurl = parseCurlCommand(text)
         const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
@@ -2146,9 +2110,9 @@ export default {
           this.rawInput = true
           this.rawParams = parsedCurl["data"]
         }
-        this.showModal = false
+        this.showCurlImportModal = false
       } catch (error) {
-        this.showModal = false
+        this.showCurlImportModal = false
         this.$toast.error(this.$t("curl_invalid_format"), {
           icon: "error",
         })
@@ -2258,10 +2222,10 @@ export default {
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
       }
-      this.showRequestModal = true
+      this.showSaveRequestModal = true
     },
     hideRequestModal() {
-      this.showRequestModal = false
+      this.showSaveRequestModal = false
       this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
@@ -2436,7 +2400,7 @@ export default {
       }
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false
+        this.showCurlImportModal = this.showTokenList = this.showTokenRequestList = this.showSaveRequestModal = false
         this.isHidden = true
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {

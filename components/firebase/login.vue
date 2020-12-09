@@ -62,6 +62,7 @@ export default {
 
         this.showLoginSuccess()
       } catch (err) {
+        console.log(err)
         // An error happened.
         if (err.code === "auth/account-exists-with-different-credential") {
           // Step 2.
@@ -80,22 +81,23 @@ export default {
             // Asks the user their password.
             // In real scenario, you should handle this asynchronously.
             const password = promptUserForPassword() // TODO: implement promptUserForPassword.
-            const user = await fb.signInWithEmailAndPassword(email, password)
 
+            const user = await fb.signInWithEmailAndPassword(email, password)
             await user.linkWithCredential(pendingCred)
+
             this.showLoginSuccess()
 
             return
           }
 
-          this.$toast.info(`${this.$t("login_with")}`, {
+          this.$toast.info(`${this.$t("account_exists")}`, {
             icon: "vpn_key",
             duration: null,
             closeOnSwipe: false,
             action: {
               text: this.$t("yes"),
               onClick: async (e, toastObject) => {
-                const user = await fb.signInWithGithub()
+                const { user } = await fb.signInWithGithub()
                 await user.linkAndRetrieveDataWithCredential(pendingCred)
 
                 this.showLoginSuccess()
@@ -109,7 +111,9 @@ export default {
     },
     async signInWithGithub() {
       try {
-        const { additionalUserInfo } = await fb.signInUserWithGithub()
+        const { credential, additionalUserInfo } = await fb.signInUserWithGithub()
+
+        fb.setProviderInfo(credential.providerId, credential.accessToken)
 
         if (additionalUserInfo.isNewUser) {
           this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
@@ -131,6 +135,7 @@ export default {
 
         this.showLoginSuccess()
       } catch (err) {
+        console.log(err)
         // An error happened.
         if (err.code === "auth/account-exists-with-different-credential") {
           // Step 2.
@@ -158,7 +163,7 @@ export default {
             return
           }
 
-          this.$toast.info(`${this.$t("login_with")}`, {
+          this.$toast.info(`${this.$t("account_exists")}`, {
             icon: "vpn_key",
             duration: null,
             closeOnSwipe: false,

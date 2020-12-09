@@ -63,6 +63,7 @@
     "jest-serializer-vue": "^2.0.2",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
+    "raw-loader": "^4.0.2",
     "sass": "^1.30.0",
     "sass-loader": "^10.1.0",
     "vue-jest": "^3.0.7",

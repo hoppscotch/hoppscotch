@@ -11,6 +11,7 @@
 .highlight-TEXT {
   @apply overflow-auto;
   @apply break-all;
+
   height: 22px;
 }
 

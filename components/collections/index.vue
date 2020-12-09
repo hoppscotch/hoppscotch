@@ -5,33 +5,40 @@ TODO:
 
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections">
+    <div class="show-on-large-screen">
+      <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
+      <!-- <button class="icon">
+        <i class="material-icons">search</i>
+      </button> -->
+    </div>
     <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"
-      :editingCollection="editingCollection"
-      :editingCollectionIndex="editingCollectionIndex"
+      :editing-collection="editingCollection"
+      :editing-collection-index="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
     <add-folder
       :show="showModalAddFolder"
-      :collection="editingCollection"
-      :collectionIndex="editingCollectionIndex"
+      :folder="editingFolder"
+      :folder-path="editingFolderPath"
+      @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
     />
     <edit-folder
       :show="showModalEditFolder"
-      :collection="editingCollection"
-      :collectionIndex="editingCollectionIndex"
+      :collection-index="editingCollectionIndex"
       :folder="editingFolder"
-      :folderIndex="editingFolderIndex"
+      :folder-index="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
     <edit-request
       :show="showModalEditRequest"
-      :collectionIndex="editingCollectionIndex"
-      :folderIndex="editingFolderIndex"
+      :collection-index="editingCollectionIndex"
+      :folder-index="editingFolderIndex"
+      :folder-name="editingFolderName"
       :request="editingRequest"
-      :requestIndex="editingRequestIndex"
+      :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
     <import-export-collections
@@ -66,13 +73,15 @@ TODO:
     </p>
     <div class="virtual-list">
       <ul class="flex-col">
-        <li v-for="(collection, index) in collections" :key="collection.name">
+        <li v-for="(collection, index) in filteredCollections" :key="collection.name">
           <collection
+            :name="collection.name"
             :collection-index="index"
             :collection="collection"
             :doc="doc"
+            :isFiltered="filterText.length > 0"
             @edit-collection="editCollection(collection, index)"
-            @add-folder="addFolder(collection, index)"
+            @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
@@ -80,6 +89,11 @@ TODO:
         </li>
       </ul>
     </div>
+    <ul class="flex-col" v-if="filterText && filteredCollections.length === 0">
+      <li>
+        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
+      </li>
+    </ul>
   </pw-section>
 </template>
 
@@ -107,9 +121,12 @@ export default {
       editingCollection: undefined,
       editingCollectionIndex: undefined,
       editingFolder: undefined,
+      editingFolderName: undefined,
       editingFolderIndex: undefined,
+      editingFolderPath: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,
+      filterText: "",
     }
   },
   computed: {
@@ -117,6 +134,44 @@ export default {
       return fb.currentUser !== null
         ? fb.currentCollections
         : this.$store.state.postwoman.collections
+    },
+    filteredCollections() {
+      const collections =
+        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+
+      if (!this.filterText) return collections
+
+      const filterText = this.filterText.toLowerCase()
+      const filteredCollections = []
+
+      for (let collection of collections) {
+        const filteredRequests = []
+        const filteredFolders = []
+        for (let request of collection.requests) {
+          if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
+        }
+        for (let folder of collection.folders) {
+          const filteredFolderRequests = []
+          for (let request of folder.requests) {
+            if (request.name.toLowerCase().includes(filterText))
+              filteredFolderRequests.push(request)
+          }
+          if (filteredFolderRequests.length > 0) {
+            const filteredFolder = Object.assign({}, folder)
+            filteredFolder.requests = filteredFolderRequests
+            filteredFolders.push(filteredFolder)
+          }
+        }
+
+        if (filteredRequests.length + filteredFolders.length > 0) {
+          const filteredCollection = Object.assign({}, collection)
+          filteredCollection.requests = filteredRequests
+          filteredCollection.folders = filteredFolders
+          filteredCollections.push(filteredCollection)
+        }
+      }
+
+      return filteredCollections
     },
   },
   async mounted() {
@@ -161,15 +216,23 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    addFolder(collection, collectionIndex) {
-      this.$data.editingCollection = collection
-      this.$data.editingCollectionIndex = collectionIndex
-      this.displayModalAddFolder(true)
+    onAddFolder({ name, path }) {
+      this.$store.commit("postwoman/addFolder", {
+        name,
+        path,
+      })
+
+      this.displayModalAddFolder(false)
       this.syncCollections()
     },
+    addFolder(payload) {
+      const { folder, path } = payload
+      this.$data.editingFolder = folder
+      this.$data.editingFolderPath = path
+      this.displayModalAddFolder(true)
+    },
     editFolder(payload) {
-      const { collection, collectionIndex, folder, folderIndex } = payload
-      this.$data.editingCollection = collection
+      const { collectionIndex, folder, folderIndex } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder
       this.$data.editingFolderIndex = folderIndex
@@ -177,9 +240,10 @@ export default {
       this.syncCollections()
     },
     editRequest(payload) {
-      const { request, collectionIndex, folderIndex, requestIndex } = payload
+      const { collectionIndex, folderIndex, folderName, request, requestIndex } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex
+      this.$data.editingFolderName = folderName
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
       this.displayModalEditRequest(true)

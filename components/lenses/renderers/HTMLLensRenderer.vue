@@ -73,6 +73,7 @@
     </li>
   </ul>
 </template>
+
 <script>
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 

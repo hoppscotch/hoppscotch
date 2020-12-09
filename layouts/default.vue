@@ -3,7 +3,7 @@
     <div class="content">
       <div class="columns">
         <sidenav />
-        <main>
+        <main class="container">
           <pw-header />
           <nuxt />
           <pw-footer />
@@ -32,7 +32,6 @@ export default {
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
   },
-
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)
   },

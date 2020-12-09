@@ -85,8 +85,8 @@
 </template>
 
 <script>
-import { wsValid } from "~/helpers/utils/valid"
 import HttpHeaders from "~/components/http/headers.vue"
+import debounce from "~/helpers/utils/debounce"
 
 export default {
   components: {
@@ -95,6 +95,8 @@ export default {
   data() {
     return {
       connectionState: false,
+      url: "wss://echo.websocket.org",
+      isUrlValid: true,
       socket: null,
       communication: {
         log: null,
@@ -103,9 +105,23 @@ export default {
       currentIndex: -1, //index of the message log array to put in input box
     }
   },
+  mounted() {
+    if (process.browser) {
+      this.worker = this.$worker.createRejexWorker()
+      this.worker.addEventListener("message", this.workerResponseHandler)
+    }
+  },
+  destroyed() {
+    this.worker.terminate()
+  },
   computed: {
     urlValid() {
-      return wsValid(this.url)
+      return this.isUrlValid
+    },
+  },
+  watch: {
+    url(val) {
+      this.debouncer()
     },
     url: {
       get() {
@@ -216,6 +232,11 @@ export default {
         icon: "clear_all",
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+    debouncer: debounce(function () {
+      this.worker.postMessage({ type: "ws", url: this.url })
+    }, 1000),
+    workerResponseHandler(message) {
+      if (message.data.url === this.url) this.isUrlValid = message.data.result
     },
     toggleConnection() {
       // If it is connecting:
@@ -277,7 +298,9 @@ export default {
       }
     },
     disconnect() {
-      this.socket.close()
+      if (this.socket) {
+        this.socket.close()
+      }
     },
     handleError(error) {
       this.disconnect()

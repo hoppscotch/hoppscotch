@@ -8,6 +8,15 @@
         </nuxt-link>
       </span>
       <span>
+        <a
+          href="https://www.deta.sh/?ref=hoppscotch"
+          target="_blank"
+          rel="noopener"
+          class="px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"
+        >
+          Deploy your api for free on Deta
+          <img class="w-8 ml-2" src="~assets/images/deta_portal.svg" alt="Deta" />
+        </a>
         <button
           class="icon"
           id="installPWA"
@@ -123,7 +132,7 @@
               <h3 class="title">{{ $t("extensions") }}</h3>
               <div>
                 <button class="icon" @click="showExtensions = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -183,7 +192,7 @@
               <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -209,7 +218,7 @@
         </div>
         <div>
           <kbd>{{ getSpecialKey() }}</kbd
-          >+<kbd>L</kbd>
+          >+<kbd>I</kbd>
           <label>{{ $t("reset_request") }}</label>
         </div>
         <hr />
@@ -253,7 +262,7 @@
               <h3 class="title">{{ $t("support_us") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
-                  <closeIcon class="material-icons" />
+                  <i class="material-icons">close</i>
                 </button>
               </div>
             </div>
@@ -290,6 +299,7 @@ kbd {
 
 .slide-in {
   @apply relative;
+
   animation: slideIn 0.2s forwards ease-in-out;
 }
 
@@ -313,12 +323,8 @@ import {
 } from "~/helpers/strategies/ExtensionStrategy"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-  },
   data() {
     return {
       // Once the PWA code is initialized, this holds a method
@@ -358,34 +364,34 @@ export default {
         })
       }
 
-      // let showAd = localStorage.getItem("showAd") === "no"
-      // if (!showAd) {
-      //   setTimeout(() => {
-      //     this.$toast.clear()
-      //     this.$toast.show(
-      //       "<span>Postwoman is now Hoppscotch 🎉<br><u><a href='https://dev.to/liyasthomas/postwoman-is-changing-name-igp' target='_blank' rel='noopener'>Read the announcement</a></u> →<br><sub>Whoosh this away to dismiss.</sub></span>",
-      //       {
-      //         icon: "",
-      //         duration: 0,
-      //         theme: "toasted-ad",
-      //         action: [
-      //           {
-      //             text: "GitHub",
-      //             icon: "chevron_right",
-      //             onClick: (e, toastObject) => {
-      //               // localStorage.setItem("showAd", "no")
-      //               toastObject.goAway(0)
-      //               window.open("https://github.com/hoppscotch/hoppscotch")
-      //             },
-      //           },
-      //         ],
-      //         onComplete() {
-      //           // localStorage.setItem("showAd", "no")
-      //         },
-      //       }
-      //     )
-      //   }, 8000)
-      // }
+      let showAd = localStorage.getItem("showAd") === "no"
+      if (!showAd) {
+        setTimeout(() => {
+          this.$toast.clear()
+          this.$toast.show(
+            "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+            {
+              icon: "",
+              duration: 0,
+              theme: "toasted-ad",
+              action: [
+                {
+                  text: "Sponsor",
+                  icon: "chevron_right",
+                  onClick: (e, toastObject) => {
+                    localStorage.setItem("showAd", "no")
+                    toastObject.goAway(0)
+                    window.open("https://github.com/sponsors/hoppscotch")
+                  },
+                },
+              ],
+              onComplete() {
+                localStorage.setItem("showAd", "no")
+              },
+            }
+          )
+        }, 8000)
+      }
 
       let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
 
@@ -449,12 +455,6 @@ export default {
       } else {
         // fallback
       }
-    },
-  },
-
-  computed: {
-    availableLocales() {
-      return this.$i18n.locales.filter((i) => i.code !== this.$i18n.locale)
     },
   },
 }

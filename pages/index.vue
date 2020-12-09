@@ -9,133 +9,26 @@
               <span class="select-wrapper">
                 <v-popover>
                   <input
-                    v-if="!customMethod"
                     id="method"
                     class="method"
                     v-model="method"
-                    readonly
+                    :readonly="!customMethod"
                     autofocus
                   />
-                  <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
-                    <div>
+                    <div
+                      v-for="(methodMenuItem, index) in methodMenuItems"
+                      :key="`method-${index}`"
+                    >
                       <button
                         class="icon"
                         @click="
-                          customMethod = false
-                          method = 'GET'
+                          customMethod = methodMenuItem == 'CUSTOM' ? true : false
+                          method = methodMenuItem
                         "
                         v-close-popover
                       >
-                        GET
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'HEAD'
-                        "
-                        v-close-popover
-                      >
-                        HEAD
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'POST'
-                        "
-                        v-close-popover
-                      >
-                        POST
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'PUT'
-                        "
-                        v-close-popover
-                      >
-                        PUT
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'DELETE'
-                        "
-                        v-close-popover
-                      >
-                        DELETE
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'CONNECT'
-                        "
-                        v-close-popover
-                      >
-                        CONNECT
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'OPTIONS'
-                        "
-                        v-close-popover
-                      >
-                        OPTIONS
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'TRACE'
-                        "
-                        v-close-popover
-                      >
-                        TRACE
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = false
-                          method = 'PATCH'
-                        "
-                        v-close-popover
-                      >
-                        PATCH
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="
-                          customMethod = true
-                          method = 'CUSTOM'
-                        "
-                        v-close-popover
-                      >
-                        CUSTOM
+                        {{ methodMenuItem }}
                       </button>
                     </div>
                   </template>
@@ -179,21 +72,11 @@
               </button>
             </li>
           </ul>
-          <div class="blue">
-            <label for="label">{{ $t("label") }}</label>
-            <input
-              id="label"
-              name="label"
-              type="text"
-              v-model="label"
-              :placeholder="$t('optional')"
-            />
+          <div>
+            <label for="name">{{ $t("token_req_name") }}</label>
+            <input id="name" name="name" type="text" v-model="name" />
           </div>
-          <div
-            class="blue"
-            label="Request Body"
-            v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)"
-          >
+          <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
             <ul>
               <li>
                 <label for="contentType">{{ $t("content_type") }}</label>
@@ -319,7 +202,7 @@
                       v-tooltip.bottom="$t('delete')"
                       id="delParam"
                     >
-                      <deleteIcon class="material-icons" />
+                      <i class="material-icons">delete</i>
                     </button>
                   </li>
                 </div>
@@ -502,7 +385,7 @@
                         v-tooltip.bottom="$t('delete')"
                         id="param"
                       >
-                        <deleteIcon class="material-icons" />
+                        <i class="material-icons">delete</i>
                       </button>
                     </li>
                   </div>
@@ -631,7 +514,7 @@
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
-                          <closeIcon class="material-icons" />
+                          <i class="material-icons">close</i>
                         </button>
                       </div>
                     </div>
@@ -777,13 +660,7 @@
               </pw-section>
             </tab>
 
-            <tab
-              :id="'tests'"
-              :label="
-                $t('tests') +
-                `${testReports.length !== 0 ? ' \xA0 • \xA0 ' + testReports.length : ''}`
-              "
-            >
+            <tab :id="'tests'" :label="$t('tests')">
               <pw-section
                 v-if="testsEnabled"
                 class="orange"
@@ -832,6 +709,7 @@
                       </div>
                       <div v-for="(testReport, index) in testReports" :key="index">
                         <div v-if="testReport.startBlock" class="info">
+                          <hr />
                           <h4>{{ testReport.startBlock }}</h4>
                         </div>
                         <p v-else-if="testReport.result" class="row-wrapper info">
@@ -927,7 +805,7 @@
                 <h3 class="title">{{ $t("import_curl") }}</h3>
                 <div>
                   <button class="icon" @click="showModal = false">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -969,7 +847,7 @@
                 <h3 class="title">{{ $t("generate_code") }}</h3>
                 <div>
                   <button class="icon" @click="isHidden = true">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -981,11 +859,27 @@
             <li>
               <label for="requestType">{{ $t("request_type") }}</label>
               <span class="select-wrapper">
-                <select id="requestType" v-model="requestType">
-                  <option v-for="gen in codegens" :key="gen.id" :value="gen.id">
-                    {{ gen.name }}
-                  </option>
-                </select>
+                <v-popover>
+                  <pre v-if="requestType">{{
+                    codegens.find((x) => x.id === requestType).name
+                  }}</pre>
+                  <input
+                    v-else
+                    id="requestType"
+                    v-model="requestType"
+                    :placeholder="$t('choose_language')"
+                    class="cursor-pointer"
+                    readonly
+                    autofocus
+                  />
+                  <template slot="popover">
+                    <div v-for="gen in codegens" :key="gen.id">
+                      <button class="icon" @click="requestType = gen.id" v-close-popover>
+                        {{ gen.name }}
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
           </ul>
@@ -1015,7 +909,6 @@
             </li>
           </ul>
         </div>
-        <div slot="footer"></div>
       </modal>
 
       <modal v-if="showTokenList" @close="showTokenList = false">
@@ -1026,7 +919,7 @@
                 <h3 class="title">{{ $t("manage_token") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenList = false">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -1082,7 +975,7 @@
                   @click="removeOAuthToken(index)"
                   v-tooltip.bottom="$t('delete')"
                 >
-                  <deleteIcon class="material-icons" />
+                  <i class="material-icons">delete</i>
                 </button>
               </li>
             </div>
@@ -1091,7 +984,6 @@
             {{ $t("empty") }}
           </p>
         </div>
-        <div slot="footer"></div>
       </modal>
 
       <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
@@ -1102,7 +994,7 @@
                 <h3 class="title">{{ $t("manage_token_req") }}</h3>
                 <div>
                   <button class="icon" @click="showTokenRequestList = false">
-                    <closeIcon class="material-icons" />
+                    <i class="material-icons">close</i>
                   </button>
                 </div>
               </div>
@@ -1129,7 +1021,7 @@
                     @click="removeOAuthTokenReq"
                     v-tooltip.bottom="$t('delete')"
                   >
-                    <deleteIcon class="material-icons" />
+                    <i class="material-icons">delete</i>
                   </button>
                 </div>
               </div>
@@ -1197,52 +1089,13 @@ import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpe
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+import findStatusGroup from "~/helpers/findStatusGroup"
 import HttpHeaders from "~/components/http/headers.vue"
 
-const statusCategories = [
-  {
-    name: "informational",
-    statusCodeRegex: new RegExp(/[1][0-9]+/),
-    className: "info-response",
-  },
-  {
-    name: "successful",
-    statusCodeRegex: new RegExp(/[2][0-9]+/),
-    className: "success-response",
-  },
-  {
-    name: "redirection",
-    statusCodeRegex: new RegExp(/[3][0-9]+/),
-    className: "redir-response",
-  },
-  {
-    name: "client error",
-    statusCodeRegex: new RegExp(/[4][0-9]+/),
-    className: "cl-error-response",
-  },
-  {
-    name: "server error",
-    statusCodeRegex: new RegExp(/[5][0-9]+/),
-    className: "sv-error-response",
-  },
-  {
-    // this object is a catch-all for when no other objects match and should always be last
-    name: "unknown",
-    statusCodeRegex: new RegExp(/.*/),
-    className: "missing-data-response",
-  },
-]
-export const findStatusGroup = (responseStatus) =>
-  statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
-
 export default {
-  components: {
-    closeIcon,
-    deleteIcon,
-    HttpOptionsHeaders,
+  conponents:{
+    HttpHeaders
   },
   data() {
     return {
@@ -1283,7 +1136,7 @@ export default {
             : true,
       },
       currentMethodIndex: 0,
-      codegens: codegens,
+      codegens,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1323,7 +1176,6 @@ export default {
     contentType(contentType, oldContentType) {
       const getDefaultParams = (contentType) => {
         if (isJSONContentType(contentType)) return "{}"
-
         switch (contentType) {
           case "application/xml":
             return "<?xml version='1.0' encoding='utf-8'?>"
@@ -1338,7 +1190,7 @@ export default {
       this.setRouteQueryState()
     },
     params: {
-      handler: function (newValue) {
+      handler(newValue) {
         if (!this.paramsWatchEnabled) {
           this.paramsWatchEnabled = true
           return
@@ -1385,7 +1237,7 @@ export default {
         this.testsEnabled = true
         this.testScript = newValue.testScript
       }
-      this.label = newValue.label
+      this.name = newValue.name
     },
     editingRequest(newValue) {
       this.editRequest = newValue
@@ -1396,7 +1248,7 @@ export default {
         ? "application/json"
         : ""
     },
-    preRequestScript: function (val, oldVal) {
+    preRequestScript(val, oldVal) {
       this.uri = this.uri
     },
     headers: {
@@ -1459,12 +1311,12 @@ export default {
         this.$store.commit("setState", { value, attribute: "path" })
       },
     },
-    label: {
+    name: {
       get() {
-        return this.$store.state.request.label
+        return this.$store.state.request.name
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "label" })
+        this.$store.commit("setState", { value, attribute: "name" })
       },
     },
     auth: {
@@ -1670,7 +1522,7 @@ export default {
       return this.$store.state.postwoman.editingRequest
     },
     requestName() {
-      return this.label
+      return this.name
     },
     statusCategory() {
       return findStatusGroup(this.response.status)
@@ -1735,6 +1587,17 @@ export default {
       return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },
     requestCode() {
+      let headers = []
+      if (this.preRequestScript || hasPathParams(this.params)) {
+        let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+        for (let k of this.headers) {
+          const kParsed = parseTemplateString(k.key, environmentVariables)
+          const valParsed = parseTemplateString(k.value, environmentVariables)
+          headers.push({ key: kParsed, value: valParsed })
+        }
+      }
+
       return generateCodeWithGenerator(this.requestType, {
         auth: this.auth,
         method: this.method,
@@ -1744,7 +1607,7 @@ export default {
         httpUser: this.httpUser,
         httpPassword: this.httpPassword,
         bearerToken: this.bearerToken,
-        headers: this.headers,
+        headers,
         rawInput: this.rawInput,
         rawParams: this.rawParams,
         rawRequestBody: this.rawRequestBody,
@@ -1763,14 +1626,28 @@ export default {
     },
   },
   methods: {
-    useSelectedEnvironment(environment) {
+    useSelectedEnvironment(args) {
+      let environment = args.environment
+      let environments = args.environments
       let preRequestScriptString = ""
       for (let variable of environment.variables) {
-        preRequestScriptString =
-          preRequestScriptString + `pw.env.set('${variable.key}', '${variable.value}');\n`
+        preRequestScriptString += `pw.env.set('${variable.key}', '${variable.value}');\n`
+      }
+      for (let env of environments) {
+        if (env.name === environment.name) {
+          continue
+        }
+
+        if (env.name === "Globals" || env.name === "globals") {
+          preRequestScriptString += this.useSelectedEnvironment({
+            environment: env,
+            environments,
+          })
+        }
       }
       this.preRequestScript = preRequestScriptString
       this.showPreRequestScript = true
+      return preRequestScriptString
     },
     checkCollections() {
       const checkCollectionAvailability =
@@ -1784,7 +1661,7 @@ export default {
       })
     },
     handleUseHistory(entry) {
-      this.label = entry.label
+      this.name = entry.name
       this.method = entry.method
       this.uri = entry.url + entry.path
       this.url = entry.url
@@ -1927,7 +1804,7 @@ export default {
           this.response.body = payload.data
           // Addition of an entry to the history component.
           const entry = {
-            label: this.requestName,
+            name: this.requestName,
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
@@ -1982,7 +1859,7 @@ export default {
             this.response.body = error.response.data
             // Addition of an entry to the history component.
             const entry = {
-              label: this.requestName,
+              name: this.requestName,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
@@ -2294,6 +2171,7 @@ export default {
       switch (name) {
         case "bodyParams":
           this.bodyParams = []
+          this.files = []
           break
         case "rawParams":
           this.rawParams = "{}"
@@ -2332,7 +2210,7 @@ export default {
           this.url = "https://httpbin.org"
           this.path = "/get"
           this.uri = this.url + this.path
-          this.label = ""
+          this.name = "Untitled request"
           this.bodyParams = []
           this.rawParams = "{}"
           this.files = []
@@ -2385,7 +2263,7 @@ export default {
         requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
-        label: this.requestName,
+        name: this.requestName,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
@@ -2422,7 +2300,6 @@ export default {
           icon: "attach_file",
         })
       }
-      this.$refs.attachment.value = ""
     },
     uploadPayload() {
       this.rawInput = true
@@ -2563,7 +2440,7 @@ export default {
         e.preventDefault()
         this.copyRequest()
       }
-      if (e.key === "j" && (e.ctrlKey || e.metaKey)) {
+      if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.$refs.clearAll.click()
       }
@@ -2607,7 +2484,7 @@ export default {
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
       (vm) => [
-        vm.label,
+        vm.name,
         vm.method,
         vm.url,
         vm.auth,

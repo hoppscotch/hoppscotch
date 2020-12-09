@@ -11,15 +11,19 @@
                 type="url"
                 v-model="url"
                 spellcheck="false"
-                @keyup.enter="getSchema()"
+                @keyup.enter="onPollSchemaClick()"
               />
             </li>
             <div>
               <li>
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
-                <button id="get" name="get" @click="getSchema">
-                  {{ $t("get_schema") }}
-                  <span><i class="material-icons">send</i></span>
+                <button id="get" name="get" @click="onPollSchemaClick">
+                  {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
+                  <span
+                    ><i class="material-icons">{{
+                      !isPollingSchema ? "sync" : "sync_disabled"
+                    }}</i></span
+                  >
                 </button>
               </li>
             </div>
@@ -77,7 +81,7 @@
                   v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
-                  <deleteIcon class="material-icons" />
+                  <i class="material-icons">delete</i>
                 </button>
               </li>
             </div>
@@ -293,8 +297,17 @@
                   </div>
                 </tab>
 
-                <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
-                  <div v-for="type in filteredGqlTypes" :key="type.name" :id="`type_${type.name}`">
+                <tab
+                  v-if="graphqlTypes.length > 0"
+                  :id="'types'"
+                  :label="$t('types')"
+                  ref="typesTab"
+                >
+                  <div
+                    v-for="type in filteredGraphqlTypes"
+                    :key="type.name"
+                    :id="`type_${type.name}`"
+                  >
                     <type
                       :gqlType="type"
                       :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
@@ -312,7 +325,7 @@
               queryFields.length === 0 &&
               mutationFields.length === 0 &&
               subscriptionFields.length === 0 &&
-              gqlTypes.length === 0
+              graphqlTypes.length === 0
             "
             class="info"
           >
@@ -339,23 +352,23 @@ import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: { deleteIcon },
   data() {
     return {
       commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
-      gqlTypes: [],
+      graphqlTypes: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,
       graphqlFieldsFilterText: undefined,
+      isPollingSchema: false,
+      timeoutSubscription: null,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -384,10 +397,10 @@ export default {
         fields: this.subscriptionFields,
       })
     },
-    filteredGqlTypes() {
+    filteredGraphqlTypes() {
       return this.getFilteredGraphqlTypes({
         filterText: this.graphqlFieldsFilterText,
-        types: this.gqlTypes,
+        types: this.graphqlTypes,
       })
     },
     url: {
@@ -455,6 +468,12 @@ export default {
       this.getDocsFromSchema(gqlSchema)
     }
   },
+  beforeRouteLeave(_to, _from, next) {
+    this.isPollingSchema = false
+    if (this.timeoutSubscription) clearTimeout(this.timeoutSubscription)
+
+    next()
+  },
   methods: {
     isGqlTypeHighlighted({ gqlType }) {
       if (!this.graphqlFieldsFilterText) return false
@@ -471,19 +490,19 @@ export default {
 
       if (!fields || fields.length === 0) return []
 
-      return fields.filter((field) => {
-        return this.isTextFoundInGraphqlFieldObject({
+      return fields.filter((field) =>
+        this.isTextFoundInGraphqlFieldObject({
           text: this.graphqlFieldsFilterText,
           graphqlFieldObject: field,
         })
-      })
+      )
     },
     isTextFoundInGraphqlFieldObject({ text, graphqlFieldObject }) {
       const normalizedText = text.toLowerCase()
 
       const isFilterTextFoundInDescription = graphqlFieldObject.description
-        .toLowerCase()
-        .includes(normalizedText)
+        ? graphqlFieldObject.description.toLowerCase().includes(normalizedText)
+        : false
       const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(normalizedText)
 
       return isFilterTextFoundInDescription || isFilterTextFoundInName
@@ -491,9 +510,9 @@ export default {
     getFilteredGraphqlFields({ filterText, fields }) {
       if (!filterText) return fields
 
-      return fields.filter((field) => {
-        return this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
-      })
+      return fields.filter((field) =>
+        this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
+      )
     },
     getFilteredGraphqlTypes({ filterText, types }) {
       if (!filterText) return types
@@ -509,12 +528,11 @@ export default {
         }
 
         const isFilterTextMatchingAtLeastOneField = Object.values(type._fields || {}).some(
-          (field) => {
-            return this.isTextFoundInGraphqlFieldObject({
+          (field) =>
+            this.isTextFoundInGraphqlFieldObject({
               text: filterText,
               graphqlFieldObject: field,
             })
-          }
         )
 
         return isFilterTextMatchingAtLeastOneField
@@ -612,7 +630,8 @@ export default {
 
         const res = await sendNetworkRequest(reqOptions, this.$store)
 
-        const responseText = new TextDecoder("utf-8").decode(res.data)
+        // HACK: Temporary trailing null character issue from the extension fix
+        const responseText = new TextDecoder("utf-8").decode(res.data).replace(/\0+$/, "")
 
         this.response = JSON.stringify(JSON.parse(responseText), null, 2)
 
@@ -679,7 +698,80 @@ export default {
           types.push(typeMap[type])
         }
       }
-      this.gqlTypes = types
+      this.graphqlTypes = types
+    },
+    async onPollSchemaClick() {
+      if (this.isPollingSchema) {
+        this.isPollingSchema = false
+      } else {
+        this.isPollingSchema = true
+        await this.getSchema()
+
+        this.pollSchema()
+      }
+    },
+    async pollSchema() {
+      if (!this.isPollingSchema) return
+
+      this.$nuxt.$loading.start()
+
+      try {
+        const query = JSON.stringify({
+          query: gql.getIntrospectionQuery(),
+        })
+
+        let headers = {}
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
+        })
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            ...headers,
+            "content-type": "application/json",
+          },
+          data: query,
+        }
+
+        const data = await sendNetworkRequest(reqOptions, this.$store)
+
+        // HACK : Temporary trailing null character issue from the extension fix
+        const response = new TextDecoder("utf-8").decode(data.data).replace(/\0+$/, "")
+        const introspectResponse = JSON.parse(response)
+
+        const schema = gql.buildClientSchema(introspectResponse.data)
+
+        this.$store.commit("setGQLState", {
+          value: JSON.stringify(introspectResponse.data),
+          attribute: "schemaIntrospection",
+        })
+
+        this.schema = gql.printSchema(schema, {
+          commentDescriptions: true,
+        })
+
+        this.getDocsFromSchema(schema)
+
+        this.$refs.queryEditor.setValidationSchema(schema)
+        this.$nuxt.$loading.finish()
+      } catch (error) {
+        this.$nuxt.$loading.finish()
+
+        this.schema = `${error}. ${this.$t("check_console_details")}`
+        this.$toast.error(
+          `${this.$t("graphql_introspect_failed")} ${this.$t("check_graphql_valid")}`,
+          {
+            icon: "error",
+          }
+        )
+        console.log("Error", error)
+      }
+
+      this.$nuxt.$loading.finish()
+
+      if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
     },
     async getSchema() {
       const startTime = Date.now()
@@ -713,7 +805,8 @@ export default {
 
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
-        const response = new TextDecoder("utf-8").decode(data.data)
+        // HACK : Temporary trailing null character issue from the extension fix
+        const response = new TextDecoder("utf-8").decode(data.data).replace(/\0+$/, "")
         const introspectResponse = JSON.parse(response)
 
         const schema = gql.buildClientSchema(introspectResponse.data)

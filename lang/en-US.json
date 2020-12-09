@@ -50,7 +50,6 @@
   "edit_environment": "Edit Environment",
   "env_variable_list": "Variable List",
   "invalid_environment_name": "Please provide a valid name for the environment",
-  "use_environment": "Use Environment",
   "add_one_variable": "(add at least one variable)",
   "import_curl": "Import cURL",
   "import": "Import",
@@ -103,6 +102,7 @@
   "manage_token_req": "Manage Token Request",
   "use_token_req": "Use Token Request",
   "token_req_name": "Request Name",
+  "empty_req_name": "Empty Request Name",
   "token_req_details": "Request Details",
   "token_name": "Token Name",
   "oidc_discovery_url": "OIDC Discovery URL",
@@ -293,5 +293,12 @@
   "select_delete_method": "Select DELETE method",
   "experiments": "Experiments",
   "experiments_notice": "This is a collection of experiments we're working on that might turn out to be useful, fun, both, or neither. They're not final and may not be stable, so if something overly weird happens, don't panic. Just turn the dang thing off. Jokes aside, ",
-  "use_experimental_url_bar": "Use experimental URL bar with environment highlighting"
+  "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
+  "select_environment": "Select environment",
+  "login_with_github_to": "Login with GitHub to ",
+  "create_secret_gist": "Create secret Gist",
+  "gist_created": "Gist created",
+  "import_from_gist": "Import from Gist",
+  "enter_gist_url": "Enter Gist URL",
+  "account_exists": "Account exists with different credential - Login to link both accounts"
 }

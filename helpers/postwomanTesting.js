@@ -89,10 +89,10 @@ class Expectation {
     }
   }
   _fail(message) {
-    this._testReports.push({ result: FAIL, message })
+    return this._testReports.push({ result: FAIL, message })
   }
-  _pass(message) {
-    this._testReports.push({ result: PASS })
+  _pass() {
+    return this._testReports.push({ result: PASS })
   }
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)
@@ -143,5 +143,41 @@ class Expectation {
     return this._satisfies(code >= 500 && code < 600)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 500-level status`))
+  }
+  toHaveLength(expectedLength) {
+    const actualLength = this.expectValue.length
+    return this._satisfies(actualLength, expectedLength)
+      ? this._pass()
+      : this._fail(
+          this._fmtNot(
+            `Expected length to be ${expectedLength} but actual length was ${actualLength}`
+          )
+        )
+  }
+  toBeType(expectedType) {
+    const actualType = typeof this.expectValue
+    if (
+      [
+        "string",
+        "boolean",
+        "number",
+        "object",
+        "undefined",
+        "bigint",
+        "symbol",
+        "function",
+      ].indexOf(expectedType) < 0
+    ) {
+      return this._fail(
+        this._fmtNot(
+          `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`
+        )
+      )
+    }
+    return this._satisfies(actualType, expectedType)
+      ? this._pass()
+      : this._fail(
+          this._fmtNot(`Expected type to be "${expectedType}" but actual type was "${actualType}"`)
+        )
   }
 }

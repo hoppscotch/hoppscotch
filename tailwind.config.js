@@ -12,11 +12,15 @@ module.exports = {
   experimental: "all",
   dark: "class",
   corePlugins: {
-    clear: false,
     float: false,
+    clear: false,
+    transitionDelay: false,
     skew: false,
   },
   theme: {
+    container: {
+      center: true,
+    },
     extend: {
       colors: {
         bgColor: "var(--bg-color)",
@@ -30,7 +34,6 @@ module.exports = {
         actColor: "var(--act-color)",
         ttColor: "var(--tt-color)",
       },
-      inset: {},
     },
     fontFamily: {
       body: "var(--font-body)",
@@ -49,7 +52,6 @@ module.exports = {
       "pages/**/*.vue",
       "plugins/**/*.js",
       "nuxt.config.js",
-      "content/**/*.md",
     ],
     // These options are passed through directly to PurgeCSS
     options: {

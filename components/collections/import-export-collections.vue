@@ -6,8 +6,46 @@
           <div class="row-wrapper">
             <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
             <div>
+              <v-popover>
+                <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+                  <i class="material-icons">more_vert</i>
+                </button>
+                <template slot="popover">
+                  <div>
+                    <button class="icon" @click="readCollectionGist" v-close-popover>
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("import_from_gist") }}</span>
+                    </button>
+                  </div>
+                  <div
+                    v-tooltip.bottom="{
+                      content: !fb.currentUser
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : fb.currentUser.provider !== 'github.com'
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : null,
+                    }"
+                  >
+                    <button
+                      :disabled="
+                        !fb.currentUser
+                          ? true
+                          : fb.currentUser.provider !== 'github.com'
+                          ? true
+                          : false
+                      "
+                      class="icon"
+                      @click="createCollectionGist"
+                      v-close-popover
+                    >
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("create_secret_gist") }}</span>
+                    </button>
+                  </div>
+                </template>
+              </v-popover>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -77,12 +115,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-  },
   data() {
     return {
       fb,
@@ -97,6 +131,57 @@ export default {
     },
   },
   methods: {
+    async createCollectionGist() {
+      await this.$axios
+        .$post(
+          "https://api.github.com/gists",
+          {
+            files: {
+              "hoppscotch-collections.json": {
+                content: this.collectionJson,
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `token ${fb.currentUser.accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        )
+        .then((response) => {
+          this.$toast.success(this.$t("gist_created"), {
+            icon: "done",
+          })
+          window.open(response.html_url)
+        })
+        .catch((error) => {
+          this.$toast.error(this.$t("something_went_wrong"), {
+            icon: "error",
+          })
+          console.log(error)
+        })
+    },
+    async readCollectionGist() {
+      let gist = prompt(this.$t("enter_gist_url"))
+      if (!gist) return
+      await this.$axios
+        .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+          },
+        })
+        .then((response) => {
+          let collections = JSON.parse(Object.values(response.files)[0].content)
+          this.$store.commit("postwoman/replaceCollections", collections)
+          this.fileImported()
+          this.syncToFBCollections()
+        })
+        .catch((error) => {
+          this.failedImport()
+          console.log(error)
+        })
+    },
     hideModal() {
       this.$emit("hide-modal")
     },
@@ -108,8 +193,8 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = (event) => {
-        let content = event.target.result
+      reader.onload = ({ target }) => {
+        let content = target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
           let [name, folders, requests] = Object.keys(collections[0])
@@ -117,7 +202,7 @@ export default {
             // Do nothing
           }
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
-          collections = this.parsePostmanCollection(collections)
+          collections = [this.parsePostmanCollection(collections)]
         } else {
           return this.failedImport()
         }
@@ -130,8 +215,8 @@ export default {
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = (event) => {
-        let content = event.target.result
+      reader.onload = ({ target }) => {
+        let content = target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
           let [name, folders, requests] = Object.keys(collections[0])
@@ -141,8 +226,7 @@ export default {
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           //replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
           collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
-          collections.item = this.flattenPostmanFolders(collections)
-          collections = this.parsePostmanCollection(collections)
+          collections = [this.parsePostmanCollection(collections)]
         } else {
           return this.failedImport()
         }
@@ -192,35 +276,29 @@ export default {
         icon: "error",
       })
     },
-    parsePostmanCollection(collection, folders = true) {
-      let postwomanCollection = folders
-        ? [
-            {
-              name: "",
-              folders: [],
-              requests: [],
-            },
-          ]
-        : {
-            name: "",
-            requests: [],
-          }
-      if (folders) {
-        //pick up collection name even when all children are folders
-        postwomanCollection[0].name = collection.info ? collection.info.name : ""
+    parsePostmanCollection({ info, name, item }) {
+      let postwomanCollection = {
+        name: "",
+        folders: [],
+        requests: [],
       }
-      for (let collectionItem of collection.item) {
-        if (collectionItem.request) {
-          if (postwomanCollection[0]) {
-            postwomanCollection[0].name = collection.info ? collection.info.name : ""
-            postwomanCollection[0].requests.push(this.parsePostmanRequest(collectionItem))
+
+      postwomanCollection.name = info ? info.name : name
+
+      if (item && item.length > 0) {
+        for (let collectionItem of item) {
+          if (collectionItem.request) {
+            if (postwomanCollection.hasOwnProperty("folders")) {
+              postwomanCollection.name = info ? info.name : name
+              postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
+            } else {
+              postwomanCollection.name = name ? name : ""
+              postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
+            }
+          } else if (this.hasFolder(collectionItem)) {
+            postwomanCollection.folders.push(this.parsePostmanCollection(collectionItem))
           } else {
-            postwomanCollection.name = collection.name ? collection.name : ""
             postwomanCollection.requests.push(this.parsePostmanRequest(collectionItem))
-          }
-        } else if (collectionItem.item) {
-          if (collectionItem.item[0]) {
-            postwomanCollection[0].folders.push(this.parsePostmanCollection(collectionItem, false))
           }
         }
       }
@@ -300,46 +378,8 @@ export default {
       }
       return pwRequest
     },
-    flattenPostmanFolders(collection) {
-      let items = []
-
-      for (let collectionItem of collection.item) {
-        if (this.hasFolder(collectionItem)) {
-          let newFolderItems = []
-          for (let folderItem of collectionItem.item) {
-            if (this.isSubFolder(folderItem)) {
-              newFolderItems = newFolderItems.concat(this.flattenPostmanItem(folderItem))
-            } else {
-              newFolderItems.push(folderItem)
-            }
-          }
-          collectionItem.item = newFolderItems
-        }
-        items.push(collectionItem)
-      }
-      return items
-    },
     hasFolder(item) {
-      return Object.prototype.hasOwnProperty.call(item, "item")
-    },
-    isSubFolder(item) {
-      return (
-        Object.prototype.hasOwnProperty.call(item, "_postman_isSubFolder") &&
-        item._postman_isSubFolder
-      )
-    },
-    flattenPostmanItem(subFolder, subFolderGlue = " -- ") {
-      delete subFolder._postman_isSubFolder
-      let flattenedItems = []
-      for (let subFolderItem of subFolder.item) {
-        subFolderItem.name = subFolder.name + subFolderGlue + subFolderItem.name
-        if (this.isSubFolder(subFolderItem)) {
-          flattenedItems = flattenedItems.concat(this.flattenPostmanItem(subFolderItem))
-        } else {
-          flattenedItems.push(subFolderItem)
-        }
-      }
-      return flattenedItems
+      return item.hasOwnProperty("item")
     },
   },
 }

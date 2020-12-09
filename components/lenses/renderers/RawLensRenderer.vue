@@ -55,6 +55,7 @@
     </li>
   </ul>
 </template>
+
 <script>
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"

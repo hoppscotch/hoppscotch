@@ -1,12 +1,8 @@
 <template>
   <div class="row-wrapper">
     <div>
-      <button
-        class="icon"
-        @click="$emit('select-environment')"
-        v-tooltip.bottom="$t('use_environment')"
-      >
-        <i class="material-icons">insert_drive_file</i>
+      <button class="icon" @click="$emit('edit-environment')">
+        <i class="material-icons">layers</i>
         <span>{{ environment.name }}</span>
       </button>
     </div>
@@ -23,7 +19,7 @@
         </div>
         <div>
           <button class="icon" @click="removeEnvironment" v-close-popover>
-            <deleteIcon class="material-icons" />
+            <i class="material-icons">delete</i>
             <span>{{ $t("delete") }}</span>
           </button>
         </div>
@@ -34,10 +30,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: { deleteIcon },
   props: {
     environment: Object,
     environmentIndex: Number,

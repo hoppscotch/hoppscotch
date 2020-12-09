@@ -31,13 +31,11 @@ export default {
     gqlType: {},
     jumpTypeCallback: Function,
     isHighlighted: { type: Boolean, default: false },
-    highlightedFields: { type: Array, default: [] },
+    highlightedFields: { type: Array, default: () => [] },
   },
   methods: {
     isFieldHighlighted({ field }) {
-      return !!this.highlightedFields.find(
-        (highlightedField) => highlightedField.name === field.name
-      )
+      return !!this.highlightedFields.find(({ name }) => name === field.name)
     },
   },
 }

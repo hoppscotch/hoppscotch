@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("new_folder") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -21,7 +21,7 @@
             type="text"
             v-model="name"
             :placeholder="$t('my_new_folder')"
-            @keyup.enter="addNewFolder"
+            @keyup.enter="addFolder"
           />
         </li>
       </ul>
@@ -33,7 +33,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewFolder">
+          <button class="icon primary" @click="addFolder">
             {{ $t("save") }}
           </button>
         </span>
@@ -43,16 +43,11 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
-
 export default {
-  components: {
-    closeIcon,
-  },
   props: {
     show: Boolean,
-    collection: Object,
+    folder: Object,
+    folderPath: String,
     collectionIndex: Number,
   },
   data() {
@@ -61,20 +56,12 @@ export default {
     }
   },
   methods: {
-    addNewFolder() {
-      this.$store.commit("postwoman/addNewFolder", {
-        folder: { name: this.$data.name },
-        collectionIndex: this.$props.collectionIndex,
+    addFolder() {
+      this.$emit("add-folder", {
+        name: this.name,
+        folder: this.folder,
+        path: this.folderPath || `${this.collectionIndex}`,
       })
-      this.hideModal()
-      this.syncCollections()
-    },
-    syncCollections() {
-      if (fb.currentUser !== null) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
-      }
     },
     hideModal() {
       this.$emit("hide-modal")

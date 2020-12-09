@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("edit_environment") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -75,7 +75,7 @@
               v-tooltip.bottom="$t('delete')"
               id="variable"
             >
-              <deleteIcon class="material-icons" />
+              <i class="material-icons">delete</i>
             </button>
           </li>
         </div>
@@ -107,14 +107,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
-import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-    deleteIcon,
-  },
   props: {
     show: Boolean,
     editingEnvironment: Object,
@@ -123,10 +117,11 @@ export default {
   data() {
     return {
       name: undefined,
+      doneButton: '<i class="material-icons">done</i>',
     }
   },
   watch: {
-    editingEnvironment: function (update) {
+    editingEnvironment(update) {
       this.name =
         this.$props.editingEnvironment && this.$props.editingEnvironment.name
           ? this.$props.editingEnvironment.name
@@ -151,13 +146,13 @@ export default {
         }
       }
     },
-    clearContent(e) {
+    clearContent({ target }) {
       this.$store.commit("postwoman/removeVariables", [])
-      e.target.innerHTML = this.doneButton
+      target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     addEnvironmentVariable() {
       let value = { key: "", value: "" }

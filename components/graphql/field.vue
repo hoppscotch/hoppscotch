@@ -22,6 +22,18 @@
     >
       {{ $t("deprecated") }}
     </div>
+    <div v-if="fieldArgs.length > 0">
+      <h5 class="text-xs my-2">ARGUMENTS:</h5>
+      <div class="border-l-2 border-acColor px-4">
+        <div v-for="(field, index) in fieldArgs" :key="index">
+          {{ field.name }}:
+          <typelink :gqlType="field.type" :jumpTypeCallback="jumpTypeCallback" />
+          <div class="mt-2 text-fgLightColor field-desc" v-if="field.description">
+            {{ field.description }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -39,7 +51,6 @@ export default {
     jumpTypeCallback: Function,
     isHighlighted: { type: Boolean, default: false },
   },
-
   computed: {
     fieldName() {
       return this.gqlField.name

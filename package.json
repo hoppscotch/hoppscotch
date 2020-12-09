@@ -11,14 +11,10 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "pregenerate": "node build.js",
-    "generate": "nuxt generate",
+    "generate": "nuxt generate --modern",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
-    "test": "jest"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run pretty-quick"
-    }
+    "test": "jest",
+    "postinstall": "husky install"
   },
   "prettier": {
     "trailingComma": "es5",
@@ -27,49 +23,51 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.12.2",
-    "@nuxtjs/gtm": "^2.3.2",
+    "@nuxtjs/axios": "^5.12.3",
+    "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
     "esprima": "^4.0.1",
-    "firebase": "^7.22.1",
-    "graphql": "^15.3.0",
-    "graphql-language-service-interface": "^2.4.2",
-    "lodash-es": "^4.17.15",
-    "nuxt": "^2.14.6",
-    "nuxt-i18n": "^6.15.1",
+    "firebase": "^8.1.2",
+    "graphql": "^15.4.0",
+    "graphql-language-service-interface": "^2.4.3",
+    "mustache": "^4.0.1",
+    "nuxt": "^2.14.10",
+    "nuxt-i18n": "^6.15.4",
     "paho-mqtt": "^1.1.0",
-    "socket.io-client": "^2.3.1",
+    "socket.io-client": "^3.0.4",
     "socketio-wildcard": "^2.0.0",
     "v-tooltip": "^2.0.3",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^3.1.3",
-    "yargs-parser": "^20.2.1"
+    "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/preset-env": "^7.11.5",
-    "@nuxtjs/color-mode": "^1.1.1",
+    "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.12.7",
+    "@nuxtjs/color-mode": "^2.0.2",
     "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/pwa": "^3.0.2",
-    "@nuxtjs/svg": "^0.1.12",
-    "@nuxtjs/tailwindcss": "^3.1.0",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@vue/test-utils": "^1.1.0",
+    "@nuxtjs/pwa": "^3.3.2",
+    "@nuxtjs/tailwindcss": "^3.3.3",
+    "@testing-library/jest-dom": "^5.11.6",
+    "@vue/test-utils": "^1.1.1",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^26.5.0",
-    "eslint": "^7.10.0",
-    "eslint-plugin-vue": "^7.0.1",
-    "husky": "^4.3.0",
-    "jest": "^26.5.0",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.15.0",
+    "eslint-plugin-vue": "^7.2.0",
+    "firebase-mock": "^2.3.2",
+    "husky": "^5.0.4",
+    "jest": "^26.6.3",
     "jest-serializer-vue": "^2.0.2",
-    "node-sass": "^4.14.1",
-    "prettier": "^2.1.2",
-    "pretty-quick": "^3.0.2",
-    "sass-loader": "^10.0.2",
-    "vue-jest": "^3.0.7"
+    "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.0",
+    "raw-loader": "^4.0.2",
+    "sass": "^1.30.0",
+    "sass-loader": "^10.1.0",
+    "vue-jest": "^3.0.7",
+    "worker-loader": "^3.0.6"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -79,6 +77,7 @@
     ],
     "watchman": false,
     "moduleNameMapper": {
+      ".+\\.(svg)\\?inline$": "<rootDir>/__mocks__/svgMock.js",
       "^~/(.*)$": "<rootDir>/$1",
       "^~~/(.*)$": "<rootDir>/$1"
     },

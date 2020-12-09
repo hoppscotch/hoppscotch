@@ -6,8 +6,46 @@
           <div class="row-wrapper">
             <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
             <div>
+              <v-popover>
+                <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+                  <i class="material-icons">more_vert</i>
+                </button>
+                <template slot="popover">
+                  <div>
+                    <button class="icon" @click="readEnvironmentGist" v-close-popover>
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("import_from_gist") }}</span>
+                    </button>
+                  </div>
+                  <div
+                    v-tooltip.bottom="{
+                      content: !fb.currentUser
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : fb.currentUser.provider !== 'github.com'
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : null,
+                    }"
+                  >
+                    <button
+                      :disabled="
+                        !fb.currentUser
+                          ? true
+                          : fb.currentUser.provider !== 'github.com'
+                          ? true
+                          : false
+                      "
+                      class="icon"
+                      @click="createEnvironmentGist"
+                      v-close-popover
+                    >
+                      <i class="material-icons">code</i>
+                      <span>{{ $t("create_secret_gist") }}</span>
+                    </button>
+                  </div>
+                </template>
+              </v-popover>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -77,12 +115,8 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
-  components: {
-    closeIcon,
-  },
   data() {
     return {
       fb,
@@ -97,6 +131,57 @@ export default {
     },
   },
   methods: {
+    async createEnvironmentGist() {
+      await this.$axios
+        .$post(
+          "https://api.github.com/gists",
+          {
+            files: {
+              "hoppscotch-environments.json": {
+                content: this.environmentJson,
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `token ${fb.currentUser.accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        )
+        .then((response) => {
+          this.$toast.success(this.$t("gist_created"), {
+            icon: "done",
+          })
+          window.open(response.html_url)
+        })
+        .catch((error) => {
+          this.$toast.error(this.$t("something_went_wrong"), {
+            icon: "error",
+          })
+          console.log(error)
+        })
+    },
+    async readEnvironmentGist() {
+      let gist = prompt(this.$t("enter_gist_url"))
+      if (!gist) return
+      await this.$axios
+        .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+          },
+        })
+        .then((response) => {
+          let environments = JSON.parse(Object.values(response.files)[0].content)
+          this.$store.commit("postwoman/replaceEnvironments", environments)
+          this.fileImported()
+          this.syncToFBEnvironments()
+        })
+        .catch((error) => {
+          this.failedImport()
+          console.log(error)
+        })
+    },
     hideModal() {
       this.$emit("hide-modal")
     },
@@ -108,8 +193,8 @@ export default {
     },
     replaceWithJSON() {
       let reader = new FileReader()
-      reader.onload = (event) => {
-        let content = event.target.result
+      reader.onload = ({ target }) => {
+        let content = target.result
         let environments = JSON.parse(content)
         this.$store.commit("postwoman/replaceEnvironments", environments)
       }
@@ -120,8 +205,8 @@ export default {
     },
     importFromJSON() {
       let reader = new FileReader()
-      reader.onload = (event) => {
-        let content = event.target.result
+      reader.onload = ({ target }) => {
+        let content = target.result
         let importFileObj = JSON.parse(content)
         if (
           importFileObj["_postman_variable_scope"] === "environment" ||
@@ -143,11 +228,9 @@ export default {
         confirmation,
       })
     },
-    importFromPostman(importFileObj) {
-      let environment = { name: importFileObj.name, variables: [] }
-      importFileObj.values.forEach((element) =>
-        environment.variables.push({ key: element.key, value: element.value })
-      )
+    importFromPostman({ name, values }) {
+      let environment = { name, variables: [] }
+      values.forEach(({ key, value }) => environment.variables.push({ key, value }))
       let environments = [environment]
       this.importFromPostwoman(environments)
     },

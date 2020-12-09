@@ -205,7 +205,11 @@ describe("FirebaseInstance", () => {
       const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
 
       const fb = new FirebaseInstance(mocksdk, {
-        github: () => {},
+        github: () => {
+          return {
+            addScope: () => {}
+          }
+        },
       })
 
       signOutUser()
@@ -218,7 +222,11 @@ describe("FirebaseInstance", () => {
       const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
 
       const fb = new FirebaseInstance(mocksdk, {
-        github: () => {},
+        github: () => {
+          return {
+            addScope: () => {}
+          }
+        },
       })
 
       signOutUser()
@@ -231,7 +239,11 @@ describe("FirebaseInstance", () => {
       const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
 
       const fb = new FirebaseInstance(mocksdk, {
-        github: () => {},
+        github: () => {
+          return {
+            addScope: () => {}
+          }
+        },
       })
 
       signOutUser()
@@ -244,7 +256,11 @@ describe("FirebaseInstance", () => {
       const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
 
       const fb = new FirebaseInstance(mocksdk, {
-        github: () => {},
+        github: () => {
+          return {
+            addScope: () => {}
+          }
+        },
       })
 
       signOutUser()

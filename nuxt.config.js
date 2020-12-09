@@ -321,6 +321,11 @@ export default {
           use: { loader: "worker-loader" },
           exclude: /(node_modules)/,
         })
+        config.module.rules.push({
+          test: /\.md$/i,
+          use: { loader: "raw-loader" },
+          exclude: /(node_modules)/,
+        })
       }
     },
     parallel: true,

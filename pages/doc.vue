@@ -72,6 +72,28 @@
           <p v-if="this.items.length === 0" class="info">
             {{ $t("generate_docs_first") }}
           </p>
+          <div v-else class="row-wrapper">
+            <div
+              v-tooltip.bottom="{
+                content: !fb.currentUser
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : fb.currentUser.provider !== 'github.com'
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : null,
+              }"
+            >
+              <button
+                :disabled="
+                  !fb.currentUser ? true : fb.currentUser.provider !== 'github.com' ? true : false
+                "
+                class="icon"
+                @click="createDocsGist"
+              >
+                <i class="material-icons">code</i>
+                <span>{{ $t("create_secret_gist") }}</span>
+              </button>
+            </div>
+          </div>
           <div>
             <span class="collection" v-for="(collection, index) in this.items" :key="index">
               <h2>
@@ -147,9 +169,9 @@
                       </span>
                     </p>
                   </span>
-                  <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-                  <span v-if="request.bodyParam">
-                    <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
+                  <h4 v-if="request.bodyParams">{{ $t("payload") }}</h4>
+                  <span v-if="request.bodyParams">
+                    <p v-for="payload in request.bodyParams" :key="payload.key" class="doc-desc">
                       <span>
                         {{ payload.key || $t("none") }}:
                         <code>{{ payload.value || $t("none") }}</code>
@@ -243,9 +265,9 @@
                     </span>
                   </p>
                 </span>
-                <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-                <span v-if="request.bodyParam">
-                  <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
+                <h4 v-if="request.bodyParams">{{ $t("payload") }}</h4>
+                <span v-if="request.bodyParams">
+                  <p v-for="payload in request.bodyParams" :key="payload.key" class="doc-desc">
                     <span>
                       {{ payload.key || $t("none") }}:
                       <code>{{ payload.value || $t("none") }}</code>
@@ -292,27 +314,27 @@
   @apply flex-col;
   @apply justify-center;
   @apply flex-1;
-  @apply p-8;
+  @apply p-4;
 
   .material-icons {
-    @apply mr-8;
+    @apply mr-4;
   }
 }
 
 .folder {
   @apply border-l;
   @apply border-brdColor;
-  @apply mt-8;
+  @apply mt-4;
 }
 
 .request {
   @apply border;
   @apply border-brdColor;
   @apply rounded-lg;
-  @apply mt-8;
+  @apply mt-4;
 
   h4 {
-    @apply mt-8;
+    @apply mt-4;
   }
 }
 
@@ -330,16 +352,53 @@
 </style>
 
 <script>
+import { fb } from "~/helpers/fb"
+import Mustache from "mustache"
+import DocsTemplate from "~/assets/md/docs.md"
+
 export default {
   data() {
     return {
+      fb,
       collectionJSON: "[]",
       items: [],
+      docsMarkdown: "",
     }
   },
   methods: {
+    async createDocsGist() {
+      await this.$axios
+        .$post(
+          "https://api.github.com/gists",
+          {
+            files: {
+              "api-docs.md": {
+                content: this.docsMarkdown,
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `token ${fb.currentUser.accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        )
+        .then((response) => {
+          this.$toast.success(this.$t("gist_created"), {
+            icon: "done",
+          })
+          window.open(response.html_url)
+        })
+        .catch((error) => {
+          this.$toast.error(this.$t("something_went_wrong"), {
+            icon: "error",
+          })
+          console.log(error)
+        })
+    },
+
     uploadCollection() {
-      this.rawInput = true
       let file = this.$refs.collectionUpload.files[0]
       if (file !== undefined && file !== null) {
         let reader = new FileReader()
@@ -365,6 +424,25 @@ export default {
         this.$toast.info(this.$t("docs_generated"), {
           icon: "book",
         })
+        const docsMarkdown = Mustache.render(DocsTemplate, {
+          collections: this.items,
+          isHeaders() {
+            return this.headers.length
+          },
+          isParams() {
+            return this.params.length
+          },
+          isAuth() {
+            return this.auth !== "None"
+          },
+          isAuthBasic() {
+            return this.httpUser && this.httpPassword
+          },
+          isRawParams() {
+            return this.rawParams && this.rawParams !== "{}"
+          },
+        })
+        this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n")
       } catch (e) {
         this.$toast.error(e, {
           icon: "code",

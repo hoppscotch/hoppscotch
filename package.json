@@ -32,7 +32,7 @@
     "esprima": "^4.0.1",
     "firebase": "^8.1.2",
     "graphql": "^15.4.0",
-    "graphql-language-service-interface": "^2.4.3",
+    "graphql-language-service-interface": "^2.5.0",
     "mustache": "^4.0.1",
     "nuxt": "^2.14.10",
     "nuxt-i18n": "^6.15.4",

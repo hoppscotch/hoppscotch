@@ -33,6 +33,7 @@
     "firebase": "^8.1.2",
     "graphql": "^15.4.0",
     "graphql-language-service-interface": "^2.4.3",
+    "lodash-es": "^4.17.15",
     "mustache": "^4.0.1",
     "nuxt": "^2.14.10",
     "nuxt-i18n": "^6.15.4",

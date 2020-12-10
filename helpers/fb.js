@@ -137,7 +137,7 @@ export class FirebaseInstance {
   }
 
   async signInUserWithGithub() {
-    return await this.app.auth().signInWithPopup(this.authProviders.github().addScope("repo gist"))
+    return await this.app.auth().signInWithPopup(this.authProviders.github().addScope("gist"))
   }
 
   async signInWithEmailAndPassword(email, password) {

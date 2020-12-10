@@ -12,7 +12,7 @@
 
 **Method**: {{method}}
 
-**RequestURL**: `{{{url}}}{{{path}}}`
+**Request URL**: `{{{url}}}{{{path}}}`
 
 {{#isHeaders}}
 **Headers**:
@@ -32,7 +32,7 @@
 {{/isHeaders}}
 
 {{#isParams}}
-**Params**:
+**Parameters**:
 
 <table>
 <tr>
@@ -55,7 +55,7 @@
 {{/isAuth}}
 
 {{#bearerToken}}
-**BearerToken**: `{{{.}}}`
+**Bearer Token**: `{{{.}}}`
 {{/bearerToken}}
 
 {{#isAuthBasic}}
@@ -118,7 +118,7 @@ Password: `{{{httpPassword}}}`
 
 **Method**: {{method}}
 
-**RequestURL**: `{{{url}}}{{{path}}}`
+**Request URL**: `{{{url}}}{{{path}}}`
 
 {{#isHeaders}}
 **Headers**:
@@ -138,7 +138,7 @@ Password: `{{{httpPassword}}}`
 {{/isHeaders}}
 
 {{#isParams}}
-**Params**:
+**Parameters**:
 
 <table>
 <tr>
@@ -161,7 +161,7 @@ Password: `{{{httpPassword}}}`
 {{/isAuth}}
 
 {{#bearerToken}}
-**BearerToken**: `{{{.}}}`
+**Bearer Token**: `{{{.}}}`
 {{/bearerToken}}
 
 {{#isAuthBasic}}
@@ -170,7 +170,7 @@ Password: `{{{httpPassword}}}`
 {{/isAuthBasic}}
 
 {{#isRawParams}}
-**RawParams**:
+**Raw Parameters**:
 
 ```json
 {{{rawParams}}}
@@ -179,7 +179,7 @@ Password: `{{{httpPassword}}}`
 {{/isRawParams}}
 
 {{#contentType}}
-**ContentType**: `{{{contentType}}}`
+**Content Type**: `{{{contentType}}}`
 {{/contentType}}
 
 {{#preRequestScript}}

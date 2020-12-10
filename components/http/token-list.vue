@@ -81,8 +81,8 @@ export default {
     clearContent(tokens, $event) {
       this.$emit("clear-content", tokens, $event)
     },
-    useOAuthToken() {
-      this.$emit("use-oauth-token")
+    useOAuthToken(token) {
+      this.$emit("use-oauth-token", token)
     },
     removeOAuthToken(index) {
       this.$emit("remove-oauth-token", index)

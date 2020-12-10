@@ -252,7 +252,7 @@
               <button
                 class="icon"
                 id="show-modal"
-                @click="showCurlImportModal = true"
+                @click="showCurlImportModal = !showCurlImportModal"
                 v-tooltip.bottom="$t('import_curl')"
               >
                 <i class="material-icons">import_export</i>
@@ -260,11 +260,9 @@
               <button
                 class="icon"
                 id="code"
-                @click="isHidden = !isHidden"
+                @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
-                v-tooltip.bottom="{
-                  content: isHidden ? $t('show_code') : $t('hide_code'),
-                }"
+                v-tooltip.bottom="$t('show_code')"
               >
                 <i class="material-icons">code</i>
               </button>
@@ -707,75 +705,13 @@
       @handle-import="handleImport"
     />
 
-    <modal v-if="!isHidden" @close="isHidden = true">
-      <div slot="header">
-        <ul>
-          <li>
-            <div class="row-wrapper">
-              <h3 class="title">{{ $t("generate_code") }}</h3>
-              <div>
-                <button class="icon" @click="isHidden = true">
-                  <i class="material-icons">close</i>
-                </button>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div slot="body">
-        <ul>
-          <li>
-            <label for="requestType">{{ $t("request_type") }}</label>
-            <span class="select-wrapper">
-              <v-popover>
-                <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
-                <input
-                  v-else
-                  id="requestType"
-                  v-model="requestType"
-                  :placeholder="$t('choose_language')"
-                  class="cursor-pointer"
-                  readonly
-                  autofocus
-                />
-                <template slot="popover">
-                  <div v-for="gen in codegens" :key="gen.id">
-                    <button class="icon" @click="requestType = gen.id" v-close-popover>
-                      {{ gen.name }}
-                    </button>
-                  </div>
-                </template>
-              </v-popover>
-            </span>
-          </li>
-        </ul>
-        <ul>
-          <li>
-            <div class="row-wrapper">
-              <label for="generatedCode">{{ $t("generated_code") }}</label>
-              <div>
-                <button
-                  class="icon"
-                  @click="copyRequestCode"
-                  id="copyRequestCode"
-                  ref="copyRequestCode"
-                  v-tooltip="$t('copy_code')"
-                >
-                  <i class="material-icons">content_copy</i>
-                </button>
-              </div>
-            </div>
-            <textarea
-              id="generatedCode"
-              ref="generatedCode"
-              name="generatedCode"
-              rows="8"
-              v-model="requestCode"
-            ></textarea>
-          </li>
-        </ul>
-      </div>
-    </modal>
+    <codegen-modal
+      :show="showCodegenModal"
+      :requestTypeProp="requestType"
+      :requestCode="requestCode"
+      @hide-modal="showCodegenModal = false"
+      @set-request-type="setRequestType"
+    />
 
     <token-list
       :show="showTokenListModal"
@@ -883,7 +819,7 @@ import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpe
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
-import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
@@ -898,7 +834,7 @@ export default {
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
-      isHidden: true,
+      showCodegenModal: false,
       response: {
         status: "",
         headers: "",
@@ -926,7 +862,6 @@ export default {
             : true,
       },
       currentMethodIndex: 0,
-      codegens,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1847,15 +1782,6 @@ export default {
         setTimeout(() => (this.$refs.copyRequest.innerHTML = this.copyButton), 1000)
       }
     },
-    copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      this.$refs.generatedCode.select()
-      document.execCommand("copy")
-      setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
-    },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {
@@ -2203,6 +2129,9 @@ export default {
       this.clientId = clientId
       this.scope = scope
     },
+    setRequestType(val) {
+      this.requestType = val
+    },
   },
   async mounted() {
     this.observeRequestButton()
@@ -2229,8 +2158,7 @@ export default {
       }
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = false
-        this.isHidden = true
+        this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = this.showCodegenModal = false
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
         this.method = "GET"

@@ -207,7 +207,7 @@ describe("FirebaseInstance", () => {
       const fb = new FirebaseInstance(mocksdk, {
         github: () => {
           return {
-            addScope: () => {}
+            addScope: () => {},
           }
         },
       })
@@ -224,7 +224,7 @@ describe("FirebaseInstance", () => {
       const fb = new FirebaseInstance(mocksdk, {
         github: () => {
           return {
-            addScope: () => {}
+            addScope: () => {},
           }
         },
       })
@@ -241,7 +241,7 @@ describe("FirebaseInstance", () => {
       const fb = new FirebaseInstance(mocksdk, {
         github: () => {
           return {
-            addScope: () => {}
+            addScope: () => {},
           }
         },
       })
@@ -252,15 +252,15 @@ describe("FirebaseInstance", () => {
 
       await expect(fb.signInUserWithGithub()).rejects.toEqual("test error")
     })
-    test("adds 'repo gist' scope", async () => {
+    test("adds 'gist' scope", async () => {
       const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
-      
+
       const addScopeMock = jest.fn()
 
       const fb = new FirebaseInstance(mocksdk, {
         github: () => {
           return {
-            addScope: addScopeMock
+            addScope: addScopeMock,
           }
         },
       })
@@ -270,7 +270,7 @@ describe("FirebaseInstance", () => {
       fbFunc.mockImplementation(() => Promise.resolve("test"))
       await fb.signInUserWithGithub()
 
-      expect(addScopeMock).toBeCalledWith("repo gist")
+      expect(addScopeMock).toBeCalledWith("gist")
     })
     test("resolves the response the firebase request resolves", async () => {
       const fbFunc = jest.spyOn(mockAuth, "signInWithPopup")
@@ -278,7 +278,7 @@ describe("FirebaseInstance", () => {
       const fb = new FirebaseInstance(mocksdk, {
         github: () => {
           return {
-            addScope: () => {}
+            addScope: () => {},
           }
         },
       })

@@ -149,11 +149,11 @@ export default {
             },
           }
         )
-        .then((response) => {
+        .then(({ html_url }) => {
           this.$toast.success(this.$t("gist_created"), {
             icon: "done",
           })
-          window.open(response.html_url)
+          window.open(html_url)
         })
         .catch((error) => {
           this.$toast.error(this.$t("something_went_wrong"), {
@@ -171,8 +171,8 @@ export default {
             Accept: "application/vnd.github.v3+json",
           },
         })
-        .then((response) => {
-          let collections = JSON.parse(Object.values(response.files)[0].content)
+        .then(({ files }) => {
+          let collections = JSON.parse(Object.values(files)[0].content)
           this.$store.commit("postwoman/replaceCollections", collections)
           this.fileImported()
           this.syncToFBCollections()

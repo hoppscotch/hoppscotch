@@ -306,16 +306,16 @@ export default {
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     // You can extend webpack config here
-    extend(config, ctx) {
+    extend(config, { isDev, isClient }) {
       // Sets webpack's mode to development if `isDev` is true.
-      if (ctx.isDev) {
+      if (isDev) {
         config.mode = "development"
       }
       config.node = {
         fs: "empty",
       }
 
-      if (ctx.isClient) {
+      if (isClient) {
         config.module.rules.unshift({
           test: /\.worker\.(c|m)?js$/i,
           use: { loader: "worker-loader" },

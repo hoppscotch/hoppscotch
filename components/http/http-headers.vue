@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <pw-section class="orange" label="Headers" ref="headers">
     <ul v-if="headers.length !== 0">
       <li>
         <div class="row-wrapper">
@@ -68,7 +68,7 @@
         </button>
       </li>
     </ul>
-  </div>
+  </pw-section>
 </template>
 
 <script>

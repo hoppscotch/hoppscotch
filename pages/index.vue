@@ -462,7 +462,7 @@
                       <button
                         v-if="auth === 'OAuth 2.0'"
                         class="icon"
-                        @click="showTokenList = !showTokenList"
+                        @click="showTokenListModal = !showTokenListModal"
                         v-tooltip.bottom="$t('use_token')"
                       >
                         <i class="material-icons">open_in_new</i>
@@ -611,15 +611,13 @@
                 $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
               "
             >
-              <pw-section class="orange" label="Headers" ref="headers">
-                <http-headers
-                  :headers="headers"
-                  @clear-content="clearContent"
-                  @set-route-query-state="setRouteQueryState"
-                  @remove-request-header="removeRequestHeader"
-                  @add-request-header="addRequestHeader"
-                />
-              </pw-section>
+              <http-headers
+                :headers="headers"
+                @clear-content="clearContent"
+                @set-route-query-state="setRouteQueryState"
+                @remove-request-header="removeRequestHeader"
+                @add-request-header="addRequestHeader"
+              />
             </tab>
 
             <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
@@ -771,271 +769,183 @@
             </tab>
 
             <tab :id="'notes'" :label="$t('notes')">
-              <pw-section class="pink" :label="$t('notes')" ref="sync">
-                <div v-if="fb.currentUser">
-                  <inputform />
-                  <feeds />
-                </div>
-                <div v-else>
-                  <ul>
-                    <li>
-                      <label>{{ $t("login_first") }}</label>
-                      <p>
-                        <login />
-                      </p>
-                    </li>
-                  </ul>
-                </div>
-              </pw-section>
+              <notes />
             </tab>
           </tabs>
         </section>
       </aside>
+    </div>
 
-      <save-request-as
-        :show="showSaveRequestModal"
-        @hide-modal="hideRequestModal"
-        :editing-request="editRequest"
-      />
+    <save-request-as
+      :show="showSaveRequestModal"
+      @hide-modal="hideRequestModal"
+      :editing-request="editRequest"
+    />
 
-      <import-curl
-        :show="showCurlImportModal"
-        @hide-modal="showCurlImportModal = false"
-        @handle-import="handleImport"
-      />
+    <import-curl
+      :show="showCurlImportModal"
+      @hide-modal="showCurlImportModal = false"
+      @handle-import="handleImport"
+    />
 
-      <modal v-if="!isHidden" @close="isHidden = true">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("generate_code") }}</h3>
-                <div>
-                  <button class="icon" @click="isHidden = true">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <label for="requestType">{{ $t("request_type") }}</label>
-              <span class="select-wrapper">
-                <v-popover>
-                  <pre v-if="requestType">{{
-                    codegens.find((x) => x.id === requestType).name
-                  }}</pre>
-                  <input
-                    v-else
-                    id="requestType"
-                    v-model="requestType"
-                    :placeholder="$t('choose_language')"
-                    class="cursor-pointer"
-                    readonly
-                    autofocus
-                  />
-                  <template slot="popover">
-                    <div v-for="gen in codegens" :key="gen.id">
-                      <button class="icon" @click="requestType = gen.id" v-close-popover>
-                        {{ gen.name }}
-                      </button>
-                    </div>
-                  </template>
-                </v-popover>
-              </span>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="generatedCode">{{ $t("generated_code") }}</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="copyRequestCode"
-                    id="copyRequestCode"
-                    ref="copyRequestCode"
-                    v-tooltip="$t('copy_code')"
-                  >
-                    <i class="material-icons">content_copy</i>
-                  </button>
-                </div>
-              </div>
-              <textarea
-                id="generatedCode"
-                ref="generatedCode"
-                name="generatedCode"
-                rows="8"
-                v-model="requestCode"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-      </modal>
-
-      <modal v-if="showTokenList" @close="showTokenList = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("manage_token") }}</h3>
-                <div>
-                  <button class="icon" @click="showTokenList = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="token-list">{{ $t("token_list") }}</label>
-                <div v-if="tokens.length != 0">
-                  <button
-                    class="icon"
-                    @click="clearContent('tokens', $event)"
-                    v-tooltip.bottom="$t('clear')"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <ul id="token-list" v-for="(token, index) in tokens" :key="index">
-            <li>
-              <input
-                :placeholder="'name ' + (index + 1)"
-                :value="token.name"
-                @change="
-                  $store.commit('setOAuthTokenName', {
-                    index,
-                    value: $event.target.value,
-                  })
-                "
-              />
-            </li>
-            <li>
-              <input :value="token.value" readonly />
-            </li>
+    <modal v-if="!isHidden" @close="isHidden = true">
+      <div slot="header">
+        <ul>
+          <li>
             <div class="row-wrapper">
-              <li>
+              <h3 class="title">{{ $t("generate_code") }}</h3>
+              <div>
+                <button class="icon" @click="isHidden = true">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <ul>
+          <li>
+            <label for="requestType">{{ $t("request_type") }}</label>
+            <span class="select-wrapper">
+              <v-popover>
+                <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
+                <input
+                  v-else
+                  id="requestType"
+                  v-model="requestType"
+                  :placeholder="$t('choose_language')"
+                  class="cursor-pointer"
+                  readonly
+                  autofocus
+                />
+                <template slot="popover">
+                  <div v-for="gen in codegens" :key="gen.id">
+                    <button class="icon" @click="requestType = gen.id" v-close-popover>
+                      {{ gen.name }}
+                    </button>
+                  </div>
+                </template>
+              </v-popover>
+            </span>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <div class="row-wrapper">
+              <label for="generatedCode">{{ $t("generated_code") }}</label>
+              <div>
                 <button
                   class="icon"
-                  @click="useOAuthToken(token.value)"
-                  v-tooltip.bottom="$t('use_token')"
+                  @click="copyRequestCode"
+                  id="copyRequestCode"
+                  ref="copyRequestCode"
+                  v-tooltip="$t('copy_code')"
+                >
+                  <i class="material-icons">content_copy</i>
+                </button>
+              </div>
+            </div>
+            <textarea
+              id="generatedCode"
+              ref="generatedCode"
+              name="generatedCode"
+              rows="8"
+              v-model="requestCode"
+            ></textarea>
+          </li>
+        </ul>
+      </div>
+    </modal>
+
+    <token-list
+      :show="showTokenListModal"
+      :tokens="tokens"
+      @clear-content="clearContent"
+      @use-oauth-token="useOAuthToken"
+      @remove-oauth-token="removeOAuthToken"
+      @hide-modal="showTokenListModal = false"
+    />
+
+    <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+      <div slot="header">
+        <ul>
+          <li>
+            <div class="row-wrapper">
+              <h3 class="title">{{ $t("manage_token_req") }}</h3>
+              <div>
+                <button class="icon" @click="showTokenRequestList = false">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <ul>
+          <li>
+            <div class="row-wrapper">
+              <label for="token-req-list">{{ $t("token_req_list") }}</label>
+              <div>
+                <button
+                  :disabled="this.tokenReqs.length === 0"
+                  class="icon"
+                  @click="showTokenRequestList = false"
+                  v-tooltip.bottom="$t('use_token_req')"
                 >
                   <i class="material-icons">input</i>
                 </button>
-              </li>
-              <li>
                 <button
+                  :disabled="this.tokenReqs.length === 0"
                   class="icon"
-                  @click="removeOAuthToken(index)"
+                  @click="removeOAuthTokenReq"
                   v-tooltip.bottom="$t('delete')"
                 >
                   <i class="material-icons">delete</i>
                 </button>
-              </li>
+              </div>
             </div>
-          </ul>
-          <p v-if="tokens.length === 0" class="info">
-            {{ $t("empty") }}
-          </p>
-        </div>
-      </modal>
-
-      <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("manage_token_req") }}</h3>
-                <div>
-                  <button class="icon" @click="showTokenRequestList = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="token-req-list">{{ $t("token_req_list") }}</label>
-                <div>
-                  <button
-                    :disabled="this.tokenReqs.length === 0"
-                    class="icon"
-                    @click="showTokenRequestList = false"
-                    v-tooltip.bottom="$t('use_token_req')"
-                  >
-                    <i class="material-icons">input</i>
-                  </button>
-                  <button
-                    :disabled="this.tokenReqs.length === 0"
-                    class="icon"
-                    @click="removeOAuthTokenReq"
-                    v-tooltip.bottom="$t('delete')"
-                  >
-                    <i class="material-icons">delete</i>
-                  </button>
-                </div>
-              </div>
-              <span class="select-wrapper">
-                <select
-                  id="token-req-list"
-                  v-model="tokenReqSelect"
-                  :disabled="this.tokenReqs.length === 0"
-                  @change="tokenReqChange($event)"
-                >
-                  <option v-for="(req, index) in tokenReqs" :key="index" :value="req.name">
-                    {{ req.name }}
-                  </option>
-                </select>
-              </span>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="token-req-name">{{ $t("token_req_name") }}</label>
-              <input v-model="tokenReqName" />
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="token-req-details">
-                {{ $t("token_req_details") }}
-              </label>
-              <textarea
-                id="token-req-details"
-                readonly
-                rows="7"
-                v-model="tokenReqDetails"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-        <div slot="footer">
-          <div class="row-wrapper">
-            <span></span>
-            <span>
-              <button class="icon primary" @click="addOAuthTokenReq">
-                {{ $t("save_token_req") }}
-              </button>
+            <span class="select-wrapper">
+              <select
+                id="token-req-list"
+                v-model="tokenReqSelect"
+                :disabled="this.tokenReqs.length === 0"
+                @change="tokenReqChange($event)"
+              >
+                <option v-for="(req, index) in tokenReqs" :key="index" :value="req.name">
+                  {{ req.name }}
+                </option>
+              </select>
             </span>
-          </div>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="token-req-name">{{ $t("token_req_name") }}</label>
+            <input v-model="tokenReqName" />
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="token-req-details">
+              {{ $t("token_req_details") }}
+            </label>
+            <textarea id="token-req-details" readonly rows="7" v-model="tokenReqDetails"></textarea>
+          </li>
+        </ul>
+      </div>
+      <div slot="footer">
+        <div class="row-wrapper">
+          <span></span>
+          <span>
+            <button class="icon primary" @click="addOAuthTokenReq">
+              {{ $t("save_token_req") }}
+            </button>
+          </span>
         </div>
-      </modal>
-    </div>
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -1077,7 +987,7 @@ export default {
       },
       validContentTypes: knownContentTypes,
       paramsWatchEnabled: true,
-      showTokenList: false,
+      showTokenListModal: false,
       showTokenRequest: false,
       showTokenRequestList: false,
       showSaveRequestModal: false,
@@ -2330,7 +2240,7 @@ export default {
     },
     useOAuthToken(value) {
       this.bearerToken = value
-      this.showTokenList = false
+      this.showTokenListModal = false
     },
     addOAuthTokenReq() {
       try {
@@ -2400,7 +2310,7 @@ export default {
       }
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showCurlImportModal = this.showTokenList = this.showTokenRequestList = this.showSaveRequestModal = false
+        this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = false
         this.isHidden = true
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {

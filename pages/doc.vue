@@ -384,11 +384,11 @@ export default {
             },
           }
         )
-        .then((response) => {
+        .then(({ html_url }) => {
           this.$toast.success(this.$t("gist_created"), {
             icon: "done",
           })
-          window.open(response.html_url)
+          window.open(html_url)
         })
         .catch((error) => {
           this.$toast.error(this.$t("something_went_wrong"), {

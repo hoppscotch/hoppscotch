@@ -252,7 +252,7 @@
               <button
                 class="icon"
                 id="show-modal"
-                @click="showModal = true"
+                @click="showCurlImportModal = !showCurlImportModal"
                 v-tooltip.bottom="$t('import_curl')"
               >
                 <i class="material-icons">import_export</i>
@@ -260,11 +260,9 @@
               <button
                 class="icon"
                 id="code"
-                @click="isHidden = !isHidden"
+                @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
-                v-tooltip.bottom="{
-                  content: isHidden ? $t('show_code') : $t('hide_code'),
-                }"
+                v-tooltip.bottom="$t('show_code')"
               >
                 <i class="material-icons">code</i>
               </button>
@@ -312,93 +310,12 @@
               "
               :selected="true"
             >
-              <pw-section class="pink" label="Parameters" ref="parameters">
-                <ul v-if="params.length !== 0">
-                  <li>
-                    <div class="row-wrapper">
-                      <label for="paramList">{{ $t("parameter_list") }}</label>
-                      <div>
-                        <button
-                          class="icon"
-                          @click="clearContent('parameters', $event)"
-                          v-tooltip.bottom="$t('clear')"
-                        >
-                          <i class="material-icons">clear_all</i>
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-                <ul v-for="(param, index) in params" :key="index">
-                  <li>
-                    <input
-                      :placeholder="$t('parameter_count', { count: index + 1 })"
-                      :name="'param' + index"
-                      :value="param.key"
-                      @change="
-                        $store.commit('setKeyParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                      autofocus
-                    />
-                  </li>
-                  <li>
-                    <input
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="'value' + index"
-                      :value="decodeURI(param.value)"
-                      @change="
-                        $store.commit('setValueParams', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                    />
-                  </li>
-                  <li>
-                    <span class="select-wrapper">
-                      <select
-                        :name="'type' + index"
-                        @change="
-                          $store.commit('setTypeParams', {
-                            index,
-                            value: $event.target.value,
-                          })
-                        "
-                      >
-                        <option value="query" :selected="param.type === 'query'">
-                          {{ $t("query") }}
-                        </option>
-                        <option value="path" :selected="param.type === 'path'">
-                          {{ $t("path") }}
-                        </option>
-                      </select>
-                    </span>
-                  </li>
-                  <div>
-                    <li>
-                      <button
-                        class="icon"
-                        @click="removeRequestParam(index)"
-                        v-tooltip.bottom="$t('delete')"
-                        id="param"
-                      >
-                        <i class="material-icons">delete</i>
-                      </button>
-                    </li>
-                  </div>
-                </ul>
-                <ul>
-                  <li>
-                    <button class="icon" @click="addRequestParam">
-                      <i class="material-icons">add</i>
-                      <span>{{ $t("add_new") }}</span>
-                    </button>
-                  </li>
-                </ul>
-              </pw-section>
+              <http-parameters
+                :params="params"
+                @clear-content="clearContent"
+                @remove-request-param="removeRequestParam"
+                @add-request-param="addRequestParam"
+              />
             </tab>
 
             <tab :id="'authentication'" :label="$t('authentication')">
@@ -462,7 +379,7 @@
                       <button
                         v-if="auth === 'OAuth 2.0'"
                         class="icon"
-                        @click="showTokenList = !showTokenList"
+                        @click="showTokenListModal = !showTokenListModal"
                         v-tooltip.bottom="$t('use_token')"
                       >
                         <i class="material-icons">open_in_new</i>
@@ -611,76 +528,13 @@
                 $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
               "
             >
-              <pw-section class="orange" label="Headers" ref="headers">
-                <ul v-if="headers.length !== 0">
-                  <li>
-                    <div class="row-wrapper">
-                      <label for="headerList">{{ $t("header_list") }}</label>
-                      <div>
-                        <button
-                          class="icon"
-                          @click="clearContent('headers', $event)"
-                          v-tooltip.bottom="$t('clear')"
-                        >
-                          <i class="material-icons">clear_all</i>
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-                <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
-                  <li>
-                    <autocomplete
-                      :placeholder="$t('header_count', { count: index + 1 })"
-                      :source="commonHeaders"
-                      :spellcheck="false"
-                      :value="header.key"
-                      @input="
-                        $store.commit('setKeyHeader', {
-                          index,
-                          value: $event,
-                        })
-                      "
-                      @keyup.prevent="setRouteQueryState"
-                      autofocus
-                    />
-                  </li>
-                  <li>
-                    <input
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="'value' + index"
-                      :value="header.value"
-                      @change="
-                        $store.commit('setValueHeader', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                      @keyup.prevent="setRouteQueryState"
-                    />
-                  </li>
-                  <div>
-                    <li>
-                      <button
-                        class="icon"
-                        @click="removeRequestHeader(index)"
-                        v-tooltip.bottom="$t('delete')"
-                        id="header"
-                      >
-                        <i class="material-icons">delete</i>
-                      </button>
-                    </li>
-                  </div>
-                </ul>
-                <ul>
-                  <li>
-                    <button class="icon" @click="addRequestHeader">
-                      <i class="material-icons">add</i>
-                      <span>{{ $t("add_new") }}</span>
-                    </button>
-                  </li>
-                </ul>
-              </pw-section>
+              <http-headers
+                :headers="headers"
+                @clear-content="clearContent"
+                @set-route-query-state="setRouteQueryState"
+                @remove-request-header="removeRequestHeader"
+                @add-request-header="addRequestHeader"
+              />
             </tab>
 
             <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
@@ -832,314 +686,127 @@
             </tab>
 
             <tab :id="'notes'" :label="$t('notes')">
-              <pw-section class="pink" :label="$t('notes')" ref="sync">
-                <div v-if="fb.currentUser">
-                  <inputform />
-                  <feeds />
-                </div>
-                <div v-else>
-                  <ul>
-                    <li>
-                      <label>{{ $t("login_first") }}</label>
-                      <p>
-                        <login />
-                      </p>
-                    </li>
-                  </ul>
-                </div>
-              </pw-section>
+              <notes />
             </tab>
           </tabs>
         </section>
       </aside>
+    </div>
 
-      <save-request-as
-        :show="showRequestModal"
-        @hide-model="hideRequestModal"
-        :editing-request="editRequest"
-      />
+    <save-request-as
+      :show="showSaveRequestModal"
+      @hide-modal="hideRequestModal"
+      :editing-request="editRequest"
+    />
 
-      <modal v-if="showModal" @close="showModal = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("import_curl") }}</h3>
-                <div>
-                  <button class="icon" @click="showModal = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <textarea
-                id="import-text"
-                autofocus
-                rows="8"
-                :placeholder="$t('enter_curl')"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-        <div slot="footer">
-          <div class="row-wrapper">
-            <span></span>
-            <span>
-              <button class="icon" @click="showModal = false">
-                {{ $t("cancel") }}
-              </button>
-              <button class="icon primary" @click="handleImport">
-                {{ $t("import") }}
-              </button>
-            </span>
-          </div>
-        </div>
-      </modal>
+    <import-curl
+      :show="showCurlImportModal"
+      @hide-modal="showCurlImportModal = false"
+      @handle-import="handleImport"
+    />
 
-      <modal v-if="!isHidden" @close="isHidden = true">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("generate_code") }}</h3>
-                <div>
-                  <button class="icon" @click="isHidden = true">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <label for="requestType">{{ $t("request_type") }}</label>
-              <span class="select-wrapper">
-                <v-popover>
-                  <pre v-if="requestType">{{
-                    codegens.find((x) => x.id === requestType).name
-                  }}</pre>
-                  <input
-                    v-else
-                    id="requestType"
-                    v-model="requestType"
-                    :placeholder="$t('choose_language')"
-                    class="cursor-pointer"
-                    readonly
-                    autofocus
-                  />
-                  <template slot="popover">
-                    <div v-for="gen in codegens" :key="gen.id">
-                      <button class="icon" @click="requestType = gen.id" v-close-popover>
-                        {{ gen.name }}
-                      </button>
-                    </div>
-                  </template>
-                </v-popover>
-              </span>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="generatedCode">{{ $t("generated_code") }}</label>
-                <div>
-                  <button
-                    class="icon"
-                    @click="copyRequestCode"
-                    id="copyRequestCode"
-                    ref="copyRequestCode"
-                    v-tooltip="$t('copy_code')"
-                  >
-                    <i class="material-icons">content_copy</i>
-                  </button>
-                </div>
-              </div>
-              <textarea
-                id="generatedCode"
-                ref="generatedCode"
-                name="generatedCode"
-                rows="8"
-                v-model="requestCode"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-      </modal>
+    <codegen-modal
+      :show="showCodegenModal"
+      :requestTypeProp="requestType"
+      :requestCode="requestCode"
+      @hide-modal="showCodegenModal = false"
+      @set-request-type="setRequestType"
+    />
 
-      <modal v-if="showTokenList" @close="showTokenList = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("manage_token") }}</h3>
-                <div>
-                  <button class="icon" @click="showTokenList = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="token-list">{{ $t("token_list") }}</label>
-                <div v-if="tokens.length != 0">
-                  <button
-                    class="icon"
-                    @click="clearContent('tokens', $event)"
-                    v-tooltip.bottom="$t('clear')"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <ul id="token-list" v-for="(token, index) in tokens" :key="index">
-            <li>
-              <input
-                :placeholder="'name ' + (index + 1)"
-                :value="token.name"
-                @change="
-                  $store.commit('setOAuthTokenName', {
-                    index,
-                    value: $event.target.value,
-                  })
-                "
-              />
-            </li>
-            <li>
-              <input :value="token.value" readonly />
-            </li>
+    <token-list
+      :show="showTokenListModal"
+      :tokens="tokens"
+      @clear-content="clearContent"
+      @use-oauth-token="useOAuthToken"
+      @remove-oauth-token="removeOAuthToken"
+      @hide-modal="showTokenListModal = false"
+    />
+
+    <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+      <div slot="header">
+        <ul>
+          <li>
             <div class="row-wrapper">
-              <li>
+              <h3 class="title">{{ $t("manage_token_req") }}</h3>
+              <div>
+                <button class="icon" @click="showTokenRequestList = false">
+                  <i class="material-icons">close</i>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div slot="body">
+        <ul>
+          <li>
+            <div class="row-wrapper">
+              <label for="token-req-list">{{ $t("token_req_list") }}</label>
+              <div>
                 <button
+                  :disabled="this.tokenReqs.length === 0"
                   class="icon"
-                  @click="useOAuthToken(token.value)"
-                  v-tooltip.bottom="$t('use_token')"
+                  @click="showTokenRequestList = false"
+                  v-tooltip.bottom="$t('use_token_req')"
                 >
                   <i class="material-icons">input</i>
                 </button>
-              </li>
-              <li>
                 <button
+                  :disabled="this.tokenReqs.length === 0"
                   class="icon"
-                  @click="removeOAuthToken(index)"
+                  @click="removeOAuthTokenReq"
                   v-tooltip.bottom="$t('delete')"
                 >
                   <i class="material-icons">delete</i>
                 </button>
-              </li>
+              </div>
             </div>
-          </ul>
-          <p v-if="tokens.length === 0" class="info">
-            {{ $t("empty") }}
-          </p>
-        </div>
-      </modal>
-
-      <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
-        <div slot="header">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <h3 class="title">{{ $t("manage_token_req") }}</h3>
-                <div>
-                  <button class="icon" @click="showTokenRequestList = false">
-                    <i class="material-icons">close</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div slot="body">
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="token-req-list">{{ $t("token_req_list") }}</label>
-                <div>
-                  <button
-                    :disabled="this.tokenReqs.length === 0"
-                    class="icon"
-                    @click="showTokenRequestList = false"
-                    v-tooltip.bottom="$t('use_token_req')"
-                  >
-                    <i class="material-icons">input</i>
-                  </button>
-                  <button
-                    :disabled="this.tokenReqs.length === 0"
-                    class="icon"
-                    @click="removeOAuthTokenReq"
-                    v-tooltip.bottom="$t('delete')"
-                  >
-                    <i class="material-icons">delete</i>
-                  </button>
-                </div>
-              </div>
-              <span class="select-wrapper">
-                <select
-                  id="token-req-list"
-                  v-model="tokenReqSelect"
-                  :disabled="this.tokenReqs.length === 0"
-                  @change="tokenReqChange($event)"
-                >
-                  <option v-for="(req, index) in tokenReqs" :key="index" :value="req.name">
-                    {{ req.name }}
-                  </option>
-                </select>
-              </span>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="token-req-name">{{ $t("token_req_name") }}</label>
-              <input v-model="tokenReqName" />
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <label for="token-req-details">
-                {{ $t("token_req_details") }}
-              </label>
-              <textarea
-                id="token-req-details"
-                readonly
-                rows="7"
-                v-model="tokenReqDetails"
-              ></textarea>
-            </li>
-          </ul>
-        </div>
-        <div slot="footer">
-          <div class="row-wrapper">
-            <span></span>
-            <span>
-              <button class="icon primary" @click="addOAuthTokenReq">
-                {{ $t("save_token_req") }}
-              </button>
+            <span class="select-wrapper">
+              <select
+                id="token-req-list"
+                v-model="tokenReqSelect"
+                :disabled="this.tokenReqs.length === 0"
+                @change="tokenReqChange($event)"
+              >
+                <option v-for="(req, index) in tokenReqs" :key="index" :value="req.name">
+                  {{ req.name }}
+                </option>
+              </select>
             </span>
-          </div>
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="token-req-name">{{ $t("token_req_name") }}</label>
+            <input v-model="tokenReqName" />
+          </li>
+        </ul>
+        <ul>
+          <li>
+            <label for="token-req-details">
+              {{ $t("token_req_details") }}
+            </label>
+            <textarea id="token-req-details" readonly rows="7" v-model="tokenReqDetails"></textarea>
+          </li>
+        </ul>
+      </div>
+      <div slot="footer">
+        <div class="row-wrapper">
+          <span></span>
+          <span>
+            <button class="icon primary" @click="addOAuthTokenReq">
+              {{ $t("save_token_req") }}
+            </button>
+          </span>
         </div>
-      </modal>
-    </div>
+      </div>
+    </modal>
   </div>
 </template>
 
 <script>
 import url from "url"
 import querystring from "querystring"
-import { commonHeaders } from "~/helpers/headers"
 import parseCurlCommand from "~/helpers/curlparser"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
@@ -1152,13 +819,13 @@ import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpe
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
-import { codegens, generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
   data() {
     return {
-      showModal: false,
+      showCurlImportModal: false,
       showPreRequestScript: true,
       testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
@@ -1167,7 +834,7 @@ export default {
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
-      isHidden: true,
+      showCodegenModal: false,
       response: {
         status: "",
         headers: "",
@@ -1175,11 +842,10 @@ export default {
       },
       validContentTypes: knownContentTypes,
       paramsWatchEnabled: true,
-      showTokenList: false,
+      showTokenListModal: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      commonHeaders,
-      showRequestModal: false,
+      showSaveRequestModal: false,
       editRequest: {},
       urlExcludes: {},
       activeSidebar: true,
@@ -1196,7 +862,6 @@ export default {
             : true,
       },
       currentMethodIndex: 0,
-      codegens,
       methodMenuItems: [
         "GET",
         "HEAD",
@@ -1301,7 +966,7 @@ export default {
     },
     editingRequest(newValue) {
       this.editRequest = newValue
-      this.showRequestModal = true
+      this.showSaveRequestModal = true
     },
     method() {
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
@@ -2117,15 +1782,6 @@ export default {
         setTimeout(() => (this.$refs.copyRequest.innerHTML = this.copyButton), 1000)
       }
     },
-    copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      this.$refs.generatedCode.select()
-      document.execCommand("copy")
-      setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
-    },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {
@@ -2188,7 +1844,7 @@ export default {
       observer.observe(requestElement)
     },
     handleImport() {
-      const { value: text } = document.getElementById("import-text")
+      const { value: text } = document.getElementById("import-curl")
       try {
         const parsedCurl = parseCurlCommand(text)
         const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
@@ -2209,9 +1865,9 @@ export default {
           this.rawInput = true
           this.rawParams = parsedCurl["data"]
         }
-        this.showModal = false
+        this.showCurlImportModal = false
       } catch (error) {
-        this.showModal = false
+        this.showCurlImportModal = false
         this.$toast.error(this.$t("curl_invalid_format"), {
           icon: "error",
         })
@@ -2321,10 +1977,10 @@ export default {
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
       }
-      this.showRequestModal = true
+      this.showSaveRequestModal = true
     },
     hideRequestModal() {
-      this.showRequestModal = false
+      this.showSaveRequestModal = false
       this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
@@ -2429,7 +2085,7 @@ export default {
     },
     useOAuthToken(value) {
       this.bearerToken = value
-      this.showTokenList = false
+      this.showTokenListModal = false
     },
     addOAuthTokenReq() {
       try {
@@ -2473,6 +2129,9 @@ export default {
       this.clientId = clientId
       this.scope = scope
     },
+    setRequestType(val) {
+      this.requestType = val
+    },
   },
   async mounted() {
     this.observeRequestButton()
@@ -2499,8 +2158,7 @@ export default {
       }
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModal = this.showTokenList = this.showTokenRequestList = this.showRequestModal = false
-        this.isHidden = true
+        this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = this.showCodegenModal = false
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
         this.method = "GET"

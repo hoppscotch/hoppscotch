@@ -116,8 +116,8 @@ export default {
     debouncer: debounce(function () {
       this.worker.postMessage({ type: "ws", url: this.url })
     }, 1000),
-    workerResponseHandler(message) {
-      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    workerResponseHandler({ data }) {
+      if (data.url === this.url) this.isUrlValid = data.result
     },
     connect() {
       this.log = [
@@ -163,9 +163,9 @@ export default {
         icon: "sync",
       })
     },
-    onMessageArrived(message) {
+    onMessageArrived({ payloadString, destinationName }) {
       this.log.push({
-        payload: `Message: ${message.payloadString} arrived on topic: ${message.destinationName}`,
+        payload: `Message: ${payloadString} arrived on topic: ${destinationName}`,
         source: "info",
         color: "var(--ac-color)",
         ts: new Date().toLocaleTimeString(),

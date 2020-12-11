@@ -31,7 +31,6 @@
   "parameter_list": "Parameter List",
   "raw_request_body": "Raw Request Body",
   "show_code": "Show Code",
-  "hide_code": "Hide Code",
   "show_prerequest_script": "Show Pre-Request Script",
   "hide_prerequest_script": "Hide Pre-Request Script",
   "authentication": "Authentication",

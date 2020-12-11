@@ -157,7 +157,7 @@ class Expectation {
   toBeType(expectedType) {
     const actualType = typeof this.expectValue
     if (
-      [
+      ![
         "string",
         "boolean",
         "number",
@@ -166,7 +166,7 @@ class Expectation {
         "bigint",
         "symbol",
         "function",
-      ].indexOf(expectedType) < 0
+      ].includes(expectedType)
     ) {
       return this._fail(
         this._fmtNot(

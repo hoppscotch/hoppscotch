@@ -78,8 +78,8 @@ export default {
     debouncer: debounce(function () {
       this.worker.postMessage({ type: "sse", url: this.server })
     }, 1000),
-    workerResponseHandler(message) {
-      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    workerResponseHandler({ data }) {
+      if (data.url === this.url) this.isUrlValid = data.result
     },
     toggleSSEConnection() {
       // If it is connecting:

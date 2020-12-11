@@ -105,8 +105,8 @@ export default {
     debouncer: debounce(function () {
       this.worker.postMessage({ type: "ws", url: this.url })
     }, 1000),
-    workerResponseHandler(message) {
-      if (message.data.url === this.url) this.isUrlValid = message.data.result
+    workerResponseHandler({ data }) {
+      if (data.url === this.url) this.isUrlValid = data.result
     },
     toggleConnection() {
       // If it is connecting:

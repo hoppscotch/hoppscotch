@@ -16,16 +16,14 @@ const regex = { ws, sse, socketio }
 
 // type = ws/sse/socketio
 async function validator(type, url) {
-  console.time("validator " + url)
+  console.time(`validator ${url}`)
   const [res1, res2] = await Promise.all([regex[type][0].test(url), regex[type][1].test(url)])
-  console.timeEnd("validator " + url)
+  console.timeEnd(`validator ${url}`)
   return res1 || res2
 }
 
-onmessage = async function (event) {
-  var { type, url } = event.data
-
+onmessage = async ({ data }) => {
+  const { type, url } = data
   const result = await validator(type, url)
-
   postMessage({ type, url, result })
 }

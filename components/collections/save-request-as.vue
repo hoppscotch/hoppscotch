@@ -188,7 +188,6 @@ export default {
     },
     hideModal() {
       this.$emit("hide-modal")
-      this.$emit("hide-model") // for backward compatibility  // TODO: use fixed event
     },
   },
 }

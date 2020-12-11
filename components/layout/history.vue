@@ -1,13 +1,19 @@
 <template>
-  <pw-section class="green" icon="history" :label="$t('history')" ref="history">
+  <pw-section class="green" icon="history" :label="$t('history')" ref="history" no-legend>
     <div class="show-on-large-screen">
-      <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
-      <button class="icon">
-        <i class="material-icons">search</i>
-      </button>
+      <input
+        aria-label="Search"
+        type="search"
+        :placeholder="$t('search')"
+        v-model="filterText"
+        class="rounded-t-lg"
+      />
     </div>
-    <div class="virtual-list" :class="{ filled: filteredHistory.length }">
-      <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
+    <div
+      class="divide-y virtual-list divide-dashed divide-brdColor"
+      :class="{ filled: filteredHistory.length }"
+    >
+      <ul v-for="(entry, index) in filteredHistory" :key="index">
         <div class="show-on-large-screen">
           <span
             class="p-2 m-2"
@@ -105,15 +111,17 @@
                 readonly
                 :value="entry.time"
                 v-tooltip="entry.date"
+                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
               />
             </li>
             <li>
               <input
-                :aria-label="$t('duration')"
+                :aria-label="$t('nn')"
                 type="text"
                 readonly
                 :value="entry.duration"
                 :placeholder="$t('no_duration')"
+                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
               />
             </li>
             <li>
@@ -123,6 +131,7 @@
                 readonly
                 :value="entry.preRequestScript"
                 :placeholder="$t('no_prerequest_script')"
+                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
               />
             </li>
           </div>
@@ -135,7 +144,7 @@
     <p v-if="history.length === 0" class="info">
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
-    <div v-if="history.length !== 0">
+    <div v-if="history.length !== 0" class="rounded-b-lg bg-bgDarkColor">
       <div class="row-wrapper" v-if="!isClearingHistory">
         <button
           class="icon"
@@ -199,9 +208,9 @@
         </v-popover>
       </div>
       <div class="row-wrapper" v-else>
-        <label for="clear-history-button" class="info">
+        <p for="clear-history-button" class="info">
           <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
-        </label>
+        </p>
         <div>
           <button
             class="icon"
@@ -251,11 +260,6 @@
 ul,
 ol {
   flex-direction: column;
-}
-
-.entry {
-  border-bottom: 1px dashed var(--brd-color);
-  padding: 0 0 8px;
 }
 
 @media (max-width: 720px) {

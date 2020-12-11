@@ -1,26 +1,23 @@
 <template>
-  <pw-section class="green" icon="history" :label="$t('environments')" ref="environments">
+  <pw-section class="green" icon="history" :label="$t('environments')" ref="environments" no-legend>
     <div class="show-on-large-screen">
-      <ul class="w-full">
-        <li>
-          <label for="currentEnvironment">{{ $t("select_environment") }}</label>
-          <span class="select-wrapper">
-            <select
-              id="currentEnvironment"
-              v-model="selectedEnvironmentIndex"
-              :disabled="environments.length == 0"
-            >
-              <option :value="-1">No environment</option>
-              <option v-if="environments.length === 0" value="0">
-                {{ $t("create_new_environment") }}
-              </option>
-              <option v-for="(environment, index) in environments" :value="index" :key="index">
-                {{ environment.name }}
-              </option>
-            </select>
-          </span>
-        </li>
-      </ul>
+      <!-- <label for="currentEnvironment">{{ $t("select_environment") }}</label> -->
+      <span class="select-wrapper">
+        <select
+          id="currentEnvironment"
+          v-model="selectedEnvironmentIndex"
+          :disabled="environments.length == 0"
+          class="rounded-t-lg"
+        >
+          <option :value="-1">No environment</option>
+          <option v-if="environments.length === 0" value="0">
+            {{ $t("create_new_environment") }}
+          </option>
+          <option v-for="(environment, index) in environments" :value="index" :key="index">
+            {{ environment.name }}
+          </option>
+        </select>
+      </span>
     </div>
     <add-environment :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-environment
@@ -33,7 +30,7 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-    <div class="row-wrapper">
+    <div class="border-b row-wrapper border-brdColor">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>

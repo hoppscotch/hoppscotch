@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <div>
     <label>
       <ColorScheme placeholder="..." tag="span">
         {{ $t("background") }}:
@@ -24,7 +24,7 @@
         <i class="material-icons">{{ getIcon(color) }}</i>
       </span>
     </div>
-  </li>
+  </div>
 </template>
 
 <script>

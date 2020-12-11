@@ -12,6 +12,7 @@
       :spellcheck="spellcheck"
       :autocapitalize="autocapitalize"
       :autocorrect="spellcheck"
+      :class="styles"
     />
     <ul
       class="suggestions"
@@ -107,6 +108,11 @@ export default {
       type: String,
       default: "",
       required: false,
+    },
+
+    styles: {
+      type: String,
+      default: "",
     },
   },
 

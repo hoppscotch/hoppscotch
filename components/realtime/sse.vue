@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="blue" :label="$t('request')" ref="request">
+    <pw-section class="blue" :label="$t('request')" ref="request" no-legend>
       <ul>
         <li>
           <label for="server">{{ $t("server") }}</label>
@@ -10,12 +10,19 @@
             :class="{ error: !serverValid }"
             v-model="server"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
+            class="md:rounded-bl-lg"
           />
         </li>
         <div>
           <li>
             <label for="start" class="hide-on-small-screen">&nbsp;</label>
-            <button :disabled="!serverValid" id="start" name="start" @click="toggleSSEConnection">
+            <button
+              :disabled="!serverValid"
+              id="start"
+              name="start"
+              @click="toggleSSEConnection"
+              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+            >
               {{ !connectionSSEState ? $t("start") : $t("stop") }}
               <span>
                 <i class="material-icons">
@@ -28,7 +35,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
+    <pw-section class="purple" :label="$t('communication')" id="response" ref="response" no-legend>
       <ul>
         <li>
           <log :title="$t('events')" :log="events.log" />

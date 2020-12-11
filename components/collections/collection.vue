@@ -55,7 +55,6 @@
         </v-popover>
       </div>
     </div>
-
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
@@ -75,9 +74,6 @@
             @edit-request="$emit('edit-request', $event)"
           />
         </li>
-        <li v-if="collection.folders.length === 0 && collection.requests.length === 0">
-          <p class="info">{{ $t("collection_empty") }}</p>
-        </li>
       </ul>
       <ul class="flex-col">
         <li
@@ -94,6 +90,16 @@
             :doc="doc"
             @edit-request="$emit('edit-request', $event)"
           />
+        </li>
+      </ul>
+      <ul>
+        <li
+          v-if="collection.folders.length === 0 && collection.requests.length === 0"
+          class="flex ml-8 border-l border-brdColor"
+        >
+          <p class="info">
+            <i class="material-icons">not_interested</i> {{ $t("collection_empty") }}
+          </p>
         </li>
       </ul>
     </div>

@@ -49,7 +49,6 @@
   @apply flex-1;
   @apply flex-col;
   @apply m-2;
-  @apply p-2;
   @apply transition;
   @apply ease-in-out;
   @apply duration-200;
@@ -58,11 +57,19 @@
   @apply shadow-2xl;
 
   max-height: calc(100vh - 128px);
-  max-width: 720px;
+  max-width: 640px;
+}
+
+.modal-header {
+  @apply pl-2;
 }
 
 .modal-body {
   @apply overflow-auto;
+}
+
+.modal-footer {
+  @apply p-2;
 }
 
 /*

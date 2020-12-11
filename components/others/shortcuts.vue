@@ -10,57 +10,63 @@
         </div>
       </div>
     </div>
-    <div slot="body">
-      <div>
-        <kbd>{{ getSpecialKey() }}</kbd>
-        +
-        <kbd>G</kbd>
-        <label>{{ $t("send_request") }}</label>
-      </div>
-      <div>
-        <kbd>{{ getSpecialKey() }}</kbd
-        >+<kbd>S</kbd>
-        <label>{{ $t("save_to_collections") }}</label>
-      </div>
-      <div>
-        <kbd>{{ getSpecialKey() }}</kbd
-        >+<kbd>K</kbd>
-        <label>{{ $t("copy_request_link") }}</label>
-      </div>
-      <div>
-        <kbd>{{ getSpecialKey() }}</kbd
-        >+<kbd>I</kbd>
-        <label>{{ $t("reset_request") }}</label>
-      </div>
-      <hr />
-      <div>
-        <kbd>Alt</kbd>+<kbd>▲</kbd>
-        <label>{{ $t("select_next_method") }}</label>
-      </div>
-      <div>
-        <kbd>Alt</kbd>+<kbd>▼</kbd>
-        <label>{{ $t("select_previous_method") }}</label>
+    <div slot="body" class="flex flex-col">
+      <div class="p-2">
+        <div>
+          <kbd>{{ getSpecialKey() }}</kbd>
+          +
+          <kbd>G</kbd>
+          <label>{{ $t("send_request") }}</label>
+        </div>
+        <div>
+          <kbd>{{ getSpecialKey() }}</kbd
+          >+<kbd>S</kbd>
+          <label>{{ $t("save_to_collections") }}</label>
+        </div>
+        <div>
+          <kbd>{{ getSpecialKey() }}</kbd
+          >+<kbd>K</kbd>
+          <label>{{ $t("copy_request_link") }}</label>
+        </div>
+        <div>
+          <kbd>{{ getSpecialKey() }}</kbd
+          >+<kbd>I</kbd>
+          <label>{{ $t("reset_request") }}</label>
+        </div>
       </div>
       <hr />
-      <div>
-        <kbd>Alt</kbd>+<kbd>G</kbd>
-        <label>{{ $t("select_get_method") }}</label>
+      <div class="p-2">
+        <div>
+          <kbd>Alt</kbd>+<kbd>▲</kbd>
+          <label>{{ $t("select_next_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>▼</kbd>
+          <label>{{ $t("select_previous_method") }}</label>
+        </div>
       </div>
-      <div>
-        <kbd>Alt</kbd>+<kbd>H</kbd>
-        <label>{{ $t("select_head_method") }}</label>
-      </div>
-      <div>
-        <kbd>Alt</kbd>+<kbd>P</kbd>
-        <label>{{ $t("select_post_method") }}</label>
-      </div>
-      <div>
-        <kbd>Alt</kbd>+<kbd>U</kbd>
-        <label>{{ $t("select_put_method") }}</label>
-      </div>
-      <div>
-        <kbd>Alt</kbd>+<kbd>X</kbd>
-        <label>{{ $t("select_delete_method") }}</label>
+      <hr />
+      <div class="p-2">
+        <div>
+          <kbd>Alt</kbd>+<kbd>G</kbd>
+          <label>{{ $t("select_get_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>H</kbd>
+          <label>{{ $t("select_head_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>P</kbd>
+          <label>{{ $t("select_post_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>U</kbd>
+          <label>{{ $t("select_put_method") }}</label>
+        </div>
+        <div>
+          <kbd>Alt</kbd>+<kbd>X</kbd>
+          <label>{{ $t("select_delete_method") }}</label>
+        </div>
       </div>
     </div>
     <div slot="footer"></div>
@@ -71,6 +77,11 @@
 kbd {
   @apply inline-flex;
   @apply resize-none;
+  @apply m-2;
+  @apply rounded-lg;
+  @apply py-2;
+  @apply px-4;
+  @apply text-sm;
 }
 </style>
 

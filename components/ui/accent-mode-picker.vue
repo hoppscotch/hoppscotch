@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <div>
     <label>{{ $t("color") }}: {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label>
     <div class="space-x-2">
       <span
@@ -13,7 +13,7 @@
         <i class="material-icons">lens</i>
       </span>
     </div>
-  </li>
+  </div>
 </template>
 
 <script>

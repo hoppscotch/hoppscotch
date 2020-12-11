@@ -1,15 +1,13 @@
-<!--
-TODO:
-    - probably refactor and pass event arguments to modals directly without unpacking
--->
-
 <template>
-  <pw-section class="yellow" :label="$t('collections')" ref="collections">
+  <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
     <div class="show-on-large-screen">
-      <input aria-label="Search" type="search" :placeholder="$t('search')" v-model="filterText" />
-      <!-- <button class="icon">
-        <i class="material-icons">search</i>
-      </button> -->
+      <input
+        aria-label="Search"
+        type="search"
+        :placeholder="$t('search')"
+        v-model="filterText"
+        class="rounded-t-lg"
+      />
     </div>
     <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-collection
@@ -45,28 +43,14 @@ TODO:
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-
-    <div class="row-wrapper">
-      <div>
-        <button class="icon" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
-          <span>{{ $t("new") }}</span>
-        </button>
-      </div>
-      <div>
-        <button class="icon" @click="displayModalImportExport(true)">
-          {{ $t("import_export") }}
-        </button>
-        <!-- <a
-          href="https://github.com/hoppscotch/hoppscotch/wiki/Collections"
-          target="_blank"
-          rel="noopener"
-        >
-          <button class="icon" v-tooltip="'Wiki'">
-            <i class="material-icons">help_outline</i>
-          </button>
-        </a> -->
-      </div>
+    <div class="border-b row-wrapper border-brdColor">
+      <button class="icon" @click="displayModalAdd(true)">
+        <i class="material-icons">add</i>
+        <span>{{ $t("new") }}</span>
+      </button>
+      <button class="icon" @click="displayModalImportExport(true)">
+        {{ $t("import_export") }}
+      </button>
     </div>
     <p v-if="collections.length === 0" class="info">
       <i class="material-icons">help_outline</i> {{ $t("create_new_collection") }}
@@ -90,7 +74,7 @@ TODO:
       </ul>
     </div>
     <p v-if="filterText && filteredCollections.length === 0" class="info">
-      {{ $t("nothing_found") }} "{{ filterText }}"
+      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{ filterText }}"
     </p>
   </pw-section>
 </template>

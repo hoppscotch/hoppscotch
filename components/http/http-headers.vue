@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="orange" label="Headers" ref="headers">
+  <pw-section class="orange" label="Headers" ref="headers" no-legend>
     <ul v-if="headers.length !== 0">
       <li>
         <div class="row-wrapper">

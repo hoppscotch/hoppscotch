@@ -1,6 +1,6 @@
 <template>
   <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
-    <legend @click.prevent="collapse">
+    <legend v-if="!noLegend" @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="ml-2 align-middle material-icons">
         {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
@@ -14,8 +14,7 @@
 
 <style scoped lang="scss">
 fieldset {
-  @apply my-2;
-  @apply p-2;
+  @apply my-4;
   @apply rounded-lg;
   @apply bg-bgDarkColor;
   @apply transition;
@@ -23,8 +22,8 @@ fieldset {
   @apply duration-200;
 
   legend {
+    @apply px-4;
     @apply text-fgColor;
-    @apply text-sm;
     @apply font-bold;
     @apply cursor-pointer;
     @apply transition;
@@ -85,6 +84,10 @@ export default {
     label: {
       type: String,
       default: "Section",
+    },
+    noLegend: {
+      type: Boolean,
+      default: false,
     },
   },
 

@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div slot="body">
+    <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("token_req_name") }}</label>
       <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
       <ul>

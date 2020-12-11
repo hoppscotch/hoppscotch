@@ -1,15 +1,26 @@
 <template>
   <div>
-    <pw-section class="blue" :label="$t('request')">
+    <pw-section class="blue" :label="$t('request')" no-legend>
       <ul>
         <li>
           <label for="mqtt-url">{{ $t("url") }}</label>
-          <input id="mqtt-url" type="url" v-model="url" spellcheck="false" />
+          <input
+            id="mqtt-url"
+            type="url"
+            v-model="url"
+            spellcheck="false"
+            class="md:rounded-bl-lg"
+          />
         </li>
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button id="connect" :disabled="!validUrl" @click="toggleConnection">
+            <button
+              id="connect"
+              :disabled="!validUrl"
+              @click="toggleConnection"
+              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+            >
               {{ this.connectionState ? $t("disconnect") : $t("connect") }}
               <span>
                 <i class="material-icons">{{ !connectionState ? "sync" : "sync_disabled" }}</i>
@@ -20,7 +31,7 @@
       </ul>
     </pw-section>
 
-    <pw-section class="blue" :label="$t('communication')">
+    <pw-section class="blue" :label="$t('communication')" no-legend>
       <ul>
         <li>
           <log :title="$t('log')" :log="this.log" />
@@ -50,12 +61,24 @@
       <ul>
         <li>
           <label for="sub_topic">{{ $t("mqtt_topic") }}</label>
-          <input id="sub_topic" type="text" v-model="sub_topic" spellcheck="false" />
+          <input
+            id="sub_topic"
+            type="text"
+            v-model="sub_topic"
+            spellcheck="false"
+            class="md:rounded-bl-lg"
+          />
         </li>
         <div>
           <li>
             <label for="subscribe" class="hide-on-small-screen">&nbsp;</label>
-            <button id="subscribe" name="get" :disabled="!cansubscribe" @click="toggleSubscription">
+            <button
+              id="subscribe"
+              name="get"
+              :disabled="!cansubscribe"
+              @click="toggleSubscription"
+              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+            >
               {{ subscriptionState ? $t("mqtt_unsubscribe") : $t("mqtt_subscribe") }}
               <span>
                 <i class="material-icons">{{ subscriptionState ? "sync_disabled" : "sync" }}</i>

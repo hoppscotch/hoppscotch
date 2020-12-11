@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pw-section class="blue" :label="$t('request')" ref="request">
+    <pw-section class="blue" :label="$t('request')" ref="request" no-legend>
       <ul>
         <li>
           <label for="socketio-url">{{ $t("url") }}</label>
@@ -11,6 +11,7 @@
             :class="{ error: !urlValid }"
             v-model="url"
             @keyup.enter="urlValid ? toggleConnection() : null"
+            class="md:rounded-bl-lg"
           />
         </li>
         <div>
@@ -22,7 +23,13 @@
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button :disabled="!urlValid" id="connect" name="connect" @click="toggleConnection">
+            <button
+              :disabled="!urlValid"
+              id="connect"
+              name="connect"
+              @click="toggleConnection"
+              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+            >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
               <span>
                 <i class="material-icons">
@@ -34,7 +41,8 @@
         </div>
       </ul>
     </pw-section>
-    <pw-section class="purple" :label="$t('communication')" id="response" ref="response">
+
+    <pw-section class="purple" :label="$t('communication')" id="response" ref="response" no-legend>
       <ul>
         <li>
           <log :title="$t('log')" :log="communication.log" />

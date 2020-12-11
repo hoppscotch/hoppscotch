@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="pink" :label="$t('notes')" ref="sync">
+  <pw-section class="pink" :label="$t('notes')" ref="sync" no-legend>
     <div v-if="fb.currentUser">
       <inputform />
       <feeds />

@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div slot="body">
+    <div slot="body" class="flex flex-col">
       <label for="requestType">{{ $t("request_type") }}</label>
       <span class="select-wrapper">
         <v-popover>
@@ -54,6 +54,7 @@
         rows="8"
         v-model="requestCode"
         readonly
+        class="rounded-b-lg"
       ></textarea>
     </div>
   </modal>

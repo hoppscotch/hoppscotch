@@ -49,6 +49,7 @@
           showPrintMargin: false,
           useWorker: false,
         }"
+        styles="rounded-b-lg"
       />
     </div>
   </div>

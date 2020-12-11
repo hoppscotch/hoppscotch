@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="pink" label="Parameters" ref="parameters">
+  <pw-section class="pink" label="Parameters" ref="parameters" no-legend>
     <ul v-if="params.length !== 0">
       <li>
         <div class="row-wrapper">

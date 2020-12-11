@@ -1,7 +1,7 @@
 <template>
   <div class="tabs-wrapper">
     <div class="tabs">
-      <ul>
+      <ul :class="styles">
         <li
           v-for="(tab, index) in tabs"
           :class="{ 'is-active': tab.isActive }"
@@ -90,6 +90,13 @@
 
 <script>
 export default {
+  props: {
+    styles: {
+      type: String,
+      default: "",
+    },
+  },
+
   data() {
     return {
       tabs: [],

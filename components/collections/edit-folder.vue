@@ -1,25 +1,24 @@
 <template>
   <modal v-if="show" @close="show = false">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("edit_folder") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("edit_folder") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
-      <ul>
-        <li>
-          <input type="text" v-model="name" :placeholder="folder.name" @keyup.enter="editFolder" />
-        </li>
-      </ul>
+      <label for="selectLabel">{{ $t("label") }}</label>
+      <input
+        type="text"
+        id="selectLabel"
+        v-model="name"
+        :placeholder="folder.name"
+        @keyup.enter="editFolder"
+      />
     </div>
     <div slot="footer">
       <div class="row-wrapper">

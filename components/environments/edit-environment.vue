@@ -1,42 +1,32 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("edit_environment") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("edit_environment") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
-      <ul>
-        <li>
-          <input
-            type="text"
-            v-model="name"
-            :placeholder="editingEnvironment.name"
-            @keyup.enter="saveEnvironment"
-          />
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <label for="variableList">{{ $t("env_variable_list") }}</label>
-            <div>
-              <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
-                <i class="material-icons">clear_all</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <label for="selectLabel">{{ $t("label") }}</label>
+      <input
+        type="text"
+        id="selectLabel"
+        v-model="name"
+        :placeholder="editingEnvironment.name"
+        @keyup.enter="saveEnvironment"
+      />
+      <div class="row-wrapper">
+        <label for="variableList">{{ $t("env_variable_list") }}</label>
+        <div>
+          <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
+            <i class="material-icons">clear_all</i>
+          </button>
+        </div>
+      </div>
       <ul v-for="(variable, index) in this.editingEnvCopy.variables" :key="index">
         <li>
           <input

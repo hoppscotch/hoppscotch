@@ -1,25 +1,17 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("import_curl") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("import_curl") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
-      <ul>
-        <li>
-          <textarea id="import-curl" autofocus rows="8" :placeholder="$t('enter_curl')"></textarea>
-        </li>
-      </ul>
+      <textarea id="import-curl" autofocus rows="8" :placeholder="$t('enter_curl')"></textarea>
     </div>
     <div slot="footer">
       <div class="row-wrapper">

@@ -5,14 +5,8 @@
       <feeds />
     </div>
     <div v-else>
-      <ul>
-        <li>
-          <label>{{ $t("login_first") }}</label>
-          <p>
-            <login />
-          </p>
-        </li>
-      </ul>
+      <p class="info">{{ $t("login_first") }}</p>
+      <login />
     </div>
   </pw-section>
 </template>

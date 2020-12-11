@@ -1,29 +1,20 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("save_request_as") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("save_request_as") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
+      <label for="selectLabel">{{ $t("token_req_name") }}</label>
+      <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
       <ul>
         <li>
-          <label for="selectLabel">{{ $t("token_req_name") }}</label>
-          <input
-            type="text"
-            id="selectLabel"
-            v-model="requestData.name"
-            @keyup.enter="saveRequestAs"
-          />
           <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
@@ -39,13 +30,17 @@
               </option>
             </select>
           </span>
-          <label>{{ $t("folder") }}</label>
-          <autocomplete
-            :placeholder="$t('search')"
-            :source="folders"
-            :spellcheck="false"
-            v-model="requestData.folderName"
-          />
+        </li>
+      </ul>
+      <label>{{ $t("folder") }}</label>
+      <autocomplete
+        :placeholder="$t('search')"
+        :source="folders"
+        :spellcheck="false"
+        v-model="requestData.folderName"
+      />
+      <ul>
+        <li>
           <label for="selectRequest">{{ $t("request") }}</label>
           <span class="select-wrapper">
             <select type="text" id="selectRequest" v-model="requestData.requestIndex">

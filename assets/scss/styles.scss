@@ -324,13 +324,12 @@ hr {
 }
 
 .info:not(.toasted) {
-  @apply m-2;
+  @apply m-4;
   @apply text-fgLightColor;
 
   .material-icons {
     @apply align-middle;
-    @apply ml-2;
-    @apply mr-4;
+    @apply mr-2;
   }
 }
 

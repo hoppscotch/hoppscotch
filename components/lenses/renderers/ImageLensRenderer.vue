@@ -1,25 +1,23 @@
 <template>
-  <ul>
-    <li>
-      <div class="row-wrapper">
-        <label for="body">{{ $t("response") }}</label>
-        <div>
-          <button
-            class="icon"
-            @click="downloadResponse"
-            ref="downloadResponse"
-            v-if="response.body"
-            v-tooltip="$t('download_file')"
-          >
-            <i class="material-icons">save_alt</i>
-          </button>
-        </div>
+  <div>
+    <div class="row-wrapper">
+      <label for="body">{{ $t("response") }}</label>
+      <div>
+        <button
+          class="icon"
+          @click="downloadResponse"
+          ref="downloadResponse"
+          v-if="response.body"
+          v-tooltip="$t('download_file')"
+        >
+          <i class="material-icons">save_alt</i>
+        </button>
       </div>
-      <div id="response-details-wrapper">
-        <img class="max-w-full" :src="imageSource" />
-      </div>
-    </li>
-  </ul>
+    </div>
+    <div id="response-details-wrapper">
+      <img class="max-w-full" :src="imageSource" />
+    </div>
+  </div>
 </template>
 
 <script>

@@ -89,11 +89,9 @@ TODO:
         </li>
       </ul>
     </div>
-    <ul class="flex-col" v-if="filterText && filteredCollections.length === 0">
-      <li>
-        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
-      </li>
-    </ul>
+    <p v-if="filterText && filteredCollections.length === 0" class="info">
+      {{ $t("nothing_found") }} "{{ filterText }}"
+    </p>
   </pw-section>
 </template>
 

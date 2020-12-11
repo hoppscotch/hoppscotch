@@ -1,10 +1,8 @@
 <template>
   <div>
-    <ul v-for="(value, key) in headers" :key="key">
-      <li>
-        <input :value="`${key} → ${value}`" :name="key" class="bg-transparent" readonly />
-      </li>
-    </ul>
+    <p v-for="(value, key) in headers" :key="key">
+      <input :value="`${key} → ${value}`" :name="key" class="bg-transparent" readonly />
+    </p>
   </div>
 </template>
 

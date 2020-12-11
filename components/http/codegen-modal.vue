@@ -1,72 +1,60 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("generate_code") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("generate_code") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
-      <ul>
-        <li>
-          <label for="requestType">{{ $t("request_type") }}</label>
-          <span class="select-wrapper">
-            <v-popover>
-              <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
-              <input
-                v-else
-                id="requestType"
-                v-model="requestType"
-                :placeholder="$t('choose_language')"
-                class="cursor-pointer"
-                readonly
-                autofocus
-              />
-              <template slot="popover">
-                <div v-for="gen in codegens" :key="gen.id">
-                  <button class="icon" @click="requestType = gen.id" v-close-popover>
-                    {{ gen.name }}
-                  </button>
-                </div>
-              </template>
-            </v-popover>
-          </span>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <label for="generatedCode">{{ $t("generated_code") }}</label>
-            <div>
-              <button
-                class="icon"
-                @click="copyRequestCode"
-                id="copyRequestCode"
-                ref="copyRequestCode"
-                v-tooltip="$t('copy_code')"
-              >
-                <i class="material-icons">content_copy</i>
+      <label for="requestType">{{ $t("request_type") }}</label>
+      <span class="select-wrapper">
+        <v-popover>
+          <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
+          <input
+            v-else
+            id="requestType"
+            v-model="requestType"
+            :placeholder="$t('choose_language')"
+            class="cursor-pointer"
+            readonly
+            autofocus
+          />
+          <template slot="popover">
+            <div v-for="gen in codegens" :key="gen.id">
+              <button class="icon" @click="requestType = gen.id" v-close-popover>
+                {{ gen.name }}
               </button>
             </div>
-          </div>
-          <textarea
-            id="generatedCode"
-            ref="generatedCode"
-            name="generatedCode"
-            rows="8"
-            v-model="requestCode"
-            readonly
-          ></textarea>
-        </li>
-      </ul>
+          </template>
+        </v-popover>
+      </span>
+      <div class="row-wrapper">
+        <label for="generatedCode">{{ $t("generated_code") }}</label>
+        <div>
+          <button
+            class="icon"
+            @click="copyRequestCode"
+            id="copyRequestCode"
+            ref="copyRequestCode"
+            v-tooltip="$t('copy_code')"
+          >
+            <i class="material-icons">content_copy</i>
+          </button>
+        </div>
+      </div>
+      <textarea
+        id="generatedCode"
+        ref="generatedCode"
+        name="generatedCode"
+        rows="8"
+        v-model="requestCode"
+        readonly
+      ></textarea>
     </div>
   </modal>
 </template>

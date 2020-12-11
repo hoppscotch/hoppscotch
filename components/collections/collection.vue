@@ -76,7 +76,7 @@
           />
         </li>
         <li v-if="collection.folders.length === 0 && collection.requests.length === 0">
-          <label>{{ $t("collection_empty") }}</label>
+          <p class="info">{{ $t("collection_empty") }}</p>
         </li>
       </ul>
       <ul class="flex-col">

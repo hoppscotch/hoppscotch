@@ -1,62 +1,60 @@
 <template>
-  <ul>
-    <li>
-      <div class="row-wrapper">
-        <label for="body">{{ $t("response") }}</label>
-        <div>
-          <button
-            class="icon"
-            @click="ToggleExpandResponse"
-            ref="ToggleExpandResponse"
-            v-if="response.body"
-            v-tooltip="{
-              content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-            }"
-          >
-            <i class="material-icons">
-              {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-            </i>
-          </button>
-          <button
-            class="icon"
-            @click="downloadResponse"
-            ref="downloadResponse"
-            v-if="response.body && canDownloadResponse"
-            v-tooltip="$t('download_file')"
-          >
-            <i class="material-icons">save_alt</i>
-          </button>
-          <button
-            class="icon"
-            @click="copyResponse"
-            ref="copyResponse"
-            v-if="response.body"
-            v-tooltip="$t('copy_response')"
-          >
-            <i class="material-icons">content_copy</i>
-          </button>
-        </div>
-      </div>
-      <div class="valid-warning" v-if="jsonInvalid">
-        <p class="info"><i class="material-icons">error_outline</i> Invalid JSON</p>
-      </div>
-      <div id="response-details-wrapper">
-        <ace-editor
-          :value="jsonBodyText"
-          :lang="'json'"
-          :options="{
-            maxLines: responseBodyMaxLines,
-            minLines: '16',
-            fontSize: '16px',
-            autoScrollEditorIntoView: true,
-            readOnly: true,
-            showPrintMargin: false,
-            useWorker: false,
+  <div>
+    <div class="row-wrapper">
+      <label for="body">{{ $t("response") }}</label>
+      <div>
+        <button
+          class="icon"
+          @click="ToggleExpandResponse"
+          ref="ToggleExpandResponse"
+          v-if="response.body"
+          v-tooltip="{
+            content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
           }"
-        />
+        >
+          <i class="material-icons">
+            {{ !expandResponse ? "unfold_more" : "unfold_less" }}
+          </i>
+        </button>
+        <button
+          class="icon"
+          @click="downloadResponse"
+          ref="downloadResponse"
+          v-if="response.body && canDownloadResponse"
+          v-tooltip="$t('download_file')"
+        >
+          <i class="material-icons">save_alt</i>
+        </button>
+        <button
+          class="icon"
+          @click="copyResponse"
+          ref="copyResponse"
+          v-if="response.body"
+          v-tooltip="$t('copy_response')"
+        >
+          <i class="material-icons">content_copy</i>
+        </button>
       </div>
-    </li>
-  </ul>
+    </div>
+    <div class="valid-warning" v-if="jsonInvalid">
+      <p class="info"><i class="material-icons">error_outline</i> Invalid JSON</p>
+    </div>
+    <div id="response-details-wrapper">
+      <ace-editor
+        :value="jsonBodyText"
+        :lang="'json'"
+        :options="{
+          maxLines: responseBodyMaxLines,
+          minLines: '16',
+          fontSize: '16px',
+          autoScrollEditorIntoView: true,
+          readOnly: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
+      />
+    </div>
+  </div>
 </template>
 
 <script>

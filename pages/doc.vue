@@ -89,7 +89,7 @@
                 class="icon"
                 @click="createDocsGist"
               >
-                <i class="material-icons">code</i>
+                <i class="material-icons">assignment</i>
                 <span>{{ $t("create_secret_gist") }}</span>
               </button>
             </div>

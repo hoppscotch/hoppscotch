@@ -1,18 +1,14 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("edit_request") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("edit_request") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
       <label for="selectLabel">{{ $t("label") }}</label>

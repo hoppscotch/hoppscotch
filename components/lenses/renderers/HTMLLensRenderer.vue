@@ -1,77 +1,75 @@
 <template>
-  <ul>
-    <li>
-      <div class="row-wrapper">
-        <label for="body">{{ $t("response") }}</label>
-        <div>
-          <button
-            class="icon"
-            @click="ToggleExpandResponse"
-            ref="ToggleExpandResponse"
-            v-if="response.body"
-            v-tooltip="{
-              content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-            }"
-          >
-            <i class="material-icons">
-              {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-            </i>
-          </button>
-          <button
-            v-if="response.body"
-            class="icon"
-            @click.prevent="togglePreview"
-            v-tooltip="{
-              content: previewEnabled ? $t('hide_preview') : $t('preview_html'),
-            }"
-          >
-            <i class="material-icons">
-              {{ !previewEnabled ? "visibility" : "visibility_off" }}
-            </i>
-          </button>
-          <button
-            class="icon"
-            @click="downloadResponse"
-            ref="downloadResponse"
-            v-if="response.body"
-            v-tooltip="$t('download_file')"
-          >
-            <i class="material-icons">save_alt</i>
-          </button>
-          <button
-            class="icon"
-            @click="copyResponse"
-            ref="copyResponse"
-            v-if="response.body"
-            v-tooltip="$t('copy_response')"
-          >
-            <i class="material-icons">content_copy</i>
-          </button>
-        </div>
-      </div>
-      <div id="response-details-wrapper">
-        <ace-editor
-          :value="responseBodyText"
-          :lang="'html'"
-          :options="{
-            maxLines: responseBodyMaxLines,
-            minLines: '16',
-            fontSize: '16px',
-            autoScrollEditorIntoView: true,
-            readOnly: true,
-            showPrintMargin: false,
-            useWorker: false,
+  <div>
+    <div class="row-wrapper">
+      <label for="body">{{ $t("response") }}</label>
+      <div>
+        <button
+          class="icon"
+          @click="ToggleExpandResponse"
+          ref="ToggleExpandResponse"
+          v-if="response.body"
+          v-tooltip="{
+            content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
           }"
-        />
-        <iframe
-          :class="{ hidden: !previewEnabled }"
-          class="covers-response"
-          ref="previewFrame"
-          src="about:blank"
-        ></iframe>
+        >
+          <i class="material-icons">
+            {{ !expandResponse ? "unfold_more" : "unfold_less" }}
+          </i>
+        </button>
+        <button
+          v-if="response.body"
+          class="icon"
+          @click.prevent="togglePreview"
+          v-tooltip="{
+            content: previewEnabled ? $t('hide_preview') : $t('preview_html'),
+          }"
+        >
+          <i class="material-icons">
+            {{ !previewEnabled ? "visibility" : "visibility_off" }}
+          </i>
+        </button>
+        <button
+          class="icon"
+          @click="downloadResponse"
+          ref="downloadResponse"
+          v-if="response.body"
+          v-tooltip="$t('download_file')"
+        >
+          <i class="material-icons">save_alt</i>
+        </button>
+        <button
+          class="icon"
+          @click="copyResponse"
+          ref="copyResponse"
+          v-if="response.body"
+          v-tooltip="$t('copy_response')"
+        >
+          <i class="material-icons">content_copy</i>
+        </button>
       </div>
-    </li>
-  </ul>
+    </div>
+    <div id="response-details-wrapper">
+      <ace-editor
+        :value="responseBodyText"
+        :lang="'html'"
+        :options="{
+          maxLines: responseBodyMaxLines,
+          minLines: '16',
+          fontSize: '16px',
+          autoScrollEditorIntoView: true,
+          readOnly: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
+      />
+      <iframe
+        :class="{ hidden: !previewEnabled }"
+        class="covers-response"
+        ref="previewFrame"
+        src="about:blank"
+      ></iframe>
+    </div>
+  </div>
 </template>
 
 <script>

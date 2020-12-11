@@ -1,36 +1,28 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("manage_token") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("manage_token") }}</h3>
+        <div>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <label for="token-list">{{ $t("token_list") }}</label>
-            <div v-if="tokens.length != 0">
-              <button
-                class="icon"
-                @click="clearContent('tokens', $event)"
-                v-tooltip.bottom="$t('clear')"
-              >
-                <i class="material-icons">clear_all</i>
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="row-wrapper">
+        <label for="token-list">{{ $t("token_list") }}</label>
+        <div v-if="tokens.length != 0">
+          <button
+            class="icon"
+            @click="clearContent('tokens', $event)"
+            v-tooltip.bottom="$t('clear')"
+          >
+            <i class="material-icons">clear_all</i>
+          </button>
+        </div>
+      </div>
       <ul id="token-list" v-for="(token, index) in tokens" :key="index">
         <li>
           <input

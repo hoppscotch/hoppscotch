@@ -129,11 +129,9 @@
         </transition>
       </ul>
     </div>
-    <ul :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
-      <li>
-        <label>{{ $t("nothing_found") }} "{{ filterText }}"</label>
-      </li>
-    </ul>
+    <p :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }" class="info">
+      {{ $t("nothing_found") }} "{{ filterText }}"
+    </p>
     <p v-if="history.length === 0" class="info">
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>

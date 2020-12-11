@@ -1,105 +1,103 @@
 <template>
   <modal v-if="show" @close="hideModal">
     <div slot="header">
-      <ul>
-        <li>
-          <div class="row-wrapper">
-            <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
-            <div>
-              <v-popover>
-                <button class="tooltip-target icon" v-tooltip.left="$t('more')">
-                  <i class="material-icons">more_vert</i>
+      <div class="row-wrapper">
+        <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
+        <div>
+          <v-popover>
+            <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+              <i class="material-icons">more_vert</i>
+            </button>
+            <template slot="popover">
+              <div>
+                <button class="icon" @click="readEnvironmentGist" v-close-popover>
+                  <i class="material-icons">assignment_returned</i>
+                  <span>{{ $t("import_from_gist") }}</span>
                 </button>
-                <template slot="popover">
-                  <div>
-                    <button class="icon" @click="readEnvironmentGist" v-close-popover>
-                      <i class="material-icons">code</i>
-                      <span>{{ $t("import_from_gist") }}</span>
-                    </button>
-                  </div>
-                  <div
-                    v-tooltip.bottom="{
-                      content: !fb.currentUser
-                        ? $t('login_with_github_to') + $t('create_secret_gist')
-                        : fb.currentUser.provider !== 'github.com'
-                        ? $t('login_with_github_to') + $t('create_secret_gist')
-                        : null,
-                    }"
-                  >
-                    <button
-                      :disabled="
-                        !fb.currentUser
-                          ? true
-                          : fb.currentUser.provider !== 'github.com'
-                          ? true
-                          : false
-                      "
-                      class="icon"
-                      @click="createEnvironmentGist"
-                      v-close-popover
-                    >
-                      <i class="material-icons">code</i>
-                      <span>{{ $t("create_secret_gist") }}</span>
-                    </button>
-                  </div>
-                </template>
-              </v-popover>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
-          </div>
-          <div class="row-wrapper">
-            <span
-              v-tooltip="{
-                content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
-              }"
-            >
-              <button :disabled="!fb.currentUser" class="icon" @click="syncEnvironments">
-                <i class="material-icons">folder_shared</i>
-                <span>{{ $t("import_from_sync") }}</span>
-              </button>
-            </span>
-            <button
-              class="icon"
-              @click="openDialogChooseFileToReplaceWith"
-              v-tooltip="$t('replace_current')"
-            >
-              <i class="material-icons">create_new_folder</i>
-              <span>{{ $t("replace_json") }}</span>
-              <input
-                type="file"
-                @change="replaceWithJSON"
-                style="display: none"
-                ref="inputChooseFileToReplaceWith"
-                accept="application/json"
-              />
-            </button>
-            <button
-              class="icon"
-              @click="openDialogChooseFileToImportFrom"
-              v-tooltip="$t('preserve_current')"
-            >
-              <i class="material-icons">folder_special</i>
-              <span>{{ $t("import_json") }}</span>
-              <input
-                type="file"
-                @change="importFromJSON"
-                style="display: none"
-                ref="inputChooseFileToImportFrom"
-                accept="application/json"
-              />
-            </button>
-          </div>
-        </li>
-      </ul>
+              </div>
+              <div
+                v-tooltip.bottom="{
+                  content: !fb.currentUser
+                    ? $t('login_with_github_to') + $t('create_secret_gist')
+                    : fb.currentUser.provider !== 'github.com'
+                    ? $t('login_with_github_to') + $t('create_secret_gist')
+                    : null,
+                }"
+              >
+                <button
+                  :disabled="
+                    !fb.currentUser ? true : fb.currentUser.provider !== 'github.com' ? true : false
+                  "
+                  class="icon"
+                  @click="createEnvironmentGist"
+                  v-close-popover
+                >
+                  <i class="material-icons">assignment_turned_in</i>
+                  <span>{{ $t("create_secret_gist") }}</span>
+                </button>
+              </div>
+            </template>
+          </v-popover>
+          <button class="icon" @click="hideModal">
+            <i class="material-icons">close</i>
+          </button>
+        </div>
+      </div>
     </div>
     <div slot="body">
-      <textarea v-model="environmentJson" rows="8"></textarea>
+      <div class="flex flex-col items-start">
+        <span
+          v-tooltip="{
+            content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
+          }"
+        >
+          <button :disabled="!fb.currentUser" class="icon" @click="syncEnvironments">
+            <i class="material-icons">folder_shared</i>
+            <span>{{ $t("import_from_sync") }}</span>
+          </button>
+        </span>
+        <button
+          class="icon"
+          @click="openDialogChooseFileToReplaceWith"
+          v-tooltip="$t('replace_current')"
+        >
+          <i class="material-icons">create_new_folder</i>
+          <span>{{ $t("replace_json") }}</span>
+          <input
+            type="file"
+            @change="replaceWithJSON"
+            style="display: none"
+            ref="inputChooseFileToReplaceWith"
+            accept="application/json"
+          />
+        </button>
+        <button
+          class="icon"
+          @click="openDialogChooseFileToImportFrom"
+          v-tooltip="$t('preserve_current')"
+        >
+          <i class="material-icons">folder_special</i>
+          <span>{{ $t("import_json") }}</span>
+          <input
+            type="file"
+            @change="importFromJSON"
+            style="display: none"
+            ref="inputChooseFileToImportFrom"
+            accept="application/json"
+          />
+        </button>
+      </div>
+      <div v-if="showJsonCode" class="row-wrapper">
+        <textarea v-model="environmentJson" rows="8" readonly></textarea>
+      </div>
     </div>
     <div slot="footer">
       <div class="row-wrapper">
-        <span></span>
+        <span>
+          <pw-toggle :on="showJsonCode" @change="showJsonCode = $event">
+            {{ $t("show_code") }}
+          </pw-toggle>
+        </span>
         <span>
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
@@ -120,6 +118,7 @@ export default {
   data() {
     return {
       fb,
+      showJsonCode: false,
     }
   },
   props: {

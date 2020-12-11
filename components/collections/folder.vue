@@ -51,7 +51,6 @@
         </template>
       </v-popover>
     </div>
-
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
@@ -71,7 +70,11 @@
         </li>
       </ul>
       <ul v-if="folder.folders && folder.folders.length" class="flex-col">
-        <li v-for="(subFolder, subFolderIndex) in folder.folders" :key="subFolder.name">
+        <li
+          v-for="(subFolder, subFolderIndex) in folder.folders"
+          :key="subFolder.name"
+          class="ml-8 border-l border-brdColor"
+        >
           <folder
             :folder="subFolder"
             :folder-index="subFolderIndex"
@@ -82,6 +85,11 @@
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
           />
+        </li>
+      </ul>
+      <ul v-if="folder.folders.length === 0 && folder.requests.length === 0">
+        <li class="flex ml-8 border-l border-brdColor">
+          <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
         </li>
       </ul>
     </div>

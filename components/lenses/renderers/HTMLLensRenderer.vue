@@ -61,6 +61,7 @@
           showPrintMargin: false,
           useWorker: false,
         }"
+        styles="rounded-b-lg"
       />
       <iframe
         :class="{ hidden: !previewEnabled }"

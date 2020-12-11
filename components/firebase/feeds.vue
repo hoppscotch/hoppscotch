@@ -1,10 +1,9 @@
 <template>
-  <div v-if="fb.currentFeeds.length !== 0" class="virtual-list">
-    <ul
-      v-for="feed in fb.currentFeeds"
-      :key="feed.id"
-      class="flex-col py-2 border-b border-dashed border-brdColor"
-    >
+  <div
+    v-if="fb.currentFeeds.length !== 0"
+    class="divide-y virtual-list divide-dashed divide-brdColor"
+  >
+    <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="flex-col">
       <div data-test="list-item" class="show-on-large-screen">
         <li class="info">
           <label data-test="list-label">
@@ -24,7 +23,7 @@
   </div>
   <ul v-else class="flex-col">
     <li>
-      <label class="info">{{ $t("empty") }}</label>
+      <p class="info"><i class="material-icons">not_interested</i> {{ $t("empty") }}</p>
     </li>
   </ul>
 </template>

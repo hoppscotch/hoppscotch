@@ -20,7 +20,6 @@ $responsiveWidth: 768px;
 ::-webkit-scrollbar {
   @apply h-1;
   @apply w-2;
-  @apply rounded-lg;
 
   &:hover {
     @apply bg-bgDarkColor;
@@ -28,7 +27,6 @@ $responsiveWidth: 768px;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-lg;
   @apply bg-fgLightColor;
 
   &:hover {
@@ -290,6 +288,7 @@ hr {
       button {
         @apply flex-1;
         @apply m-0;
+        @apply p-2;
         @apply justify-start;
         @apply text-left;
       }
@@ -337,10 +336,7 @@ button {
   @apply inline-flex;
   @apply items-center;
   @apply justify-center;
-  @apply m-2;
-  @apply py-2;
-  @apply px-4;
-  @apply rounded-lg;
+  @apply p-4;
   @apply bg-acColor;
   @apply text-actColor;
   @apply font-body;
@@ -373,10 +369,9 @@ button {
     @apply bg-transparent;
     @apply text-fgLightColor;
     @apply fill-current;
-    @apply rounded-lg;
     @apply outline-none;
     @apply border-none;
-    @apply p-2;
+    @apply rounded-lg;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
@@ -389,6 +384,7 @@ button {
 
   &.primary {
     @apply text-acColor;
+    @apply px-6;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
@@ -473,9 +469,7 @@ textarea,
 pre,
 code {
   @apply flex;
-  @apply m-2;
-  @apply p-2;
-  @apply rounded-lg;
+  @apply p-4;
   @apply bg-bgDarkColor;
   @apply text-fgColor;
   @apply font-mono;
@@ -486,8 +480,7 @@ code {
   @apply select-text;
   @apply resize-y;
   @apply outline-none;
-
-  width: calc(100% - 16px);
+  @apply w-full;
 
   &:not([readonly]):not(.ace_editor):hover,
   &:not([readonly]):not(.ace_editor):active,
@@ -499,6 +492,7 @@ code {
 .method {
   @apply cursor-pointer;
   @apply uppercase;
+  @apply rounded-none;
 
   min-width: 128px;
 
@@ -527,6 +521,7 @@ pre {
 
 .select-wrapper {
   @apply relative;
+  @apply w-full;
 
   pre,
   input {
@@ -553,7 +548,7 @@ select {
   @apply cursor-pointer;
   @apply appearance-none;
 
-  height: 40px;
+  // height: 40px;
 
   &::-ms-expand {
     @apply hidden;
@@ -613,7 +608,7 @@ input[type="checkbox"] {
 }
 
 label {
-  @apply px-2;
+  @apply p-4;
   @apply text-fgLightColor;
   @apply text-sm;
   @apply transition;
@@ -624,15 +619,6 @@ label {
 ul,
 ol {
   @apply flex;
-  @apply p-0;
-  @apply list-none;
-
-  margin: 4px 0 4px;
-
-  ul,
-  ol {
-    @apply m-0;
-  }
 }
 
 ul li,
@@ -689,8 +675,6 @@ ol li {
 
 #response-details-wrapper {
   @apply relative;
-  @apply overflow-hidden;
-  @apply rounded-lg;
 
   textarea {
     @apply m-0;
@@ -720,6 +704,7 @@ ol li {
     @apply ease-in-out;
     @apply duration-200;
     @apply shadow-lg;
+    @apply rounded-lg;
 
     bottom: 86px;
     left: 50%;

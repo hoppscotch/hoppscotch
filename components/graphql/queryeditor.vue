@@ -1,6 +1,6 @@
 <template>
   <div class="opacity-0 show-if-initialized" :class="{ initialized }">
-    <pre ref="editor"></pre>
+    <pre ref="editor" :class="styles"></pre>
   </div>
 </template>
 
@@ -45,6 +45,10 @@ export default {
     options: {
       type: Object,
       default: {},
+    },
+    styles: {
+      type: String,
+      default: "",
     },
   },
 

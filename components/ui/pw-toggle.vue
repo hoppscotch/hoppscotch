@@ -1,9 +1,9 @@
 <template>
-  <div @click="toggle()">
+  <div @click="toggle()" class="inline-block cursor-pointer">
     <label class="toggle" :class="{ on: on }" ref="toggle">
       <span class="handle"></span>
     </label>
-    <label class="caption">
+    <label class="pl-0 align-middle cursor-pointer">
       <slot />
     </label>
   </div>
@@ -21,24 +21,13 @@ $height: 16px;
 $handleSpacing: 4px;
 $transition: all 0.2s ease-in-out;
 
-div {
-  @apply inline-block;
-  @apply cursor-pointer;
-}
-
-label.caption {
-  @apply align-middle;
-  @apply cursor-pointer;
-}
-
-label.toggle {
+.toggle {
   @apply relative;
   @apply inline-block;
   @apply align-middle;
   @apply rounded-full;
   @apply p-0;
-  @apply my-4;
-  @apply mx-2;
+  @apply m-4;
   @apply cursor-pointer;
 
   width: $width;

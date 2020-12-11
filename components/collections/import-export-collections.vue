@@ -44,8 +44,8 @@
         </div>
       </div>
     </div>
-    <div slot="body">
-      <div class="flex flex-col items-start">
+    <div slot="body" class="flex flex-col">
+      <div class="flex flex-col items-start p-2">
         <span
           v-tooltip="{
             content: !fb.currentUser ? $t('login_first') : $t('replace_current'),

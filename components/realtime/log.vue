@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col">
     <label for="log">{{ title }}</label>
     <div name="log" class="realtime-log" ref="log">
       <span v-if="log">
@@ -14,9 +14,7 @@
 
 <style scoped lang="scss">
 .realtime-log {
-  @apply m-2;
-  @apply p-2;
-  @apply rounded-lg;
+  @apply p-4;
   @apply bg-bgDarkColor;
   @apply text-fgColor;
   @apply overflow-auto;
@@ -25,7 +23,6 @@
 
   &,
   span {
-    @apply text-sm;
     @apply font-mono;
     @apply font-normal;
     @apply select-text;

@@ -8,9 +8,10 @@
         v-model="message"
         :placeholder="$t('paste_a_note')"
         @keyup.enter="formPost"
+        class="rounded-t-lg"
       />
     </div>
-    <div class="show-on-large-screen">
+    <div class="border-b show-on-large-screen border-brdColor">
       <input
         :aria-label="$t('label')"
         type="text"

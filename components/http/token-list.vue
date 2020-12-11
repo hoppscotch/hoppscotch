@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div slot="body">
+    <div slot="body" class="flex flex-col">
       <div class="row-wrapper">
         <label for="token-list">{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">

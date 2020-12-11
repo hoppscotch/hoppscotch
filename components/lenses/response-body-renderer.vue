@@ -1,6 +1,6 @@
 <template>
   <div>
-    <tabs>
+    <tabs styles="m-4">
       <tab
         v-for="(lens, index) in validLenses"
         :key="lens.lensName"

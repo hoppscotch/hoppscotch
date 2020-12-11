@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div slot="body">
+    <div slot="body" class="flex flex-col">
       <contributors />
     </div>
     <div slot="footer"></div>

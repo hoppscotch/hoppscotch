@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section class="blue" :label="$t('request')" ref="request">
+        <pw-section class="blue" :label="$t('request')" ref="request" no-legend>
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -40,6 +40,7 @@
               <input
                 v-if="!this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
+                class="rounded-none"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
@@ -47,6 +48,7 @@
                 v-model="uri"
                 spellcheck="false"
                 @input="pathInputHandler"
+                :placeholder="$t('url')"
               />
               <url-field v-model="uri" v-else />
             </li>
@@ -72,18 +74,27 @@
               </button>
             </li>
           </ul>
-          <div>
-            <label for="name">{{ $t("token_req_name") }}</label>
-            <input id="name" name="name" type="text" v-model="name" />
-          </div>
+          <ul>
+            <li>
+              <label for="name" class="text-sm">{{ $t("token_req_name") }}</label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                v-model="name"
+                class="text-sm rounded-none"
+              />
+            </li>
+          </ul>
           <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
             <ul>
               <li>
-                <label for="contentType">{{ $t("content_type") }}</label>
+                <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
                 <autocomplete
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"
+                  styles="text-sm rounded-none"
                 />
               </li>
             </ul>
@@ -96,7 +107,7 @@
                     </pw-toggle>
                   </span>
                   <div>
-                    <label for="attachment">
+                    <label for="attachment" class="p-0">
                       <button
                         class="icon"
                         @click="$refs.attachment.click()"
@@ -123,7 +134,7 @@
                       @change="uploadAttachment"
                       multiple
                     />
-                    <label for="payload">
+                    <label for="payload" class="p-0">
                       <button
                         class="icon"
                         @click="$refs.payload.click()"
@@ -318,8 +329,23 @@
               />
             </tab>
 
+            <tab
+              :id="'headers'"
+              :label="
+                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+              "
+            >
+              <http-headers
+                :headers="headers"
+                @clear-content="clearContent"
+                @set-route-query-state="setRouteQueryState"
+                @remove-request-header="removeRequestHeader"
+                @add-request-header="addRequestHeader"
+              />
+            </tab>
+
             <tab :id="'authentication'" :label="$t('authentication')">
-              <pw-section class="teal" :label="$t('authentication')" ref="authentication">
+              <pw-section class="teal" :label="$t('authentication')" ref="authentication" no-legend>
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -401,6 +427,7 @@
                   </pw-toggle>
                 </div>
               </pw-section>
+
               <pw-section
                 v-if="showTokenRequest"
                 class="red"
@@ -522,27 +549,13 @@
               </pw-section>
             </tab>
 
-            <tab
-              :id="'headers'"
-              :label="
-                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
-              "
-            >
-              <http-headers
-                :headers="headers"
-                @clear-content="clearContent"
-                @set-route-query-state="setRouteQueryState"
-                @remove-request-header="removeRequestHeader"
-                @add-request-header="addRequestHeader"
-              />
-            </tab>
-
             <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
               <pw-section
                 v-if="showPreRequestScript"
                 class="orange"
                 :label="$t('pre_request_script')"
                 ref="preRequest"
+                no-legend
               >
                 <ul>
                   <li>
@@ -570,6 +583,7 @@
                         showPrintMargin: false,
                         useWorker: false,
                       }"
+                      styles="rounded-b-lg"
                     />
                   </li>
                 </ul>
@@ -582,6 +596,7 @@
                 class="orange"
                 :label="$t('tests')"
                 ref="postRequestTests"
+                no-legend
               >
                 <ul>
                   <li>
@@ -609,6 +624,7 @@
                         showPrintMargin: false,
                         useWorker: false,
                       }"
+                      styles="rounded-b-lg"
                     />
                     <div v-if="testReports.length !== 0">
                       <div class="row-wrapper">
@@ -654,7 +670,10 @@
             <li>
               <label for="status">{{ $t("status") }}</label>
               <input
-                :class="statusCategory ? statusCategory.className : ''"
+                :class="[
+                  statusCategory ? statusCategory.className : '',
+                  response.status ? '' : 'rounded-b-lg',
+                ]"
                 :value="response.status || $t('waiting_send_req')"
                 ref="status"
                 id="status"
@@ -733,7 +752,7 @@
           </div>
         </div>
       </div>
-      <div slot="body">
+      <div slot="body" class="flex flex-col">
         <div class="row-wrapper">
           <label for="token-req-list">{{ $t("token_req_list") }}</label>
           <div>

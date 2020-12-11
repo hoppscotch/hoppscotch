@@ -6,7 +6,7 @@
     <p class="info">
       {{ $t("donate_info2") }}
     </p>
-    <div class="row-wrapper">
+    <div class="px-2 row-wrapper">
       <span>
         <a
           href="https://github.com/sponsors/hoppscotch"
@@ -33,7 +33,7 @@
         </a>
       </span>
     </div>
-    <div class="row-wrapper">
+    <div class="px-2 row-wrapper">
       <span>
         <a
           href="https://opencollective.com/hoppscotch"
@@ -48,84 +48,96 @@
         </a>
       </span>
     </div>
-    <div>
-      <a
-        href="https://www.patreon.com/liyasthomas"
-        target="_blank"
-        rel="noopener"
-        v-tooltip.right="$t('recurring')"
-      >
-        <button class="icon">
-          <i class="material-icons">local_parking</i>
-          <span>{{ $t("patreon") }}</span>
-        </button>
-      </a>
+    <div class="px-2 row-wrapper">
+      <span>
+        <a
+          href="https://www.patreon.com/liyasthomas"
+          target="_blank"
+          rel="noopener"
+          v-tooltip.right="$t('recurring')"
+        >
+          <button class="icon">
+            <i class="material-icons">local_parking</i>
+            <span>{{ $t("patreon") }}</span>
+          </button>
+        </a>
+      </span>
     </div>
-    <div>
-      <a
-        href="https://www.paypal.me/liyascthomas"
-        target="_blank"
-        rel="noopener"
-        v-tooltip.right="$t('one_time')"
-      >
-        <button class="icon">
-          <i class="material-icons">payment</i>
-          <span>{{ $t("paypal") }}</span>
-        </button>
-      </a>
+    <div class="px-2 row-wrapper">
+      <span>
+        <a
+          href="https://www.paypal.me/liyascthomas"
+          target="_blank"
+          rel="noopener"
+          v-tooltip.right="$t('one_time')"
+        >
+          <button class="icon">
+            <i class="material-icons">payment</i>
+            <span>{{ $t("paypal") }}</span>
+          </button>
+        </a>
+      </span>
     </div>
     <hr />
-    <h3 class="title">Financial Contributors</h3>
-    <div class="contributors fle">
-      <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
-        <img style="max-width: 200px" src="~assets/images/hs-gh-banner.png" alt="Deta" />
-      </a>
+    <div class="p-2">
+      <h3 class="title">Financial Contributors</h3>
+      <div class="contributors">
+        <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
+          <img style="max-width: 200px" src="~assets/images/hs-gh-banner.png" alt="Deta" />
+        </a>
+      </div>
+      <div class="contributors">
+        <a
+          href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            style="max-width: 100px"
+            src="~assets/images/Paw-Logo-for-Hoppscotch.png"
+            alt="Paw"
+          />
+        </a>
+      </div>
+      <div class="contributors">
+        <a href="https://tyk.io" target="_blank" rel="noopener">
+          <img
+            style="max-width: 320px"
+            src="~assets/images/Tyk-side-project-logo-tagline-blk.png"
+            alt="Tyk Banner"
+          />
+        </a>
+      </div>
+      <div class="contributors">
+        <a
+          target="_blank"
+          rel="noopener"
+          href="https://opencollective.com/hoppscotch/organization/0/website"
+        >
+          <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
+        </a>
+        <a
+          target="_blank"
+          rel="noopener"
+          href="https://opencollective.com/hoppscotch/organization/1/website"
+        >
+          <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
+        </a>
+      </div>
     </div>
-    <div class="contributors">
-      <a
-        href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
-        target="_blank"
-        rel="noopener"
-      >
-        <img style="max-width: 100px" src="~assets/images/Paw-Logo-for-Hoppscotch.png" alt="Paw" />
-      </a>
-    </div>
-    <div class="contributors">
-      <a href="https://tyk.io" target="_blank" rel="noopener">
-        <img
-          style="max-width: 320px"
-          src="~assets/images/Tyk-side-project-logo-tagline-blk.png"
-          alt="Tyk Banner"
-        />
-      </a>
-    </div>
-    <div class="contributors">
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/0/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
-      </a>
-      <a
-        target="_blank"
-        rel="noopener"
-        href="https://opencollective.com/hoppscotch/organization/1/website"
-      >
-        <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
-      </a>
-    </div>
-    <h3 class="title">Code Contributors</h3>
-    <p class="info">This project exists thanks to all the people who contribute.</p>
-    <div class="contributors">
+    <hr />
+    <p class="info">
+      This project exists thanks to all the
       <a
         target="_blank"
         rel="noopener"
         href="https://github.com/hoppscotch/hoppscotch/graphs/contributors"
+        class="link"
       >
-        <img src="https://opencollective.com/hoppscotch/contributors.svg" />
+        people who contribute
       </a>
-    </div>
+      .
+    </p>
   </div>
 </template>
 
@@ -135,11 +147,6 @@
   @apply items-center;
   @apply flex-no-wrap;
   @apply overflow-auto;
-  @apply my-4;
-}
-
-.github-sponsor {
-  @apply mr-2;
-  @apply rounded-full;
+  @apply m-2;
 }
 </style>

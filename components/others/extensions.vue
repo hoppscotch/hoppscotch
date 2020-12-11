@@ -10,11 +10,11 @@
         </div>
       </div>
     </div>
-    <div slot="body">
+    <div slot="body" class="flex flex-col">
       <p class="info">
         {{ $t("extensions_info1") }}
       </p>
-      <div>
+      <div class="px-2">
         <a
           href="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
           target="_blank"
@@ -33,7 +33,7 @@
           </button>
         </a>
       </div>
-      <div>
+      <div class="px-2">
         <a
           href="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
           target="_blank"

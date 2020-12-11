@@ -23,7 +23,7 @@
   </div>
   <ul v-else class="flex-col">
     <li>
-      <p class="info"><i class="material-icons">not_interested</i> {{ $t("empty") }}</p>
+      <p class="info">{{ $t("empty") }}</p>
     </li>
   </ul>
 </template>

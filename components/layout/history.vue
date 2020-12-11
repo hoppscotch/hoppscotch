@@ -116,7 +116,7 @@
             </li>
             <li>
               <input
-                :aria-label="$t('nn')"
+                :aria-label="$t('duration')"
                 type="text"
                 readonly
                 :value="entry.duration"

@@ -14,7 +14,7 @@
           rel="noopener"
           class="px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"
         >
-          Deploy your api for free on Deta
+          Deploy your API for free on Deta
           <img class="w-8 ml-2" src="~assets/images/deta_portal.svg" alt="Deta" />
         </a>
         <button

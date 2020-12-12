@@ -10,6 +10,7 @@
             v-model="url"
             spellcheck="false"
             class="md:rounded-bl-lg"
+            :placeholder="$t('url')"
           />
         </li>
         <div>
@@ -44,7 +45,13 @@
         </li>
         <li>
           <label for="mqtt-message">{{ $t("message") }}</label>
-          <input id="mqtt-message" type="text" v-model="msg" spellcheck="false" />
+          <input
+            id="mqtt-message"
+            type="text"
+            v-model="msg"
+            spellcheck="false"
+            class="border-dashed md:border-l border-brdColor"
+          />
         </li>
         <div>
           <li>

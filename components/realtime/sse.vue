@@ -11,6 +11,7 @@
             v-model="server"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
             class="md:rounded-bl-lg"
+            :placeholder="$t('url')"
           />
         </li>
         <div>

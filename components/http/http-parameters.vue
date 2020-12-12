@@ -16,7 +16,12 @@
         </div>
       </li>
     </ul>
-    <ul v-for="(param, index) in params" :key="index">
+    <ul
+      v-for="(param, index) in params"
+      :key="index"
+      class="border-b border-dashed divide-x border-brdColor divide-dashed divide-brdColor"
+      :class="{ 'border-t': index == 0 }"
+    >
       <li>
         <input
           :placeholder="$t('parameter_count', { count: index + 1 })"

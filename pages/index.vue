@@ -40,7 +40,7 @@
               <input
                 v-if="!this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
-                class="rounded-none"
+                class="border-dashed md:border-l border-brdColor"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
@@ -77,13 +77,7 @@
           <ul>
             <li>
               <label for="name" class="text-sm">{{ $t("token_req_name") }}</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                v-model="name"
-                class="text-sm rounded-none"
-              />
+              <input id="name" name="name" type="text" v-model="name" class="text-sm" />
             </li>
           </ul>
           <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
@@ -94,7 +88,7 @@
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"
-                  styles="text-sm rounded-none"
+                  styles="text-sm"
                 />
               </li>
             </ul>
@@ -174,11 +168,16 @@
                   </div>
                 </li>
               </ul>
-              <ul v-for="(param, index) in bodyParams" :key="index">
+              <ul
+                v-for="(param, index) in bodyParams"
+                :key="index"
+                class="border-b border-dashed divide-x border-brdColor divide-dashed divide-brdColor"
+                :class="{ 'border-t': index == 0 }"
+              >
                 <li>
                   <input
-                    :placeholder="'key ' + (index + 1)"
-                    :name="'bparam' + index"
+                    :placeholder="`key ${index + 1}`"
+                    :name="`bparam ${index}`"
                     :value="param.key"
                     @change="
                       $store.commit('setKeyBodyParams', {
@@ -192,8 +191,8 @@
                 </li>
                 <li>
                   <input
-                    :placeholder="'value ' + (index + 1)"
-                    :id="'bvalue' + index"
+                    :placeholder="`value ${index + 1}`"
+                    :id="`bvalue ${index}`"
                     :name="'bvalue' + index"
                     :value="param.value"
                     @change="

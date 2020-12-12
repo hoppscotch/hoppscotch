@@ -127,6 +127,7 @@
           type="url"
           v-model="settings.PROXY_URL"
           :disabled="!settings.PROXY_ENABLED"
+          :placeholder="$t('url')"
         />
         <p class="info">
           {{ $t("postwoman_official_proxy_hosting") }}

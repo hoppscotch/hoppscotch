@@ -55,7 +55,7 @@
             <ul
               v-for="(header, index) in headers"
               :key="`${header.value}_${index}`"
-              class="border-b border-dashed divide-x border-brdColor divide-dashed divide-brdColor"
+              class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
               :class="{ 'border-t': index == 0 }"
             >
               <li>

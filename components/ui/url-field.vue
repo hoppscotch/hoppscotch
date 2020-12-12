@@ -3,6 +3,12 @@
 </template>
 
 <style lang="scss">
+.url-field {
+  @apply border-dashed;
+  @apply md:border-l;
+  @apply border-brdColor;
+}
+
 .highlight-VAR {
   @apply font-bold;
   @apply text-acColor;

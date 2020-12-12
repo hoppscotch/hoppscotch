@@ -284,6 +284,7 @@ hr {
       @apply shadow-lg;
 
       max-height: 256px;
+      min-width: 128px;
 
       button {
         @apply flex-1;

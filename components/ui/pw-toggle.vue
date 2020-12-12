@@ -29,6 +29,7 @@ $transition: all 0.2s ease-in-out;
   @apply p-0;
   @apply m-4;
   @apply cursor-pointer;
+  @apply flex-shrink-0;
 
   width: $width;
   height: $height;

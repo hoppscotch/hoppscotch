@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col">
     <label>{{ $t("color") }}: {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label>
-    <div class="space-x-2">
+    <div>
       <span
         v-for="(color, index) of colors"
         :key="`color-${index}`"

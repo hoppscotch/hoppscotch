@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col">
     <label>
       <ColorScheme placeholder="..." tag="span">
         {{ $t("background") }}:
@@ -9,7 +9,7 @@
         </span>
       </ColorScheme>
     </label>
-    <div class="space-x-2">
+    <div>
       <span
         v-for="(color, index) of colors"
         :key="`color-${index}`"

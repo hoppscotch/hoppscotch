@@ -12,6 +12,7 @@
             v-model="url"
             @keyup.enter="urlValid ? toggleConnection() : null"
             class="md:rounded-bl-lg"
+            :placeholder="$t('url')"
           />
         </li>
         <div>
@@ -67,7 +68,12 @@
           </div>
         </li>
       </ul>
-      <ul v-for="(input, index) of communication.inputs" :key="`input-${index}`">
+      <ul
+        v-for="(input, index) of communication.inputs"
+        :key="`input-${index}`"
+        class="border-b border-dashed divide-x border-brdColor divide-dashed divide-brdColor"
+        :class="{ 'border-t': index == 0 }"
+      >
         <li>
           <input
             name="message"

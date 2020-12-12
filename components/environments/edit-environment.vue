@@ -27,7 +27,12 @@
           </button>
         </div>
       </div>
-      <ul v-for="(variable, index) in this.editingEnvCopy.variables" :key="index">
+      <ul
+        v-for="(variable, index) in this.editingEnvCopy.variables"
+        :key="index"
+        class="border-b border-dashed divide-x border-brdColor divide-dashed divide-brdColor"
+        :class="{ 'border-t': index == 0 }"
+      >
         <li>
           <input
             :placeholder="$t('parameter_count', { count: index + 1 })"

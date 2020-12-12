@@ -26,7 +26,7 @@
       <ul id="token-list" v-for="(token, index) in tokens" :key="index">
         <li>
           <input
-            :placeholder="'name ' + (index + 1)"
+            :placeholder="`name ${index + 1}`"
             :value="token.name"
             @change="
               $store.commit('setOAuthTokenName', {

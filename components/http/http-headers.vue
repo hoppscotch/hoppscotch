@@ -16,7 +16,12 @@
         </div>
       </li>
     </ul>
-    <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
+    <ul
+      v-for="(header, index) in headers"
+      :key="`${header.value}_${index}`"
+      class="border-b border-dashed divide-x border-brdColor divide-dashed divide-brdColor"
+      :class="{ 'border-t': index == 0 }"
+    >
       <li>
         <autocomplete
           :placeholder="$t('header_count', { count: index + 1 })"

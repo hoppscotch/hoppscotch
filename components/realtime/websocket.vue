@@ -12,6 +12,7 @@
             v-model="url"
             @keyup.enter="urlValid ? toggleConnection() : null"
             class="md:rounded-bl-lg"
+            :placeholder="$t('url')"
           />
         </li>
         <div>

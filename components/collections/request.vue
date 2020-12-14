@@ -1,53 +1,61 @@
 <template>
-  <div
-    :class="['row-wrapper', dragging ? 'drag-el' : '']"
-    draggable="true"
-    @dragstart="dragStart"
-    @dragover.stop
-    @dragleave="dragging = false"
-    @dragend="dragging = false"
-  >
-    <div>
-      <button
-        class="icon"
-        @click="!doc ? selectRequest() : {}"
-        v-tooltip="!doc ? $t('use_request') : ''"
-      >
-        <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
-        <span>{{ request.name }}</span>
-      </button>
+  <div>
+    <div
+      :class="['row-wrapper', dragging ? 'drag-el' : '']"
+      draggable="true"
+      @dragstart="dragStart"
+      @dragover.stop
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
+    >
+      <div>
+        <button
+          class="icon"
+          @click="!doc ? selectRequest() : {}"
+          v-tooltip="!doc ? $t('use_request') : ''"
+        >
+          <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+          <span>{{ request.name }}</span>
+        </button>
+      </div>
+      <v-popover>
+        <button class="tooltip-target icon" v-tooltip="$t('more')">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <template slot="popover">
+          <div>
+            <button
+              class="icon"
+              @click="
+                $emit('edit-request', {
+                  collectionIndex,
+                  folderIndex,
+                  folderName,
+                  request,
+                  requestIndex,
+                })
+              "
+              v-close-popover
+            >
+              <i class="material-icons">edit</i>
+              <span>{{ $t("edit") }}</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon" @click="confirmRemove = true" v-close-popover>
+              <i class="material-icons">delete</i>
+              <span>{{ $t("delete") }}</span>
+            </button>
+          </div>
+        </template>
+      </v-popover>
     </div>
-    <v-popover>
-      <button class="tooltip-target icon" v-tooltip="$t('more')">
-        <i class="material-icons">more_vert</i>
-      </button>
-      <template slot="popover">
-        <div>
-          <button
-            class="icon"
-            @click="
-              $emit('edit-request', {
-                collectionIndex,
-                folderIndex,
-                folderName,
-                request,
-                requestIndex,
-              })
-            "
-            v-close-popover
-          >
-            <i class="material-icons">edit</i>
-            <span>{{ $t("edit") }}</span>
-          </button>
-        </div>
-        <div>
-          <button class="icon" @click="removeRequest" v-close-popover>
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
-          </button>
-        </div>
-      </template>
-    </v-popover>
+    <confirm-modal
+      :show="confirmRemove"
+      :title="$t('are_you_sure_remove_request')"
+      @hide-modal="confirmRemove = false"
+      @resolve="removeRequest"
+    />
   </div>
 </template>
 
@@ -73,6 +81,7 @@ export default {
         delete: "text-red-400",
         default: "text-gray-400",
       },
+      confirmRemove: false,
     }
   },
   methods: {
@@ -94,7 +103,6 @@ export default {
       dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
-      if (!confirm(this.$t("are_you_sure_remove_request"))) return
       this.$store.commit("postwoman/removeRequest", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,

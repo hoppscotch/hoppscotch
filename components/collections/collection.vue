@@ -46,7 +46,7 @@
               </button>
             </div>
             <div>
-              <button class="icon" @click="removeCollection" v-close-popover>
+              <button class="icon" @click="confirmRemove = true" v-close-popover>
                 <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
@@ -103,6 +103,12 @@
         </li>
       </ul>
     </div>
+    <confirm-modal
+      :show="confirmRemove"
+      :title="$t('are_you_sure_remove_collection')"
+      @hide-modal="confirmRemove = false"
+      @resolve="removeCollection"
+    />
   </div>
 </template>
 
@@ -121,6 +127,7 @@ export default {
       showChildren: false,
       dragging: false,
       selectedFolder: {},
+      confirmRemove: false,
     }
   },
   methods: {
@@ -135,7 +142,6 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      if (!confirm(this.$t("are_you_sure_remove_collection"))) return
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
       })

@@ -1,6 +1,6 @@
-const PASS = "PASS"
-const FAIL = "FAIL"
-const ERROR = "ERROR"
+export const PASS = "PASS"
+export const FAIL = "FAIL"
+export const ERROR = "ERROR"
 
 const styles = {
   [PASS]: { icon: "check", class: "success-response" },
@@ -11,7 +11,7 @@ const styles = {
 
 // TODO: probably have to use a more global state for `test`
 
-export default function runTestScriptWithVariables(script, variables) {
+export function runTestScriptWithVariables(script, variables) {
   let pw = {
     _errors: [],
     _testReports: [],

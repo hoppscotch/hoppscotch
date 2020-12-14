@@ -19,6 +19,7 @@
     </div>
   </transition>
 </template>
+
 <style scoped lang="scss">
 .modal-backdrop {
   @apply fixed;

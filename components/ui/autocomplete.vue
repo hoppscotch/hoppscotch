@@ -58,7 +58,8 @@
     li {
       @apply w-full;
       @apply block;
-      @apply p-2;
+      @apply py-2;
+      @apply px-4;
       @apply text-sm;
       @apply font-mono;
       @apply font-normal;

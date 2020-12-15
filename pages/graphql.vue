@@ -485,13 +485,6 @@ export default {
         })
       },
     },
-    headerString() {
-      const result = this.headers
-        .filter(({ key }) => !!key)
-        .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n")
-      return result === "" ? "" : `${result}`
-    },
   },
   mounted() {
     if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {

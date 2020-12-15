@@ -57,6 +57,9 @@
         @apply text-sm;
         @apply rounded-lg;
         @apply cursor-pointer;
+        @apply transition-colors;
+        @apply ease-in-out;
+        @apply duration-200;
 
         .material-icons {
           @apply m-4;

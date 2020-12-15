@@ -45,6 +45,10 @@ export default {
     request.headers[index].value = value
   },
 
+  setActiveHeader({ request }, { index, value }) {
+    request.headers[index].active = value
+  },
+
   addParams({ request }, value) {
     request.params.push(value)
   },
@@ -63,6 +67,10 @@ export default {
 
   setTypeParams({ request }, { index, value }) {
     request.params[index].type = value
+  },
+
+  setActiveParams({ request }, { index, value }) {
+    request.params[index].active = value
   },
 
   addBodyParams({ request }, value) {

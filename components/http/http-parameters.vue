@@ -73,6 +73,25 @@
         <li>
           <button
             class="icon"
+            @click="
+              $store.commit('setActiveParams', {
+                index,
+                value: !param.active,
+              })
+            "
+            v-tooltip.bottom="{ content: param.active ? $t('turn_off') : $t('turn_on') }"
+            id="param"
+          >
+            <i class="material-icons">
+              {{ param.active ? "check_box" : "check_box_outline_blank" }}
+            </i>
+          </button>
+        </li>
+      </div>
+      <div>
+        <li>
+          <button
+            class="icon"
             @click="removeRequestParam(index)"
             v-tooltip.bottom="$t('delete')"
             id="param"

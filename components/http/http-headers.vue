@@ -56,6 +56,25 @@
         <li>
           <button
             class="icon"
+            @click="
+              $store.commit('setActiveHeader', {
+                index,
+                value: !header.active,
+              })
+            "
+            v-tooltip.bottom="{ content: header.active ? $t('turn_off') : $t('turn_on') }"
+            id="header"
+          >
+            <i class="material-icons">
+              {{ header.active ? "check_box" : "check_box_outline_blank" }}
+            </i>
+          </button>
+        </li>
+      </div>
+      <div>
+        <li>
+          <button
+            class="icon"
             @click="removeRequestHeader(index)"
             v-tooltip.bottom="$t('delete')"
             id="header"

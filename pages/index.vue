@@ -1294,28 +1294,18 @@ export default {
           .join("&")
       }
     },
-    headerString() {
-      const result = this.headers
-        .filter(({ key }) => !!key)
-        .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n")
-      return result === "" ? "" : `${result}`
-    },
     queryString() {
       const result = getQueryParams(this.params)
         .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
     },
-    responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
-    },
     requestCode() {
       let headers = []
       if (this.preRequestScript || hasPathParams(this.params)) {
         let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
         environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-        for (let k of this.headers) {
+        for (let k of this.headers.filter(({ active }) => active == true)) {
           const kParsed = parseTemplateString(k.key, environmentVariables)
           const valParsed = parseTemplateString(k.value, environmentVariables)
           headers.push({ key: kParsed, value: valParsed })
@@ -1495,7 +1485,10 @@ export default {
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
         // mutate it with the request headers added by default.
-        Object.assign({}, this.headers)
+        Object.assign(
+          {},
+          this.headers.filter(({ active }) => active == true)
+        )
         // We make our temporary headers object the source so
         // that you can override the added headers if you
         // specify them.
@@ -1679,6 +1672,7 @@ export default {
       return Object.keys(queryParsed).map((key) => ({
         key,
         value: queryParsed[key],
+        active: true,
       }))
     },
     pathInputHandler() {
@@ -1693,6 +1687,7 @@ export default {
       this.$store.commit("addHeaders", {
         key: "",
         value: "",
+        active: true,
       })
       return false
     },
@@ -1712,7 +1707,7 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "", type: "query" })
+      this.$store.commit("addParams", { key: "", value: "", type: "query", active: true })
       return false
     },
     removeRequestParam(index) {

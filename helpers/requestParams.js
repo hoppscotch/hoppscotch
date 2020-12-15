@@ -1,9 +1,10 @@
 export function hasPathParams(params) {
-  return params.some(({ type }) => type === "path")
+  return params.filter(({ active }) => active == true).some(({ type }) => type === "path")
 }
 
 export function addPathParamsToVariables(params, variables) {
   params
+    .filter(({ active }) => active == true)
     .filter(({ key }) => !!key)
     .filter(({ type }) => type === "path")
     .forEach(({ key, value }) => (variables[key] = value))
@@ -11,5 +12,8 @@ export function addPathParamsToVariables(params, variables) {
 }
 
 export function getQueryParams(params) {
-  return params.filter(({ key }) => !!key).filter(({ type }) => type != "path")
+  return params
+    .filter(({ active }) => active == true)
+    .filter(({ key }) => !!key)
+    .filter(({ type }) => type != "path")
 }

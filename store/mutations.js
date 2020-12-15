@@ -89,6 +89,10 @@ export default {
     request.bodyParams[index].value = value
   },
 
+  setActiveBodyParams({ request }, { index, value }) {
+    request.bodyParams[index].active = value
+  },
+
   setOAuth2({ oauth2 }, { attribute, value }) {
     oauth2[attribute] = value
   },

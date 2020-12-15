@@ -151,81 +151,14 @@
                 </div>
               </li>
             </ul>
-            <div v-if="!rawInput">
-              <ul>
-                <li>
-                  <div class="row-wrapper">
-                    <label for="reqParamList">{{ $t("parameter_list") }}</label>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="clearContent('bodyParams', $event)"
-                        v-tooltip.bottom="$t('clear')"
-                      >
-                        <i class="material-icons">clear_all</i>
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <ul
-                v-for="(param, index) in bodyParams"
-                :key="index"
-                class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
-                :class="{ 'border-t': index == 0 }"
-              >
-                <li>
-                  <input
-                    :placeholder="`key ${index + 1}`"
-                    :name="`bparam ${index}`"
-                    :value="param.key"
-                    @change="
-                      $store.commit('setKeyBodyParams', {
-                        index,
-                        value: $event.target.value,
-                      })
-                    "
-                    @keyup.prevent="setRouteQueryState"
-                    autofocus
-                  />
-                </li>
-                <li>
-                  <input
-                    :placeholder="`value ${index + 1}`"
-                    :id="`bvalue ${index}`"
-                    :name="'bvalue' + index"
-                    :value="param.value"
-                    @change="
-                      $store.commit('setValueBodyParams', {
-                        index,
-                        value: $event.target.value,
-                      })
-                    "
-                    @keyup.prevent="setRouteQueryState"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <button
-                      class="icon"
-                      @click="removeRequestBodyParam(index)"
-                      v-tooltip.bottom="$t('delete')"
-                      id="delParam"
-                    >
-                      <i class="material-icons">delete</i>
-                    </button>
-                  </li>
-                </div>
-              </ul>
-              <ul>
-                <li>
-                  <button class="icon" @click="addRequestBodyParam" name="addrequest">
-                    <i class="material-icons">add</i>
-                    <span>{{ $t("add_new") }}</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <http-body-parameters
+              v-if="!rawInput"
+              :bodyParams="bodyParams"
+              @clear-content="clearContent"
+              @set-route-query-state="setRouteQueryState"
+              @remove-request-body-param="removeRequestBodyParam"
+              @add-request-body-param="addRequestBodyParam"
+            />
             <div v-else>
               <ul>
                 <li>
@@ -1267,12 +1200,9 @@ export default {
         try {
           const obj = JSON.parse(
             `{${bodyParams
+              .filter(({ active }) => active == true)
               .filter(({ key }) => !!key)
-              .map(
-                ({ key, value }) => `
-              "${key}": "${value}"
-              `
-              )
+              .map(({ key, value }) => `"${key}": "${value}"`)
               .join()}}`
           )
           return JSON.stringify(obj, null, 2)
@@ -1289,6 +1219,7 @@ export default {
         }
       } else {
         return bodyParams
+          .filter(({ active }) => active == true)
           .filter(({ key }) => !!key)
           .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
           .join("&")
@@ -1726,7 +1657,7 @@ export default {
       })
     },
     addRequestBodyParam() {
-      this.$store.commit("addBodyParams", { key: "", value: "" })
+      this.$store.commit("addBodyParams", { key: "", value: "", active: true })
       return false
     },
     removeRequestBodyParam(index) {

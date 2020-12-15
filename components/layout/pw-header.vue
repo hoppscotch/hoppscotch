@@ -3,8 +3,8 @@
     <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="text-xl hide-on-small-screen hover:text-acColor">Hoppscotch</h1>
-          <h1 class="text-xl show-on-small-screen hover:text-acColor">Hs</h1>
+          <h1 class="hide-on-small-screen logo">Hoppscotch</h1>
+          <h1 class="show-on-small-screen logo">Hs</h1>
         </nuxt-link>
       </span>
       <span>
@@ -132,6 +132,17 @@
 
 <style scoped lang="scss">
 $responsiveWidth: 768px;
+
+.logo {
+  @apply text-xl;
+  @apply transition-colors;
+  @apply ease-in-out;
+  @apply duration-200;
+
+  &:hover {
+    @apply text-acColor;
+  }
+}
 
 @keyframes slideIn {
   0% {

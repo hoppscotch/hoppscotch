@@ -56,8 +56,31 @@ describe("toBe", () => {
   })
 })
 
-  test("dummy script returns correct result", () => {
-    expect(runTestScriptWithVariables("pw.expect(200).toBe(300)").testResults[0].result).toBe(FAIL)
-    expect(runTestScriptWithVariables("pw.expect(200).toBe(200)").testResults[0].result).toBe(PASS)
+describe("toHaveProperty", () => {
+  const dummyResponse = {
+    id: 843,
+    description: "random",
+  }
+
+  test("test for positive assertion (.toHaveProperty)", () => {
+    expect(
+      runTestScriptWithVariables(`pw.expect(${JSON.stringify(dummyResponse)}).toHaveProperty("id")`)
+        .testResults[0].result
+    ).toBe(PASS)
+    expect(
+      runTestScriptWithVariables(`pw.expect(${dummyResponse.id}).toBe(843)`).testResults[0].result
+    ).toBe(PASS)
+  })
+  test("test for negative assertion (.not.toHaveProperty)", () => {
+    expect(
+      runTestScriptWithVariables(
+        `pw.expect(${JSON.stringify(dummyResponse)}).not.toHaveProperty("type")`
+      ).testResults[0].result
+    ).toBe(PASS)
+    expect(
+      runTestScriptWithVariables(
+        `pw.expect(${JSON.stringify(dummyResponse)}).toHaveProperty("type")`
+      ).testResults[0].result
+    ).toBe(FAIL)
   })
 })

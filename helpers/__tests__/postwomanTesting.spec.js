@@ -1,12 +1,4 @@
-import {
-  runTestScriptWithVariables,
-  test as pwTest,
-  expect as pwExpect,
-  Expectation,
-  PASS,
-  FAIL,
-  ERROR,
-} from "../postwomanTesting"
+import { runTestScriptWithVariables, PASS, FAIL, ERROR } from "../postwomanTesting"
 
 function getTestResult(script, index) {
   return runTestScriptWithVariables(script).testResults[index].result

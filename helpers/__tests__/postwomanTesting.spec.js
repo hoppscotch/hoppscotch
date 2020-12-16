@@ -8,6 +8,14 @@ import {
   ERROR,
 } from "../postwomanTesting"
 
+function getTestResult(script, index) {
+  return runTestScriptWithVariables(script).testResults[index].result
+}
+
+function getErrors(script) {
+  return runTestScriptWithVariables(script).errors
+}
+
 describe("Error handling", () => {
   test("Throws error at unknown test method", () => {
     expect(() => {

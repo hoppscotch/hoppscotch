@@ -33,6 +33,18 @@ describe("toBe", () => {
     expect(runTestScriptWithVariables("pw.expect(1).toBe(2)").testResults[0].result).toBe(FAIL)
 
     expect(runTestScriptWithVariables("pw.expect(1).toBe(1)").testResults[0].result).toBe(PASS)
+  })
+
+  test("test for strings", () => {
+    expect(
+      runTestScriptWithVariables("pw.expect('hello').toBe('bonjour')").testResults[0].result
+    ).toBe(FAIL)
+    expect(runTestScriptWithVariables("pw.expect('hi').toBe('hi')").testResults[0].result).toBe(
+      PASS
+    )
+  })
+
+  test("test for negative assertion (.not.toBe)", () => {
     expect(runTestScriptWithVariables("pw.expect(1).not.toBe(1)").testResults[0].result).toBe(FAIL)
   })
 

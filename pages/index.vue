@@ -1407,12 +1407,6 @@ export default {
       this.testsEnabled = entry.usesPostScripts
       if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
-    getVariablesFromPreRequestScript() {
-      if (!this.preRequestScript) {
-        return {}
-      }
-      return getEnvironmentVariablesFromScript(this.preRequestScript)
-    },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
         method: this.method,

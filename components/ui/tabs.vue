@@ -59,7 +59,7 @@
         @apply cursor-pointer;
         @apply transition-colors;
         @apply ease-in-out;
-        @apply duration-200;
+        @apply duration-150;
 
         .material-icons {
           @apply m-4;

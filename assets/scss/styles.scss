@@ -52,7 +52,7 @@ body {
   @apply select-none;
   @apply transition;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
 
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -61,7 +61,7 @@ body {
 body.afterLoad {
   @apply transition-colors;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
 }
 
 body.sticky-footer footer {
@@ -73,7 +73,7 @@ body.sticky-footer footer {
 .layout-enter-active,
 .layout-leave-active {
   @apply transition-opacity;
-  @apply duration-200;
+  @apply duration-150;
 }
 
 .page-enter,
@@ -164,7 +164,7 @@ p {
   @apply text-sm;
   @apply transition;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
 }
 
 hr {
@@ -187,7 +187,7 @@ hr {
     @apply shadow-lg;
     @apply transition;
     @apply ease-in-out;
-    @apply duration-200;
+    @apply duration-150;
     @apply bg-ttColor;
     @apply text-fgColor;
   }
@@ -202,7 +202,7 @@ hr {
     @apply z-30;
     @apply transition;
     @apply ease-in-out;
-    @apply duration-200;
+    @apply duration-150;
   }
 
   &[x-placement^="top"] {
@@ -311,7 +311,7 @@ hr {
     @apply opacity-0;
     @apply transition-opacity;
     @apply ease-in-out;
-    @apply duration-200;
+    @apply duration-150;
   }
 
   &[aria-hidden="false"] {
@@ -319,7 +319,7 @@ hr {
     @apply opacity-100;
     @apply transition-opacity;
     @apply ease-in-out;
-    @apply duration-200;
+    @apply duration-150;
   }
 }
 
@@ -344,7 +344,7 @@ button {
   @apply font-bold;
   @apply transition;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
   @apply fill-current;
   @apply cursor-pointer;
   @apply outline-none;
@@ -477,7 +477,7 @@ code {
   @apply font-normal;
   @apply transition;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
   @apply select-text;
   @apply resize-y;
   @apply outline-none;
@@ -538,6 +538,7 @@ pre {
     @apply absolute;
     @apply pointer-events-none;
     @apply font-icon;
+    @apply text-fgLightColor;
 
     content: "\e313";
     top: 16px;
@@ -578,7 +579,7 @@ input[type="checkbox"] {
       @apply text-transparent;
       @apply transition;
       @apply ease-in-out;
-      @apply duration-200;
+      @apply duration-150;
 
       content: "\2714";
       height: 16px;
@@ -614,7 +615,7 @@ label {
   @apply text-sm;
   @apply transition;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
 }
 
 ul,
@@ -703,7 +704,7 @@ ol li {
     @apply fixed;
     @apply transition;
     @apply ease-in-out;
-    @apply duration-200;
+    @apply duration-150;
     @apply shadow-lg;
     @apply rounded-lg;
 

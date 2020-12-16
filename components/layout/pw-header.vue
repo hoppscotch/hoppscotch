@@ -137,7 +137,7 @@ $responsiveWidth: 768px;
   @apply text-xl;
   @apply transition-colors;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
 
   &:hover {
     @apply text-acColor;

@@ -17,9 +17,10 @@ function getErrors(script) {
 }
 
 describe("Error handling", () => {
-  test("Throws error at unknown test method", () => {
+  test("throws error at unknown test method", () => {
+    const testScriptWithUnknownMethod = "pw.expect(1).toBeSomeUnknownMethod()"
     expect(() => {
-      runTestScriptWithVariables("pw.expect(1).toBeSomeUnknownMethod()")
+      runTestScriptWithVariables(testScriptWithUnknownMethod)
     }).toThrow()
   })
   test("errors array is empty on a successful test", () => {
@@ -30,7 +31,7 @@ describe("Error handling", () => {
 describe("toBe", () => {
   test("test for numbers", () => {
     expect(runTestScriptWithVariables("pw.expect(1).toBe(2)").testResults[0].result).toBe(FAIL)
-    expect(runTestScriptWithVariables("pw.expect(1).not.toBe(2)").testResults[0].result).toBe(PASS)
+
     expect(runTestScriptWithVariables("pw.expect(1).toBe(1)").testResults[0].result).toBe(PASS)
     expect(runTestScriptWithVariables("pw.expect(1).not.toBe(1)").testResults[0].result).toBe(FAIL)
   })

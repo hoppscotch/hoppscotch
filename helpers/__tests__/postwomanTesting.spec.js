@@ -46,7 +46,15 @@ describe("toBe", () => {
 
   test("test for negative assertion (.not.toBe)", () => {
     expect(runTestScriptWithVariables("pw.expect(1).not.toBe(1)").testResults[0].result).toBe(FAIL)
+    expect(runTestScriptWithVariables("pw.expect(1).not.toBe(2)").testResults[0].result).toBe(PASS)
+    expect(
+      runTestScriptWithVariables("pw.expect('world').not.toBe('planet')").testResults[0].result
+    ).toBe(PASS)
+    expect(
+      runTestScriptWithVariables("pw.expect('world').not.toBe('world')").testResults[0].result
+    ).toBe(FAIL)
   })
+})
 
   test("dummy script returns correct result", () => {
     expect(runTestScriptWithVariables("pw.expect(200).toBe(300)").testResults[0].result).toBe(FAIL)

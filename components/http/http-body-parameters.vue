@@ -40,8 +40,6 @@
       <li>
         <input
           :placeholder="`value ${index + 1}`"
-          :id="`bvalue ${index}`"
-          :name="'bvalue' + index"
           :value="param.value"
           @change="
             $store.commit('setValueBodyParams', {
@@ -59,14 +57,25 @@
             @click="
               $store.commit('setActiveBodyParams', {
                 index,
-                value: !param.active,
+                value: param.hasOwnProperty('active') ? !param.active : false,
               })
             "
-            v-tooltip.bottom="{ content: param.active ? $t('turn_off') : $t('turn_on') }"
-            id="param"
+            v-tooltip.bottom="{
+              content: param.hasOwnProperty('active')
+                ? param.active
+                  ? $t('turn_off')
+                  : $t('turn_on')
+                : $t('turn_off'),
+            }"
           >
             <i class="material-icons">
-              {{ param.active ? "check_box" : "check_box_outline_blank" }}
+              {{
+                param.hasOwnProperty("active")
+                  ? param.active
+                    ? "check_box"
+                    : "check_box_outline_blank"
+                  : "check_box"
+              }}
             </i>
           </button>
         </li>
@@ -77,7 +86,6 @@
             class="icon"
             @click="removeRequestBodyParam(index)"
             v-tooltip.bottom="$t('delete')"
-            id="delParam"
           >
             <i class="material-icons">delete</i>
           </button>

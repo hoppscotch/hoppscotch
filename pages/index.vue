@@ -194,7 +194,6 @@
             <span>
               <button
                 class="icon"
-                id="show-modal"
                 @click="showCurlImportModal = !showCurlImportModal"
                 v-tooltip.bottom="$t('import_curl')"
               >
@@ -202,7 +201,6 @@
               </button>
               <button
                 class="icon"
-                id="code"
                 @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('show_code')"
@@ -214,7 +212,6 @@
               <button
                 class="icon"
                 @click="copyRequest"
-                id="copyRequest"
                 ref="copyRequest"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('copy_request_link')"
@@ -225,7 +222,6 @@
               <button
                 class="icon"
                 @click="saveRequest"
-                id="saveRequest"
                 ref="saveRequest"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('save_to_collections')"
@@ -316,12 +312,7 @@
                   </li>
                   <div>
                     <li>
-                      <button
-                        class="icon"
-                        id="switchVisibility"
-                        ref="switchVisibility"
-                        @click="switchVisibility"
-                      >
+                      <button class="icon" ref="switchVisibility" @click="switchVisibility">
                         <i class="material-icons" v-if="passwordFieldType === 'text'">visibility</i>
                         <i class="material-icons" v-if="passwordFieldType !== 'text'"
                           >visibility_off</i
@@ -1200,7 +1191,7 @@ export default {
         try {
           const obj = JSON.parse(
             `{${bodyParams
-              .filter(({ active }) => active == true)
+              .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
               .filter(({ key }) => !!key)
               .map(({ key, value }) => `"${key}": "${value}"`)
               .join()}}`
@@ -1219,7 +1210,7 @@ export default {
         }
       } else {
         return bodyParams
-          .filter(({ active }) => active == true)
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
           .filter(({ key }) => !!key)
           .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
           .join("&")
@@ -1236,7 +1227,9 @@ export default {
       if (this.preRequestScript || hasPathParams(this.params)) {
         let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
         environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-        for (let k of this.headers.filter(({ active }) => active == true)) {
+        for (let k of this.headers.filter((item) =>
+          item.hasOwnProperty("active") ? item.active == true : true
+        )) {
           const kParsed = parseTemplateString(k.key, environmentVariables)
           const valParsed = parseTemplateString(k.value, environmentVariables)
           headers.push({ key: kParsed, value: valParsed })
@@ -1412,7 +1405,9 @@ export default {
         // mutate it with the request headers added by default.
         Object.assign(
           {},
-          this.headers.filter(({ active }) => active == true)
+          this.headers.filter((item) =>
+            item.hasOwnProperty("active") ? item.active == true : true
+          )
         )
         // We make our temporary headers object the source so
         // that you can override the added headers if you

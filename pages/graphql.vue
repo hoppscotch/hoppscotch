@@ -93,7 +93,6 @@
                     class="icon"
                     @click="removeRequestHeader(index)"
                     v-tooltip.bottom="$t('delete')"
-                    id="header"
                   >
                     <i class="material-icons">delete</i>
                   </button>
@@ -165,7 +164,6 @@
             class="rounded-b-lg missing-data-response"
             :value="$t('waiting_receive_schema')"
             ref="status"
-            id="status"
             name="status"
             readonly
             type="text"
@@ -281,7 +279,6 @@
               class="rounded-b-lg missing-data-response"
               :value="$t('waiting_receive_response')"
               ref="status"
-              id="status"
               name="status"
               readonly
               type="text"
@@ -334,11 +331,7 @@
                   :label="$t('types')"
                   ref="typesTab"
                 >
-                  <div
-                    v-for="type in filteredGraphqlTypes"
-                    :key="type.name"
-                    :id="`type_${type.name}`"
-                  >
+                  <div v-for="type in filteredGraphqlTypes" :key="type.name">
                     <type
                       :gqlType="type"
                       :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"

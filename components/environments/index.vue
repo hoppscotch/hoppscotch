@@ -1,10 +1,8 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('environments')" ref="environments" no-legend>
     <div class="show-on-large-screen">
-      <!-- <label for="currentEnvironment">{{ $t("select_environment") }}</label> -->
       <span class="select-wrapper">
         <select
-          id="currentEnvironment"
           v-model="selectedEnvironmentIndex"
           :disabled="environments.length == 0"
           class="rounded-t-lg"

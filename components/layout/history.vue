@@ -66,7 +66,6 @@
               <div>
                 <button
                   class="icon"
-                  :id="'use-button#' + index"
                   @click="useHistory(entry)"
                   :aria-label="$t('edit')"
                   v-close-popover
@@ -78,7 +77,6 @@
               <div>
                 <button
                   class="icon"
-                  :id="'delete-button#' + index"
                   @click="deleteHistory(entry)"
                   :aria-label="$t('delete')"
                   v-close-popover
@@ -146,12 +144,7 @@
     </p>
     <div v-if="history.length !== 0" class="rounded-b-lg bg-bgDarkColor">
       <div class="row-wrapper" v-if="!isClearingHistory">
-        <button
-          class="icon"
-          id="clear-history-button"
-          :disabled="history.length === 0"
-          @click="enableHistoryClearing"
-        >
+        <button class="icon" :disabled="history.length === 0" @click="enableHistoryClearing">
           <i class="material-icons">clear_all</i>
           <span>{{ $t("clear_all") }}</span>
         </button>
@@ -208,24 +201,12 @@
         </v-popover>
       </div>
       <div class="row-wrapper" v-else>
-        <p for="clear-history-button" class="info">
-          <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
-        </p>
+        <p class="info"><i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}</p>
         <div>
-          <button
-            class="icon"
-            id="confirm-clear-history-button"
-            @click="clearHistory"
-            v-tooltip="$t('yes')"
-          >
+          <button class="icon" @click="clearHistory" v-tooltip="$t('yes')">
             <i class="material-icons">done</i>
           </button>
-          <button
-            class="icon"
-            id="reject-clear-history-button"
-            @click="disableHistoryClearing"
-            v-tooltip="$t('no')"
-          >
+          <button class="icon" @click="disableHistoryClearing" v-tooltip="$t('no')">
             <i class="material-icons">close</i>
           </button>
         </div>

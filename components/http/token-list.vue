@@ -12,7 +12,7 @@
     </div>
     <div slot="body" class="flex flex-col">
       <div class="row-wrapper">
-        <label for="token-list">{{ $t("token_list") }}</label>
+        <label>{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">
           <button
             class="icon"
@@ -23,7 +23,7 @@
           </button>
         </div>
       </div>
-      <ul id="token-list" v-for="(token, index) in tokens" :key="index">
+      <ul v-for="(token, index) in tokens" :key="index">
         <li>
           <input
             :placeholder="`name ${index + 1}`"

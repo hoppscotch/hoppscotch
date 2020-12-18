@@ -1,4 +1,4 @@
-import { runTestScriptWithVariables, PASS, FAIL, ERROR } from "../postwomanTesting"
+import { runTestScriptWithVariables, PASS, FAIL } from "../postwomanTesting"
 
 function getTestResult(script, index) {
   return runTestScriptWithVariables(script).testResults[index].result
@@ -22,21 +22,21 @@ describe("Error handling", () => {
 
 describe("toBe", () => {
   test("test for numbers", () => {
-    expect(getTestResult("pw.expect(1).toBe(2)", 0)).toBe(FAIL)
+    expect(getTestResult("pw.expect(1).toBe(2)", 0)).toEqual(FAIL)
 
-    expect(getTestResult("pw.expect(1).toBe(1)", 0)).toBe(PASS)
+    expect(getTestResult("pw.expect(1).toBe(1)", 0)).toEqual(PASS)
   })
 
   test("test for strings", () => {
-    expect(getTestResult("pw.expect('hello').toBe('bonjour')", 0)).toBe(FAIL)
-    expect(getTestResult("pw.expect('hi').toBe('hi')", 0)).toBe(PASS)
+    expect(getTestResult("pw.expect('hello').toBe('bonjour')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('hi').toBe('hi')", 0)).toEqual(PASS)
   })
 
   test("test for negative assertion (.not.toBe)", () => {
-    expect(getTestResult("pw.expect(1).not.toBe(1)", 0)).toBe(FAIL)
-    expect(getTestResult("pw.expect(1).not.toBe(2)", 0)).toBe(PASS)
-    expect(getTestResult("pw.expect('world').not.toBe('planet')", 0)).toBe(PASS)
-    expect(getTestResult("pw.expect('world').not.toBe('world')", 0)).toBe(FAIL)
+    expect(getTestResult("pw.expect(1).not.toBe(1)", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(1).not.toBe(2)", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect('world').not.toBe('planet')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect('world').not.toBe('world')", 0)).toEqual(FAIL)
   })
 })
 
@@ -49,15 +49,15 @@ describe("toHaveProperty", () => {
   test("test for positive assertion (.toHaveProperty)", () => {
     expect(
       getTestResult(`pw.expect(${JSON.stringify(dummyResponse)}).toHaveProperty("id")`, 0)
-    ).toBe(PASS)
-    expect(getTestResult(`pw.expect(${dummyResponse.id}).toBe(843)`, 0)).toBe(PASS)
+    ).toEqual(PASS)
+    expect(getTestResult(`pw.expect(${dummyResponse.id}).toBe(843)`, 0)).toEqual(PASS)
   })
   test("test for negative assertion (.not.toHaveProperty)", () => {
     expect(
       getTestResult(`pw.expect(${JSON.stringify(dummyResponse)}).not.toHaveProperty("type")`, 0)
-    ).toBe(PASS)
+    ).toEqual(PASS)
     expect(
       getTestResult(`pw.expect(${JSON.stringify(dummyResponse)}).toHaveProperty("type")`, 0)
-    ).toBe(FAIL)
+    ).toEqual(FAIL)
   })
 })

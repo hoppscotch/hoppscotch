@@ -300,5 +300,6 @@
   "gist_created": "Gist created",
   "import_from_gist": "Import from Gist",
   "enter_gist_url": "Enter Gist URL",
-  "account_exists": "Account exists with different credential - Login to link both accounts"
+  "account_exists": "Account exists with different credential - Login to link both accounts",
+  "confirm": "Confirm"
 }

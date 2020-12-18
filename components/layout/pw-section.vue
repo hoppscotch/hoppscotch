@@ -19,7 +19,7 @@ fieldset {
   @apply bg-bgDarkColor;
   @apply transition;
   @apply ease-in-out;
-  @apply duration-200;
+  @apply duration-150;
 
   legend {
     @apply px-4;
@@ -28,7 +28,7 @@ fieldset {
     @apply cursor-pointer;
     @apply transition;
     @apply ease-in-out;
-    @apply duration-200;
+    @apply duration-150;
   }
 
   &.blue legend {

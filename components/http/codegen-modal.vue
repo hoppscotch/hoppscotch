@@ -39,7 +39,6 @@
           <button
             class="icon"
             @click="copyRequestCode"
-            id="copyRequestCode"
             ref="copyRequestCode"
             v-tooltip="$t('copy_code')"
           >

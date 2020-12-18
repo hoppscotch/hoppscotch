@@ -87,7 +87,7 @@
           />
         </li>
       </ul>
-      <ul v-if="folder.folders.length === 0 && folder.requests.length === 0">
+      <ul v-if="folder.folders && folder.folders.length === 0 && folder.requests && folder.requests.length === 0">
         <li class="flex ml-8 border-l border-brdColor">
           <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
         </li>

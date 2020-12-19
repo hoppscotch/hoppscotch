@@ -1,6 +1,6 @@
-const PASS = "PASS"
-const FAIL = "FAIL"
-const ERROR = "ERROR"
+export const PASS = "PASS"
+export const FAIL = "FAIL"
+export const ERROR = "ERROR"
 
 const styles = {
   [PASS]: { icon: "check", class: "success-response" },

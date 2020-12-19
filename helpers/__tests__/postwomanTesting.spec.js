@@ -1,4 +1,5 @@
-import { runTestScriptWithVariables, PASS, FAIL } from "../postwomanTesting"
+import { PASS, FAIL } from "../postwomanTesting"
+import runTestScriptWithVariables from "../postwomanTesting"
 
 function getTestResult(script, index) {
   return runTestScriptWithVariables(script).testResults[index].result

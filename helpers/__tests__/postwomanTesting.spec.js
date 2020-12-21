@@ -62,3 +62,25 @@ describe("toHaveProperty", () => {
     ).toEqual(FAIL)
   })
 })
+
+describe("toBeLevel2xx", () => {
+  test("test for numbers", () => {
+    expect(getTestResult("pw.expect(200).toBeLevel2xx()", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(200).not.toBeLevel2xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(300).toBeLevel2xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(300).not.toBeLevel2xx()", 0)).toEqual(PASS)
+  })
+  test("test for strings", () => {
+    expect(getTestResult("pw.expect('200').toBeLevel2xx()", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect('200').not.toBeLevel2xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('300').toBeLevel2xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('300').not.toBeLevel2xx()", 0)).toEqual(PASS)
+  })
+  test("failed to parse to integer", () => {
+    expect(getTestResult("pw.expect(undefined).toBeLevel2xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(null).toBeLevel2xx()", 0)).toEqual(FAIL)
+    expect(() => {
+      runTestScriptWithVariables("pw.expect(Symbol('test')).toBeLevel2xx()")
+    }).toThrow()
+  })
+})

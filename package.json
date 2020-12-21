@@ -49,7 +49,7 @@
     "@babel/preset-env": "^7.12.11",
     "@nuxtjs/color-mode": "^2.0.2",
     "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/pwa": "^3.3.2",
+    "@nuxtjs/pwa": "^3.3.3",
     "@nuxtjs/tailwindcss": "^3.4.1",
     "@testing-library/jest-dom": "^5.11.6",
     "@vue/test-utils": "^1.1.2",

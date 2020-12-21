@@ -603,7 +603,7 @@
                       <label for="generatedCode">{{ $t("javascript_code") }}</label>
                       <div>
                         <a
-                          href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Requests-Tests"
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
                           target="_blank"
                           rel="noopener"
                         >

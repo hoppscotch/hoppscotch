@@ -19,6 +19,11 @@ describe("Error handling", () => {
   test("errors array is empty on a successful test", () => {
     expect(getErrors("pw.expect(1).toBe(1)")).toStrictEqual([])
   })
+  test("throws error at a variable which is not declared", () => {
+    expect(() => {
+      runTestScriptWithVariables("someVariable")
+    }).toThrow()
+  })
 })
 
 describe("toBe", () => {

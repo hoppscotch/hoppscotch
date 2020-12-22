@@ -113,7 +113,7 @@ class Expectation {
     if (Number.isNaN(code)) {
       return this._fail(`Expected 200-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 200 && code < 300)
+    return this._satisfies(code >= 200 && code < 300, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 200-level status`))
   }
@@ -122,7 +122,7 @@ class Expectation {
     if (Number.isNaN(code)) {
       return this._fail(`Expected 300-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 300 && code < 400)
+    return this._satisfies(code >= 300 && code < 400, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 300-level status`))
   }
@@ -131,7 +131,7 @@ class Expectation {
     if (Number.isNaN(code)) {
       return this._fail(`Expected 400-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 400 && code < 500)
+    return this._satisfies(code >= 400 && code < 500, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 400-level status`))
   }
@@ -140,7 +140,7 @@ class Expectation {
     if (Number.isNaN(code)) {
       return this._fail(`Expected 500-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 500 && code < 600)
+    return this._satisfies(code >= 500 && code < 600, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 500-level status`))
   }

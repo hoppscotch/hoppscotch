@@ -166,3 +166,29 @@ describe("toHaveLength()", () => {
     expect(getTestResult(`pw.expect(${fruits}).not.toHaveLength(7)`, 0)).toEqual(PASS)
   })
 })
+
+describe("toBeType()", () => {
+  test("test for positive assertion", () => {
+    expect(getTestResult("pw.expect('random').toBeType('string')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(true).toBeType('boolean')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(5).toBeType('number')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(new Date()).toBeType('object')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(undefined).toBeType('undefined')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(BigInt(123)).toBeType('bigint')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(Symbol('test')).toBeType('symbol')", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(function() {}).toBeType('function')", 0)).toEqual(PASS)
+  })
+  test("test for negative assertion", () => {
+    expect(getTestResult("pw.expect('random').not.toBeType('string')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(true).not.toBeType('boolean')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(5).not.toBeType('number')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(new Date()).not.toBeType('object')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(undefined).not.toBeType('undefined')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(BigInt(123)).not.toBeType('bigint')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(Symbol('test')).not.toBeType('symbol')", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(function() {}).not.toBeType('function')", 0)).toEqual(FAIL)
+  })
+  test("unexpected type", () => {
+    expect(getTestResult("pw.expect('random').toBeType('unknown')", 0)).toEqual(FAIL)
+  })
+})

@@ -128,3 +128,25 @@ describe("toBeLevel4xx()", () => {
     }).toThrow()
   })
 })
+
+describe("toBeLevel5xx()", () => {
+  test("test for numbers", () => {
+    expect(getTestResult("pw.expect(500).toBeLevel5xx()", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect(500).not.toBeLevel5xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(200).toBeLevel5xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(200).not.toBeLevel5xx()", 0)).toEqual(PASS)
+  })
+  test("test for strings", () => {
+    expect(getTestResult("pw.expect('500').toBeLevel5xx()", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect('500').not.toBeLevel5xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('200').toBeLevel5xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('200').not.toBeLevel5xx()", 0)).toEqual(PASS)
+  })
+  test("failed to parse to integer", () => {
+    expect(getTestResult("pw.expect(undefined).toBeLevel5xx()", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect(null).toBeLevel5xx()", 0)).toEqual(FAIL)
+    expect(() => {
+      runTestScriptWithVariables("pw.expect(Symbol('test')).toBeLevel5xx()")
+    }).toThrow()
+  })
+})

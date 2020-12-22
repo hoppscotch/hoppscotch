@@ -150,3 +150,19 @@ describe("toBeLevel5xx()", () => {
     }).toThrow()
   })
 })
+
+describe("toHaveLength()", () => {
+  test("test for strings", () => {
+    expect(getTestResult("pw.expect('word').toHaveLength(4)", 0)).toEqual(PASS)
+    expect(getTestResult("pw.expect('word').toHaveLength(5)", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('word').not.toHaveLength(4)", 0)).toEqual(FAIL)
+    expect(getTestResult("pw.expect('word').not.toHaveLength(5)", 0)).toEqual(PASS)
+  })
+  test("test for arrays", () => {
+    const fruits = "['apples', 'bananas', 'oranges', 'grapes', 'strawberries', 'cherries']"
+    expect(getTestResult(`pw.expect(${fruits}).toHaveLength(6)`, 0)).toEqual(PASS)
+    expect(getTestResult(`pw.expect(${fruits}).toHaveLength(7)`, 0)).toEqual(FAIL)
+    expect(getTestResult(`pw.expect(${fruits}).not.toHaveLength(6)`, 0)).toEqual(FAIL)
+    expect(getTestResult(`pw.expect(${fruits}).not.toHaveLength(7)`, 0)).toEqual(PASS)
+  })
+})

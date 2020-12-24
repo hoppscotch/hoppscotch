@@ -67,7 +67,7 @@
     "sass": "^1.30.0",
     "sass-loader": "^10.1.0",
     "vue-jest": "^3.0.7",
-    "worker-loader": "^3.0.6"
+    "worker-loader": "^3.0.7"
   },
   "jest": {
     "moduleFileExtensions": [

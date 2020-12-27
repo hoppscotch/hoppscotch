@@ -24,24 +24,6 @@
         "code"
       ]
     },
-    {
-      "login": "NBTX",
-      "name": "John Harker",
-      "avatar_url": "https://avatars3.githubusercontent.com/u/43181178?v=4",
-      "profile": "https://github.com/NBTX",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "jamesgeorge007",
-      "name": "James George",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/25279263?v=4",
-      "profile": "https://ghuser.io/jamesgeorge007",
-      "contributions": [
-        "code"
-      ]
-    }
   ],
   "contributorsPerLine": 7,
   "projectName": "hoppscotch",

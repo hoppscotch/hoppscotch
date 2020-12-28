@@ -1,13 +1,13 @@
 <template>
-  <pw-section class="orange" label="Headers" ref="headers" no-legend>
-    <ul v-if="headers.length !== 0">
+  <div>
+    <ul>
       <li>
         <div class="row-wrapper">
-          <label for="headerList">{{ $t("header_list") }}</label>
+          <label for="reqParamList">{{ $t("parameter_list") }}</label>
           <div>
             <button
               class="icon"
-              @click="clearContent('headers', $event)"
+              @click="clearContent('bodyParams', $event)"
               v-tooltip.bottom="$t('clear')"
             >
               <i class="material-icons">clear_all</i>
@@ -17,21 +17,20 @@
       </li>
     </ul>
     <ul
-      v-for="(header, index) in headers"
-      :key="`${header.value}_${index}`"
+      v-for="(param, index) in bodyParams"
+      :key="index"
       class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
       :class="{ 'border-t': index == 0 }"
     >
       <li>
-        <autocomplete
-          :placeholder="$t('header_count', { count: index + 1 })"
-          :source="commonHeaders"
-          :spellcheck="false"
-          :value="header.key"
-          @input="
-            $store.commit('setKeyHeader', {
+        <input
+          :placeholder="`key ${index + 1}`"
+          :name="`bparam ${index}`"
+          :value="param.key"
+          @change="
+            $store.commit('setKeyBodyParams', {
               index,
-              value: $event,
+              value: $event.target.value,
             })
           "
           @keyup.prevent="setRouteQueryState"
@@ -40,11 +39,10 @@
       </li>
       <li>
         <input
-          :placeholder="$t('value_count', { count: index + 1 })"
-          :name="'value' + index"
-          :value="header.value"
+          :placeholder="`value ${index + 1}`"
+          :value="param.value"
           @change="
-            $store.commit('setValueHeader', {
+            $store.commit('setValueBodyParams', {
               index,
               value: $event.target.value,
             })
@@ -57,14 +55,14 @@
           <button
             class="icon"
             @click="
-              $store.commit('setActiveHeader', {
+              $store.commit('setActiveBodyParams', {
                 index,
-                value: header.hasOwnProperty('active') ? !header.active : false,
+                value: param.hasOwnProperty('active') ? !param.active : false,
               })
             "
             v-tooltip.bottom="{
-              content: header.hasOwnProperty('active')
-                ? header.active
+              content: param.hasOwnProperty('active')
+                ? param.active
                   ? $t('turn_off')
                   : $t('turn_on')
                 : $t('turn_off'),
@@ -72,8 +70,8 @@
           >
             <i class="material-icons">
               {{
-                header.hasOwnProperty("active")
-                  ? header.active
+                param.hasOwnProperty("active")
+                  ? param.active
                     ? "check_box"
                     : "check_box_outline_blank"
                   : "check_box"
@@ -84,7 +82,11 @@
       </div>
       <div>
         <li>
-          <button class="icon" @click="removeRequestHeader(index)" v-tooltip.bottom="$t('delete')">
+          <button
+            class="icon"
+            @click="removeRequestBodyParam(index)"
+            v-tooltip.bottom="$t('delete')"
+          >
             <i class="material-icons">delete</i>
           </button>
         </li>
@@ -92,39 +94,32 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestHeader">
+        <button class="icon" @click="addRequestBodyParam" name="addrequest">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>
       </li>
     </ul>
-  </pw-section>
+  </div>
 </template>
 
 <script>
-import { commonHeaders } from "~/helpers/headers"
-
 export default {
   props: {
-    headers: { type: Array, default: () => [] },
-  },
-  data() {
-    return {
-      commonHeaders,
-    }
+    bodyParams: { type: Array, default: () => [] },
   },
   methods: {
-    clearContent(headers, $event) {
-      this.$emit("clear-content", headers, $event)
+    clearContent(bodyParams, $event) {
+      this.$emit("clear-content", bodyParams, $event)
     },
     setRouteQueryState() {
       this.$emit("set-route-query-state")
     },
-    removeRequestHeader(index) {
-      this.$emit("remove-request-header", index)
+    removeRequestBodyParam(index) {
+      this.$emit("remove-request-body-param", index)
     },
-    addRequestHeader() {
-      this.$emit("add-request-header")
+    addRequestBodyParam() {
+      this.$emit("add-request-body-param")
     },
   },
 }

@@ -264,6 +264,7 @@
   "syncCollections": "Collections",
   "syncEnvironments": "Environments",
   "turn_on": "Turn on",
+  "turn_off": "Turn off",
   "login_first": "Login first",
   "paste_a_note": "Paste a note",
   "import_from_sync": "Import from Sync",

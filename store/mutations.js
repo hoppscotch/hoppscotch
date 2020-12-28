@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 export default {
   setState({ request }, { attribute, value }) {
     request[attribute] = value
@@ -45,6 +47,14 @@ export default {
     request.headers[index].value = value
   },
 
+  setActiveHeader({ request }, { index, value }) {
+    if (!request.headers[index].hasOwnProperty("active")) {
+      Vue.set(request.headers[index], "active", value)
+    } else {
+      request.headers[index].active = value
+    }
+  },
+
   addParams({ request }, value) {
     request.params.push(value)
   },
@@ -65,6 +75,14 @@ export default {
     request.params[index].type = value
   },
 
+  setActiveParams({ request }, { index, value }) {
+    if (!request.params[index].hasOwnProperty("active")) {
+      Vue.set(request.params[index], "active", value)
+    } else {
+      request.params[index].active = value
+    }
+  },
+
   addBodyParams({ request }, value) {
     request.bodyParams.push(value)
   },
@@ -79,6 +97,14 @@ export default {
 
   setValueBodyParams({ request }, { index, value }) {
     request.bodyParams[index].value = value
+  },
+
+  setActiveBodyParams({ request }, { index, value }) {
+    if (!request.bodyParams[index].hasOwnProperty("active")) {
+      Vue.set(request.bodyParams[index], "active", value)
+    } else {
+      request.bodyParams[index].active = value
+    }
   },
 
   setOAuth2({ oauth2 }, { attribute, value }) {

@@ -1815,7 +1815,7 @@ export default {
       if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(decodeURI(queries[key]))
+          this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
         if (key === "rawParams") {
           this.rawInput = true
           this.rawParams = queries["rawParams"]

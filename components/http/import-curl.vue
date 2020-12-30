@@ -11,7 +11,7 @@
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <textarea autofocus rows="8" :placeholder="$t('enter_curl')"></textarea>
+      <textarea id="import-curl" autofocus rows="8" :placeholder="$t('enter_curl')"></textarea>
     </div>
     <div slot="footer">
       <div class="row-wrapper">

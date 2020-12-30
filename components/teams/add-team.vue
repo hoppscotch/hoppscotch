@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("new_team") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -43,15 +43,11 @@
 </template>
 
 <script>
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 import gql from "graphql-tag"
 
 export default {
   props: {
     show: Boolean,
-  },
-  components: {
-    closeIcon,
   },
   data() {
     return {

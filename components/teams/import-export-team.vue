@@ -7,7 +7,7 @@
             <h3 class="title">{{ $t("import_export") }} {{ $t("teams") }}</h3>
             <div>
               <button class="icon" @click="hideModal">
-                <closeIcon class="material-icons" />
+                <i class="material-icons">close</i>
               </button>
             </div>
           </div>
@@ -77,7 +77,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import closeIcon from "~/static/icons/close-24px.svg?inline"
 
 export default {
   data() {
@@ -87,9 +86,6 @@ export default {
   },
   props: {
     show: Boolean,
-  },
-  components: {
-    closeIcon,
   },
   computed: {
     teamJson() {

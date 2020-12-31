@@ -446,7 +446,7 @@ docker pull hoppscotch/hoppscotch
 docker build -t hoppscotch:latest .
 
 #run
-docker run -p 3000:3000 hoppscotch:latest
+docker run -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
 <details>

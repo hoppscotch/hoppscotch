@@ -57,7 +57,7 @@
       </ul>
     </div>
     <div slot="body">
-      <textarea v-model="teamJson" rows="8"></textarea>
+      <textarea v-model="teamJson" rows="8" readonly></textarea>
     </div>
     <div slot="footer">
       <div class="row-wrapper">
@@ -86,25 +86,11 @@ export default {
   },
   props: {
     show: Boolean,
+    teams: Array,
   },
   computed: {
     teamJson() {
-      return `[
-        {
-          name: "sample",
-          members: [
-            { key: "liyas@abc.com", value: "read" },
-            { key: "andrew@abc.com", value: "write" },
-          ],
-        },
-        {
-          name: "demo",
-          members: [
-            { key: "liyas@xyz.com", value: "write" },
-            { key: "andrew@xyz.com", value: "read" },
-          ],
-        },
-      ]`
+      return this.teams
     },
   },
   methods: {

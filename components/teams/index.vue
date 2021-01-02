@@ -1,5 +1,9 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('teams')" ref="teams">
+    <!-- debug start -->
+    <pre>me: {{ me }}</pre>
+    <pre>myTeams: {{ myTeams }}</pre>
+    <!-- debug end -->
     <add-team :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-team
       :show="showModalEdit"
@@ -9,6 +13,7 @@
     />
     <import-export-team
       :show="showModalImportExport"
+      :teams="myTeams"
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="row-wrapper">
@@ -58,19 +63,23 @@ export default {
       showModalImportExport: false,
       showModalAdd: false,
       showModalEdit: false,
-      editingTeam: {
-        name: "sample",
-        members: [
-          { key: "liyas@abc.com", value: "read" },
-          { key: "andrew@abc.com", value: "write" },
-        ],
-      },
+      editingTeam: {},
       editingteamID: "",
+      me: {},
       myTeams: [],
-      pollInterval: 300,
     }
   },
   apollo: {
+    me: {
+      query: gql`
+        query GetMe {
+          me {
+            uid
+          }
+        }
+      `,
+      pollInterval: 100000,
+    },
     myTeams: {
       query: gql`
         query GetMyTeams {

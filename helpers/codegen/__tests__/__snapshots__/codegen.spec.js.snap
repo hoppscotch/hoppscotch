@@ -537,7 +537,7 @@ exports[`generate request for NodeJs Axios generate GET request 1`] = `
  headers : {    \\"h1\\": \\"h1v\\",
     \\"h2\\": \\"h2v\\",
     \\"Authorization\\": \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\"}
-}.then(response => {
+}).then(response => {
     console.log(response);
 }).catch(error => {
     console.log(error);
@@ -551,7 +551,7 @@ exports[`generate request for NodeJs Axios generate POST request for JSON 1`] = 
     \\"h2\\": \\"h2v\\",
 \\"Content-Type\\": \\"application/json; charset=utf-8\\",
     \\"Authorization\\": \\"Bearer abcdefghijklmn\\"}
-}.then(response => {
+}).then(response => {
     console.log(response);
 }).catch(error => {
     console.log(error);
@@ -568,7 +568,7 @@ exports[`generate request for NodeJs Axios generate POST request for XML 1`] = `
     \\"h2\\": \\"h2v\\",
 \\"Content-Type\\": \\"application/xml; charset=utf-8\\",
     \\"Authorization\\": \\"Bearer abcdefghijklmn\\"}
-}.then(response => {
+}).then(response => {
     console.log(response);
 }).catch(error => {
     console.log(error);
@@ -579,7 +579,7 @@ exports[`generate request for NodeJs Axios generate POST request for XML 1`] = `
 exports[`generate request for NodeJs Axios generate PUT request for www-form-urlencoded 1`] = `
 "axios.put('https://httpbin.org/path/to?a=b', foo=bar&baz=qux,{ 
  headers : {\\"Content-Type\\": \\"application/x-www-form-urlencoded; charset=utf-8\\"}
-}.then(response => {
+}).then(response => {
     console.log(response);
 }).catch(error => {
     console.log(error);

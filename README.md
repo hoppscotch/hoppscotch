@@ -548,11 +548,18 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 </p>
 
 <p align="center">
-<a href="https://github.com/gianlucapisati" target="_blank" rel="noopener">
+<a href="https://github.com/diningcity-group" target="_blank" rel="noopener">
 <img
   width="64"
-	src="https://github.com/gianlucapisati.png?size=64"
-	alt="Gianluca Pisati"
+	src="https://github.com/diningcity-group.png?size=64"
+	alt="DiningCity"
+/>
+</a>
+<a href="https://github.com/rithish" target="_blank" rel="noopener">
+<img
+  width="64"
+	src="https://github.com/rithish.png?size=64"
+	alt="Rithish"
 />
 </a>
 <a href="https://github.com/kcomain" target="_blank" rel="noopener">
@@ -581,13 +588,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
   width="64"
 	src="https://github.com/pantharshit00.png?size=64"
 	alt="Harshit Pant"
-/>
-</a>
-<a href="https://github.com/janpio" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/janpio.png?size=64"
-	alt="Jan Piotrowski"
 />
 </a>
 <a href="https://github.com/ankumar" target="_blank" rel="noopener">

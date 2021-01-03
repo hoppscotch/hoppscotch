@@ -59,9 +59,7 @@ export default {
           // Query
           mutation: gql`
             mutation($teamID: String!) {
-              deleteTeam(teamID: $teamID) {
-                id
-              }
+              deleteTeam(teamID: $teamID)
             }
           `,
           // Parameters

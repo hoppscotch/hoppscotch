@@ -37,9 +37,14 @@
           </div>
         </li>
       </ul>
-      <ul v-for="(member, index) in this.editingTeamCopy.members" :key="index">
+      <ul v-for="(member, index) in members" :key="index">
         <li>
-          <input :placeholder="$t('email')" :name="'param' + index" :value="member.key" autofocus />
+          <input
+            :placeholder="$t('email')"
+            :name="'param' + index"
+            v-model="member.key"
+            autofocus
+          />
         </li>
         <li>
           <span class="select-wrapper">
@@ -54,10 +59,12 @@
               />
               <template slot="popover">
                 <div>
-                  <button class="icon" v-close-popover>READ</button>
+                  <button class="icon" v-close-popover @click="member.value = 'OWNER'">READ</button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover>WRITE</button>
+                  <button class="icon" v-close-popover @click="member.value = 'EDITOR'">
+                    WRITE
+                  </button>
                 </div>
               </template>
             </v-popover>
@@ -114,6 +121,7 @@ export default {
     return {
       rename: null,
       doneButton: '<i class="material-icons">done</i>',
+      members: [],
     }
   },
   watch: {
@@ -148,13 +156,51 @@ export default {
       setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     addTeamMember() {
+      let value = { key: "", value: "" }
+      this.members.push(value)
       console.log("addTeamMember")
     },
     removeTeamMember(index) {
+      this.members.splice(index, 1)
       console.log("removeTeamMember")
     },
     saveTeam() {
-      console.log("saveTeam")
+      console.log("saveTeam", this.members)
+      this.members.forEach((element) => {
+        // Call to the graphql mutation
+        this.$apollo
+          .mutate({
+            // Query
+            mutation: gql`
+              mutation($userRole: TeamMemberRole!, $userEmail: String!, $teamID: String!) {
+                addTeamMemberByEmail(userRole: $userRole, userEmail: $userEmail, teamID: $teamID) {
+                  role
+                }
+              }
+            `,
+            // Parameters
+            variables: {
+              userRole: element.value,
+              userEmail: element.key,
+              teamID: this.editingteamID,
+            },
+          })
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("team_saved"), {
+              icon: "done",
+            })
+            this.hideModal()
+            console.log(data)
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+      })
       const newName = this.name == this.rename ? this.name : this.rename
       if (!/\S/.test(newName))
         return this.$toast.error(this.$t("team_name_empty"), {

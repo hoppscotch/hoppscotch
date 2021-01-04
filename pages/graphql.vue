@@ -868,7 +868,7 @@ export default {
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `Response ${this.url} on ${Date()}.json`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton
@@ -887,7 +887,7 @@ export default {
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadSchema.innerHTML = this.doneButton

@@ -76,8 +76,7 @@ export default {
       const url = URL.createObjectURL(file)
       a.href = url
       // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.${this.responseType}`
-      // `response on ${Date()}`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton

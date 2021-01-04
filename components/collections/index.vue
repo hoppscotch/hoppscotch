@@ -240,7 +240,7 @@ export default {
       this.$data.editingRequestIndex = undefined
     },
     syncCollections() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }

@@ -1475,7 +1475,7 @@ export default {
           }
 
           this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null) {
+          if (fb.currentUser !== null && fb.currentSettings[2]) {
             if (fb.currentSettings[2].value) {
               fb.writeHistory(entry)
             }
@@ -1532,7 +1532,7 @@ export default {
             }
 
             this.$refs.historyComponent.addEntry(entry)
-            if (fb.currentUser !== null) {
+            if (fb.currentUser !== null && fb.currentSettings[2]) {
               if (fb.currentSettings[2].value) {
                 fb.writeHistory(entry)
               }

@@ -153,7 +153,7 @@ export default {
       this.$data.editingEnvironmentIndex = undefined
     },
     syncEnvironments() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
           fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
         }

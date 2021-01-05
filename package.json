@@ -23,7 +23,7 @@
     "printWidth": 100
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.12.4",
+    "@nuxtjs/axios": "^5.12.5",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.4.2",
     "@nuxtjs/sitemap": "^2.4.0",
@@ -39,7 +39,7 @@
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^3.0.4",
     "socketio-wildcard": "^2.0.0",
-    "v-tooltip": "^2.1.1",
+    "v-tooltip": "^2.1.2",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^3.1.3",
     "yargs-parser": "^20.2.4"

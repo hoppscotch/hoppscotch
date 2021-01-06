@@ -37,7 +37,7 @@
     "nuxt": "^2.14.12",
     "nuxt-i18n": "^6.16.0",
     "paho-mqtt": "^1.1.0",
-    "socket.io-client": "^3.0.4",
+    "socket.io-client": "^3.0.5",
     "socketio-wildcard": "^2.0.0",
     "v-tooltip": "^2.1.2",
     "vuejs-auto-complete": "^0.9.0",

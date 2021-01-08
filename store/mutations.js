@@ -1,4 +1,4 @@
-import Vue from "vue";
+import Vue from "vue"
 
 export default {
   setState({ request }, { attribute, value }) {
@@ -17,6 +17,14 @@ export default {
 
   addGQLHeader({ gql }, object) {
     gql.headers.push(object)
+  },
+
+  setActiveGQLHeader({ gql }, { index, value }) {
+    if (!gql.headers[index].hasOwnProperty("active")) {
+      Vue.set(gql.headers[index], "active", value)
+    } else {
+      gql.headers[index].active = value
+    }
   },
 
   removeGQLHeader({ gql }, index) {

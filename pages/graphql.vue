@@ -91,6 +91,36 @@
                 <li>
                   <button
                     class="icon"
+                    @click="
+                      $store.commit('setActiveGQLHeader', {
+                        index,
+                        value: header.hasOwnProperty('active') ? !header.active : false,
+                      })
+                    "
+                    v-tooltip.bottom="{
+                      content: header.hasOwnProperty('active')
+                        ? header.active
+                          ? $t('turn_off')
+                          : $t('turn_on')
+                        : $t('turn_off'),
+                    }"
+                  >
+                    <i class="material-icons">
+                      {{
+                        header.hasOwnProperty("active")
+                          ? header.active
+                            ? "check_box"
+                            : "check_box_outline_blank"
+                          : "check_box"
+                      }}
+                    </i>
+                  </button>
+                </li>
+              </div>
+              <div>
+                <li>
+                  <button
+                    class="icon"
                     @click="removeRequestHeader(index)"
                     v-tooltip.bottom="$t('delete')"
                   >
@@ -627,9 +657,11 @@ export default {
 
       try {
         let headers = {}
-        this.headers.forEach(({ key, value }) => {
-          headers[key] = value
-        })
+        this.headers
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .forEach(({ key, value }) => {
+            headers[key] = value
+          })
 
         let variables = JSON.parse(this.variableString || "{}")
 
@@ -738,9 +770,11 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach(({ key, value }) => {
-          headers[key] = value
-        })
+        this.headers
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .forEach(({ key, value }) => {
+            headers[key] = value
+          })
 
         const reqOptions = {
           method: "post",
@@ -806,9 +840,11 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach(({ key, value }) => {
-          headers[key] = value
-        })
+        this.headers
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .forEach(({ key, value }) => {
+            headers[key] = value
+          })
 
         const reqOptions = {
           method: "post",

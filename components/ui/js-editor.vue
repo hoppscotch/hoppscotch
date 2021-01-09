@@ -21,9 +21,16 @@
 <script>
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
+import "ace-builds/src-noconflict/ext-language_tools"
+import "ace-builds/src-noconflict/mode-graphqlschema"
 import debounce from "~/helpers/utils/debounce"
+import tern from "tern"
 
 import * as esprima from "esprima"
+
+import ECMA_DEF from "~/helpers/terndoc/ecma.json"
+import PW_PRE_DEF from "~/helpers/terndoc/pw-pre.json"
+import PW_TEST_DEF from "~/helpers/terndoc/pw-test.json"
 
 export default {
   props: {
@@ -44,6 +51,11 @@ export default {
       type: String,
       default: "",
     },
+    completeMode: {
+      type: String,
+      required: true,
+      default: "none" 
+    }
   },
 
   data() {
@@ -76,8 +88,12 @@ export default {
   },
 
   mounted() {
+    const langTools = ace.require("ace/ext/language_tools")
+
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/javascript`,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
       ...this.options,
     })
 
@@ -87,6 +103,52 @@ export default {
         this.initialized = true
       })
     })
+
+    const ternServer = new tern.Server({
+      getFile: () => editor.getValue(),
+      defs: [ECMA_DEF, (this.completeMode === "pre") ? PW_PRE_DEF : PW_TEST_DEF] 
+    })
+
+    const completer = {
+      getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
+        ternServer.request({
+          query: {
+            type: "completions",
+            file: "doc",
+            end: {
+              line: row,
+              ch: column
+            },
+            guess: false,
+            sort: true,
+            types: true,
+            includeKeywords: true,
+            inLiteral: false
+          },
+          files: [
+            {
+              type: "full",
+              name: "doc",
+              text: editor.getValue()
+            }
+          ]
+        }, (err, res) => {
+          
+          if (err) {
+            callback(null, []);
+          } else {
+            callback(null, res.completions.map(r => ({
+              name: r.name,
+              value: r.name,
+              score: 1.0,
+              meta: r.type
+            })))
+          }
+        })
+      }
+    }
+
+    langTools.setCompleters([completer])
 
     if (this.value) editor.setValue(this.value, 1)
 

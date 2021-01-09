@@ -1,0 +1,24 @@
+{
+  "!name": "pw-test",
+  "!define": {
+    "Expectation": {
+      "not": "Expectation",
+      "toBe": "fn(value: ?)",
+      "toBeLevel2xx": "fn()",
+      "toBeLevel3xx": "fn()",
+      "toBeLevel4xx": "fn()",
+      "toBeLevel5xx": "fn()",
+      "toBeType": "fn(type: string)",
+      "toHaveLength": "fn(length: number)"
+    }
+  },
+  "pw": {
+    "expect": "fn(value: ?) -> Expectation",
+    "response": {
+      "status": "number",
+      "headers": "?",
+      "body": "?"
+    },
+    "test": "fn(name: string, func: fn())"
+  }
+}

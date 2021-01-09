@@ -1,0 +1,51 @@
+{
+  "!name": "pw-extra",
+  "console": {
+    "assert": {
+      "!type": "fn(assertion: bool, text: string)"
+    },
+    "clear": {
+      "!type": "fn()"
+    },
+    "count": {
+      "!type": "fn(label?: string)"
+    },
+    "debug": "console.log",
+    "dir": {
+      "!type": "fn(object: ?)"
+    },
+    "error": {
+      "!type": "fn(...msg: ?)"
+    },
+    "group": {
+      "!type": "fn(label?: string)"
+    },
+    "groupCollapsed": {
+      "!type": "fn(label?: string)"
+    },
+    "groupEnd": {
+      "!type": "fn()"
+    },
+    "info": {
+      "!type": "fn(...msg: ?)"
+    },
+    "log": {
+      "!type": "fn(...msg: ?)"
+    },
+    "table": {
+      "!type": "fn(data: []|?, columns?: [])"
+    },
+    "time": {
+      "!type": "fn(label: string)"
+    },
+    "timeEnd": {
+      "!type": "fn(label: string)"
+    },
+    "trace": {
+      "!type": "fn()"
+    },
+    "warn": {
+      "!type": "fn(...msg: ?)"
+    }
+  }
+}

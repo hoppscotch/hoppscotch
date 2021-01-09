@@ -24,13 +24,9 @@ import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
 import debounce from "~/helpers/utils/debounce"
-import tern from "tern"
+import { getPreRequestScriptCompletions, getTestScriptCompletions } from "~/helpers/tern"
 
 import * as esprima from "esprima"
-
-import ECMA_DEF from "~/helpers/terndoc/ecma.json"
-import PW_PRE_DEF from "~/helpers/terndoc/pw-pre.json"
-import PW_TEST_DEF from "~/helpers/terndoc/pw-test.json"
 
 export default {
   props: {
@@ -104,51 +100,35 @@ export default {
       })
     })
 
-    const ternServer = new tern.Server({
-      getFile: () => editor.getValue(),
-      defs: [ECMA_DEF, (this.completeMode === "pre") ? PW_PRE_DEF : PW_TEST_DEF] 
-    })
-
     const completer = {
       getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
-        ternServer.request({
-          query: {
-            type: "completions",
-            file: "doc",
-            end: {
-              line: row,
-              ch: column
-            },
-            guess: false,
-            sort: true,
-            types: true,
-            includeKeywords: true,
-            inLiteral: false
-          },
-          files: [
-            {
-              type: "full",
-              name: "doc",
-              text: editor.getValue()
-            }
-          ]
-        }, (err, res) => {
-          
-          if (err) {
-            callback(null, []);
-          } else {
-            callback(null, res.completions.map(r => ({
-              name: r.name,
-              value: r.name,
-              score: 1.0,
-              meta: r.type
-            })))
-          }
-        })
+        if (this.completeMode === "pre") {
+          getPreRequestScriptCompletions(editor.getValue(), row, column)
+            .then((res) => {
+              callback(null, res.completions.map(r => ({
+                name: r.name,
+                value: r.name,
+                score: 1.0,
+                meta: r.type
+              })))
+            })
+            .catch(() => callback(null, []))
+        } else if (this.completeMode === "test") {
+          getTestScriptCompletions(editor.getValue(), row, column) 
+            .then((res) => {
+              callback(null, res.completions.map(r => ({
+                name: r.name,
+                value: r.name,
+                score: 1.0,
+                meta: r.type
+              })))
+            })
+            .catch(() => callback(null, []))
+        }
       }
     }
 
-    langTools.setCompleters([completer])
+    editor.completers = [completer]
 
     if (this.value) editor.setValue(this.value, 1)
 

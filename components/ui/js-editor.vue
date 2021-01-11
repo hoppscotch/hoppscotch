@@ -50,8 +50,8 @@ export default {
     completeMode: {
       type: String,
       required: true,
-      default: "none" 
-    }
+      default: "none",
+    },
   },
 
   data() {
@@ -105,27 +105,33 @@ export default {
         if (this.completeMode === "pre") {
           getPreRequestScriptCompletions(editor.getValue(), row, column)
             .then((res) => {
-              callback(null, res.completions.map(r => ({
-                name: r.name,
-                value: r.name,
-                score: 1.0,
-                meta: r.type
-              })))
+              callback(
+                null,
+                res.completions.map((r, index, arr) => ({
+                  name: r.name,
+                  value: r.name,
+                  score: (arr.length - index) / arr.length,
+                  meta: r.type,
+                }))
+              )
             })
             .catch(() => callback(null, []))
         } else if (this.completeMode === "test") {
-          getTestScriptCompletions(editor.getValue(), row, column) 
+          getTestScriptCompletions(editor.getValue(), row, column)
             .then((res) => {
-              callback(null, res.completions.map(r => ({
-                name: r.name,
-                value: r.name,
-                score: 1.0,
-                meta: r.type
-              })))
+              callback(
+                null,
+                res.completions.map((r, index, arr) => ({
+                  name: r.name,
+                  value: r.name,
+                  score: (arr.length - index) / arr.length,
+                  meta: r.type,
+                }))
+              )
             })
             .catch(() => callback(null, []))
         }
-      }
+      },
     }
 
     editor.completers = [completer]

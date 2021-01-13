@@ -24,7 +24,11 @@ import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
 import debounce from "~/helpers/utils/debounce"
-import { getPreRequestScriptCompletions, getTestScriptCompletions } from "~/helpers/tern"
+import {
+  getPreRequestScriptCompletions,
+  getTestScriptCompletions,
+  performPreRequestLinting,
+} from "~/helpers/tern"
 
 import * as esprima from "esprima"
 
@@ -163,33 +167,48 @@ export default {
     },
 
     provideLinting: debounce(function (code) {
-      try {
-        const res = esprima.parseScript(code, { tolerant: true })
-        if (res.errors && res.errors.length > 0) {
-          this.editor.session.setAnnotations(
-            res.errors.map((err) => {
-              const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+      let results = []
 
-              return {
-                row: pos.row,
-                column: pos.column,
-                text: err.description,
-                type: "error",
-              }
-            })
-          )
-        }
-      } catch (e) {
-        const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
-        this.editor.session.setAnnotations([
-          {
-            row: pos.row,
-            column: pos.column,
-            text: e.description,
+      performPreRequestLinting(code).then((semanticLints) => {
+        results = results.concat(
+          semanticLints.map((lint) => ({
+            row: lint.from.line,
+            column: lint.from.ch,
+            text: `[semantic] ${lint.message}`,
             type: "error",
-          },
-        ])
-      }
+          }))
+        )
+
+        try {
+          const res = esprima.parseScript(code, { tolerant: true })
+          if (res.errors && res.errors.length > 0) {
+            results = results.concat(
+              res.errors.map((err) => {
+                const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+                return {
+                  row: pos.row,
+                  column: pos.column,
+                  text: `[syntax] ${err.description}`,
+                  type: "error",
+                }
+              })
+            )
+          }
+        } catch (e) {
+          const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+          results = results.concat([
+            {
+              row: pos.row,
+              column: pos.column,
+              text: `[syntax] ${e.description}`,
+              type: "error",
+            },
+          ])
+        }
+
+        this.editor.session.setAnnotations(results)
+      })
     }, 2000),
   },
 

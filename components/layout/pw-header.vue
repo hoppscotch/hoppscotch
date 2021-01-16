@@ -222,69 +222,68 @@ export default {
       })
     }
 
-    let showAd = localStorage.getItem("showAd") === "no"
-    if (!showAd) {
-      setTimeout(() => {
-        this.$toast.clear()
-        this.$toast.show(
-          "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
-          {
-            icon: "",
-            duration: 0,
-            theme: "toasted-ad",
-            action: [
-              {
-                text: "Sponsor",
-                icon: "chevron_right",
-                onClick: (e, toastObject) => {
-                  localStorage.setItem("showAd", "no")
-                  toastObject.goAway(0)
-                  window.open("https://github.com/sponsors/hoppscotch")
-                },
-              },
-            ],
-            onComplete() {
-              localStorage.setItem("showAd", "no")
-            },
-          }
-        )
-      }, 8000)
-    }
+    // let showAd = localStorage.getItem("showAd") === "no"
+    // if (!showAd) {
+    //   setTimeout(() => {
+    //     this.$toast.clear()
+    //     this.$toast.show(
+    //       "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+    //       {
+    //         icon: "",
+    //         duration: 0,
+    //         theme: "toasted-ad",
+    //         action: [
+    //           {
+    //             text: "Sponsor",
+    //             icon: "chevron_right",
+    //             onClick: (e, toastObject) => {
+    //               localStorage.setItem("showAd", "no")
+    //               toastObject.goAway(0)
+    //               window.open("https://github.com/sponsors/hoppscotch")
+    //             },
+    //           },
+    //         ],
+    //         onComplete() {
+    //           localStorage.setItem("showAd", "no")
+    //         },
+    //       }
+    //     )
+    //   }, 8000)
+    // }
 
-    let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
-    // Just return if showExtensionsToast is "no"
-    if (!showExtensionsToast) return
-
-    setTimeout(() => {
-      if (!hasExtensionInstalled()) {
-        this.$toast.show(this.$t("extensions_info2"), {
-          icon: "extension",
-          duration: 5000,
-          theme: "toasted-primary",
-          action: [
-            {
-              text: this.$t("yes"),
-              onClick: (e, toastObject) => {
-                this.showExtensions = true
-                localStorage.setItem("showExtensionsToast", "yes")
-                toastObject.goAway(0)
-              },
-            },
-            {
-              text: this.$t("no"),
-              onClick: (e, toastObject) => {
-                this.$store.commit("setMiscState", {
-                  value: false,
-                  attribute: "showExtensionsToast",
-                })
-                localStorage.setItem("showExtensionsToast", "no")
-                toastObject.goAway(0)
-              },
-            },
-          ],
-        })
-      }
-    }, 5000)
+    // let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
+    // if (!showExtensionsToast) {
+    //   setTimeout(() => {
+    //     if (!hasExtensionInstalled()) {
+    //       this.$toast.show(this.$t("extensions_info2"), {
+    //         icon: "extension",
+    //         duration: 5000,
+    //         theme: "toasted-primary",
+    //         action: [
+    //           {
+    //             text: this.$t("yes"),
+    //             onClick: (e, toastObject) => {
+    //               this.showExtensions = true
+    //               localStorage.setItem("showExtensionsToast", "yes")
+    //               toastObject.goAway(0)
+    //             },
+    //           },
+    //           {
+    //             text: this.$t("no"),
+    //             onClick: (e, toastObject) => {
+    //               this.$store.commit("setMiscState", {
+    //                 value: false,
+    //                 attribute: "showExtensionsToast",
+    //               })
+    //               localStorage.setItem("showExtensionsToast", "no")
+    //               toastObject.goAway(0)
+    //             },
+    //           },
+    //         ],
+    //       })
+    //     }
+    //   }, 5000)
+    // }
   },
   methods: {
     nativeShare() {

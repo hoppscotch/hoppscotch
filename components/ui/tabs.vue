@@ -36,6 +36,7 @@
     @apply flex;
     @apply whitespace-no-wrap;
     @apply overflow-auto;
+    @apply mt-4;
 
     ul {
       @apply flex;

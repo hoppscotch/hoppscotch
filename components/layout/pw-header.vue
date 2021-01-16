@@ -6,6 +6,16 @@
           <h1 class="hide-on-small-screen logo">Hoppscotch</h1>
           <h1 class="show-on-small-screen logo">Hs</h1>
         </nuxt-link>
+        <iframe
+          src="https://ghbtns.com/github-btn.html?user=hoppscotch&repo=hoppscotch&type=star&count=true"
+          frameborder="0"
+          scrolling="0"
+          width="150"
+          height="20"
+          title="GitHub"
+          class="ml-8"
+          loading="lazy"
+        ></iframe>
       </span>
       <span>
         <a

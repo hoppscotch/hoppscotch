@@ -111,6 +111,7 @@ export default {
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
+      this.confirmRemove = false
       this.syncCollections()
     },
     getRequestLabelColor(method) {

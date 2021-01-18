@@ -6,6 +6,16 @@
           <h1 class="hide-on-small-screen logo">Hoppscotch</h1>
           <h1 class="show-on-small-screen logo">Hs</h1>
         </nuxt-link>
+        <iframe
+          src="https://ghbtns.com/github-btn.html?user=hoppscotch&repo=hoppscotch&type=star&count=true"
+          frameborder="0"
+          scrolling="0"
+          width="150"
+          height="20"
+          title="GitHub"
+          class="ml-8"
+          loading="lazy"
+        ></iframe>
       </span>
       <span>
         <a
@@ -222,69 +232,68 @@ export default {
       })
     }
 
-    let showAd = localStorage.getItem("showAd") === "no"
-    if (!showAd) {
-      setTimeout(() => {
-        this.$toast.clear()
-        this.$toast.show(
-          "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
-          {
-            icon: "",
-            duration: 0,
-            theme: "toasted-ad",
-            action: [
-              {
-                text: "Sponsor",
-                icon: "chevron_right",
-                onClick: (e, toastObject) => {
-                  localStorage.setItem("showAd", "no")
-                  toastObject.goAway(0)
-                  window.open("https://github.com/sponsors/hoppscotch")
-                },
-              },
-            ],
-            onComplete() {
-              localStorage.setItem("showAd", "no")
-            },
-          }
-        )
-      }, 8000)
-    }
+    // let showAd = localStorage.getItem("showAd") === "no"
+    // if (!showAd) {
+    //   setTimeout(() => {
+    //     this.$toast.clear()
+    //     this.$toast.show(
+    //       "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+    //       {
+    //         icon: "",
+    //         duration: 0,
+    //         theme: "toasted-ad",
+    //         action: [
+    //           {
+    //             text: "Sponsor",
+    //             icon: "chevron_right",
+    //             onClick: (e, toastObject) => {
+    //               localStorage.setItem("showAd", "no")
+    //               toastObject.goAway(0)
+    //               window.open("https://github.com/sponsors/hoppscotch")
+    //             },
+    //           },
+    //         ],
+    //         onComplete() {
+    //           localStorage.setItem("showAd", "no")
+    //         },
+    //       }
+    //     )
+    //   }, 8000)
+    // }
 
-    let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
-    // Just return if showExtensionsToast is "no"
-    if (!showExtensionsToast) return
-
-    setTimeout(() => {
-      if (!hasExtensionInstalled()) {
-        this.$toast.show(this.$t("extensions_info2"), {
-          icon: "extension",
-          duration: 5000,
-          theme: "toasted-primary",
-          action: [
-            {
-              text: this.$t("yes"),
-              onClick: (e, toastObject) => {
-                this.showExtensions = true
-                localStorage.setItem("showExtensionsToast", "yes")
-                toastObject.goAway(0)
-              },
-            },
-            {
-              text: this.$t("no"),
-              onClick: (e, toastObject) => {
-                this.$store.commit("setMiscState", {
-                  value: false,
-                  attribute: "showExtensionsToast",
-                })
-                localStorage.setItem("showExtensionsToast", "no")
-                toastObject.goAway(0)
-              },
-            },
-          ],
-        })
-      }
-    }, 5000)
+    // let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
+    // if (!showExtensionsToast) {
+    //   setTimeout(() => {
+    //     if (!hasExtensionInstalled()) {
+    //       this.$toast.show(this.$t("extensions_info2"), {
+    //         icon: "extension",
+    //         duration: 5000,
+    //         theme: "toasted-primary",
+    //         action: [
+    //           {
+    //             text: this.$t("yes"),
+    //             onClick: (e, toastObject) => {
+    //               this.showExtensions = true
+    //               localStorage.setItem("showExtensionsToast", "yes")
+    //               toastObject.goAway(0)
+    //             },
+    //           },
+    //           {
+    //             text: this.$t("no"),
+    //             onClick: (e, toastObject) => {
+    //               this.$store.commit("setMiscState", {
+    //                 value: false,
+    //                 attribute: "showExtensionsToast",
+    //               })
+    //               localStorage.setItem("showExtensionsToast", "no")
+    //               toastObject.goAway(0)
+    //             },
+    //           },
+    //         ],
+    //       })
+    //     }
+    //   }, 5000)
+    // }
   },
   methods: {
     nativeShare() {

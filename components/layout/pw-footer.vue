@@ -1,20 +1,7 @@
 <template>
-  <footer class="flex-col flex-no-wrap">
+  <footer class="footer">
     <div class="row-wrapper">
-      <span
-        v-if="version.name"
-        class="flex flex-col flex-wrap justify-start font-mono md:flex-row"
-        style="align-items: start"
-      >
-        <a
-          class="footer-link"
-          :href="'https://github.com/hoppscotch/hoppscotch/releases/tag/' + version.name"
-          target="_blank"
-          rel="noopener"
-          v-tooltip="'GitHub'"
-        >
-          {{ version.name }}
-        </a>
+      <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
         <a class="footer-link" href="https://www.netlify.com" target="_blank" rel="noopener">
           Powered by Netlify
         </a>
@@ -38,23 +25,18 @@
             Paw
           </a>
         </span>
-        <!-- <span v-if="version.hash">
-          -
-          <a
-            :href="'https://github.com/hoppscotch/hoppscotch/commit/' + version.hash"
-            target="_blank"
-            rel="noopener"
-          >{{version.hash}}</a>
-        </span> -->
-        <!-- <span v-if="version.variant">({{version.variant}})</span> -->
+        <iframe
+          src="https://ghbtns.com/github-btn.html?user=hoppscotch&type=sponsor"
+          frameborder="0"
+          scrolling="0"
+          width="150"
+          height="20"
+          title="GitHub"
+          class="footer-link"
+          loading="lazy"
+        ></iframe>
       </span>
-      <span
-        class="flex flex-col flex-wrap justify-start font-mono md:flex-row"
-        style="align-items: start"
-      >
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener">
-          <button class="icon" v-tooltip="'Liyas Thomas'">🦄</button>
-        </a>
+      <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
         <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="$t('contact_us')">
             <i class="material-icons">email</i>
@@ -94,20 +76,7 @@
 </style>
 
 <script>
-import * as version from "../../.hoppscotch/version.json"
-
 export default {
-  data() {
-    return {
-      version: {},
-    }
-  },
-
-  beforeMount() {
-    // Set version data
-    this.version = version.default
-  },
-
   computed: {
     availableLocales() {
       return this.$i18n.locales.filter(({ code }) => code !== this.$i18n.locale)

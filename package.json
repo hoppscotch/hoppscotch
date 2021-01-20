@@ -61,7 +61,7 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
     "raw-loader": "^4.0.2",
-    "sass": "^1.32.4",
+    "sass": "^1.32.5",
     "sass-loader": "^10.1.1",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.7"

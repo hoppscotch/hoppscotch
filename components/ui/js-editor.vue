@@ -77,9 +77,14 @@ export default {
     theme() {
       this.initialized = false
       this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
-        this.$nextTick().then(() => {
-          this.initialized = true
-        })
+        this.$nextTick()
+          .then(() => {
+            this.initialized = true
+          })
+          .catch(() => {
+            // nextTick shouldn't really ever throw but still
+            this.initialized = true
+          })
       })
     },
     options(value) {
@@ -99,9 +104,14 @@ export default {
 
     // Set the theme and show the editor only after it's been set to prevent FOUC.
     editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
-      this.$nextTick().then(() => {
-        this.initialized = true
-      })
+      this.$nextTick()
+        .then(() => {
+          this.initialized = true
+        })
+        .catch(() => {
+          // nextTIck shouldn't really ever throw but still
+          this.initalized = true
+        })
     })
 
     const completer = {
@@ -169,46 +179,78 @@ export default {
     provideLinting: debounce(function (code) {
       let results = []
 
-      performPreRequestLinting(code).then((semanticLints) => {
-        results = results.concat(
-          semanticLints.map((lint) => ({
-            row: lint.from.line,
-            column: lint.from.ch,
-            text: `[semantic] ${lint.message}`,
-            type: "error",
-          }))
-        )
-
-        try {
-          const res = esprima.parseScript(code, { tolerant: true })
-          if (res.errors && res.errors.length > 0) {
-            results = results.concat(
-              res.errors.map((err) => {
-                const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
-
-                return {
-                  row: pos.row,
-                  column: pos.column,
-                  text: `[syntax] ${err.description}`,
-                  type: "error",
-                }
-              })
-            )
-          }
-        } catch (e) {
-          const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
-          results = results.concat([
-            {
-              row: pos.row,
-              column: pos.column,
-              text: `[syntax] ${e.description}`,
+      performPreRequestLinting(code)
+        .then((semanticLints) => {
+          results = results.concat(
+            semanticLints.map((lint) => ({
+              row: lint.from.line,
+              column: lint.from.ch,
+              text: `[semantic] ${lint.message}`,
               type: "error",
-            },
-          ])
-        }
+            }))
+          )
 
-        this.editor.session.setAnnotations(results)
-      })
+          try {
+            const res = esprima.parseScript(code, { tolerant: true })
+            if (res.errors && res.errors.length > 0) {
+              results = results.concat(
+                res.errors.map((err) => {
+                  const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+                  return {
+                    row: pos.row,
+                    column: pos.column,
+                    text: `[syntax] ${err.description}`,
+                    type: "error",
+                  }
+                })
+              )
+            }
+          } catch (e) {
+            const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+            results = results.concat([
+              {
+                row: pos.row,
+                column: pos.column,
+                text: `[syntax] ${e.description}`,
+                type: "error",
+              },
+            ])
+          }
+
+          this.editor.session.setAnnotations(results)
+        })
+        .catch(() => {
+          try {
+            const res = esprima.parseScript(code, { tolerant: true })
+            if (res.errors && res.errors.length > 0) {
+              results = results.concat(
+                res.errors.map((err) => {
+                  const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+                  return {
+                    row: pos.row,
+                    column: pos.column,
+                    text: `[syntax] ${err.description}`,
+                    type: "error",
+                  }
+                })
+              )
+            }
+          } catch (e) {
+            const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+            results = results.concat([
+              {
+                row: pos.row,
+                column: pos.column,
+                text: `[syntax] ${e.description}`,
+                type: "error",
+              },
+            ])
+          }
+
+          this.editor.session.setAnnotations(results)
+        })
     }, 2000),
   },
 

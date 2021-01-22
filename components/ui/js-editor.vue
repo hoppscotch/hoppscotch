@@ -21,7 +21,14 @@
 <script>
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
+import "ace-builds/src-noconflict/ext-language_tools"
+import "ace-builds/src-noconflict/mode-graphqlschema"
 import debounce from "~/helpers/utils/debounce"
+import {
+  getPreRequestScriptCompletions,
+  getTestScriptCompletions,
+  performPreRequestLinting,
+} from "~/helpers/tern"
 
 import * as esprima from "esprima"
 
@@ -44,6 +51,11 @@ export default {
       type: String,
       default: "",
     },
+    completeMode: {
+      type: String,
+      required: true,
+      default: "none",
+    },
   },
 
   data() {
@@ -65,9 +77,14 @@ export default {
     theme() {
       this.initialized = false
       this.editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
-        this.$nextTick().then(() => {
-          this.initialized = true
-        })
+        this.$nextTick()
+          .then(() => {
+            this.initialized = true
+          })
+          .catch(() => {
+            // nextTick shouldn't really ever throw but still
+            this.initialized = true
+          })
       })
     },
     options(value) {
@@ -76,17 +93,62 @@ export default {
   },
 
   mounted() {
+    const langTools = ace.require("ace/ext/language_tools")
+
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/javascript`,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
       ...this.options,
     })
 
     // Set the theme and show the editor only after it's been set to prevent FOUC.
     editor.setTheme(`ace/theme/${this.defineTheme()}`, () => {
-      this.$nextTick().then(() => {
-        this.initialized = true
-      })
+      this.$nextTick()
+        .then(() => {
+          this.initialized = true
+        })
+        .catch(() => {
+          // nextTIck shouldn't really ever throw but still
+          this.initalized = true
+        })
     })
+
+    const completer = {
+      getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
+        if (this.completeMode === "pre") {
+          getPreRequestScriptCompletions(editor.getValue(), row, column)
+            .then((res) => {
+              callback(
+                null,
+                res.completions.map((r, index, arr) => ({
+                  name: r.name,
+                  value: r.name,
+                  score: (arr.length - index) / arr.length,
+                  meta: r.type,
+                }))
+              )
+            })
+            .catch(() => callback(null, []))
+        } else if (this.completeMode === "test") {
+          getTestScriptCompletions(editor.getValue(), row, column)
+            .then((res) => {
+              callback(
+                null,
+                res.completions.map((r, index, arr) => ({
+                  name: r.name,
+                  value: r.name,
+                  score: (arr.length - index) / arr.length,
+                  meta: r.type,
+                }))
+              )
+            })
+            .catch(() => callback(null, []))
+        }
+      },
+    }
+
+    editor.completers = [completer]
 
     if (this.value) editor.setValue(this.value, 1)
 
@@ -115,33 +177,80 @@ export default {
     },
 
     provideLinting: debounce(function (code) {
-      try {
-        const res = esprima.parseScript(code, { tolerant: true })
-        if (res.errors && res.errors.length > 0) {
-          this.editor.session.setAnnotations(
-            res.errors.map((err) => {
-              const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+      let results = []
 
-              return {
+      performPreRequestLinting(code)
+        .then((semanticLints) => {
+          results = results.concat(
+            semanticLints.map((lint) => ({
+              row: lint.from.line,
+              column: lint.from.ch,
+              text: `[semantic] ${lint.message}`,
+              type: "error",
+            }))
+          )
+
+          try {
+            const res = esprima.parseScript(code, { tolerant: true })
+            if (res.errors && res.errors.length > 0) {
+              results = results.concat(
+                res.errors.map((err) => {
+                  const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+                  return {
+                    row: pos.row,
+                    column: pos.column,
+                    text: `[syntax] ${err.description}`,
+                    type: "error",
+                  }
+                })
+              )
+            }
+          } catch (e) {
+            const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+            results = results.concat([
+              {
                 row: pos.row,
                 column: pos.column,
-                text: err.description,
+                text: `[syntax] ${e.description}`,
                 type: "error",
-              }
-            })
-          )
-        }
-      } catch (e) {
-        const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
-        this.editor.session.setAnnotations([
-          {
-            row: pos.row,
-            column: pos.column,
-            text: e.description,
-            type: "error",
-          },
-        ])
-      }
+              },
+            ])
+          }
+
+          this.editor.session.setAnnotations(results)
+        })
+        .catch(() => {
+          try {
+            const res = esprima.parseScript(code, { tolerant: true })
+            if (res.errors && res.errors.length > 0) {
+              results = results.concat(
+                res.errors.map((err) => {
+                  const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+
+                  return {
+                    row: pos.row,
+                    column: pos.column,
+                    text: `[syntax] ${err.description}`,
+                    type: "error",
+                  }
+                })
+              )
+            }
+          } catch (e) {
+            const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+            results = results.concat([
+              {
+                row: pos.row,
+                column: pos.column,
+                text: `[syntax] ${e.description}`,
+                type: "error",
+              },
+            ])
+          }
+
+          this.editor.session.setAnnotations(results)
+        })
     }, 2000),
   },
 

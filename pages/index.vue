@@ -507,6 +507,7 @@
                         useWorker: false,
                       }"
                       styles="rounded-b-lg"
+                      completeMode="pre"
                     />
                   </li>
                 </ul>
@@ -548,6 +549,7 @@
                         useWorker: false,
                       }"
                       styles="rounded-b-lg"
+                      completeMode="test"
                     />
                     <div v-if="testReports.length !== 0">
                       <div class="row-wrapper">

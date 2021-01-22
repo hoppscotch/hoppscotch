@@ -1,0 +1,8 @@
+{
+  "!name": "pw-pre",
+  "pw": {
+    "env": {
+      "set": "fn(key: string, value: string)"
+    }
+  }
+}

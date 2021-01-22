@@ -206,7 +206,7 @@ export default {
         FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
         PROXY_URL:
-          this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
+          this.$store.state.postwoman.settings.PROXY_URL || "https://hoppscotch.apollosoftware.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
 
         EXTENSIONS_ENABLED:
@@ -257,7 +257,7 @@ export default {
       fb.writeSettings("syncEnvironments", true)
     },
     resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`
+      this.settings.PROXY_URL = `https://hoppscotch.apollosoftware.xyz/`
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",

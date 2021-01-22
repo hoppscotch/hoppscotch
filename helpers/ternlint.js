@@ -647,10 +647,6 @@ export function validateFiles(server, query) {
 
 var lints = Object.create(null)
 
-tern.registerLint = function (name, lint) {
-  lints[name] = lint
-}
-
 var getLint = (tern.getLint = function (name) {
   if (!name) return null
   return lints[name]

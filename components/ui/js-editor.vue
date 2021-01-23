@@ -93,7 +93,7 @@ export default {
   },
 
   mounted() {
-    const langTools = ace.require("ace/ext/language_tools")
+    // const langTools = ace.require("ace/ext/language_tools")
 
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/javascript`,

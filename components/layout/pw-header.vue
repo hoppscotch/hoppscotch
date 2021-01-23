@@ -185,8 +185,8 @@ $responsiveWidth: 768px;
 
 <script>
 import intializePwa from "~/helpers/pwa"
-import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 import { fb } from "~/helpers/fb"
+// import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 
 export default {
   data() {

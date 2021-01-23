@@ -10,7 +10,7 @@
   </p>
   <p>
 
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch/main?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch) [![GitHub release](https://img.shields.io/github/release/hoppscotch/hoppscotch/all?logo=GitHub)](https://github.com/hoppscotch/hoppscotch/releases/latest) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fhoppscotch.io&text=%F0%9F%91%BD%20hoppscotch%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20your%20requests%20faster%2C%20saving%20you%20precious%20time%20on%20your%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520hoppscotch%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520your%2520requests%2520faster%2C%2520saving%2520you%2520precious%2520time%2520on%2520your%2520development%26url%3Dhttps%3A%2F%2Fhoppscotch.io%26hashtags%3Dhoppscotch%26via%3Dliyasthomas&via=liyasthomas&hashtags=hoppscotch)
+![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch/main?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fhoppscotch.io&text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20API%20request%20builder%20-%20Helps%20you%20create%20requests%20faster%2C%20saving%20precious%20time%20on%20development&original_referer=https%3A%2F%2Ftwitter.com%2Fshare%3Ftext%3D%25F0%259F%2591%25BD%2520Hoppscotch%2520%25E2%2580%25A2%2520API%2520request%2520builder%2520-%2520Helps%2520you%2520create%2520requests%2520faster%2C%2520saving%2520precious%2520time%2520on%2520development%26url%3Dhttps%3A%2F%2Fhoppscotch.io%26hashtags%3Dhoppscotch%26via%3Dliyasthomas&via=liyasthomas&hashtags=hoppscotch)
 
   </p>
   <p>
@@ -562,25 +562,11 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	alt="Rithish"
 />
 </a>
-<a href="https://github.com/kcomain" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/kcomain.png?size=64"
-	alt="Kenny Cheung"
-/>
-</a>
 <a href="https://github.com/scmmishra" target="_blank" rel="noopener">
 <img
   width="64"
 	src="https://github.com/scmmishra.png?size=64"
 	alt="Shivam Mishra"
-/>
-</a>
-<a href="https://zach.codes" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/zackify.png?size=64"
-	alt="Zach Silveira"
 />
 </a>
 <a href="https://github.com/pantharshit00" target="_blank" rel="noopener">
@@ -602,13 +588,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
   width="64"
 	src="https://github.com/gpeal.png?size=64"
 	alt="Gabriel Peal"
-/>
-</a>
-<a href="https://github.com/koddsson" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/koddsson.png?size=64"
-	alt="Kristján Oddsson"
 />
 </a>
 <a href="https://github.com/donokuda" target="_blank" rel="noopener">

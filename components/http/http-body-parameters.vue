@@ -3,7 +3,7 @@
     <ul>
       <li>
         <div class="row-wrapper">
-          <label for="reqParamList">{{ $t("parameter_list") }}</label>
+          <label for="reqParamList">{{ $t("request_body") }}</label>
           <div>
             <button
               class="icon"

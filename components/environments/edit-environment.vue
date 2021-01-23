@@ -35,7 +35,7 @@
       >
         <li>
           <input
-            :placeholder="$t('parameter_count', { count: index + 1 })"
+            :placeholder="$t('variable_count', { count: index + 1 })"
             :name="'param' + index"
             :value="variable.key"
             @change="

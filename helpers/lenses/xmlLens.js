@@ -1,7 +1,6 @@
 const xmlLens = {
   lensName: "XML",
-  supportedContentTypes: [],
-  supportContentTypesRegExp: /\bxml\b/i,
+  isSupportedContentType: (contentType) => /\bxml\b/i.test(contentType),
   renderer: "xmlres",
   rendererImport: () => import("~/components/lenses/renderers/XMLLensRenderer"),
 }

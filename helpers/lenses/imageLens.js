@@ -1,14 +1,7 @@
 const imageLens = {
   lensName: "Image",
-  supportedContentTypes: [
-    "image/gif",
-    "image/jpeg",
-    "image/png",
-    "image/bmp",
-    "image/svg+xml",
-    "image/x-icon",
-    "image/vnd.microsoft.icon",
-  ],
+  isSupportedContentType: (contentType) =>
+    /\bimage\/(?:gif|jpeg|png|bmp|svg\+xml|x-icon|vnd\.microsoft\.icon)\b/i.test(contentType),
   renderer: "imageres",
   rendererImport: () => import("~/components/lenses/renderers/ImageLensRenderer"),
 }

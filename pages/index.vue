@@ -483,7 +483,7 @@
                 <ul>
                   <li>
                     <div class="row-wrapper">
-                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <label>{{ $t("javascript_code") }}</label>
                       <div>
                         <a
                           href="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
@@ -525,7 +525,7 @@
                 <ul>
                   <li>
                     <div class="row-wrapper">
-                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <label>{{ $t("javascript_code") }}</label>
                       <div>
                         <a
                           href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
@@ -1214,13 +1214,13 @@ export default {
         return bodyParams
           .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
           .filter(({ key }) => !!key)
-          .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
+          .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
           .join("&")
       }
     },
     queryString() {
       const result = getQueryParams(this.params)
-        .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
+        .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
     },

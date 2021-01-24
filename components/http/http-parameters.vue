@@ -40,7 +40,7 @@
         <input
           :placeholder="$t('value_count', { count: index + 1 })"
           :name="'value' + index"
-          :value="decodeURI(encodeURI(param.value))"
+          :value="param.value"
           @change="
             $store.commit('setValueParams', {
               index,

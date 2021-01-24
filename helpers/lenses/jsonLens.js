@@ -1,6 +1,7 @@
 const jsonLens = {
   lensName: "JSON",
-  supportedContentTypes: ["application/json", "application/hal+json", "application/vnd.api+json"],
+  supportedContentTypes: [],
+  supportContentTypesRegExp: /\bjson\b/i,
   renderer: "json",
   rendererImport: () => import("~/components/lenses/renderers/JSONLensRenderer"),
 }

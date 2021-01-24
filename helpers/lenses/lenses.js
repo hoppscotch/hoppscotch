@@ -15,7 +15,8 @@ export function getSuitableLenses(response) {
     for (const lens of lenses) {
       if (
         lens.supportedContentTypes === null ||
-        lens.supportedContentTypes.includes(properContentType)
+        lens.supportedContentTypes.includes(properContentType) ||
+        (lens.supportContentTypesRegExp && lens.supportContentTypesRegExp.test(properContentType))
       ) {
         result.push(lens)
       }

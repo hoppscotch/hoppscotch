@@ -1,36 +1,37 @@
-const statusCategories = [
-  {
-    name: "informational",
-    statusCodeRegex: new RegExp(/[1][0-9]+/),
-    className: "info-response",
-  },
-  {
-    name: "successful",
-    statusCodeRegex: new RegExp(/[2][0-9]+/),
-    className: "success-response",
-  },
-  {
-    name: "redirection",
-    statusCodeRegex: new RegExp(/[3][0-9]+/),
-    className: "redir-response",
-  },
-  {
-    name: "client error",
-    statusCodeRegex: new RegExp(/[4][0-9]+/),
-    className: "cl-error-response",
-  },
-  {
-    name: "server error",
-    statusCodeRegex: new RegExp(/[5][0-9]+/),
-    className: "sv-error-response",
-  },
-  {
-    // this object is a catch-all for when no other objects match and should always be last
-    name: "unknown",
-    statusCodeRegex: new RegExp(/.*/),
-    className: "missing-data-response",
-  },
-]
+export default function (responseStatus) {
+  if (responseStatus >= 100 && responseStatus < 200)
+    return {
+      name: "informational",
+      className: "info-response",
+    }
 
-export default (responseStatus) =>
-  statusCategories.find(({ statusCodeRegex }) => statusCodeRegex.test(responseStatus))
+  if (responseStatus >= 200 && responseStatus < 300)
+    return {
+      name: "successful",
+      className: "success-response",
+    }
+
+  if (responseStatus >= 300 && responseStatus < 400)
+    return {
+      name: "redirection",
+      className: "redir-response",
+    }
+
+  if (responseStatus >= 400 && responseStatus < 500)
+    return {
+      name: "client error",
+      className: "cl-error-response",
+    }
+
+  if (responseStatus >= 500 && responseStatus < 600)
+    return {
+      name: "server error",
+      className: "sv-error-response",
+    }
+
+  // this object is a catch-all for when no other objects match and should always be last
+  return {
+    name: "unknown",
+    className: "missing-data-response",
+  }
+}

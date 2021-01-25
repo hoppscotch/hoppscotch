@@ -1428,7 +1428,7 @@ export default {
           this.showPreRequestScript && this.preRequestScript
         )
         this.runningRequest = false
-        const duration = payload.config.timeData.startTime - payload.config.timeData.endTime
+        const duration = payload.config.timeData.endTime - payload.config.timeData.startTime
         this.$toast.info(this.$t("finished_in", { duration }), { icon: "done" })
         ;(() => {
           this.response.status = payload.status

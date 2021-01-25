@@ -2,18 +2,18 @@ import axios from "axios"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
 
 axios.interceptors.request.use((config) => {
-  config.timeData = { startTime: new Date() }
+  config.timeData = { startTime: new Date().getTime() }
   return config
 })
 
 axios.interceptors.response.use(
   (response) => {
-    response.config.timeData.endTime = new Date()
+    response.config.timeData.endTime = new Date().getTime()
     return response
   },
   // Handle 4xx & 5xx responses
   (error) => {
-    error.config.timeData.endTime = new Date()
+    error.config.timeData.endTime = new Date().getTime()
     return error
   }
 )

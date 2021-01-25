@@ -1365,7 +1365,6 @@ export default {
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-      this.previewEnabled = false
       this.response.status = this.$t("fetching")
       this.response.body = this.$t("loading")
       const auth =
@@ -1421,8 +1420,6 @@ export default {
       })
       headers = headersObject
       try {
-        const startTime = Date.now()
-
         this.runningRequest = true
         const payload = await this.makeRequest(
           auth,
@@ -1431,11 +1428,8 @@ export default {
           this.showPreRequestScript && this.preRequestScript
         )
         this.runningRequest = false
-
-        const duration = Date.now() - startTime
-        this.$toast.info(this.$t("finished_in", { duration }), {
-          icon: "done",
-        })
+        const duration = payload.config.timeData.startTime - payload.config.timeData.endTime
+        this.$toast.info(this.$t("finished_in", { duration }), { icon: "done" })
         ;(() => {
           this.response.status = payload.status
           this.response.headers = payload.headers

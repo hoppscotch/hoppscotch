@@ -301,5 +301,6 @@
   "enter_gist_url": "Enter Gist URL",
   "account_exists": "Account exists with different credential - Login to link both accounts",
   "confirm": "Confirm",
-  "new_version_found": "New version found. Refresh to update."
+  "new_version_found": "New version found. Refresh to update.",
+  "size": "Size"
 }

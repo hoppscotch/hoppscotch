@@ -590,28 +590,7 @@
           </tabs>
         </section>
 
-        <pw-section class="purple" id="response" :label="$t('response')" ref="response">
-          <ul>
-            <li>
-              <label for="status">{{ $t("status") }}</label>
-              <input
-                :class="[
-                  statusCategory ? statusCategory.className : '',
-                  response.status ? '' : 'rounded-b-lg',
-                ]"
-                :value="response.status || $t('waiting_send_req')"
-                ref="status"
-                id="status"
-                name="status"
-                readonly
-                type="text"
-              />
-            </li>
-          </ul>
-          <div v-if="response.body && response.body !== $t('loading')">
-            <response-body-renderer :response="response" />
-          </div>
-        </pw-section>
+        <http-response :response="response" ref="response" />
       </div>
 
       <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
@@ -752,7 +731,6 @@ import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
-import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
   data() {
@@ -771,6 +749,8 @@ export default {
         status: "",
         headers: "",
         body: "",
+        duration: 0,
+        size: 0,
       },
       validContentTypes: knownContentTypes,
       paramsWatchEnabled: true,
@@ -1174,9 +1154,6 @@ export default {
     requestName() {
       return this.name
     },
-    statusCategory() {
-      return findStatusGroup(this.response.status)
-    },
     isValidURL() {
       // if showPreRequestScript, we cannot determine if a URL is valid because the full string is not known ahead of time
       return this.showPreRequestScript || httpValid(this.url)
@@ -1365,8 +1342,12 @@ export default {
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-      this.response.status = this.$t("fetching")
-      this.response.body = this.$t("loading")
+      this.response = {
+        duration: 0,
+        size: 0,
+        status: this.$t("fetching"),
+        body: this.$t("loading"),
+      }
       const auth =
         this.auth === "Basic Auth"
           ? {
@@ -1429,7 +1410,8 @@ export default {
         )
         this.runningRequest = false
         const duration = payload.config.timeData.endTime - payload.config.timeData.startTime
-        this.$toast.info(this.$t("finished_in", { duration }), { icon: "done" })
+        this.response.duration = duration
+        this.response.size = payload.headers["content-length"]
         ;(() => {
           this.response.status = payload.status
           this.response.headers = payload.headers

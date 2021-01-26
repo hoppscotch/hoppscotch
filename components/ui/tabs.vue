@@ -1,7 +1,7 @@
 <template>
   <div class="tabs-wrapper">
-    <div class="tabs">
-      <ul :class="styles">
+    <div class="tabs" :class="styles">
+      <ul>
         <li
           v-for="(tab, index) in tabs"
           :class="{ 'is-active': tab.isActive }"

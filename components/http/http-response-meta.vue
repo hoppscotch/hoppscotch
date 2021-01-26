@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <label>{{ $t("response") }}</label>
-    <div class="flex">
+    <div class="flex flex-col lg:flex-row">
       <label class="flex-1">
         {{ $t("status") + `: \xA0 ` }}
         <span :class="statusCategory ? statusCategory.className : ''">

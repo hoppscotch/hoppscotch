@@ -143,6 +143,10 @@
 <style scoped lang="scss">
 $responsiveWidth: 768px;
 
+.header {
+  @apply overflow-auto;
+}
+
 .logo {
   @apply text-xl;
   @apply transition-colors;

@@ -9,10 +9,10 @@
         </span>
       </label>
       <label>
-        {{ $t("duration") + `: \xA0 ${response.duration}` }}
+        {{ $t("duration") + `: \xA0 ${response.duration} ms` }}
       </label>
       <label>
-        {{ $t("size") + `: \xA0 ${response.size}` }}
+        {{ $t("size") + `: \xA0 ${response.size} B` }}
       </label>
     </div>
   </div>

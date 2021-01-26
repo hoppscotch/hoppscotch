@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row-wrapper">
-      <label for="body">{{ $t("response") }}</label>
+      <label for="body">{{ $t("response_body") }}</label>
       <div>
         <button
           class="icon"

@@ -266,7 +266,7 @@
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
-              <label for="responseField">{{ $t("response") }}</label>
+              <label for="responseField">{{ $t("response_body") }}</label>
               <div>
                 <button
                   class="icon"

@@ -1,6 +1,26 @@
 import axios from "axios"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
 
+axios.interceptors.request.use(
+  (config) => {
+    config.timeData = { startTime: new Date().getTime() }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+axios.interceptors.response.use(
+  (response) => {
+    response.config.timeData.endTime = new Date().getTime()
+    return response
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
 let cancelSource = axios.CancelToken.source()
 
 export const cancelRunningAxiosRequest = () => {

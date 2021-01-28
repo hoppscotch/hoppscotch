@@ -590,7 +590,7 @@
           </tabs>
         </section>
 
-        <http-response :response="response" ref="response" />
+        <http-response :response="response" :active="runningRequest" ref="response" />
       </div>
 
       <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">

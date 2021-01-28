@@ -1,6 +1,12 @@
 <template>
   <div class="flex flex-col">
-    <label>{{ $t("response") }}</label>
+    <div class="flex items-center justify-between">
+      <label>{{ $t("response") }}</label>
+      <label v-if="active"><i class="animate-spin material-icons">refresh</i></label>
+      <label v-else :class="statusCategory ? statusCategory.className : ''">
+        <i class="material-icons">fiber_manual_record</i>
+      </label>
+    </div>
     <div class="flex flex-col lg:flex-row">
       <label class="flex-1">
         {{ $t("status") + `: \xA0 ` }}
@@ -26,6 +32,10 @@ export default {
     response: {
       type: Object,
       default: {},
+    },
+    active: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

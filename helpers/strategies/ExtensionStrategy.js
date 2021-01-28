@@ -18,7 +18,7 @@ export const cancelRunningExtensionRequest = () => {
 const extensionWithProxy = async (req, { state }) => {
   const backupTimeDataStart = new Date().getTime();
 
-  const { data } = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
+  const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     method: "post",
     url: state.postwoman.settings.PROXY_URL || "https://hoppscotch.apollosoftware.xyz/",
     data: {
@@ -29,7 +29,7 @@ const extensionWithProxy = async (req, { state }) => {
 
   const backupTimeDataEnd = new Date().getTime();
 
-  const parsedData = JSON.parse(data)
+  const parsedData = JSON.parse(res.data)
 
   if (!parsedData.success) {
     throw new Error(parsedData.data.message || "Proxy Error")
@@ -40,11 +40,15 @@ const extensionWithProxy = async (req, { state }) => {
   }
 
   if (!(res && res.config && res.config.timeData)) {
-    res.config.timeData = {
-      startTime: backupTimeDataStart,
-      endTime: backupTimeDataEnd
+    res.config = { 
+      timeData: {
+        startTime: backupTimeDataStart,
+        endTime: backupTimeDataEnd
+      }
     }
   }
+
+  parsedData.config = res.config
 
   return parsedData
 }

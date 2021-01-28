@@ -16,6 +16,8 @@ export const cancelRunningExtensionRequest = () => {
 }
 
 const extensionWithProxy = async (req, { state }) => {
+  const backupTimeDataStart = new Date().getTime();
+
   const { data } = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     method: "post",
     url: state.postwoman.settings.PROXY_URL || "https://hoppscotch.apollosoftware.xyz/",
@@ -24,6 +26,8 @@ const extensionWithProxy = async (req, { state }) => {
       wantsBinary: true,
     },
   })
+
+  const backupTimeDataEnd = new Date().getTime();
 
   const parsedData = JSON.parse(data)
 
@@ -35,14 +39,34 @@ const extensionWithProxy = async (req, { state }) => {
     parsedData.data = decodeB64StringToArrayBuffer(parsedData.data)
   }
 
+  if (!(res && res.config && res.config.timeData)) {
+    res.config.timeData = {
+      startTime: backupTimeDataStart,
+      endTime: backupTimeDataEnd
+    }
+  }
+
   return parsedData
 }
 
 const extensionWithoutProxy = async (req, _store) => {
+  const backupTimeDataStart = new Date().getTime();
+
   const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     ...req,
     wantsBinary: true,
   })
+
+  const backupTimeDataEnd = new Date().getTime();
+
+  if (!(res && res.config && res.config.timeData)) {
+    res.config = {
+      timeData: {
+        startTime: backupTimeDataStart,
+        endTime: backupTimeDataEnd
+      }
+    }
+  }
   return res
 }
 

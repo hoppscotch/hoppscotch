@@ -2,7 +2,7 @@ export default () => ({
   request: {
     name: "Untitled request",
     method: "GET",
-    uri: "",
+    uri: "https://httpbin.org/get",
     url: "https://httpbin.org",
     path: "/get",
     auth: "None",

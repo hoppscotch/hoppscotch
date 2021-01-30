@@ -851,7 +851,6 @@ export default {
       // @TODO: Convert all variables to single request variable
       if (!newValue) return
       this.uri = newValue.url + newValue.path
-      this.url = newValue.url
       this.path = newValue.path
       this.method = newValue.method
       this.auth = newValue.auth
@@ -902,7 +901,7 @@ export default {
     },
     uri: {
       get() {
-        return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path
+        return this.$store.state.request.uri;
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
@@ -1281,7 +1280,6 @@ export default {
       this.name = entry.name
       this.method = entry.method
       this.uri = entry.url + entry.path
-      this.url = entry.url
       this.path = entry.path
       this.showPreRequestScript = entry.usesPreScripts
       this.preRequestScript = entry.preRequestScript
@@ -1747,9 +1745,8 @@ export default {
       try {
         const parsedCurl = parseCurlCommand(text)
         const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
-        this.url = origin
         this.path = pathname
-        this.uri = this.url + this.path
+        this.uri = origin + this.path
         this.headers = []
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
@@ -1815,9 +1812,8 @@ export default {
           break
         default:
           this.method = "GET"
-          this.url = "https://httpbin.org"
+          this.uri = "https://httpbin.org/get"
           this.path = "/get"
-          this.uri = this.url + this.path
           this.name = "Untitled request"
           this.bodyParams = []
           this.rawParams = "{}"

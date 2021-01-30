@@ -3,7 +3,7 @@ export function parseUrlAndPath(value) {
   try {
     let url = new URL(value)
     result.url = url.origin
-    result.path = decodeURIComponent(url.pathname)
+    result.path = url.pathname
   } catch (error) {
     let uriRegex = value.match(/^((http[s]?:\/\/)?(<<[^\/]+>>)?[^\/]*|)(\/?.*)$/)
     result.url = uriRegex[1]

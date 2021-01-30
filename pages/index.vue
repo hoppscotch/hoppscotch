@@ -906,19 +906,19 @@ export default {
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
-        let url = value
-        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
-          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-          url = parseTemplateString(value, environmentVariables)
-        }
-        let result = parseUrlAndPath(url)
-        this.url = result.url
-        this.path = result.path
       },
     },
     url: {
       get() {
+        let url = this.uri.toString()
+        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+          url = parseTemplateString(this.uri.toString(), environmentVariables)
+        }
+        let result = parseUrlAndPath(url)
+        this.url = result.url
+        this.path = result.path
         return this.$store.state.request.url
       },
       set(value) {
@@ -1088,6 +1088,7 @@ export default {
         return this.$store.state.request.params
       },
       set(value) {
+        console.log(value)
         this.$store.commit("setState", { value, attribute: "params" })
       },
     },

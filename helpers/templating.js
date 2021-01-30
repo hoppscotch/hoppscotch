@@ -3,5 +3,6 @@ export default function parseTemplateString(string, variables) {
     return string
   }
   const searchTerm = /<<([^>]*)>>/g // "<<myVariable>>"
-  return decodeURI(encodeURI(string)).replace(searchTerm, (match, p1) => variables[p1] || "")
+  string = new URL(string).toString();
+  return decodeURI(string).replace(searchTerm, (match, p1) => variables[p1] || "")
 }

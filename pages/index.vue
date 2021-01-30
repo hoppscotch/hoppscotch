@@ -1854,8 +1854,8 @@ export default {
       }
       let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
-        url: urlAndPath.url,
-        path: urlAndPath.path,
+        url: decodeURI(urlAndPath.url),
+        path: decodeURI(urlAndPath.path),
         method: this.method,
         auth: this.auth,
         httpUser: this.httpUser,

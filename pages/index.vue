@@ -1400,6 +1400,7 @@ export default {
         if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
+      const startTime = new Date().getTime()
       try {
         this.runningRequest = true
         const payload = await this.makeRequest(
@@ -1409,7 +1410,7 @@ export default {
           this.showPreRequestScript && this.preRequestScript
         )
         this.runningRequest = false
-        const duration = payload.config.timeData.endTime - payload.config.timeData.startTime
+        const duration = new Date().getTime() - startTime
         this.response.duration = duration
         this.response.size = payload.headers["content-length"]
         ;(() => {
@@ -1461,13 +1462,15 @@ export default {
         })()
       } catch (error) {
         this.runningRequest = false
-
         // If the error is caused by cancellation, do nothing
         if (error === "cancellation") {
           this.response.status = this.$t("cancelled")
           this.response.body = this.$t("cancelled")
         } else {
           console.log(error)
+          const duration = new Date().getTime() - startTime
+          this.response.duration = duration
+          this.response.size = Buffer.byteLength(JSON.stringify(error))
           if (error.response) {
             this.response.headers = error.response.headers
             this.response.status = error.response.status

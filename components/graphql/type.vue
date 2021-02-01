@@ -1,6 +1,7 @@
 <template>
-  <div class="p-2 m-2">
+  <div :id="`type_${gqlType.name}`" class="p-2 m-2">
     <div class="font-bold type-title" :class="{ 'type-highlighted': isHighlighted }">
+      <span v-if="isInput" class="text-acColor font-normal">input </span>
       {{ gqlType.name }}
     </div>
     <div class="mt-2 text-fgLightColor type-desc" v-if="gqlType.description">
@@ -26,6 +27,8 @@
 </style>
 
 <script>
+import { GraphQLInputObjectType } from "graphql"
+
 export default {
   props: {
     gqlType: {},
@@ -36,6 +39,11 @@ export default {
   methods: {
     isFieldHighlighted({ field }) {
       return !!this.highlightedFields.find(({ name }) => name === field.name)
+    },
+  },
+  computed: {
+    isInput() {
+      return this.gqlType instanceof GraphQLInputObjectType
     },
   },
 }

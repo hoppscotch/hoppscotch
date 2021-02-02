@@ -394,6 +394,7 @@
 <style scoped lang="scss">
 .gqlTabs {
   max-height: calc(100vh - 192px);
+  position: relative;
   @apply overflow-auto;
 }
 .gqlRunQuery {
@@ -589,16 +590,17 @@ export default {
     doPrettifyQuery() {
       this.$refs.queryEditor.prettifyQuery()
     },
-    handleJumpToType(type) {
+    async handleJumpToType(type) {
       this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
+      await this.$nextTick()
 
       const rootTypeName = this.resolveRootType(type).name
 
       const target = document.getElementById(`type_${rootTypeName}`)
       if (target && this.settings.SCROLL_INTO_ENABLED) {
-        target.scrollIntoView({
-          behavior: "smooth",
-        })
+        this.$refs.gqlTabs.$el
+          .querySelector(".gqlTabs")
+          .scrollTo({ top: target.offsetTop, behavior: "smooth" })
       }
     },
     resolveRootType(type) {
@@ -742,7 +744,8 @@ export default {
         if (
           !typeMap[type].name.startsWith("__") &&
           ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
-          typeMap[type] instanceof gql.GraphQLObjectType
+          (typeMap[type] instanceof gql.GraphQLObjectType ||
+            typeMap[type] instanceof gql.GraphQLInputObjectType)
         ) {
           types.push(typeMap[type])
         }

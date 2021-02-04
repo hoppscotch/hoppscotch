@@ -37,8 +37,8 @@
     "nuxt": "^2.15.2",
     "nuxt-i18n": "^6.20.4",
     "paho-mqtt": "^1.1.0",
-    "socket.io-client": "^3.1.1",
     "rxjs": "^6.6.3",
+    "socket.io-client": "^3.1.1",
     "socketio-wildcard": "^2.0.0",
     "tern": "^0.24.3",
     "v-tooltip": "^2.1.2",
@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.1",
+    "@babel/plugin-proposal-class-properties": "^7.12.13",
     "@babel/preset-env": "^7.13.9",
     "@nuxtjs/color-mode": "^2.0.4",
     "@nuxtjs/google-analytics": "^2.4.0",

@@ -45,7 +45,7 @@
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
+    "@babel/core": "^7.12.13",
     "@babel/preset-env": "^7.12.11",
     "@nuxtjs/color-mode": "^2.0.3",
     "@nuxtjs/google-analytics": "^2.4.0",

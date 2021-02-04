@@ -92,6 +92,7 @@ export default {
   plugins: [
     "~/plugins/vuex-persist",
     "~/plugins/v-tooltip",
+    "~/plugins/vue-rx",
     { src: "~/plugins/web-worker", ssr: false },
   ],
 

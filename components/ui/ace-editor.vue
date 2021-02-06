@@ -11,7 +11,7 @@
             {{ sib.key ? sib.key.value : i }}
           </div>
         </div>
-      </div>    
+      </div>
     </div>
     <pre ref="editor" :class="styles"></pre>
   </div>
@@ -78,6 +78,7 @@
         @apply bg-bgLightColor;
       }
     }
+  }
 }
 </style>
 

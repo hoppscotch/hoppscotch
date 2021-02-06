@@ -7,10 +7,6 @@ export default () => {
   const init = (jsonStr) => {
     jsonAST = jsonParse(jsonStr)
     linkParents(jsonAST)
-<<<<<<< HEAD
-=======
-    console.log(jsonAST)
->>>>>>> dbdb37b (added basic cursor tracking)
   }
 
   const linkParents = (node) => {

@@ -1,5 +1,11 @@
 <template>
   <div class="show-if-initialized" :class="{ initialized }">
+    <div class="outline" v-if="lang == 'json'">
+      <div class="block" v-for="(p, index) in currPath" :key="index">
+        {{ p }}
+        <div class="next">></div>
+      </div>
+    </div>
     <pre ref="editor" :class="styles"></pre>
   </div>
 </template>
@@ -16,6 +22,31 @@
     @apply transition-none;
   }
 }
+
+.outline {
+  @apply flex;
+  @apply text-fgLightColor;
+  @apply text-sm;
+
+  .block {
+    @apply px-1;
+    @apply flex;
+
+    &:hover {
+      @apply text-fgColor;
+      @apply cursor-pointer;
+    }
+
+    &:active {
+      @apply bg-bgLightColor;
+      @apply cursor-pointer;
+    }
+
+    .next {
+      @apply px-2;
+    }
+  }
+}
 </style>
 
 <script>
@@ -23,6 +54,7 @@ import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
 import jsonParse from "~/helpers/jsonParse"
 import debounce from "~/helpers/utils/debounce"
+import outline from "~/helpers/outline"
 
 export default {
   props: {
@@ -59,6 +91,9 @@ export default {
       initialized: false,
       editor: null,
       cacheValue: "",
+      outline: outline(),
+      showOutline: false,
+      currPath: [],
     }
   },
 
@@ -80,6 +115,8 @@ export default {
     },
     lang(value) {
       this.editor.getSession().setMode(`ace/mode/${value}`)
+      if (lang == "json") this.showOutline = true
+      else this.showOutline = false
     },
     options(value) {
       this.editor.setOptions(value)
@@ -103,12 +140,24 @@ export default {
 
     this.editor = editor
     this.cacheValue = this.value
+    this.outline.init(this.value)
 
     editor.on("change", () => {
       const content = editor.getValue()
       this.$emit("input", content)
       this.cacheValue = content
       if (this.lint) this.provideLinting(content)
+    })
+
+    editor.session.selection.on("changeCursor", (e) => {
+      const index = editor.session.doc.positionToIndex(editor.selection.getCursor(), 0)
+      const path = this.outline.genPath(index)
+      if (path.success) {
+        this.currPath = path.res
+        this.showOutline = true
+      } else {
+        this.showOutline = false
+      }
     })
 
     // Disable linting, if lint prop is false

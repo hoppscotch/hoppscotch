@@ -2,13 +2,16 @@
   <div class="show-if-initialized" :class="{ initialized }">
     <div class="outline" v-if="lang == 'json'">
       <div class="block" v-for="(p, index) in currPath" :key="index" @click="onBlockClick(index)">
-        <div class="label">{{ `${p} >` }}</div>
+        <div class="label">
+          {{ p }}
+        </div>
+        <i v-if="index + 1 !== currPath.length" class="material-icons">chevron_right</i>
         <div class="siblings" v-if="sibDropDownIndex == index" @mouseleave="clearSibList">
           <div class="sib" v-for="(sib, i) in currSib" :key="i" @click.capture="goToSib(sib)">
             {{ sib.key ? sib.key.value : i }}
           </div>
         </div>
-      </div>
+      </div>    
     </div>
     <pre ref="editor" :class="styles"></pre>
   </div>
@@ -33,49 +36,48 @@
   @apply text-sm;
 
   .block {
-    @apply px-2;
+    @apply inline-flex;
+    @apply items-center;
+    @apply flex-grow-0;
+    @apply flex-shrink-0;
+    @apply text-fgLightColor;
+    @apply text-sm;
 
     &:hover {
-      .label {
-        @apply text-fgColor;
-        @apply cursor-pointer;
-      }
+      @apply text-fgColor;
+      @apply cursor-pointer;
     }
 
-    &:active + .sib:not(:active) {
-      .label {
-        @apply bg-bgLightColor;
-        @apply cursor-pointer;
-      }
-    }
-
-    .next {
-      @apply px-2;
+    .label {
+      @apply p-2;
+      @apply transition;
+      @apply ease-in-out;
+      @apply duration-150;
     }
 
     .siblings {
-      @apply z-10;
       @apply absolute;
+      @apply z-50;
+      @apply top-9;
       @apply bg-bgColor;
       @apply max-h-60;
-      @apply overflow-y-scroll;
+      @apply overflow-auto;
+      @apply shadow-lg;
+      @apply text-fgLightColor;
+      @apply overscroll-none;
+
+      border-radius: 0 0 8px 8px;
     }
 
     .sib {
-      @apply px-3;
+      @apply px-4;
       @apply py-1;
 
       &:hover {
-        @apply cursor-pointer;
         @apply text-fgColor;
-      }
-
-      &:active {
-        @apply cursor-pointer;
         @apply bg-bgLightColor;
       }
     }
-  }
 }
 </style>
 

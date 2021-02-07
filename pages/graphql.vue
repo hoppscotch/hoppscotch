@@ -364,6 +364,7 @@
                   <div v-for="type in filteredGraphqlTypes" :key="type.name">
                     <type
                       :gqlType="type"
+                      :gqlTypes="graphqlTypes"
                       :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
                       :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
                       :jumpTypeCallback="handleJumpToType"
@@ -740,14 +741,17 @@ export default {
         ? schema.getSubscriptionType().name
         : ""
 
-      for (const type in typeMap) {
+      for (const typeName in typeMap) {
+        let type = typeMap[typeName]
         if (
-          !typeMap[type].name.startsWith("__") &&
-          ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
-          (typeMap[type] instanceof gql.GraphQLObjectType ||
-            typeMap[type] instanceof gql.GraphQLInputObjectType)
+          !type.name.startsWith("__") &&
+          ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(type.name) &&
+          (type instanceof gql.GraphQLObjectType ||
+            type instanceof gql.GraphQLInputObjectType ||
+            type instanceof gql.GraphQLEnumType ||
+            type instanceof gql.GraphQLInterfaceType)
         ) {
-          types.push(typeMap[type])
+          types.push(type)
         }
       }
       this.graphqlTypes = types
@@ -828,7 +832,6 @@ export default {
       }
 
       this.$nuxt.$loading.finish()
-
     },
     async getSchema() {
       const startTime = Date.now()

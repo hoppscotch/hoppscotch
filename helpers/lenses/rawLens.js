@@ -1,6 +1,6 @@
 const rawLens = {
   lensName: "Raw",
-  supportedContentTypes: null,
+  isSupportedContentType: () => true,
   renderer: "raw",
   rendererImport: () => import("~/components/lenses/renderers/RawLensRenderer"),
 }

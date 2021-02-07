@@ -1,3 +1,5 @@
+import Vue from "vue"
+
 export default {
   setState({ request }, { attribute, value }) {
     request[attribute] = value
@@ -15,6 +17,14 @@ export default {
 
   addGQLHeader({ gql }, object) {
     gql.headers.push(object)
+  },
+
+  setActiveGQLHeader({ gql }, { index, value }) {
+    if (!gql.headers[index].hasOwnProperty("active")) {
+      Vue.set(gql.headers[index], "active", value)
+    } else {
+      gql.headers[index].active = value
+    }
   },
 
   removeGQLHeader({ gql }, index) {
@@ -45,6 +55,14 @@ export default {
     request.headers[index].value = value
   },
 
+  setActiveHeader({ request }, { index, value }) {
+    if (!request.headers[index].hasOwnProperty("active")) {
+      Vue.set(request.headers[index], "active", value)
+    } else {
+      request.headers[index].active = value
+    }
+  },
+
   addParams({ request }, value) {
     request.params.push(value)
   },
@@ -58,11 +76,19 @@ export default {
   },
 
   setValueParams({ request }, { index, value }) {
-    request.params[index].value = encodeURI(value)
+    request.params[index].value = value
   },
 
   setTypeParams({ request }, { index, value }) {
     request.params[index].type = value
+  },
+
+  setActiveParams({ request }, { index, value }) {
+    if (!request.params[index].hasOwnProperty("active")) {
+      Vue.set(request.params[index], "active", value)
+    } else {
+      request.params[index].active = value
+    }
   },
 
   addBodyParams({ request }, value) {
@@ -79,6 +105,14 @@ export default {
 
   setValueBodyParams({ request }, { index, value }) {
     request.bodyParams[index].value = value
+  },
+
+  setActiveBodyParams({ request }, { index, value }) {
+    if (!request.bodyParams[index].hasOwnProperty("active")) {
+      Vue.set(request.bodyParams[index], "active", value)
+    } else {
+      request.bodyParams[index].active = value
+    }
   },
 
   setOAuth2({ oauth2 }, { attribute, value }) {

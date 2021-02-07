@@ -86,7 +86,7 @@ export default {
   },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }
@@ -111,6 +111,7 @@ export default {
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
+      this.confirmRemove = false
       this.syncCollections()
     },
     getRequestLabelColor(method) {

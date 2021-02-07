@@ -56,10 +56,35 @@
         <li>
           <button
             class="icon"
-            @click="removeRequestHeader(index)"
-            v-tooltip.bottom="$t('delete')"
-            id="header"
+            @click="
+              $store.commit('setActiveHeader', {
+                index,
+                value: header.hasOwnProperty('active') ? !header.active : false,
+              })
+            "
+            v-tooltip.bottom="{
+              content: header.hasOwnProperty('active')
+                ? header.active
+                  ? $t('turn_off')
+                  : $t('turn_on')
+                : $t('turn_off'),
+            }"
           >
+            <i class="material-icons">
+              {{
+                header.hasOwnProperty("active")
+                  ? header.active
+                    ? "check_box"
+                    : "check_box_outline_blank"
+                  : "check_box"
+              }}
+            </i>
+          </button>
+        </li>
+      </div>
+      <div>
+        <li>
+          <button class="icon" @click="removeRequestHeader(index)" v-tooltip.bottom="$t('delete')">
             <i class="material-icons">delete</i>
           </button>
         </li>

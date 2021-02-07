@@ -91,9 +91,38 @@
                 <li>
                   <button
                     class="icon"
+                    @click="
+                      $store.commit('setActiveGQLHeader', {
+                        index,
+                        value: header.hasOwnProperty('active') ? !header.active : false,
+                      })
+                    "
+                    v-tooltip.bottom="{
+                      content: header.hasOwnProperty('active')
+                        ? header.active
+                          ? $t('turn_off')
+                          : $t('turn_on')
+                        : $t('turn_off'),
+                    }"
+                  >
+                    <i class="material-icons">
+                      {{
+                        header.hasOwnProperty("active")
+                          ? header.active
+                            ? "check_box"
+                            : "check_box_outline_blank"
+                          : "check_box"
+                      }}
+                    </i>
+                  </button>
+                </li>
+              </div>
+              <div>
+                <li>
+                  <button
+                    class="icon"
                     @click="removeRequestHeader(index)"
                     v-tooltip.bottom="$t('delete')"
-                    id="header"
                   >
                     <i class="material-icons">delete</i>
                   </button>
@@ -165,7 +194,6 @@
             class="rounded-b-lg missing-data-response"
             :value="$t('waiting_receive_schema')"
             ref="status"
-            id="status"
             name="status"
             readonly
             type="text"
@@ -238,7 +266,7 @@
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
-              <label for="responseField">{{ $t("response") }}</label>
+              <label for="responseField">{{ $t("response_body") }}</label>
               <div>
                 <button
                   class="icon"
@@ -281,7 +309,6 @@
               class="rounded-b-lg missing-data-response"
               :value="$t('waiting_receive_response')"
               ref="status"
-              id="status"
               name="status"
               readonly
               type="text"
@@ -334,11 +361,7 @@
                   :label="$t('types')"
                   ref="typesTab"
                 >
-                  <div
-                    v-for="type in filteredGraphqlTypes"
-                    :key="type.name"
-                    :id="`type_${type.name}`"
-                  >
+                  <div v-for="type in filteredGraphqlTypes" :key="type.name">
                     <type
                       :gqlType="type"
                       :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
@@ -371,6 +394,7 @@
 <style scoped lang="scss">
 .gqlTabs {
   max-height: calc(100vh - 192px);
+  position: relative;
   @apply overflow-auto;
 }
 .gqlRunQuery {
@@ -485,13 +509,6 @@ export default {
         })
       },
     },
-    headerString() {
-      const result = this.headers
-        .filter(({ key }) => !!key)
-        .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n")
-      return result === "" ? "" : `${result}`
-    },
   },
   mounted() {
     if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {
@@ -573,16 +590,17 @@ export default {
     doPrettifyQuery() {
       this.$refs.queryEditor.prettifyQuery()
     },
-    handleJumpToType(type) {
+    async handleJumpToType(type) {
       this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
+      await this.$nextTick()
 
       const rootTypeName = this.resolveRootType(type).name
 
       const target = document.getElementById(`type_${rootTypeName}`)
       if (target && this.settings.SCROLL_INTO_ENABLED) {
-        target.scrollIntoView({
-          behavior: "smooth",
-        })
+        this.$refs.gqlTabs.$el
+          .querySelector(".gqlTabs")
+          .scrollTo({ top: target.offsetTop, behavior: "smooth" })
       }
     },
     resolveRootType(type) {
@@ -641,9 +659,11 @@ export default {
 
       try {
         let headers = {}
-        this.headers.forEach(({ key, value }) => {
-          headers[key] = value
-        })
+        this.headers
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .forEach(({ key, value }) => {
+            headers[key] = value
+          })
 
         let variables = JSON.parse(this.variableString || "{}")
 
@@ -724,7 +744,8 @@ export default {
         if (
           !typeMap[type].name.startsWith("__") &&
           ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
-          typeMap[type] instanceof gql.GraphQLObjectType
+          (typeMap[type] instanceof gql.GraphQLObjectType ||
+            typeMap[type] instanceof gql.GraphQLInputObjectType)
         ) {
           types.push(typeMap[type])
         }
@@ -752,9 +773,11 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach(({ key, value }) => {
-          headers[key] = value
-        })
+        this.headers
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .forEach(({ key, value }) => {
+            headers[key] = value
+          })
 
         const reqOptions = {
           method: "post",
@@ -787,6 +810,8 @@ export default {
 
         this.$refs.queryEditor.setValidationSchema(schema)
         this.$nuxt.$loading.finish()
+
+        if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
       } catch (error) {
         this.$nuxt.$loading.finish()
 
@@ -798,11 +823,12 @@ export default {
           }
         )
         console.log("Error", error)
+
+        this.isPollingSchema = false
       }
 
       this.$nuxt.$loading.finish()
 
-      if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
     },
     async getSchema() {
       const startTime = Date.now()
@@ -820,9 +846,11 @@ export default {
         })
 
         let headers = {}
-        this.headers.forEach(({ key, value }) => {
-          headers[key] = value
-        })
+        this.headers
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .forEach(({ key, value }) => {
+            headers[key] = value
+          })
 
         const reqOptions = {
           method: "post",
@@ -882,7 +910,7 @@ export default {
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `Response ${this.url} on ${Date()}.json`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadResponse.innerHTML = this.doneButton
@@ -901,7 +929,7 @@ export default {
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
       this.$refs.downloadSchema.innerHTML = this.doneButton

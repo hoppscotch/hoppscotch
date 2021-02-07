@@ -326,6 +326,12 @@ export default {
           use: { loader: "raw-loader" },
           exclude: /(node_modules)/,
         })
+
+        config.module.rules.push({
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto"
+        })
       }
     },
     parallel: true,

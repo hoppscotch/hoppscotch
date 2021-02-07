@@ -151,81 +151,14 @@
                 </div>
               </li>
             </ul>
-            <div v-if="!rawInput">
-              <ul>
-                <li>
-                  <div class="row-wrapper">
-                    <label for="reqParamList">{{ $t("parameter_list") }}</label>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="clearContent('bodyParams', $event)"
-                        v-tooltip.bottom="$t('clear')"
-                      >
-                        <i class="material-icons">clear_all</i>
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <ul
-                v-for="(param, index) in bodyParams"
-                :key="index"
-                class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
-                :class="{ 'border-t': index == 0 }"
-              >
-                <li>
-                  <input
-                    :placeholder="`key ${index + 1}`"
-                    :name="`bparam ${index}`"
-                    :value="param.key"
-                    @change="
-                      $store.commit('setKeyBodyParams', {
-                        index,
-                        value: $event.target.value,
-                      })
-                    "
-                    @keyup.prevent="setRouteQueryState"
-                    autofocus
-                  />
-                </li>
-                <li>
-                  <input
-                    :placeholder="`value ${index + 1}`"
-                    :id="`bvalue ${index}`"
-                    :name="'bvalue' + index"
-                    :value="param.value"
-                    @change="
-                      $store.commit('setValueBodyParams', {
-                        index,
-                        value: $event.target.value,
-                      })
-                    "
-                    @keyup.prevent="setRouteQueryState"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <button
-                      class="icon"
-                      @click="removeRequestBodyParam(index)"
-                      v-tooltip.bottom="$t('delete')"
-                      id="delParam"
-                    >
-                      <i class="material-icons">delete</i>
-                    </button>
-                  </li>
-                </div>
-              </ul>
-              <ul>
-                <li>
-                  <button class="icon" @click="addRequestBodyParam" name="addrequest">
-                    <i class="material-icons">add</i>
-                    <span>{{ $t("add_new") }}</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <http-body-parameters
+              v-if="!rawInput"
+              :bodyParams="bodyParams"
+              @clear-content="clearContent"
+              @set-route-query-state="setRouteQueryState"
+              @remove-request-body-param="removeRequestBodyParam"
+              @add-request-body-param="addRequestBodyParam"
+            />
             <div v-else>
               <ul>
                 <li>
@@ -261,7 +194,6 @@
             <span>
               <button
                 class="icon"
-                id="show-modal"
                 @click="showCurlImportModal = !showCurlImportModal"
                 v-tooltip.bottom="$t('import_curl')"
               >
@@ -269,7 +201,6 @@
               </button>
               <button
                 class="icon"
-                id="code"
                 @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('show_code')"
@@ -281,7 +212,6 @@
               <button
                 class="icon"
                 @click="copyRequest"
-                id="copyRequest"
                 ref="copyRequest"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('copy_request_link')"
@@ -292,7 +222,6 @@
               <button
                 class="icon"
                 @click="saveRequest"
-                id="saveRequest"
                 ref="saveRequest"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('save_to_collections')"
@@ -383,12 +312,7 @@
                   </li>
                   <div>
                     <li>
-                      <button
-                        class="icon"
-                        id="switchVisibility"
-                        ref="switchVisibility"
-                        @click="switchVisibility"
-                      >
+                      <button class="icon" ref="switchVisibility" @click="switchVisibility">
                         <i class="material-icons" v-if="passwordFieldType === 'text'">visibility</i>
                         <i class="material-icons" v-if="passwordFieldType !== 'text'"
                           >visibility_off</i
@@ -559,7 +483,7 @@
                 <ul>
                   <li>
                     <div class="row-wrapper">
-                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <label>{{ $t("javascript_code") }}</label>
                       <div>
                         <a
                           href="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
@@ -583,6 +507,7 @@
                         useWorker: false,
                       }"
                       styles="rounded-b-lg"
+                      completeMode="pre"
                     />
                   </li>
                 </ul>
@@ -600,10 +525,10 @@
                 <ul>
                   <li>
                     <div class="row-wrapper">
-                      <label for="generatedCode">{{ $t("javascript_code") }}</label>
+                      <label>{{ $t("javascript_code") }}</label>
                       <div>
                         <a
-                          href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Requests-Tests"
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
                           target="_blank"
                           rel="noopener"
                         >
@@ -624,6 +549,7 @@
                         useWorker: false,
                       }"
                       styles="rounded-b-lg"
+                      completeMode="test"
                     />
                     <div v-if="testReports.length !== 0">
                       <div class="row-wrapper">
@@ -664,28 +590,7 @@
           </tabs>
         </section>
 
-        <pw-section class="purple" id="response" :label="$t('response')" ref="response">
-          <ul>
-            <li>
-              <label for="status">{{ $t("status") }}</label>
-              <input
-                :class="[
-                  statusCategory ? statusCategory.className : '',
-                  response.status ? '' : 'rounded-b-lg',
-                ]"
-                :value="response.status || $t('waiting_send_req')"
-                ref="status"
-                id="status"
-                name="status"
-                readonly
-                type="text"
-              />
-            </li>
-          </ul>
-          <div v-if="response.body && response.body !== $t('loading')">
-            <response-body-renderer :response="response" />
-          </div>
-        </pw-section>
+        <http-response :response="response" :active="runningRequest" ref="response" />
       </div>
 
       <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
@@ -826,7 +731,6 @@ import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
-import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
   data() {
@@ -845,6 +749,8 @@ export default {
         status: "",
         headers: "",
         body: "",
+        duration: 0,
+        size: 0,
       },
       validContentTypes: knownContentTypes,
       paramsWatchEnabled: true,
@@ -1248,9 +1154,6 @@ export default {
     requestName() {
       return this.name
     },
-    statusCategory() {
-      return findStatusGroup(this.response.status)
-    },
     isValidURL() {
       // if showPreRequestScript, we cannot determine if a URL is valid because the full string is not known ahead of time
       return this.showPreRequestScript || httpValid(this.url)
@@ -1267,12 +1170,9 @@ export default {
         try {
           const obj = JSON.parse(
             `{${bodyParams
+              .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
               .filter(({ key }) => !!key)
-              .map(
-                ({ key, value }) => `
-              "${key}": "${value}"
-              `
-              )
+              .map(({ key, value }) => `"${key}": "${value}"`)
               .join()}}`
           )
           return JSON.stringify(obj, null, 2)
@@ -1289,33 +1189,26 @@ export default {
         }
       } else {
         return bodyParams
+          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
           .filter(({ key }) => !!key)
-          .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
+          .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
           .join("&")
       }
     },
-    headerString() {
-      const result = this.headers
-        .filter(({ key }) => !!key)
-        .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n")
-      return result === "" ? "" : `${result}`
-    },
     queryString() {
       const result = getQueryParams(this.params)
-        .map(({ key, value }) => `${key}=${encodeURIComponent(value)}`)
+        .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
-    },
-    responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
     },
     requestCode() {
       let headers = []
       if (this.preRequestScript || hasPathParams(this.params)) {
         let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
         environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-        for (let k of this.headers) {
+        for (let k of this.headers.filter((item) =>
+          item.hasOwnProperty("active") ? item.active == true : true
+        )) {
           const kParsed = parseTemplateString(k.key, environmentVariables)
           const valParsed = parseTemplateString(k.value, environmentVariables)
           headers.push({ key: kParsed, value: valParsed })
@@ -1407,12 +1300,6 @@ export default {
       this.testsEnabled = entry.usesPostScripts
       if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
-    getVariablesFromPreRequestScript() {
-      if (!this.preRequestScript) {
-        return {}
-      }
-      return getEnvironmentVariablesFromScript(this.preRequestScript)
-    },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
         method: this.method,
@@ -1455,9 +1342,12 @@ export default {
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
       this.$nuxt.$loading.start()
-      this.previewEnabled = false
-      this.response.status = this.$t("fetching")
-      this.response.body = this.$t("loading")
+      this.response = {
+        duration: 0,
+        size: 0,
+        status: this.$t("fetching"),
+        body: this.$t("loading"),
+      }
       const auth =
         this.auth === "Basic Auth"
           ? {
@@ -1495,7 +1385,12 @@ export default {
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
         // mutate it with the request headers added by default.
-        Object.assign({}, this.headers)
+        Object.assign(
+          {},
+          this.headers.filter((item) =>
+            item.hasOwnProperty("active") ? item.active == true : true
+          )
+        )
         // We make our temporary headers object the source so
         // that you can override the added headers if you
         // specify them.
@@ -1505,9 +1400,8 @@ export default {
         if (headers[id].key) headersObject[headers[id].key] = headers[id].value
       })
       headers = headersObject
+      const startTime = new Date().getTime()
       try {
-        const startTime = Date.now()
-
         this.runningRequest = true
         const payload = await this.makeRequest(
           auth,
@@ -1516,11 +1410,9 @@ export default {
           this.showPreRequestScript && this.preRequestScript
         )
         this.runningRequest = false
-
-        const duration = Date.now() - startTime
-        this.$toast.info(this.$t("finished_in", { duration }), {
-          icon: "done",
-        })
+        const duration = new Date().getTime() - startTime
+        this.response.duration = duration
+        this.response.size = payload.headers["content-length"]
         ;(() => {
           this.response.status = payload.status
           this.response.headers = payload.headers
@@ -1562,7 +1454,7 @@ export default {
           }
 
           this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null) {
+          if (fb.currentUser !== null && fb.currentSettings[2]) {
             if (fb.currentSettings[2].value) {
               fb.writeHistory(entry)
             }
@@ -1570,13 +1462,15 @@ export default {
         })()
       } catch (error) {
         this.runningRequest = false
-
         // If the error is caused by cancellation, do nothing
         if (error === "cancellation") {
           this.response.status = this.$t("cancelled")
           this.response.body = this.$t("cancelled")
         } else {
           console.log(error)
+          const duration = new Date().getTime() - startTime
+          this.response.duration = duration
+          this.response.size = Buffer.byteLength(JSON.stringify(error))
           if (error.response) {
             this.response.headers = error.response.headers
             this.response.status = error.response.status
@@ -1619,7 +1513,7 @@ export default {
             }
 
             this.$refs.historyComponent.addEntry(entry)
-            if (fb.currentUser !== null) {
+            if (fb.currentUser !== null && fb.currentSettings[2]) {
               if (fb.currentSettings[2].value) {
                 fb.writeHistory(entry)
               }
@@ -1679,6 +1573,7 @@ export default {
       return Object.keys(queryParsed).map((key) => ({
         key,
         value: queryParsed[key],
+        active: true,
       }))
     },
     pathInputHandler() {
@@ -1693,6 +1588,7 @@ export default {
       this.$store.commit("addHeaders", {
         key: "",
         value: "",
+        active: true,
       })
       return false
     },
@@ -1712,7 +1608,7 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "", type: "query" })
+      this.$store.commit("addParams", { key: "", value: "", type: "query", active: true })
       return false
     },
     removeRequestParam(index) {
@@ -1731,7 +1627,7 @@ export default {
       })
     },
     addRequestBodyParam() {
-      this.$store.commit("addBodyParams", { key: "", value: "" })
+      this.$store.commit("addBodyParams", { key: "", value: "", active: true })
       return false
     },
     removeRequestBodyParam(index) {
@@ -1821,7 +1717,7 @@ export default {
       if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(decodeURI(queries[key]))
+          this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
         if (key === "rawParams") {
           this.rawInput = true
           this.rawParams = queries["rawParams"]
@@ -1961,8 +1857,8 @@ export default {
       }
       let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
-        url: urlAndPath.url,
-        path: urlAndPath.path,
+        url: decodeURI(urlAndPath.url),
+        path: decodeURI(urlAndPath.path),
         method: this.method,
         auth: this.auth,
         httpUser: this.httpUser,

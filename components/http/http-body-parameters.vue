@@ -1,13 +1,13 @@
 <template>
-  <pw-section class="pink" label="Parameters" ref="parameters" no-legend>
-    <ul v-if="params.length !== 0">
+  <div>
+    <ul>
       <li>
         <div class="row-wrapper">
-          <label for="paramList">{{ $t("parameter_list") }}</label>
+          <label for="reqParamList">{{ $t("request_body") }}</label>
           <div>
             <button
               class="icon"
-              @click="clearContent('parameters', $event)"
+              @click="clearContent('bodyParams', $event)"
               v-tooltip.bottom="$t('clear')"
             >
               <i class="material-icons">clear_all</i>
@@ -17,64 +17,45 @@
       </li>
     </ul>
     <ul
-      v-for="(param, index) in params"
+      v-for="(param, index) in bodyParams"
       :key="index"
       class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
       :class="{ 'border-t': index == 0 }"
     >
       <li>
         <input
-          :placeholder="$t('parameter_count', { count: index + 1 })"
-          :name="'param' + index"
+          :placeholder="`key ${index + 1}`"
+          :name="`bparam ${index}`"
           :value="param.key"
           @change="
-            $store.commit('setKeyParams', {
+            $store.commit('setKeyBodyParams', {
               index,
               value: $event.target.value,
             })
           "
+          @keyup.prevent="setRouteQueryState"
           autofocus
         />
       </li>
       <li>
         <input
-          :placeholder="$t('value_count', { count: index + 1 })"
-          :name="'value' + index"
+          :placeholder="`value ${index + 1}`"
           :value="param.value"
           @change="
-            $store.commit('setValueParams', {
+            $store.commit('setValueBodyParams', {
               index,
               value: $event.target.value,
             })
           "
+          @keyup.prevent="setRouteQueryState"
         />
-      </li>
-      <li>
-        <span class="select-wrapper">
-          <select
-            :name="'type' + index"
-            @change="
-              $store.commit('setTypeParams', {
-                index,
-                value: $event.target.value,
-              })
-            "
-          >
-            <option value="query" :selected="param.type === 'query'">
-              {{ $t("query") }}
-            </option>
-            <option value="path" :selected="param.type === 'path'">
-              {{ $t("path") }}
-            </option>
-          </select>
-        </span>
       </li>
       <div>
         <li>
           <button
             class="icon"
             @click="
-              $store.commit('setActiveParams', {
+              $store.commit('setActiveBodyParams', {
                 index,
                 value: param.hasOwnProperty('active') ? !param.active : false,
               })
@@ -101,7 +82,11 @@
       </div>
       <div>
         <li>
-          <button class="icon" @click="removeRequestParam(index)" v-tooltip.bottom="$t('delete')">
+          <button
+            class="icon"
+            @click="removeRequestBodyParam(index)"
+            v-tooltip.bottom="$t('delete')"
+          >
             <i class="material-icons">delete</i>
           </button>
         </li>
@@ -109,29 +94,32 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestParam">
+        <button class="icon" @click="addRequestBodyParam" name="addrequest">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>
       </li>
     </ul>
-  </pw-section>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    params: { type: Array, default: () => [] },
+    bodyParams: { type: Array, default: () => [] },
   },
   methods: {
-    clearContent(parameters, $event) {
-      this.$emit("clear-content", parameters, $event)
+    clearContent(bodyParams, $event) {
+      this.$emit("clear-content", bodyParams, $event)
     },
-    removeRequestParam(index) {
-      this.$emit("remove-request-param", index)
+    setRouteQueryState() {
+      this.$emit("set-route-query-state")
     },
-    addRequestParam() {
-      this.$emit("add-request-param")
+    removeRequestBodyParam(index) {
+      this.$emit("remove-request-body-param", index)
+    },
+    addRequestBodyParam() {
+      this.$emit("add-request-body-param")
     },
   },
 }

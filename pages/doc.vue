@@ -10,7 +10,7 @@
             </p>
             <div class="row-wrapper">
               <label for="collectionUpload">
-                <button class="icon" @click="$refs.collectionUpload.click()" v-tooltip="$t('json')">
+                <button class="icon" @click="$refs.collectionUpload.click()" v-tooltip="'JSON'">
                   <i class="material-icons">folder</i>
                   <span>{{ $t("import_collections") }}</span>
                 </button>

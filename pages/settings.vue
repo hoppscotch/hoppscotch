@@ -206,7 +206,8 @@ export default {
         FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
         PROXY_URL:
-          this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
+          this.$store.state.postwoman.settings.PROXY_URL ||
+          "https://hoppscotch.apollosoftware.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
 
         EXTENSIONS_ENABLED:
@@ -257,7 +258,7 @@ export default {
       fb.writeSettings("syncEnvironments", true)
     },
     resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://postwoman.apollosoftware.xyz/`
+      this.settings.PROXY_URL = `https://hoppscotch.apollosoftware.xyz/`
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
@@ -265,14 +266,14 @@ export default {
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     syncCollections() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }
       }
     },
     syncEnvironments() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
           fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
         }

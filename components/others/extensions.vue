@@ -67,6 +67,12 @@ export default {
   props: {
     show: Boolean,
   },
+  watch: {
+    show() {
+      this.hasChromeExtInstalled = hasChromeExtensionInstalled();
+      this.hasFirefoxExtInstalled = hasFirefoxExtensionInstalled();
+    }
+  },
   data() {
     return {
       hasChromeExtInstalled: hasChromeExtensionInstalled(),

@@ -40,7 +40,7 @@ export const NodejsAxiosCodegen = {
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
     }
-    requestString.push(`${requestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n}`)
+    requestString.push(`${requestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n})`)
     requestString.push(".then(response => {\n")
     requestString.push("    console.log(response);\n")
     requestString.push("})")

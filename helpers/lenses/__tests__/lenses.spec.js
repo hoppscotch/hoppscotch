@@ -20,11 +20,26 @@ describe("getSuitableLenses", () => {
     expect(undefinedResult).toContainEqual(rawLens)
   })
 
+  const contentTypes = {
+    JSON: ["application/json", "application/ld+json", "application/hal+json; charset=utf8"],
+    Image: [
+      "image/gif",
+      "image/jpeg; foo=bar",
+      "image/png",
+      "image/bmp",
+      "image/svg+xml",
+      "image/x-icon",
+      "image/vnd.microsoft.icon",
+    ],
+    HTML: ["text/html", "application/xhtml+xml", "text/html; charset=utf-8"],
+    XML: ["text/xml", "application/xml", "application/xhtml+xml; charset=utf-8"],
+  }
+
   lenses
     .filter(({ lensName }) => lensName != rawLens.lensName)
     .forEach((el) => {
       test(`returns ${el.lensName} lens for its content-types`, () => {
-        el.supportedContentTypes.forEach((contentType) => {
+        contentTypes[el.lensName].forEach((contentType) => {
           expect(
             getSuitableLenses({
               headers: {
@@ -36,7 +51,7 @@ describe("getSuitableLenses", () => {
       })
 
       test(`returns Raw Lens along with ${el.lensName} for the content types`, () => {
-        el.supportedContentTypes.forEach((contentType) => {
+        contentTypes[el.lensName].forEach((contentType) => {
           expect(
             getSuitableLenses({
               headers: {

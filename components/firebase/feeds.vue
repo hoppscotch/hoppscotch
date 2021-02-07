@@ -30,7 +30,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 296px);
+  max-height: calc(100vh - 270px);
 }
 
 .clamb-3 {

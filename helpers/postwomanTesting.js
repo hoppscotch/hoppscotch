@@ -1,6 +1,6 @@
-const PASS = "PASS"
-const FAIL = "FAIL"
-const ERROR = "ERROR"
+export const PASS = "PASS"
+export const FAIL = "FAIL"
+export const ERROR = "ERROR"
 
 const styles = {
   [PASS]: { icon: "check", class: "success-response" },
@@ -109,38 +109,38 @@ class Expectation {
         )
   }
   toBeLevel2xx() {
-    const code = parseInt(this.expectValue)
+    const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
       return this._fail(`Expected 200-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 200 && code < 300)
+    return this._satisfies(code >= 200 && code < 300, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 200-level status`))
   }
   toBeLevel3xx() {
-    const code = parseInt(this.expectValue)
+    const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
       return this._fail(`Expected 300-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 300 && code < 400)
+    return this._satisfies(code >= 300 && code < 400, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 300-level status`))
   }
   toBeLevel4xx() {
-    const code = parseInt(this.expectValue)
+    const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
       return this._fail(`Expected 400-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 400 && code < 500)
+    return this._satisfies(code >= 400 && code < 500, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 400-level status`))
   }
   toBeLevel5xx() {
-    const code = parseInt(this.expectValue)
+    const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
       return this._fail(`Expected 500-level status but could not parse value ${this.expectValue}`)
     }
-    return this._satisfies(code >= 500 && code < 600)
+    return this._satisfies(code >= 500 && code < 600, true)
       ? this._pass()
       : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 500-level status`))
   }

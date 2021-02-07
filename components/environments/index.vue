@@ -1,10 +1,8 @@
 <template>
   <pw-section class="green" icon="history" :label="$t('environments')" ref="environments" no-legend>
     <div class="show-on-large-screen">
-      <!-- <label for="currentEnvironment">{{ $t("select_environment") }}</label> -->
       <span class="select-wrapper">
         <select
-          id="currentEnvironment"
           v-model="selectedEnvironmentIndex"
           :disabled="environments.length == 0"
           class="rounded-t-lg"
@@ -62,7 +60,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 232px);
+  max-height: calc(100vh - 270px);
 }
 </style>
 
@@ -155,7 +153,7 @@ export default {
       this.$data.editingEnvironmentIndex = undefined
     },
     syncEnvironments() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
           fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
         }

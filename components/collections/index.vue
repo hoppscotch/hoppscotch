@@ -81,7 +81,7 @@
 
 <style scoped lang="scss">
 .virtual-list {
-  max-height: calc(100vh - 232px);
+  max-height: calc(100vh - 270px);
 }
 </style>
 
@@ -240,7 +240,7 @@ export default {
       this.$data.editingRequestIndex = undefined
     },
     syncCollections() {
-      if (fb.currentUser !== null) {
+      if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
         }

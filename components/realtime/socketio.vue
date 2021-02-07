@@ -89,7 +89,6 @@
               class="icon"
               @click="removeCommunicationInput({ index })"
               v-tooltip.bottom="$t('delete')"
-              :id="`delete-socketio-message-${index}`"
             >
               <i class="material-icons">delete</i>
             </button>

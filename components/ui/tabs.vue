@@ -1,7 +1,7 @@
 <template>
   <div class="tabs-wrapper">
-    <div class="tabs">
-      <ul :class="styles">
+    <div class="tabs" :class="styles">
+      <ul>
         <li
           v-for="(tab, index) in tabs"
           :class="{ 'is-active': tab.isActive }"
@@ -36,6 +36,7 @@
     @apply flex;
     @apply whitespace-no-wrap;
     @apply overflow-auto;
+    @apply mt-4;
 
     ul {
       @apply flex;
@@ -57,6 +58,9 @@
         @apply text-sm;
         @apply rounded-lg;
         @apply cursor-pointer;
+        @apply transition-colors;
+        @apply ease-in-out;
+        @apply duration-150;
 
         .material-icons {
           @apply m-4;

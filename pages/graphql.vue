@@ -810,6 +810,8 @@ export default {
 
         this.$refs.queryEditor.setValidationSchema(schema)
         this.$nuxt.$loading.finish()
+
+        if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
       } catch (error) {
         this.$nuxt.$loading.finish()
 
@@ -821,11 +823,12 @@ export default {
           }
         )
         console.log("Error", error)
+
+        this.isPollingSchema = false
       }
 
       this.$nuxt.$loading.finish()
 
-      if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
     },
     async getSchema() {
       const startTime = Date.now()

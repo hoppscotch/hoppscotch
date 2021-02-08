@@ -13,7 +13,7 @@ const factory = (props) =>
     mocks: {
       $t: (text) => text,
     },
-    propsData: props,
+    propsData: { gqlTypes: [], ...props },
     stubs: ["field"],
   })
 

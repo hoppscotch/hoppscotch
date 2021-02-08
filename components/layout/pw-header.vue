@@ -54,7 +54,7 @@
 
         <v-popover>
           <button class="icon" v-tooltip="$t('manage_workspace')">
-            <i class="material-icons">folder</i>
+            <i class="material-icons">workspaces</i>
           </button>
           <template slot="popover">
             <workspace />

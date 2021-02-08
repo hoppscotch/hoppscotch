@@ -44,10 +44,13 @@
     @apply text-sm;
 
     &:hover {
-      @apply text-fgColor;
-      @apply cursor-pointer;
+      .label {
+        @apply text-fgColor;
+        @apply cursor-pointer;
+      }
     }
 
+<<<<<<< HEAD
     .label {
       @apply p-2;
       @apply transition;
@@ -75,6 +78,29 @@
 
       &:hover {
         @apply text-fgColor;
+        @apply bg-bgLightColor;
+      }
+    }
+
+    .siblings {
+      @apply z-10;
+      @apply absolute;
+      @apply bg-bgColor;
+      @apply max-h-60;
+      @apply overflow-y-scroll;
+    }
+
+    .sib {
+      @apply px-3;
+      @apply py-1;
+
+      &:hover {
+        @apply cursor-pointer;
+        @apply text-fgColor;
+      }
+
+      &:active {
+        @apply cursor-pointer;
         @apply bg-bgLightColor;
       }
     }

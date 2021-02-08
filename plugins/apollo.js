@@ -3,6 +3,6 @@ export default () => {
     httpEndpoint:
       process.env.CONTEXT === "production"
         ? "https://hoppscotch-backend.herokuapp.com/graphql"
-        : "http://localhost:3170/graphql",
+        : "https://hoppscotch-backend.herokuapp.com/graphql",
   }
 }

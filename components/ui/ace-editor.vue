@@ -1,9 +1,13 @@
 <template>
   <div class="show-if-initialized" :class="{ initialized }">
     <div class="outline" v-if="lang == 'json'">
-      <div class="block" v-for="(p, index) in currPath" :key="index">
-        {{ p }}
-        <div class="next">></div>
+      <div class="block" v-for="(p, index) in currPath" :key="index" @click="onBlockClick(index)">
+        <div class="label">{{ `${p} >` }}</div>
+        <div class="siblings" v-if="sibDropDownIndex == index" @mouseleave="clearSibList">
+          <div class="sib" v-for="(sib, i) in currSib" :key="i" @click.capture="goToSib(sib)">
+            {{ sib.key ? sib.key.value : i }}
+          </div>
+        </div>
       </div>
     </div>
     <pre ref="editor" :class="styles"></pre>
@@ -29,21 +33,47 @@
   @apply text-sm;
 
   .block {
-    @apply px-1;
-    @apply flex;
+    @apply px-2;
 
     &:hover {
-      @apply text-fgColor;
-      @apply cursor-pointer;
+      .label {
+        @apply text-fgColor;
+        @apply cursor-pointer;
+      }
     }
 
-    &:active {
-      @apply bg-bgLightColor;
-      @apply cursor-pointer;
+    &:active + .sib:not(:active) {
+      .label {
+        @apply bg-bgLightColor;
+        @apply cursor-pointer;
+      }
     }
 
     .next {
       @apply px-2;
+    }
+
+    .siblings {
+      @apply z-10;
+      @apply absolute;
+      @apply bg-bgColor;
+      @apply max-h-60;
+      @apply overflow-y-scroll;
+    }
+
+    .sib {
+      @apply px-3;
+      @apply py-1;
+
+      &:hover {
+        @apply cursor-pointer;
+        @apply text-fgColor;
+      }
+
+      &:active {
+        @apply cursor-pointer;
+        @apply bg-bgLightColor;
+      }
     }
   }
 }
@@ -94,6 +124,8 @@ export default {
       outline: outline(),
       showOutline: false,
       currPath: [],
+      currSib: [],
+      sibDropDownIndex: null,
     }
   },
 
@@ -193,6 +225,25 @@ export default {
         }
       }
     }, 2000),
+    onBlockClick(index) {
+      this.currSib = this.outline.getSiblings(index)
+      if (this.currSib.length) this.sibDropDownIndex = index
+    },
+    clearSibList() {
+      this.currSib = []
+      this.sibDropDownIndex = null
+    },
+    goToSib(obj) {
+      if (obj.start) {
+        let pos = this.editor.session.doc.indexToPosition(obj.start, 0)
+        if (pos) {
+          this.editor.session.selection.moveCursorTo(pos.row, pos.column, true)
+          this.editor.session.selection.clearSelection()
+          this.editor.scrollToLine(pos.row, false, true, null)
+        }
+      }
+      this.clearSibList()
+    },
   },
 
   destroyed() {

@@ -7,7 +7,6 @@ export default () => {
   const init = (jsonStr) => {
     jsonAST = jsonParse(jsonStr)
     linkParents(jsonAST)
-    console.log(jsonAST)
   }
 
   const linkParents = (node) => {
@@ -102,7 +101,15 @@ export default () => {
   }
 
   const getSiblings = (index) => {
-    //TODO
+    let parent = path[index].obj.parent
+    if (!parent) return []
+    else {
+      if (parent.kind == "Object") {
+        return parent.members
+      } else if (parent.kind == "Array") {
+        return parent.values
+      } else return []
+    }
   }
 
   return {

@@ -137,6 +137,9 @@ export default {
   },
   computed: {
     showTeamCollections() {
+      if(fb.currentUser == null) {
+        this.collectionsType.type = 'my-collections'
+      }
       return fb.currentUser !== null;
     },
     collections() {

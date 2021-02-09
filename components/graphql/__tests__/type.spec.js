@@ -1,6 +1,7 @@
 import type from "../type"
 
 import { shallowMount } from "@vue/test-utils"
+import {GraphQLEnumType, GraphQLInputObjectType, GraphQLInterfaceType, GraphQLObjectType} from "graphql"
 
 const gqlType = {
   name: "TestType",
@@ -13,8 +14,8 @@ const factory = (props) =>
     mocks: {
       $t: (text) => text,
     },
-    propsData: props,
-    stubs: ["field"],
+    propsData: { gqlTypes: [], ...props },
+    stubs: ["field", "typelink"],
   })
 
 describe("type", () => {
@@ -72,4 +73,162 @@ describe("type", () => {
 
     expect(wrapper.findAll("field-stub").length).toEqual(2)
   })
+
+  test("prepends 'input' to type name for Input Types", () => {
+    const testType = new GraphQLInputObjectType({
+      name: "TestType",
+      fields: {}
+    })
+
+    const wrapper = factory({
+      gqlType: testType 
+    })
+
+    expect(wrapper.find(".type-title").text().startsWith("input")).toEqual(true)
+  })
+
+  test("prepends 'interface' to type name for Interface Types", () => {
+    const testType = new GraphQLInterfaceType({
+      name: "TestType",
+      fields: {}
+    })
+
+    const wrapper = factory({
+      gqlType: testType
+    })
+
+    expect(wrapper.find(".type-title").text().startsWith("interface")).toEqual(true)
+  })
+
+  test("prepends 'enum' to type name for Enum Types", () => {
+    const testType = new GraphQLEnumType({
+      name: "TestType",
+      values: {}
+    })
+
+    const wrapper = factory({
+      gqlType: testType
+    })
+
+    expect(wrapper.find(".type-title").text().startsWith("enum")).toEqual(true)
+  })
+
+  test("'interfaces' computed property returns all the related interfaces", () => {
+    const testInterfaceA = new GraphQLInterfaceType({
+      name: "TestInterfaceA",
+      fields: {}
+    })
+    const testInterfaceB = new GraphQLInterfaceType({
+      name: "TestInterfaceB",
+      fields: {}
+    })
+
+    const type = new GraphQLObjectType({
+      name: "TestType",
+      interfaces: [testInterfaceA, testInterfaceB],
+      fields: {}
+    })
+
+    const wrapper = factory({
+      gqlType: type
+    })
+
+    expect(wrapper.vm.interfaces).toEqual(expect.arrayContaining([testInterfaceA, testInterfaceB]))
+  })
+
+  test("'interfaces' computed property returns an empty array if there are no interfaces", () => {
+    const type = new GraphQLObjectType({
+      name: "TestType",
+      fields: {}
+    })
+
+    const wrapper = factory({
+      gqlType: type
+    })
+
+    expect(wrapper.vm.interfaces).toEqual([])
+  })
+
+  test("'interfaces' computed property returns an empty array if the type is an enum", () => {
+    const type = new GraphQLEnumType({
+      name: "TestType",
+      values: {}
+    })
+
+    const wrapper = factory({
+      gqlType: type
+    })
+
+    expect(wrapper.vm.interfaces).toEqual([])
+  })
+
+  test("'children' computed property returns all the types implementing an interface", () => {
+    const testInterface = new GraphQLInterfaceType({
+      name: "TestInterface",
+      fields: {}
+    })
+
+    const typeA = new GraphQLObjectType({
+      name: "TypeA",
+      interfaces: [testInterface],
+      fields: {}
+    })
+
+    const typeB = new GraphQLObjectType({
+      name: "TypeB",
+      interfaces: [testInterface],
+      fields: {}
+    })
+
+    const wrapper = factory({
+      gqlType: testInterface,
+      gqlTypes: [testInterface, typeA, typeB]
+    })
+
+    expect(wrapper.vm.children).toEqual(expect.arrayContaining([typeA, typeB]))
+  })
+
+  test("'children' computed property returns an empty array if there are no types implementing the interface", () => {
+    const testInterface = new GraphQLInterfaceType({
+      name: "TestInterface",
+      fields: {}
+    })
+
+    const typeA = new GraphQLObjectType({
+      name: "TypeA",
+      fields: {}
+    })
+
+    const typeB = new GraphQLObjectType({
+      name: "TypeB",
+      fields: {}
+    })
+
+    const wrapper = factory({
+      gqlType: testInterface,
+      gqlTypes: [testInterface, typeA, typeB]
+    })
+
+    expect(wrapper.vm.children).toEqual([])
+  })
+
+  test("'children' computed property returns an empty array if the type is an enum", () => {
+    const testInterface = new GraphQLInterfaceType({
+      name: "TestInterface",
+      fields: {}
+    })
+
+    const testType = new GraphQLEnumType({
+      name: "TestEnum",
+      values: {}
+    })
+
+    const wrapper = factory({
+      gqlType: testType,
+      gqlTypes: [testInterface, testType]
+    })
+
+    expect(wrapper.vm.children).toEqual([])
+  })
+
 })

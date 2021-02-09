@@ -32,6 +32,7 @@
                                 class="icon"
                                 @click="
                                     collectionsType.selectedTeam = team;
+                                    $emit('collectionsType-updated')
                                 "
                                 v-close-popover
                                 >
@@ -84,6 +85,8 @@ export default {
     methods: {
         updateCollectionsType(tabID) {
             this.collectionsType.type = tabID
+            this.$emit('collectionsType-updated');
+
         }
     }
 }

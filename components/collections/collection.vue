@@ -94,7 +94,7 @@
       </ul>
       <ul>
         <li
-          v-if="collection.folders.length === 0 && collection.requests.length === 0"
+          v-if="(collection.folders == undefined || collection.folders.length === 0) && (collection.requests == undefined || collection.requests.length === 0)"
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">

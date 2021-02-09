@@ -1,6 +1,6 @@
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
-    <choose-collection-type :collectionsType="collectionsType" />
+    <choose-collection-type :collectionsType="collectionsType" @collectionsType-updated="updateTeamCollections" />
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -88,7 +88,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import { gql, useQuery } from "graphql-tag"
+import gql from "graphql-tag"
 
 export default {
   props: {
@@ -114,38 +114,42 @@ export default {
       collectionsType: {
         type: 'my-collections',
         selectedTeam: undefined
-      }
+      },
+      teamCollections: []
+    }
+  },
+
+  apollo: {
+    myTeams: {
+        query: gql`
+            query GetMyTeams {
+                myTeams {
+                    id
+                    name
+                }
+            }
+        `,
+        pollInterval: 1000,
     }
   },
   computed: {
     collections() {
-      if(this.collectionsType.type == 'my-collections') {
-        console.log(fb.currentUser)
         return fb.currentUser !== null
           ? fb.currentCollections
           : this.$store.state.postwoman.collections
-      } else {
-        console.log(this.collectionsType.selectedTeam.id)
-        console.log(this.collectionsType.selectedTeam.name)
-        try {
-        const collections = gql`
-                query rootCollectionsOfTeam {
-                  rootCollectionsOfTeam(teamID: ${this.collectionsType.selectedTeam.id}) {
-                    id
-                    title
-                  }
-                }
-            `
-        } catch(err) {
-          console.log(err)
-        }
-        return collections;
-      }
     },
     filteredCollections() {
-      const collections = this.collections;
-      console.log(collections)
-      if (!this.filterText) return collections
+      let collections = null;
+      if(this.collectionsType.type == 'my-collections') {
+        collections = fb.currentUser !== null
+          ? fb.currentCollections
+          : this.$store.state.postwoman.collections;
+      } else {
+        collections = this.teamCollections
+      }
+      if (!this.filterText) {
+        return collections
+      }
 
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
@@ -190,6 +194,20 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
+    async updateTeamCollections() {
+      this.teamCollections = (await this.$apollo.query({
+        query: gql`query rootCollectionsOfTeam($teamID: String!) {
+          rootCollectionsOfTeam(teamID: $teamID) {
+            id
+            title
+          }
+        }`,
+        variables: {
+          teamID: this.collectionsType.selectedTeam.id,
+        }          
+      })).data.rootCollectionsOfTeam;
+      console.log(this.teamCollections);
+    },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
     },

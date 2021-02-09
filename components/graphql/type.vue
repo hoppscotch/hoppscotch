@@ -33,7 +33,7 @@
     </div>
     <div v-if="isEnum">
       <h5>{{ $t("values") }}</h5>
-      <div v-for="value in gqlType.getValues()" class="m-4" v-text="value.name" />
+      <div :key="value.name" v-for="value in gqlType.getValues()" class="m-4" v-text="value.name" />
     </div>
   </div>
 </template>
@@ -71,8 +71,7 @@ export default {
       return this.gqlType instanceof GraphQLEnumType
     },
     interfaces() {
-      let type = this.gqlType
-      return (type.getInterfaces && type.getInterfaces()) || []
+      return (this.gqlType.getInterfaces && this.gqlType.getInterfaces()) || []
     },
     children() {
       return this.gqlTypes.filter(

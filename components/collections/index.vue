@@ -1,6 +1,9 @@
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
-    <choose-collection-type :collectionsType="collectionsType" @collectionsType-updated="updateTeamCollections" />
+    <choose-collection-type 
+      :collectionsType="collectionsType" 
+      @collectionsType-updated="updateTeamCollections" 
+      :show="showTeamCollections" />
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -133,6 +136,9 @@ export default {
     }
   },
   computed: {
+    showTeamCollections() {
+      return fb.currentUser !== null;
+    },
     collections() {
         return fb.currentUser !== null
           ? fb.currentCollections
@@ -203,7 +209,7 @@ export default {
           }
         }`,
         variables: {
-          teamID: this.collectionsType.selectedTeam.id,
+          teamID: this.collectionsType.selectedTeam ? this.collectionsType.selectedTeam.id: "",
         }          
       })).data.rootCollectionsOfTeam;
       console.log(this.teamCollections);

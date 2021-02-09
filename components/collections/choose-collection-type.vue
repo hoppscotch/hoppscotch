@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="show">
         <tabs style="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
             <tab
                 :id="'my-collections'"
@@ -58,7 +58,8 @@ var teamCollectionsTab = document.getElementById('team-collections')
 
 export default {
     props: {
-        collectionsType: Object
+        collectionsType: Object,
+        show: Boolean
     },
     apollo: {    
         myTeams: {

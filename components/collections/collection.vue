@@ -13,7 +13,7 @@
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
         <i class="material-icons">folder</i>
-        <span>{{ collection.name }}</span>
+        <span>{{ collection.name ? collection.name : collection.title }}</span>
       </button>
       <div>
         <button

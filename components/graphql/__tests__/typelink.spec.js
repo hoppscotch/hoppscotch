@@ -1,5 +1,6 @@
 import typelink from "../typelink"
 import { shallowMount } from "@vue/test-utils"
+import {GraphQLInt} from "graphql"
 
 const factory = (props) =>
   shallowMount(typelink, {
@@ -31,6 +32,19 @@ describe("typelink", () => {
     await wrapper.trigger("click")
 
     expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  test("jumpToType callback is not called if the root type is a scalar", async () => {
+    const callback = jest.fn()
+
+    const wrapper = factory({
+      gqlType: GraphQLInt,
+      jumpTypeCallback: callback
+    })
+
+    await wrapper.trigger("click")
+
+    expect(callback).not.toHaveBeenCalled()
   })
 
   test("link text is the type string", () => {

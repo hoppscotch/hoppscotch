@@ -1,5 +1,6 @@
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
+    <choose-collection-type :collectionsType="collectionsType" />
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -87,6 +88,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { gql, useQuery } from "graphql-tag"
 
 export default {
   props: {
@@ -109,18 +111,40 @@ export default {
       editingRequest: undefined,
       editingRequestIndex: undefined,
       filterText: "",
+      collectionsType: {
+        type: 'my-collections',
+        selectedTeam: undefined
+      }
     }
   },
   computed: {
     collections() {
-      return fb.currentUser !== null
-        ? fb.currentCollections
-        : this.$store.state.postwoman.collections
+      if(this.collectionsType.type == 'my-collections') {
+        console.log(fb.currentUser)
+        return fb.currentUser !== null
+          ? fb.currentCollections
+          : this.$store.state.postwoman.collections
+      } else {
+        console.log(this.collectionsType.selectedTeam.id)
+        console.log(this.collectionsType.selectedTeam.name)
+        try {
+        const collections = gql`
+                query rootCollectionsOfTeam {
+                  rootCollectionsOfTeam(teamID: ${this.collectionsType.selectedTeam.id}) {
+                    id
+                    title
+                  }
+                }
+            `
+        } catch(err) {
+          console.log(err)
+        }
+        return collections;
+      }
     },
     filteredCollections() {
-      const collections =
-        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
-
+      const collections = this.collections;
+      console.log(collections)
       if (!this.filterText) return collections
 
       const filterText = this.filterText.toLowerCase()

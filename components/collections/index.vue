@@ -143,9 +143,9 @@ export default {
       return fb.currentUser !== null;
     },
     collections() {
-        return fb.currentUser !== null
-          ? fb.currentCollections
-          : this.$store.state.postwoman.collections
+      return fb.currentUser !== null
+        ? fb.currentCollections
+        : this.$store.state.postwoman.collections
     },
     filteredCollections() {
       let collections = null;

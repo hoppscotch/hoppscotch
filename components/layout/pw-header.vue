@@ -13,7 +13,7 @@
           width="150"
           height="20"
           title="GitHub"
-          class="ml-8"
+          class="ml-8 hide-on-small-screen"
           loading="lazy"
         ></iframe>
       </span>
@@ -22,7 +22,7 @@
           href="https://www.deta.sh/?ref=hoppscotch"
           target="_blank"
           rel="noopener"
-          class="px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"
+          class="inline-flex items-center px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"
         >
           Deploy your api for free on Deta
           <img class="w-8 ml-2" src="~assets/images/deta_portal.svg" alt="Deta" />

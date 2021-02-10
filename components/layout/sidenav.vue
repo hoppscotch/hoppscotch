@@ -298,7 +298,6 @@ nav.secondary-nav {
     @apply flex-row;
     @apply flex-no-wrap;
     @apply overflow-auto;
-    @apply justify-between;
     @apply bg-bgDarkColor;
     @apply space-y-0;
 
@@ -306,7 +305,7 @@ nav.secondary-nav {
 
     a {
       @apply bg-transparent;
-      @apply m-2;
+      @apply my-2;
       @apply flex-1;
 
       &.nuxt-link-exact-active {

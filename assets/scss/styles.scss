@@ -643,7 +643,8 @@ ol li {
   @apply flex-1;
   @apply flex-row;
 
-  * {
+  span,
+  div {
     @apply inline-flex;
     @apply flex-no-wrap;
     @apply items-center;

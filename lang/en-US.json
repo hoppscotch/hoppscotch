@@ -160,6 +160,8 @@
   "disconnected_from": "Disconnected from {name}",
   "something_went_wrong": "Something went wrong!",
   "error_occurred": "An error has occurred.",
+  "string_length_insufficient": "Team name should be atleast 6 characters long",
+  "invalid_emailID_format": "Email ID format is invalid",
   "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
   "log": "Log",
   "no_url": "No URL",

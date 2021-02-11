@@ -38,10 +38,12 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 
 export default {
   props: {
     show: Boolean,
+    collectionsType: Object
   },
   data() {
     return {
@@ -61,15 +63,51 @@ export default {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      this.$store.commit("postwoman/addNewCollection", {
-        name: this.$data.name,
-      })
+      if(this.collectionsType.type == "my-collections" ) {
+        this.$store.commit("postwoman/addNewCollection", {
+          name: this.$data.name,
+        })
+        this.syncCollections()
+      }
+      else if (this.collectionsType.type == "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+          .mutate({
+            // Query
+            mutation: gql`
+              mutation($title: String!, $teamID: String!) {
+                createRootCollection(title: $title, teamID: $teamID) {
+                  id
+                }
+              }
+            `,
+            // Parameters
+            variables: {
+              title: this.$data.name,
+              teamID: this.collectionsType.selectedTeam.id,
+            },
+          })
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("collection_added"), {
+              icon: "done",
+            })
+            console.log(data)
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
+      this.$data.name = ""
       this.$emit("hide-modal")
-      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

@@ -87,6 +87,7 @@ export default {
             id
             name
             myRole
+            ownersCount
           }
         }
       `,

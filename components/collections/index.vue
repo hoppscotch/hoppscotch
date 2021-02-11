@@ -13,7 +13,10 @@
         class="rounded-t-lg"
       />
     </div>
-    <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <add-collection 
+      :collectionsType="collectionsType" 
+      :show="showModalAdd" 
+      @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"
       :editing-collection="editingCollection"
@@ -48,7 +51,13 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button class="icon" @click="displayModalAdd(true)">
+      <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="displayModalAdd(true)" disabled>
+        <i class="material-icons">add</i>
+        <div  v-tooltip.left="$t('disable_new_collection')">
+          <span>{{ $t("new") }}</span>
+        </div>
+      </button>
+      <button v-else class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
@@ -130,6 +139,7 @@ export default {
                 myTeams {
                     id
                     name
+                    myRole
                 }
             }
         `,

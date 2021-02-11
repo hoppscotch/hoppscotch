@@ -61,6 +61,13 @@ export default {
       const name = this.name
       // We clear it early to give the UI a snappy feel
       this.name = ""
+      if (name != null && name.length < 6) {
+        this.$toast.error(this.$t("string_length_insufficient"), {
+            icon: "done",
+        });
+        console.log("String length less than 6");
+        return;
+      }
       // Call to the graphql mutation
       this.$apollo
         .mutate({

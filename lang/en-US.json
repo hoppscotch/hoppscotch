@@ -144,6 +144,7 @@
   "edit": "Edit",
   "delete": "Delete",
   "deleted": "Deleted",
+  "exit": "Exit Team",
   "undo": "Undo",
   "collection_empty": "Collection is empty",
   "invalid_collection_name": "Please provide a valid name for the collection",
@@ -318,5 +319,6 @@
   "create_new_team": "Create new team",
   "new_team_created": "New team created",
   "team_saved": "Team saved",
-  "team_name_empty": "Team name empty"
+  "team_name_empty": "Team name empty",
+  "team_exited": "Team exited"
 }

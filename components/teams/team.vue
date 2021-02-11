@@ -24,7 +24,13 @@
           </button>
         </div>
         <div>
-          <button class="icon" @click="exitTeam" v-close-popover>
+          <button v-if="team.myRole === 'OWNER' && team.ownersCount == 1" class="icon" @click="exitTeam" v-close-popover disabled>
+            <i class="material-icons">remove</i>
+            <div  v-tooltip.left="$t('disable_exit')">
+              <span>{{ $t("exit") }}</span>
+            </div>
+          </button>
+          <button v-else class="icon" @click="exitTeam" v-close-popover>
             <i class="material-icons">remove</i>
             <span>{{ $t("exit") }}</span>
           </button>

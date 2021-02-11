@@ -79,6 +79,7 @@ export default {
             if(this.myTeams == null) return {name: 'Loading'}
             if(this.collectionsType.selectedTeam == null) {
                 this.collectionsType.selectedTeam = this.myTeams[0]
+                this.$emit('collectionsType-updated');
             }
             return this.collectionsType.selectedTeam
         },

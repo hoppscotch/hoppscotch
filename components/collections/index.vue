@@ -68,6 +68,7 @@
             :collection="collection"
             :doc="doc"
             :isFiltered="filterText.length > 0"
+            :collectionsType="collectionsType"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
@@ -118,7 +119,7 @@ export default {
         type: 'my-collections',
         selectedTeam: undefined
       },
-      teamCollections: []
+      teamCollections: {}
     }
   },
 
@@ -132,7 +133,7 @@ export default {
                 }
             }
         `,
-        pollInterval: 1000,
+        pollInterval: 10000,
     }
   },
   computed: {
@@ -154,7 +155,11 @@ export default {
           ? fb.currentCollections
           : this.$store.state.postwoman.collections;
       } else {
-        collections = this.teamCollections
+        if(this.collectionsType.selectedTeam && this.collectionsType.selectedTeam.id in this.teamCollections){
+          collections = this.teamCollections[this.collectionsType.selectedTeam.id];
+        } else {
+          collections = []
+        }
       }
       if (!this.filterText) {
         return collections
@@ -204,8 +209,10 @@ export default {
   },
   methods: {
     async updateTeamCollections() {
-      this.teamCollections = (await this.$apollo.query({
-        query: gql`query rootCollectionsOfTeam($teamID: String!) {
+      if(this.collectionsType.selectedTeam == undefined) return;
+      this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, (await this.$apollo.query({
+        query: gql`
+        query rootCollectionsOfTeam($teamID: String!) {
           rootCollectionsOfTeam(teamID: $teamID) {
             id
             title
@@ -214,7 +221,7 @@ export default {
         variables: {
           teamID: this.collectionsType.selectedTeam ? this.collectionsType.selectedTeam.id: "",
         }          
-      })).data.rootCollectionsOfTeam;
+      })).data.rootCollectionsOfTeam);
       console.log(this.teamCollections);
     },
     displayModalAdd(shouldDisplay) {

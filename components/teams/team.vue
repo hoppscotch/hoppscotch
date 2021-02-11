@@ -6,7 +6,7 @@
         <span>{{ team.name }}</span>
       </button>
     </div>
-    <v-popover>
+    <v-popover v-if="team.myRole === 'OWNER'">
       <button class="tooltip-target icon" v-tooltip.left="$t('more')">
         <i class="material-icons">more_vert</i>
       </button>

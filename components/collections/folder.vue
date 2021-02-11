@@ -14,7 +14,7 @@
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
           <i class="material-icons">folder_open</i>
-          <span>{{ folder.name }}</span>
+          <span>{{ (folder.name ? folder.name : folder.title) }}</span>
         </button>
       </div>
       <v-popover>

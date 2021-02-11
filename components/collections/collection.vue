@@ -59,7 +59,7 @@
       <ul class="flex-col">
         <li
           v-for="(folder, index) in collection.folders"
-          :key="folder.name"
+          :key="(folder.name ? folder.name : folder.title)"
           class="ml-8 border-l border-brdColor"
         >
           <folder

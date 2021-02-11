@@ -86,6 +86,7 @@ export default {
           myTeams {
             id
             name
+            myRole
           }
         }
       `,

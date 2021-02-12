@@ -11,7 +11,7 @@
     </div>
     <choose-collection-type 
       :collectionsType="collectionsType" 
-      @collectionsType-updated="updateTeamCollections" 
+      @update-team-collections="updateTeamCollections" 
       :show="showTeamCollections" />
     <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-collection
@@ -165,6 +165,10 @@ export default {
         return collections
       }
 
+      if(this.collectionsType.type == 'team-collections') {
+        return [];
+      }
+
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
 
@@ -178,7 +182,7 @@ export default {
           const filteredFolderRequests = []
           for (let request of folder.requests) {
             if (request.name.toLowerCase().includes(filterText))
-              filteredFolderRequests.push(request)
+              filteredFolderRequests.push(request);
           }
           if (filteredFolderRequests.length > 0) {
             const filteredFolder = Object.assign({}, folder)
@@ -186,8 +190,7 @@ export default {
             filteredFolders.push(filteredFolder)
           }
         }
-
-        if (filteredRequests.length + filteredFolders.length > 0) {
+        if (filteredRequests.length + filteredFolders.length > 0 || collection.name.toLowerCase().includes(filterText)) {
           const filteredCollection = Object.assign({}, collection)
           filteredCollection.requests = filteredRequests
           filteredCollection.folders = filteredFolders
@@ -208,9 +211,9 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
-    async updateTeamCollections() {
+    updateTeamCollections() {
       if(this.collectionsType.selectedTeam == undefined) return;
-      this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, (await this.$apollo.query({
+      this.$apollo.query({
         query: gql`
         query rootCollectionsOfTeam($teamID: String!) {
           rootCollectionsOfTeam(teamID: $teamID) {
@@ -219,10 +222,13 @@ export default {
           }
         }`,
         variables: {
-          teamID: this.collectionsType.selectedTeam ? this.collectionsType.selectedTeam.id: "",
-        }          
-      })).data.rootCollectionsOfTeam);
-      console.log(this.teamCollections);
+          teamID: this.collectionsType.selectedTeam.id,
+        },
+        fetchPolicy: 'no-cache'
+      }).then((response) => {
+        this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, response.data.rootCollectionsOfTeam);
+      });
+
     },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay

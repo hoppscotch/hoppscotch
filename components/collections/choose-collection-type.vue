@@ -22,7 +22,7 @@
                             autofocus
                             @change=" 
                                 collectionsType.selectedTeam = myTeams[$event.target.value];
-                                $emit('collectionsType-updated');
+                                $emit('update-team-collections');
                             "
                             >
                                 <option
@@ -73,7 +73,7 @@ export default {
     methods: {
         updateCollectionsType(tabID) {
             this.collectionsType.type = tabID
-            this.$emit('collectionsType-updated');
+            this.$emit('update-team-collections');
 
         }
     }

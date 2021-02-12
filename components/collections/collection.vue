@@ -236,6 +236,7 @@ export default {
           })
         }
       }
+      this.confirmRemove = false
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging

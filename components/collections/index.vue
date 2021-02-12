@@ -1,9 +1,5 @@
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
-    <choose-collection-type 
-      :collectionsType="collectionsType" 
-      @collectionsType-updated="updateTeamCollections" 
-      :show="showTeamCollections" />
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -13,6 +9,10 @@
         class="rounded-t-lg"
       />
     </div>
+    <choose-collection-type 
+      :collectionsType="collectionsType" 
+      @collectionsType-updated="updateTeamCollections" 
+      :show="showTeamCollections" />
     <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"

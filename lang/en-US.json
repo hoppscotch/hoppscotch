@@ -144,6 +144,7 @@
   "edit": "Edit",
   "delete": "Delete",
   "deleted": "Deleted",
+  "exit": "Exit Team",
   "undo": "Undo",
   "collection_empty": "Collection is empty",
   "invalid_collection_name": "Please provide a valid name for the collection",
@@ -160,6 +161,8 @@
   "disconnected_from": "Disconnected from {name}",
   "something_went_wrong": "Something went wrong!",
   "error_occurred": "An error has occurred.",
+  "string_length_insufficient": "Team name should be atleast 6 characters long",
+  "invalid_emailID_format": "Email ID format is invalid",
   "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
   "log": "Log",
   "no_url": "No URL",
@@ -316,5 +319,7 @@
   "create_new_team": "Create new team",
   "new_team_created": "New team created",
   "team_saved": "Team saved",
-  "team_name_empty": "Team name empty"
+  "team_name_empty": "Team name empty",
+  "team_exited": "Team exited",
+  "disable_exit": "Only owner cannot exit the team"
 }

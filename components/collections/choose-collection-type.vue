@@ -10,7 +10,6 @@
             <tab
                 :id="'team-collections'"
                 :label="'Team Collections'"
-                :selected="false"
             >
                 <ul>
                     <li>
@@ -41,10 +40,7 @@
 </template>
 
 <script>
-import tabs from '../ui/tabs';
 import gql from "graphql-tag"
-
-var teamCollectionsTab = document.getElementById('team-collections')
 
 export default {
     props: {

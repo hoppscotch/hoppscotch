@@ -82,8 +82,21 @@
     <div class="p-2">
       <h3 class="title">Financial Contributors</h3>
       <div class="contributors">
+        <a href="http://appwrite.io?ref=hoppscotch" target="_blank" rel="noopener">
+          <img
+            style="height: 100%; width: 300px; background: #fff"
+            src="~assets/images/appwrite-banner.svg"
+            alt="Appwrite"
+          />
+        </a>
+      </div>
+      <div class="contributors">
         <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
-          <img style="max-width: 200px" src="~assets/images/hs-gh-banner.png" alt="Deta" />
+          <img
+            style="height: 100%; max-width: 200px"
+            src="~assets/images/hs-gh-banner.png"
+            alt="Deta"
+          />
         </a>
       </div>
       <div class="contributors">
@@ -100,7 +113,7 @@
         </a>
       </div>
       <div class="contributors">
-        <a href="https://tyk.io" target="_blank" rel="noopener">
+        <a href="https://tyk.io?ref=hoppscotch" target="_blank" rel="noopener">
           <img
             style="max-width: 320px"
             src="~assets/images/Tyk-side-project-logo-tagline-blk.png"

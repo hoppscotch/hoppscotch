@@ -21,6 +21,22 @@
   </p>
 </div>
 
+<p align="center">
+  <b>SPONSORED BY</b>
+</p>
+<table align="center" cellspacing="0" cellpadding="0">
+  <tbody>
+    <tr>
+      <td align="center" valign="middle" width="250">
+        <a href="http://appwrite.io?ref=hoppscotch" title="Appwrite" target="_blank">
+          <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
+          Appwrite
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 <div align="center">
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
 </div>
@@ -532,18 +548,18 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 </p>
 
 <p align="center">
+<a href="https://github.com/eldadfux" target="_blank" rel="noopener">
+<img
+  width="64"
+	src="https://github.com/eldadfux.png?size=64"
+	alt="Eldad A. Fux"
+/>
+</a>
 <a href="https://github.com/aishwarydhare" target="_blank" rel="noopener">
 <img
   width="64"
 	src="https://github.com/aishwarydhare.png?size=64"
 	alt="Aishwary Dhare"
-/>
-</a>
-<a href="https://github.com/diningcity-group" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/diningcity-group.png?size=64"
-	alt="DiningCity"
 />
 </a>
 <a href="https://github.com/rithish" target="_blank" rel="noopener">

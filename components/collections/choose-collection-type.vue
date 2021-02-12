@@ -16,31 +16,21 @@
                     <li>
                         <label for="select_team"> Select Team: </label>
                         <span class="select-wrapper">
-                        <v-popover>
-                            <input
+                            <select 
+                            type="text" 
                             id="team"
                             class="team"
-                            v-model="selectedTeam.name"
+                            v-model="selectedTeam"
                             autofocus
-                            />
-                            <template slot="popover">
-                            <div
-                                v-for="(team, index) in myTeams"
-                                :key="`method-${index}`"
                             >
-                                <button
-                                class="icon"
-                                @click="
-                                    collectionsType.selectedTeam = team;
-                                    $emit('collectionsType-updated')
-                                "
-                                v-close-popover
+                                <option
+                                v-for="(team, index) in myTeams"
+                                :key="index"
+                                :value="team"
                                 >
                                 {{ team.name }}
-                                </button>
-                            </div>
-                            </template>
-                        </v-popover>
+                                </option>
+                            </select>
                         </span>
                     </li>
                 </ul>

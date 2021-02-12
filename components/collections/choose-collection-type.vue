@@ -32,7 +32,7 @@
                                 class="icon"
                                 @click="
                                     collectionsType.selectedTeam = team;
-                                    $emit('collectionsType-updated')
+                                    $emit('update-team-collections')
                                 "
                                 v-close-popover
                                 >
@@ -80,7 +80,7 @@ export default {
             if(this.myTeams == null) return {name: 'Loading'}
             if(this.collectionsType.selectedTeam == null) {
                 this.collectionsType.selectedTeam = this.myTeams[0]
-                this.$emit('collectionsType-updated');
+                this.$emit('update-team-collections');
             }
             return this.collectionsType.selectedTeam
         },
@@ -88,7 +88,7 @@ export default {
     methods: {
         updateCollectionsType(tabID) {
             this.collectionsType.type = tabID
-            this.$emit('collectionsType-updated');
+            this.$emit('update-team-collections');
 
         }
     }

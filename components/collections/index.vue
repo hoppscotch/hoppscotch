@@ -2,7 +2,7 @@
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
     <choose-collection-type 
       :collectionsType="collectionsType" 
-      @collectionsType-updated="updateTeamCollections" 
+      @update-team-collections="updateTeamCollections" 
       :show="showTeamCollections" />
     <div class="show-on-large-screen">
       <input
@@ -16,6 +16,7 @@
     <add-collection 
       :collectionsType="collectionsType" 
       :show="showModalAdd" 
+      @update-team-collections="updateTeamCollections"
       @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"
@@ -220,7 +221,7 @@ export default {
   methods: {
     async updateTeamCollections() {
       if(this.collectionsType.selectedTeam == undefined) return;
-      this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, (await this.$apollo.query({
+      this.$apollo.query({
         query: gql`
         query rootCollectionsOfTeam($teamID: String!) {
           rootCollectionsOfTeam(teamID: $teamID) {
@@ -230,9 +231,12 @@ export default {
         }`,
         variables: {
           teamID: this.collectionsType.selectedTeam ? this.collectionsType.selectedTeam.id: "",
-        }          
-      })).data.rootCollectionsOfTeam);
-      console.log(this.teamCollections);
+        },
+        fetchPolicy: 'no-cache'       
+      }).then((response) => {
+        this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, response.data.rootCollectionsOfTeam);
+      })
+      
     },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay

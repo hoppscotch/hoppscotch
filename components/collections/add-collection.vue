@@ -93,6 +93,7 @@ export default {
               icon: "done",
             })
             console.log(data)
+            this.$emit('update-team-collections');
           })
           .catch((error) => {
             // Error

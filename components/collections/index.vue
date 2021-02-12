@@ -83,6 +83,7 @@
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
+            @update-team-collections="updateTeamCollections"
             @select-collection="$emit('use-collection', collection)"
           />
         </li>

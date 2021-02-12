@@ -61,9 +61,9 @@ export default {
       const name = this.name
       // We clear it early to give the UI a snappy feel
       this.name = ""
-      if (name != null && name.length < 6) {
+      if (name != null && (name.replace(/\s/g, "").length < 6) {
         this.$toast.error(this.$t("string_length_insufficient"), {
-            icon: "done",
+            icon: "error",
         });
         console.log("String length less than 6");
         return;

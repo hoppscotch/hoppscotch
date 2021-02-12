@@ -1,5 +1,9 @@
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
+    <choose-collection-type 
+      :collectionsType="collectionsType" 
+      @collectionsType-updated="updateTeamCollections" 
+      :show="showTeamCollections" />
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -64,6 +68,7 @@
             :collection="collection"
             :doc="doc"
             :isFiltered="filterText.length > 0"
+            :collectionsType="collectionsType"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
@@ -87,6 +92,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 
 export default {
   props: {
@@ -109,19 +115,55 @@ export default {
       editingRequest: undefined,
       editingRequestIndex: undefined,
       filterText: "",
+      collectionsType: {
+        type: 'my-collections',
+        selectedTeam: undefined
+      },
+      teamCollections: {}
+    }
+  },
+
+  apollo: {
+    myTeams: {
+        query: gql`
+            query GetMyTeams {
+                myTeams {
+                    id
+                    name
+                }
+            }
+        `,
+        pollInterval: 10000,
     }
   },
   computed: {
+    showTeamCollections() {
+      if(fb.currentUser == null) {
+        this.collectionsType.type = 'my-collections'
+      }
+      return fb.currentUser !== null;
+    },
     collections() {
       return fb.currentUser !== null
         ? fb.currentCollections
         : this.$store.state.postwoman.collections
     },
     filteredCollections() {
-      const collections =
-        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
-
-      if (!this.filterText) return collections
+      let collections = null;
+      if(this.collectionsType.type == 'my-collections') {
+        collections = fb.currentUser !== null
+          ? fb.currentCollections
+          : this.$store.state.postwoman.collections;
+      } else {
+        if(this.collectionsType.selectedTeam && this.collectionsType.selectedTeam.id in this.teamCollections){
+          collections = this.teamCollections[this.collectionsType.selectedTeam.id];
+        } else {
+          collections = []
+        }
+      }
+      if (!this.filterText) {
+        return collections
+      }
 
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
@@ -166,6 +208,22 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
+    async updateTeamCollections() {
+      if(this.collectionsType.selectedTeam == undefined) return;
+      this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, (await this.$apollo.query({
+        query: gql`
+        query rootCollectionsOfTeam($teamID: String!) {
+          rootCollectionsOfTeam(teamID: $teamID) {
+            id
+            title
+          }
+        }`,
+        variables: {
+          teamID: this.collectionsType.selectedTeam ? this.collectionsType.selectedTeam.id: "",
+        }          
+      })).data.rootCollectionsOfTeam);
+      console.log(this.teamCollections);
+    },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
     },

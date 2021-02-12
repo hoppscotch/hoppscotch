@@ -13,7 +13,7 @@
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
         <i class="material-icons">folder</i>
-        <span>{{ collection.name }}</span>
+        <span>{{ collection.name ? collection.name : collection.title }}</span>
       </button>
       <div>
         <button
@@ -59,7 +59,7 @@
       <ul class="flex-col">
         <li
           v-for="(folder, index) in collection.folders"
-          :key="folder.name"
+          :key="(folder.name ? folder.name : folder.title)"
           class="ml-8 border-l border-brdColor"
         >
           <folder
@@ -68,6 +68,7 @@
             :folder-path="`${collectionIndex}/${index}`"
             :collection-index="collectionIndex"
             :doc="doc"
+            :collectionsType="collectionsType"
             :isFiltered="isFiltered"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
@@ -94,7 +95,7 @@
       </ul>
       <ul>
         <li
-          v-if="collection.folders.length === 0 && collection.requests.length === 0"
+          v-if="(collection.folders == undefined || collection.folders.length === 0) && (collection.requests == undefined || collection.requests.length === 0)"
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">
@@ -114,6 +115,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 
 export default {
   props: {
@@ -121,6 +123,7 @@ export default {
     collection: Object,
     doc: Boolean,
     isFiltered: Boolean,
+    collectionsType: Object
   },
   data() {
     return {
@@ -140,6 +143,50 @@ export default {
     },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
+      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.collection.folders == undefined) {
+        this.$apollo.query({
+          query: gql`
+          query getCollectionChildren($collectionID: String!) {
+              collection(collectionID: $collectionID) {
+                  children {
+                      id
+                      title
+                  }
+              }
+          }
+          `,
+          variables: {
+            collectionID: this.collection.id
+          }
+        }).then((response) => {
+          console.log(response.data.collection.children)
+          this.$set(this.collection, 'folders', response.data.collection.children);
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.collection.requests == undefined) {
+        this.$apollo.query({
+          query: gql`
+          query getCollectionRequests($collectionID: String!) {
+              requestsInCollection(collectionID: $collectionID) {
+                  id
+                  title
+                  request
+              }
+          }
+          `,
+          variables: {
+            collectionID: this.collection.id
+          }
+        }).then((response) => {
+          console.log(response.data.requests)
+          this.$set(this.collection, 'requests', response.data.requests);
+        }).catch((error) => {
+          console.log(error);
+        });
+        
+      }
     },
     removeCollection() {
       this.$store.commit("postwoman/removeCollection", {

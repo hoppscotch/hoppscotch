@@ -14,7 +14,7 @@
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
           <i class="material-icons">folder_open</i>
-          <span>{{ folder.name }}</span>
+          <span>{{ (folder.name ? folder.name : folder.title) }}</span>
         </button>
       </div>
       <v-popover>
@@ -80,6 +80,7 @@
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
+            :collectionsType="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
@@ -104,6 +105,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 
 export default {
   name: "folder",
@@ -114,6 +116,7 @@ export default {
     folderPath: String,
     doc: Boolean,
     isFiltered: Boolean,
+    collectionsType: Object
   },
   data() {
     return {
@@ -132,6 +135,51 @@ export default {
     },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
+      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.folder.folders == undefined) {
+        console.log(this.folder)
+        this.$apollo.query({
+          query: gql`
+          query getCollectionChildren($collectionID: String!) {
+              collection(collectionID: $collectionID) {
+                  children {
+                      id
+                      title
+                  }
+              }
+          }
+          `,
+          variables: {
+            collectionID: this.folder.id
+          }
+        }).then((response) => {
+          console.log(response.data.collection.children)
+          this.$set(this.folder, 'folders', response.data.collection.children);
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.folder.requests == undefined) {
+        this.$apollo.query({
+          query: gql`
+          query getCollectionRequests($collectionID: String!) {
+              requestsInCollection(collectionID: $collectionID) {
+                  id
+                  title
+                  request
+              }
+          }
+          `,
+          variables: {
+            collectionID: this.folder.id
+          }
+        }).then((response) => {
+          console.log(response.data.requests)
+          this.$set(this.folder, 'requests', response.data.requests);
+        }).catch((error) => {
+          console.log(error);
+        });
+        
+      }
     },
     removeFolder() {
       this.$store.commit("postwoman/removeFolder", {

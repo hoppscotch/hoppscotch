@@ -24,15 +24,11 @@
           </button>
         </div>
         <div>
-          <button v-if="team.myRole === 'OWNER' && team.ownersCount == 1" class="icon" @click="exitTeam" v-close-popover disabled>
+          <button class="icon" @click="exitTeam" v-close-popover :disabled="!(team.myRole === 'OWNER' && team.ownersCount == 1)">
             <i class="material-icons">remove</i>
-            <div  v-tooltip.left="$t('disable_exit')">
+            <div v-tooltip.left="{ content: team.myRole === 'OWNER' && team.ownersCount == 1 ? null : $t('disable_exit') }">
               <span>{{ $t("exit") }}</span>
             </div>
-          </button>
-          <button v-else class="icon" @click="exitTeam" v-close-popover>
-            <i class="material-icons">remove</i>
-            <span>{{ $t("exit") }}</span>
           </button>
         </div>
       </template>
@@ -120,7 +116,7 @@ export default {
         .catch((error) => {
           // Error
           this.$toast.error(this.$t("error_occurred"), {
-            icon: "done",
+            icon: "error",
           })
           console.error(error)
         })

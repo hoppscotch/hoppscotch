@@ -29,7 +29,7 @@
     "acorn": "^8.0.5",
     "acorn-walk": "^8.0.2",
     "esprima": "^4.0.1",
-    "firebase": "^8.2.6",
+    "firebase": "^8.2.7",
     "graphql": "^15.5.0",
     "graphql-language-service-interface": "^2.8.2",
     "mustache": "^4.1.0",
@@ -45,8 +45,8 @@
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.13",
-    "@babel/preset-env": "^7.12.13",
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16",
     "@nuxtjs/color-mode": "^2.0.3",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/pwa": "^3.3.5",
@@ -67,7 +67,7 @@
     "sass": "^1.32.7",
     "sass-loader": "^10.1.1",
     "vue-jest": "^3.0.7",
-    "worker-loader": "^3.0.7"
+    "worker-loader": "^3.0.8"
   },
   "jest": {
     "moduleFileExtensions": [

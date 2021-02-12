@@ -227,6 +227,8 @@ export default {
         fetchPolicy: 'no-cache'
       }).then((response) => {
         this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, response.data.rootCollectionsOfTeam);
+      }).catch((error) => {
+        console.log(error);
       });
 
     },

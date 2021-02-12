@@ -1,6 +1,6 @@
 <template>
     <div v-if="show">
-        <tabs style="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
+        <tabs styles="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
             <tab
                 :id="'my-collections'"
                 :label="'My Collections'"

@@ -177,7 +177,7 @@ export default {
       return false
     },
     saveTeam() {
-      if (this.rename != null && this.rename.replace(/\s/g, "").length < 6) {
+      if (this.rename != null && (this.rename.replace(/\s/g, "")).length < 6) {
         this.$toast.error(this.$t("string_length_insufficient"), {
             icon: "error",
         });
@@ -188,7 +188,7 @@ export default {
       this.members.forEach((element) => {
         if (!this.validateEmail(element.key)){
           this.$toast.error(this.$t("invalid_emailID_format"), {
-            icon: "done",
+            icon: "error",
           });
           console.log("Email id format invalid");
           return;

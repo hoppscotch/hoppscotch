@@ -177,9 +177,9 @@ export default {
       return false
     },
     saveTeam() {
-      if (this.rename != null && this.rename.length < 6) {
+      if (this.rename != null && this.rename.replace(/\s/g, "").length < 6) {
         this.$toast.error(this.$t("string_length_insufficient"), {
-            icon: "done",
+            icon: "error",
         });
         console.log("String length less than 6");
         return;

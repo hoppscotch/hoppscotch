@@ -19,13 +19,23 @@
                             type="text" 
                             id="team"
                             class="team"
-                            v-model="selectedTeam"
                             autofocus
+                            @change=" 
+                                collectionsType.selectedTeam = myTeams[$event.target.value];
+                                $emit('collectionsType-updated');
+                            "
                             >
+                                <option
+                                :key="undefined"
+                                :value="undefined"
+                                hidden disabled selected
+                                >
+                                Select team
+                                </option>
                                 <option
                                 v-for="(team, index) in myTeams"
                                 :key="index"
-                                :value="team"
+                                :value="index"
                                 >
                                 {{ team.name }}
                                 </option>
@@ -59,16 +69,6 @@ export default {
             `,
             pollInterval: 10000,
         }
-    },
-    computed: {
-        selectedTeam() {
-            if(this.myTeams == null) return {name: 'Loading'}
-            if(this.collectionsType.selectedTeam == null) {
-                this.collectionsType.selectedTeam = this.myTeams[0]
-                this.$emit('collectionsType-updated');
-            }
-            return this.collectionsType.selectedTeam
-        },
     },
     methods: {
         updateCollectionsType(tabID) {

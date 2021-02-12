@@ -104,11 +104,11 @@ export default {
           })
         }
       }
-      this.$data.name = ""
-      this.$emit("hide-modal")
+      this.hideModal()
     },
     hideModal() {
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

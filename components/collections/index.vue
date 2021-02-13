@@ -22,6 +22,7 @@
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEdit(false)"
     />
     <add-folder

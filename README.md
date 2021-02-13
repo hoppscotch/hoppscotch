@@ -22,20 +22,13 @@
 </div>
 
 <p align="center">
-  <b>SPONSORED BY</b>
+  <b>Sponsored by</b>
+  <br>
+  <br>
+  <a href="http://appwrite.io?ref=hoppscotch" title="Appwrite" target="_blank">
+    <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
+  </a>
 </p>
-<table align="center" cellspacing="0" cellpadding="0">
-  <tbody>
-    <tr>
-      <td align="center" valign="middle" width="250">
-        <a href="http://appwrite.io?ref=hoppscotch" title="Appwrite" target="_blank">
-          <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
-          Appwrite
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
 
 <div align="center">
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>

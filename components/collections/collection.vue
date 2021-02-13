@@ -40,7 +40,13 @@
               </button>
             </div>
             <div>
-              <button class="icon" @click="$emit('edit-collection')" v-close-popover>
+              <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="$emit('edit-collection')" v-close-popover disabled>
+                <i class="material-icons">create</i>
+                <div  v-tooltip.left="$t('disable_new_collection')">
+                  <span>{{ $t("edit") }}</span>
+                </div>
+              </button>
+              <button v-else class="icon" @click="$emit('edit-collection')" v-close-popover>
                 <i class="material-icons">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>

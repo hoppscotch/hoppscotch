@@ -32,8 +32,12 @@
 
 .outline {
   @apply flex;
-  @apply text-fgLightColor;
-  @apply text-sm;
+  @apply flex-no-wrap;
+  @apply w-full;
+  @apply overflow-auto;
+  @apply font-mono;
+  @apply shadow-lg;
+  @apply px-4;
 
   .block {
     @apply inline-flex;
@@ -50,13 +54,13 @@
       }
     }
 
-<<<<<<< HEAD
     .label {
       @apply p-2;
       @apply transition;
       @apply ease-in-out;
       @apply duration-150;
     }
+
 
     .siblings {
       @apply absolute;
@@ -78,29 +82,6 @@
 
       &:hover {
         @apply text-fgColor;
-        @apply bg-bgLightColor;
-      }
-    }
-
-    .siblings {
-      @apply z-10;
-      @apply absolute;
-      @apply bg-bgColor;
-      @apply max-h-60;
-      @apply overflow-y-scroll;
-    }
-
-    .sib {
-      @apply px-3;
-      @apply py-1;
-
-      &:hover {
-        @apply cursor-pointer;
-        @apply text-fgColor;
-      }
-
-      &:active {
-        @apply cursor-pointer;
         @apply bg-bgLightColor;
       }
     }
@@ -151,7 +132,6 @@ export default {
       editor: null,
       cacheValue: "",
       outline: outline(),
-      showOutline: false,
       currPath: [],
       currSib: [],
       sibDropDownIndex: null,
@@ -176,8 +156,6 @@ export default {
     },
     lang(value) {
       this.editor.getSession().setMode(`ace/mode/${value}`)
-      if (lang == "json") this.showOutline = true
-      else this.showOutline = false
     },
     options(value) {
       this.editor.setOptions(value)
@@ -215,9 +193,7 @@ export default {
       const path = this.outline.genPath(index)
       if (path.success) {
         this.currPath = path.res
-        this.showOutline = true
       } else {
-        this.showOutline = false
       }
     })
 

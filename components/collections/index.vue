@@ -1,9 +1,5 @@
 <template>
   <pw-section class="yellow" :label="$t('collections')" ref="collections" no-legend>
-    <choose-collection-type 
-      :collectionsType="collectionsType" 
-      @update-team-collections="updateTeamCollections" 
-      :show="showTeamCollections" />
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -13,6 +9,10 @@
         class="rounded-t-lg"
       />
     </div>
+    <choose-collection-type 
+      :collectionsType="collectionsType" 
+      @update-team-collections="updateTeamCollections" 
+      :show="showTeamCollections" />
     <add-collection 
       :collectionsType="collectionsType" 
       :show="showModalAdd" 
@@ -178,6 +178,10 @@ export default {
         return collections
       }
 
+      if(this.collectionsType.type == 'team-collections') {
+        return [];
+      }
+
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
 
@@ -191,7 +195,7 @@ export default {
           const filteredFolderRequests = []
           for (let request of folder.requests) {
             if (request.name.toLowerCase().includes(filterText))
-              filteredFolderRequests.push(request)
+              filteredFolderRequests.push(request);
           }
           if (filteredFolderRequests.length > 0) {
             const filteredFolder = Object.assign({}, folder)
@@ -199,8 +203,7 @@ export default {
             filteredFolders.push(filteredFolder)
           }
         }
-
-        if (filteredRequests.length + filteredFolders.length > 0) {
+        if (filteredRequests.length + filteredFolders.length > 0 || collection.name.toLowerCase().includes(filterText)) {
           const filteredCollection = Object.assign({}, collection)
           filteredCollection.requests = filteredRequests
           filteredCollection.folders = filteredFolders
@@ -221,7 +224,7 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
-    async updateTeamCollections() {
+    updateTeamCollections() {
       if(this.collectionsType.selectedTeam == undefined) return;
       this.$apollo.query({
         query: gql`
@@ -232,13 +235,15 @@ export default {
           }
         }`,
         variables: {
-          teamID: this.collectionsType.selectedTeam ? this.collectionsType.selectedTeam.id: "",
+          teamID: this.collectionsType.selectedTeam.id,
         },
-        fetchPolicy: 'no-cache'       
+        fetchPolicy: 'no-cache'
       }).then((response) => {
         this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, response.data.rootCollectionsOfTeam);
-      })
-      
+      }).catch((error) => {
+        console.log(error);
+      });
+
     },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay

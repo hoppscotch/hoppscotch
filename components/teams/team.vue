@@ -11,16 +11,24 @@
         <i class="material-icons">more_vert</i>
       </button>
       <template slot="popover">
-        <div>
+        <div v-if="team.myRole === 'OWNER'">
           <button class="icon" @click="$emit('edit-team')" v-close-popover>
             <i class="material-icons">create</i>
             <span>{{ $t("edit") }}</span>
           </button>
         </div>
-        <div>
+        <div v-if="team.myRole === 'OWNER'">
           <button class="icon" @click="removeTeam" v-close-popover>
             <i class="material-icons">delete</i>
             <span>{{ $t("delete") }}</span>
+          </button>
+        </div>
+        <div>
+          <button class="icon" @click="exitTeam" v-close-popover :disabled="!(team.myRole === 'OWNER' && team.ownersCount == 1)">
+            <i class="material-icons">remove</i>
+            <div v-tooltip.left="{ content: team.myRole === 'OWNER' && team.ownersCount == 1 ? null : $t('disable_exit') }">
+              <span>{{ $t("exit") }}</span>
+            </div>
           </button>
         </div>
       </template>
@@ -82,6 +90,37 @@ export default {
           console.error(error)
         })
     },
+    exitTeam () {
+      if (!confirm("Are you sure you want to exit this team?")) return
+      console.log("leaveTeam", this.teamID)
+      this.$apollo
+        .mutate({
+          // Query
+          mutation: gql`
+            mutation($teamID: String!) {
+              leaveTeam(teamID: $teamID)
+            }
+          `,
+          // Parameters
+          variables: {
+            teamID: this.teamID,
+          },
+        })
+        .then((data) => {
+          // Result
+          this.$toast.success(this.$t("team_exited"), {
+            icon: "done",
+          })
+          console.log(data)
+        })
+        .catch((error) => {
+          // Error
+          this.$toast.error(this.$t("error_occurred"), {
+            icon: "error",
+          })
+          console.error(error)
+        })
+    }
   },
 }
 </script>

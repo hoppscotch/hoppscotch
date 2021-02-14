@@ -1,6 +1,6 @@
 <template>
     <div v-if="show">
-        <tabs style="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
+        <tabs styles="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
             <tab
                 :id="'my-collections'"
                 :label="'My Collections'"
@@ -10,37 +10,36 @@
             <tab
                 :id="'team-collections'"
                 :label="'Team Collections'"
-                :selected="false"
             >
                 <ul>
                     <li>
                         <label for="select_team"> Select Team: </label>
                         <span class="select-wrapper">
-                        <v-popover>
-                            <input
+                            <select 
+                            type="text" 
                             id="team"
                             class="team"
-                            v-model="selectedTeam.name"
                             autofocus
-                            />
-                            <template slot="popover">
-                            <div
-                                v-for="(team, index) in myTeams"
-                                :key="`method-${index}`"
+                            @change=" 
+                                collectionsType.selectedTeam = myTeams[$event.target.value];
+                                $emit('update-team-collections');
+                            "
                             >
-                                <button
-                                class="icon"
-                                @click="
-                                    collectionsType.selectedTeam = team;
-                                    $emit('update-team-collections')
-                                "
-                                v-close-popover
+                                <option
+                                :key="undefined"
+                                :value="undefined"
+                                hidden disabled selected
+                                >
+                                Select team
+                                </option>
+                                <option
+                                v-for="(team, index) in myTeams"
+                                :key="index"
+                                :value="index"
                                 >
                                 {{ team.name }}
-                                </button>
-                            </div>
-                            </template>
-                        </v-popover>
+                                </option>
+                            </select>
                         </span>
                     </li>
                 </ul>
@@ -51,10 +50,7 @@
 </template>
 
 <script>
-import tabs from '../ui/tabs';
 import gql from "graphql-tag"
-
-var teamCollectionsTab = document.getElementById('team-collections')
 
 export default {
     props: {
@@ -74,16 +70,6 @@ export default {
             `,
             pollInterval: 10000,
         }
-    },
-    computed: {
-        selectedTeam() {
-            if(this.myTeams == null) return {name: 'Loading'}
-            if(this.collectionsType.selectedTeam == null) {
-                this.collectionsType.selectedTeam = this.myTeams[0]
-                this.$emit('update-team-collections');
-            }
-            return this.collectionsType.selectedTeam
-        },
     },
     methods: {
         updateCollectionsType(tabID) {

@@ -320,6 +320,8 @@
   "new_team_created": "New team created",
   "team_saved": "Team saved",
   "team_name_empty": "Team name empty",
+  "disable_new_collection": "You do not have edit access to these collections",
+  "collection_added": "Collection added successfully",
   "team_exited": "Team exited",
   "disable_exit": "Only owner cannot exit the team"
 }

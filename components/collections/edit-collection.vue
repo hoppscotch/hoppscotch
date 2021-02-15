@@ -38,12 +38,14 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 
 export default {
   props: {
     show: Boolean,
     editingCollection: Object,
     editingCollectionIndex: Number,
+    collectionsType: Object
   },
   data() {
     return {
@@ -63,19 +65,58 @@ export default {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      const collectionUpdated = {
-        ...this.$props.editingCollection,
-        name: this.$data.name,
+      console.log(this.collectionsType.type)
+      if(this.collectionsType.type == "my-collections") {
+        const collectionUpdated = {
+          ...this.$props.editingCollection,
+          name: this.$data.name,
+        }
+        this.$store.commit("postwoman/editCollection", {
+          collection: collectionUpdated,
+          collectionIndex: this.$props.editingCollectionIndex,
+        })
+        this.syncCollections()
       }
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex,
-      })
-      this.$emit("hide-modal")
-      this.syncCollections()
+      else if(this.collectionsType.type == "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+          .mutate({
+            // Query
+            mutation: gql`
+              mutation($newTitle: String!, $collectionID: String!) {
+                renameCollection(newTitle: $newTitle, collectionID: $collectionID) {
+                  id
+                }
+              }
+            `,
+            // Parameters
+            variables: {
+              newTitle: this.$data.name,
+              collectionID: this.editingCollection.id,
+            },
+          })
+          .then((data) => {
+            // Result
+            this.$toast.success("Collection Renamed", {
+              icon: "done",
+            })
+            console.log(data)
+            this.$emit('update-team-collections');
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
+      this.hideModal()
     },
     hideModal() {
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

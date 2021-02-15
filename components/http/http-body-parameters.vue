@@ -42,9 +42,13 @@
           :placeholder="`value ${index + 1}`"
           :value="param.value"
           @change="
+            // if input is form data, set value to be an array containing the value
+            // only
             $store.commit('setValueBodyParams', {
               index,
-              value: $event.target.value,
+              value: contentType !== 'multipart/form-data' 
+                ? $event.target.value 
+                : [$event.target.value]
             })
           "
           @keyup.prevent="setRouteQueryState"
@@ -142,7 +146,11 @@ export default {
     },
     setRequestAttachment(event, index) {
       const { files } = event.target
-      this.$emit("set-request-attachment", index, files)
+      this.$emit("set-request-attachment", files)
+      this.$store.commit('setValueBodyParams', {
+        index,
+        value: files,
+      })
     }
   },
   computed: {

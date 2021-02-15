@@ -160,7 +160,6 @@
                   @set-route-query-state="setRouteQueryState"
                   @remove-request-body-param="removeRequestBodyParam"
                   @add-request-body-param="addRequestBodyParam"
-                  @set-request-attachment="setRequestAttachment"
                 />
                 <http-raw-body
                   v-else
@@ -1296,7 +1295,10 @@ export default {
         let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
         environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
-        requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
+        if (!(requestOptions.data instanceof FormData)) {
+          // TODO: Parse env variables for form data too
+          requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
+        }
         for (let k in requestOptions.headers) {
           const kParsed = parseTemplateString(k, environmentVariables)
           const valParsed = parseTemplateString(requestOptions.headers[k], environmentVariables)
@@ -1352,13 +1354,13 @@ export default {
         })
       }
       requestBody = requestBody ? requestBody.toString() : null
-      if (this.files.length !== 0) {
+      if (this.contentType === "multipart/form-data") {
         const formData = new FormData()
-        for (let i = 0; i < this.files.length; i++) {
-          let file = this.files[i]
-          formData.append(i, file)
+        for (const bodyParam of this.bodyParams) {
+          for (const file of bodyParam.value) {
+            formData.append(bodyParam.key, file)
+          }
         }
-        formData.append("data", requestBody)
         requestBody = formData
       }
       // If the request uses a token for auth, we want to make sure it's sent here.
@@ -1611,9 +1613,6 @@ export default {
     addRequestBodyParam() {
       this.$store.commit("addBodyParams", { key: "", value: "", active: true })
       return false
-    },
-    setRequestAttachment(index, attachments) {
-      this.files.splice(index, 1, attachments)
     },
     removeRequestBodyParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference

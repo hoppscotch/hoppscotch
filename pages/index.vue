@@ -880,6 +880,7 @@ export default {
     canListParameters() {
       return (
         this.contentType === "application/x-www-form-urlencoded" ||
+        this.contentType === "multipart/form-data" ||
         isJSONContentType(this.contentType)
       )
     },

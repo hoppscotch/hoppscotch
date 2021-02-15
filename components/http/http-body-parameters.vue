@@ -119,8 +119,14 @@ export default {
       this.$emit("remove-request-body-param", index)
     },
     addRequestBodyParam() {
+      console.log(this.contentType)
       this.$emit("add-request-body-param")
     },
   },
+  computed: {
+    contentType() {
+      return this.$store.state.request.contentType
+    }
+  }
 }
 </script>

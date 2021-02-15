@@ -5,6 +5,7 @@ export const knownContentTypes = [
   "application/vnd.api+json",
   "application/xml",
   "application/x-www-form-urlencoded",
+  "multipart/form-data",
   "text/html",
   "text/plain",
 ]

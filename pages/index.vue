@@ -160,6 +160,7 @@
                   @set-route-query-state="setRouteQueryState"
                   @remove-request-body-param="removeRequestBodyParam"
                   @add-request-body-param="addRequestBodyParam"
+                  @set-request-attachment="setRequestAttachment"
                 />
                 <http-raw-body
                   v-else
@@ -1610,6 +1611,9 @@ export default {
     addRequestBodyParam() {
       this.$store.commit("addBodyParams", { key: "", value: "", active: true })
       return false
+    },
+    setRequestAttachment(index, attachments) {
+      this.files.splice(index, 1, attachments)
     },
     removeRequestBodyParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference

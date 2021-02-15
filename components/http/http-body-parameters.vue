@@ -80,6 +80,25 @@
           </button>
         </li>
       </div>
+      <div v-if="contentType === 'multipart/form-data'">
+        <li>
+          <label for="attachment" class="p-0">
+            <button
+              class="icon"
+              @click="$refs.attachment[index].click()"
+            >
+              <i class="material-icons">attach_file</i>
+            </button>
+          </label>
+          <input
+            ref="attachment"
+            name="attachment"
+            type="file"
+            @change="setRequestAttachment($event, index)"
+            multiple
+          />
+        </li>
+      </div>
       <div>
         <li>
           <button
@@ -119,14 +138,17 @@ export default {
       this.$emit("remove-request-body-param", index)
     },
     addRequestBodyParam() {
-      console.log(this.contentType)
       this.$emit("add-request-body-param")
     },
+    setRequestAttachment(event, index) {
+      const { files } = event.target
+      this.$emit("set-request-attachment", index, files)
+    }
   },
   computed: {
     contentType() {
       return this.$store.state.request.contentType
     }
-  }
+  },
 }
 </script>

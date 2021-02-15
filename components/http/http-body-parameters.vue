@@ -42,9 +42,13 @@
           :placeholder="`value ${index + 1}`"
           :value="param.value"
           @change="
+            // if input is form data, set value to be an array containing the value
+            // only
             $store.commit('setValueBodyParams', {
               index,
-              value: $event.target.value,
+              value: contentType !== 'multipart/form-data' 
+                ? $event.target.value 
+                : [$event.target.value]
             })
           "
           @keyup.prevent="setRouteQueryState"
@@ -78,6 +82,25 @@
               }}
             </i>
           </button>
+        </li>
+      </div>
+      <div v-if="contentType === 'multipart/form-data'">
+        <li>
+          <label for="attachment" class="p-0">
+            <button
+              class="icon"
+              @click="$refs.attachment[index].click()"
+            >
+              <i class="material-icons">attach_file</i>
+            </button>
+          </label>
+          <input
+            ref="attachment"
+            name="attachment"
+            type="file"
+            @change="setRequestAttachment($event, index)"
+            multiple
+          />
         </li>
       </div>
       <div>
@@ -121,6 +144,19 @@ export default {
     addRequestBodyParam() {
       this.$emit("add-request-body-param")
     },
+    setRequestAttachment(event, index) {
+      const { files } = event.target
+      this.$emit("set-request-attachment", files)
+      this.$store.commit('setValueBodyParams', {
+        index,
+        value: files,
+      })
+    }
+  },
+  computed: {
+    contentType() {
+      return this.$store.state.request.contentType
+    }
   },
 }
 </script>

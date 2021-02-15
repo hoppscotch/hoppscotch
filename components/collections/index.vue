@@ -53,7 +53,7 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="displayModalAdd(true)" disabled>
+      <button v-if="collectionsType.type=='team-collections' && (collectionsType.selectedTeam == undefined || collectionsType.selectedTeam.myRole == 'VIEWER')" class="icon" @click="displayModalAdd(true)" disabled>
         <i class="material-icons">add</i>
         <div  v-tooltip.left="$t('disable_new_collection')">
           <span>{{ $t("new") }}</span>
@@ -225,6 +225,7 @@ export default {
   },
   methods: {
     updateTeamCollections() {
+      console.log(this.collectionsType)
       if(this.collectionsType.selectedTeam == undefined) return;
       this.$apollo.query({
         query: gql`

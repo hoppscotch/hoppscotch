@@ -128,31 +128,12 @@
                       @change="uploadAttachment"
                       multiple
                     />
-                    <label for="payload" class="p-0">
-                      <button
-                        class="icon"
-                        @click="$refs.payload.click()"
-                        v-tooltip="$t('import_json')"
-                      >
-                        <i class="material-icons">post_add</i>
-                      </button>
-                    </label>
-                    <input ref="payload" name="payload" type="file" @change="uploadPayload" />
-                    <button
-                      class="icon"
-                      ref="prettifyRequest"
-                      @click="prettifyRequestBody"
-                      v-tooltip="$t('prettify_body')"
-                      v-if="rawInput && this.contentType.endsWith('json')"
-                    >
-                      <i class="material-icons">photo_filter</i>
-                    </button>
                   </div>
                 </div>
               </li>
             </ul>
             <tabs styles="m-4">
-              <tab :id="'body'" :label="$t('request_body')" :selected="true">
+              <tab :id="'body'" :label="'Body'" :selected="true">
                 <http-body-parameters
                   v-if="!rawInput"
                   :bodyParams="bodyParams"
@@ -165,11 +146,13 @@
                   v-else
                   :rawParams="rawParams"
                   :contentType="contentType"
+                  :rawInput="rawInput"
                   @clear-content="clearContent"
                   @update-raw-body="updateRawBody"
+                  @update-raw-input="updateRawInput = (value) => (rawInput = value)"
                 />
               </tab>
-              <tab :id="'files'" :label="$t('form-data')"> FormData </tab>
+              <tab :id="'form-data'" :label="'form-data'"> formData </tab>
             </tabs>
           </div>
           <div class="row-wrapper">
@@ -1629,19 +1612,6 @@ export default {
         },
       })
     },
-    prettifyRequestBody() {
-      try {
-        const jsonObj = JSON.parse(this.rawParams)
-        this.rawParams = JSON.stringify(jsonObj, null, 2)
-        let oldIcon = this.$refs.prettifyRequest.innerHTML
-        this.$refs.prettifyRequest.innerHTML = this.doneButton
-        setTimeout(() => (this.$refs.prettifyRequest.innerHTML = oldIcon), 1000)
-      } catch (e) {
-        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
-          icon: "error",
-        })
-      }
-    },
     copyRequest() {
       if (navigator.share) {
         const time = new Date().toLocaleTimeString()
@@ -1898,25 +1868,6 @@ export default {
     },
     updateRawBody(rawParams) {
       this.rawParams = rawParams
-    },
-    uploadPayload() {
-      this.rawInput = true
-      const file = this.$refs.payload.files[0]
-      if (file !== undefined && file !== null) {
-        const reader = new FileReader()
-        reader.onload = ({ target }) => {
-          this.rawParams = target.result
-        }
-        reader.readAsText(file)
-        this.$toast.info(this.$t("file_imported"), {
-          icon: "attach_file",
-        })
-      } else {
-        this.$toast.error(this.$t("choose_file"), {
-          icon: "attach_file",
-        })
-      }
-      this.$refs.payload.value = ""
     },
     async handleAccessTokenRequest() {
       if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {

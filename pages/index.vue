@@ -151,44 +151,26 @@
                 </div>
               </li>
             </ul>
-            <http-body-parameters
-              v-if="!rawInput"
-              :bodyParams="bodyParams"
-              @clear-content="clearContent"
-              @set-route-query-state="setRouteQueryState"
-              @remove-request-body-param="removeRequestBodyParam"
-              @add-request-body-param="addRequestBodyParam"
-            />
-            <div v-else>
-              <ul>
-                <li>
-                  <div class="row-wrapper">
-                    <label for="rawBody">{{ $t("raw_request_body") }}</label>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="clearContent('rawParams', $event)"
-                        v-tooltip.bottom="$t('clear')"
-                      >
-                        <i class="material-icons">clear_all</i>
-                      </button>
-                    </div>
-                  </div>
-                  <ace-editor
-                    v-model="rawParams"
-                    :lang="rawInputEditorLang"
-                    :options="{
-                      maxLines: '16',
-                      minLines: '8',
-                      fontSize: '16px',
-                      autoScrollEditorIntoView: true,
-                      showPrintMargin: false,
-                      useWorker: false,
-                    }"
-                  />
-                </li>
-              </ul>
-            </div>
+            <tabs styles="m-4">
+              <tab :id="'body'" :label="$t('request_body')" :selected="true">
+                <http-body-parameters
+                  v-if="!rawInput"
+                  :bodyParams="bodyParams"
+                  @clear-content="clearContent"
+                  @set-route-query-state="setRouteQueryState"
+                  @remove-request-body-param="removeRequestBodyParam"
+                  @add-request-body-param="addRequestBodyParam"
+                />
+                <http-raw-body
+                  v-else
+                  :rawParams="rawParams"
+                  :contentType="contentType"
+                  @clear-content="clearContent"
+                  @update-raw-body="updateRawBody"
+                />
+              </tab>
+              <tab :id="'files'" :label="$t('form-data')"> FormData </tab>
+            </tabs>
           </div>
           <div class="row-wrapper">
             <span>
@@ -725,14 +707,15 @@ import parseTemplateString from "~/helpers/templating"
 import { tokenRequest, oauthRedirect } from "~/helpers/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
-import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpers/requestParams"
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+import httpBodyParameters from "~/components/http/http-body-parameters.vue"
 
 export default {
+  components: { httpBodyParameters },
   data() {
     return {
       showCurlImportModal: false,
@@ -1114,9 +1097,6 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawInput" })
       },
-    },
-    rawInputEditorLang() {
-      return getEditorLangForMimeType(this.contentType)
     },
     requestType: {
       get() {
@@ -1911,6 +1891,9 @@ export default {
           icon: "attach_file",
         })
       }
+    },
+    updateRawBody(rawParams) {
+      this.rawParams = rawParams
     },
     uploadPayload() {
       this.rawInput = true

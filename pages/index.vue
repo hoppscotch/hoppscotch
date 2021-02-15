@@ -169,7 +169,7 @@
                   @update-raw-body="updateRawBody"
                 />
               </tab>
-              <tab :id="'files'" :label="$t('form-data')"> FormData </tab>
+              <tab :id="'form-data'" :label="'form-data'"> formData </tab>
             </tabs>
           </div>
           <div class="row-wrapper">

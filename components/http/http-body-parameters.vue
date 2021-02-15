@@ -182,7 +182,6 @@ export default {
     requestBodyParamIsFile(index) {
       const bodyParamValue = this.bodyParams?.[index]?.value
       const isFile = bodyParamValue instanceof FileList
-      console.log(bodyParamValue)
       return isFile
     }
   },

@@ -46,9 +46,8 @@
             // only
             $store.commit('setValueBodyParams', {
               index,
-              value: contentType !== 'multipart/form-data' 
-                ? $event.target.value 
-                : [$event.target.value]
+              value:
+                contentType !== 'multipart/form-data' ? $event.target.value : [$event.target.value],
             })
           "
           @keyup.prevent="setRouteQueryState"
@@ -87,10 +86,7 @@
       <div v-if="contentType === 'multipart/form-data'">
         <li>
           <label for="attachment" class="p-0">
-            <button
-              class="icon"
-              @click="$refs.attachment[index].click()"
-            >
+            <button class="icon" @click="$refs.attachment[index].click()">
               <i class="material-icons">attach_file</i>
             </button>
           </label>
@@ -147,16 +143,16 @@ export default {
     setRequestAttachment(event, index) {
       const { files } = event.target
       this.$emit("set-request-attachment", files)
-      this.$store.commit('setValueBodyParams', {
+      this.$store.commit("setValueBodyParams", {
         index,
         value: files,
       })
-    }
+    },
   },
   computed: {
     contentType() {
       return this.$store.state.request.contentType
-    }
+    },
   },
 }
 </script>

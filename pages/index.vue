@@ -100,60 +100,26 @@
                       {{ $t("raw_input") }}
                     </pw-toggle>
                   </span>
-                  <div>
-                    <label for="attachment" class="p-0">
-                      <button
-                        class="icon"
-                        @click="$refs.attachment.click()"
-                        v-tooltip="
-                          files.length === 0 ? $t('upload_file') : filenames.replace('<br/>', '')
-                        "
-                      >
-                        <i class="material-icons">attach_file</i>
-                        <span>
-                          {{
-                            files.length === 0
-                              ? "No files"
-                              : files.length == 1
-                              ? "1 file"
-                              : files.length + " files"
-                          }}
-                        </span>
-                      </button>
-                    </label>
-                    <input
-                      ref="attachment"
-                      name="attachment"
-                      type="file"
-                      @change="uploadAttachment"
-                      multiple
-                    />
-                  </div>
                 </div>
               </li>
             </ul>
-            <tabs styles="m-4">
-              <tab :id="'body'" :label="'Body'" :selected="true">
-                <http-body-parameters
-                  v-if="!rawInput"
-                  :bodyParams="bodyParams"
-                  @clear-content="clearContent"
-                  @set-route-query-state="setRouteQueryState"
-                  @remove-request-body-param="removeRequestBodyParam"
-                  @add-request-body-param="addRequestBodyParam"
-                />
-                <http-raw-body
-                  v-else
-                  :rawParams="rawParams"
-                  :contentType="contentType"
-                  :rawInput="rawInput"
-                  @clear-content="clearContent"
-                  @update-raw-body="updateRawBody"
-                  @update-raw-input="updateRawInput = (value) => (rawInput = value)"
-                />
-              </tab>
-              <tab :id="'form-data'" :label="'form-data'"> formData </tab>
-            </tabs>
+            <http-body-parameters
+              v-if="!rawInput"
+              :bodyParams="bodyParams"
+              @clear-content="clearContent"
+              @set-route-query-state="setRouteQueryState"
+              @remove-request-body-param="removeRequestBodyParam"
+              @add-request-body-param="addRequestBodyParam"
+            />
+            <http-raw-body
+              v-else
+              :rawParams="rawParams"
+              :contentType="contentType"
+              :rawInput="rawInput"
+              @clear-content="clearContent"
+              @update-raw-body="updateRawBody"
+              @update-raw-input="updateRawInput = (value) => (rawInput = value)"
+            />
           </div>
           <div class="row-wrapper">
             <span>
@@ -1849,22 +1815,6 @@ export default {
         this.urlExcludes[excludedField] = excluded
       }
       this.setRouteQueryState()
-    },
-    uploadAttachment() {
-      this.filenames = ""
-      this.files = this.$refs.attachment.files
-      if (this.files.length !== 0) {
-        for (let file of this.files) {
-          this.filenames = `${this.filenames}<br/>${file.name}`
-        }
-        this.$toast.info(this.$t("file_imported"), {
-          icon: "attach_file",
-        })
-      } else {
-        this.$toast.error(this.$t("choose_file"), {
-          icon: "attach_file",
-        })
-      }
     },
     updateRawBody(rawParams) {
       this.rawParams = rawParams

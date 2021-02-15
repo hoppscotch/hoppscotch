@@ -13,6 +13,7 @@ export default () => ({
     headers: [],
     params: [],
     bodyParams: [],
+    formData: new FormData(),
     rawParams: "",
     rawInput: false,
     requestType: "",

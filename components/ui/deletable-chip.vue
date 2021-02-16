@@ -1,31 +1,33 @@
 <template>
   <span class="chip">
     <span><slot></slot></span>
-    <i @click="$emit('chip-delete')" class="material-icons close-button">
-      close
-    </i>
+    <button class="p-2 icon" @click="$emit('chip-delete')">
+      <i class="material-icons close-button"> close </i>
+    </button>
   </span>
 </template>
 
 <style scoped lang="scss">
-$borderRadius: 4px;
-$padding: 0 12px;
-$closeButtonSpacing: 6px;
-$height: 32px;
-
 .chip {
-  display: inline-flex;
-  align-items: center;
-  color: var(--act-color);
-  background: var(--ac-color);
-  border-radius: $borderRadius;
-  padding: $padding;
-  font-weight: 700;
-  height: $height;
+  @apply inline-flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply rounded-lg;
+  @apply m-1;
+  @apply pl-4;
+  @apply h-12;
+  @apply bg-bgDarkColor;
+  @apply text-fgColor;
+  @apply font-mono;
+  @apply font-normal;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-150;
+  @apply border;
+  @apply border-brdColor;
 }
 
 .close-button {
-  margin-left: $closeButtonSpacing;
-  margin-right: -4px;
+  @apply text-base;
 }
 </style>

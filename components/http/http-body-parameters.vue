@@ -54,9 +54,8 @@
           @keyup.prevent="setRouteQueryState"
         />
         <div v-else class="file-chips-container">
-          <deletable-chip 
-            class="file-chip"
-            v-for="(file, i) in Array.from(bodyParams[index].value)" 
+          <deletable-chip
+            v-for="(file, i) in Array.from(bodyParams[index].value)"
             :key="`body-param=${index}-file-${i}`"
           >
             {{ file.name }}
@@ -133,22 +132,19 @@
 </template>
 
 <style scoped lang="scss">
-$fileChipMargin: 4px;
-$fileChipsContainerMaxHeight: 56px;
-
 .file-chips-container {
-  display: flex;
-  flex-wrap: wrap;
-  overflow-y: scroll;
-  max-height: $fileChipsContainerMaxHeight;
-}
-.file-chip {
-  margin: $fileChipMargin;
+  @apply flex;
+  @apply flex-wrap;
+  @apply overflow-auto;
+  @apply flex-1;
+  @apply bg-bgDarkColor;
+
+  max-height: 56px;
 }
 </style>
 
 <script>
-import deletableChip from '../ui/deletable-chip.vue'
+import deletableChip from "../ui/deletable-chip.vue"
 export default {
   components: { deletableChip },
   props: {
@@ -179,7 +175,7 @@ export default {
       const bodyParamValue = this.bodyParams?.[index]?.value
       const isFile = bodyParamValue instanceof FileList
       return isFile
-    }
+    },
   },
   computed: {
     contentType() {

@@ -54,12 +54,14 @@
           @keyup.prevent="setRouteQueryState"
         />
         <div v-else class="file-chips-container">
-          <deletable-chip
-            v-for="(file, i) in Array.from(bodyParams[index].value)"
-            :key="`body-param=${index}-file-${i}`"
-          >
-            {{ file.name }}
-          </deletable-chip>
+          <div class="file-chips-wrapper">
+            <deletable-chip
+              v-for="(file, i) in Array.from(bodyParams[index].value)"
+              :key="`body-param=${index}-file-${i}`"
+            >
+              {{ file.name }}
+            </deletable-chip>
+          </div>
         </div>
       </li>
       <div>
@@ -95,7 +97,7 @@
       <div v-if="contentType === 'multipart/form-data'">
         <li>
           <label for="attachment" class="p-0">
-            <button class="icon" @click="$refs.attachment[index].click()">
+            <button class="w-full icon" @click="$refs.attachment[index].click()">
               <i class="material-icons">attach_file</i>
             </button>
           </label>
@@ -134,12 +136,15 @@
 <style scoped lang="scss">
 .file-chips-container {
   @apply flex;
-  @apply flex-wrap;
-  @apply overflow-auto;
   @apply flex-1;
+  @apply whitespace-no-wrap;
+  @apply overflow-auto;
   @apply bg-bgDarkColor;
 
-  max-height: 56px;
+  .file-chips-wrapper {
+    @apply flex;
+    @apply w-0;
+  }
 }
 </style>
 

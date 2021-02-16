@@ -15,7 +15,6 @@
   @apply rounded-lg;
   @apply m-1;
   @apply pl-4;
-  @apply h-12;
   @apply bg-bgDarkColor;
   @apply text-fgColor;
   @apply font-mono;

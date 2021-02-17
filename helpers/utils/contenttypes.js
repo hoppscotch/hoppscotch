@@ -11,5 +11,5 @@ export const knownContentTypes = [
 ]
 
 export function isJSONContentType(contentType) {
-   return /\bjson\b/i.test(contentType);
+  return /\bjson\b/i.test(contentType)
 }

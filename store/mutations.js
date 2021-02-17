@@ -109,7 +109,7 @@ export default {
 
   // While this mutation is same as the setValueBodyParams above, it is excluded
   // from vuex-persist. We will commit this mutation while adding a file
-  // param as there is no way to serialize File objects and thus we cannot 
+  // param as there is no way to serialize File objects and thus we cannot
   // persist file objects in localStorage
   setFilesBodyParams({ request }, { index, value }) {
     request.bodyParams[index].value = value

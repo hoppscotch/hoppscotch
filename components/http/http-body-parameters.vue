@@ -47,7 +47,7 @@
             // only
             $store.commit('setValueBodyParams', {
               index,
-              value: $event.target.value
+              value: $event.target.value,
             })
           "
           @keyup.prevent="setRouteQueryState"
@@ -172,10 +172,6 @@ export default {
         index,
         value: Array.from(files),
       })
-      this.$toast.info(
-        "Form data files will not be synced with local session storage!", 
-        { icon: "folder" }
-      )
     },
     requestBodyParamIsFile(index) {
       const bodyParamValue = this.bodyParams?.[index]?.value

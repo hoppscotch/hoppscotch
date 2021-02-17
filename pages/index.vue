@@ -1305,13 +1305,15 @@ export default {
       requestBody = requestBody ? requestBody.toString() : null
       if (this.contentType === "multipart/form-data") {
         const formData = new FormData()
-        for (const bodyParam of this.bodyParams) {
+        for (const bodyParam of this.bodyParams.filter((item) =>
+          item.hasOwnProperty("active") ? item.active == true : true
+        )) {
           if (bodyParam?.value?.[0] instanceof File) {
             for (const file of bodyParam.value) {
               formData.append(bodyParam.key, file)
             }
           } else {
-              formData.append(bodyParam.key, bodyParam.value)
+            formData.append(bodyParam.key, bodyParam.value)
           }
         }
         requestBody = formData

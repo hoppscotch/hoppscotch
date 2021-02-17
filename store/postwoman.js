@@ -264,7 +264,16 @@ export const mutations = {
   },
 
   saveRequestAs({ collections }, payload) {
-    const { request, collectionIndex, folderName, requestIndex } = payload
+    let { request, collectionIndex, folderName, requestIndex } = payload
+
+    // Filter out all file inputs
+    request = { 
+      ...request, 
+      bodyParams: request.bodyParams.filter(
+        param => !(param?.value?.[0] instanceof File)
+      )
+    }
+    console.log(request)
 
     const specifiedCollection = collectionIndex !== undefined
     const specifiedFolder = folderName !== undefined

@@ -47,8 +47,7 @@
             // only
             $store.commit('setValueBodyParams', {
               index,
-              value:
-                contentType !== 'multipart/form-data' ? $event.target.value : [$event.target.value],
+              value: $event.target.value
             })
           "
           @keyup.prevent="setRouteQueryState"
@@ -169,8 +168,7 @@ export default {
     },
     setRequestAttachment(event, index) {
       const { files } = event.target
-      this.$emit("set-request-attachment", files)
-      this.$store.commit("setValueBodyParams", {
+      this.$store.commit("setFilesBodyParams", {
         index,
         value: files,
       })

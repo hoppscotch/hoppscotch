@@ -1306,8 +1306,12 @@ export default {
       if (this.contentType === "multipart/form-data") {
         const formData = new FormData()
         for (const bodyParam of this.bodyParams) {
-          for (const file of bodyParam.value) {
-            formData.append(bodyParam.key, file)
+          if (bodyParam.value instanceof FileList) {
+            for (const file of bodyParam.value) {
+              formData.append(bodyParam.key, file)
+            }
+          } else {
+              formData.append(bodyParam.key, bodyParam.value)
           }
         }
         requestBody = formData
@@ -1609,7 +1613,9 @@ export default {
       const deep = (key) => {
         const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
-          return `${key}=${JSON.stringify(this[key])}&`
+          // Exclude files fro  query params
+          const filesRemoved = this[key].filter((item) => !(item?.value instanceof FileList))
+          return `${key}=${JSON.stringify(filesRemoved)}&`
         }
         return ""
       }

@@ -172,6 +172,10 @@ export default {
         index,
         value: files,
       })
+      this.$toast.info(
+        "Form data files will not be synced with local session storage!", 
+        { icon: "folder" }
+      )
     },
     requestBodyParamIsFile(index) {
       const bodyParamValue = this.bodyParams?.[index]?.value

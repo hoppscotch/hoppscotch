@@ -269,12 +269,13 @@ export const mutations = {
     // Filter out all file inputs
     request = { 
       ...request, 
-      bodyParams: request.bodyParams.filter(
-        param => !(param?.value?.[0] instanceof File)
+      bodyParams: request.bodyParams.map(
+        param => (param?.value?.[0] instanceof File) 
+          ? { ...param, value: "" }
+          : param
       )
     }
-    console.log(request)
-
+    
     const specifiedCollection = collectionIndex !== undefined
     const specifiedFolder = folderName !== undefined
     const specifiedRequest = requestIndex !== undefined

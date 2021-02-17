@@ -57,7 +57,8 @@
           <div class="file-chips-wrapper">
             <deletable-chip
               v-for="(file, i) in Array.from(bodyParams[index].value)"
-              :key="`body-param=${index}-file-${i}`"
+              :key="`body-param-${index}-file-${i}`"
+              @chip-delete="chipDelete(index, i)"
             >
               {{ file.name }}
             </deletable-chip>
@@ -149,9 +150,7 @@
 </style>
 
 <script>
-import deletableChip from "../ui/deletable-chip.vue"
 export default {
-  components: { deletableChip },
   props: {
     bodyParams: { type: Array, default: () => [] },
   },
@@ -180,6 +179,9 @@ export default {
       const bodyParamValue = this.bodyParams?.[index]?.value
       const isFile = bodyParamValue instanceof FileList
       return isFile
+    },
+    chipDelete(index, i) {
+      console.log(index, i)
     },
   },
   computed: {

@@ -170,7 +170,7 @@ export default {
       const { files } = event.target
       this.$store.commit("setFilesBodyParams", {
         index,
-        value: files,
+        value: Array.from(files),
       })
       this.$toast.info(
         "Form data files will not be synced with local session storage!", 
@@ -179,11 +179,14 @@ export default {
     },
     requestBodyParamIsFile(index) {
       const bodyParamValue = this.bodyParams?.[index]?.value
-      const isFile = bodyParamValue instanceof FileList
+      const isFile = bodyParamValue?.[0] instanceof File
       return isFile
     },
-    chipDelete(index, i) {
-      console.log(index, i)
+    chipDelete(paramIndex, fileIndex) {
+      this.$store.commit("removeFile", {
+        index: paramIndex,
+        fileIndex,
+      })
     },
   },
   computed: {

@@ -1306,7 +1306,7 @@ export default {
       if (this.contentType === "multipart/form-data") {
         const formData = new FormData()
         for (const bodyParam of this.bodyParams) {
-          if (bodyParam.value instanceof FileList) {
+          if (bodyParam?.value?.[0] instanceof File) {
             for (const file of bodyParam.value) {
               formData.append(bodyParam.key, file)
             }
@@ -1614,7 +1614,7 @@ export default {
         const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
           // Exclude files fro  query params
-          const filesRemoved = this[key].filter((item) => !(item?.value instanceof FileList))
+          const filesRemoved = this[key].filter((item) => !(item?.value?.[0] instanceof File))
           return `${key}=${JSON.stringify(filesRemoved)}&`
         }
         return ""

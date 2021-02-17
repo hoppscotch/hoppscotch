@@ -115,6 +115,10 @@ export default {
     request.bodyParams[index].value = value
   },
 
+  removeFile({ request }, { index, fileIndex }) {
+    request.bodyParams[index].value.splice(fileIndex, 1)
+  },
+
   setActiveBodyParams({ request }, { index, value }) {
     if (!request.bodyParams[index].hasOwnProperty("active")) {
       Vue.set(request.bodyParams[index], "active", value)

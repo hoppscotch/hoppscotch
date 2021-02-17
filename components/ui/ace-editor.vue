@@ -48,10 +48,8 @@
     @apply text-sm;
 
     &:hover {
-      .label {
-        @apply text-fgColor;
-        @apply cursor-pointer;
-      }
+      @apply text-fgColor;
+      @apply cursor-pointer;
     }
 
     .label {
@@ -60,7 +58,6 @@
       @apply ease-in-out;
       @apply duration-150;
     }
-
 
     .siblings {
       @apply absolute;

@@ -661,10 +661,8 @@ import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
-import httpBodyParameters from "~/components/http/http-body-parameters.vue"
 
 export default {
-  components: { httpBodyParameters },
   data() {
     return {
       showCurlImportModal: false,

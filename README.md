@@ -68,7 +68,6 @@
     - [Open Collective](#open-collective)
   - [Code Contributors](#code-contributors)
 - [License](#license)
-- [Badges](#badges)
 
 ---
 
@@ -531,16 +530,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 #### GitHub Sponsors
 
 <p align="center">
-<a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
-<img
-	width="200"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/hs-gh-banner.png"
-	alt="Deta"
-/>
-</a>
-</p>
-
-<p align="center">
 <a href="https://github.com/eldadfux" target="_blank" rel="noopener">
 <img
   width="64"
@@ -667,89 +656,3 @@ This project exists thanks to all the people who contribute [[Contribute](CONTRI
 ## **License**
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [`LICENSE`](LICENSE) file for details.
-
-## **Badges**
-
-<table>
-	<tr>
-		<th>Preview</th>
-		<th>Markdown code</th>
-	</tr>
-	<tbody>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-202124?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Default
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-202124?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-success?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Success
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-success?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-critical?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Critical
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-critical?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-blueviolet?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Custom
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-blueviolet?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/your_text-Hoppscotch-hex_color_code?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Customize
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/your_text-Hoppscotch-hex_color_code?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-	</tbody>
-</table>

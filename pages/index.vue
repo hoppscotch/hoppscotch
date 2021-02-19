@@ -100,54 +100,6 @@
                       {{ $t("raw_input") }}
                     </pw-toggle>
                   </span>
-                  <div>
-                    <label for="attachment" class="p-0">
-                      <button
-                        class="icon"
-                        @click="$refs.attachment.click()"
-                        v-tooltip="
-                          files.length === 0 ? $t('upload_file') : filenames.replace('<br/>', '')
-                        "
-                      >
-                        <i class="material-icons">attach_file</i>
-                        <span>
-                          {{
-                            files.length === 0
-                              ? "No files"
-                              : files.length == 1
-                              ? "1 file"
-                              : files.length + " files"
-                          }}
-                        </span>
-                      </button>
-                    </label>
-                    <input
-                      ref="attachment"
-                      name="attachment"
-                      type="file"
-                      @change="uploadAttachment"
-                      multiple
-                    />
-                    <label for="payload" class="p-0">
-                      <button
-                        class="icon"
-                        @click="$refs.payload.click()"
-                        v-tooltip="$t('import_json')"
-                      >
-                        <i class="material-icons">post_add</i>
-                      </button>
-                    </label>
-                    <input ref="payload" name="payload" type="file" @change="uploadPayload" />
-                    <button
-                      class="icon"
-                      ref="prettifyRequest"
-                      @click="prettifyRequestBody"
-                      v-tooltip="$t('prettify_body')"
-                      v-if="rawInput && this.contentType.endsWith('json')"
-                    >
-                      <i class="material-icons">photo_filter</i>
-                    </button>
-                  </div>
                 </div>
               </li>
             </ul>
@@ -159,36 +111,15 @@
               @remove-request-body-param="removeRequestBodyParam"
               @add-request-body-param="addRequestBodyParam"
             />
-            <div v-else>
-              <ul>
-                <li>
-                  <div class="row-wrapper">
-                    <label for="rawBody">{{ $t("raw_request_body") }}</label>
-                    <div>
-                      <button
-                        class="icon"
-                        @click="clearContent('rawParams', $event)"
-                        v-tooltip.bottom="$t('clear')"
-                      >
-                        <i class="material-icons">clear_all</i>
-                      </button>
-                    </div>
-                  </div>
-                  <ace-editor
-                    v-model="rawParams"
-                    :lang="rawInputEditorLang"
-                    :options="{
-                      maxLines: '16',
-                      minLines: '8',
-                      fontSize: '16px',
-                      autoScrollEditorIntoView: true,
-                      showPrintMargin: false,
-                      useWorker: false,
-                    }"
-                  />
-                </li>
-              </ul>
-            </div>
+            <http-raw-body
+              v-else
+              :rawParams="rawParams"
+              :contentType="contentType"
+              :rawInput="rawInput"
+              @clear-content="clearContent"
+              @update-raw-body="updateRawBody"
+              @update-raw-input="updateRawInput = (value) => (rawInput = value)"
+            />
           </div>
           <div class="row-wrapper">
             <span>
@@ -725,7 +656,6 @@ import parseTemplateString from "~/helpers/templating"
 import { tokenRequest, oauthRedirect } from "~/helpers/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
-import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpers/requestParams"
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
@@ -897,6 +827,7 @@ export default {
     canListParameters() {
       return (
         this.contentType === "application/x-www-form-urlencoded" ||
+        this.contentType === "multipart/form-data" ||
         isJSONContentType(this.contentType)
       )
     },
@@ -1115,9 +1046,6 @@ export default {
         this.$store.commit("setState", { value, attribute: "rawInput" })
       },
     },
-    rawInputEditorLang() {
-      return getEditorLangForMimeType(this.contentType)
-    },
     requestType: {
       get() {
         return this.$store.state.request.requestType
@@ -1314,7 +1242,10 @@ export default {
         let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
         environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
-        requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
+        if (!(requestOptions.data instanceof FormData)) {
+          // TODO: Parse env variables for form data too
+          requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
+        }
         for (let k in requestOptions.headers) {
           const kParsed = parseTemplateString(k, environmentVariables)
           const valParsed = parseTemplateString(requestOptions.headers[k], environmentVariables)
@@ -1370,13 +1301,19 @@ export default {
         })
       }
       requestBody = requestBody ? requestBody.toString() : null
-      if (this.files.length !== 0) {
+      if (this.contentType === "multipart/form-data") {
         const formData = new FormData()
-        for (let i = 0; i < this.files.length; i++) {
-          let file = this.files[i]
-          formData.append(i, file)
+        for (const bodyParam of this.bodyParams.filter((item) =>
+          item.hasOwnProperty("active") ? item.active == true : true
+        )) {
+          if (bodyParam?.value?.[0] instanceof File) {
+            for (const file of bodyParam.value) {
+              formData.append(bodyParam.key, file)
+            }
+          } else {
+            formData.append(bodyParam.key, bodyParam.value)
+          }
         }
-        formData.append("data", requestBody)
         requestBody = formData
       }
       // If the request uses a token for auth, we want to make sure it's sent here.
@@ -1645,19 +1582,6 @@ export default {
         },
       })
     },
-    prettifyRequestBody() {
-      try {
-        const jsonObj = JSON.parse(this.rawParams)
-        this.rawParams = JSON.stringify(jsonObj, null, 2)
-        let oldIcon = this.$refs.prettifyRequest.innerHTML
-        this.$refs.prettifyRequest.innerHTML = this.doneButton
-        setTimeout(() => (this.$refs.prettifyRequest.innerHTML = oldIcon), 1000)
-      } catch (e) {
-        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
-          icon: "error",
-        })
-      }
-    },
     copyRequest() {
       if (navigator.share) {
         const time = new Date().toLocaleTimeString()
@@ -1689,7 +1613,9 @@ export default {
       const deep = (key) => {
         const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
-          return `${key}=${JSON.stringify(this[key])}&`
+          // Exclude files fro  query params
+          const filesRemoved = this[key].filter((item) => !(item?.value?.[0] instanceof File))
+          return `${key}=${JSON.stringify(filesRemoved)}&`
         }
         return ""
       }
@@ -1896,40 +1822,8 @@ export default {
       }
       this.setRouteQueryState()
     },
-    uploadAttachment() {
-      this.filenames = ""
-      this.files = this.$refs.attachment.files
-      if (this.files.length !== 0) {
-        for (let file of this.files) {
-          this.filenames = `${this.filenames}<br/>${file.name}`
-        }
-        this.$toast.info(this.$t("file_imported"), {
-          icon: "attach_file",
-        })
-      } else {
-        this.$toast.error(this.$t("choose_file"), {
-          icon: "attach_file",
-        })
-      }
-    },
-    uploadPayload() {
-      this.rawInput = true
-      const file = this.$refs.payload.files[0]
-      if (file !== undefined && file !== null) {
-        const reader = new FileReader()
-        reader.onload = ({ target }) => {
-          this.rawParams = target.result
-        }
-        reader.readAsText(file)
-        this.$toast.info(this.$t("file_imported"), {
-          icon: "attach_file",
-        })
-      } else {
-        this.$toast.error(this.$t("choose_file"), {
-          icon: "attach_file",
-        })
-      }
-      this.$refs.payload.value = ""
+    updateRawBody(rawParams) {
+      this.rawParams = rawParams
     },
     async handleAccessTokenRequest() {
       if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {

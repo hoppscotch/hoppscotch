@@ -39,9 +39,12 @@
       </li>
       <li>
         <input
+          v-if="!requestBodyParamIsFile(index)"
           :placeholder="`value ${index + 1}`"
           :value="param.value"
           @change="
+            // if input is form data, set value to be an array containing the value
+            // only
             $store.commit('setValueBodyParams', {
               index,
               value: $event.target.value,
@@ -49,6 +52,17 @@
           "
           @keyup.prevent="setRouteQueryState"
         />
+        <div v-else class="file-chips-container">
+          <div class="file-chips-wrapper">
+            <deletable-chip
+              v-for="(file, i) in Array.from(bodyParams[index].value)"
+              :key="`body-param-${index}-file-${i}`"
+              @chip-delete="chipDelete(index, i)"
+            >
+              {{ file.name }}
+            </deletable-chip>
+          </div>
+        </div>
       </li>
       <div>
         <li>
@@ -80,6 +94,22 @@
           </button>
         </li>
       </div>
+      <div v-if="contentType === 'multipart/form-data'">
+        <li>
+          <label for="attachment" class="p-0">
+            <button class="w-full icon" @click="$refs.attachment[index].click()">
+              <i class="material-icons">attach_file</i>
+            </button>
+          </label>
+          <input
+            ref="attachment"
+            name="attachment"
+            type="file"
+            @change="setRequestAttachment($event, index)"
+            multiple
+          />
+        </li>
+      </div>
       <div>
         <li>
           <button
@@ -103,6 +133,21 @@
   </div>
 </template>
 
+<style scoped lang="scss">
+.file-chips-container {
+  @apply flex;
+  @apply flex-1;
+  @apply whitespace-no-wrap;
+  @apply overflow-auto;
+  @apply bg-bgDarkColor;
+
+  .file-chips-wrapper {
+    @apply flex;
+    @apply w-0;
+  }
+}
+</style>
+
 <script>
 export default {
   props: {
@@ -120,6 +165,29 @@ export default {
     },
     addRequestBodyParam() {
       this.$emit("add-request-body-param")
+    },
+    setRequestAttachment(event, index) {
+      const { files } = event.target
+      this.$store.commit("setFilesBodyParams", {
+        index,
+        value: Array.from(files),
+      })
+    },
+    requestBodyParamIsFile(index) {
+      const bodyParamValue = this.bodyParams?.[index]?.value
+      const isFile = bodyParamValue?.[0] instanceof File
+      return isFile
+    },
+    chipDelete(paramIndex, fileIndex) {
+      this.$store.commit("removeFile", {
+        index: paramIndex,
+        fileIndex,
+      })
+    },
+  },
+  computed: {
+    contentType() {
+      return this.$store.state.request.contentType
     },
   },
 }

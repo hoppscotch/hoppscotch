@@ -91,15 +91,6 @@
         </a>
       </div>
       <div class="contributors">
-        <a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
-          <img
-            style="height: 100%; max-width: 200px"
-            src="~assets/images/hs-gh-banner.png"
-            alt="Deta"
-          />
-        </a>
-      </div>
-      <div class="contributors">
         <a
           href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
           target="_blank"

@@ -9,6 +9,11 @@ export default () => {
     linkParents(jsonAST)
   }
 
+  const setNewText = (jsonStr) => {
+    init(jsonStr)
+    path = []
+  }
+
   const linkParents = (node) => {
     if (node.kind == "Object") {
       if (node.members) {
@@ -66,7 +71,7 @@ export default () => {
             while (i < current.values.length) {
               let m = current.values[i]
               if (m.start <= index && m.end >= index) {
-                path.push({ label: i.toString(), obj: m })
+                path.push({ label: `[${i.toString()}]`, obj: m })
                 current = current.values[i]
                 found = true
                 break
@@ -116,5 +121,6 @@ export default () => {
     init,
     genPath,
     getSiblings,
+    setNewText,
   }
 }

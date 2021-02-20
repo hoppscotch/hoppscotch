@@ -29,7 +29,7 @@
     "acorn": "^8.0.5",
     "acorn-walk": "^8.0.2",
     "esprima": "^4.0.1",
-    "firebase": "^8.2.8",
+    "firebase": "^8.2.9",
     "graphql": "^15.5.0",
     "graphql-language-service-interface": "^2.8.2",
     "mustache": "^4.1.0",

@@ -1,9 +1,9 @@
 <template>
   <div :id="`type_${gqlType.name}`" class="p-2 m-2">
     <div class="font-bold type-title" :class="{ 'type-highlighted': isHighlighted }">
-      <span v-if="isInput" class="text-acColor font-normal">input </span>
-      <span v-else-if="isInterface" class="text-acColor font-normal">interface </span>
-      <span v-else-if="isEnum" class="text-acColor font-normal">enum </span>
+      <span v-if="isInput" class="font-normal text-acColor">input </span>
+      <span v-else-if="isInterface" class="font-normal text-acColor">interface </span>
+      <span v-else-if="isEnum" class="font-normal text-acColor">enum </span>
       {{ gqlType.name }}
     </div>
     <div class="mt-2 text-fgLightColor type-desc" v-if="gqlType.description">

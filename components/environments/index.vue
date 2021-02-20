@@ -103,8 +103,8 @@ export default {
         })
     },
     environments: {
-      handler(val) {
-        if (val.length === 0) {
+      handler({ length }) {
+        if (length === 0) {
           this.selectedEnvironmentIndex = -1
           this.$emit("use-environment", {
             environment: this.defaultEnvironment,

@@ -200,6 +200,7 @@ export default {
           this.currPath = path.res
         }
       })
+      document.addEventListener("touchstart", this.onTouchStart)
     }
 
     // Disable linting, if lint prop is false
@@ -270,10 +271,18 @@ export default {
         }
       }
     },
+    onTouchStart(e) {
+      if (this.sibDropDownIndex == null) return
+      else {
+        if (e.target.parentElement != this.$refs[`sibling-${this.sibDropDownIndex}`][0]) {
+          this.clearSibList()
+        }
+      }
+    },
   },
-
   destroyed() {
     this.editor.destroy()
+    document.removeEventListener("touchstart", this.onTouchStart)
   },
 }
 </script>

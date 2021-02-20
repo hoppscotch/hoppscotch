@@ -29,18 +29,20 @@
             </button>
           </div>
         </div>
-        <ace-editor
-          v-model="rawParamsBody"
-          :lang="rawInputEditorLang"
-          :options="{
-            maxLines: '16',
-            minLines: '8',
-            fontSize: '16px',
-            autoScrollEditorIntoView: true,
-            showPrintMargin: false,
-            useWorker: false,
-          }"
-        />
+        <div class="relative">
+          <ace-editor
+            v-model="rawParamsBody"
+            :lang="rawInputEditorLang"
+            :options="{
+              maxLines: '16',
+              minLines: '8',
+              fontSize: '16px',
+              autoScrollEditorIntoView: true,
+              showPrintMargin: false,
+              useWorker: false,
+            }"
+          />
+        </div>
       </li>
     </ul>
   </div>

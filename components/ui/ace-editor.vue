@@ -100,6 +100,11 @@ import outline from "~/helpers/outline"
 
 export default {
   props: {
+    provideJSONOutline: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
     value: {
       type: String,
       default: "",
@@ -182,17 +187,19 @@ export default {
     this.editor = editor
     this.cacheValue = this.value
 
-    this.initOutline(this.value)
+    if (this.lang === "json" && this.provideJSONOutline) this.initOutline(this.value)
+
     editor.on("change", () => {
       const content = editor.getValue()
       this.$emit("input", content)
       this.cacheValue = content
-      debounce(this.initOutline(content), 500)
+
+      if (this.provideJSONOutline) debounce(this.initOutline(content), 500)
 
       if (this.lint) this.provideLinting(content)
     })
 
-    if (this.lang == "json") {
+    if (this.lang === "json" && this.provideJSONOutline) {
       editor.session.selection.on("changeCursor", (e) => {
         const index = editor.session.doc.positionToIndex(editor.selection.getCursor(), 0)
         const path = this.outline.genPath(index)
@@ -259,7 +266,7 @@ export default {
         }
       }
     },
-    initOutline(content) {
+    initOutline: debounce(function (content) {
       if (this.lang == "json") {
         try {
           this.outline.init(content)
@@ -270,7 +277,7 @@ export default {
           console.log("Outline error: ", e)
         }
       }
-    },
+    }),
     onTouchStart(e) {
       if (this.sibDropDownIndex == null) return
       else {

@@ -106,6 +106,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   name: "folder",
@@ -136,45 +137,16 @@ export default {
     toggleShowChildren() {
       this.showChildren = !this.showChildren
       if(this.showChildren && this.collectionsType.type == 'team-collections' && this.folder.folders == undefined) {
-        console.log(this.folder)
-        this.$apollo.query({
-          query: gql`
-          query getCollectionChildren($collectionID: String!) {
-              collection(collectionID: $collectionID) {
-                  children {
-                      id
-                      title
-                  }
-              }
-          }
-          `,
-          variables: {
-            collectionID: this.folder.id
-          }
-        }).then((response) => {
-          console.log(response.data.collection.children)
-          this.$set(this.folder, 'folders', response.data.collection.children);
+        team_utils.getCollectionChildren(this.$apollo, this.folder.id).then((children) => {
+          this.$set(this.folder, 'folders', children);
         }).catch((error) => {
           console.log(error);
         });
       }
       if(this.showChildren && this.collectionsType.type == 'team-collections' && this.folder.requests == undefined) {
-        this.$apollo.query({
-          query: gql`
-          query getCollectionRequests($collectionID: String!) {
-              requestsInCollection(collectionID: $collectionID) {
-                  id
-                  title
-                  request
-              }
-          }
-          `,
-          variables: {
-            collectionID: this.folder.id
-          }
-        }).then((response) => {
-          console.log(response.data.requests)
-          this.$set(this.folder, 'requests', response.data.requests);
+        team_utils.getCollectionRequests(this.$apollo, this.folder.id).then((requests) => {
+          console.log(requests)
+          this.$set(this.folder, 'requests', requests);
         }).catch((error) => {
           console.log(error);
         });

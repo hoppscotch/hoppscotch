@@ -93,6 +93,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -213,20 +214,8 @@ export default {
   methods: {
     updateTeamCollections() {
       if(this.collectionsType.selectedTeam == undefined) return;
-      this.$apollo.query({
-        query: gql`
-        query rootCollectionsOfTeam($teamID: String!) {
-          rootCollectionsOfTeam(teamID: $teamID) {
-            id
-            title
-          }
-        }`,
-        variables: {
-          teamID: this.collectionsType.selectedTeam.id,
-        },
-        fetchPolicy: 'no-cache'
-      }).then((response) => {
-        this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, response.data.rootCollectionsOfTeam);
+      team_utils.rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id).then((collections) => {
+        this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, collections);
       }).catch((error) => {
         console.log(error);
       });

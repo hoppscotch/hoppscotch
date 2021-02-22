@@ -40,13 +40,25 @@
               </button>
             </div>
             <div>
-              <button class="icon" @click="$emit('edit-collection')" v-close-popover>
+              <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="$emit('edit-collection')" v-close-popover disabled>
+                <i class="material-icons">create</i>
+                <div  v-tooltip.left="$t('disable_new_collection')">
+                  <span>{{ $t("edit") }}</span>
+                </div>
+              </button>
+              <button v-else class="icon" @click="$emit('edit-collection')" v-close-popover>
                 <i class="material-icons">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
             <div>
-              <button class="icon" @click="confirmRemove = true" v-close-popover>
+              <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="confirmRemove = true" v-close-popover disabled>
+                <i class="material-icons">add</i>
+                <div  v-tooltip.left="$t('disable_new_collection')">
+                  <span>{{ $t("delete") }}</span>
+                </div>
+              </button>
+              <button v-else class="icon" @click="confirmRemove = true" v-close-popover>
                 <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
@@ -162,13 +174,48 @@ export default {
       }
     },
     removeCollection() {
-      this.$store.commit("postwoman/removeCollection", {
-        collectionIndex: this.collectionIndex,
-      })
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-      })
-      this.syncCollections()
+      if(this.collectionsType.type == "my-collections" ) {
+        this.$store.commit("postwoman/removeCollection", {
+          collectionIndex: this.collectionIndex,
+        })
+        this.$toast.error(this.$t("deleted"), {
+          icon: "delete",
+        })
+        this.syncCollections()
+      }
+      else if (this.collectionsType.type == "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+          .mutate({
+            // Query
+            mutation: gql`
+              mutation($collectionID: String!) {
+                deleteCollection(collectionID: $collectionID) 
+              }
+            `,
+            // Parameters
+            variables: {
+              collectionID: this.collection.id,
+            },
+          })
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("deleted"), {
+              icon: "delete",
+            })
+            console.log(data)
+            this.$emit('update-team-collections');
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
+      this.confirmRemove = false
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging

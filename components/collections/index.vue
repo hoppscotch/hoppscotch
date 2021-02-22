@@ -13,11 +13,16 @@
       :collectionsType="collectionsType" 
       @update-team-collections="updateTeamCollections" 
       :show="showTeamCollections" />
-    <add-collection :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <add-collection 
+      :collectionsType="collectionsType" 
+      :show="showModalAdd" 
+      @update-team-collections="updateTeamCollections"
+      @hide-modal="displayModalAdd(false)" />
     <edit-collection
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEdit(false)"
     />
     <add-folder
@@ -48,7 +53,13 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button class="icon" @click="displayModalAdd(true)">
+      <button v-if="collectionsType.type=='team-collections' && (collectionsType.selectedTeam == undefined || collectionsType.selectedTeam.myRole == 'VIEWER')" class="icon" @click="displayModalAdd(true)" disabled>
+        <i class="material-icons">add</i>
+        <div  v-tooltip.left="$t('disable_new_collection')">
+          <span>{{ $t("new") }}</span>
+        </div>
+      </button>
+      <button v-else class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
@@ -73,6 +84,7 @@
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
+            @update-team-collections="updateTeamCollections"
             @select-collection="$emit('use-collection', collection)"
           />
         </li>
@@ -131,6 +143,7 @@ export default {
                 myTeams {
                     id
                     name
+                    myRole
                 }
             }
         `,
@@ -213,6 +226,7 @@ export default {
   },
   methods: {
     updateTeamCollections() {
+      console.log(this.collectionsType)
       if(this.collectionsType.selectedTeam == undefined) return;
       team_utils.rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id).then((collections) => {
         this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, collections);
@@ -253,14 +267,51 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    onAddFolder({ name, path }) {
-      this.$store.commit("postwoman/addFolder", {
-        name,
-        path,
-      })
+    onAddFolder({ name, folder, path }) {
+      if (this.collectionsType.type === "my-collections") {
+        this.$store.commit("postwoman/addFolder", {
+          name,
+          path,
+        })
+        this.syncCollections()
+      }
+      else if (this.collectionsType.type === "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+          .mutate({
+            mutation: gql`
+              mutation($childTitle: String!, $collectionID: String!) {
+                createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
+                  id
+                }
+              }
+            `,
+            // Parameters
+            variables: {
+              childTitle: name,
+              collectionID: folder.id,
+            },
+          })
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("folder_added"), {
+              icon: "done",
+            })
+            console.log(data)
+            this.$emit('update-team-collections');
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
 
       this.displayModalAddFolder(false)
-      this.syncCollections()
+
     },
     addFolder(payload) {
       const { folder, path } = payload

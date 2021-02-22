@@ -278,14 +278,51 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    onAddFolder({ name, path }) {
-      this.$store.commit("postwoman/addFolder", {
-        name,
-        path,
-      })
+    onAddFolder({ name, folder, path }) {
+      if (this.collectionsType.type === "my-collections") {
+        this.$store.commit("postwoman/addFolder", {
+          name,
+          path,
+        })
+        this.syncCollections()
+      }
+      else if (this.collectionsType.type === "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+          .mutate({
+            mutation: gql`
+              mutation($childTitle: String!, $collectionID: String!) {
+                createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
+                  id
+                }
+              }
+            `,
+            // Parameters
+            variables: {
+              childTitle: name,
+              collectionID: folder.id,
+            },
+          })
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("folder_added"), {
+              icon: "done",
+            })
+            console.log(data)
+            this.$emit('update-team-collections');
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
 
       this.displayModalAddFolder(false)
-      this.syncCollections()
+
     },
     addFolder(payload) {
       const { folder, path } = payload

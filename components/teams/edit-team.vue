@@ -59,11 +59,16 @@
               />
               <template slot="popover">
                 <div>
-                  <button class="icon" v-close-popover @click="member.value = 'OWNER'">READ</button>
+                  <button class="icon" v-close-popover @click="member.value = 'OWNER'">OWNER</button>
                 </div>
                 <div>
                   <button class="icon" v-close-popover @click="member.value = 'EDITOR'">
-                    WRITE
+                    EDITOR
+                  </button>
+                </div>
+                <div>
+                  <button class="icon" v-close-popover @click="member.value = 'VIEWER'">
+                    VIEWER
                   </button>
                 </div>
               </template>
@@ -164,8 +169,31 @@ export default {
       this.members.splice(index, 1)
       console.log("removeTeamMember")
     },
+    validateEmail(emailID) {
+      if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(emailID))
+        {
+          return true
+        }
+      return false
+    },
     saveTeam() {
+      if (this.rename != null && (this.rename.replace(/\s/g, "")).length < 6) {
+        this.$toast.error(this.$t("string_length_insufficient"), {
+            icon: "error",
+        });
+        console.log("String length less than 6");
+        return;
+      }
       console.log("saveTeam", this.members)
+      this.members.forEach((element) => {
+        if (!this.validateEmail(element.key)){
+          this.$toast.error(this.$t("invalid_emailID_format"), {
+            icon: "error",
+          });
+          console.log("Email id format invalid");
+          return;
+        }
+      });
       this.members.forEach((element) => {
         // Call to the graphql mutation
         this.$apollo

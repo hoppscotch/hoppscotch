@@ -43,6 +43,7 @@
       <ace-editor
         :value="jsonBodyText"
         :lang="'json'"
+        :provideJSONOutline="true"
         :options="{
           maxLines: responseBodyMaxLines,
           minLines: '16',

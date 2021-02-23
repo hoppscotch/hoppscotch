@@ -16,12 +16,6 @@
 <script>
 import { fb } from "~/helpers/fb"
 
-fb.idToken$.subscribe((token) => {
-  if (token) {
-    console.log(token) // This bit, it should output the token to console
-  }
-})
-
 export default {
   beforeMount() {
     let color = localStorage.getItem("THEME_COLOR") || "green"

@@ -1,5 +1,5 @@
 <template>
-  <pw-section class="green" icon="history" :label="$t('teams')" ref="teams">
+  <pw-section class="green" icon="history" :label="$t('teams')" ref="teams" no-legend>
     <!-- debug start -->
     <pre>me: {{ me }}</pre>
     <pre>myTeams: {{ myTeams }}</pre>

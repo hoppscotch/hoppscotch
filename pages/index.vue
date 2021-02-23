@@ -630,6 +630,11 @@
             <tab :id="'notes'" :label="$t('notes')">
               <notes />
             </tab>
+
+            <tab :id="'teams'" :label="'Teams'">
+              <teams />
+            </tab>
+
           </tabs>
         </section>
       </aside>

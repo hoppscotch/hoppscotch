@@ -42,10 +42,10 @@
     "v-tooltip": "^2.1.2",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^3.1.3",
-    "yargs-parser": "^20.2.5"
+    "yargs-parser": "^20.2.6"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.17",
+    "@babel/core": "^7.13.1",
     "@babel/preset-env": "^7.12.17",
     "@nuxtjs/color-mode": "^2.0.3",
     "@nuxtjs/google-analytics": "^2.4.0",
@@ -58,7 +58,7 @@
     "eslint": "^7.20.0",
     "eslint-plugin-vue": "^7.6.0",
     "firebase-mock": "^2.3.2",
-    "husky": "^5.0.9",
+    "husky": "^5.1.1",
     "jest": "^26.6.3",
     "jest-serializer-vue": "^2.0.2",
     "prettier": "^2.2.1",

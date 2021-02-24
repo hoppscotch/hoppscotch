@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <button class="icon" @click="openWorkspace" v-close-popover>
+      <button class="icon" @click="loadWorkspace" v-close-popover>
         <i class="material-icons">open_in_browser</i>
         <span>Open Workspace</span>
       </button>
@@ -12,17 +12,48 @@
         <span>Save Workspace</span>
       </button>
     </div>
+    <div>
+      <button class="icon" @click="createWorkspace" v-close-popover>
+        <i class="material-icons">save_alt</i>
+        <span>Save Workspace As ...</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
+import {
+  saveWorkspaceToFile,
+  saveWorkspaceToNewFile,
+  loadWorkspaceFromFile,
+} from "../store/postwoman"
+
+function reportError(ex) {
+  console && console.log("Error", ex)
+  this.$toast.error(ex.message)
+}
+
 export default {
   // data() {
   //   return {}
   // },
+
   methods: {
-    openWorkspace() {},
-    saveWorkspace() {},
+    async loadWorkspace() {
+      loadWorkspaceFromFile()
+        .then(this.$toast.info("Workspace loaded"))
+        .catch((ex) => reportError.call(this, ex))
+    },
+    async saveWorkspace() {
+      saveWorkspaceToFile()
+        .then(this.$toast.info("File saved successfully"))
+        .catch((ex) => reportError.call(this, ex))
+    },
+    async createWorkspace() {
+      saveWorkspaceToNewFile()
+        .then(this.$toast.info("File saved successfully"))
+        .catch((ex) => reportError.call(this, ex))
+    },
   },
 }
 </script>

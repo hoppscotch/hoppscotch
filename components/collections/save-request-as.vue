@@ -187,12 +187,12 @@ export default {
   },
 }
 
-function getFolderNames(folders, namesList) {
+function getFolderNames(folders, namesList, folderName = "") {
   if (folders.length) {
     folders.forEach((folder) => {
-      namesList.push(folder.name)
+      namesList.push(folderName + folder.name)
       if (folder.folders && folder.folders.length) {
-        getFolderNames(folder.folders, namesList)
+        getFolderNames(folder.folders, namesList, folder.name + "/")
       }
     })
   }

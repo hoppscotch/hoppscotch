@@ -13,7 +13,6 @@
             >
                 <ul>
                     <li>
-                        <label for="select_team"> Select Team: </label>
                         <span class="select-wrapper">
                             <select 
                             type="text" 

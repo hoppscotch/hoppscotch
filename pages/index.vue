@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section class="blue" :label="$t('request')" ref="request" no-legend>
+        <AppSection class="blue" :label="$t('request')" ref="request" no-legend>
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -50,7 +50,7 @@
                 @input="pathInputHandler"
                 :placeholder="$t('url')"
               />
-              <url-field v-model="uri" v-else />
+              <SmartUrlField v-model="uri" v-else />
             </li>
             <li class="shrink">
               <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -84,7 +84,7 @@
             <ul>
               <li>
                 <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
-                <autocomplete
+                <SmartAutoComplete
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"
@@ -96,14 +96,18 @@
               <li>
                 <div class="row-wrapper">
                   <span>
-                    <pw-toggle v-if="canListParameters" :on="rawInput" @change="rawInput = $event">
+                    <SmartToggle
+                      v-if="canListParameters"
+                      :on="rawInput"
+                      @change="rawInput = $event"
+                    >
                       {{ $t("raw_input") }}
-                    </pw-toggle>
+                    </SmartToggle>
                   </span>
                 </div>
               </li>
             </ul>
-            <http-body-parameters
+            <HttpBodyParameters
               v-if="!rawInput"
               :bodyParams="bodyParams"
               @clear-content="clearContent"
@@ -111,7 +115,7 @@
               @remove-request-body-param="removeRequestBodyParam"
               @add-request-body-param="addRequestBodyParam"
             />
-            <http-raw-body
+            <HttpRawBody
               v-else
               :rawParams="rawParams"
               :contentType="contentType"
@@ -169,42 +173,42 @@
               </button>
             </span>
           </div>
-        </pw-section>
+        </AppSection>
 
         <section id="options">
-          <tabs>
-            <tab
+          <SmartTabs>
+            <SmartTab
               :id="'params'"
               :label="
                 $t('parameters') + `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
               "
               :selected="true"
             >
-              <http-parameters
+              <HttpParameters
                 :params="params"
                 @clear-content="clearContent"
                 @remove-request-param="removeRequestParam"
                 @add-request-param="addRequestParam"
               />
-            </tab>
+            </SmartTab>
 
-            <tab
+            <SmartTab
               :id="'headers'"
               :label="
                 $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
               "
             >
-              <http-headers
+              <HttpHeaders
                 :headers="headers"
                 @clear-content="clearContent"
                 @set-route-query-state="setRouteQueryState"
                 @remove-request-header="removeRequestHeader"
                 @add-request-header="addRequestHeader"
               />
-            </tab>
+            </SmartTab>
 
-            <tab :id="'authentication'" :label="$t('authentication')">
-              <pw-section class="teal" :label="$t('authentication')" ref="authentication" no-legend>
+            <SmartTab :id="'authentication'" :label="$t('authentication')">
+              <AppSection class="teal" :label="$t('authentication')" ref="authentication" no-legend>
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -276,13 +280,13 @@
                   </li>
                 </ul>
                 <div class="row-wrapper">
-                  <pw-toggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">
+                  <SmartToggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">
                     {{ $t("include_in_url") }}
-                  </pw-toggle>
+                  </SmartToggle>
                 </div>
-              </pw-section>
+              </AppSection>
 
-              <pw-section
+              <AppSection
                 v-if="showTokenRequest"
                 class="red"
                 label="Access Token Request"
@@ -400,11 +404,11 @@
                     </button>
                   </li>
                 </ul>
-              </pw-section>
-            </tab>
+              </AppSection>
+            </SmartTab>
 
-            <tab :id="'pre_request_script'" :label="$t('pre_request_script')">
-              <pw-section
+            <SmartTab :id="'pre_request_script'" :label="$t('pre_request_script')">
+              <AppSection
                 v-if="showPreRequestScript"
                 class="orange"
                 :label="$t('pre_request_script')"
@@ -427,7 +431,7 @@
                         </a>
                       </div>
                     </div>
-                    <js-editor
+                    <SmartJsEditor
                       v-model="preRequestScript"
                       :options="{
                         maxLines: '16',
@@ -442,11 +446,11 @@
                     />
                   </li>
                 </ul>
-              </pw-section>
-            </tab>
+              </AppSection>
+            </SmartTab>
 
-            <tab :id="'tests'" :label="$t('tests')">
-              <pw-section
+            <SmartTab :id="'tests'" :label="$t('tests')">
+              <AppSection
                 v-if="testsEnabled"
                 class="orange"
                 :label="$t('tests')"
@@ -469,7 +473,7 @@
                         </a>
                       </div>
                     </div>
-                    <js-editor
+                    <SmartJsEditor
                       v-model="testScript"
                       :options="{
                         maxLines: '16',
@@ -516,50 +520,50 @@
                     </div>
                   </li>
                 </ul>
-              </pw-section>
-            </tab>
-          </tabs>
+              </AppSection>
+            </SmartTab>
+          </SmartTabs>
         </section>
 
-        <http-response :response="response" :active="runningRequest" ref="response" />
+        <HttpResponse :response="response" :active="runningRequest" ref="response" />
       </div>
 
       <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
         <section>
-          <tabs>
-            <tab :id="'history'" :label="$t('history')" :selected="true">
-              <history @useHistory="handleUseHistory" ref="historyComponent" />
-            </tab>
+          <SmartTabs>
+            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+              <HttpHistory @useHistory="handleUseHistory" ref="historyComponent" />
+            </SmartTab>
 
-            <tab :id="'collections'" :label="$t('collections')">
-              <collections />
-            </tab>
+            <SmartTab :id="'collections'" :label="$t('collections')">
+              <Collections />
+            </SmartTab>
 
-            <tab :id="'env'" :label="$t('environments')">
-              <environments @use-environment="useSelectedEnvironment($event)" />
-            </tab>
+            <SmartTab :id="'env'" :label="$t('environments')">
+              <Environments @use-environment="useSelectedEnvironment($event)" />
+            </SmartTab>
 
-            <tab :id="'notes'" :label="$t('notes')">
-              <notes />
-            </tab>
-          </tabs>
+            <SmartTab :id="'notes'" :label="$t('notes')">
+              <HttpNotes />
+            </SmartTab>
+          </SmartTabs>
         </section>
       </aside>
     </div>
 
-    <save-request-as
+    <CollectionsSaveRequest
       :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
       :editing-request="editRequest"
     />
 
-    <import-curl
+    <HttpImportCurl
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
       @handle-import="handleImport"
     />
 
-    <codegen-modal
+    <HttpCodegenModal
       :show="showCodegenModal"
       :requestTypeProp="requestType"
       :requestCode="requestCode"
@@ -567,7 +571,7 @@
       @set-request-type="setRequestType"
     />
 
-    <token-list
+    <HttpTokenList
       :show="showTokenListModal"
       :tokens="tokens"
       @clear-content="clearContent"
@@ -576,7 +580,7 @@
       @hide-modal="showTokenListModal = false"
     />
 
-    <modal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+    <SmartModal v-if="showTokenRequestList" @close="showTokenRequestList = false">
       <div slot="header">
         <div class="row-wrapper">
           <h3 class="title">{{ $t("manage_token_req") }}</h3>
@@ -642,7 +646,7 @@
           </span>
         </div>
       </div>
-    </modal>
+    </SmartModal>
   </div>
 </template>
 
@@ -1652,25 +1656,25 @@ export default {
         }
       }
     },
-    observeRequestButton() {
-      const requestElement = this.$refs.request.$el
-      const sendButtonElement = this.$refs.sendButton
-      const observer = new IntersectionObserver(
-        (entries, observer) => {
-          entries.forEach(({ isIntersecting }) => {
-            if (isIntersecting) sendButtonElement.classList.remove("show")
-            // The button should float when it is no longer visible on screen.
-            // This is done by adding the show class to the button.
-            else sendButtonElement.classList.add("show")
-          })
-        },
-        {
-          rootMargin: "0px",
-          threshold: [0],
-        }
-      )
-      observer.observe(requestElement)
-    },
+    // observeRequestButton() {
+    //   const requestElement = this.$refs.request
+    //   const sendButtonElement = this.$refs.sendButton
+    //   const observer = new IntersectionObserver(
+    //     (entries, observer) => {
+    //       entries.forEach(({ isIntersecting }) => {
+    //         if (isIntersecting) sendButtonElement.classList.remove("show")
+    //         // The button should float when it is no longer visible on screen.
+    //         // This is done by adding the show class to the button.
+    //         else sendButtonElement.classList.add("show")
+    //       })
+    //     },
+    //     {
+    //       rootMargin: "0px",
+    //       threshold: [0],
+    //     }
+    //   )
+    //   observer.observe(requestElement)
+    // },
     handleImport() {
       const { value: text } = document.getElementById("import-curl")
       try {
@@ -1930,7 +1934,7 @@ export default {
     },
   },
   async mounted() {
-    this.observeRequestButton()
+    // this.observeRequestButton()
     this._keyListener = function (e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()

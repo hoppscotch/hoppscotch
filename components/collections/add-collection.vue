@@ -39,6 +39,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -71,22 +72,7 @@ export default {
       }
       else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          this.$apollo
-          .mutate({
-            // Query
-            mutation: gql`
-              mutation($title: String!, $teamID: String!) {
-                createRootCollection(title: $title, teamID: $teamID) {
-                  id
-                }
-              }
-            `,
-            // Parameters
-            variables: {
-              title: this.$data.name,
-              teamID: this.collectionsType.selectedTeam.id,
-            },
-          })
+          team_utils.createNewRootCollection(this.$apollo, this.$data.name, this.collectionsType.selectedTeam.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("collection_added"), {

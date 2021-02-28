@@ -174,6 +174,7 @@ export default {
       }
     },
     removeCollection() {
+      console.log("entered", this.collectionsType)
       if(this.collectionsType.type == "my-collections" ) {
         this.$store.commit("postwoman/removeCollection", {
           collectionIndex: this.collectionIndex,
@@ -185,19 +186,7 @@ export default {
       }
       else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          this.$apollo
-          .mutate({
-            // Query
-            mutation: gql`
-              mutation($collectionID: String!) {
-                deleteCollection(collectionID: $collectionID) 
-              }
-            `,
-            // Parameters
-            variables: {
-              collectionID: this.collection.id,
-            },
-          })
+          team_utils.deleteChildCollection(this.$apollo, this.collection.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("deleted"), {

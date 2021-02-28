@@ -51,6 +51,7 @@ ul li {
 
 <script>
 import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -62,19 +63,7 @@ export default {
       if (!confirm("Are you sure you want to remove this team?")) return
       console.log("removeTeam", this.teamID)
       // Call to the graphql mutation
-      this.$apollo
-        .mutate({
-          // Query
-          mutation: gql`
-            mutation($teamID: String!) {
-              deleteTeam(teamID: $teamID)
-            }
-          `,
-          // Parameters
-          variables: {
-            teamID: this.teamID,
-          },
-        })
+      team_utils.exitFromTeam(this.$apollo, this.teamID)
         .then((data) => {
           // Result
           this.$toast.success(this.$t("new_team_created"), {

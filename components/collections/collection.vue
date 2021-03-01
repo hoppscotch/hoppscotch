@@ -127,7 +127,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {
@@ -185,19 +184,7 @@ export default {
       }
       else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          this.$apollo
-          .mutate({
-            // Query
-            mutation: gql`
-              mutation($collectionID: String!) {
-                deleteCollection(collectionID: $collectionID) 
-              }
-            `,
-            // Parameters
-            variables: {
-              collectionID: this.collection.id,
-            },
-          })
+          team_utils.deleteChildCollection(this.$apollo, this.collection.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("deleted"), {

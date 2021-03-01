@@ -154,15 +154,38 @@ export default {
       }
     },
     removeFolder() {
-      this.$store.commit("postwoman/removeFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folder.name,
-        folderIndex: this.$props.folderIndex,
-      })
-      this.syncCollections()
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-      })
+      if (this.collectionsType.type == "my-collections"){
+        this.$store.commit("postwoman/removeFolder", {
+          collectionIndex: this.$props.collectionIndex,
+          folderName: this.$props.folder.name,
+          folderIndex: this.$props.folderIndex,
+        })
+        this.syncCollections()
+        this.$toast.error(this.$t("deleted"), {
+          icon: "delete",
+        })
+      }
+      else if (this.collectionsType.type == "team-collections"){
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          team_utils.deleteChildCollection(this.$apollo, this.folder.id)
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("deleted"), {
+              icon: "delete",
+            })
+            console.log(data)
+            this.$emit('update-team-collections');
+            this.confirmRemove = false
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging

@@ -80,8 +80,117 @@ async function getCollectionRequests(apollo, collectionID) {
     return requests;
 }
 
+async function editFolderForChildCollections(apollo, title, id){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+          mutation: gql`
+            mutation($newTitle: String!, $collectionID: String!) {
+              renameCollection(newTitle: $newTitle, collectionID: $collectionID) {
+                id
+              }
+            }
+          `,
+          variables: {
+            newTitle: title,
+            collectionID: id,
+          },
+        })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
+async function addChildCollection(apollo, title, id){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+            mutation: gql`
+              mutation($childTitle: String!, $collectionID: String!) {
+                createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
+                  id
+                }
+              }
+            `,
+            variables: {
+              childTitle: title,
+              collectionID: id,
+            },
+        })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
+async function deleteChildCollection(apollo, id){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+            mutation: gql`
+              mutation($collectionID: String!) {
+                deleteCollection(collectionID: $collectionID) 
+              }
+            `,
+            variables: {
+              collectionID: id,
+            },
+        })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
+async function createNewRootCollection(apollo, title, id){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+            mutation: gql`
+              mutation($title: String!, $teamID: String!) {
+                createRootCollection(title: $title, teamID: $teamID) {
+                  id
+                }
+              }
+            `,
+            variables: {
+              title: title,
+              teamID: id,
+            },
+          })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
+async function exitFromTeam(apollo, id){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+            mutation: gql`
+              mutation($teamID: String!) {
+                deleteTeam(teamID: $teamID)
+              }
+            `,
+            variables: {
+              teamID: id,
+            },
+        })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
 export default {
     rootCollectionsOfTeam: rootCollectionsOfTeam,
     getCollectionChildren: getCollectionChildren,
-    getCollectionRequests: getCollectionRequests
+    getCollectionRequests: getCollectionRequests,
+    editFolderForChildCollections: editFolderForChildCollections,
+    addChildCollection: addChildCollection,
+    deleteChildCollection: deleteChildCollection,
+    createNewRootCollection: createNewRootCollection,
+    exitFromTeam: exitFromTeam
 }

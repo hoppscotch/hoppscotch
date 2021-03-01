@@ -38,6 +38,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -45,6 +46,7 @@ export default {
     collectionIndex: Number,
     folder: Object,
     folderIndex: Number,
+    collectionsType: Object
   },
   data() {
     return {
@@ -60,14 +62,36 @@ export default {
       }
     },
     editFolder() {
-      this.$store.commit("postwoman/editFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folder: { ...this.$props.folder, name: this.$data.name },
-        folderIndex: this.$props.folderIndex,
-        folderName: this.$props.folder.name,
-      })
+      if (this.collectionsType.type == "my-collections"){
+        this.$store.commit("postwoman/editFolder", {
+          collectionIndex: this.$props.collectionIndex,
+          folder: { ...this.$props.folder, name: this.$data.name },
+          folderIndex: this.$props.folderIndex,
+          folderName: this.$props.folder.name,
+        })
+        this.syncCollections()
+      }
+      else if (this.collectionsType.type == "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          team_utils.editFolderForChildCollections(this.$apollo, this.$data.name, this.folder.id)
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("folder_renamed"), {
+              icon: "done",
+            })
+            this.$emit('update-team-collections');
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        }
+      }
       this.hideModal()
-      this.syncCollections()
+      
     },
     hideModal() {
       this.$emit("hide-modal")

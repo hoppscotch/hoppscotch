@@ -82,19 +82,7 @@ export default {
     exitTeam () {
       if (!confirm("Are you sure you want to exit this team?")) return
       console.log("leaveTeam", this.teamID)
-      this.$apollo
-        .mutate({
-          // Query
-          mutation: gql`
-            mutation($teamID: String!) {
-              leaveTeam(teamID: $teamID)
-            }
-          `,
-          // Parameters
-          variables: {
-            teamID: this.teamID,
-          },
-        })
+      team_utils.exitTeam(this.$apollo, this.teamID)
         .then((data) => {
           // Result
           this.$toast.success(this.$t("team_exited"), {

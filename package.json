@@ -33,7 +33,7 @@
     "graphql": "^15.5.0",
     "graphql-language-service-interface": "^2.8.2",
     "mustache": "^4.1.0",
-    "nuxt": "^2.14.12",
+    "nuxt": "^2.15.2",
     "nuxt-i18n": "^6.20.3",
     "paho-mqtt": "^1.1.0",
     "socket.io-client": "^3.1.1",
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.1",
-    "@babel/preset-env": "^7.12.17",
+    "@babel/preset-env": "^7.13.8",
     "@nuxtjs/color-mode": "^2.0.3",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/google-fonts": "^1.2.0",

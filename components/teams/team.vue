@@ -18,7 +18,7 @@
           </button>
         </div>
         <div v-if="team.myRole === 'OWNER'">
-          <button class="icon" @click="removeTeam" v-close-popover>
+          <button class="icon" @click="deleteTeam" v-close-popover>
             <i class="material-icons">delete</i>
             <span>{{ $t("delete") }}</span>
           </button>
@@ -59,11 +59,11 @@ export default {
     teamID: String,
   },
   methods: {
-    removeTeam() {
+    deleteTeam() {
       if (!confirm("Are you sure you want to remove this team?")) return
-      console.log("removeTeam", this.teamID)
+      console.log("deleteTeam", this.teamID)
       // Call to the graphql mutation
-      team_utils.exitFromTeam(this.$apollo, this.teamID)
+      team_utils.deleteTeam(this.$apollo, this.teamID)
         .then((data) => {
           // Result
           this.$toast.success(this.$t("new_team_created"), {

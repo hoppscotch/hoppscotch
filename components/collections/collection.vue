@@ -184,7 +184,7 @@ export default {
       }
       else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.deleteChildCollection(this.$apollo, this.collection.id)
+          team_utils.deleteCollection(this.$apollo, this.collection.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("deleted"), {

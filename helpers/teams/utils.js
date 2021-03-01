@@ -49,6 +49,39 @@ async function renameTeam(apollo, name, teamID) {
     })
 }
 
+async function deleteTeam(apollo, teamID){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+            mutation: gql`
+              mutation($teamID: String!) {
+                deleteTeam(teamID: $teamID)
+              }
+            `,
+            variables: {
+              teamID: teamID,
+            },
+        })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
+async function exitTeam(apollo, teamID) {
+    apollo.mutate({
+      mutation: gql`
+        mutation($teamID: String!) {
+          leaveTeam(teamID: $teamID)
+        }
+      `,
+      variables: {
+        teamID: this.teamID,
+      },
+    })
+}
+
+
 async function rootCollectionsOfTeam(apollo, teamID) {
     var collections = [];
     var cursor = "";
@@ -129,7 +162,7 @@ async function getCollectionRequests(apollo, collectionID) {
     return requests;
 }
 
-async function editFolderForChildCollections(apollo, title, id){
+async function renameCollection(apollo, title, id){
     let response = undefined
     while (true){
         response = await apollo.mutate({
@@ -173,7 +206,7 @@ async function addChildCollection(apollo, title, id){
 
 }
 
-async function deleteChildCollection(apollo, id){
+async function deleteCollection(apollo, id){
     let response = undefined
     while (true){
         response = await apollo.mutate({
@@ -214,35 +247,18 @@ async function createNewRootCollection(apollo, title, id){
 
 }
 
-async function exitFromTeam(apollo, id){
-    let response = undefined
-    while (true){
-        response = await apollo.mutate({
-            mutation: gql`
-              mutation($teamID: String!) {
-                deleteTeam(teamID: $teamID)
-              }
-            `,
-            variables: {
-              teamID: id,
-            },
-        })
-        if (response != undefined) break;
-    }
-    return response
-
-}
 
 export default {
     rootCollectionsOfTeam: rootCollectionsOfTeam,
     getCollectionChildren: getCollectionChildren,
     getCollectionRequests: getCollectionRequests,
-    editFolderForChildCollections: editFolderForChildCollections,
+    renameCollection: renameCollection,
     addChildCollection: addChildCollection,
-    deleteChildCollection: deleteChildCollection,
+    deleteCollection: deleteCollection,
     createNewRootCollection: createNewRootCollection,
-    exitFromTeam: exitFromTeam,
     createTeam: createTeam,
     addTeamMemberByEmail: addTeamMemberByEmail,
-    renameTeam, renameTeam
+    renameTeam, renameTeam,
+    deleteTeam: deleteTeam,
+    exitTeam: exitTeam
 }

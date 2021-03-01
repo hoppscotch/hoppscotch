@@ -76,7 +76,7 @@ async function exitTeam(apollo, teamID) {
         }
       `,
       variables: {
-        teamID: this.teamID,
+        teamID: teamID,
       },
     })
 }
@@ -262,7 +262,7 @@ export default {
     createNewRootCollection: createNewRootCollection,
     createTeam: createTeam,
     addTeamMemberByEmail: addTeamMemberByEmail,
-    renameTeam, renameTeam,
+    renameTeam: renameTeam,
     deleteTeam: deleteTeam,
     exitTeam: exitTeam
 }

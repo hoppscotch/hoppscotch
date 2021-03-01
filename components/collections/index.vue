@@ -37,6 +37,7 @@
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEditFolder(false)"
     />
     <edit-request
@@ -277,21 +278,7 @@ export default {
       }
       else if (this.collectionsType.type === "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($childTitle: String!, $collectionID: String!) {
-                createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
-                  id
-                }
-              }
-            `,
-            // Parameters
-            variables: {
-              childTitle: name,
-              collectionID: folder.id,
-            },
-          })
+          team_utils.addChildCollection(this.$apollo, name, folder.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("folder_added"), {
@@ -324,6 +311,7 @@ export default {
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder
       this.$data.editingFolderIndex = folderIndex
+      this.$data.collectionsType = this.collectionsType
       this.displayModalEditFolder(true)
       this.syncCollections()
     },

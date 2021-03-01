@@ -85,6 +85,7 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @update-team-collections="$emit('update-team-collections')"
           />
         </li>
       </ul>
@@ -184,6 +185,7 @@ export default {
             })
             console.error(error)
           })
+          this.$emit('update-team-collections');
         }
       }
     },

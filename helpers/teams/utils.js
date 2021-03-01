@@ -124,7 +124,9 @@ async function getCollectionChildren(apollo, collectionID) {
         `,
         variables: {
             collectionID: collectionID,
-        }
+        },
+        fetchPolicy: 'no-cache'
+
     });
     response.data.collection.children.forEach((child) => {
         children.push(child);
@@ -149,7 +151,9 @@ async function getCollectionRequests(apollo, collectionID) {
             variables: {
                 collectionID: collectionID,
                 cursor: cursor
-            }
+            },
+            fetchPolicy: 'no-cache'
+
         });
         if(response.data.requestsInCollection.length == 0) {
             break;

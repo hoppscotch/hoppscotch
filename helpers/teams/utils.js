@@ -175,7 +175,7 @@ async function exitFromTeam(apollo, id){
               }
             `,
             variables: {
-              teamID: this.teamID,
+              teamID: id,
             },
         })
         if (response != undefined) break;

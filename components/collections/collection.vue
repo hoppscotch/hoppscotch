@@ -127,7 +127,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {
@@ -174,7 +173,6 @@ export default {
       }
     },
     removeCollection() {
-      console.log("entered", this.collectionsType)
       if(this.collectionsType.type == "my-collections" ) {
         this.$store.commit("postwoman/removeCollection", {
           collectionIndex: this.collectionIndex,

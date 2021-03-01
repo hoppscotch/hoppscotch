@@ -50,7 +50,6 @@ ul li {
 </style>
 
 <script>
-import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {

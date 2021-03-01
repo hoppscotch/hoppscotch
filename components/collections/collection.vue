@@ -85,6 +85,7 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @update-team-collections="$emit('update-team-collections')"
           />
         </li>
       </ul>
@@ -184,7 +185,7 @@ export default {
       }
       else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.deleteChildCollection(this.$apollo, this.collection.id)
+          team_utils.deleteCollection(this.$apollo, this.collection.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("deleted"), {
@@ -200,6 +201,7 @@ export default {
             })
             console.error(error)
           })
+          this.$emit('update-team-collections');
         }
       }
       this.confirmRemove = false

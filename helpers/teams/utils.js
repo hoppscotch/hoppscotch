@@ -1,5 +1,87 @@
 import gql from "graphql-tag"
 
+async function createTeam(apollo, name) {
+    return apollo.mutate({
+        mutation: gql`
+          mutation($name: String!) {
+            createTeam(name: $name) {
+              name
+            }
+          }
+        `,
+        variables: {
+          name: name,
+        },
+    })
+}
+
+async function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) {
+    return apollo.mutate({
+      mutation: gql`
+        mutation addTeamMemberByEmail($userRole: TeamMemberRole!, $userEmail: String!, $teamID: String!) {
+          addTeamMemberByEmail(userRole: $userRole, userEmail: $userEmail, teamID: $teamID) {
+            role
+          }
+        }
+      `,
+      variables: {
+        userRole: userRole,
+        userEmail: userEmail,
+        teamID: teamID,
+      },
+    })
+
+}
+
+async function renameTeam(apollo, name, teamID) {
+    return apollo.mutate({
+        mutation: gql`
+        mutation renameTeam($newName: String!, $teamID: String!) {
+            renameTeam(newName: $newName, teamID: $teamID) {
+            id
+            }
+        }
+        `,
+        variables: {
+        newName: name,
+        teamID: teamID,
+        },
+    })
+}
+
+async function deleteTeam(apollo, teamID){
+    let response = undefined
+    while (true){
+        response = await apollo.mutate({
+            mutation: gql`
+              mutation($teamID: String!) {
+                deleteTeam(teamID: $teamID)
+              }
+            `,
+            variables: {
+              teamID: teamID,
+            },
+        })
+        if (response != undefined) break;
+    }
+    return response
+
+}
+
+async function exitTeam(apollo, teamID) {
+    apollo.mutate({
+      mutation: gql`
+        mutation($teamID: String!) {
+          leaveTeam(teamID: $teamID)
+        }
+      `,
+      variables: {
+        teamID: this.teamID,
+      },
+    })
+}
+
+
 async function rootCollectionsOfTeam(apollo, teamID) {
     var collections = [];
     var cursor = "";
@@ -42,7 +124,9 @@ async function getCollectionChildren(apollo, collectionID) {
         `,
         variables: {
             collectionID: collectionID,
-        }
+        },
+        fetchPolicy: 'no-cache'
+
     });
     response.data.collection.children.forEach((child) => {
         children.push(child);
@@ -67,7 +151,9 @@ async function getCollectionRequests(apollo, collectionID) {
             variables: {
                 collectionID: collectionID,
                 cursor: cursor
-            }
+            },
+            fetchPolicy: 'no-cache'
+
         });
         if(response.data.requestsInCollection.length == 0) {
             break;
@@ -80,7 +166,7 @@ async function getCollectionRequests(apollo, collectionID) {
     return requests;
 }
 
-async function editFolderForChildCollections(apollo, title, id){
+async function renameCollection(apollo, title, id){
     let response = undefined
     while (true){
         response = await apollo.mutate({
@@ -124,7 +210,7 @@ async function addChildCollection(apollo, title, id){
 
 }
 
-async function deleteChildCollection(apollo, id){
+async function deleteCollection(apollo, id){
     let response = undefined
     while (true){
         response = await apollo.mutate({
@@ -165,32 +251,18 @@ async function createNewRootCollection(apollo, title, id){
 
 }
 
-async function exitFromTeam(apollo, id){
-    let response = undefined
-    while (true){
-        response = await apollo.mutate({
-            mutation: gql`
-              mutation($teamID: String!) {
-                deleteTeam(teamID: $teamID)
-              }
-            `,
-            variables: {
-              teamID: id,
-            },
-        })
-        if (response != undefined) break;
-    }
-    return response
-
-}
 
 export default {
     rootCollectionsOfTeam: rootCollectionsOfTeam,
     getCollectionChildren: getCollectionChildren,
     getCollectionRequests: getCollectionRequests,
-    editFolderForChildCollections: editFolderForChildCollections,
+    renameCollection: renameCollection,
     addChildCollection: addChildCollection,
-    deleteChildCollection: deleteChildCollection,
+    deleteCollection: deleteCollection,
     createNewRootCollection: createNewRootCollection,
-    exitFromTeam: exitFromTeam
+    createTeam: createTeam,
+    addTeamMemberByEmail: addTeamMemberByEmail,
+    renameTeam, renameTeam,
+    deleteTeam: deleteTeam,
+    exitTeam: exitTeam
 }

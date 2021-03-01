@@ -38,7 +38,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -79,22 +79,7 @@ export default {
       }
       else if(this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          this.$apollo
-          .mutate({
-            // Query
-            mutation: gql`
-              mutation($newTitle: String!, $collectionID: String!) {
-                renameCollection(newTitle: $newTitle, collectionID: $collectionID) {
-                  id
-                }
-              }
-            `,
-            // Parameters
-            variables: {
-              newTitle: this.$data.name,
-              collectionID: this.editingCollection.id,
-            },
-          })
+          team_utils.renameCollection(this.$apollo, this.$data.name, collectionID)
           .then((data) => {
             // Result
             this.$toast.success("Collection Renamed", {

@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -196,24 +196,7 @@ export default {
       });
       this.members.forEach((element) => {
         // Call to the graphql mutation
-        this.$apollo
-          .mutate({
-            // Query
-            mutation: gql`
-              mutation($userRole: TeamMemberRole!, $userEmail: String!, $teamID: String!) {
-                addTeamMemberByEmail(userRole: $userRole, userEmail: $userEmail, teamID: $teamID) {
-                  role
-                }
-              }
-            `,
-            // Parameters
-            variables: {
-              userRole: element.value,
-              userEmail: element.key,
-              teamID: this.editingteamID,
-            },
-          })
-          .then((data) => {
+          team_utils.addTeamMemberByEmail(this.$apollo, element.value, element.key, this.editingteamID).then((data) => {
             // Result
             this.$toast.success(this.$t("team_saved"), {
               icon: "done",
@@ -235,22 +218,7 @@ export default {
           icon: "error",
         })
       // Call to the graphql mutation
-      this.$apollo
-        .mutate({
-          // Query
-          mutation: gql`
-            mutation($newName: String!, $teamID: String!) {
-              renameTeam(newName: $newName, teamID: $teamID) {
-                id
-              }
-            }
-          `,
-          // Parameters
-          variables: {
-            newName: newName,
-            teamID: this.editingteamID,
-          },
-        })
+      team_utils.renameTeam(this.$apollo, newName, this.editingteamID)
         .then((data) => {
           // Result
           this.$toast.success(this.$t("team_saved"), {

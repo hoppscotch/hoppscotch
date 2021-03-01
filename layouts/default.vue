@@ -37,6 +37,7 @@ export default {
     // Update GraphQL Token on firebase ID Token changes
     fb.idToken$.subscribe((token) => {
       if (token) {
+        console.log(token);
         this.$apolloHelpers.onLogin(token)
       } else {
         this.$apolloHelpers.onLogout()

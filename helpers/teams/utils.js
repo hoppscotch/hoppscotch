@@ -1,5 +1,54 @@
 import gql from "graphql-tag"
 
+async function createTeam(apollo, name) {
+    return apollo.mutate({
+        mutation: gql`
+          mutation($name: String!) {
+            createTeam(name: $name) {
+              name
+            }
+          }
+        `,
+        variables: {
+          name: name,
+        },
+    })
+}
+
+async function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) {
+    return apollo.mutate({
+      mutation: gql`
+        mutation addTeamMemberByEmail($userRole: TeamMemberRole!, $userEmail: String!, $teamID: String!) {
+          addTeamMemberByEmail(userRole: $userRole, userEmail: $userEmail, teamID: $teamID) {
+            role
+          }
+        }
+      `,
+      variables: {
+        userRole: userRole,
+        userEmail: userEmail,
+        teamID: teamID,
+      },
+    })
+
+}
+
+async function renameTeam(apollo, name, teamID) {
+    return apollo.mutate({
+        mutation: gql`
+        mutation renameTeam($newName: String!, $teamID: String!) {
+            renameTeam(newName: $newName, teamID: $teamID) {
+            id
+            }
+        }
+        `,
+        variables: {
+        newName: name,
+        teamID: teamID,
+        },
+    })
+}
+
 async function rootCollectionsOfTeam(apollo, teamID) {
     var collections = [];
     var cursor = "";
@@ -192,5 +241,8 @@ export default {
     addChildCollection: addChildCollection,
     deleteChildCollection: deleteChildCollection,
     createNewRootCollection: createNewRootCollection,
-    exitFromTeam: exitFromTeam
+    exitFromTeam: exitFromTeam,
+    createTeam: createTeam,
+    addTeamMemberByEmail: addTeamMemberByEmail,
+    renameTeam, renameTeam
 }

@@ -38,7 +38,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {

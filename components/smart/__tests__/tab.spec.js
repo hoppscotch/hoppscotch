@@ -1,4 +1,4 @@
-import tab from "../tab"
+import tab from "../Tab"
 import { mount } from "@vue/test-utils"
 
 const factory = (props, data) => {

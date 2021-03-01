@@ -1,5 +1,5 @@
-import tabs from "../tabs"
-import tab from "../tab"
+import tabs from "../Tabs"
+import tab from "../Tab"
 
 import { mount } from "@vue/test-utils"
 
@@ -7,13 +7,13 @@ const factory = () =>
   mount(tabs, {
     slots: {
       default: [
-        `<SmartTab id="tab1" href="#" :label="'tab 1'" :icon="'testicon1'" :selected=true><div id="tab1render">tab1</div></SmartTab>`,
-        `<SmartTab id="tab2" href="#" :label="'tab 2'" :icon="'testicon2'"><div id="tab2render">tab1</div></SmartTab>`,
-        `<SmartTab id="tab3" href="#" :label="'tab 3'" :icon="'testicon3'"><div id="tab3render">tab1</div></SmartTab>`,
+        `<Tab id="tab1" href="#" :label="'tab 1'" :icon="'testicon1'" :selected=true><div id="tab1render">tab1</div></Tab>`,
+        `<Tab id="tab2" href="#" :label="'tab 2'" :icon="'testicon2'"><div id="tab2render">tab1</div></Tab>`,
+        `<Tab id="tab3" href="#" :label="'tab 3'" :icon="'testicon3'"><div id="tab3render">tab1</div></Tab>`,
       ],
     },
     stubs: {
-      tab,
+      "Tab": tab,
     },
   })
 

@@ -1,4 +1,4 @@
-import inputform from "../inputform"
+import inputform from "../Inputform"
 import { shallowMount } from "@vue/test-utils"
 
 jest.mock("~/helpers/fb", () => ({

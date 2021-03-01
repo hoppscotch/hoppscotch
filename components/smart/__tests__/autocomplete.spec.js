@@ -1,4 +1,4 @@
-import autocomplete from "../autocomplete"
+import autocomplete from "../AutoComplete"
 import { mount } from "@vue/test-utils"
 
 const props = {

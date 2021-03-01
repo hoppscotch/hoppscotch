@@ -1,4 +1,4 @@
-import pwToggle from "../pw-toggle"
+import pwToggle from "../Toggle"
 import { mount } from "@vue/test-utils"
 
 const factory = (props, slot) =>

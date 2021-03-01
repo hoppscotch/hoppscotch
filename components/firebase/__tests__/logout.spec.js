@@ -1,4 +1,4 @@
-import logout from "../logout"
+import logout from "../Logout"
 import { shallowMount, createLocalVue } from "@vue/test-utils"
 
 jest.mock("~/helpers/fb", () => ({

@@ -1,4 +1,4 @@
-import typelink from "../typelink"
+import typelink from "../TypeLink.vue"
 import { shallowMount } from "@vue/test-utils"
 import {GraphQLInt} from "graphql"
 

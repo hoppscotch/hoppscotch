@@ -1,4 +1,4 @@
-import type from "../type"
+import type from "../Type"
 
 import { shallowMount } from "@vue/test-utils"
 import {GraphQLEnumType, GraphQLInputObjectType, GraphQLInterfaceType, GraphQLObjectType} from "graphql"
@@ -15,7 +15,7 @@ const factory = (props) =>
       $t: (text) => text,
     },
     propsData: { gqlTypes: [], ...props },
-    stubs: ["field", "typelink"],
+    stubs: ["GraphqlField", "GraphqlTypeLink"],
   })
 
 describe("type", () => {
@@ -61,7 +61,7 @@ describe("type", () => {
         getFields: undefined,
       },
     })
-    expect(wrapper.find("field-stub").exists()).toEqual(false)
+    expect(wrapper.find("GraphqlField-stub").exists()).toEqual(false)
   })
 
   test("all fields are rendered if present with props passed properly", () => {
@@ -71,7 +71,7 @@ describe("type", () => {
       },
     })
 
-    expect(wrapper.findAll("field-stub").length).toEqual(2)
+    expect(wrapper.findAll("GraphqlField-stub").length).toEqual(2)
   })
 
   test("prepends 'input' to type name for Input Types", () => {

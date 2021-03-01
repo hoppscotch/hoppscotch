@@ -1,4 +1,4 @@
-import urlField from "../url-field"
+import urlField from "../UrlField"
 import { mount } from "@vue/test-utils"
 
 const factory = (props) =>

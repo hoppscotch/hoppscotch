@@ -1,4 +1,4 @@
-import field from "../field"
+import field from "../Field"
 import { shallowMount } from "@vue/test-utils"
 
 const gqlField = {
@@ -21,7 +21,7 @@ const factory = (props) =>
   shallowMount(field, {
     propsData: props,
     stubs: {
-      typelink: {
+      GraphqlTypeLink: {
         template: "<span>Typelink</span>",
       },
     },

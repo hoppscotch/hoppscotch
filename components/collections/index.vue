@@ -285,7 +285,7 @@ export default {
               icon: "done",
             })
             console.log(data)
-            this.$emit('update-team-collections');
+            this.updateTeamCollections();
           })
           .catch((error) => {
             // Error
@@ -294,6 +294,7 @@ export default {
             })
             console.error(error)
           })
+          
         }
       }
 

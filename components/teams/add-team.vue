@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -69,22 +69,7 @@ export default {
         return;
       }
       // Call to the graphql mutation
-      this.$apollo
-        .mutate({
-          // Query
-          mutation: gql`
-            mutation($name: String!) {
-              createTeam(name: $name) {
-                name
-              }
-            }
-          `,
-          // Parameters
-          variables: {
-            name: name,
-          },
-        })
-        .then((data) => {
+      team_utils.createTeam(this.$apollo, name).then((data) => {
           // Result
           this.hideModal()
           console.log(data)

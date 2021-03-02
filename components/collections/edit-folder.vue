@@ -73,7 +73,7 @@ export default {
       }
       else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.editFolderForChildCollections(this.$apollo, this.$data.name, this.folder.id)
+          team_utils.renameCollection(this.$apollo, this.$data.name, this.folder.id)
           .then((data) => {
             // Result
             this.$toast.success(this.$t("folder_renamed"), {

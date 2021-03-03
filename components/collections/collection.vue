@@ -8,6 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @click="$emit('select-folder', '')"
     >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -24,7 +25,7 @@
         >
           <i class="material-icons">topic</i>
         </button>
-        <v-popover>
+        <v-popover v-if="!saveRequest">
           <button class="tooltip-target icon" v-tooltip.left="$t('more')">
             <i class="material-icons">more_vert</i>
           </button>
@@ -40,9 +41,18 @@
               </button>
             </div>
             <div>
-              <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="$emit('edit-collection')" v-close-popover disabled>
+              <button
+                v-if="
+                  collectionsType.type == 'team-collections' &&
+                  collectionsType.selectedTeam.myRole == 'VIEWER'
+                "
+                class="icon"
+                @click="$emit('edit-collection')"
+                v-close-popover
+                disabled
+              >
                 <i class="material-icons">create</i>
-                <div  v-tooltip.left="$t('disable_new_collection')">
+                <div v-tooltip.left="$t('disable_new_collection')">
                   <span>{{ $t("edit") }}</span>
                 </div>
               </button>
@@ -52,9 +62,18 @@
               </button>
             </div>
             <div>
-              <button v-if="collectionsType.type=='team-collections' && collectionsType.selectedTeam.myRole == 'VIEWER'" class="icon" @click="confirmRemove = true" v-close-popover disabled>
+              <button
+                v-if="
+                  collectionsType.type == 'team-collections' &&
+                  collectionsType.selectedTeam.myRole == 'VIEWER'
+                "
+                class="icon"
+                @click="confirmRemove = true"
+                v-close-popover
+                disabled
+              >
                 <i class="material-icons">add</i>
-                <div  v-tooltip.left="$t('disable_new_collection')">
+                <div v-tooltip.left="$t('disable_new_collection')">
                   <span>{{ $t("delete") }}</span>
                 </div>
               </button>
@@ -71,7 +90,7 @@
       <ul class="flex-col">
         <li
           v-for="(folder, index) in collection.folders"
-          :key="(folder.name ? folder.name : folder.title)"
+          :key="folder.name ? folder.name : folder.title"
           class="ml-8 border-l border-brdColor"
         >
           <folder
@@ -80,16 +99,18 @@
             :folder-path="`${collectionIndex}/${index}`"
             :collection-index="collectionIndex"
             :doc="doc"
+            :saveRequest="saveRequest"
             :collectionsType="collectionsType"
             :isFiltered="isFiltered"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
+            @select-folder="$emit('select-folder', folder.name + '/' + $event)"
           />
         </li>
       </ul>
-      <ul class="flex-col">
+      <ul class="flex-col" v-if="!saveRequest">
         <li
           v-for="(request, index) in collection.requests"
           :key="index"
@@ -108,7 +129,10 @@
       </ul>
       <ul>
         <li
-          v-if="(collection.folders == undefined || collection.folders.length === 0) && (collection.requests == undefined || collection.requests.length === 0)"
+          v-if="
+            (collection.folders == undefined || collection.folders.length === 0) &&
+            (collection.requests == undefined || collection.requests.length === 0)
+          "
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">
@@ -135,8 +159,9 @@ export default {
     collectionIndex: Number,
     collection: Object,
     doc: Boolean,
+    saveRequest: Boolean,
     isFiltered: Boolean,
-    collectionsType: Object
+    collectionsType: Object,
   },
   data() {
     return {
@@ -156,25 +181,38 @@ export default {
     },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
-      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.collection.folders == undefined) {
-        team_utils.getCollectionChildren(this.$apollo, this.collection.id).then((children) => {
-          this.$set(this.collection, 'folders', children);
-        }).catch((error) => {
-          console.log(error);
-        });
+      if (
+        this.showChildren &&
+        this.collectionsType.type == "team-collections" &&
+        this.collection.folders == undefined
+      ) {
+        team_utils
+          .getCollectionChildren(this.$apollo, this.collection.id)
+          .then((children) => {
+            this.$set(this.collection, "folders", children)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       }
-      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.collection.requests == undefined) {
-        team_utils.getCollectionRequests(this.$apollo, this.collection.id).then((requests) => {
-          console.log(requests)
-          this.$set(this.collection, 'requests', requests);
-        }).catch((error) => {
-          console.log(error);
-        });
-        
+      if (
+        this.showChildren &&
+        this.collectionsType.type == "team-collections" &&
+        this.collection.requests == undefined
+      ) {
+        team_utils
+          .getCollectionRequests(this.$apollo, this.collection.id)
+          .then((requests) => {
+            console.log(requests)
+            this.$set(this.collection, "requests", requests)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       }
     },
     removeCollection() {
-      if(this.collectionsType.type == "my-collections" ) {
+      if (this.collectionsType.type == "my-collections") {
         this.$store.commit("postwoman/removeCollection", {
           collectionIndex: this.collectionIndex,
         })
@@ -182,26 +220,36 @@ export default {
           icon: "delete",
         })
         this.syncCollections()
-      }
-      else if (this.collectionsType.type == "team-collections") {
+      } else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.deleteCollection(this.$apollo, this.collection.id)
-          .then((data) => {
-            // Result
-            this.$toast.success(this.$t("deleted"), {
-              icon: "delete",
+          this.$apollo
+            .mutate({
+              // Query
+              mutation: gql`
+                mutation($collectionID: String!) {
+                  deleteCollection(collectionID: $collectionID)
+                }
+              `,
+              // Parameters
+              variables: {
+                collectionID: this.collection.id,
+              },
             })
-            console.log(data)
-            this.$emit('update-team-collections');
-          })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+            .then((data) => {
+              // Result
+              this.$toast.success(this.$t("deleted"), {
+                icon: "delete",
+              })
+              console.log(data)
+              this.$emit("update-team-collections")
             })
-            console.error(error)
-          })
-          this.$emit('update-team-collections');
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
         }
       }
       this.confirmRemove = false

@@ -13,32 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("token_req_name") }}</label>
       <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
-      <ul>
-        <li>
-          <label for="selectCollection">{{ $t("collection") }}</label>
-          <span class="select-wrapper">
-            <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
-              <option :key="undefined" :value="undefined" hidden disabled selected>
-                {{ $t("select_collection") }}
-              </option>
-              <option
-                v-for="(collection, index) in $store.state.postwoman.collections"
-                :key="index"
-                :value="index"
-              >
-                {{ collection.name }}
-              </option>
-            </select>
-          </span>
-        </li>
-      </ul>
-      <label>{{ $t("folder") }}</label>
-      <autocomplete
-        :placeholder="$t('search')"
-        :source="folders"
-        :spellcheck="false"
-        v-model="requestData.folderName"
-      />
+      <label for="selectLabel">Request path</label>
+      <input readonly :value="path" />
+      <collections @select-folder="changeRequestDetails($event)" :saveRequest="true" />
       <ul>
         <li>
           <label for="selectRequest">{{ $t("request") }}</label>
@@ -80,6 +57,7 @@ export default {
   data() {
     return {
       defaultRequestName: "Untitled Request",
+      path: "Path will appear here",
       requestData: {
         name: undefined,
         collectionIndex: undefined,
@@ -143,6 +121,11 @@ export default {
     },
   },
   methods: {
+    changeRequestDetails(data) {
+      this.$data.requestData.folderName = data.folderName.split("/").slice(-2)[0]
+      this.$data.requestData.collectionIndex = data.collectionIndex
+      this.$data.path = data.folderName
+    },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {

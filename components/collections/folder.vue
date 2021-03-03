@@ -8,16 +8,17 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @click="$emit('select-folder', '')"
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
           <i class="material-icons">folder_open</i>
-          <span>{{ (folder.name ? folder.name : folder.title) }}</span>
+          <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!saveRequest">
         <button class="tooltip-target icon" v-tooltip.left="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
@@ -52,7 +53,7 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col">
+      <ul class="flex-col" v-if="!saveRequest">
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
@@ -80,16 +81,25 @@
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
+            :saveRequest="saveRequest"
             :collectionsType="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
+            @select-folder="$emit('select-folder', subFolder.name + '/' + $event)"
           />
         </li>
       </ul>
-      <ul v-if="folder.folders && folder.folders.length === 0 && folder.requests && folder.requests.length === 0">
+      <ul
+        v-if="
+          folder.folders &&
+          folder.folders.length === 0 &&
+          folder.requests &&
+          folder.requests.length === 0
+        "
+      >
         <li class="flex ml-8 border-l border-brdColor">
           <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
         </li>
@@ -117,8 +127,9 @@ export default {
     collectionIndex: Number,
     folderPath: String,
     doc: Boolean,
+    saveRequest: Boolean,
     isFiltered: Boolean,
-    collectionsType: Object
+    collectionsType: Object,
   },
   data() {
     return {
@@ -137,25 +148,38 @@ export default {
     },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
-      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.folder.folders == undefined) {
-        team_utils.getCollectionChildren(this.$apollo, this.folder.id).then((children) => {
-          this.$set(this.folder, 'folders', children);
-        }).catch((error) => {
-          console.log(error);
-        });
+      if (
+        this.showChildren &&
+        this.collectionsType.type == "team-collections" &&
+        this.folder.folders == undefined
+      ) {
+        team_utils
+          .getCollectionChildren(this.$apollo, this.folder.id)
+          .then((children) => {
+            this.$set(this.folder, "folders", children)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       }
-      if(this.showChildren && this.collectionsType.type == 'team-collections' && this.folder.requests == undefined) {
-        team_utils.getCollectionRequests(this.$apollo, this.folder.id).then((requests) => {
-          console.log(requests)
-          this.$set(this.folder, 'requests', requests);
-        }).catch((error) => {
-          console.log(error);
-        });
-        
+      if (
+        this.showChildren &&
+        this.collectionsType.type == "team-collections" &&
+        this.folder.requests == undefined
+      ) {
+        team_utils
+          .getCollectionRequests(this.$apollo, this.folder.id)
+          .then((requests) => {
+            console.log(requests)
+            this.$set(this.folder, "requests", requests)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       }
     },
     removeFolder() {
-      if (this.collectionsType.type == "my-collections"){
+      if (this.collectionsType.type == "my-collections") {
         this.$store.commit("postwoman/removeFolder", {
           collectionIndex: this.$props.collectionIndex,
           folderName: this.$props.folder.name,
@@ -165,27 +189,27 @@ export default {
         this.$toast.error(this.$t("deleted"), {
           icon: "delete",
         })
-      }
-      else if (this.collectionsType.type == "team-collections"){
+      } else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.deleteCollection(this.$apollo, this.folder.id)
-          .then((data) => {
-            // Result
-            this.$toast.success(this.$t("deleted"), {
-              icon: "delete",
+          team_utils
+            .deleteCollection(this.$apollo, this.folder.id)
+            .then((data) => {
+              // Result
+              this.$toast.success(this.$t("deleted"), {
+                icon: "delete",
+              })
+              console.log(data)
+              this.$emit("update-team-collections")
+              this.confirmRemove = false
             })
-            console.log(data)
-            this.$emit('update-team-collections');
-            this.confirmRemove = false
-          })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
             })
-            console.error(error)
-          })
-          this.$emit('update-team-collections');
+          this.$emit("update-team-collections")
         }
       }
     },

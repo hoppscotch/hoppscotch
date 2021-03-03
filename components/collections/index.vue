@@ -9,15 +9,17 @@
         class="rounded-t-lg"
       />
     </div>
-    <choose-collection-type 
-      :collectionsType="collectionsType" 
-      @update-team-collections="updateTeamCollections" 
-      :show="showTeamCollections" />
-    <add-collection 
-      :collectionsType="collectionsType" 
-      :show="showModalAdd" 
+    <choose-collection-type
+      :collectionsType="collectionsType"
       @update-team-collections="updateTeamCollections"
-      @hide-modal="displayModalAdd(false)" />
+      :show="showTeamCollections"
+    />
+    <add-collection
+      :collectionsType="collectionsType"
+      :show="showModalAdd"
+      @update-team-collections="updateTeamCollections"
+      @hide-modal="displayModalAdd(false)"
+    />
     <edit-collection
       :show="showModalEdit"
       :editing-collection="editingCollection"
@@ -54,17 +56,27 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button v-if="collectionsType.type=='team-collections' && (collectionsType.selectedTeam == undefined || collectionsType.selectedTeam.myRole == 'VIEWER')" class="icon" @click="displayModalAdd(true)" disabled>
+      <button
+        v-if="
+          collectionsType.type == 'team-collections' &&
+          (collectionsType.selectedTeam == undefined ||
+            collectionsType.selectedTeam.myRole == 'VIEWER') &&
+          !saveRequest
+        "
+        class="icon"
+        @click="displayModalAdd(true)"
+        disabled
+      >
         <i class="material-icons">add</i>
-        <div  v-tooltip.left="$t('disable_new_collection')">
+        <div v-tooltip.left="$t('disable_new_collection')">
           <span>{{ $t("new") }}</span>
         </div>
       </button>
-      <button v-else class="icon" @click="displayModalAdd(true)">
+      <button v-else-if="!saveRequest" class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button class="icon" @click="displayModalImportExport(true)">
+      <button v-if="!saveRequest" class="icon" @click="displayModalImportExport(true)">
         {{ $t("import_export") }}
       </button>
     </div>
@@ -79,6 +91,7 @@
             :collection-index="index"
             :collection="collection"
             :doc="doc"
+            :saveRequest="saveRequest"
             :isFiltered="filterText.length > 0"
             :collectionsType="collectionsType"
             @edit-collection="editCollection(collection, index)"
@@ -86,7 +99,13 @@
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @update-team-collections="updateTeamCollections"
-            @select-collection="$emit('use-collection', collection)"
+            @select-collection="$emit('use-collection', index)"
+            @select-folder="
+              $emit('select-folder', {
+                folderName: collection.name + '/' + $event,
+                collectionIndex: index,
+              })
+            "
           />
         </li>
       </ul>
@@ -111,6 +130,7 @@ import team_utils from "~/helpers/teams/utils"
 export default {
   props: {
     doc: Boolean,
+    saveRequest: Boolean,
   },
   data() {
     return {
@@ -130,33 +150,33 @@ export default {
       editingRequestIndex: undefined,
       filterText: "",
       collectionsType: {
-        type: 'my-collections',
-        selectedTeam: undefined
+        type: "my-collections",
+        selectedTeam: undefined,
       },
-      teamCollections: {}
+      teamCollections: {},
     }
   },
 
   apollo: {
     myTeams: {
-        query: gql`
-            query GetMyTeams {
-                myTeams {
-                    id
-                    name
-                    myRole
-                }
-            }
-        `,
-        pollInterval: 10000,
-    }
+      query: gql`
+        query GetMyTeams {
+          myTeams {
+            id
+            name
+            myRole
+          }
+        }
+      `,
+      pollInterval: 10000,
+    },
   },
   computed: {
     showTeamCollections() {
-      if(fb.currentUser == null) {
-        this.collectionsType.type = 'my-collections'
+      if (fb.currentUser == null) {
+        this.collectionsType.type = "my-collections"
       }
-      return fb.currentUser !== null;
+      return fb.currentUser !== null
     },
     collections() {
       return fb.currentUser !== null
@@ -164,14 +184,16 @@ export default {
         : this.$store.state.postwoman.collections
     },
     filteredCollections() {
-      let collections = null;
-      if(this.collectionsType.type == 'my-collections') {
-        collections = fb.currentUser !== null
-          ? fb.currentCollections
-          : this.$store.state.postwoman.collections;
+      let collections = null
+      if (this.collectionsType.type == "my-collections") {
+        collections =
+          fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
       } else {
-        if(this.collectionsType.selectedTeam && this.collectionsType.selectedTeam.id in this.teamCollections){
-          collections = this.teamCollections[this.collectionsType.selectedTeam.id];
+        if (
+          this.collectionsType.selectedTeam &&
+          this.collectionsType.selectedTeam.id in this.teamCollections
+        ) {
+          collections = this.teamCollections[this.collectionsType.selectedTeam.id]
         } else {
           collections = []
         }
@@ -180,8 +202,8 @@ export default {
         return collections
       }
 
-      if(this.collectionsType.type == 'team-collections') {
-        return [];
+      if (this.collectionsType.type == "team-collections") {
+        return []
       }
 
       const filterText = this.filterText.toLowerCase()
@@ -197,7 +219,7 @@ export default {
           const filteredFolderRequests = []
           for (let request of folder.requests) {
             if (request.name.toLowerCase().includes(filterText))
-              filteredFolderRequests.push(request);
+              filteredFolderRequests.push(request)
           }
           if (filteredFolderRequests.length > 0) {
             const filteredFolder = Object.assign({}, folder)
@@ -205,7 +227,10 @@ export default {
             filteredFolders.push(filteredFolder)
           }
         }
-        if (filteredRequests.length + filteredFolders.length > 0 || collection.name.toLowerCase().includes(filterText)) {
+        if (
+          filteredRequests.length + filteredFolders.length > 0 ||
+          collection.name.toLowerCase().includes(filterText)
+        ) {
           const filteredCollection = Object.assign({}, collection)
           filteredCollection.requests = filteredRequests
           filteredCollection.folders = filteredFolders
@@ -228,13 +253,15 @@ export default {
   methods: {
     updateTeamCollections() {
       console.log(this.collectionsType)
-      if(this.collectionsType.selectedTeam == undefined) return;
-      team_utils.rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id).then((collections) => {
-        this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, collections);
-      }).catch((error) => {
-        console.log(error);
-      });
-
+      if (this.collectionsType.selectedTeam == undefined) return
+      team_utils
+        .rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id)
+        .then((collections) => {
+          this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, collections)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
@@ -275,31 +302,42 @@ export default {
           path,
         })
         this.syncCollections()
-      }
-      else if (this.collectionsType.type === "team-collections") {
+      } else if (this.collectionsType.type === "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.addChildCollection(this.$apollo, name, folder.id)
-          .then((data) => {
-            // Result
-            this.$toast.success(this.$t("folder_added"), {
-              icon: "done",
+          this.$apollo
+            .mutate({
+              mutation: gql`
+                mutation($childTitle: String!, $collectionID: String!) {
+                  createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
+                    id
+                  }
+                }
+              `,
+              // Parameters
+              variables: {
+                childTitle: name,
+                collectionID: folder.id,
+              },
             })
-            console.log(data)
-            this.updateTeamCollections();
-          })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+            .then((data) => {
+              // Result
+              this.$toast.success(this.$t("folder_added"), {
+                icon: "done",
+              })
+              console.log(data)
+              this.$emit("update-team-collections")
             })
-            console.error(error)
-          })
-          
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
         }
       }
 
       this.displayModalAddFolder(false)
-
     },
     addFolder(payload) {
       const { folder, path } = payload

@@ -2,11 +2,11 @@
   <div class="wrapper">
     <div class="content">
       <div class="columns">
-        <sidenav />
+        <AppSidenav />
         <main class="container">
-          <pw-header />
+          <AppHeader />
           <nuxt />
-          <pw-footer />
+          <AppFooter />
         </main>
       </div>
     </div>

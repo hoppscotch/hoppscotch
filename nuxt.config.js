@@ -86,7 +86,7 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss", "~/assets/scss/fonts.scss"],
+  css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss"],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
@@ -110,6 +110,8 @@ export default {
     "@nuxtjs/tailwindcss",
     // https://github.com/nuxt-community/color-mode-module
     "@nuxtjs/color-mode",
+    // https: //github.com/nuxt-community/google-fonts-module
+    "@nuxtjs/google-fonts",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -183,6 +185,16 @@ export default {
     classSuffix: "",
     preference: "dark",
     fallback: "dark",
+  },
+
+  // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
+  googleFonts: {
+    display: "swap",
+    families: {
+      "Material+Icons": true,
+      Poppins: [400, 500, 600, 700, 800],
+      "Roboto+Mono": true,
+    },
   },
 
   // i18n module configuration (https://github.com/nuxt-community/i18n-module)
@@ -330,7 +342,7 @@ export default {
         config.module.rules.push({
           test: /\.mjs$/,
           include: /node_modules/,
-          type: "javascript/auto"
+          type: "javascript/auto",
         })
       }
     },

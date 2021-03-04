@@ -120,11 +120,49 @@
   </div>
 </template>
 
+<style scoped lang="scss">
+.virtual-list {
+  max-height: calc(100vh - 270px);
+
+  [readonly] {
+    cursor: default;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.stared {
+  color: #f8e81c !important;
+}
+
+ul,
+ol {
+  flex-direction: column;
+}
+
+@media (max-width: 720px) {
+  .virtual-list.filled {
+    min-height: 320px;
+  }
+
+  .labels {
+    display: none;
+  }
+}
+</style>
+
 <script>
 import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
-  name: "historyGraphqlCard",
   props: {
     entry: Object,
     showMore: Boolean,

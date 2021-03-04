@@ -30,17 +30,20 @@
           {{ entry.star ? "star" : "star_border" }}
         </i>
       </button>
-      <button
-        class="icon"
-        @click="expand = !expand"
-        v-tooltip="{
-          content: !entry.expand ? 'show less' : 'show more',
-        }"
-      >
-        <i class="material-icons">
-          {{ expand ? "compress" : "expand" }}
-        </i>
-      </button>
+      <!-- <li>
+            <button
+              class="icon"
+              v-tooltip="{
+                content: !entry.usesScripts
+                  ? 'No pre-request script'
+                  : 'Used pre-request script'
+              }"
+            >
+              <i class="material-icons">
+                {{ !entry.usesScripts ? "http" : "code" }}
+              </i>
+            </button>
+          </li> -->
       <v-popover>
         <button class="tooltip-target icon" v-tooltip="$t('options')">
           <i class="material-icons">more_vert</i>
@@ -124,7 +127,6 @@
 import findStatusGroup from "~/helpers/findStatusGroup"
 
 export default {
-  name: "historyRestCard",
   props: {
     entry: Object,
     showMore: Boolean,
@@ -137,6 +139,7 @@ export default {
   methods: {
     findEntryStatus({ status }) {
       const foundStatusGroup = findStatusGroup(status)
+      console.log(foundStatusGroup)
       return (
         foundStatusGroup || {
           className: "",

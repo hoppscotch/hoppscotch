@@ -13,8 +13,8 @@
       class="divide-y virtual-list divide-dashed divide-brdColor"
       :class="{ filled: filteredHistory.length }"
     >
-      <ul v-for="(entry, index) in filteredHistory" :key="index">
-        <historyRestCard
+      <ul v-for="(entry, index) in filteredHistory" :key="'card_' + index">
+        <HistoryRestCard
           v-if="page == 'rest'"
           v-bind:entry="entry"
           v-bind:showMore="showMore"
@@ -22,7 +22,7 @@
           @delete-entry="deleteHistory(entry)"
           @use-entry="useHistory(entry)"
         />
-        <historyGraphqlCard
+        <HistoryGraphqlCard
           v-if="page == 'graphql'"
           v-bind:entry="entry"
           v-bind:showMore="showMore"
@@ -114,36 +114,29 @@
 <style scoped lang="scss">
 .virtual-list {
   max-height: calc(100vh - 270px);
-
   [readonly] {
     cursor: default;
   }
 }
-
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.2s;
 }
-
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
 }
-
 .stared {
   color: #f8e81c !important;
 }
-
 ul,
 ol {
   flex-direction: column;
 }
-
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;
   }
-
   .labels {
     display: none;
   }
@@ -215,6 +208,7 @@ export default {
           fb.currentUser !== null
             ? fb.currentHistory
             : JSON.parse(window.localStorage.getItem("history")) || []
+        console.log(this.history)
       }
       return this.history.filter((entry) => {
         const filterText = this.filterText.toLowerCase()

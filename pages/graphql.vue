@@ -376,6 +376,71 @@
                   </div>
                 </SmartTab>
               </div>
+              <SmartTab
+                v-if="queryFields.length > 0"
+                :id="'queries'"
+                :label="$t('queries')"
+                :selected="true"
+              >
+                <div v-for="field in filteredQueryFields" :key="field.name">
+                  <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                </div>
+              </SmartTab>
+
+              <SmartTab v-if="mutationFields.length > 0" :id="'mutations'" :label="$t('mutations')">
+                <div v-for="field in filteredMutationFields" :key="field.name">
+                  <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                </div>
+              </SmartTab>
+
+              <SmartTab
+                v-if="subscriptionFields.length > 0"
+                :id="'subscriptions'"
+                :label="$t('subscriptions')"
+              >
+                <div v-for="field in filteredSubscriptionFields" :key="field.name">
+                  <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                </div>
+              </SmartTab>
+
+              <SmartTab
+                v-if="graphqlTypes.length > 0"
+                :id="'types'"
+                :label="$t('types')"
+                ref="typesTab"
+              >
+                <div v-for="type in filteredGraphqlTypes" :key="type.name">
+                  <type
+                    :gqlType="type"
+                    :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
+                    :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
+                    :jumpTypeCallback="handleJumpToType"
+                  />
+                </div>
+              </SmartTab>
+              <SmartTab :id="'history'" :label="$t('history')" :selected="false">
+                <history
+                  @useHistory="handleUseHistory"
+                  ref="historyComponent"
+                  v-bind:page="'graphql'"
+                />
+              </SmartTab>
+
+              <SmartTab :id="'collections'" :label="$t('collections')">
+                <collections />
+              </SmartTab>
+
+              <SmartTab :id="'env'" :label="$t('environments')">
+                <environments @use-environment="useSelectedEnvironment($event)" />
+              </SmartTab>
+
+              <SmartTab :id="'notes'" :label="$t('notes')">
+                <notes />
+              </SmartTab>
+
+              <SmartTab :id="'teams'" :label="'Teams'">
+                <teams />
+              </SmartTab>
             </SmartTabs>
           </section>
 
@@ -429,6 +494,7 @@ export default {
       graphqlFieldsFilterText: undefined,
       isPollingSchema: false,
       timeoutSubscription: null,
+      activeSidebar: true,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -528,6 +594,12 @@ export default {
     next()
   },
   methods: {
+    useSelectedEnvironment(event) {
+      console.log("use selected environment")
+    },
+    handleUseHistory() {
+      console.log("use history")
+    },
     isGqlTypeHighlighted({ gqlType }) {
       if (!this.graphqlFieldsFilterText) return false
 

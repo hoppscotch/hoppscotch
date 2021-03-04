@@ -531,7 +531,7 @@
       <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
         <section>
           <SmartTabs>
-            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+            <SmartTab :id="'history'" :v-bind:page="'rest'" :label="$t('history')" :selected="true">
               <HttpHistory @useHistory="handleUseHistory" ref="historyComponent" />
             </SmartTab>
 

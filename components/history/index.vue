@@ -14,126 +14,22 @@
       :class="{ filled: filteredHistory.length }"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="index">
-        <div class="show-on-large-screen">
-          <span
-            class="p-2 m-2"
-            :class="findEntryStatus(entry).className"
-            :style="{ '--status-code': entry.status }"
-          >
-            {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
-          </span>
-          <li>
-            <input
-              :aria-label="$t('token_req_name')"
-              type="text"
-              readonly
-              :value="entry.name"
-              :placeholder="$t('empty_req_name')"
-              class="bg-transparent"
-            />
-          </li>
-          <button
-            class="icon"
-            :class="{ stared: entry.star }"
-            @click="toggleStar(entry)"
-            v-tooltip="{
-              content: !entry.star ? $t('add_star') : $t('remove_star'),
-            }"
-          >
-            <i class="material-icons">
-              {{ entry.star ? "star" : "star_border" }}
-            </i>
-          </button>
-          <!-- <li>
-            <button
-              class="icon"
-              v-tooltip="{
-                content: !entry.usesScripts
-                  ? 'No pre-request script'
-                  : 'Used pre-request script'
-              }"
-            >
-              <i class="material-icons">
-                {{ !entry.usesScripts ? "http" : "code" }}
-              </i>
-            </button>
-          </li> -->
-          <v-popover>
-            <button class="tooltip-target icon" v-tooltip="$t('options')">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  class="icon"
-                  @click="useHistory(entry)"
-                  :aria-label="$t('edit')"
-                  v-close-popover
-                >
-                  <i class="material-icons">restore</i>
-                  <span>{{ $t("restore") }}</span>
-                </button>
-              </div>
-              <div>
-                <button
-                  class="icon"
-                  @click="deleteHistory(entry)"
-                  :aria-label="$t('delete')"
-                  v-close-popover
-                >
-                  <i class="material-icons">delete</i>
-                  <span>{{ $t("delete") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
-        </div>
-        <div class="show-on-large-screen">
-          <li>
-            <input
-              :aria-label="$t('url')"
-              type="text"
-              readonly
-              :value="`${entry.url}${entry.path}`"
-              :placeholder="$t('no_url')"
-              class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-            />
-          </li>
-        </div>
-        <transition name="fade">
-          <div v-if="showMore" class="show-on-large-screen">
-            <li>
-              <input
-                :aria-label="$t('time')"
-                type="text"
-                readonly
-                :value="entry.time"
-                v-tooltip="entry.date"
-                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-              />
-            </li>
-            <li>
-              <input
-                :aria-label="$t('duration')"
-                type="text"
-                readonly
-                :value="entry.duration"
-                :placeholder="$t('no_duration')"
-                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-              />
-            </li>
-            <li>
-              <input
-                :aria-label="$t('prerequest_script')"
-                type="text"
-                readonly
-                :value="entry.preRequestScript"
-                :placeholder="$t('no_prerequest_script')"
-                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-              />
-            </li>
-          </div>
-        </transition>
+        <historyRestCard
+          v-if="page == 'rest'"
+          v-bind:entry="entry"
+          v-bind:showMore="showMore"
+          @toggle-star="toggleStar(entry)"
+          @delete-entry="deleteHistory(entry)"
+          @use-entry="useHistory(entry)"
+        />
+        <historyGraphqlCard
+          v-if="page == 'graphql'"
+          v-bind:entry="entry"
+          v-bind:showMore="showMore"
+          @toggle-star="toggleStar(entry)"
+          @delete-entry="deleteHistory(entry)"
+          @use-entry="useHistory(entry)"
+        />
       </ul>
     </div>
     <p :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }" class="info">
@@ -261,11 +157,42 @@ import { fb } from "~/helpers/fb"
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
+let history_graphql = [
+  {
+    type: "graphql",
+    name: "getUser",
+    method: "query",
+    query: `query getUser($uid: String!) {
+  user(uid: $uid) {
+    name
+  }
+}`,
+    star: false,
+  },
+  {
+    type: "graphql",
+    name: "getUser",
+    method: "query",
+    query: `query getUser($uid: String!) {
+  user(uid: $uid) {
+    name
+  }
+}`,
+    star: false,
+  },
+]
+
 export default {
+  props: {
+    page: String,
+  },
   data() {
+    console.log(this.page)
     return {
       history:
-        fb.currentUser !== null
+        this.page == "graphql"
+          ? history_graphql
+          : fb.currentUser !== null
           ? fb.currentHistory
           : JSON.parse(window.localStorage.getItem("history")) || [],
       filterText: "",
@@ -281,10 +208,14 @@ export default {
   },
   computed: {
     filteredHistory() {
-      this.history =
-        fb.currentUser !== null
-          ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem("history")) || []
+      if (this.page == "graphql") {
+        this.history = history_graphql
+      } else {
+        this.history =
+          fb.currentUser !== null
+            ? fb.currentHistory
+            : JSON.parse(window.localStorage.getItem("history")) || []
+      }
       return this.history.filter((entry) => {
         const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some((key) => {
@@ -297,6 +228,10 @@ export default {
   },
   methods: {
     async clearHistory() {
+      if (this.page == "graphql") {
+        console.log("clear history")
+        return
+      }
       if (fb.currentUser !== null) {
         await fb.clearHistory()
       }
@@ -309,6 +244,10 @@ export default {
       })
     },
     useHistory(entry) {
+      if (this.page == "graphql") {
+        console.log("use history")
+        return
+      }
       this.$emit("useHistory", entry)
     },
     findEntryStatus({ status }) {
@@ -320,6 +259,10 @@ export default {
       )
     },
     async deleteHistory(entry) {
+      if (this.page == "graphql") {
+        console.log("delete history")
+        return
+      }
       if (fb.currentUser !== null) {
         await fb.deleteHistory(entry)
       }
@@ -333,6 +276,10 @@ export default {
       })
     },
     addEntry(entry) {
+      if (this.page == "graphql") {
+        console.log("add entry")
+        return
+      }
       this.history.push(entry)
       updateOnLocalStorage("history", this.history)
     },

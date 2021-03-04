@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section class="blue" :label="$t('import')" ref="import" no-legend>
+        <AppSection class="blue" :label="$t('import')" ref="import" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("collection") }}</label>
             <p class="info">
@@ -27,7 +27,7 @@
                 </button>
               </div>
             </div>
-            <ace-editor
+            <SmartAceEditor
               v-model="collectionJSON"
               :lang="'json'"
               :lint="false"
@@ -45,9 +45,9 @@
               <span>{{ $t("generate_docs") }}</span>
             </button>
           </div>
-        </pw-section>
+        </AppSection>
 
-        <pw-section class="green" :label="$t('documentation')" ref="documentation" no-legend>
+        <AppSection class="green" :label="$t('documentation')" ref="documentation" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("documentation") }}</label>
             <p v-if="this.items.length === 0" class="info">
@@ -277,11 +277,11 @@
               </span>
             </div>
           </div>
-        </pw-section>
+        </AppSection>
       </div>
 
       <aside class="sticky-inner inner-right lg:max-w-md">
-        <collections @use-collection="useSelectedCollection($event)" :doc="true" />
+        <Collections @use-collection="useSelectedCollection($event)" :doc="true" />
       </aside>
     </div>
   </div>

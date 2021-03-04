@@ -21,6 +21,15 @@
   </p>
 </div>
 
+<p align="center">
+  <b>Sponsored by</b>
+  <br>
+  <br>
+  <a href="http://appwrite.io?ref=hoppscotch" title="Appwrite" target="_blank">
+    <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
+  </a>
+</p>
+
 <div align="center">
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
 </div>
@@ -59,7 +68,6 @@
     - [Open Collective](#open-collective)
   - [Code Contributors](#code-contributors)
 - [License](#license)
-- [Badges](#badges)
 
 ---
 
@@ -522,28 +530,18 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 #### GitHub Sponsors
 
 <p align="center">
-<a href="https://www.deta.sh/?ref=hoppscotch" target="_blank" rel="noopener">
+<a href="https://github.com/eldadfux" target="_blank" rel="noopener">
 <img
-	width="200"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/hs-gh-banner.png"
-	alt="Deta"
+  width="64"
+	src="https://github.com/eldadfux.png?size=64"
+	alt="Eldad A. Fux"
 />
 </a>
-</p>
-
-<p align="center">
 <a href="https://github.com/aishwarydhare" target="_blank" rel="noopener">
 <img
   width="64"
 	src="https://github.com/aishwarydhare.png?size=64"
 	alt="Aishwary Dhare"
-/>
-</a>
-<a href="https://github.com/diningcity-group" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/diningcity-group.png?size=64"
-	alt="DiningCity"
 />
 </a>
 <a href="https://github.com/rithish" target="_blank" rel="noopener">
@@ -658,89 +656,3 @@ This project exists thanks to all the people who contribute [[Contribute](CONTRI
 ## **License**
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [`LICENSE`](LICENSE) file for details.
-
-## **Badges**
-
-<table>
-	<tr>
-		<th>Preview</th>
-		<th>Markdown code</th>
-	</tr>
-	<tbody>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-202124?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Default
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-202124?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-success?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Success
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-success?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-critical?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Critical
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-critical?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/Tested_on-Hoppscotch-blueviolet?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Custom
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/Tested_on-Hoppscotch-blueviolet?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" width="200px">
-				<a href="https://hoppscotch.io">
-					<br/>
-					<img src="https://img.shields.io/badge/your_text-Hoppscotch-hex_color_code?logo=hoppscotch"/>
-				</a>
-				<br/>
-				<sub>
-          Customize
-        </sub>
-			</td>
-			<td>
-				<code>[![hoppscotch](https://img.shields.io/badge/your_text-Hoppscotch-hex_color_code?logo=hoppscotch)](https://hoppscotch.io)</code>
-			</td>
-		</tr>
-	</tbody>
-</table>

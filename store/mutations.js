@@ -107,6 +107,18 @@ export default {
     request.bodyParams[index].value = value
   },
 
+  // While this mutation is same as the setValueBodyParams above, it is excluded
+  // from vuex-persist. We will commit this mutation while adding a file
+  // param as there is no way to serialize File objects and thus we cannot
+  // persist file objects in localStorage
+  setFilesBodyParams({ request }, { index, value }) {
+    request.bodyParams[index].value = value
+  },
+
+  removeFile({ request }, { index, fileIndex }) {
+    request.bodyParams[index].value.splice(fileIndex, 1)
+  },
+
   setActiveBodyParams({ request }, { index, value }) {
     if (!request.bodyParams[index].hasOwnProperty("active")) {
       Vue.set(request.bodyParams[index], "active", value)

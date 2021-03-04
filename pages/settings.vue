@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <pw-section class="green" :label="$t('account')" ref="account" no-legend>
+    <AppSection class="green" :label="$t('account')" ref="account" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="fb.currentUser">
@@ -23,16 +23,16 @@
             </span>
           </button>
           <br />
-          <logout />
+          <FirebaseLogout />
           <p v-for="setting in fb.currentSettings" :key="setting.id">
-            <pw-toggle
+            <SmartToggle
               :key="setting.name"
               :on="setting.value"
               @change="toggleSettings(setting.name, setting.value)"
             >
               {{ $t(setting.name) + " " + $t("sync") }}
               {{ setting.value ? $t("enabled") : $t("disabled") }}
-            </pw-toggle>
+            </SmartToggle>
           </p>
           <p v-if="fb.currentSettings.length !== 3">
             <button class="" @click="initSettings">
@@ -44,48 +44,48 @@
         <div v-else>
           <label>{{ $t("login_with") }}</label>
           <p>
-            <login />
+            <FirebaseLogin />
           </p>
         </div>
       </div>
-    </pw-section>
+    </AppSection>
 
-    <pw-section class="teal" :label="$t('theme')" ref="theme" no-legend>
+    <AppSection class="teal" :label="$t('theme')" ref="theme" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
-        <color-mode-picker />
-        <accent-mode-picker />
+        <SmartColorModePicker />
+        <SmartAccentModePicker />
         <span>
-          <pw-toggle
+          <SmartToggle
             :on="settings.FRAME_COLORS_ENABLED"
             @change="toggleSetting('FRAME_COLORS_ENABLED')"
           >
             {{ $t("multi_color") }}
             {{ settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled") }}
-          </pw-toggle>
+          </SmartToggle>
         </span>
         <span>
-          <pw-toggle
+          <SmartToggle
             :on="settings.SCROLL_INTO_ENABLED"
             @change="toggleSetting('SCROLL_INTO_ENABLED')"
           >
             {{ $t("scrollInto_use_toggle") }}
             {{ settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
-          </pw-toggle>
+          </SmartToggle>
         </span>
       </div>
-    </pw-section>
+    </AppSection>
 
-    <pw-section class="purple" :label="$t('extensions')" ref="extensions" no-legend>
+    <AppSection class="purple" :label="$t('extensions')" ref="extensions" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
-          <pw-toggle
+          <SmartToggle
             :on="settings.EXTENSIONS_ENABLED"
             @change="toggleSetting('EXTENSIONS_ENABLED')"
           >
             {{ $t("extensions_use_toggle") }}
-          </pw-toggle>
+          </SmartToggle>
         </div>
         <p v-if="extensionVersion != null" class="info">
           {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
@@ -94,17 +94,17 @@
           {{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}
         </p>
       </div>
-    </pw-section>
+    </AppSection>
 
-    <pw-section class="blue" :label="$t('proxy')" ref="proxy" no-legend>
+    <AppSection class="blue" :label="$t('proxy')" ref="proxy" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
           <span>
-            <pw-toggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
+            <SmartToggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
               {{ $t("proxy") }}
               {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
-            </pw-toggle>
+            </SmartToggle>
           </span>
           <a
             href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
@@ -158,9 +158,9 @@
 				</li>
 			</ul>
       -->
-    </pw-section>
+    </AppSection>
 
-    <pw-section class="red" :label="$t('experiments')" ref="experiments" no-legend>
+    <AppSection class="red" :label="$t('experiments')" ref="experiments" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">
@@ -174,15 +174,15 @@
           >.
         </p>
         <div class="row-wrapper">
-          <pw-toggle
+          <SmartToggle
             :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
             @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
           >
             {{ $t("use_experimental_url_bar") }}
-          </pw-toggle>
+          </SmartToggle>
         </div>
       </div>
-    </pw-section>
+    </AppSection>
   </div>
 </template>
 

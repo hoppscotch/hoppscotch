@@ -722,9 +722,7 @@ export default {
           query: gqlQueryString,
           variables: this.variableString,
           star: false,
-          headers: {
-            ...headers,
-          },
+          headers: this.headers,
         }
         const res = await sendNetworkRequest(reqOptions, this.$store)
 

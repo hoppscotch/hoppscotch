@@ -67,9 +67,7 @@
     <div class="show-on-large-screen">
       <li>
         <input
-          v-for="(line, index) in expand
-            ? entry.query.split('\n')
-            : entry.query.split('\n').slice(0, 2).concat(['...'])"
+          v-for="(line, index) in query"
           v-bind:key="index"
           :aria-label="$t('url')"
           type="text"
@@ -165,6 +163,13 @@ export default {
     return {
       expand: false,
     }
+  },
+  computed: {
+    query() {
+      return this.expand
+        ? this.entry.query.split("\n")
+        : this.entry.query.split("\n").slice(0, 2).concat(["..."])
+    },
   },
 }
 </script>

@@ -398,7 +398,7 @@
             <History
               @useHistory="handleUseHistory"
               ref="graphqlHistoryComponent"
-              v-bind:page="'graphql'"
+              :page="'graphql'"
             />
           </SmartTab>
 

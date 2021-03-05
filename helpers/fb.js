@@ -234,7 +234,6 @@ export class FirebaseInstance {
 
     try {
       await this.usersCollection.doc(this.currentUser.uid).collection("graphqlHistory").add(hs)
-      console.log("done")
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e

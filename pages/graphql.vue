@@ -553,8 +553,13 @@ export default {
     useSelectedEnvironment(event) {
       console.log("use selected environment")
     },
-    handleUseHistory() {
+    handleUseHistory(entry) {
       console.log("use history")
+      this.url = entry.url
+      this.headers = entry.headers
+      this.gqlQueryString = entry.query
+      this.response = entry.responseText
+      this.variableString = entry.variables
     },
     isGqlTypeHighlighted({ gqlType }) {
       if (!this.graphqlFieldsFilterText) return false
@@ -714,7 +719,7 @@ export default {
         let entry = {
           url: this.url,
           query: gqlQueryString,
-          variables: variables,
+          variables: this.variableString,
           star: false,
           headers: {
             ...headers,
@@ -735,12 +740,11 @@ export default {
 
         entry = {
           ...entry,
-          response: responseText,
+          response: this.response,
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString(),
         }
 
-        console.log(entry)
         this.$refs.graphqlHistoryComponent.addEntry(entry)
         if (fb.currentUser !== null && fb.currentSettings[2]) {
           if (fb.currentSettings[2].value) {

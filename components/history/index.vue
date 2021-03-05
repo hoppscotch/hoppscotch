@@ -231,10 +231,6 @@ export default {
       })
     },
     useHistory(entry) {
-      if (this.page == "graphql") {
-        console.log("use history")
-        return
-      }
       this.$emit("useHistory", entry)
     },
     async deleteHistory(entry) {

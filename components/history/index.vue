@@ -45,7 +45,7 @@
           <span>{{ $t("clear_all") }}</span>
         </button>
         <v-popover>
-          <button class="tooltip-target icon" v-tooltip="$t('sort')">
+          <button v-if="this.page == 'rest'" class="tooltip-target icon" v-tooltip="$t('sort')">
             <i class="material-icons">sort</i>
           </button>
           <template slot="popover">
@@ -209,13 +209,16 @@ export default {
       this.$emit("useHistory", entry)
     },
     async deleteHistory(entry) {
-      if (fb.currentUser !== null) {
-        this.page == "rest" ? await fb.deleteHistory(entry) : await fb.deleteGraphqlHistory(entry)
-      }
+      console.log(this.history)
+      this.history.splice(this.history.indexOf(entry), 1)
+      console.log(this.history)
       if (this.history.length === 0) {
         this.filterText = ""
       }
       updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
+      if (fb.currentUser !== null) {
+        await (this.page == "rest" ? fb.deleteHistory(entry) : fb.deleteGraphqlHistory(entry))
+      }
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })

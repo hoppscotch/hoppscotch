@@ -31,7 +31,7 @@
         }"
       >
         <i class="material-icons">
-          {{ expand ? "compress" : "expand" }}
+          {{ expand ? "unfold_less" : "unfold_more" }}
         </i>
       </button>
       <v-popover>

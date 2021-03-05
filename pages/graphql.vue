@@ -560,6 +560,7 @@ export default {
       this.gqlQueryString = entry.query
       this.response = entry.responseText
       this.variableString = entry.variables
+      this.schema = ""
     },
     isGqlTypeHighlighted({ gqlType }) {
       if (!this.graphqlFieldsFilterText) return false

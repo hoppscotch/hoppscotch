@@ -149,30 +149,6 @@ import { fb } from "~/helpers/fb"
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
-let history_graphql = [
-  {
-    type: "graphql",
-    name: "getUser",
-    method: "query",
-    query: `query getUser($uid: String!) {
-  user(uid: $uid) {
-    name
-  }
-}`,
-    star: false,
-  },
-  {
-    type: "graphql",
-    name: "getUser",
-    method: "query",
-    query: `query getUser($uid: String!) {
-  user(uid: $uid) {
-    name
-  }
-}`,
-    star: false,
-  },
-]
 
 export default {
   props: {

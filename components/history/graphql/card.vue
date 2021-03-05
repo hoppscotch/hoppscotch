@@ -27,7 +27,7 @@
         class="icon"
         @click="expand = !expand"
         v-tooltip="{
-          content: expand ? 'show less' : 'show more',
+          content: expand ? $t('hide_more') : $t('show_more'),
         }"
       >
         <i class="material-icons">

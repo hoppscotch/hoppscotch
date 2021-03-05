@@ -318,7 +318,7 @@
       </div>
 
       <aside class="sticky-inner inner-right lg:max-w-md">
-        <SmartTabs styles="m-4">
+        <SmartTabs>
           <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
             <AppSection class="purple" :label="$t('docs')" ref="docs" no-legend>
               <section class="flex-col">

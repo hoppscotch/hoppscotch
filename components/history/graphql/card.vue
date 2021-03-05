@@ -68,7 +68,7 @@
       <li>
         <input
           v-for="(line, index) in query"
-          v-bind:key="index"
+          :key="`line-${index}`"
           :aria-label="$t('url')"
           type="text"
           readonly

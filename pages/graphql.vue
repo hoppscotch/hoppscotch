@@ -554,7 +554,6 @@ export default {
       console.log("use selected environment")
     },
     handleUseHistory(entry) {
-      console.log("use history")
       this.url = entry.url
       this.headers = entry.headers
       this.gqlQueryString = entry.query

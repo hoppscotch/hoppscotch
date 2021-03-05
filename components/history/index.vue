@@ -149,7 +149,6 @@ import { fb } from "~/helpers/fb"
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
-
 export default {
   props: {
     page: String,
@@ -201,7 +200,7 @@ export default {
       this.history = []
       this.filterText = ""
       this.disableHistoryClearing()
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
       this.$toast.error(this.$t("history_deleted"), {
         icon: "delete",
       })

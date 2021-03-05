@@ -123,6 +123,12 @@
   </div>
 </template>
 
+<style scoped lang="scss">
+.stared {
+	color: #f8e81c !important;
+}
+</style>
+
 <script>
 import findStatusGroup from "~/helpers/findStatusGroup"
 

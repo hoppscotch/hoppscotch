@@ -144,7 +144,6 @@ ol {
 </style>
 
 <script>
-import findStatusGroup from "~/helpers/findStatusGroup"
 import { fb } from "~/helpers/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
@@ -180,14 +179,13 @@ export default {
     page: String,
   },
   data() {
-    console.log(this.page)
     return {
       history:
-        this.page == "graphql"
-          ? history_graphql
-          : fb.currentUser !== null
+        fb.currentUser !== null
           ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem("history")) || [],
+          : JSON.parse(
+              window.localStorage.getItem(this.page == "rest" ? "history" : "graphqlHistory")
+            ) || [],
       filterText: "",
       showFilter: false,
       isClearingHistory: false,
@@ -201,15 +199,14 @@ export default {
   },
   computed: {
     filteredHistory() {
-      if (this.page == "graphql") {
-        this.history = history_graphql
-      } else {
-        this.history =
-          fb.currentUser !== null
+      this.history =
+        fb.currentUser !== null
+          ? this.page == "rest"
             ? fb.currentHistory
-            : JSON.parse(window.localStorage.getItem("history")) || []
-        console.log(this.history)
-      }
+            : fb.currentGraphqlHistory
+          : JSON.parse(
+              window.localStorage.getItem(this.page == "rest" ? "history" : "graphqlHistory")
+            ) || []
       return this.history.filter((entry) => {
         const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some((key) => {
@@ -222,12 +219,8 @@ export default {
   },
   methods: {
     async clearHistory() {
-      if (this.page == "graphql") {
-        console.log("clear history")
-        return
-      }
       if (fb.currentUser !== null) {
-        await fb.clearHistory()
+        this.page == "rest" ? await fb.clearHistory() : await fb.clearGraphqlHistory()
       }
       this.history = []
       this.filterText = ""
@@ -244,38 +237,21 @@ export default {
       }
       this.$emit("useHistory", entry)
     },
-    findEntryStatus({ status }) {
-      const foundStatusGroup = findStatusGroup(status)
-      return (
-        foundStatusGroup || {
-          className: "",
-        }
-      )
-    },
     async deleteHistory(entry) {
-      if (this.page == "graphql") {
-        console.log("delete history")
-        return
-      }
       if (fb.currentUser !== null) {
-        await fb.deleteHistory(entry)
+        this.page == "rest" ? await fb.deleteHistory(entry) : await fb.deleteGraphqlHistory(entry)
       }
-      this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {
         this.filterText = ""
       }
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },
     addEntry(entry) {
-      if (this.page == "graphql") {
-        console.log("add entry")
-        return
-      }
       this.history.push(entry)
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
     },
     enableHistoryClearing() {
       if (!this.history || !this.history.length) return
@@ -350,10 +326,12 @@ export default {
     },
     async toggleStar(entry) {
       if (fb.currentUser !== null) {
-        await fb.toggleStar(entry, !entry.star)
+        this.page == "rest"
+          ? await fb.toggleStar(entry, !entry.star)
+          : await fb.toggleGraphqlHistoryStar(entry, !entry.star)
       }
       entry.star = !entry.star
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
     },
   },
 }

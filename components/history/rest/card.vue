@@ -139,7 +139,6 @@ export default {
   methods: {
     findEntryStatus({ status }) {
       const foundStatusGroup = findStatusGroup(status)
-      console.log(foundStatusGroup)
       return (
         foundStatusGroup || {
           className: "",

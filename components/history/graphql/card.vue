@@ -1,15 +1,12 @@
 <template>
   <div>
     <div class="show-on-large-screen">
-      <span class="p-2 m-2">
-        {{ `${entry.method}` }}
-      </span>
       <li>
         <input
           :aria-label="$t('token_req_name')"
           type="text"
           readonly
-          :value="entry.name"
+          :value="entry.url"
           :placeholder="$t('empty_req_name')"
           class="bg-transparent"
         />
@@ -30,7 +27,7 @@
         class="icon"
         @click="expand = !expand"
         v-tooltip="{
-          content: !entry.expand ? 'show less' : 'show more',
+          content: expand ? 'show less' : 'show more',
         }"
       >
         <i class="material-icons">
@@ -77,8 +74,7 @@
           :aria-label="$t('url')"
           type="text"
           readonly
-          :value="`${entry.type == 'graphql' ? line : entry.url + entry.path}`"
-          :placeholder="$t('no_url')"
+          :value="`${line}`"
           class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
         />
       </li>
@@ -160,8 +156,6 @@ ol {
 </style>
 
 <script>
-import findStatusGroup from "~/helpers/findStatusGroup"
-
 export default {
   props: {
     entry: Object,

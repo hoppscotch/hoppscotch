@@ -380,7 +380,7 @@
               <SmartTab :id="'history'" :label="$t('history')">
                 <History
                   @useHistory="handleUseHistory"
-                  ref="historyComponent"
+                  ref="graphqlHistoryComponent"
                   v-bind:page="'graphql'"
                 />
               </SmartTab>
@@ -432,6 +432,7 @@ import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -710,7 +711,15 @@ export default {
           },
           data: JSON.stringify({ query: gqlQueryString, variables }),
         }
-
+        let entry = {
+          url: this.url,
+          query: gqlQueryString,
+          variables: variables,
+          star: false,
+          headers: {
+            ...headers,
+          },
+        }
         const res = await sendNetworkRequest(reqOptions, this.$store)
 
         // HACK: Temporary trailing null character issue from the extension fix
@@ -723,6 +732,21 @@ export default {
         this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done",
         })
+
+        entry = {
+          ...entry,
+          response: responseText,
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+        }
+
+        console.log(entry)
+        this.$refs.graphqlHistoryComponent.addEntry(entry)
+        if (fb.currentUser !== null && fb.currentSettings[2]) {
+          if (fb.currentSettings[2].value) {
+            fb.writeGraphqlHistory(entry)
+          }
+        }
       } catch (error) {
         this.response = `${error}. ${this.$t("check_console_details")}`
         this.$nuxt.$loading.finish()

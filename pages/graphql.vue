@@ -385,7 +385,7 @@
                 />
               </SmartTab>
 
-              <SmartTab :id="'collections'" :label="$t('collections')">
+              <!-- <SmartTab :id="'collections'" :label="$t('collections')">
                 <Collections />
               </SmartTab>
 
@@ -395,7 +395,7 @@
 
               <SmartTab :id="'notes'" :label="$t('notes')">
                 <HttpNotes />
-              </SmartTab>
+              </SmartTab> -->
             </SmartTabs>
           </section>
 

@@ -318,74 +318,91 @@
       </div>
 
       <aside class="sticky-inner inner-right lg:max-w-md">
-        <AppSection class="purple" :label="$t('docs')" ref="docs" no-legend>
-          <section class="flex-col">
-            <input
-              type="text"
-              :placeholder="$t('search')"
-              v-model="graphqlFieldsFilterText"
-              class="rounded-t-lg"
-            />
-            <SmartTabs ref="gqlTabs" styles="m-4">
-              <div class="gqlTabs">
-                <SmartTab
-                  v-if="queryFields.length > 0"
-                  :id="'queries'"
-                  :label="$t('queries')"
-                  :selected="true"
-                >
-                  <div v-for="field in filteredQueryFields" :key="field.name">
-                    <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                  </div>
-                </SmartTab>
-
-                <SmartTab
-                  v-if="mutationFields.length > 0"
-                  :id="'mutations'"
-                  :label="$t('mutations')"
-                >
-                  <div v-for="field in filteredMutationFields" :key="field.name">
-                    <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                  </div>
-                </SmartTab>
-
-                <SmartTab
-                  v-if="subscriptionFields.length > 0"
-                  :id="'subscriptions'"
-                  :label="$t('subscriptions')"
-                >
-                  <div v-for="field in filteredSubscriptionFields" :key="field.name">
-                    <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                  </div>
-                </SmartTab>
-
-                <SmartTab
-                  v-if="graphqlTypes.length > 0"
-                  :id="'types'"
-                  :label="$t('types')"
-                  ref="typesTab"
-                >
-                  <div v-for="type in filteredGraphqlTypes" :key="type.name">
-                    <GraphqlType
-                      :gqlType="type"
-                      :gqlTypes="graphqlTypes"
-                      :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
-                      :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
-                      :jumpTypeCallback="handleJumpToType"
-                    />
-                  </div>
-                </SmartTab>
-              </div>
-
-              <SmartTab :id="'history'" :label="$t('history')">
-                <History
-                  @useHistory="handleUseHistory"
-                  ref="graphqlHistoryComponent"
-                  v-bind:page="'graphql'"
+        <SmartTabs styles="m-4">
+          <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
+            <AppSection class="purple" :label="$t('docs')" ref="docs" no-legend>
+              <section class="flex-col">
+                <input
+                  type="text"
+                  :placeholder="$t('search')"
+                  v-model="graphqlFieldsFilterText"
+                  class="rounded-t-lg"
                 />
-              </SmartTab>
+                <SmartTabs ref="gqlTabs" styles="m-4">
+                  <div class="gqlTabs">
+                    <SmartTab
+                      v-if="queryFields.length > 0"
+                      :id="'queries'"
+                      :label="$t('queries')"
+                      :selected="true"
+                    >
+                      <div v-for="field in filteredQueryFields" :key="field.name">
+                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      </div>
+                    </SmartTab>
 
-              <!-- <SmartTab :id="'collections'" :label="$t('collections')">
+                    <SmartTab
+                      v-if="mutationFields.length > 0"
+                      :id="'mutations'"
+                      :label="$t('mutations')"
+                    >
+                      <div v-for="field in filteredMutationFields" :key="field.name">
+                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      </div>
+                    </SmartTab>
+
+                    <SmartTab
+                      v-if="subscriptionFields.length > 0"
+                      :id="'subscriptions'"
+                      :label="$t('subscriptions')"
+                    >
+                      <div v-for="field in filteredSubscriptionFields" :key="field.name">
+                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      </div>
+                    </SmartTab>
+
+                    <SmartTab
+                      v-if="graphqlTypes.length > 0"
+                      :id="'types'"
+                      :label="$t('types')"
+                      ref="typesTab"
+                    >
+                      <div v-for="type in filteredGraphqlTypes" :key="type.name">
+                        <GraphqlType
+                          :gqlType="type"
+                          :gqlTypes="graphqlTypes"
+                          :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
+                          :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
+                          :jumpTypeCallback="handleJumpToType"
+                        />
+                      </div>
+                    </SmartTab>
+                  </div>
+                </SmartTabs>
+              </section>
+              <p
+                v-if="
+                  queryFields.length === 0 &&
+                  mutationFields.length === 0 &&
+                  subscriptionFields.length === 0 &&
+                  graphqlTypes.length === 0
+                "
+                class="info"
+              >
+                {{ $t("send_request_first") }}
+              </p>
+            </AppSection>
+          </SmartTab>
+
+          <SmartTab :id="'history'" :label="$t('history')">
+            <History
+              @useHistory="handleUseHistory"
+              ref="graphqlHistoryComponent"
+              v-bind:page="'graphql'"
+            />
+          </SmartTab>
+
+          <!-- <SmartTab :id="'collections'" :label="$t('collections')">
                 <Collections />
               </SmartTab>
 
@@ -396,21 +413,7 @@
               <SmartTab :id="'notes'" :label="$t('notes')">
                 <HttpNotes />
               </SmartTab> -->
-            </SmartTabs>
-          </section>
-
-          <p
-            v-if="
-              queryFields.length === 0 &&
-              mutationFields.length === 0 &&
-              subscriptionFields.length === 0 &&
-              graphqlTypes.length === 0
-            "
-            class="info"
-          >
-            {{ $t("send_request_first") }}
-          </p>
-        </AppSection>
+        </SmartTabs>
       </aside>
     </div>
   </div>

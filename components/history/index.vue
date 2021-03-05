@@ -13,7 +13,7 @@
       class="divide-y virtual-list divide-dashed divide-brdColor"
       :class="{ filled: filteredHistory.length }"
     >
-      <ul v-for="(entry, index) in filteredHistory" :key="'card_' + index">
+      <ul v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
         <HistoryRestCard
           v-if="page == 'rest'"
           :entry="entry"

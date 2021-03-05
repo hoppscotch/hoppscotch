@@ -126,9 +126,6 @@
 .fade-leave-to {
   opacity: 0;
 }
-.stared {
-  color: #f8e81c !important;
-}
 ul,
 ol {
   flex-direction: column;

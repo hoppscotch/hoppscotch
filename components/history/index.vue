@@ -16,16 +16,16 @@
       <ul v-for="(entry, index) in filteredHistory" :key="'card_' + index">
         <HistoryRestCard
           v-if="page == 'rest'"
-          v-bind:entry="entry"
-          v-bind:showMore="showMore"
+          :entry="entry"
+          :showMore="showMore"
           @toggle-star="toggleStar(entry)"
           @delete-entry="deleteHistory(entry)"
           @use-entry="useHistory(entry)"
         />
         <HistoryGraphqlCard
           v-if="page == 'graphql'"
-          v-bind:entry="entry"
-          v-bind:showMore="showMore"
+          :entry="entry"
+          :showMore="showMore"
           @toggle-star="toggleStar(entry)"
           @delete-entry="deleteHistory(entry)"
           @use-entry="useHistory(entry)"

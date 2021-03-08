@@ -14,6 +14,9 @@
 </template>
 
 <script>
+import { setupLocalPersistence } from "~/newstore/localpersistence"
+import { settingsStore } from '~/newstore/settings'
+
 export default {
   beforeMount() {
     let color = localStorage.getItem("THEME_COLOR") || "green"
@@ -52,6 +55,19 @@ export default {
         }
       })
     }
+
+    setupLocalPersistence()
+
+    // TODO: Remove
+    settingsStore.subject$
+      .subscribe(settings => {
+        console.log(settings)
+      })
+
+    settingsStore.dispatches$
+      .subscribe(dispatch => {
+        console.log(dispatch)
+      })
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

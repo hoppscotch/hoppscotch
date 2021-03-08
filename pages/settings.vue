@@ -57,20 +57,20 @@
         <SmartAccentModePicker />
         <span>
           <SmartToggle
-            :on="settings.FRAME_COLORS_ENABLED"
+            :on="FRAME_COLORS_ENABLED"
             @change="toggleSetting('FRAME_COLORS_ENABLED')"
           >
             {{ $t("multi_color") }}
-            {{ settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled") }}
+            {{ FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled") }}
           </SmartToggle>
         </span>
         <span>
           <SmartToggle
-            :on="settings.SCROLL_INTO_ENABLED"
+            :on="SCROLL_INTO_ENABLED"
             @change="toggleSetting('SCROLL_INTO_ENABLED')"
           >
             {{ $t("scrollInto_use_toggle") }}
-            {{ settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
+            {{ SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
           </SmartToggle>
         </span>
       </div>
@@ -81,7 +81,7 @@
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
           <SmartToggle
-            :on="settings.EXTENSIONS_ENABLED"
+            :on="EXTENSIONS_ENABLED"
             @change="toggleSetting('EXTENSIONS_ENABLED')"
           >
             {{ $t("extensions_use_toggle") }}
@@ -101,9 +101,9 @@
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
           <span>
-            <SmartToggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
+            <SmartToggle :on="PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
               {{ $t("proxy") }}
-              {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
+              {{ PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </span>
           <a
@@ -125,8 +125,8 @@
         <input
           id="url"
           type="url"
-          v-model="settings.PROXY_URL"
-          :disabled="!settings.PROXY_ENABLED"
+          v-model="PROXY_URL"
+          :disabled="!PROXY_ENABLED"
           :placeholder="$t('url')"
         />
         <p class="info">
@@ -175,7 +175,7 @@
         </p>
         <div class="row-wrapper">
           <SmartToggle
-            :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
+            :on="EXPERIMENTAL_URL_BAR_ENABLED"
             @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
           >
             {{ $t("use_experimental_url_bar") }}
@@ -189,6 +189,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
+import { getSettingSubject, applySetting, toggleSetting } from "~/newstore/settings"
 
 export default {
   data() {
@@ -197,32 +198,22 @@ export default {
         ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
         : null,
 
-      settings: {
-        SCROLL_INTO_ENABLED:
-          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
-            : true,
-
-        FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
-        PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL:
-          this.$store.state.postwoman.settings.PROXY_URL ||
-          "https://hoppscotch.apollosoftware.xyz/",
-        PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
-
-        EXTENSIONS_ENABLED:
-          typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
-            : true,
-
-        EXPERIMENTAL_URL_BAR_ENABLED:
-          typeof this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED
-            : false,
-      },
-
       doneButton: '<i class="material-icons">done</i>',
       fb,
+    }
+  },
+  subscriptions() {
+    return {
+      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
+
+      FRAME_COLORS_ENABLED: getSettingSubject("FRAME_COLORS_ENABLED"),
+      PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
+      PROXY_URL: getSettingSubject("PROXY_URL"),
+      PROXY_KEY: getSettingSubject("PROXY_KEY"),
+
+      EXTENSIONS_ENABLED: getSettingSubject("EXTENSIONS_ENABLED"),
+
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED")
     }
   },
   watch: {
@@ -236,12 +227,10 @@ export default {
   },
   methods: {
     applySetting(key, value) {
-      this.settings[key] = value
-      this.$store.commit("postwoman/applySetting", [key, value])
+      applySetting(key, value)
     },
     toggleSetting(key) {
-      this.settings[key] = !this.settings[key]
-      this.$store.commit("postwoman/applySetting", [key, this.settings[key]])
+      toggleSetting(key)
     },
     toggleSettings(name, value) {
       fb.writeSettings(name, !value)
@@ -258,7 +247,8 @@ export default {
       fb.writeSettings("syncEnvironments", true)
     },
     resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://hoppscotch.apollosoftware.xyz/`
+      applySetting("PROXY_URL", `https://hoppscotch.apollosoftware.xyz/`)
+
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
@@ -283,8 +273,8 @@ export default {
   computed: {
     proxySettings() {
       return {
-        url: this.settings.PROXY_URL,
-        key: this.settings.PROXY_KEY,
+        url: this.PROXY_URL,
+        key: this.PROXY_KEY,
       }
     },
   },

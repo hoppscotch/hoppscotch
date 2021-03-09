@@ -126,9 +126,6 @@
 .fade-leave-to {
   opacity: 0;
 }
-.stared {
-  color: #f8e81c !important;
-}
 ul,
 ol {
   flex-direction: column;
@@ -209,9 +206,7 @@ export default {
       this.$emit("useHistory", entry)
     },
     async deleteHistory(entry) {
-      console.log(this.history)
       this.history.splice(this.history.indexOf(entry), 1)
-      console.log(this.history)
       if (this.history.length === 0) {
         this.filterText = ""
       }

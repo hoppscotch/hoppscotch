@@ -25,7 +25,7 @@
   <b>Sponsored by</b>
   <br>
   <br>
-  <a href="http://appwrite.io?ref=hoppscotch" title="Appwrite" target="_blank">
+  <a href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello" title="Appwrite" target="_blank">
     <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
   </a>
 </p>

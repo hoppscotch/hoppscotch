@@ -19,6 +19,7 @@
         />
       </li>
       <button
+        data-testid="star_button"
         class="icon"
         :class="{ stared: entry.star }"
         @click="$emit('toggle-star')"
@@ -51,6 +52,7 @@
         <template slot="popover">
           <div>
             <button
+              data-testid="restore_history_entry"
               class="icon"
               @click="$emit('use-entry')"
               :aria-label="$t('edit')"
@@ -62,6 +64,7 @@
           </div>
           <div>
             <button
+              data-testid="delete_history_entry"
               class="icon"
               @click="$emit('delete-entry')"
               :aria-label="$t('delete')"
@@ -125,7 +128,7 @@
 
 <style scoped lang="scss">
 .stared {
-	color: #f8e81c !important;
+  color: #f8e81c !important;
 }
 </style>
 

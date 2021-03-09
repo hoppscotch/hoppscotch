@@ -3,7 +3,8 @@
     <div class="show-on-large-screen">
       <li>
         <input
-          :aria-label="$t('token_req_name')"
+          data-testid="'url'"
+          :aria-label="$t('url')"
           type="text"
           readonly
           :value="entry.url"
@@ -12,6 +13,7 @@
         />
       </li>
       <button
+        data-testid="star_button"
         class="icon"
         :class="{ stared: entry.star }"
         @click="$emit('toggle-star')"
@@ -24,6 +26,7 @@
         </i>
       </button>
       <button
+        data-testid="query_expand"
         class="icon"
         @click="expand = !expand"
         v-tooltip="{
@@ -35,15 +38,16 @@
         </i>
       </button>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="$t('options')">
+        <button data-testid="options" class="tooltip-target icon" v-tooltip="$t('options')">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
+              data-testid="restore_history_entry"
               class="icon"
               @click="$emit('use-entry')"
-              :aria-label="$t('edit')"
+              :aria-label="$t('restore')"
               v-close-popover
             >
               <i class="material-icons">restore</i>
@@ -52,6 +56,7 @@
           </div>
           <div>
             <button
+              data-testid="delete_history_entry"
               class="icon"
               @click="$emit('delete-entry')"
               :aria-label="$t('delete')"
@@ -65,11 +70,11 @@
       </v-popover>
     </div>
     <div class="show-on-large-screen">
-      <li>
+      <li data-testid="'query'">
         <input
           v-for="(line, index) in query"
           :key="`line-${index}`"
-          :aria-label="$t('url')"
+          :aria-label="$t('query')"
           type="text"
           readonly
           :value="`${line}`"

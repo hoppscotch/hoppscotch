@@ -1,6 +1,7 @@
 import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
+import { ReplaySubject } from "rxjs"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -32,6 +33,21 @@ export class FirebaseInstance {
     this.currentHistory = []
     this.currentCollections = []
     this.currentEnvironments = []
+
+    this.currentUser$ = new ReplaySubject(1);
+    this.idToken$ = new ReplaySubject(1);
+
+    this.app.auth().onIdTokenChanged((user) => {
+      if (user) {
+        user.getIdToken().then((token) => {
+          this.idToken = token
+          this.idToken$.next(token)
+        })
+      } else {
+        this.idToken = null
+        this.idToken$.next(null)
+      }
+    })
 
     this.app.auth().onAuthStateChanged((user) => {
       if (user) {

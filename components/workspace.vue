@@ -40,19 +40,28 @@ export default {
 
   methods: {
     async loadWorkspace() {
-      loadWorkspaceFromFile()
-        .then(this.$toast.info("Workspace loaded"))
-        .catch((ex) => reportError.call(this, ex))
+      try {
+        await loadWorkspaceFromFile()
+        this.$toast.info("Workspace loaded")
+      } catch (ex) {
+        reportError.call(this, ex)
+      }
     },
     async saveWorkspace() {
-      saveWorkspaceToFile()
-        .then(this.$toast.info("File saved successfully"))
-        .catch((ex) => reportError.call(this, ex))
+      try {
+        const savedContent = await saveWorkspaceToFile()
+        this.$toast.info(`File saved successfully`)
+      } catch (ex) {
+        reportError.call(this, ex)
+      }
     },
     async createWorkspace() {
-      saveWorkspaceToNewFile()
-        .then(this.$toast.info("File saved successfully"))
-        .catch((ex) => reportError.call(this, ex))
+      try {
+        await saveWorkspaceToNewFile()
+        this.$toast.info("File saved successfully")
+      } catch (ex) {
+        reportError.call(this, ex)
+      }
     },
   },
 }

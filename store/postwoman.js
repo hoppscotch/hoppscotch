@@ -395,10 +395,14 @@ let getHandle = () => (lastActiveBlob && lastActiveBlob.handle) || undefined
 
 const commitWorkspaceToFilesystem = async (workspace, handle) => {
   let newBlob = new Blob([workspace], { type: "application/json" })
-  lastActiveBlob = await fileSave(newBlob, {
-    fileName: undefined,
-    extensions: [".json", ".hoppscotch"],
-  })
+  lastActiveBlob = await fileSave(
+    newBlob,
+    {
+      fileName: undefined,
+      extensions: [".json", ".hoppscotch"],
+    },
+    getHandle()
+  )
   return lastActiveBlob
 }
 

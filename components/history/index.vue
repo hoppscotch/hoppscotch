@@ -40,7 +40,12 @@
     </p>
     <div v-if="history.length !== 0" class="rounded-b-lg bg-bgDarkColor">
       <div class="row-wrapper" v-if="!isClearingHistory">
-        <button class="icon" :disabled="history.length === 0" @click="enableHistoryClearing">
+        <button
+          data-testid="clear_history"
+          class="icon"
+          :disabled="history.length === 0"
+          @click="enableHistoryClearing"
+        >
           <i class="material-icons">clear_all</i>
           <span>{{ $t("clear_all") }}</span>
         </button>
@@ -99,10 +104,20 @@
       <div class="row-wrapper" v-else>
         <p class="info"><i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}</p>
         <div>
-          <button class="icon" @click="clearHistory" v-tooltip="$t('yes')">
+          <button
+            data-testid="confirm_clear_history"
+            class="icon"
+            @click="clearHistory"
+            v-tooltip="$t('yes')"
+          >
             <i class="material-icons">done</i>
           </button>
-          <button class="icon" @click="disableHistoryClearing" v-tooltip="$t('no')">
+          <button
+            data-testid="reject_clear_history"
+            class="icon"
+            @click="disableHistoryClearing"
+            v-tooltip="$t('no')"
+          >
             <i class="material-icons">close</i>
           </button>
         </div>

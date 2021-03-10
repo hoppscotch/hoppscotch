@@ -1363,7 +1363,8 @@ export default {
           const entry = {
             name: this.requestName,
             status: this.response.status,
-            updatedOn: new Date(),
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString(),
             method: this.method,
             url: this.url,
             path: this.path,

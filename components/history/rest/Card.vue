@@ -3,7 +3,7 @@
     <div class="show-on-large-screen">
       <span
         class="p-2 m-2"
-        :class="findEntryStatus(entry).className"
+        :class="entryStatus.className"
         :style="{ '--status-code': entry.status }"
       >
         {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
@@ -145,9 +145,10 @@ export default {
       expand: false,
     }
   },
-  methods: {
-    findEntryStatus({ status }) {
-      const foundStatusGroup = findStatusGroup(status)
+  computed: {
+    entryStatus() {
+      const foundStatusGroup = findStatusGroup(this.entry.status)
+      console.log(foundStatusGroup)
       return (
         foundStatusGroup || {
           className: "",

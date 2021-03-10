@@ -17,6 +17,7 @@
         <HistoryRestCard
           v-if="page == 'rest'"
           :entry="entry"
+          :id="index"
           :showMore="showMore"
           @toggle-star="toggleStar(entry)"
           @delete-entry="deleteHistory(entry)"
@@ -221,13 +222,16 @@ export default {
       this.$emit("useHistory", entry)
     },
     async deleteHistory(entry) {
-      this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {
         this.filterText = ""
       }
-      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
       if (fb.currentUser !== null) {
         await (this.page == "rest" ? fb.deleteHistory(entry) : fb.deleteGraphqlHistory(entry))
+        this.history = fb.currentHistory
+        updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
+      } else {
+        this.history.splice(this.history.indexOf(entry), 1)
+        updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
       }
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

@@ -82,7 +82,11 @@
     <div class="p-2">
       <h3 class="title">Financial Contributors</h3>
       <div class="contributors">
-        <a href="http://appwrite.io?ref=hoppscotch" target="_blank" rel="noopener">
+        <a
+          href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
+          target="_blank"
+          rel="noopener"
+        >
           <img
             style="height: 100%; width: 300px; background: #fff"
             src="~assets/images/appwrite-banner.svg"

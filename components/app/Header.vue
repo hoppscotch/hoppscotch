@@ -19,7 +19,7 @@
       </span>
       <span>
         <a
-          href="https://appwrite.io/?ref=hoppscotch"
+          href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
           target="_blank"
           rel="noopener"
           class="inline-flex items-center px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"

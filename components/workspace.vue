@@ -22,11 +22,7 @@
 </template>
 
 <script>
-import {
-  saveWorkspaceToFile,
-  saveWorkspaceToNewFile,
-  loadWorkspaceFromFile,
-} from "../store/postwoman"
+import { saveWorkspaceToFile, saveWorkspaceToNewFile, loadWorkspaceFile } from "../store/postwoman"
 
 function reportError(ex) {
   console && console.log("Error", ex)
@@ -34,34 +30,47 @@ function reportError(ex) {
 }
 
 export default {
-  // data() {
-  //   return {}
-  // },
+  props: {},
+  data: function () {
+    return {}
+  },
 
   methods: {
     async loadWorkspace() {
+      // const me = this
+      // const my = this
       try {
-        await loadWorkspaceFromFile()
-        this.$toast.info("Workspace loaded")
+        const loaded = await loadWorkspaceFile()
+        setTimeout(async () => {
+          try {
+            await this.$store.replaceState(loaded)
+            await this.$toast.info("Workspace loaded")
+          } catch (ex) {
+            reportError.call(me, ex)
+          }
+        })
       } catch (ex) {
-        reportError.call(this, ex)
+        reportError.call(me, ex)
       }
+      return true
     },
     async saveWorkspace() {
       try {
-        const savedContent = await saveWorkspaceToFile()
+        const savedContent = await saveWorkspaceToFile(this.$store.state)
         this.$toast.info(`File saved successfully`)
       } catch (ex) {
         reportError.call(this, ex)
       }
+      return true
     },
     async createWorkspace() {
       try {
-        await saveWorkspaceToNewFile()
+        await saveWorkspaceToNewFile(this.$store.state)
         this.$toast.info("File saved successfully")
       } catch (ex) {
         reportError.call(this, ex)
       }
+      return true
     },
   },
 }

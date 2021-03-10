@@ -336,6 +336,23 @@ export const mutations = {
       }
     }
   },
+
+  async setState(newState) {
+    debugger
+    let keysToRemove = { ...state() }
+    let newKeys = Object.keys(newState)
+    while (keys.length > 0) {
+      const key = newKeys.pop()
+      state[key] = newState[key]
+      delete keysToRemove[key]
+    }
+
+    let leftoverKeys = Object.keys(keysToRemove)
+    while (leftoverKeys.length > 0) {
+      const key = leftoverKeys.pop()
+      delete state[key]
+    }
+  },
 }
 
 function testValue(myValue) {
@@ -394,7 +411,9 @@ let lastActiveBlob = null
 let getHandle = () => (lastActiveBlob && lastActiveBlob.handle) || undefined
 
 const commitWorkspaceToFilesystem = async (workspace, handle) => {
-  let newBlob = new Blob([workspace], { type: "application/json" })
+  let asString = JSON.stringify(workspace, undefined, 2)
+  console.log("Saving Workspace", asString)
+  let newBlob = new Blob([asString], { type: "application/json" })
   lastActiveBlob = await fileSave(
     newBlob,
     {
@@ -406,13 +425,17 @@ const commitWorkspaceToFilesystem = async (workspace, handle) => {
   return lastActiveBlob
 }
 
-export const saveWorkspaceToFile = async () => await commitWorkspaceToFilesystem(state, getHandle())
+export const saveWorkspaceToFile = async (state) =>
+  await commitWorkspaceToFilesystem(state, getHandle())
 
-export const saveWorkspaceToNewFile = async () => await commitWorkspaceToFilesystem(state)
+export const saveWorkspaceToNewFile = async (state) => await commitWorkspaceToFilesystem(state)
 
-export const loadWorkspaceFromFile = async () => {
+export const loadWorkspaceFile = async () => {
   lastActiveBlob = await fileOpen({
     mimeTypes: ["application/json"],
     extensions: [".json", ".hoppscotch"],
   })
+  const asText = await lastActiveBlob.text()
+  const asObject = JSON.parse(asText)
+  return asObject
 }

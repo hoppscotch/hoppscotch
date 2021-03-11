@@ -43,12 +43,19 @@ export default {
     async loadWorkspace() {
       try {
         const loaded = await loadWorkspaceFile()
+        const configuration = loaded.configuration
         setTimeout(async () => {
           try {
             console.log("Current state", this.$store.state)
             console.log("loaded settings", loaded)
 
-            this.$store.replaceState(loaded.configuration)
+            let toApply = {
+              ...this.$store.state,
+              ...configuration,
+            }
+            console.log("settings to apply", toApply)
+
+            this.$store.replaceState(toApply)
 
             await this.$toast.info("Workspace loaded")
           } catch (ex) {

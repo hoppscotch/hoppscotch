@@ -140,7 +140,7 @@ describe("Clear History", () => {
     const wrapper = factory({
       page: "rest",
     })
-    expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory.slice().reverse())
+    expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
     await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
     expect(fb.clearHistory).not.toHaveBeenCalled()
@@ -151,7 +151,7 @@ describe("Clear History", () => {
     const wrapper = factory({
       page: "rest",
     })
-    expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory.slice().reverse())
+    expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
     await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
     expect(fb.clearHistory).toHaveBeenCalledTimes(1)
@@ -162,7 +162,7 @@ describe("Clear History", () => {
     const wrapper = factory({
       page: "rest",
     })
-    expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory.slice().reverse())
+    expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
     await wrapper.find("button[data-testid='reject_clear_history']").trigger("click")
     expect(fb.clearHistory).not.toHaveBeenCalled()
@@ -174,7 +174,7 @@ describe("Clear History", () => {
     const wrapper = factory({
       page: "graphql",
     })
-    expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory.slice().reverse())
+    expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
     await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
     expect(fb.clearGraphqlHistory).not.toHaveBeenCalled()
@@ -185,7 +185,7 @@ describe("Clear History", () => {
     const wrapper = factory({
       page: "graphql",
     })
-    expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory.slice().reverse())
+    expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
     await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
     expect(fb.clearGraphqlHistory).toHaveBeenCalledTimes(1)
@@ -196,7 +196,7 @@ describe("Clear History", () => {
     const wrapper = factory({
       page: "graphql",
     })
-    expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory.slice().reverse())
+    expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
     await wrapper.find("button[data-testid='reject_clear_history']").trigger("click")
     expect(window.localStorage.setItem).not.toHaveBeenCalledWith(
@@ -216,7 +216,7 @@ describe("Use History", () => {
     var index = restHistory.length - 1
     wrapper.findAll("div[data-testid='rest_card']").at(index).vm.$emit("use-entry")
     expect(wrapper.emitted("useHistory")).toBeTruthy()
-    expect(wrapper.emitted("useHistory")[0]).toStrictEqual([restHistory.slice().reverse()[index]])
+    expect(wrapper.emitted("useHistory")[0]).toStrictEqual([restHistory[index]])
   })
 
   test("use graphql history", async () => {
@@ -228,9 +228,7 @@ describe("Use History", () => {
     var index = restHistory.length - 1
     wrapper.findAll("div[data-testid='graphql_card']").at(index).vm.$emit("use-entry")
     expect(wrapper.emitted("useHistory")).toBeTruthy()
-    expect(wrapper.emitted("useHistory")[0]).toStrictEqual([
-      graphqlHistory.slice().reverse()[index],
-    ])
+    expect(wrapper.emitted("useHistory")[0]).toStrictEqual([graphqlHistory[index]])
   })
 })
 

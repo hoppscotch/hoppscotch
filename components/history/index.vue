@@ -140,17 +140,14 @@ export default {
           : JSON.parse(
               window.localStorage.getItem(this.page == "rest" ? "history" : "graphqlHistory")
             ) || []
-      return this.history
-        .slice()
-        .reverse()
-        .filter((entry) => {
-          const filterText = this.filterText.toLowerCase()
-          return Object.keys(entry).some((key) => {
-            let value = entry[key]
-            value = typeof value !== "string" ? value.toString() : value
-            return value.toLowerCase().includes(filterText)
-          })
+      return this.history.filter((entry) => {
+        const filterText = this.filterText.toLowerCase()
+        return Object.keys(entry).some((key) => {
+          let value = entry[key]
+          value = typeof value !== "string" ? value.toString() : value
+          return value.toLowerCase().includes(filterText)
         })
+      })
     },
   },
   methods: {

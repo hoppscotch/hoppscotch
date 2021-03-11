@@ -88,6 +88,7 @@ export class FirebaseInstance {
         this.usersCollection
           .doc(this.currentUser.uid)
           .collection("history")
+          .orderBy("updatedOn", "desc")
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {
@@ -101,6 +102,7 @@ export class FirebaseInstance {
         this.usersCollection
           .doc(this.currentUser.uid)
           .collection("graphqlHistory")
+          .orderBy("updatedOn", "desc")
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {

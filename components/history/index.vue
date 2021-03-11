@@ -13,127 +13,24 @@
       class="divide-y virtual-list divide-dashed divide-brdColor"
       :class="{ filled: filteredHistory.length }"
     >
-      <ul v-for="(entry, index) in filteredHistory" :key="index">
-        <div class="show-on-large-screen">
-          <span
-            class="p-2 m-2"
-            :class="findEntryStatus(entry).className"
-            :style="{ '--status-code': entry.status }"
-          >
-            {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
-          </span>
-          <li>
-            <input
-              :aria-label="$t('token_req_name')"
-              type="text"
-              readonly
-              :value="entry.name"
-              :placeholder="$t('empty_req_name')"
-              class="bg-transparent"
-            />
-          </li>
-          <button
-            class="icon"
-            :class="{ stared: entry.star }"
-            @click="toggleStar(entry)"
-            v-tooltip="{
-              content: !entry.star ? $t('add_star') : $t('remove_star'),
-            }"
-          >
-            <i class="material-icons">
-              {{ entry.star ? "star" : "star_border" }}
-            </i>
-          </button>
-          <!-- <li>
-            <button
-              class="icon"
-              v-tooltip="{
-                content: !entry.usesScripts
-                  ? 'No pre-request script'
-                  : 'Used pre-request script'
-              }"
-            >
-              <i class="material-icons">
-                {{ !entry.usesScripts ? "http" : "code" }}
-              </i>
-            </button>
-          </li> -->
-          <v-popover>
-            <button class="tooltip-target icon" v-tooltip="$t('options')">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  class="icon"
-                  @click="useHistory(entry)"
-                  :aria-label="$t('edit')"
-                  v-close-popover
-                >
-                  <i class="material-icons">restore</i>
-                  <span>{{ $t("restore") }}</span>
-                </button>
-              </div>
-              <div>
-                <button
-                  class="icon"
-                  @click="deleteHistory(entry)"
-                  :aria-label="$t('delete')"
-                  v-close-popover
-                >
-                  <i class="material-icons">delete</i>
-                  <span>{{ $t("delete") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
-        </div>
-        <div class="show-on-large-screen">
-          <li>
-            <input
-              :aria-label="$t('url')"
-              type="text"
-              readonly
-              :value="`${entry.url}${entry.path}`"
-              :placeholder="$t('no_url')"
-              class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-            />
-          </li>
-        </div>
-        <transition name="fade">
-          <div v-if="showMore" class="show-on-large-screen">
-            <li>
-              <input
-                :aria-label="$t('time')"
-                type="text"
-                readonly
-                :value="entry.time"
-                v-tooltip="entry.date"
-                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-              />
-            </li>
-            <li>
-              <input
-                :aria-label="$t('duration')"
-                type="text"
-                readonly
-                :value="entry.duration"
-                :placeholder="$t('no_duration')"
-                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-              />
-            </li>
-            <li>
-              <input
-                :aria-label="$t('prerequest_script')"
-                type="text"
-                readonly
-                :value="entry.preRequestScript"
-                :placeholder="$t('no_prerequest_script')"
-                class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
-              />
-            </li>
-          </div>
-        </transition>
+      <ul v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
+        <HistoryRestCard
+          v-if="page == 'rest'"
+          :entry="entry"
+          :id="index"
+          :showMore="showMore"
+          @toggle-star="toggleStar(entry)"
+          @delete-entry="deleteHistory(entry)"
+          @use-entry="useHistory(entry)"
+        />
+        <HistoryGraphqlCard
+          v-if="page == 'graphql'"
+          :entry="entry"
+          :showMore="showMore"
+          @toggle-star="toggleStar(entry)"
+          @delete-entry="deleteHistory(entry)"
+          @use-entry="useHistory(entry)"
+        />
       </ul>
     </div>
     <p :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }" class="info">
@@ -144,12 +41,17 @@
     </p>
     <div v-if="history.length !== 0" class="rounded-b-lg bg-bgDarkColor">
       <div class="row-wrapper" v-if="!isClearingHistory">
-        <button class="icon" :disabled="history.length === 0" @click="enableHistoryClearing">
+        <button
+          data-testid="clear_history"
+          class="icon"
+          :disabled="history.length === 0"
+          @click="enableHistoryClearing"
+        >
           <i class="material-icons">clear_all</i>
           <span>{{ $t("clear_all") }}</span>
         </button>
         <v-popover>
-          <button class="tooltip-target icon" v-tooltip="$t('sort')">
+          <button v-if="this.page == 'rest'" class="tooltip-target icon" v-tooltip="$t('sort')">
             <i class="material-icons">sort</i>
           </button>
           <template slot="popover">
@@ -203,10 +105,20 @@
       <div class="row-wrapper" v-else>
         <p class="info"><i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}</p>
         <div>
-          <button class="icon" @click="clearHistory" v-tooltip="$t('yes')">
+          <button
+            data-testid="confirm_clear_history"
+            class="icon"
+            @click="clearHistory"
+            v-tooltip="$t('yes')"
+          >
             <i class="material-icons">done</i>
           </button>
-          <button class="icon" @click="disableHistoryClearing" v-tooltip="$t('no')">
+          <button
+            data-testid="reject_clear_history"
+            class="icon"
+            @click="disableHistoryClearing"
+            v-tooltip="$t('no')"
+          >
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -218,36 +130,26 @@
 <style scoped lang="scss">
 .virtual-list {
   max-height: calc(100vh - 270px);
-
   [readonly] {
     cursor: default;
   }
 }
-
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.2s;
 }
-
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
 }
-
-.stared {
-  color: #f8e81c !important;
-}
-
 ul,
 ol {
   flex-direction: column;
 }
-
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;
   }
-
   .labels {
     display: none;
   }
@@ -255,19 +157,23 @@ ol {
 </style>
 
 <script>
-import findStatusGroup from "~/helpers/findStatusGroup"
 import { fb } from "~/helpers/fb"
 
 const updateOnLocalStorage = (propertyName, property) =>
   window.localStorage.setItem(propertyName, JSON.stringify(property))
 
 export default {
+  props: {
+    page: String,
+  },
   data() {
     return {
       history:
         fb.currentUser !== null
           ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem("history")) || [],
+          : JSON.parse(
+              window.localStorage.getItem(this.page == "rest" ? "history" : "graphqlHistory")
+            ) || [],
       filterText: "",
       showFilter: false,
       isClearingHistory: false,
@@ -283,8 +189,12 @@ export default {
     filteredHistory() {
       this.history =
         fb.currentUser !== null
-          ? fb.currentHistory
-          : JSON.parse(window.localStorage.getItem("history")) || []
+          ? this.page == "rest"
+            ? fb.currentHistory
+            : fb.currentGraphqlHistory
+          : JSON.parse(
+              window.localStorage.getItem(this.page == "rest" ? "history" : "graphqlHistory")
+            ) || []
       return this.history.filter((entry) => {
         const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some((key) => {
@@ -298,12 +208,12 @@ export default {
   methods: {
     async clearHistory() {
       if (fb.currentUser !== null) {
-        await fb.clearHistory()
+        this.page == "rest" ? await fb.clearHistory() : await fb.clearGraphqlHistory()
       }
       this.history = []
       this.filterText = ""
       this.disableHistoryClearing()
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
       this.$toast.error(this.$t("history_deleted"), {
         icon: "delete",
       })
@@ -311,30 +221,25 @@ export default {
     useHistory(entry) {
       this.$emit("useHistory", entry)
     },
-    findEntryStatus({ status }) {
-      const foundStatusGroup = findStatusGroup(status)
-      return (
-        foundStatusGroup || {
-          className: "",
-        }
-      )
-    },
     async deleteHistory(entry) {
-      if (fb.currentUser !== null) {
-        await fb.deleteHistory(entry)
-      }
-      this.history.splice(this.history.indexOf(entry), 1)
       if (this.history.length === 0) {
         this.filterText = ""
       }
-      updateOnLocalStorage("history", this.history)
+      if (fb.currentUser !== null) {
+        await (this.page == "rest" ? fb.deleteHistory(entry) : fb.deleteGraphqlHistory(entry))
+        this.history = fb.currentHistory
+        updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
+      } else {
+        this.history.splice(this.history.indexOf(entry), 1)
+        updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
+      }
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },
     addEntry(entry) {
       this.history.push(entry)
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
     },
     enableHistoryClearing() {
       if (!this.history || !this.history.length) return
@@ -409,10 +314,12 @@ export default {
     },
     async toggleStar(entry) {
       if (fb.currentUser !== null) {
-        await fb.toggleStar(entry, !entry.star)
+        this.page == "rest"
+          ? await fb.toggleStar(entry, !entry.star)
+          : await fb.toggleGraphqlHistoryStar(entry, !entry.star)
       }
       entry.star = !entry.star
-      updateOnLocalStorage("history", this.history)
+      updateOnLocalStorage(this.page == "rest" ? "history" : "graphqlHistory", this.history)
     },
   },
 }

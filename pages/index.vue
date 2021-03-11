@@ -532,7 +532,7 @@
         <section>
           <SmartTabs>
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <HttpHistory @useHistory="handleUseHistory" ref="historyComponent" />
+              <History :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
             </SmartTab>
 
             <SmartTab :id="'collections'" :label="$t('collections')">

@@ -333,6 +333,8 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/ho
 
   > **Extensions fixes `CORS` issues.**
 
+- **[Hopp-Doc-Gen](https://github.com/hoppscotch/hopp-doc-gen)** - An API doc generator CLI for Hoppscotch
+
 _Add-ons are developed and maintained under **[Official Hoppscotch Organization](https://github.com/hoppscotch)**._
 
 ☁️ **Auth + Sync:** Sign in and sync in real-time.

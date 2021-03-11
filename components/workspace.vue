@@ -29,8 +29,21 @@ function reportError(ex) {
   this.$toast.error(ex.message)
 }
 
+function massageStateForRestoring(state) {
+  return {
+    name: this.$store.state.name,
+    ...configuration,
+  }
+}
+
 function createObjectToSave(store) {
-  return { version: 1, configuration: store.state }
+  return {
+    version: 1,
+    configuration: {
+      ...store.state,
+      name: undefined,
+    },
+  }
 }
 
 export default {
@@ -49,10 +62,8 @@ export default {
             console.log("Current state", this.$store.state)
             console.log("loaded settings", loaded)
 
-            let toApply = {
-              ...this.$store.state,
-              ...configuration,
-            }
+            let toApply = massageStateForRestoring(configuration)
+
             console.log("settings to apply", toApply)
 
             this.$store.replaceState(toApply)

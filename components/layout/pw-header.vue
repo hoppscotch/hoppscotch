@@ -27,6 +27,7 @@
           Deploy your api for free on Deta
           <img class="w-8 ml-2" src="~assets/images/deta_portal.svg" alt="Deta" />
         </a>
+
         <button
           class="icon"
           id="installPWA"
@@ -35,6 +36,7 @@
         >
           <i class="material-icons">offline_bolt</i>
         </button>
+
         <a
           href="https://github.com/hoppscotch/hoppscotch"
           target="_blank"
@@ -49,6 +51,16 @@
             </svg>
           </button>
         </a>
+
+        <v-popover>
+          <button class="icon" v-tooltip="$t('manage_workspace')">
+            <i class="material-icons">workspaces</i>
+          </button>
+          <template slot="popover">
+            <workspace />
+          </template>
+        </v-popover>
+
         <v-popover v-if="fb.currentUser === null">
           <button class="icon" v-tooltip="$t('login_with')">
             <i class="material-icons">login</i>
@@ -91,6 +103,7 @@
             </div>
           </template>
         </v-popover>
+
         <v-popover>
           <button class="icon" v-tooltip="$t('more')">
             <i class="material-icons">drag_indicator</i>

@@ -303,5 +303,6 @@
   "account_exists": "Account exists with different credential - Login to link both accounts",
   "confirm": "Confirm",
   "new_version_found": "New version found. Refresh to update.",
-  "size": "Size"
+  "size": "Size",
+  "manage_workspace": "workspace"
 }

@@ -57,15 +57,6 @@
         <SmartAccentModePicker />
         <span>
           <SmartToggle
-            :on="settings.FRAME_COLORS_ENABLED"
-            @change="toggleSetting('FRAME_COLORS_ENABLED')"
-          >
-            {{ $t("multi_color") }}
-            {{ settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled") }}
-          </SmartToggle>
-        </span>
-        <span>
-          <SmartToggle
             :on="settings.SCROLL_INTO_ENABLED"
             @change="toggleSetting('SCROLL_INTO_ENABLED')"
           >
@@ -203,7 +194,6 @@ export default {
             ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
             : true,
 
-        FRAME_COLORS_ENABLED: this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
         PROXY_URL:
           this.$store.state.postwoman.settings.PROXY_URL ||

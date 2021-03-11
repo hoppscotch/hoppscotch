@@ -1,5 +1,5 @@
 <template>
-  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
+  <fieldset :id="label.toLowerCase()">
     <legend v-if="!noLegend" @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="ml-2 align-middle material-icons">
@@ -30,51 +30,12 @@ fieldset {
     @apply ease-in-out;
     @apply duration-150;
   }
-
-  &.blue legend {
-    @apply text-blue-400;
-  }
-
-  &.green legend {
-    @apply text-green-400;
-  }
-
-  &.teal legend {
-    @apply text-teal-400;
-  }
-
-  &.purple legend {
-    @apply text-purple-400;
-  }
-
-  &.orange legend {
-    @apply text-orange-400;
-  }
-
-  &.pink legend {
-    @apply text-pink-400;
-  }
-
-  &.red legend {
-    @apply text-red-400;
-  }
-
-  &.yellow legend {
-    @apply text-yellow-400;
-  }
-}
-
-fieldset.no-colored-frames legend {
-  @apply text-fgColor;
 }
 </style>
 
 <script>
 export default {
   computed: {
-    frameColorsEnabled() {
-      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
-    },
     sectionString() {
       return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },

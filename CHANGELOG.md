@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.9.10](https://github.com/liyasthomas/postwoman/tree/v1.9.10) (2021-03-11)
+**New Feature:**
+- Workspaces - save and restore state
+  - Icon on TopToolBar with list of actions
+    - Open Workspace
+    - Save Workspace
+    - Save Workspace As...
+  - Once a workspace is saved, saving again will overwrite the current file without prompting
+
 ## [v1.9.9](https://github.com/liyasthomas/postwoman/tree/v1.9.9) (2020-07-30)
 
 [Full Changelog](https://github.com/liyasthomas/postwoman/compare/v1.9.7...v1.9.9)

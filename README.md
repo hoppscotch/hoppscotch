@@ -38,28 +38,29 @@
 
 ---
 
-- [Features](#features)
-- [Demo](#demo)
-- [Usage](#usage)
-- [Built with](#built-with)
-- [Developing](#developing)
-  - [Browser based development environment](#browser-based-development-environment)
-  - [Local development environment](#local-development-environment)
-  - [Docker compose](#docker-compose)
-- [Docker](#docker)
-- [Releasing](#releasing)
-- [Contributing](#contributing)
-- [Continuous Integration](#continuous-integration)
-- [Changelog](#changelog)
-- [Authors](#authors)
+- [<summary><i>Features</i></summary>](#summaryifeaturesisummary)
+- [<summary><i>Use-cases</i></summary>](#summaryiuse-casesisummary)
+- [**Demo**](#demo)
+- [**Usage**](#usage)
+- [**Built with**](#built-with)
+- [**Developing**](#developing)
+    - [Browser based development environment](#browser-based-development-environment)
+    - [Local development environment](#local-development-environment)
+    - [Docker compose](#docker-compose)
+- [**Docker**](#docker)
+- [**Releasing**](#releasing)
+- [**Contributing**](#contributing)
+- [**Continuous Integration**](#continuous-integration)
+- [**Changelog**](#changelog)
+- [**Authors**](#authors)
   - [Lead Developers](#lead-developers)
-  - [Collaborators](#collaborators-)
+  - [Collaborators](#collaborators)
   - [Financial Contributors](#financial-contributors)
     - [GitHub Sponsors](#github-sponsors)
     - [Open Collective](#open-collective)
   - [Code Contributors](#code-contributors)
-- [License](#license)
-- [Badges](#badges)
+- [**License**](#license)
+- [**Badges**](#badges)
 
 ---
 
@@ -387,6 +388,46 @@ _Notes are only available for signed-in users_
 ---
 
 </details>
+
+
+### Workspaces
+Keep what you're doing "here" when you switch to what you're doing "there"
+
+<details>
+  <summary><i>Features</i></summary>
+---
+
+* Save all of your work to a single file
+  * Environnments
+  * Collections
+  * Active request
+  * GQL state
+  * Current theme
+  * Oath2 state
+* Restore the file to pick up where you left off
+* Comming soon: integrtion to CI/CD via [hopp-cli](https://github.com/hoppscotch/hopp-cli)
+
+---
+</details>
+
+<details>
+  <summary><i>Use-cases</i></summary>
+---
+* Integrate into your Source Control Management system
+  1. Save the workspace file to the project folder
+  2. Make sure your SCM will include the workspace file
+  3. Save the file whenever you've made useful changes
+  4. Enjoy the benefits of your SCM of choice
+* Share workspaces with different teams (Deva and QA, for example)
+  * Create an environment for each team
+  * Provide both teams access to the workspace file
+  * Each team runs tests with their environments
+* Comming soon: integrtion to CI/CD via [hopp-cli](https://github.com/hoppscotch/hopp-cli)
+
+---
+</details>
+
+<br/>
 
 **To find out more, please check out [Hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
 

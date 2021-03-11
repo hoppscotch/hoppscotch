@@ -744,6 +744,8 @@ export default {
           response: this.response,
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString(),
+          updatedOn: new Date(),
+          duration,
         }
 
         this.$refs.graphqlHistoryComponent.addEntry(entry)

@@ -99,12 +99,12 @@
             :aria-label="$t('duration')"
             type="text"
             readonly
-            :value="entry.duration"
+            :value="`Duration: ${entry.duration}ms`"
             :placeholder="$t('no_duration')"
             class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
           />
         </li>
-        <li>
+        <!-- <li>
           <input
             :aria-label="$t('prerequest_script')"
             type="text"
@@ -113,7 +113,7 @@
             :placeholder="$t('no_prerequest_script')"
             class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
           />
-        </li>
+        </li> -->
       </div>
     </transition>
   </div>
@@ -122,6 +122,14 @@
 <style scoped lang="scss">
 .stared {
   color: #f8e81c !important;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
 

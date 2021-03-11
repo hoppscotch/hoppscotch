@@ -29,6 +29,10 @@ function reportError(ex) {
   this.$toast.error(ex.message)
 }
 
+function createObjectToSave(store) {
+  return { version: 1, configuration: store.state }
+}
+
 export default {
   props: {},
   data: function () {
@@ -37,26 +41,29 @@ export default {
 
   methods: {
     async loadWorkspace() {
-      // const me = this
-      // const my = this
       try {
         const loaded = await loadWorkspaceFile()
         setTimeout(async () => {
           try {
-            await this.$store.replaceState(loaded)
+            console.log("Current state", this.$store.state)
+            console.log("loaded settings", loaded)
+
+            this.$store.replaceState(loaded.configuration)
+
             await this.$toast.info("Workspace loaded")
           } catch (ex) {
-            reportError.call(me, ex)
+            reportError.call(this, ex)
           }
         })
       } catch (ex) {
-        reportError.call(me, ex)
+        reportError.call(this, ex)
       }
       return true
     },
     async saveWorkspace() {
       try {
-        const savedContent = await saveWorkspaceToFile(this.$store.state)
+        const toSave = createObjectToSave(this.$store)
+        const savedContent = await saveWorkspaceToFile(toSave)
         this.$toast.info(`File saved successfully`)
       } catch (ex) {
         reportError.call(this, ex)
@@ -65,7 +72,8 @@ export default {
     },
     async createWorkspace() {
       try {
-        await saveWorkspaceToNewFile(this.$store.state)
+        const toSave = createObjectToSave(this.$store)
+        await saveWorkspaceToNewFile(toSave)
         this.$toast.info("File saved successfully")
       } catch (ex) {
         reportError.call(this, ex)

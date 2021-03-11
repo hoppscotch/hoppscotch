@@ -336,23 +336,6 @@ export const mutations = {
       }
     }
   },
-
-  async setState(newState) {
-    debugger
-    let keysToRemove = { ...state() }
-    let newKeys = Object.keys(newState)
-    while (keys.length > 0) {
-      const key = newKeys.pop()
-      state[key] = newState[key]
-      delete keysToRemove[key]
-    }
-
-    let leftoverKeys = Object.keys(keysToRemove)
-    while (leftoverKeys.length > 0) {
-      const key = leftoverKeys.pop()
-      delete state[key]
-    }
-  },
 }
 
 function testValue(myValue) {
@@ -420,7 +403,7 @@ const commitWorkspaceToFilesystem = async (workspace, handle) => {
       fileName: undefined,
       extensions: [".json", ".hoppscotch"],
     },
-    getHandle()
+    handle
   )
   return lastActiveBlob
 }

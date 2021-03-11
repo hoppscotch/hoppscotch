@@ -30,7 +30,7 @@
           </li>
         </div>
       </ul>
-    </Appsection>
+    </AppSection>
 
     <AppSection class="blue" :label="$t('communication')" no-legend>
       <ul>
@@ -94,7 +94,7 @@
           </li>
         </div>
       </ul>
-    </Appsection>
+    </AppSection>
   </div>
 </template>
 

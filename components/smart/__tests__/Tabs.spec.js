@@ -13,7 +13,7 @@ const factory = () =>
       ],
     },
     stubs: {
-      "Tab": tab,
+      Tab: tab,
     },
   })
 

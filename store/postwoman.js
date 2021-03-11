@@ -1,4 +1,5 @@
 import Vue from "vue"
+import { fileOpen, fileSave } from "browser-fs-access"
 
 export const SETTINGS_KEYS = [
   /**
@@ -394,4 +395,38 @@ function findFolder(folderName, currentFolder, returnParent, parentFolder) {
     }
     return false
   }
+}
+
+let lastActiveBlob = null
+
+let getHandle = () => (lastActiveBlob && lastActiveBlob.handle) || undefined
+
+const commitWorkspaceToFilesystem = async (workspace, handle) => {
+  let asString = JSON.stringify(workspace, undefined, 2)
+  console.log("Saving Workspace", asString)
+  let newBlob = new Blob([asString], { type: "application/json" })
+  lastActiveBlob = await fileSave(
+    newBlob,
+    {
+      fileName: undefined,
+      extensions: [".json", ".hoppscotch"],
+    },
+    handle
+  )
+  return lastActiveBlob
+}
+
+export const saveWorkspaceToFile = async (state) =>
+  await commitWorkspaceToFilesystem(state, getHandle())
+
+export const saveWorkspaceToNewFile = async (state) => await commitWorkspaceToFilesystem(state)
+
+export const loadWorkspaceFile = async () => {
+  lastActiveBlob = await fileOpen({
+    mimeTypes: ["application/json"],
+    extensions: [".json", ".hoppscotch"],
+  })
+  const asText = await lastActiveBlob.text()
+  const asObject = JSON.parse(asText)
+  return asObject
 }

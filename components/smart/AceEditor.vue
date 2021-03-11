@@ -103,7 +103,7 @@ export default {
     provideJSONOutline: {
       type: Boolean,
       default: false,
-      required: false
+      required: false,
     },
     value: {
       type: String,

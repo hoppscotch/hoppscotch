@@ -1,23 +1,23 @@
 <template>
   <div class="page">
     <section id="options">
-      <tabs>
-        <tab :id="'websocket'" :label="$t('websocket')" :selected="true">
-          <websocket />
-        </tab>
+      <SmartTabs>
+        <SmartTab :id="'websocket'" :label="$t('websocket')" :selected="true">
+          <RealtimeWebsocket />
+        </SmartTab>
 
-        <tab :id="'sse'" :label="$t('sse')">
-          <sse />
-        </tab>
+        <SmartTab :id="'sse'" :label="$t('sse')">
+          <RealtimeSse />
+        </SmartTab>
 
-        <tab :id="'socketio'" :label="$t('socketio')">
-          <socketio />
-        </tab>
+        <SmartTab :id="'socketio'" :label="$t('socketio')">
+          <RealtimeSocketio />
+        </SmartTab>
 
-        <tab :id="'mqtt'" :label="$t('mqtt')">
-          <mqtt />
-        </tab>
-      </tabs>
+        <SmartTab :id="'mqtt'" :label="$t('mqtt')">
+          <RealtimeMqtt />
+        </SmartTab>
+      </SmartTabs>
     </section>
   </div>
 </template>

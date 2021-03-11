@@ -37,7 +37,7 @@
       </div>
     </div>
     <div id="response-details-wrapper">
-      <ace-editor
+      <SmartAceEditor
         :value="responseBodyText"
         :lang="'xml'"
         :options="{

@@ -6,7 +6,7 @@
     <b>Hoppscotch - A free, fast and beautiful API request builder</b>
   </p>
   <p>
-     <i>Helps you create requests faster, saving precious time on development - <a href="https://hoppscotch.launchaco.com">Subscribe</a></i>
+     <i>Helps you create requests faster, saving precious time on development - <a href="http://eepurl.com/g6n_P5">Subscribe</a></i>
   </p>
   <p>
 
@@ -33,6 +33,15 @@
 <div align="center">
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_dark.png" alt="Screenshot" width="100%"></a>
 </div>
+
+<p align="center">
+  <b>Powered by</b>
+  <br>
+  <br>
+  <a href="https://oss.capital/?ref=hoppscotch" title="OSS Capital" target="_blank">
+    <img height="80px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/oscc-logo.png" title="OSS Capital">
+  </a>
+</p>
 
 #### **Contact**
 

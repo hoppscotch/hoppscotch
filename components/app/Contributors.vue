@@ -82,6 +82,15 @@
     <div class="p-2">
       <h3 class="title">Financial Contributors</h3>
       <div class="contributors">
+        <a href="https://oss.capital/?ref=hoppscotch" target="_blank" rel="noopener">
+          <img
+            style="height: 100%; width: 300px"
+            src="~assets/images/oscc-logo.png"
+            alt="OSS Capital"
+          />
+        </a>
+      </div>
+      <div class="contributors">
         <a
           href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
           target="_blank"

@@ -455,17 +455,9 @@
             />
           </SmartTab>
 
-          <!-- <SmartTab :id="'collections'" :label="$t('collections')">
-                <Collections />
-              </SmartTab>
-
-              <SmartTab :id="'env'" :label="$t('environments')">
-                <Environments @use-environment="useSelectedEnvironment($event)" />
-              </SmartTab>
-
-              <SmartTab :id="'notes'" :label="$t('notes')">
-                <HttpNotes />
-              </SmartTab> -->
+          <SmartTab :id="'env'" :label="$t('environments')">
+            <Environments @use-environment="useSelectedEnvironment($event)" />
+          </SmartTab>
         </SmartTabs>
       </aside>
     </div>

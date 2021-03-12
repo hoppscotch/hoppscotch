@@ -14,6 +14,9 @@ const firebaseConfig = {
   measurementId: process.env.MEASUREMENT_ID || "G-ERJ6025CEB",
 }
 
+const historyLimit = 50
+const graphqlHistoryLimit = 50
+
 export const authProviders = {
   google: () => new firebase.auth.GoogleAuthProvider(),
   github: () => new firebase.auth.GithubAuthProvider(),
@@ -89,6 +92,7 @@ export class FirebaseInstance {
           .doc(this.currentUser.uid)
           .collection("history")
           .orderBy("updatedOn", "desc")
+          .limit(historyLimit)
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {
@@ -103,6 +107,7 @@ export class FirebaseInstance {
           .doc(this.currentUser.uid)
           .collection("graphqlHistory")
           .orderBy("updatedOn", "desc")
+          .limit(graphqlHistoryLimit)
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {

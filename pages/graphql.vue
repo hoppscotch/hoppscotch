@@ -37,108 +37,161 @@
           </ul>
         </AppSection>
 
-        <AppSection class="orange" :label="$t('headers')" ref="headers" no-legend>
-          <div class="flex flex-col">
-            <label>{{ $t("headers") }}</label>
-            <ul v-if="headers.length !== 0">
-              <li>
-                <div class="row-wrapper">
-                  <label for="headerList">{{ $t("header_list") }}</label>
-                  <div>
-                    <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
-                      <i class="material-icons">clear_all</i>
-                    </button>
-                  </div>
-                </div>
-              </li>
-            </ul>
-            <ul
-              v-for="(header, index) in headers"
-              :key="`${header.value}_${index}`"
-              class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
-              :class="{ 'border-t': index == 0 }"
+        <section id="options">
+          <SmartTabs>
+            <SmartTab
+              :id="'headers'"
+              :label="
+                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+              "
+              :selected="true"
             >
-              <li>
-                <SmartAutoComplete
-                  :placeholder="$t('header_count', { count: index + 1 })"
-                  :source="commonHeaders"
-                  :spellcheck="false"
-                  :value="header.key"
-                  @input="
-                    $store.commit('setGQLHeaderKey', {
-                      index,
-                      value: $event,
-                    })
-                  "
-                  autofocus
-                />
-              </li>
-              <li>
-                <input
-                  :placeholder="$t('value_count', { count: index + 1 })"
-                  :name="`value ${index}`"
-                  :value="header.value"
-                  @change="
-                    $store.commit('setGQLHeaderValue', {
-                      index,
-                      value: $event.target.value,
-                    })
-                  "
-                  autofocus
-                />
-              </li>
-              <div>
-                <li>
-                  <button
-                    class="icon"
-                    @click="
-                      $store.commit('setActiveGQLHeader', {
-                        index,
-                        value: header.hasOwnProperty('active') ? !header.active : false,
-                      })
-                    "
-                    v-tooltip.bottom="{
-                      content: header.hasOwnProperty('active')
-                        ? header.active
-                          ? $t('turn_off')
-                          : $t('turn_on')
-                        : $t('turn_off'),
-                    }"
+              <AppSection class="orange" :label="$t('headers')" ref="headers" no-legend>
+                <div class="flex flex-col">
+                  <label>{{ $t("headers") }}</label>
+                  <ul v-if="headers.length !== 0">
+                    <li>
+                      <div class="row-wrapper">
+                        <label for="headerList">{{ $t("header_list") }}</label>
+                        <div>
+                          <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
+                            <i class="material-icons">clear_all</i>
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                  <ul
+                    v-for="(header, index) in headers"
+                    :key="`${header.value}_${index}`"
+                    class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+                    :class="{ 'border-t': index == 0 }"
                   >
-                    <i class="material-icons">
-                      {{
-                        header.hasOwnProperty("active")
-                          ? header.active
-                            ? "check_box"
-                            : "check_box_outline_blank"
-                          : "check_box"
-                      }}
-                    </i>
-                  </button>
-                </li>
-              </div>
-              <div>
-                <li>
-                  <button
-                    class="icon"
-                    @click="removeRequestHeader(index)"
-                    v-tooltip.bottom="$t('delete')"
-                  >
-                    <i class="material-icons">delete</i>
-                  </button>
-                </li>
-              </div>
-            </ul>
-            <ul>
-              <li>
-                <button class="icon" @click="addRequestHeader">
-                  <i class="material-icons">add</i>
-                  <span>{{ $t("add_new") }}</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-        </AppSection>
+                    <li>
+                      <SmartAutoComplete
+                        :placeholder="$t('header_count', { count: index + 1 })"
+                        :source="commonHeaders"
+                        :spellcheck="false"
+                        :value="header.key"
+                        @input="
+                          $store.commit('setGQLHeaderKey', {
+                            index,
+                            value: $event,
+                          })
+                        "
+                        autofocus
+                      />
+                    </li>
+                    <li>
+                      <input
+                        :placeholder="$t('value_count', { count: index + 1 })"
+                        :name="`value ${index}`"
+                        :value="header.value"
+                        @change="
+                          $store.commit('setGQLHeaderValue', {
+                            index,
+                            value: $event.target.value,
+                          })
+                        "
+                        autofocus
+                      />
+                    </li>
+                    <div>
+                      <li>
+                        <button
+                          class="icon"
+                          @click="
+                            $store.commit('setActiveGQLHeader', {
+                              index,
+                              value: header.hasOwnProperty('active') ? !header.active : false,
+                            })
+                          "
+                          v-tooltip.bottom="{
+                            content: header.hasOwnProperty('active')
+                              ? header.active
+                                ? $t('turn_off')
+                                : $t('turn_on')
+                              : $t('turn_off'),
+                          }"
+                        >
+                          <i class="material-icons">
+                            {{
+                              header.hasOwnProperty("active")
+                                ? header.active
+                                  ? "check_box"
+                                  : "check_box_outline_blank"
+                                : "check_box"
+                            }}
+                          </i>
+                        </button>
+                      </li>
+                    </div>
+                    <div>
+                      <li>
+                        <button
+                          class="icon"
+                          @click="removeRequestHeader(index)"
+                          v-tooltip.bottom="$t('delete')"
+                        >
+                          <i class="material-icons">delete</i>
+                        </button>
+                      </li>
+                    </div>
+                  </ul>
+                  <ul>
+                    <li>
+                      <button class="icon" @click="addRequestHeader">
+                        <i class="material-icons">add</i>
+                        <span>{{ $t("add_new") }}</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </AppSection>
+            </SmartTab>
+            <SmartTab :id="'pre_request_script'" :label="$t('pre_request_script')">
+              <AppSection
+                v-if="showPreRequestScript"
+                class="orange"
+                :label="$t('pre_request_script')"
+                ref="preRequest"
+                no-legend
+              >
+                <ul>
+                  <li>
+                    <div class="row-wrapper">
+                      <label>{{ $t("javascript_code") }}</label>
+                      <div>
+                        <a
+                          href="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          <button class="icon" v-tooltip="$t('wiki')">
+                            <i class="material-icons">help_outline</i>
+                          </button>
+                        </a>
+                      </div>
+                    </div>
+                    <SmartJsEditor
+                      v-model="preRequestScript"
+                      :options="{
+                        maxLines: '16',
+                        minLines: '8',
+                        fontSize: '16px',
+                        autoScrollEditorIntoView: true,
+                        showPrintMargin: false,
+                        useWorker: false,
+                      }"
+                      styles="rounded-b-lg"
+                      completeMode="pre"
+                    />
+                  </li>
+                </ul>
+              </AppSection>
+            </SmartTab>
+          </SmartTabs>
+        </section>
 
         <AppSection class="green" :label="$t('schema')" ref="schema" no-legend>
           <div class="row-wrapper">
@@ -436,6 +489,7 @@ import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
+import Section from "~/components/app/Section.vue"
 
 export default {
   data() {
@@ -454,6 +508,8 @@ export default {
       isPollingSchema: false,
       timeoutSubscription: null,
       activeSidebar: true,
+      showPreRequestScript: true,
+      preRequestScript: "// pw.env.set('variable', 'value');",
 
       settings: {
         SCROLL_INTO_ENABLED:

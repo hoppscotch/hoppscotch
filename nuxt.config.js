@@ -144,7 +144,7 @@ export default {
       name: options.name,
       short_name: options.name,
       description: options.shortDescription,
-      start_url: "/",
+      start_url: "/?source=pwa",
       background_color: options.app.background,
     },
   },

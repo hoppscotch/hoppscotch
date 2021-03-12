@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper', dragging ? 'drag-el' : '']"
+      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop

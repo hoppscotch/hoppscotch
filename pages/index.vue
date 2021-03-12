@@ -532,7 +532,7 @@
         <section>
           <SmartTabs>
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <HttpHistory @useHistory="handleUseHistory" ref="historyComponent" />
+              <History :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
             </SmartTab>
 
             <SmartTab :id="'collections'" :label="$t('collections')">
@@ -1366,6 +1366,7 @@ export default {
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
+            updatedOn: new Date(),
             method: this.method,
             url: this.url,
             path: this.path,
@@ -1423,6 +1424,7 @@ export default {
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
+              updatedOn: new Date(),
               method: this.method,
               url: this.url,
               path: this.path,

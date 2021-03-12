@@ -490,6 +490,8 @@ import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
 import Section from "~/components/app/Section.vue"
+import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
+import parseTemplateString from "~/helpers/templating"
 
 export default {
   data() {
@@ -775,13 +777,20 @@ export default {
           },
           data: JSON.stringify({ query: gqlQueryString, variables }),
         }
+
+        if (this.preRequestScript && this.showPreRequestScript) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          reqOptions.url = parseTemplateString(reqOptions.url, environmentVariables)
+        }
+
         let entry = {
-          url: this.url,
+          url: reqOptions.url,
           query: gqlQueryString,
           variables: this.variableString,
           star: false,
           headers: this.headers,
         }
+
         const res = await sendNetworkRequest(reqOptions, this.$store)
 
         // HACK: Temporary trailing null character issue from the extension fix
@@ -911,6 +920,11 @@ export default {
           data: query,
         }
 
+        if (this.preRequestScript && this.showPreRequestScript) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          reqOptions.url = parseTemplateString(reqOptions.url, environmentVariables)
+        }
+
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
         // HACK : Temporary trailing null character issue from the extension fix
@@ -981,6 +995,11 @@ export default {
             "content-type": "application/json",
           },
           data: query,
+        }
+
+        if (this.preRequestScript && this.showPreRequestScript) {
+          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+          reqOptions.url = parseTemplateString(reqOptions.url, environmentVariables)
         }
 
         const data = await sendNetworkRequest(reqOptions, this.$store)

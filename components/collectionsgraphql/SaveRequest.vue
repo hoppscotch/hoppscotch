@@ -151,6 +151,7 @@ export default {
       }
     },
     saveRequestAs() {
+      console.log(this.$props.editingRequest, "why?")
       const userDidntSpecifyCollection = this.$data.requestData.collectionIndex === undefined
       if (userDidntSpecifyCollection) {
         this.$toast.error(this.$t("select_collection"), {

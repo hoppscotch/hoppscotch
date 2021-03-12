@@ -225,6 +225,14 @@
               >
                 <i class="material-icons">photo_filter</i>
               </button>
+              <button
+                class="icon"
+                @click="saveRequest"
+                ref="saveRequest"
+                v-tooltip.bottom="$t('save_to_collections')"
+              >
+                <i class="material-icons">create_new_folder</i>
+              </button>
             </div>
           </div>
           <GraphqlQueryEditor
@@ -416,12 +424,12 @@
         </SmartTabs>
       </aside>
     </div>
-  </div>
-  <!-- <CollectionsgraphqlSaveRequest
+    <CollectionsgraphqlSaveRequest
       :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
       :editing-request="editRequest"
-    /> -->
+    />
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -459,7 +467,8 @@ export default {
       isPollingSchema: false,
       timeoutSubscription: null,
       activeSidebar: true,
-      // editRequest: {},
+      editRequest: {},
+      showSaveRequestModal: false,
       // saverequestmodaltoggle
       // copy saveRequest from index.vue
 
@@ -472,6 +481,9 @@ export default {
     }
   },
   computed: {
+    editingRequest() {
+      return this.$store.state.postwoman.editingRequest
+    },
     filteredQueryFields() {
       return this.getFilteredGraphqlFields({
         filterText: this.graphqlFieldsFilterText,
@@ -561,6 +573,30 @@ export default {
     next()
   },
   methods: {
+    hideRequestModal() {
+      this.showSaveRequestModal = false
+      this.editRequest = {}
+    },
+    saveRequest() {
+      // if (!this.checkCollections()) {
+      //   this.$toast.error(this.$t("create_collection"), {
+      //     icon: "error",
+      //   })
+      //   return
+      // }
+      // let urlAndPath = parseUrlAndPath(this.uri)
+      this.editRequest = {
+        url: this.url,
+        query: this.gqlQueryString,
+        headers: this.headers,
+        variables: this.variableString,
+      }
+      console.log(this.editRequest)
+      // if (this.selectedRequest.url) {
+      //   this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
+      // }
+      this.showSaveRequestModal = true
+    },
     useSelectedEnvironment(event) {
       console.log("use selected environment")
     },

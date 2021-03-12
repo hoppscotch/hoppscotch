@@ -311,14 +311,14 @@ export const mutations = {
 
   saveRequestAs({ collections, collectionsgraphql }, payload) {
     let { request, collectionIndex, folderName, requestIndex, flag } = payload
-    console.log(flag)
+    console.log(payload)
     // Filter out all file inputs
-    request = {
-      ...request,
-      bodyParams: request.bodyParams.map((param) =>
-        param?.value?.[0] instanceof File ? { ...param, value: "" } : param
-      ),
-    }
+    // request = {
+    //   ...request,
+    //   bodyParams: request.bodyParams.map((param) =>
+    //     param?.value?.[0] instanceof File ? { ...param, value: "" } : param
+    //   ),
+    // }
 
     const specifiedCollection = collectionIndex !== undefined
     const specifiedFolder = folderName !== undefined
@@ -352,6 +352,7 @@ export const mutations = {
       const lastRequestIndex = requests.length - 1
       Vue.set(requests, lastRequestIndex + 1, request)
     }
+    console.log(collectionsgraphql, "did it?")
   },
 
   removeRequest({ collections, collectionsgraphql }, payload) {

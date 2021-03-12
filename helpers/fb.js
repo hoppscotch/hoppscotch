@@ -14,6 +14,9 @@ const firebaseConfig = {
   measurementId: process.env.MEASUREMENT_ID || "G-ERJ6025CEB",
 }
 
+const historyLimit = 50
+const graphqlHistoryLimit = 50
+
 export const authProviders = {
   google: () => new firebase.auth.GoogleAuthProvider(),
   github: () => new firebase.auth.GithubAuthProvider(),
@@ -30,6 +33,7 @@ export class FirebaseInstance {
     this.currentFeeds = []
     this.currentSettings = []
     this.currentHistory = []
+    this.currentGraphqlHistory = []
     this.currentCollections = []
     this.currentEnvironments = []
 
@@ -87,6 +91,8 @@ export class FirebaseInstance {
         this.usersCollection
           .doc(this.currentUser.uid)
           .collection("history")
+          .orderBy("updatedOn", "desc")
+          .limit(historyLimit)
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {
@@ -95,6 +101,21 @@ export class FirebaseInstance {
               history.push(entry)
             })
             this.currentHistory = history
+          })
+
+        this.usersCollection
+          .doc(this.currentUser.uid)
+          .collection("graphqlHistory")
+          .orderBy("updatedOn", "desc")
+          .limit(graphqlHistoryLimit)
+          .onSnapshot((historyRef) => {
+            const history = []
+            historyRef.forEach((doc) => {
+              const entry = doc.data()
+              entry.id = doc.id
+              history.push(entry)
+            })
+            this.currentGraphqlHistory = history
           })
 
         this.usersCollection
@@ -215,11 +236,35 @@ export class FirebaseInstance {
     }
   }
 
+  async writeGraphqlHistory(entry) {
+    const hs = entry
+
+    try {
+      await this.usersCollection.doc(this.currentUser.uid).collection("graphqlHistory").add(hs)
+    } catch (e) {
+      console.error("error inserting", hs, e)
+      throw e
+    }
+  }
+
   async deleteHistory(entry) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("history")
+        .doc(entry.id)
+        .delete()
+    } catch (e) {
+      console.error("error deleting", entry, e)
+      throw e
+    }
+  }
+
+  async deleteGraphqlHistory(entry) {
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
         .doc(entry.id)
         .delete()
     } catch (e) {
@@ -237,11 +282,34 @@ export class FirebaseInstance {
     await Promise.all(docs.map((e) => this.deleteHistory(e)))
   }
 
+  async clearGraphqlHistory() {
+    const { docs } = await this.usersCollection
+      .doc(this.currentUser.uid)
+      .collection("graphqlHistory")
+      .get()
+
+    await Promise.all(docs.map((e) => this.deleteGraphqlHistory(e)))
+  }
+
   async toggleStar(entry, value) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("history")
+        .doc(entry.id)
+        .update({ star: value })
+    } catch (e) {
+      console.error("error deleting", entry, e)
+
+      throw e
+    }
+  }
+
+  async toggleGraphqlHistoryStar(entry, value) {
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
         .doc(entry.id)
         .update({ star: value })
     } catch (e) {

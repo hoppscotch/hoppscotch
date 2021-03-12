@@ -2,7 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("new_collection") }}</h3>
+        <h3 class="title">{{ $t("edit_request") }}</h3>
         <div>
           <button class="icon" @click="hideModal">
             <i class="material-icons">close</i>
@@ -15,9 +15,9 @@
       <input
         type="text"
         id="selectLabel"
-        v-model="name"
-        :placeholder="$t('my_new_collection')"
-        @keyup.enter="addNewCollection"
+        v-model="requestUpdateData.name"
+        @keyup.enter="saveRequest"
+        :placeholder="request.name"
       />
     </div>
     <div slot="footer">
@@ -27,7 +27,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewCollection">
+          <button class="icon primary" @click="saveRequest">
             {{ $t("save") }}
           </button>
         </span>
@@ -42,10 +42,17 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
+    collectionIndex: Number,
+    folderIndex: Number,
+    folderName: String,
+    request: Object,
+    requestIndex: Number,
   },
   data() {
     return {
-      name: undefined,
+      requestUpdateData: {
+        name: undefined,
+      },
     }
   },
   methods: {
@@ -56,21 +63,25 @@ export default {
         }
       }
     },
-    addNewCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
-        return
+    saveRequest() {
+      const requestUpdated = {
+        ...this.$props.request,
+        name: this.$data.requestUpdateData.name || this.$props.request.name,
       }
-      this.$store.commit("postwoman/addNewCollection", {
-        name: this.$data.name,
-        flag: true
+
+      this.$store.commit("postwoman/editRequest", {
+        requestCollectionIndex: this.$props.collectionIndex,
+        requestFolderName: this.$props.folderName,
+        requestFolderIndex: this.$props.folderIndex,
+        requestNew: requestUpdated,
+        requestIndex: this.$props.requestIndex,
       })
-      this.$emit("hide-modal")
+
+      this.hideModal()
       this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

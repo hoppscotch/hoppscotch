@@ -402,11 +402,11 @@
             />
           </SmartTab>
 
-          <!-- <SmartTab :id="'collections'" :label="$t('collections')">
-                <Collections />
-              </SmartTab>
+          <SmartTab :id="'collections'" :label="$t('collections')">
+            <Collectionsgraphql />
+          </SmartTab>
 
-              <SmartTab :id="'env'" :label="$t('environments')">
+              <!-- <SmartTab :id="'env'" :label="$t('environments')">
                 <Environments @use-environment="useSelectedEnvironment($event)" />
               </SmartTab>
 

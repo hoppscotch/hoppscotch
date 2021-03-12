@@ -49,6 +49,13 @@ export const state = () => ({
       requests: [],
     },
   ],
+  collectionsgraphql: [
+    {
+      name: "My Collection",
+      folders: [],
+      requests: [],
+    },
+  ],
   environments: [
     {
       name: "My Environment Variables",
@@ -164,21 +171,40 @@ export const mutations = {
     }
   },
 
-  addNewCollection({ collections }, collection) {
-    const { name } = collection
-    const duplicateCollection = collections.some(
-      (item) => item.name.toLowerCase() === name.toLowerCase()
-    )
+  addNewCollection({ collections, collectionsgraphql }, collection) {
+    const name = collection.name;
+    const flag = collection.flag;
+    let duplicateCollection = null;
+    if (flag) {
+      duplicateCollection = collections.some(
+        (item) => item.name.toLowerCase() === name.toLowerCase()
+      )
+    }
+    else{
+      duplicateCollection = collectionsgraphql.some(
+        (item) => item.name.toLowerCase() === name.toLowerCase()
+      )
+    }
     if (duplicateCollection) {
       this.$toast.info("Duplicate collection")
       return
     }
-    collections.push({
-      name: "",
-      folders: [],
-      requests: [],
-      ...collection,
-    })
+    if (flag) {
+      collections.push({
+        name: "",
+        folders: [],
+        requests: [],
+        ...collection,
+      })
+    }
+    else{
+      collectionsgraphql.push({
+        name: "",
+        folders: [],
+        requests: [],
+        ...collection,
+      })
+    }
   },
 
   removeCollection({ collections }, payload) {

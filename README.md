@@ -39,7 +39,7 @@
   <br>
   <br>
   <a href="https://oss.capital/?ref=hoppscotch" title="OSS Capital" target="_blank">
-    <img height="80px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/oscc-logo.png" title="OSS Capital">
+    <img height="100px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/ossc-banner.svg" title="OSS Capital">
   </a>
 </p>
 

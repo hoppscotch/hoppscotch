@@ -85,7 +85,7 @@
         <a href="https://oss.capital/?ref=hoppscotch" target="_blank" rel="noopener">
           <img
             style="height: 100%; width: 300px"
-            src="~assets/images/oscc-logo.png"
+            src="~assets/images/ossc-banner.svg"
             alt="OSS Capital"
           />
         </a>

@@ -15,8 +15,12 @@
       <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
       <label for="selectLabel">Request path</label>
       <input readonly :value="path" />
-      <collections @select-folder="changeRequestDetails($event)" :saveRequest="true" />
-      <ul>
+      <collections
+        @select-folder="changeRequestDetails($event)"
+        @update-collection="collectionsType.type = $event"
+        :saveRequest="true"
+      />
+      <ul v-if="collectionsType.type === 'my-collections'">
         <li>
           <label for="selectRequest">{{ $t("request") }}</label>
           <span class="select-wrapper">
@@ -48,6 +52,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -63,6 +68,10 @@ export default {
         collectionIndex: undefined,
         folderName: undefined,
         requestIndex: undefined,
+      },
+      collectionsType: {
+        type: "my-collections",
+        selectedTeam: undefined,
       },
     }
   },
@@ -123,8 +132,11 @@ export default {
   methods: {
     changeRequestDetails(data) {
       this.$data.requestData.folderName = data.folderName.split("/").slice(-2)[0]
-      this.$data.requestData.collectionIndex = data.collectionIndex
       this.$data.path = data.folderName
+      this.$data.requestData.collectionIndex = data.collectionIndex
+      if (data.collectionsType.type !== "my-collections") {
+        this.$data.collectionsType = data.collectionsType
+      }
     },
     syncCollections() {
       if (fb.currentUser !== null) {
@@ -154,15 +166,24 @@ export default {
         collection: this.$data.requestData.collectionIndex,
       }
 
-      this.$store.commit("postwoman/saveRequestAs", {
-        request: requestUpdated,
-        collectionIndex: this.$data.requestData.collectionIndex,
-        folderName: this.$data.requestData.folderName,
-        requestIndex: this.$data.requestData.requestIndex,
-      })
-
+      if (this.$data.collectionsType.type === "my-collections") {
+        this.$store.commit("postwoman/saveRequestAs", {
+          request: requestUpdated,
+          collectionIndex: this.$data.requestData.collectionIndex,
+          folderName: this.$data.requestData.folderName,
+          requestIndex: this.$data.requestData.requestIndex,
+        })
+        this.syncCollections()
+      } else {
+        team_utils.saveRequestAsTeams(
+          this.$apollo,
+          JSON.stringify(requestUpdated),
+          requestUpdated.name,
+          this.$data.collectionsType.selectedTeam.id,
+          this.$data.requestData.collectionIndex
+        )
+      }
       this.hideModal()
-      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

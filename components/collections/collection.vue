@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', '')"
+      @click="$emit('select-folder', { name: '', id: collection.id })"
     >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -106,7 +106,15 @@
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
-            @select-folder="$emit('select-folder', folder.name + '/' + $event)"
+            @select-folder="
+              $emit('select-folder', {
+                name:
+                  (collectionsType.type == 'my-collections' ? folder.name : folder.title) +
+                  '/' +
+                  $event.name,
+                id: $event.id,
+              })
+            "
           />
         </li>
       </ul>
@@ -117,7 +125,9 @@
           class="ml-8 border-l border-brdColor"
         >
           <request
-            :request="request"
+            :request="
+              collectionsType.type === 'my-collections' ? request : JSON.parse(request.request)
+            "
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
@@ -203,7 +213,6 @@ export default {
         team_utils
           .getCollectionRequests(this.$apollo, this.collection.id)
           .then((requests) => {
-            console.log(requests)
             this.$set(this.collection, "requests", requests)
           })
           .catch((error) => {

@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', '')"
+      @click="$emit('select-folder', { name: '', id: folder.id })"
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
@@ -60,7 +60,9 @@
           class="flex ml-8 border-l border-brdColor"
         >
           <request
-            :request="request"
+            :request="
+              collectionsType.type == 'my-collections' ? request : JSON.parse(request.request)
+            "
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
@@ -88,7 +90,9 @@
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
-            @select-folder="$emit('select-folder', subFolder.name + '/' + $event)"
+            @select-folder="
+              $emit('select-folder', { name: subFolder.name + '/' + $event.name, id: subFolder.id })
+            "
           />
         </li>
       </ul>

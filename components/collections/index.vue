@@ -5,6 +5,7 @@
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
+        v-if="!saveRequest"
         v-model="filterText"
         class="rounded-t-lg"
       />
@@ -102,8 +103,14 @@
             @select-collection="$emit('use-collection', index)"
             @select-folder="
               $emit('select-folder', {
-                folderName: collection.name + '/' + $event,
-                collectionIndex: index,
+                folderName:
+                  (collectionsType.type == 'my-collections' ? collection.name : collection.title) +
+                  '/' +
+                  $event.name,
+                collectionIndex: collectionsType.type == 'my-collections' ? index : $event.id,
+                collectionsType: collectionsType,
+                folderId: $event.id,
+                coll: collection,
               })
             "
           />
@@ -156,7 +163,6 @@ export default {
       teamCollections: {},
     }
   },
-
   apollo: {
     myTeams: {
       query: gql`
@@ -169,6 +175,11 @@ export default {
         }
       `,
       pollInterval: 10000,
+    },
+  },
+  watch: {
+    "collectionsType.type": function emitstuff() {
+      this.$emit("update-collection", this.$data.collectionsType.type)
     },
   },
   computed: {
@@ -253,6 +264,7 @@ export default {
   methods: {
     updateTeamCollections() {
       console.log(this.collectionsType)
+      this.$emit("select-collection-type")
       if (this.collectionsType.selectedTeam == undefined) return
       team_utils
         .rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id)

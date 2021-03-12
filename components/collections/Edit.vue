@@ -70,6 +70,7 @@ export default {
       this.$store.commit("postwoman/editCollection", {
         collection: collectionUpdated,
         collectionIndex: this.$props.editingCollectionIndex,
+        flag: "rest",
       })
       this.$emit("hide-modal")
       this.syncCollections()

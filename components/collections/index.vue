@@ -199,9 +199,11 @@ export default {
       this.syncCollections()
     },
     onAddFolder({ name, path }) {
+      const flag = "rest"
       this.$store.commit("postwoman/addFolder", {
         name,
         path,
+        flag,
       })
 
       this.displayModalAddFolder(false)

@@ -63,7 +63,7 @@ export default {
       }
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name,
-        flag: false
+        flag: "graphql",
       })
       this.$emit("hide-modal")
       this.syncCollections()

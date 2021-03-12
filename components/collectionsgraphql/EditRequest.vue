@@ -75,6 +75,7 @@ export default {
         requestFolderIndex: this.$props.folderIndex,
         requestNew: requestUpdated,
         requestIndex: this.$props.requestIndex,
+        flag: "graphql",
       })
 
       this.hideModal()

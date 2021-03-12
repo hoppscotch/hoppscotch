@@ -406,7 +406,7 @@
             <Collectionsgraphql />
           </SmartTab>
 
-              <!-- <SmartTab :id="'env'" :label="$t('environments')">
+          <!-- <SmartTab :id="'env'" :label="$t('environments')">
                 <Environments @use-environment="useSelectedEnvironment($event)" />
               </SmartTab>
 
@@ -417,6 +417,11 @@
       </aside>
     </div>
   </div>
+  <!-- <CollectionsgraphqlSaveRequest
+      :show="showSaveRequestModal"
+      @hide-modal="hideRequestModal"
+      :editing-request="editRequest"
+    /> -->
 </template>
 
 <style scoped lang="scss">
@@ -454,6 +459,9 @@ export default {
       isPollingSchema: false,
       timeoutSubscription: null,
       activeSidebar: true,
+      // editRequest: {},
+      // saverequestmodaltoggle
+      // copy saveRequest from index.vue
 
       settings: {
         SCROLL_INTO_ENABLED:

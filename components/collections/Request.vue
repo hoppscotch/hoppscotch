@@ -107,6 +107,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
+        flag: "rest",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

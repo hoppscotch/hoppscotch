@@ -145,6 +145,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folder.name,
         folderIndex: this.$props.folderIndex,
+        flag: "rest",
       })
       this.syncCollections()
       this.$toast.error(this.$t("deleted"), {
@@ -157,6 +158,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
+      const flag = "rest"
 
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
@@ -166,6 +168,7 @@ export default {
         oldFolderIndex,
         oldFolderName,
         requestIndex,
+        flag,
       })
       this.syncCollections()
     },

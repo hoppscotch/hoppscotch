@@ -172,7 +172,7 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", collections)
+          this.$store.commit("postwoman/replaceCollections", collections, "graphql")
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -205,7 +205,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/replaceCollections", collections)
+        this.$store.commit("postwoman/replaceCollections", collections, "graphql")
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -229,7 +229,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/importCollections", collections)
+        this.$store.commit("postwoman/importCollections", collections, "graphql")
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -255,7 +255,7 @@ export default {
       })
     },
     syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", fb.currentCollections)
+      this.$store.commit("postwoman/replaceCollections", fb.currentCollections, "graphql")
       this.fileImported()
     },
     syncToFBCollections() {

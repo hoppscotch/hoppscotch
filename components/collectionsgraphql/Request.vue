@@ -14,7 +14,6 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <span>{{ request.method }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>

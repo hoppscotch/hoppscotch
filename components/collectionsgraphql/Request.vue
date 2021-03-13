@@ -14,7 +14,7 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+          <span>{{ request.method }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>
@@ -114,9 +114,6 @@ export default {
       })
       this.confirmRemove = false
       this.syncCollections()
-    },
-    getRequestLabelColor(method) {
-      return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default
     },
   },
 }

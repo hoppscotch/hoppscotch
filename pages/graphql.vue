@@ -481,7 +481,6 @@ import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 import { fb } from "~/helpers/fb"
-import Section from "~/components/app/Section.vue"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import parseTemplateString from "~/helpers/templating"
 

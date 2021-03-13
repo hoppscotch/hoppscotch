@@ -22,7 +22,7 @@
                 {{ $t("select_collection") }}
               </option>
               <option
-                v-for="(collection, index) in $store.state.postwoman.collections"
+                v-for="(collection, index) in $store.state.postwoman.collectionsgraphql"
                 :key="index"
                 :value="index"
               >
@@ -104,7 +104,7 @@ export default {
   },
   computed: {
     folders() {
-      const collections = this.$store.state.postwoman.collections
+      const collections = this.$store.state.postwoman.collectionsgraphql
       const collectionIndex = this.$data.requestData.collectionIndex
       const userSelectedAnyCollection = collectionIndex !== undefined
       if (!userSelectedAnyCollection) return []
@@ -115,7 +115,7 @@ export default {
       return getFolderNames(collections[collectionIndex].folders, [])
     },
     requests() {
-      const collections = this.$store.state.postwoman.collections
+      const collections = this.$store.state.postwoman.collectionsgraphql
       const collectionIndex = this.$data.requestData.collectionIndex
       const folderName = this.$data.requestData.folderName
 
@@ -146,7 +146,9 @@ export default {
     syncCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql))
+          )
         }
       }
     },

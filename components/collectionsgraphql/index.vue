@@ -115,11 +115,13 @@ export default {
     collections() {
       return fb.currentUser !== null
         ? fb.currentCollections
-        : this.$store.state.postwoman.collections
+        : this.$store.state.postwoman.collectionsgraphql
     },
     filteredCollections() {
       const collections =
-        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+        fb.currentUser !== null
+          ? fb.currentCollections
+          : this.$store.state.postwoman.collectionsgraphql
 
       if (!this.filterText) return collections
 
@@ -244,7 +246,9 @@ export default {
     syncCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql))
+          )
         }
       }
     },

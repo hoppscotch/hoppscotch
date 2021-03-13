@@ -126,7 +126,7 @@ export default {
   },
   computed: {
     collectionJson() {
-      return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+      return JSON.stringify(this.$store.state.postwoman.collectionsgraphql, null, 2)
     },
   },
   methods: {
@@ -261,7 +261,9 @@ export default {
     syncToFBCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql))
+          )
         }
       }
     },

@@ -8,13 +8,6 @@ export const SETTINGS_KEYS = [
   "SCROLL_INTO_ENABLED",
 
   /**
-   * Normally, section frames are multicolored in the UI
-   * to emphasise the different sections.
-   * This setting allows that to be turned off.
-   */
-  "FRAME_COLORS_ENABLED",
-
-  /**
    * Whether or not requests should be proxied.
    */
   "PROXY_ENABLED",
@@ -23,6 +16,7 @@ export const SETTINGS_KEYS = [
    * The URL of the proxy to connect to for requests.
    */
   "PROXY_URL",
+
   /**
    * The security key of the proxy.
    */

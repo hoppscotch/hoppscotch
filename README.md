@@ -6,7 +6,7 @@
     <b>Hoppscotch - A free, fast and beautiful API request builder</b>
   </p>
   <p>
-     <i>Helps you create requests faster, saving precious time on development - <a href="https://hoppscotch.launchaco.com">Subscribe</a></i>
+     <i>Helps you create requests faster, saving precious time on development - <a href="http://eepurl.com/g6n_P5">Subscribe</a></i>
   </p>
   <p>
 
@@ -25,14 +25,23 @@
   <b>Sponsored by</b>
   <br>
   <br>
-  <a href="http://appwrite.io?ref=hoppscotch" title="Appwrite" target="_blank">
+  <a href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello" title="Appwrite" target="_blank">
     <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
   </a>
 </p>
 
 <div align="center">
-  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshot1.png" alt="Screenshot1" width="100%"></a>
+  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_dark.png" alt="Screenshot" width="100%"></a>
 </div>
+
+<p align="center">
+  <b>Powered by</b>
+  <br>
+  <br>
+  <a href="https://oss.capital/?ref=hoppscotch" title="OSS Capital" target="_blank">
+    <img height="100px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/ossc-banner.svg" title="OSS Capital">
+  </a>
+</p>
 
 #### **Contact**
 
@@ -108,8 +117,11 @@
 
 - Choose theme: System, Light, Dark (default) and Black
 - Choose accent color: Blue, Green (default), Teal, Purple, Orange, Pink, Red, and Yellow
-- Toggle multi-colored headings
 - Toggle auto-scroll to response
+
+<p>
+  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_light.png" alt="Screenshot" width="100%"></a>
+</p>
 
 ---
 
@@ -333,6 +345,8 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/ho
 
   > **Extensions fixes `CORS` issues.**
 
+- **[Hopp-Doc-Gen](https://github.com/hoppscotch/hopp-doc-gen)** - An API doc generator CLI for Hoppscotch
+
 _Add-ons are developed and maintained under **[Official Hoppscotch Organization](https://github.com/hoppscotch)**._
 
 ☁️ **Auth + Sync:** Sign in and sync in real-time.
@@ -549,20 +563,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
   width="64"
 	src="https://github.com/rithish.png?size=64"
 	alt="Rithish"
-/>
-</a>
-<a href="https://github.com/scmmishra" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/scmmishra.png?size=64"
-	alt="Shivam Mishra"
-/>
-</a>
-<a href="https://github.com/pantharshit00" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/pantharshit00.png?size=64"
-	alt="Harshit Pant"
 />
 </a>
 <a href="https://github.com/ankumar" target="_blank" rel="noopener">

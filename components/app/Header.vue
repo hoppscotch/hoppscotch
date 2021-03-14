@@ -110,7 +110,7 @@
             </button>
             <button
               class="icon"
-              onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=liyasthomas');"
+              onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=liyasthomas');"
               v-close-popover
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -302,7 +302,7 @@ export default {
           .share({
             title: "Hoppscotch",
             text:
-              "Hoppscotch • A free, fast and beautiful API request builder - Helps you create requests faster, saving precious time on development.",
+              "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
             url: "https://hoppscotch.io",
           })
           .then(() => {})

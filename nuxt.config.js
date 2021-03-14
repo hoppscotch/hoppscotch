@@ -1,7 +1,7 @@
 // Common options
 export const options = {
   name: "Hoppscotch",
-  shortDescription: "A free, fast and beautiful API request builder",
+  shortDescription: "Open source API development ecosystem",
   description: "Helps you create requests faster, saving precious time on development.",
   loading: {
     color: "var(--ac-color)",

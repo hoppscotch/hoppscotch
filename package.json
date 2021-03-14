@@ -1,7 +1,7 @@
 {
   "name": "hoppscotch",
   "version": "2.0.0",
-  "description": "A free, fast and beautiful API request builder",
+  "description": "Open source API development ecosystem",
   "author": "liyasthomas",
   "private": true,
   "scripts": {

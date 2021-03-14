@@ -3,7 +3,7 @@
   <br>
   <br>
   <p>
-    <b>Hoppscotch - A free, fast and beautiful API request builder</b>
+    <b>Hoppscotch - Open source API development ecosystem</b>
   </p>
   <p>
      <i>Helps you create requests faster, saving precious time on development - <a href="http://eepurl.com/g6n_P5">Subscribe</a></i>

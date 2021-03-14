@@ -1595,7 +1595,7 @@ export default {
         navigator
           .share({
             title: "Hoppscotch",
-            text: `Hoppscotch • API request builder at ${time} on ${date}`,
+            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
             url: window.location.href,
           })
           .then(() => {})

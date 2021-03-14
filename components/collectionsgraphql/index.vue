@@ -114,13 +114,13 @@ export default {
   computed: {
     collections() {
       return fb.currentUser !== null
-        ? fb.currentCollections
+        ? fb.currentGraphqlCollections
         : this.$store.state.postwoman.collectionsgraphql
     },
     filteredCollections() {
       const collections =
         fb.currentUser !== null
-          ? fb.currentCollections
+          ? fb.currentGraphqlCollections
           : this.$store.state.postwoman.collectionsgraphql
 
       if (!this.filterText) return collections

@@ -255,7 +255,7 @@ export default {
       })
     },
     syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", fb.currentCollections, "graphql")
+      this.$store.commit("postwoman/replaceCollections", fb.currentGraphqlCollections, "graphql")
       this.fileImported()
     },
     syncToFBCollections() {

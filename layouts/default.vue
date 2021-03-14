@@ -23,6 +23,15 @@ export default {
     if (process.client) {
       document.body.classList.add("afterLoad")
     }
+
+    // Migrate old default proxy URL to the new proxy URL (if not set / overridden)
+    if (
+      this.$store.state.postwoman.settings.PROXY_URL &&
+      this.$store.state.postwoman.settings.PROXY_URL === "https://hoppscotch.apollosoftware.xyz/"
+    ) {
+      this.$store.state.postwoman.settings.PROXY_URL = "https://proxy.hoppscotch.io/"
+    }
+
     console.log(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"

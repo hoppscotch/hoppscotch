@@ -1254,10 +1254,10 @@ export default {
       if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data)
       }
-      return await sendNetworkRequest(requestOptions, this.$store)
+      return await sendNetworkRequest(requestOptions)
     },
     cancelRequest() {
-      cancelRunningRequest(this.$store)
+      cancelRunningRequest()
     },
     async sendRequest() {
       this.$toast.clear()

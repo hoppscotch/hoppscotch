@@ -683,7 +683,7 @@ export default {
           data: JSON.stringify({ query: gqlQueryString, variables }),
         }
 
-        const res = await sendNetworkRequest(reqOptions, this.$store)
+        const res = await sendNetworkRequest(reqOptions)
 
         // HACK: Temporary trailing null character issue from the extension fix
         const responseText = new TextDecoder("utf-8").decode(res.data).replace(/\0+$/, "")

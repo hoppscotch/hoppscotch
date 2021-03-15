@@ -76,7 +76,7 @@ export function toggleSetting(settingKey) {
 }
 
 export function applySetting(settingKey, value) {
-  settingStore.dispatch({
+  settingsStore.dispatch({
     dispatcher: "applySetting",
     payload: {
       settingKey,

@@ -335,7 +335,7 @@ export class FirebaseInstance {
     }
   }
 
-  async writeCollections(collection) {
+  async writeCollections(collection, flag) {
     const cl = {
       updatedOn: new Date(),
       author: this.currentUser.uid,
@@ -345,11 +345,7 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection
-        .doc(this.currentUser.uid)
-        .collection("collections")
-        .doc("sync")
-        .set(cl)
+      await this.usersCollection.doc(this.currentUser.uid).collection(flag).doc("sync").set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
 

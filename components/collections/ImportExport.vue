@@ -172,7 +172,7 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", collections, "rest")
+          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -205,7 +205,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/replaceCollections", collections, "rest")
+        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -229,7 +229,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/importCollections", collections, "rest")
+        this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -255,13 +255,19 @@ export default {
       })
     },
     syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", fb.currentCollections, "rest")
+      this.$store.commit("postwoman/replaceCollections", {
+        data: fb.currentCollections,
+        flag: "rest",
+      })
       this.fileImported()
     },
     syncToFBCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+            "collections"
+          )
         }
       }
     },

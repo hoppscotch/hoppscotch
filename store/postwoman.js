@@ -157,13 +157,17 @@ export const mutations = {
     environments[environmentIndex] = environment
   },
 
-  replaceCollections(state, collections, flag) {
+  replaceCollections(state, item) {
+    let collections = item.data
+    const flag = item.flag
     console.log(flag)
     if (flag == "rest") state.collections = collections
     else state.collectionsgraphql = collections
   },
 
-  importCollections(state, collections, flag) {
+  importCollections(state, item) {
+    let collections = item.data
+    const flag = item.flag
     console.log(flag)
     if (flag == "rest") state.collections = [...state.collections, ...collections]
     else state.collectionsgraphql = [...state.collectionsgraphql, ...collections]

@@ -172,7 +172,7 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", collections, "graphql")
+          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -205,7 +205,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/replaceCollections", collections, "graphql")
+        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -229,7 +229,7 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/importCollections", collections, "graphql")
+        this.$store.commit("postwoman/importCollections", { data: collections, flag: "graphql" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -255,14 +255,18 @@ export default {
       })
     },
     syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", fb.currentGraphqlCollections, "graphql")
+      this.$store.commit("postwoman/replaceCollections", {
+        data: fb.currentGraphqlCollections,
+        flag: "graphql",
+      })
       this.fileImported()
     },
     syncToFBCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql))
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql)),
+            "collectionsgraphql"
           )
         }
       }

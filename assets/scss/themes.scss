@@ -147,15 +147,3 @@
 :root[data-accent="yellow"] {
   @include yellowTheme;
 }
-
-.text-indigo-400 {
-  @apply text-indigo-400;
-}
-
-.text-purple-400 {
-  @apply text-purple-400;
-}
-
-.text-pink-400 {
-  @apply text-pink-400;
-}

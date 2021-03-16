@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <AppSection class="green" :label="$t('account')" ref="account" no-legend>
+    <AppSection :label="$t('account')" ref="account" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="fb.currentUser">
@@ -35,7 +35,7 @@
             </SmartToggle>
           </p>
           <p v-if="fb.currentSettings.length !== 3">
-            <button class="" @click="initSettings">
+            <button @click="initSettings">
               <i class="material-icons">sync</i>
               <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
             </button>
@@ -50,7 +50,7 @@
       </div>
     </AppSection>
 
-    <AppSection class="teal" :label="$t('theme')" ref="theme" no-legend>
+    <AppSection :label="$t('theme')" ref="theme" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
         <SmartColorModePicker />
@@ -67,7 +67,7 @@
       </div>
     </AppSection>
 
-    <AppSection class="purple" :label="$t('extensions')" ref="extensions" no-legend>
+    <AppSection :label="$t('extensions')" ref="extensions" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
@@ -87,7 +87,7 @@
       </div>
     </AppSection>
 
-    <AppSection class="blue" :label="$t('proxy')" ref="proxy" no-legend>
+    <AppSection :label="$t('proxy')" ref="proxy" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
@@ -151,7 +151,7 @@
       -->
     </AppSection>
 
-    <AppSection class="red" :label="$t('experiments')" ref="experiments" no-legend>
+    <AppSection :label="$t('experiments')" ref="experiments" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">

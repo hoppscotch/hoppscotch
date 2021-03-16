@@ -137,7 +137,7 @@
 .file-chips-container {
   @apply flex;
   @apply flex-1;
-  @apply whitespace-no-wrap;
+  @apply whitespace-nowrap;
   @apply overflow-auto;
   @apply bg-bgDarkColor;
 

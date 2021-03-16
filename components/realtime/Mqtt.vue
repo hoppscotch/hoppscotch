@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppSection class="blue" :label="$t('request')" no-legend>
+    <AppSection :label="$t('request')" no-legend>
       <ul>
         <li>
           <label for="mqtt-url">{{ $t("url") }}</label>
@@ -30,9 +30,9 @@
           </li>
         </div>
       </ul>
-    </Appsection>
+    </AppSection>
 
-    <AppSection class="blue" :label="$t('communication')" no-legend>
+    <AppSection :label="$t('communication')" no-legend>
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="this.log" />
@@ -94,7 +94,7 @@
           </li>
         </div>
       </ul>
-    </Appsection>
+    </AppSection>
   </div>
 </template>
 

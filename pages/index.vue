@@ -768,9 +768,9 @@ export default {
         }
         let path = this.path
         let queryString = getQueryParams(newValue)
-          .map(({ key, value }) => `${key}=${value}`)
+          .map(({ key, value }) => `${key.trim()}=${value.trim()}`)
           .join("&")
-        queryString = queryString === "" ? "" : `?${queryString}`
+        queryString = queryString === "" ? "" : `?${encodeURI(queryString)}`
         if (path.includes("?")) {
           path = path.slice(0, path.indexOf("?")) + queryString
         } else {

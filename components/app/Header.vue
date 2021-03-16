@@ -70,7 +70,7 @@
             <img
               v-if="fb.currentUser.photoURL"
               :src="fb.currentUser.photoURL"
-              class="rounded-full material-icons"
+              class="w-8 h-8 rounded-full material-icons"
               alt="Profile image"
             />
             <i v-else class="material-icons">account_circle</i>

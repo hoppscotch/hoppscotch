@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <AppSection class="blue" :label="$t('request')" ref="request" no-legend>
+    <AppSection :label="$t('request')" ref="request" no-legend>
       <ul>
         <li>
           <label for="websocket-url">{{ $t("url") }}</label>
@@ -37,7 +37,7 @@
       </ul>
     </AppSection>
 
-    <AppSection class="purple" :label="$t('communication')" id="response" ref="response" no-legend>
+    <AppSection :label="$t('communication')" id="response" ref="response" no-legend>
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="communication.log" />

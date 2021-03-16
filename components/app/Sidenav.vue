@@ -128,7 +128,7 @@ $responsiveWidth: 768px;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
-  // @apply overflow-y-auto;
+  @apply space-y-2;
 }
 
 nav.primary-nav {
@@ -196,7 +196,8 @@ nav.secondary-nav {
   @apply border-t-2;
   @apply border-dashed;
   @apply border-brdColor;
-  @apply mt-2;
+  @apply pt-2;
+  @apply space-y-2;
 
   a {
     @apply inline-flex;

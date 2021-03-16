@@ -18,19 +18,21 @@
           class="bg-transparent"
         />
       </li>
-      <button
-        data-testid="star_button"
-        class="icon"
-        :class="{ stared: entry.star }"
-        @click="$emit('toggle-star')"
-        v-tooltip="{
-          content: !entry.star ? $t('add_star') : $t('remove_star'),
-        }"
-      >
-        <i class="material-icons">
-          {{ entry.star ? "star" : "star_border" }}
-        </i>
-      </button>
+      <span>
+        <button
+          data-testid="star_button"
+          class="icon"
+          :class="{ stared: entry.star }"
+          @click="$emit('toggle-star')"
+          v-tooltip="{
+            content: !entry.star ? $t('add_star') : $t('remove_star'),
+          }"
+        >
+          <i class="material-icons">
+            {{ entry.star ? "star" : "star_border" }}
+          </i>
+        </button>
+      </span>
       <!-- <li>
             <button
               class="icon"

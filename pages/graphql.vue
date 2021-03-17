@@ -484,9 +484,9 @@ export default {
     selectedRequest(newValue) {
       if (!newValue) return
       this.url = newValue.url
-      this.gqlQueryString = newValue.gqlQueryString
+      this.gqlQueryString = newValue.query
       this.headers = newValue.headers
-      this.variableString = newValue.variableString
+      this.variableString = newValue.variables
     },
   },
   computed: {

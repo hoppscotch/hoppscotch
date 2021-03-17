@@ -275,7 +275,6 @@ export default {
           fb.writeEnvironments(
             JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
           ),
-            "collections"
         }
       }
     },

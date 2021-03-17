@@ -469,8 +469,6 @@ export default {
       activeSidebar: true,
       editRequest: {},
       showSaveRequestModal: false,
-      // saverequestmodaltoggle
-      // copy saveRequest from index.vue
 
       settings: {
         SCROLL_INTO_ENABLED:

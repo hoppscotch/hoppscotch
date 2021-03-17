@@ -1807,12 +1807,6 @@ export default {
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
         name: this.requestName,
-        //
-        // url
-        // query
-        // headers
-        // variables
-        //
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)

@@ -73,13 +73,6 @@ export default {
   data() {
     return {
       dragging: false,
-      requestMethodLabels: {
-        get: "text-green-400",
-        post: "text-yellow-400",
-        put: "text-blue-400",
-        delete: "text-red-400",
-        default: "text-gray-400",
-      },
       confirmRemove: false,
     }
   },

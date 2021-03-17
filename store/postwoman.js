@@ -64,6 +64,7 @@ export const state = () => ({
   ],
   editingEnvironment: {},
   selectedRequest: {},
+  selectedGraphqlRequest: {},
   editingRequest: {},
 })
 
@@ -379,6 +380,10 @@ export const mutations = {
 
   selectRequest(state, { request }) {
     state.selectedRequest = Object.assign({}, request)
+  },
+
+  selectGraphqlRequest(state, { request }) {
+    state.selectedGraphqlRequest = Object.assign({}, request)
   },
 
   moveRequest({ collections, collectionsgraphql }, payload) {

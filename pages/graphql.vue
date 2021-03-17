@@ -480,7 +480,19 @@ export default {
       },
     }
   },
+  watch: {
+    selectedRequest(newValue) {
+      if (!newValue) return
+      this.url = newValue.url
+      this.gqlQueryString = newValue.gqlQueryString
+      this.headers = newValue.headers
+      this.variableString = newValue.variableString
+    },
+  },
   computed: {
+    selectedRequest() {
+      return this.$store.state.postwoman.selectedGraphqlRequest
+    },
     editingRequest() {
       return this.$store.state.postwoman.editingRequest
     },

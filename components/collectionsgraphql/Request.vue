@@ -95,7 +95,7 @@ export default {
       }
     },
     selectRequest() {
-      this.$store.commit("postwoman/selectRequest", { request: this.request })
+      this.$store.commit("postwoman/selectGraphqlRequest", { request: this.request })
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging

@@ -83,19 +83,14 @@
   --ac-color: theme("colors.green.400");
 }
 
-@mixin tealTheme {
+@mixin indigoTheme {
   // Acent color
-  --ac-color: theme("colors.teal.400");
+  --ac-color: theme("colors.indigo.400");
 }
 
 @mixin purpleTheme {
   // Acent color
   --ac-color: theme("colors.purple.400");
-}
-
-@mixin orangeTheme {
-  // Acent color
-  --ac-color: theme("colors.orange.400");
 }
 
 @mixin pinkTheme {
@@ -137,14 +132,11 @@
 :root[data-accent="green"] {
   @include greenTheme;
 }
-:root[data-accent="teal"] {
-  @include tealTheme;
+:root[data-accent="indigo"] {
+  @include indigoTheme;
 }
 :root[data-accent="purple"] {
   @include purpleTheme;
-}
-:root[data-accent="orange"] {
-  @include orangeTheme;
 }
 :root[data-accent="pink"] {
   @include pinkTheme;

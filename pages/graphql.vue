@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection class="blue" :label="$t('endpoint')" ref="endpoint" no-legend>
+        <AppSection :label="$t('endpoint')" ref="endpoint" no-legend>
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -193,7 +193,7 @@
           </SmartTabs>
         </section>
 
-        <AppSection class="green" :label="$t('schema')" ref="schema" no-legend>
+        <AppSection :label="$t('schema')" ref="schema" no-legend>
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
@@ -253,7 +253,7 @@
           />
         </AppSection>
 
-        <AppSection class="teal" :label="$t('query')" ref="query" no-legend>
+        <AppSection :label="$t('query')" ref="query" no-legend>
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
@@ -296,7 +296,7 @@
           />
         </AppSection>
 
-        <AppSection class="yellow" :label="$t('variables')" ref="variables" no-legend>
+        <AppSection :label="$t('variables')" ref="variables" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("variables") }}</label>
             <SmartAceEditor
@@ -315,7 +315,7 @@
           </div>
         </AppSection>
 
-        <AppSection class="purple" :label="$t('response')" ref="response" no-legend>
+        <AppSection :label="$t('response')" ref="response" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
@@ -373,7 +373,7 @@
       <aside class="sticky-inner inner-right lg:max-w-md">
         <SmartTabs>
           <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
-            <AppSection class="purple" :label="$t('docs')" ref="docs" no-legend>
+            <AppSection :label="$t('docs')" ref="docs" no-legend>
               <section class="flex-col">
                 <input
                   type="text"

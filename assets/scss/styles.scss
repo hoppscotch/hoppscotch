@@ -110,7 +110,7 @@ footer {
   @apply min-h-screen;
   @apply flex;
   @apply flex-col;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
 }
 
 .wrapper .page {
@@ -415,14 +415,10 @@ button {
   @apply font-icon;
   @apply font-normal;
   @apply not-italic;
-  @apply h-6;
-  @apply w-6;
-  @apply text-2xl;
-  @apply leading-6;
   @apply inline-block;
   @apply normal-case;
   @apply tracking-normal;
-  @apply whitespace-no-wrap;
+  @apply whitespace-nowrap;
   @apply antialiased;
 
   word-wrap: normal;
@@ -627,7 +623,7 @@ ul li,
 ol li {
   @apply inline-flex;
   @apply flex-col;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
   @apply flex-1;
   @apply justify-center;
 
@@ -646,7 +642,7 @@ ol li {
   span,
   div {
     @apply inline-flex;
-    @apply flex-no-wrap;
+    @apply flex-nowrap;
     @apply items-center;
     @apply justify-center;
   }
@@ -661,7 +657,7 @@ ol li {
 }
 
 .redir-response {
-  @apply text-orange-400;
+  @apply text-pink-400;
 }
 
 .cl-error-response {
@@ -696,7 +692,7 @@ ol li {
 }
 
 #send {
-  @apply whitespace-no-wrap;
+  @apply whitespace-nowrap;
   @apply outline-none;
   @apply border-none;
 
@@ -719,6 +715,7 @@ ol li {
 section {
   @apply flex;
   @apply rounded-lg;
+  @apply w-full;
 }
 
 .toasted-container .toasted {
@@ -772,7 +769,7 @@ section {
   ul,
   ol {
     @apply flex-col;
-    @apply flex-no-wrap;
+    @apply flex-nowrap;
   }
 
   ul li,

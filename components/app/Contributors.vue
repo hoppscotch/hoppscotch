@@ -162,7 +162,7 @@
 .contributors {
   @apply flex;
   @apply items-center;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
   @apply overflow-auto;
   @apply m-2;
 }

@@ -1,5 +1,5 @@
 <template>
-  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
+  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !FRAME_COLORS_ENABLED }">
     <legend v-if="!noLegend" @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="ml-2 align-middle material-icons">
@@ -70,16 +70,19 @@ fieldset.no-colored-frames legend {
 </style>
 
 <script>
+import { getSettingSubject } from "~/newstore/settings"
+
 export default {
   computed: {
-    frameColorsEnabled() {
-      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
-    },
     sectionString() {
       return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },
   },
-
+  subscriptions() {
+    return {
+      FRAME_COLORS_ENABLED: getSettingSubject("FRAME_COLORS_ENABLED")
+    }
+  },
   props: {
     label: {
       type: String,

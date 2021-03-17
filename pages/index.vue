@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection class="blue" :label="$t('request')" ref="request" no-legend>
+        <AppSection :label="$t('request')" ref="request" no-legend>
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -208,7 +208,7 @@
             </SmartTab>
 
             <SmartTab :id="'authentication'" :label="$t('authentication')">
-              <AppSection class="teal" :label="$t('authentication')" ref="authentication" no-legend>
+              <AppSection :label="$t('authentication')" ref="authentication" no-legend>
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -768,9 +768,9 @@ export default {
         }
         let path = this.path
         let queryString = getQueryParams(newValue)
-          .map(({ key, value }) => `${key}=${value}`)
+          .map(({ key, value }) => `${key.trim()}=${value.trim()}`)
           .join("&")
-        queryString = queryString === "" ? "" : `?${queryString}`
+        queryString = queryString === "" ? "" : `?${encodeURI(queryString)}`
         if (path.includes("?")) {
           path = path.slice(0, path.indexOf("?")) + queryString
         } else {
@@ -1596,7 +1596,7 @@ export default {
         navigator
           .share({
             title: "Hoppscotch",
-            text: `Hoppscotch • API request builder at ${time} on ${date}`,
+            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
             url: window.location.href,
           })
           .then(() => {})

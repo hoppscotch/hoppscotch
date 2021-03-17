@@ -1,5 +1,5 @@
 <template>
-  <AppSection class="yellow" :label="$t('collections')" ref="collections" no-legend>
+  <AppSection :label="$t('collections')" ref="collections" no-legend>
     <div class="show-on-large-screen">
       <input
         aria-label="Search"

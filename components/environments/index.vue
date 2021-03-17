@@ -1,5 +1,5 @@
 <template>
-  <AppSection class="green" icon="history" :label="$t('environments')" ref="environments" no-legend>
+  <AppSection icon="history" :label="$t('environments')" ref="environments" no-legend>
     <div class="show-on-large-screen">
       <span class="select-wrapper">
         <select

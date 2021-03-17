@@ -2,12 +2,15 @@
   <div class="flex flex-col">
     <label>{{ $t("color") }}: {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label>
     <div>
+      <!-- text-indigo-400 -->
+      <!-- text-purple-400 -->
+      <!-- text-pink-400 -->
       <span
-        v-for="(color, index) of colors"
+        v-for="(color, index) of accentColors"
         :key="`color-${index}`"
         v-tooltip="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
-        class="inline-flex items-center justify-center p-3 m-2 transition duration-150 ease-in-out bg-transparent rounded-full cursor-pointer border-collapseer-2 hover:shadow-none"
-        :class="[{ 'bg-bgDarkColor': color === active }, `text-${color}-400`]"
+        class="inline-flex items-center justify-center p-3 m-2 transition duration-150 ease-in-out bg-transparent rounded-full cursor-pointer hover:shadow-none"
+        :class="[`text-${color}-400`, { 'bg-actColor': color === active }]"
         @click="setActiveColor(color)"
       >
         <i class="material-icons">lens</i>
@@ -21,7 +24,7 @@ export default {
   data() {
     return {
       active: localStorage.getItem("THEME_COLOR") || "green",
-      colors: ["blue", "green", "teal", "purple", "orange", "pink", "red", "yellow"],
+      accentColors: ["blue", "green", "indigo", "purple", "red", "pink", "yellow"],
     }
   },
   methods: {

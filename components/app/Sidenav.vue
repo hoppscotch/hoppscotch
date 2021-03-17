@@ -59,111 +59,61 @@
         <i class="material-icons">settings</i>
       </nuxt-link>
     </nav>
-    <div v-if="$route.path == '/'">
-      <nav class="secondary-nav">
-        <ul>
-          <li>
-            <a href="#request" v-tooltip.right="$t('request')">
-              <i class="material-icons">cloud_upload</i>
-            </a>
-          </li>
-          <li>
-            <a href="#options" v-tooltip.right="$t('options')">
-              <i class="material-icons">toc</i>
-            </a>
-          </li>
-          <li>
-            <a href="#response" v-tooltip.right="$t('response')">
-              <i class="material-icons">cloud_download</i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div v-else-if="$route.path.includes('/realtime')">
-      <nav class="secondary-nav">
-        <ul>
-          <li>
-            <a href="#request" v-tooltip.right="$t('request')">
-              <i class="material-icons">cloud_upload</i>
-            </a>
-          </li>
-          <li>
-            <a href="#response" v-tooltip.right="$t('communication')">
-              <i class="material-icons">cloud_download</i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div v-else-if="$route.path.includes('/graphql')">
-      <nav class="secondary-nav">
-        <ul>
-          <li>
-            <a href="#endpoint" v-tooltip.right="$t('endpoint')">
-              <i class="material-icons">cloud</i>
-            </a>
-          </li>
-          <li>
-            <a href="#schema" v-tooltip.right="$t('schema')">
-              <i class="material-icons">assignment_returned</i>
-            </a>
-          </li>
-          <li>
-            <a href="#query" v-tooltip.right="$t('query')">
-              <i class="material-icons">cloud_upload</i>
-            </a>
-          </li>
-          <li>
-            <a href="#response" v-tooltip.right="$t('response')">
-              <i class="material-icons">cloud_download</i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div v-else-if="$route.path.includes('/doc')">
-      <nav class="secondary-nav">
-        <ul>
-          <li>
-            <a href="#import" v-tooltip.right="$t('import')">
-              <i class="material-icons">folder</i>
-            </a>
-          </li>
-          <li>
-            <a href="#documentation" v-tooltip.right="$t('documentation')">
-              <i class="material-icons">insert_drive_file</i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div v-else-if="$route.path.includes('/settings')">
-      <nav class="secondary-nav">
-        <ul>
-          <li>
-            <a href="#account" v-tooltip.right="$t('account')">
-              <i class="material-icons">person</i>
-            </a>
-          </li>
-          <li>
-            <a href="#theme" v-tooltip.right="$t('theme')">
-              <i class="material-icons">brush</i>
-            </a>
-          </li>
-          <li>
-            <a href="#extensions" v-tooltip.right="$t('extensions')">
-              <i class="material-icons">extensions</i>
-            </a>
-          </li>
-          <li>
-            <a href="#proxy" v-tooltip.right="$t('proxy')">
-              <i class="material-icons">public</i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <nav v-if="$route.path == '/'" class="secondary-nav">
+      <a href="#request" v-tooltip.right="$t('request')">
+        <i class="material-icons">cloud_upload</i>
+      </a>
+      <a href="#options" v-tooltip.right="$t('options')">
+        <i class="material-icons">toc</i>
+      </a>
+      <a href="#response" v-tooltip.right="$t('response')">
+        <i class="material-icons">cloud_download</i>
+      </a>
+    </nav>
+    <nav v-else-if="$route.path.includes('/realtime')" class="secondary-nav">
+      <a href="#request" v-tooltip.right="$t('request')">
+        <i class="material-icons">cloud_upload</i>
+      </a>
+      <a href="#response" v-tooltip.right="$t('communication')">
+        <i class="material-icons">cloud_download</i>
+      </a>
+    </nav>
+    <nav v-else-if="$route.path.includes('/graphql')" class="secondary-nav">
+      <a href="#endpoint" v-tooltip.right="$t('endpoint')">
+        <i class="material-icons">cloud</i>
+      </a>
+      <a href="#schema" v-tooltip.right="$t('schema')">
+        <i class="material-icons">assignment_returned</i>
+      </a>
+      <a href="#query" v-tooltip.right="$t('query')">
+        <i class="material-icons">cloud_upload</i>
+      </a>
+      <a href="#response" v-tooltip.right="$t('response')">
+        <i class="material-icons">cloud_download</i>
+      </a>
+    </nav>
+    <nav v-else-if="$route.path.includes('/doc')" class="secondary-nav">
+      <a href="#import" v-tooltip.right="$t('import')">
+        <i class="material-icons">folder</i>
+      </a>
+      <a href="#documentation" v-tooltip.right="$t('documentation')">
+        <i class="material-icons">insert_drive_file</i>
+      </a>
+    </nav>
+    <nav v-else-if="$route.path.includes('/settings')" class="secondary-nav">
+      <a href="#account" v-tooltip.right="$t('account')">
+        <i class="material-icons">person</i>
+      </a>
+      <a href="#theme" v-tooltip.right="$t('theme')">
+        <i class="material-icons">brush</i>
+      </a>
+      <a href="#extensions" v-tooltip.right="$t('extensions')">
+        <i class="material-icons">extension</i>
+      </a>
+      <a href="#proxy" v-tooltip.right="$t('proxy')">
+        <i class="material-icons">public</i>
+      </a>
+    </nav>
   </aside>
 </template>
 
@@ -178,16 +128,17 @@ $responsiveWidth: 768px;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
-  // @apply overflow-y-auto;
+  @apply space-y-2;
 }
 
 nav.primary-nav {
   @apply flex;
   @apply flex-col;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
   @apply items-center;
   @apply justify-center;
   @apply space-y-2;
+  @apply w-full;
 
   svg {
     @apply fill-current;
@@ -239,45 +190,38 @@ nav.primary-nav::-webkit-scrollbar,
 nav.secondary-nav {
   @apply flex;
   @apply flex-col;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
   @apply items-center;
   @apply justify-center;
   @apply border-t-2;
   @apply border-dashed;
   @apply border-brdColor;
-  @apply mt-2;
+  @apply pt-2;
+  @apply space-y-2;
 
-  ul {
-    @apply flex;
-    @apply flex-col;
-    @apply flex-no-wrap;
-    @apply space-y-2;
-    @apply py-1;
+  a {
+    @apply inline-flex;
+    @apply items-center;
+    @apply justify-center;
+    @apply flex-shrink-0;
+    @apply p-4;
+    @apply rounded-full;
+    @apply bg-bgDarkColor;
+    @apply text-fgLightColor;
+    @apply fill-current;
+    @apply outline-none;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-150;
 
-    li {
-      @apply flex;
+    &:hover {
+      @apply text-fgColor;
+      @apply fill-current;
+    }
 
-      a {
-        @apply p-4;
-        @apply rounded-full;
-        @apply bg-bgDarkColor;
-        @apply text-fgLightColor;
-        @apply fill-current;
-        @apply outline-none;
-        @apply transition;
-        @apply ease-in-out;
-        @apply duration-150;
-
-        &:hover {
-          @apply text-fgColor;
-          @apply fill-current;
-        }
-
-        &.current {
-          @apply text-acColor;
-          @apply fill-current;
-        }
-      }
+    &.current {
+      @apply text-acColor;
+      @apply fill-current;
     }
   }
 }
@@ -296,7 +240,7 @@ nav.secondary-nav {
 
   nav.primary-nav {
     @apply flex-row;
-    @apply flex-no-wrap;
+    @apply flex-nowrap;
     @apply overflow-auto;
     @apply bg-bgDarkColor;
     @apply space-y-0;

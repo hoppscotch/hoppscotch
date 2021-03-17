@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <AppSection class="green" :label="$t('account')" ref="account" no-legend>
+    <AppSection :label="$t('account')" ref="account" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="fb.currentUser">
@@ -8,7 +8,7 @@
             <img
               v-if="fb.currentUser.photoURL"
               :src="fb.currentUser.photoURL"
-              class="rounded-full material-icons"
+              class="w-8 h-8 rounded-full material-icons"
             />
             <i v-else class="material-icons">account_circle</i>
             <span>
@@ -35,7 +35,7 @@
             </SmartToggle>
           </p>
           <p v-if="fb.currentSettings.length !== 3">
-            <button class="" @click="initSettings">
+            <button @click="initSettings">
               <i class="material-icons">sync</i>
               <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
             </button>
@@ -50,7 +50,7 @@
       </div>
     </AppSection>
 
-    <AppSection class="teal" :label="$t('theme')" ref="theme" no-legend>
+    <AppSection :label="$t('theme')" ref="theme" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
         <SmartColorModePicker />
@@ -67,7 +67,7 @@
       </div>
     </AppSection>
 
-    <AppSection class="purple" :label="$t('extensions')" ref="extensions" no-legend>
+    <AppSection :label="$t('extensions')" ref="extensions" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
@@ -87,7 +87,7 @@
       </div>
     </AppSection>
 
-    <AppSection class="blue" :label="$t('proxy')" ref="proxy" no-legend>
+    <AppSection :label="$t('proxy')" ref="proxy" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
@@ -121,16 +121,16 @@
           :placeholder="$t('url')"
         />
         <p class="info">
-          {{ $t("postwoman_official_proxy_hosting") }}
+          {{ $t("official_proxy_hosting") }}
           <br />
           {{ $t("read_the") }}
           <a
             class="link"
-            href="https://apollosoftware.xyz/legal/postwoman"
+            href="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
             target="_blank"
             rel="noopener"
           >
-            {{ $t("apollosw_privacy_policy") }} </a
+            {{ $t("proxy_privacy_policy") }} </a
           >.
         </p>
       </div>
@@ -151,7 +151,7 @@
       -->
     </AppSection>
 
-    <AppSection class="red" :label="$t('experiments')" ref="experiments" no-legend>
+    <AppSection :label="$t('experiments')" ref="experiments" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">
@@ -195,9 +195,7 @@ export default {
             : true,
 
         PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL:
-          this.$store.state.postwoman.settings.PROXY_URL ||
-          "https://hoppscotch.apollosoftware.xyz/",
+        PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "https://proxy.hoppscotch.io",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
 
         EXTENSIONS_ENABLED:
@@ -248,7 +246,7 @@ export default {
       fb.writeSettings("syncEnvironments", true)
     },
     resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://hoppscotch.apollosoftware.xyz/`
+      this.settings.PROXY_URL = `https://proxy.hoppscotch.io`
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",

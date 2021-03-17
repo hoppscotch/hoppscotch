@@ -20,6 +20,7 @@ fieldset {
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
+  @apply w-full;
 
   legend {
     @apply px-4;

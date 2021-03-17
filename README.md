@@ -3,7 +3,7 @@
   <br>
   <br>
   <p>
-    <b>Hoppscotch - A free, fast and beautiful API request builder</b>
+    <b>Hoppscotch - Open source API development ecosystem</b>
   </p>
   <p>
      <i>Helps you create requests faster, saving precious time on development - <a href="http://eepurl.com/g6n_P5">Subscribe</a></i>
@@ -278,7 +278,7 @@ _Collections are synced with cloud / local session storage_
 
 </details>
 
-_Official Hoppscotch Proxy is hosted by Apollo Software - **[Privacy Policy](https://apollosoftware.xyz/legal/postwoman)**_
+_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy)**_
 
 📜 **Pre-Request Scripts β:** Snippets of code associated with a request that are executed before the request is sent.
 

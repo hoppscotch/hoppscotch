@@ -189,6 +189,7 @@ export default {
 
   // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
   googleFonts: {
+    download: true,
     display: "swap",
     families: {
       "Material+Icons": true,

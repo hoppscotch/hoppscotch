@@ -590,23 +590,12 @@ export default {
       this.editRequest = {}
     },
     saveRequest() {
-      // if (!this.checkCollections()) {
-      //   this.$toast.error(this.$t("create_collection"), {
-      //     icon: "error",
-      //   })
-      //   return
-      // }
-      // let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
         url: this.url,
         query: this.gqlQueryString,
         headers: this.headers,
         variables: this.variableString,
       }
-      console.log(this.editRequest)
-      // if (this.selectedRequest.url) {
-      //   this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
-      // }
       this.showSaveRequestModal = true
     },
     useSelectedEnvironment(event) {

@@ -307,13 +307,16 @@ export const mutations = {
 
   saveRequestAs({ collections, collectionsgraphql }, payload) {
     let { request, collectionIndex, folderName, requestIndex, flag } = payload
-    // Filter out all file inputs
-     request = {
-       ...request,
-       bodyParams: request.bodyParams.map((param) =>
-         param?.value?.[0] instanceof File ? { ...param, value: "" } : param
-       ),
-     }
+
+    if (flag == "rest") {
+      // Filter out all file inputs
+      request = {
+        ...request,
+        bodyParams: request.bodyParams.map((param) =>
+          param?.value?.[0] instanceof File ? { ...param, value: "" } : param
+        ),
+      }
+    }
 
     const specifiedCollection = collectionIndex !== undefined
     const specifiedFolder = folderName !== undefined

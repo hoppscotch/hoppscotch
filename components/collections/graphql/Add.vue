@@ -2,7 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_collection") }}</h3>
+        <h3 class="title">{{ $t("new_collection") }}</h3>
         <div>
           <button class="icon" @click="hideModal">
             <i class="material-icons">close</i>
@@ -16,8 +16,8 @@
         type="text"
         id="selectLabel"
         v-model="name"
-        :placeholder="editingCollection.name"
-        @keyup.enter="saveCollection"
+        :placeholder="$t('my_new_collection')"
+        @keyup.enter="addNewCollection"
       />
     </div>
     <div slot="footer">
@@ -27,7 +27,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveCollection">
+          <button class="icon primary" @click="addNewCollection">
             {{ $t("save") }}
           </button>
         </span>
@@ -42,8 +42,6 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-    editingCollection: Object,
-    editingCollectionIndex: Number,
   },
   data() {
     return {
@@ -55,31 +53,27 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }
     },
-    saveCollection() {
+    addNewCollection() {
       if (!this.$data.name) {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      const collectionUpdated = {
-        ...this.$props.editingCollection,
+      this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name,
-      }
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex,
-        flag: "rest",
+        flag: "graphql",
       })
       this.$emit("hide-modal")
       this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

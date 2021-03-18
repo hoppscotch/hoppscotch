@@ -1108,7 +1108,7 @@ describe("FirebaseInstance", () => {
 
       signInUser()
 
-      await expect(fb.writeCollections([])).resolves.toBeUndefined()
+      await expect(fb.writeCollections([], "collections")).resolves.toBeUndefined()
     })
 
     test("rejects for non-authenticated request", async () => {
@@ -1116,7 +1116,7 @@ describe("FirebaseInstance", () => {
 
       signOutUser()
 
-      await expect(fb.writeCollections([])).rejects.toBeDefined()
+      await expect(fb.writeCollections([], "collections")).rejects.toBeDefined()
     })
 
     test("stores data on firestore with proper structure", async () => {
@@ -1124,7 +1124,7 @@ describe("FirebaseInstance", () => {
 
       signInUser()
 
-      await fb.writeCollections([])
+      await fb.writeCollections([], "collections")
 
       const doc = (
         await mocksdk
@@ -1152,7 +1152,7 @@ describe("FirebaseInstance", () => {
 
       signInUser()
 
-      await fb.writeCollections([])
+      await fb.writeCollections([], "collections")
 
       const doc = (
         await mocksdk

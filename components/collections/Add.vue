@@ -52,7 +52,10 @@ export default {
     syncCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+            "collections"
+          )
         }
       }
     },
@@ -63,6 +66,7 @@ export default {
       }
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name,
+        flag: "rest",
       })
       this.$emit("hide-modal")
       this.syncCollections()

@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="$t('collections')" ref="collections" no-legend>
+  <AppSection class="yellow" :label="$t('collections')" ref="collections" no-legend>
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -9,28 +9,28 @@
         class="rounded-t-lg"
       />
     </div>
-    <CollectionsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <CollectionsEdit
+    <CollectionsGraphqlAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsGraphqlEdit
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <CollectionsAddFolder
+    <CollectionsGraphqlAddFolder
       :show="showModalAddFolder"
       :folder="editingFolder"
       :folder-path="editingFolderPath"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
     />
-    <CollectionsEditFolder
+    <CollectionsGraphqlEditFolder
       :show="showModalEditFolder"
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
-    <CollectionsEditRequest
+    <CollectionsGraphqlEditRequest
       :show="showModalEditRequest"
       :collection-index="editingCollectionIndex"
       :folder-index="editingFolderIndex"
@@ -39,7 +39,7 @@
       :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
-    <CollectionsImportExport
+    <CollectionsGraphqlImportExport
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -58,7 +58,7 @@
     <div class="virtual-list">
       <ul class="flex-col">
         <li v-for="(collection, index) in filteredCollections" :key="collection.name">
-          <CollectionsCollection
+          <CollectionsGraphqlCollection
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
@@ -114,12 +114,14 @@ export default {
   computed: {
     collections() {
       return fb.currentUser !== null
-        ? fb.currentCollections
-        : this.$store.state.postwoman.collections
+        ? fb.currentGraphqlCollections
+        : this.$store.state.postwoman.collectionsGraphql
     },
     filteredCollections() {
       const collections =
-        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+        fb.currentUser !== null
+          ? fb.currentGraphqlCollections
+          : this.$store.state.postwoman.collectionsGraphql
 
       if (!this.filterText) return collections
 
@@ -199,7 +201,7 @@ export default {
       this.syncCollections()
     },
     onAddFolder({ name, path }) {
-      const flag = "rest"
+      const flag = "graphql"
       this.$store.commit("postwoman/addFolder", {
         name,
         path,
@@ -245,8 +247,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }

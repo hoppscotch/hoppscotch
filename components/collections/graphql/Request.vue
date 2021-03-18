@@ -14,7 +14,6 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>
@@ -74,13 +73,6 @@ export default {
   data() {
     return {
       dragging: false,
-      requestMethodLabels: {
-        get: "text-green-400",
-        post: "text-yellow-400",
-        put: "text-blue-400",
-        delete: "text-red-400",
-        default: "text-gray-400",
-      },
       confirmRemove: false,
     }
   },
@@ -89,14 +81,14 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }
     },
     selectRequest() {
-      this.$store.commit("postwoman/selectRequest", { request: this.request })
+      this.$store.commit("postwoman/selectGraphqlRequest", { request: this.request })
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
@@ -110,16 +102,13 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
-        flag: "rest",
+        flag: "graphql",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
       this.confirmRemove = false
       this.syncCollections()
-    },
-    getRequestLabelColor(method) {
-      return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default
     },
   },
 }

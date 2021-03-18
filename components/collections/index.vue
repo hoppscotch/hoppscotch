@@ -108,9 +108,9 @@
                   '/' +
                   $event.name,
                 collectionIndex: collectionsType.type == 'my-collections' ? index : $event.id,
+                reqIdx: $event.reqIdx,
                 collectionsType: collectionsType,
                 folderId: $event.id,
-                coll: collection,
               })
             "
           />
@@ -373,6 +373,7 @@ export default {
       this.$data.editingFolderName = folderName
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
+      this.$emit("select-request", requestIndex)
       this.displayModalEditRequest(true)
       this.syncCollections()
     },

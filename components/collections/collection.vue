@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', { name: '', id: collection.id })"
+      @click="$emit('select-folder', { name: '', id: collection.id, reqIdx: '' })"
     >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -113,12 +113,13 @@
                   '/' +
                   $event.name,
                 id: $event.id,
+                reqIdx: $event.reqIdx,
               })
             "
           />
         </li>
       </ul>
-      <ul class="flex-col" v-if="!saveRequest">
+      <ul class="flex-col">
         <li
           v-for="(request, index) in collection.requests"
           :key="index"
@@ -133,7 +134,15 @@
             :folder-name="collection.name"
             :request-index="index"
             :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
+            :saveRequest="saveRequest"
+            @edit-request="editRequest($event)"
+            @select-request="
+              $emit('select-folder', {
+                name: $event.name,
+                id: collection.id,
+                reqIdx: $event.idx,
+              })
+            "
           />
         </li>
       </ul>
@@ -182,6 +191,14 @@ export default {
     }
   },
   methods: {
+    editRequest(event) {
+      this.$emit("edit-request", event)
+      this.$emit("select-folder", {
+        name: this.$data.collection.name,
+        id: this.$data.collection.id,
+        reqIdx: event.requestIndex,
+      })
+    },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {

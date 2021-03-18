@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', { name: '', id: folder.id })"
+      @click="$emit('select-folder', { name: '', id: folder.id, reqIdx: '' })"
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
@@ -53,7 +53,7 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col" v-if="!saveRequest">
+      <ul class="flex-col">
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
@@ -68,7 +68,15 @@
             :folder-name="folder.name"
             :request-index="index"
             :doc="doc"
+            :saveRequest="saveRequest"
             @edit-request="$emit('edit-request', $event)"
+            @select-request="
+              $emit('select-folder', {
+                name: $event.name,
+                id: folder.id,
+                reqIdx: $event.idx,
+              })
+            "
           />
         </li>
       </ul>
@@ -91,7 +99,11 @@
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
             @select-folder="
-              $emit('select-folder', { name: subFolder.name + '/' + $event.name, id: subFolder.id })
+              $emit('select-folder', {
+                name: subFolder.name + '/' + $event.name,
+                id: subFolder.id,
+                reqIdx: $event.reqIdx,
+              })
             "
           />
         </li>
@@ -120,7 +132,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {

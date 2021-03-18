@@ -20,19 +20,6 @@
         @update-collection="collectionsType.type = $event"
         :saveRequest="true"
       />
-      <ul v-if="collectionsType.type === 'my-collections'">
-        <li>
-          <label for="selectRequest">{{ $t("request") }}</label>
-          <span class="select-wrapper">
-            <select type="text" id="selectRequest" v-model="requestData.requestIndex">
-              <option :key="undefined" :value="undefined">/</option>
-              <option v-for="(folder, index) in requests" :key="index" :value="index">
-                {{ folder.name }}
-              </option>
-            </select>
-          </span>
-        </li>
-      </ul>
     </div>
     <div slot="footer">
       <div class="row-wrapper">
@@ -134,6 +121,7 @@ export default {
       this.$data.requestData.folderName = data.folderName.split("/").slice(-2)[0]
       this.$data.path = data.folderName
       this.$data.requestData.collectionIndex = data.collectionIndex
+      this.$data.requestData.requestIndex = data.reqIdx
       if (data.collectionsType.type !== "my-collections") {
         this.$data.collectionsType = data.collectionsType
       }

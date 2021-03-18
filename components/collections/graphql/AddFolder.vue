@@ -2,7 +2,7 @@
   <SmartModal v-if="show" @close="show = false">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_folder") }}</h3>
+        <h3 class="title">{{ $t("new_folder") }}</h3>
         <div>
           <button class="icon" @click="hideModal">
             <i class="material-icons">close</i>
@@ -16,8 +16,8 @@
         type="text"
         id="selectLabel"
         v-model="name"
-        :placeholder="folder.name"
-        @keyup.enter="editFolder"
+        :placeholder="$t('my_new_folder')"
+        @keyup.enter="addFolder"
       />
     </div>
     <div slot="footer">
@@ -27,7 +27,7 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="editFolder">
+          <button class="icon primary" @click="addFolder">
             {{ $t("save") }}
           </button>
         </span>
@@ -37,14 +37,12 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-
 export default {
   props: {
     show: Boolean,
-    collectionIndex: Number,
     folder: Object,
-    folderIndex: Number,
+    folderPath: String,
+    collectionIndex: Number,
   },
   data() {
     return {
@@ -52,26 +50,12 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-        }
-      }
-    },
-    editFolder() {
-      this.$store.commit("postwoman/editFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folder: { ...this.$props.folder, name: this.$data.name },
-        folderIndex: this.$props.folderIndex,
-        folderName: this.$props.folder.name,
-        flag: "rest",
+    addFolder() {
+      this.$emit("add-folder", {
+        name: this.name,
+        folder: this.folder,
+        path: this.folderPath || `${this.collectionIndex}`,
       })
-      this.hideModal()
-      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

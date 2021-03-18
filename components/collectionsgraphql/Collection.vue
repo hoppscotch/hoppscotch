@@ -62,7 +62,7 @@
           :key="folder.name"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsgraphqlFolder
+          <CollectionsGraphqlFolder
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
@@ -81,7 +81,7 @@
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsgraphqlRequest
+          <CollectionsGraphqlRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
@@ -135,8 +135,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql)),
-            "collectionsgraphql"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }

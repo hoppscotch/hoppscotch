@@ -136,7 +136,7 @@ export class FirebaseInstance {
 
         this.usersCollection
           .doc(this.currentUser.uid)
-          .collection("collectionsgraphql")
+          .collection("collectionsGraphql")
           .onSnapshot((collectionsRef) => {
             const collections = []
             collectionsRef.forEach((doc) => {

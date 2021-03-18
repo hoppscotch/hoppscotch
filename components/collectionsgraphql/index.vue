@@ -9,28 +9,28 @@
         class="rounded-t-lg"
       />
     </div>
-    <CollectionsgraphqlAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <CollectionsgraphqlEdit
+    <CollectionsGraphqlAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsGraphqlEdit
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <CollectionsgraphqlAddFolder
+    <CollectionsGraphqlAddFolder
       :show="showModalAddFolder"
       :folder="editingFolder"
       :folder-path="editingFolderPath"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
     />
-    <CollectionsgraphqlEditFolder
+    <CollectionsGraphqlEditFolder
       :show="showModalEditFolder"
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
-    <CollectionsgraphqlEditRequest
+    <CollectionsGraphqlEditRequest
       :show="showModalEditRequest"
       :collection-index="editingCollectionIndex"
       :folder-index="editingFolderIndex"
@@ -39,7 +39,7 @@
       :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
-    <CollectionsgraphqlImportExport
+    <CollectionsGraphqlImportExport
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -58,7 +58,7 @@
     <div class="virtual-list">
       <ul class="flex-col">
         <li v-for="(collection, index) in filteredCollections" :key="collection.name">
-          <CollectionsgraphqlCollection
+          <CollectionsGraphqlCollection
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
@@ -115,13 +115,13 @@ export default {
     collections() {
       return fb.currentUser !== null
         ? fb.currentGraphqlCollections
-        : this.$store.state.postwoman.collectionsgraphql
+        : this.$store.state.postwoman.collectionsGraphql
     },
     filteredCollections() {
       const collections =
         fb.currentUser !== null
           ? fb.currentGraphqlCollections
-          : this.$store.state.postwoman.collectionsgraphql
+          : this.$store.state.postwoman.collectionsGraphql
 
       if (!this.filterText) return collections
 
@@ -247,8 +247,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql)),
-            "collectionsgraphql"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }

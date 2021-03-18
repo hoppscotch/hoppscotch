@@ -261,8 +261,8 @@ export default {
             "collections"
           )
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsgraphql)),
-            "collectionsgraphql"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }
@@ -270,7 +270,7 @@ export default {
     syncEnvironments() {
       if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
-           fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
         }
       }
     },

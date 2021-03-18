@@ -411,7 +411,7 @@
           </SmartTab>
 
           <SmartTab :id="'collections'" :label="$t('collections')">
-            <Collectionsgraphql />
+            <CollectionsGraphql />
           </SmartTab>
 
           <!-- <SmartTab :id="'env'" :label="$t('environments')">
@@ -424,7 +424,7 @@
         </SmartTabs>
       </aside>
     </div>
-    <CollectionsgraphqlSaveRequest
+    <CollectionsGraphqlSaveRequest
       :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
       :editing-request="editRequest"

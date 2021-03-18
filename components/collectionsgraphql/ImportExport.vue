@@ -203,7 +203,8 @@ export default {
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           collections = [this.parsePostmanCollection(collections)]
         } else {
-          return this.failedImport()
+          this.failedImport()
+          return
         }
         this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
         this.fileImported()
@@ -227,7 +228,8 @@ export default {
           collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
           collections = [this.parsePostmanCollection(collections)]
         } else {
-          return this.failedImport()
+          this.failedImport()
+          return
         }
         this.$store.commit("postwoman/importCollections", { data: collections, flag: "graphql" })
         this.fileImported()

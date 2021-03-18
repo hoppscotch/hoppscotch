@@ -38,17 +38,25 @@ export class FirebaseInstance {
     this.currentUser$ = new ReplaySubject(1);
     this.idToken$ = new ReplaySubject(1);
 
+    let loadedSettings = false
+
     getSettingSubject("syncCollections").subscribe(status => {
-      this.writeSettings("syncCollections", status)
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncCollections", status)
+      }
     })
 
     getSettingSubject("syncHistory").subscribe(status => {
-      this.writeSettings("syncHistory", status)
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncHistory", status)
+      }
     })
 
 
     getSettingSubject("syncEnvironments").subscribe(status => {
-      this.writeSettings("syncEnvironments", status)
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncEnvironments", status)
+      }
     })
 
     this.app.auth().onIdTokenChanged((user) => {
@@ -118,6 +126,8 @@ export class FirebaseInstance {
                 applySetting(e.name, e.value)
               }
             })
+
+            loadedSettings = true
           })
 
         this.usersCollection

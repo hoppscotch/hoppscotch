@@ -2,7 +2,7 @@ import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
 import { ReplaySubject } from "rxjs"
-import { getSettingSubject } from "~/newstore/settings"
+import { getSettingSubject, applySetting } from "~/newstore/settings"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -112,6 +112,12 @@ export class FirebaseInstance {
               settings.push(setting)
             })
             this.currentSettings = settings
+
+            settings.forEach(e => {
+              if (e && e.name && e.value != null) {
+                applySetting(e.name, e.value)
+              }
+            })
           })
 
         this.usersCollection

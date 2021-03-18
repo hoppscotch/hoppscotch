@@ -66,7 +66,7 @@
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
-            :request-index="index"
+            :request-index="collectionsType.type === 'my-collections' ? index : request.id"
             :doc="doc"
             :saveRequest="saveRequest"
             @edit-request="$emit('edit-request', $event)"
@@ -185,7 +185,6 @@ export default {
         team_utils
           .getCollectionRequests(this.$apollo, this.folder.id)
           .then((requests) => {
-            console.log(requests)
             this.$set(this.folder, "requests", requests)
           })
           .catch((error) => {

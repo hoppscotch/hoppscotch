@@ -68,7 +68,7 @@ export default {
     collectionIndex: Number,
     folderIndex: Number,
     folderName: String,
-    requestIndex: Number,
+    requestIndex: [Number, String],
     doc: Boolean,
     saveRequest: Boolean,
   },

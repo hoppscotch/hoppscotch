@@ -132,7 +132,7 @@
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
-            :request-index="index"
+            :request-index="collectionsType.type === 'my-collections' ? index : request.id"
             :doc="doc"
             :saveRequest="saveRequest"
             @edit-request="editRequest($event)"

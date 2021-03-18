@@ -263,7 +263,6 @@ export default {
   },
   methods: {
     updateTeamCollections() {
-      console.log(this.collectionsType)
       this.$emit("select-collection-type")
       if (this.collectionsType.selectedTeam == undefined) return
       team_utils

@@ -163,13 +163,22 @@ export default {
         })
         this.syncCollections()
       } else {
-        team_utils.saveRequestAsTeams(
-          this.$apollo,
-          JSON.stringify(requestUpdated),
-          requestUpdated.name,
-          this.$data.collectionsType.selectedTeam.id,
-          this.$data.requestData.collectionIndex
-        )
+        if (this.$data.requestData.requestIndex) {
+          team_utils.overwriteRequestTeams(
+            this.$apollo,
+            JSON.stringify(requestUpdated),
+            requestUpdated.name,
+            this.$data.requestData.requestIndex
+          )
+        } else {
+          team_utils.saveRequestAsTeams(
+            this.$apollo,
+            JSON.stringify(requestUpdated),
+            requestUpdated.name,
+            this.$data.collectionsType.selectedTeam.id,
+            this.$data.requestData.collectionIndex
+          )
+        }
       }
       this.hideModal()
     },

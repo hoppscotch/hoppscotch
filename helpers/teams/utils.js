@@ -275,11 +275,32 @@ async function saveRequestAsTeams(apollo, request, title, teamID, collectionID) 
   })
 }
 
+async function overwriteRequestTeams(apollo, request, title, requestID) {
+  await apollo.mutate({
+    mutation: gql`
+      mutation updateRequest($data: UpdateTeamRequestInput!, $requestID: String!) {
+        updateRequest(data: $data, requestID: $requestID) {
+          id
+          title
+        }
+      }
+    `,
+    variables: {
+      requestID: requestID,
+      data: {
+        request: request,
+        title: title,
+      },
+    },
+  })
+}
+
 export default {
   rootCollectionsOfTeam: rootCollectionsOfTeam,
   getCollectionChildren: getCollectionChildren,
   getCollectionRequests: getCollectionRequests,
   saveRequestAsTeams: saveRequestAsTeams,
+  overwriteRequestTeams: overwriteRequestTeams,
   renameCollection: renameCollection,
   addChildCollection: addChildCollection,
   deleteCollection: deleteCollection,

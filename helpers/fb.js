@@ -2,6 +2,7 @@ import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
 import { ReplaySubject } from "rxjs"
+import { getSettingSubject } from "~/newstore/settings"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -36,6 +37,19 @@ export class FirebaseInstance {
 
     this.currentUser$ = new ReplaySubject(1);
     this.idToken$ = new ReplaySubject(1);
+
+    getSettingSubject("syncCollections").subscribe(status => {
+      this.writeSettings("syncCollections", status)
+    })
+
+    getSettingSubject("syncHistory").subscribe(status => {
+      this.writeSettings("syncHistory", status)
+    })
+
+
+    getSettingSubject("syncEnvironments").subscribe(status => {
+      this.writeSettings("syncEnvironments", status)
+    })
 
     this.app.auth().onIdTokenChanged((user) => {
       if (user) {

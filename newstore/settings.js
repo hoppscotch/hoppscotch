@@ -1,4 +1,4 @@
-import { pluck, distinct } from "rxjs/operators"
+import { pluck, distinctUntilChanged } from "rxjs/operators"
 import has from "lodash/has"
 import DispatchingStore from "./DispatchingStore"
 
@@ -56,7 +56,7 @@ const dispatchers = {
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
 
 export function getSettingSubject(settingKey) {
-  return settingsStore.subject$.pipe(pluck(settingKey), distinct())
+  return settingsStore.subject$.pipe(pluck(settingKey), distinctUntilChanged())
 }
 
 export function bulkApplySettings(settingsObj) {

@@ -722,7 +722,10 @@ export default {
       SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
       PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
       URL_EXCLUDES: getSettingSubject("URL_EXCLUDES"),
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED")
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
+      
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      SYNC_HISTORY: getSettingSubject("syncHistory")
     }
   },
   watch: {
@@ -1389,10 +1392,8 @@ export default {
           }
 
           this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null && fb.currentSettings[2]) {
-            if (fb.currentSettings[2].value) {
-              fb.writeHistory(entry)
-            }
+          if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+            fb.writeHistory(entry)
           }
         })()
       } catch (error) {
@@ -1448,10 +1449,8 @@ export default {
             }
 
             this.$refs.historyComponent.addEntry(entry)
-            if (fb.currentUser !== null && fb.currentSettings[2]) {
-              if (fb.currentSettings[2].value) {
-                fb.writeHistory(entry)
-              }
+            if (fb.currentUser !== null && this.SYNC_HISTORY) {
+              fb.writeHistory(entry)
             }
             return
           } else {

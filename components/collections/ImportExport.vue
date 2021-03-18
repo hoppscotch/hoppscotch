@@ -113,6 +113,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
@@ -120,6 +121,9 @@ export default {
       fb,
       showJsonCode: false,
     }
+  },
+  subscriptions() {
+    SYNC_COLLECTIONS: getSettingSubject("syncCollections")
   },
   props: {
     show: Boolean,
@@ -259,10 +263,8 @@ export default {
       this.fileImported()
     },
     syncToFBCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
       }
     },
     fileImported() {

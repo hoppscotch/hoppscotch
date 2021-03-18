@@ -24,16 +24,36 @@
           </button>
           <br />
           <FirebaseLogout />
-          <p v-for="setting in fb.currentSettings" :key="setting.id">
+          <p>
             <SmartToggle
-              :key="setting.name"
-              :on="setting.value"
-              @change="toggleSettings(setting.name, setting.value)"
+              :on="SYNC_COLLECTIONS"
+              @change="toggleSettings('syncCollections', !SYNC_COLLECTIONS)"
             >
-              {{ $t(setting.name) + " " + $t("sync") }}
-              {{ setting.value ? $t("enabled") : $t("disabled") }}
+              {{ $t("syncCollections") + " " + $t("sync") }}
+              {{ SYNC_COLLECTIONS ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </p>
+
+          <p>
+            <SmartToggle
+              :on="SYNC_ENVIRONMENTS"
+              @change="toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)"
+            >
+              {{ $t("syncEnvironments") + " " + $t("sync") }}
+              {{ SYNC_ENVIRONMENTS ? $t("enabled") : $t("disabled") }}
+            </SmartToggle>
+          </p>
+
+          <p>
+            <SmartToggle
+              :on="SYNC_HISTORY"
+              @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
+            >
+              {{ $t("syncHistory") + " " + $t("sync") }}
+              {{ SYNC_HISTORY ? $t("enabled") : $t("disabled") }}
+            </SmartToggle>
+          </p>
+
           <p v-if="fb.currentSettings.length !== 3">
             <button class="" @click="initSettings">
               <i class="material-icons">sync</i>
@@ -213,7 +233,11 @@ export default {
 
       EXTENSIONS_ENABLED: getSettingSubject("EXTENSIONS_ENABLED"),
 
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED")
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
+
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
+      SYNC_HISTORY: getSettingSubject("syncHistory")
     }
   },
   watch: {
@@ -233,7 +257,8 @@ export default {
       toggleSetting(key)
     },
     toggleSettings(name, value) {
-      fb.writeSettings(name, !value)
+      this.applySetting(name, value)
+
       if (name === "syncCollections" && value) {
         this.syncCollections()
       }
@@ -242,9 +267,9 @@ export default {
       }
     },
     initSettings() {
-      fb.writeSettings("syncHistory", true)
-      fb.writeSettings("syncCollections", true)
-      fb.writeSettings("syncEnvironments", true)
+      applySetting("syncHistory", true)
+      applySetting("syncCollections", true)
+      applySetting("syncEnvironments", true)
     },
     resetProxy({ target }) {
       applySetting("PROXY_URL", `https://hoppscotch.apollosoftware.xyz/`)
@@ -256,17 +281,13 @@ export default {
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
       }
     },
     syncEnvironments() {
-      if (fb.currentUser !== null && fb.currentSettings[1]) {
-        if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
-        }
+      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
+        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
       }
     },
   },

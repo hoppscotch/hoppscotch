@@ -7,11 +7,14 @@ export default class Generator {
   get defaultGeneratorProperties() {
     return {
       url: "",
-      auth: "",
-      bearerToken: "",
       pathName: "",
       queryString: "",
+      auth: "",
+      httpUser: "",
+      httpPassword: "",
+      bearerToken: "",
       method: "",
+      rawParams: "",
       rawInput: "",
       rawRequestBody: "",
       contentType: "",

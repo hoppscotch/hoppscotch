@@ -1,60 +1,89 @@
-export const CLibcurlCodegen = {
-  id: "c-libcurl",
-  name: "C libcurl",
-  generator: ({
-    auth,
-    httpUser,
-    httpPassword,
-    method,
-    url,
-    pathName,
-    queryString,
-    bearerToken,
-    headers,
-    rawInput,
-    rawParams,
-    rawRequestBody,
-    contentType,
-  }) => {
-    const requestString = []
+import Generator from "~/helpers/codegen/generators/generator"
 
-    requestString.push("CURL *hnd = curl_easy_init();")
-    requestString.push(`curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "${method}");`)
-    requestString.push(`curl_easy_setopt(hnd, CURLOPT_URL, "${url}${pathName}${queryString}");`)
-    requestString.push(`struct curl_slist *headers = NULL;`)
+class CLibcurlCodegen extends Generator {
+  constructor() {
+    super()
 
-    if (headers) {
-      headers.forEach(({ key, value }) => {
-        if (key) requestString.push(`headers = curl_slist_append(headers, "${key}: ${value}");`)
+    this.id = "c-libcurl"
+    this.name = "C libcurl"
+    this.joinCharacter = "\n"
+  }
+
+  generateInitialRequest() {
+    this.requestString.push("CURL *hnd = curl_easy_init();")
+    this.requestString.push(`curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "${this.method}");`)
+    this.requestString.push(
+      `curl_easy_setopt(hnd, CURLOPT_URL, "${this.url}${this.pathName}${this.queryString}");`
+    )
+    this.requestString.push(`struct curl_slist *headers = NULL;`)
+  }
+
+  generateCustomRequestHeaders() {
+    if (this.customRequestHeadersFound) {
+      this.headers.forEach(({ key, value }) => {
+        if (key)
+          this.requestString.push(`headers = curl_slist_append(headers, "${key}: ${value}");`)
       })
     }
+  }
 
-    if (auth === "Basic Auth") {
-      const basic = `${httpUser}:${httpPassword}`
-      requestString.push(
-        `headers = curl_slist_append(headers, "Authorization: Basic ${window.btoa(
-          unescape(encodeURIComponent(basic))
-        )}");`
-      )
-    } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(
-        `headers = curl_slist_append(headers, "Authorization: Bearer ${bearerToken}");`
+  generateBasicAuthenticationHeader() {
+    this.requestString.push(
+      `headers = curl_slist_append(headers, "Authorization: Basic ${window.btoa(
+        unescape(encodeURIComponent(`${this.httpUser}:${this.httpPassword}`))
+      )}");`
+    )
+  }
+
+  generateTokenAuthenticationHeader() {
+    this.requestString.push(
+      `headers = curl_slist_append(headers, "Authorization: Bearer ${this.bearerToken}");`
+    )
+  }
+
+  generateAuthenticationHeader() {
+    if (this.isBasicAuthenticationRequest) {
+      this.generateBasicAuthenticationHeader()
+    } else if (this.isTokenAuthenticationRequest) {
+      this.generateTokenAuthenticationHeader()
+    }
+  }
+
+  generateContentType() {
+    if (this.requestAllowsBody) {
+      this.requestString.push(
+        `headers = curl_slist_append(headers, "Content-Type: ${this.contentType}");`
       )
     }
+  }
 
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      let requestBody = rawInput ? rawParams : rawRequestBody
+  generateHTTPHeader() {
+    this.requestString.push("curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);")
+  }
 
-      if (contentType.includes("x-www-form-urlencoded")) {
-        requestBody = `"${requestBody}"`
-      } else requestBody = JSON.stringify(requestBody)
+  generateRequestBody() {
+    if (this.requestAllowsBody) {
+      const requestBody = this.contentIsEncoded
+        ? `"${this.requestBody}"`
+        : JSON.stringify(this.requestBody)
 
-      requestString.push(`headers = curl_slist_append(headers, "Content-Type: ${contentType}");`)
-      requestString.push("curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);")
-      requestString.push(`curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, ${requestBody});`)
-    } else requestString.push("curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);")
+      this.requestString.push(`curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, ${requestBody});`)
+    }
+  }
 
-    requestString.push(`CURLcode ret = curl_easy_perform(hnd);`)
-    return requestString.join("\n")
-  },
+  generateCURLEasyPerform() {
+    this.requestString.push(`CURLcode ret = curl_easy_perform(hnd);`)
+  }
+
+  populateRequestString() {
+    this.generateInitialRequest()
+    this.generateCustomRequestHeaders()
+    this.generateAuthenticationHeader()
+    this.generateContentType()
+    this.generateHTTPHeader()
+    this.generateRequestBody()
+    this.generateCURLEasyPerform()
+  }
 }
+
+export default new CLibcurlCodegen()

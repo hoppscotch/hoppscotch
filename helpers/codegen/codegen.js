@@ -1,4 +1,4 @@
-import { CLibcurlCodegen } from "./generators/c-libcurl"
+import CLibcurlCodegen from "./generators/c-libcurl"
 import { CsRestsharpCodegen } from "./generators/cs-restsharp"
 import { CurlCodegen } from "./generators/curl"
 import { GoNativeCodegen } from "./generators/go-native"

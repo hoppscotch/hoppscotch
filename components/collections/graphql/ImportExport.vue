@@ -126,7 +126,7 @@ export default {
   },
   computed: {
     collectionJson() {
-      return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+      return JSON.stringify(this.$store.state.postwoman.collectionsGraphql, null, 2)
     },
   },
   methods: {
@@ -172,7 +172,7 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
+          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -206,7 +206,7 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
+        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -231,7 +231,7 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
+        this.$store.commit("postwoman/importCollections", { data: collections, flag: "graphql" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -258,8 +258,8 @@ export default {
     },
     syncCollections() {
       this.$store.commit("postwoman/replaceCollections", {
-        data: fb.currentCollections,
-        flag: "rest",
+        data: fb.currentGraphqlCollections,
+        flag: "graphql",
       })
       this.fileImported()
     },
@@ -267,8 +267,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }

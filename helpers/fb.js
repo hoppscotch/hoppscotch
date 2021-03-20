@@ -35,6 +35,7 @@ export class FirebaseInstance {
     this.currentHistory = []
     this.currentGraphqlHistory = []
     this.currentCollections = []
+    this.currentGraphqlCollections = []
     this.currentEnvironments = []
 
     this.app.auth().onAuthStateChanged((user) => {
@@ -130,6 +131,21 @@ export class FirebaseInstance {
             })
             if (collections.length > 0) {
               this.currentCollections = collections[0].collection
+            }
+          })
+
+        this.usersCollection
+          .doc(this.currentUser.uid)
+          .collection("collectionsGraphql")
+          .onSnapshot((collectionsRef) => {
+            const collections = []
+            collectionsRef.forEach((doc) => {
+              const collection = doc.data()
+              collection.id = doc.id
+              collections.push(collection)
+            })
+            if (collections.length > 0) {
+              this.currentGraphqlCollections = collections[0].collection
             }
           })
 
@@ -319,7 +335,7 @@ export class FirebaseInstance {
     }
   }
 
-  async writeCollections(collection) {
+  async writeCollections(collection, flag) {
     const cl = {
       updatedOn: new Date(),
       author: this.currentUser.uid,
@@ -329,11 +345,7 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection
-        .doc(this.currentUser.uid)
-        .collection("collections")
-        .doc("sync")
-        .set(cl)
+      await this.usersCollection.doc(this.currentUser.uid).collection(flag).doc("sync").set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
 

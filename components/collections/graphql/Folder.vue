@@ -58,7 +58,7 @@
           :key="index"
           class="flex ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
+          <CollectionsGraphqlRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
@@ -75,7 +75,7 @@
           :key="subFolder.name"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsFolder
+          <CollectionsGraphqlFolder
             :folder="subFolder"
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
@@ -134,8 +134,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }
@@ -148,7 +148,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folder.name,
         folderIndex: this.$props.folderIndex,
-        flag: "rest",
+        flag: "graphql",
       })
       this.syncCollections()
       this.$toast.error(this.$t("deleted"), {
@@ -161,7 +161,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
+      const flag = "graphql"
 
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,

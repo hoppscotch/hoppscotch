@@ -22,7 +22,7 @@
                 {{ $t("select_collection") }}
               </option>
               <option
-                v-for="(collection, index) in $store.state.postwoman.collections"
+                v-for="(collection, index) in $store.state.postwoman.collectionsGraphql"
                 :key="index"
                 :value="index"
               >
@@ -104,7 +104,7 @@ export default {
   },
   computed: {
     folders() {
-      const collections = this.$store.state.postwoman.collections
+      const collections = this.$store.state.postwoman.collectionsGraphql
       const collectionIndex = this.$data.requestData.collectionIndex
       const userSelectedAnyCollection = collectionIndex !== undefined
       if (!userSelectedAnyCollection) return []
@@ -115,7 +115,7 @@ export default {
       return getFolderNames(collections[collectionIndex].folders, [])
     },
     requests() {
-      const collections = this.$store.state.postwoman.collections
+      const collections = this.$store.state.postwoman.collectionsGraphql
       const collectionIndex = this.$data.requestData.collectionIndex
       const folderName = this.$data.requestData.folderName
 
@@ -147,8 +147,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }
@@ -179,7 +179,7 @@ export default {
         collectionIndex: this.$data.requestData.collectionIndex,
         folderName: this.$data.requestData.folderName,
         requestIndex: this.$data.requestData.requestIndex,
-        flag: "rest",
+        flag: "graphql",
       })
 
       this.hideModal()

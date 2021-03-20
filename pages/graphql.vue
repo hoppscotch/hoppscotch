@@ -278,6 +278,14 @@
               >
                 <i class="material-icons">photo_filter</i>
               </button>
+              <button
+                class="icon"
+                @click="saveRequest"
+                ref="saveRequest"
+                v-tooltip.bottom="$t('save_to_collections')"
+              >
+                <i class="material-icons">create_new_folder</i>
+              </button>
             </div>
           </div>
           <GraphqlQueryEditor
@@ -455,12 +463,21 @@
             />
           </SmartTab>
 
+          <SmartTab :id="'collections'" :label="$t('collections')">
+            <CollectionsGraphql />
+          </SmartTab>
+
           <SmartTab :id="'env'" :label="$t('environments')">
             <Environments @use-environment="useSelectedEnvironment($event)" />
           </SmartTab>
         </SmartTabs>
       </aside>
     </div>
+    <CollectionsGraphqlSaveRequest
+      :show="showSaveRequestModal"
+      @hide-modal="hideRequestModal"
+      :editing-request="editRequest"
+    />
   </div>
 </template>
 
@@ -503,6 +520,8 @@ export default {
       activeSidebar: true,
       showPreRequestScript: true,
       preRequestScript: "// pw.env.set('variable', 'value');",
+      editRequest: {},
+      showSaveRequestModal: false,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -512,7 +531,22 @@ export default {
       },
     }
   },
+  watch: {
+    selectedRequest(newValue) {
+      if (!newValue) return
+      this.url = newValue.url
+      this.gqlQueryString = newValue.query
+      this.headers = newValue.headers
+      this.variableString = newValue.variables
+    },
+  },
   computed: {
+    selectedRequest() {
+      return this.$store.state.postwoman.selectedGraphqlRequest
+    },
+    editingRequest() {
+      return this.$store.state.postwoman.editingRequest
+    },
     filteredQueryFields() {
       return this.getFilteredGraphqlFields({
         filterText: this.graphqlFieldsFilterText,
@@ -624,6 +658,19 @@ export default {
       this.preRequestScript = preRequestScriptString
       this.showPreRequestScript = true
       return preRequestScriptString
+    },
+    hideRequestModal() {
+      this.showSaveRequestModal = false
+      this.editRequest = {}
+    },
+    saveRequest() {
+      this.editRequest = {
+        url: this.url,
+        query: this.gqlQueryString,
+        headers: this.headers,
+        variables: this.variableString,
+      }
+      this.showSaveRequestModal = true
     },
     handleUseHistory(entry) {
       this.url = entry.url

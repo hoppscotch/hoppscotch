@@ -8,7 +8,7 @@
             <img
               v-if="fb.currentUser.photoURL"
               :src="fb.currentUser.photoURL"
-              class="w-8 h-8 rounded-full material-icons"
+              class="w-6 h-6 rounded-full material-icons"
             />
             <i v-else class="material-icons">account_circle</i>
             <span>
@@ -256,7 +256,14 @@ export default {
     syncCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+            "collections"
+          )
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
+          )
         }
       }
     },

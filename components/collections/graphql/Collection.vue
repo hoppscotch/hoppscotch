@@ -62,7 +62,7 @@
           :key="folder.name"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsFolder
+          <CollectionsGraphqlFolder
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
@@ -81,7 +81,7 @@
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
+          <CollectionsGraphqlRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
@@ -94,11 +94,7 @@
       </ul>
       <ul>
         <li
-          v-if="
-            collection.folders != undefined &&
-            collection.folders.length === 0 &&
-            collection.requests.length === 0
-          "
+          v-if="collection.folders.length === 0 && collection.requests.length === 0"
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">
@@ -139,8 +135,8 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
           )
         }
       }
@@ -151,7 +147,7 @@ export default {
     removeCollection() {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
-        flag: "rest",
+        flag: "graphql",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -164,7 +160,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
+      const flag = "graphql"
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,

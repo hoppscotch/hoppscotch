@@ -1,42 +1,69 @@
-export const CurlCodegen = {
-  id: "curl",
-  name: "cURL",
-  generator: ({
-    url,
-    pathName,
-    queryString,
-    auth,
-    httpUser,
-    httpPassword,
-    bearerToken,
-    method,
-    rawInput,
-    rawParams,
-    rawRequestBody,
-    contentType,
-    headers,
-  }) => {
-    const requestString = []
-    requestString.push(`curl -X ${method}`)
-    requestString.push(`  '${url}${pathName}${queryString}'`)
-    if (auth === "Basic Auth") {
-      const basic = `${httpUser}:${httpPassword}`
-      requestString.push(
-        `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
-      )
-    } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(`  -H 'Authorization: Bearer ${bearerToken}'`)
+import Generator from "~/helpers/codegen/generators/generator"
+
+class CurlCodegen extends Generator {
+  constructor() {
+    super()
+
+    this.id = "curl"
+    this.name = "cURL"
+    this.joinCharacter = " \\\n"
+  }
+
+  generateMethodHeader() {
+    this.requestString.push(`curl -X ${this.method}`)
+  }
+
+  generateRequestPath() {
+    this.requestString.push(`  '${this.url}${this.pathName}${this.queryString}'`)
+  }
+
+  generateBasicAuthenticationHeader() {
+    const basic = `${this.httpUser}:${this.httpPassword}`
+    this.requestString.push(
+      `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+    )
+  }
+
+  generateTokenAuthenticationHeader() {
+    this.requestString.push(`  -H 'Authorization: Bearer ${this.bearerToken}'`)
+  }
+
+  generateAuthenticationHeader() {
+    if (this.isBasicAuthenticationRequest) {
+      this.generateBasicAuthenticationHeader()
+    } else if (this.isTokenAuthenticationRequest) {
+      this.generateTokenAuthenticationHeader()
     }
-    if (headers) {
-      headers.forEach(({ key, value }) => {
-        if (key) requestString.push(`  -H '${key}: ${value}'`)
+  }
+
+  generateContentTypeHeader() {
+    if (this.requestAllowsBody) {
+      this.requestString.push(`  -H 'Content-Type: ${this.contentType}; charset=utf-8'`)
+    }
+  }
+
+  generateRequestBody() {
+    if (this.requestAllowsBody) {
+      this.requestString.push(`  -d '${this.requestBody}'`)
+    }
+  }
+
+  generateCustomRequestHeaders() {
+    if (this.customRequestHeadersFound) {
+      this.headers.forEach(({ key, value }) => {
+        if (key) this.requestString.push(`  -H '${key}: ${value}'`)
       })
     }
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      const requestBody = rawInput ? rawParams : rawRequestBody
-      requestString.push(`  -H 'Content-Type: ${contentType}; charset=utf-8'`)
-      requestString.push(`  -d '${requestBody}'`)
-    }
-    return requestString.join(" \\\n")
-  },
+  }
+
+  populateRequestString() {
+    this.generateMethodHeader()
+    this.generateRequestPath()
+    this.generateAuthenticationHeader()
+    this.generateCustomRequestHeaders()
+    this.generateContentTypeHeader()
+    this.generateRequestBody()
+  }
 }
+
+export default new CurlCodegen()

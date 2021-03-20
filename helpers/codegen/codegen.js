@@ -1,6 +1,6 @@
 import { CLibcurlCodegen } from "./generators/c-libcurl"
 import { CsRestsharpCodegen } from "./generators/cs-restsharp"
-import { CurlCodegen } from "./generators/curl"
+import CurlCodegen from "./generators/curl"
 import { GoNativeCodegen } from "./generators/go-native"
 import { JavaOkhttpCodegen } from "./generators/java-okhttp"
 import { JavaUnirestCodegen } from "./generators/java-unirest"

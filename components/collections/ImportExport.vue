@@ -176,7 +176,7 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", collections)
+          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -207,9 +207,10 @@ export default {
         } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
           collections = [this.parsePostmanCollection(collections)]
         } else {
-          return this.failedImport()
+          this.failedImport()
+          return
         }
-        this.$store.commit("postwoman/replaceCollections", collections)
+        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -231,9 +232,10 @@ export default {
           collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
           collections = [this.parsePostmanCollection(collections)]
         } else {
-          return this.failedImport()
+          this.failedImport()
+          return
         }
-        this.$store.commit("postwoman/importCollections", collections)
+        this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -259,12 +261,18 @@ export default {
       })
     },
     syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", fb.currentCollections)
+      this.$store.commit("postwoman/replaceCollections", {
+        data: fb.currentCollections,
+        flag: "rest",
+      })
       this.fileImported()
     },
     syncToFBCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     fileImported() {

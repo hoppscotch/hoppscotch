@@ -14,7 +14,7 @@ export const cancelRunningAxiosRequest = () => {
 const axiosWithProxy = async (req) => {
   try {
     const { data } = await axios.post(
-      settingsStore.value.PROXY_URL,
+      settingsStore.value.PROXY_URL || "https://proxy.hoppscotch.io",
       {
         ...req,
         wantsBinary: true,

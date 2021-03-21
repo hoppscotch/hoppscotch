@@ -58,13 +58,16 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     saveRequest() {
@@ -79,6 +82,7 @@ export default {
         requestFolderIndex: this.$props.folderIndex,
         requestNew: requestUpdated,
         requestIndex: this.$props.requestIndex,
+        flag: "rest",
       })
 
       this.hideModal()

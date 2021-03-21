@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection class="blue" :label="$t('request')" ref="request" no-legend>
+        <AppSection :label="$t('request')" ref="request" no-legend>
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -208,7 +208,7 @@
             </SmartTab>
 
             <SmartTab :id="'authentication'" :label="$t('authentication')">
-              <AppSection class="teal" :label="$t('authentication')" ref="authentication" no-legend>
+              <AppSection :label="$t('authentication')" ref="authentication" no-legend>
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -532,7 +532,7 @@
         <section>
           <SmartTabs>
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <HttpHistory @useHistory="handleUseHistory" ref="historyComponent" />
+              <History :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
             </SmartTab>
 
             <SmartTab :id="'collections'" :label="$t('collections')">
@@ -723,9 +723,9 @@ export default {
       PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
       URL_EXCLUDES: getSettingSubject("URL_EXCLUDES"),
       EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
-      
+
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-      SYNC_HISTORY: getSettingSubject("syncHistory")
+      SYNC_HISTORY: getSettingSubject("syncHistory"),
     }
   },
   watch: {
@@ -765,9 +765,9 @@ export default {
         }
         let path = this.path
         let queryString = getQueryParams(newValue)
-          .map(({ key, value }) => `${key}=${value}`)
+          .map(({ key, value }) => `${key.trim()}=${value.trim()}`)
           .join("&")
-        queryString = queryString === "" ? "" : `?${queryString}`
+        queryString = queryString === "" ? "" : `?${encodeURI(queryString)}`
         if (path.includes("?")) {
           path = path.slice(0, path.indexOf("?")) + queryString
         } else {
@@ -1362,6 +1362,7 @@ export default {
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
+            updatedOn: new Date(),
             method: this.method,
             url: this.url,
             path: this.path,
@@ -1417,6 +1418,7 @@ export default {
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
+              updatedOn: new Date(),
               method: this.method,
               url: this.url,
               path: this.path,
@@ -1586,7 +1588,7 @@ export default {
         navigator
           .share({
             title: "Hoppscotch",
-            text: `Hoppscotch • API request builder at ${time} on ${date}`,
+            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
             url: window.location.href,
           })
           .then(() => {})

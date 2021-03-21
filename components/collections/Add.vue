@@ -51,13 +51,16 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     addNewCollection() {
@@ -67,6 +70,7 @@ export default {
       }
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name,
+        flag: "rest",
       })
       this.$emit("hide-modal")
       this.syncCollections()

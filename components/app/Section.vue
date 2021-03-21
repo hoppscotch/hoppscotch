@@ -1,5 +1,5 @@
 <template>
-  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !FRAME_COLORS_ENABLED }">
+  <fieldset :id="label.toLowerCase()">
     <legend v-if="!noLegend" @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="ml-2 align-middle material-icons">
@@ -20,6 +20,7 @@ fieldset {
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
+  @apply w-full;
 
   legend {
     @apply px-4;
@@ -30,42 +31,6 @@ fieldset {
     @apply ease-in-out;
     @apply duration-150;
   }
-
-  &.blue legend {
-    @apply text-blue-400;
-  }
-
-  &.green legend {
-    @apply text-green-400;
-  }
-
-  &.teal legend {
-    @apply text-teal-400;
-  }
-
-  &.purple legend {
-    @apply text-purple-400;
-  }
-
-  &.orange legend {
-    @apply text-orange-400;
-  }
-
-  &.pink legend {
-    @apply text-pink-400;
-  }
-
-  &.red legend {
-    @apply text-red-400;
-  }
-
-  &.yellow legend {
-    @apply text-yellow-400;
-  }
-}
-
-fieldset.no-colored-frames legend {
-  @apply text-fgColor;
 }
 </style>
 
@@ -80,7 +45,7 @@ export default {
   },
   subscriptions() {
     return {
-      FRAME_COLORS_ENABLED: getSettingSubject("FRAME_COLORS_ENABLED")
+      FRAME_COLORS_ENABLED: getSettingSubject("FRAME_COLORS_ENABLED"),
     }
   },
   props: {

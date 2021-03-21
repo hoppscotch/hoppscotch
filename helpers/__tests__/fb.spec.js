@@ -49,32 +49,39 @@ beforeEach(async () => {
   })
 
   // Test History Entry
-  await mocksdk.firestore().collection("users").doc(testuser.uid).collection("history").doc().set({
-    auth: "None",
-    bearerToken: "",
-    bodyParams: [],
-    contentType: "",
-    date: "8/29/2020",
-    duration: 708,
-    headers: [],
-    httpPassword: "",
-    httpUser: "",
-    label: "",
-    method: "GET",
-    params: [],
-    path: "/status/200",
-    preRequestScript: "// pw.env.set('variable', 'value');",
-    rawInput: true,
-    rawParams: "",
-    requestType: "",
-    star: false,
-    status: 200,
-    testScript: "// pw.expect('variable').toBe('value');",
-    time: "12:12:27 PM",
-    url: "https://postman-echo.com",
-    usesPostScripts: true,
-    usesPreScripts: true,
-  })
+  await mocksdk
+    .firestore()
+    .collection("users")
+    .doc(testuser.uid)
+    .collection("history")
+    .doc()
+    .set({
+      auth: "None",
+      bearerToken: "",
+      bodyParams: [],
+      contentType: "",
+      updatedOn: new Date(1598703948000),
+      date: "8/29/2020",
+      duration: 708,
+      headers: [],
+      httpPassword: "",
+      httpUser: "",
+      label: "",
+      method: "GET",
+      params: [],
+      path: "/status/200",
+      preRequestScript: "// pw.env.set('variable', 'value');",
+      rawInput: true,
+      rawParams: "",
+      requestType: "",
+      star: false,
+      status: 200,
+      testScript: "// pw.expect('variable').toBe('value');",
+      time: "12:12:27 PM",
+      url: "https://postman-echo.com",
+      usesPostScripts: true,
+      usesPreScripts: true,
+    })
 
   await mocksdk
     .firestore()
@@ -740,6 +747,7 @@ describe("FirebaseInstance", () => {
       bearerToken: "",
       bodyParams: [],
       contentType: "",
+      updatedOn: new Date(1598703948000),
       date: "8/29/2021",
       duration: 708,
       headers: [],
@@ -910,6 +918,7 @@ describe("FirebaseInstance", () => {
         bearerToken: "",
         bodyParams: [],
         contentType: "",
+        updatedOn: new Date(1598703948000),
         date: "8/29/2021",
         duration: 708,
         headers: [],
@@ -954,6 +963,7 @@ describe("FirebaseInstance", () => {
       bearerToken: "",
       bodyParams: [],
       contentType: "",
+      updatedOn: new Date(1598703948000),
       date: "8/29/2021",
       duration: 708,
       headers: [],
@@ -1098,7 +1108,7 @@ describe("FirebaseInstance", () => {
 
       signInUser()
 
-      await expect(fb.writeCollections([])).resolves.toBeUndefined()
+      await expect(fb.writeCollections([], "collections")).resolves.toBeUndefined()
     })
 
     test("rejects for non-authenticated request", async () => {
@@ -1106,7 +1116,7 @@ describe("FirebaseInstance", () => {
 
       signOutUser()
 
-      await expect(fb.writeCollections([])).rejects.toBeDefined()
+      await expect(fb.writeCollections([], "collections")).rejects.toBeDefined()
     })
 
     test("stores data on firestore with proper structure", async () => {
@@ -1114,7 +1124,7 @@ describe("FirebaseInstance", () => {
 
       signInUser()
 
-      await fb.writeCollections([])
+      await fb.writeCollections([], "collections")
 
       const doc = (
         await mocksdk
@@ -1142,7 +1152,7 @@ describe("FirebaseInstance", () => {
 
       signInUser()
 
-      await fb.writeCollections([])
+      await fb.writeCollections([], "collections")
 
       const doc = (
         await mocksdk

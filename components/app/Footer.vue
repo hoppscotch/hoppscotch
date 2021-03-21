@@ -9,6 +9,17 @@
         <span>
           <a
             class="footer-link"
+            href="https://oss.capital/?ref=hoppscotch"
+            target="_blank"
+            rel="noopener"
+          >
+            OSS Capital
+          </a>
+        </span>
+        <span class="footer-link"> & </span>
+        <span>
+          <a
+            class="footer-link"
             href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
             target="_blank"
             rel="noopener"

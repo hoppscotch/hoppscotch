@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection class="blue" :label="$t('endpoint')" ref="endpoint" no-legend>
+        <AppSection :label="$t('endpoint')" ref="endpoint" no-legend>
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -37,7 +37,7 @@
           </ul>
         </AppSection>
 
-        <AppSection class="orange" :label="$t('headers')" ref="headers" no-legend>
+        <AppSection :label="$t('headers')" ref="headers" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("headers") }}</label>
             <ul v-if="headers.length !== 0">
@@ -140,7 +140,7 @@
           </div>
         </AppSection>
 
-        <AppSection class="green" :label="$t('schema')" ref="schema" no-legend>
+        <AppSection :label="$t('schema')" ref="schema" no-legend>
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
@@ -200,7 +200,7 @@
           />
         </AppSection>
 
-        <AppSection class="teal" :label="$t('query')" ref="query" no-legend>
+        <AppSection :label="$t('query')" ref="query" no-legend>
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
@@ -225,6 +225,14 @@
               >
                 <i class="material-icons">photo_filter</i>
               </button>
+              <button
+                class="icon"
+                @click="saveRequest"
+                ref="saveRequest"
+                v-tooltip.bottom="$t('save_to_collections')"
+              >
+                <i class="material-icons">create_new_folder</i>
+              </button>
             </div>
           </div>
           <GraphqlQueryEditor
@@ -243,7 +251,7 @@
           />
         </AppSection>
 
-        <AppSection class="yellow" :label="$t('variables')" ref="variables" no-legend>
+        <AppSection :label="$t('variables')" ref="variables" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("variables") }}</label>
             <SmartAceEditor
@@ -262,7 +270,7 @@
           </div>
         </AppSection>
 
-        <AppSection class="purple" :label="$t('response')" ref="response" no-legend>
+        <AppSection :label="$t('response')" ref="response" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
@@ -318,81 +326,109 @@
       </div>
 
       <aside class="sticky-inner inner-right lg:max-w-md">
-        <AppSection class="purple" :label="$t('docs')" ref="docs" no-legend>
-          <section class="flex-col">
-            <input
-              type="text"
-              :placeholder="$t('search')"
-              v-model="graphqlFieldsFilterText"
-              class="rounded-t-lg"
+        <SmartTabs>
+          <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
+            <AppSection :label="$t('docs')" ref="docs" no-legend>
+              <section class="flex-col">
+                <input
+                  type="text"
+                  :placeholder="$t('search')"
+                  v-model="graphqlFieldsFilterText"
+                  class="rounded-t-lg"
+                />
+                <SmartTabs ref="gqlTabs" styles="m-4">
+                  <div class="gqlTabs">
+                    <SmartTab
+                      v-if="queryFields.length > 0"
+                      :id="'queries'"
+                      :label="$t('queries')"
+                      :selected="true"
+                    >
+                      <div v-for="field in filteredQueryFields" :key="field.name">
+                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      </div>
+                    </SmartTab>
+
+                    <SmartTab
+                      v-if="mutationFields.length > 0"
+                      :id="'mutations'"
+                      :label="$t('mutations')"
+                    >
+                      <div v-for="field in filteredMutationFields" :key="field.name">
+                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      </div>
+                    </SmartTab>
+
+                    <SmartTab
+                      v-if="subscriptionFields.length > 0"
+                      :id="'subscriptions'"
+                      :label="$t('subscriptions')"
+                    >
+                      <div v-for="field in filteredSubscriptionFields" :key="field.name">
+                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      </div>
+                    </SmartTab>
+
+                    <SmartTab
+                      v-if="graphqlTypes.length > 0"
+                      :id="'types'"
+                      :label="$t('types')"
+                      ref="typesTab"
+                    >
+                      <div v-for="type in filteredGraphqlTypes" :key="type.name">
+                        <GraphqlType
+                          :gqlType="type"
+                          :gqlTypes="graphqlTypes"
+                          :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
+                          :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
+                          :jumpTypeCallback="handleJumpToType"
+                        />
+                      </div>
+                    </SmartTab>
+                  </div>
+                </SmartTabs>
+              </section>
+              <p
+                v-if="
+                  queryFields.length === 0 &&
+                  mutationFields.length === 0 &&
+                  subscriptionFields.length === 0 &&
+                  graphqlTypes.length === 0
+                "
+                class="info"
+              >
+                {{ $t("send_request_first") }}
+              </p>
+            </AppSection>
+          </SmartTab>
+
+          <SmartTab :id="'history'" :label="$t('history')">
+            <History
+              @useHistory="handleUseHistory"
+              ref="graphqlHistoryComponent"
+              :page="'graphql'"
             />
-            <SmartTabs ref="gqlTabs" styles="m-4">
-              <div class="gqlTabs">
-                <SmartTab
-                  v-if="queryFields.length > 0"
-                  :id="'queries'"
-                  :label="$t('queries')"
-                  :selected="true"
-                >
-                  <div v-for="field in filteredQueryFields" :key="field.name">
-                    <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                  </div>
-                </SmartTab>
+          </SmartTab>
 
-                <SmartTab
-                  v-if="mutationFields.length > 0"
-                  :id="'mutations'"
-                  :label="$t('mutations')"
-                >
-                  <div v-for="field in filteredMutationFields" :key="field.name">
-                    <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                  </div>
-                </SmartTab>
+          <SmartTab :id="'collections'" :label="$t('collections')">
+            <CollectionsGraphql />
+          </SmartTab>
 
-                <SmartTab
-                  v-if="subscriptionFields.length > 0"
-                  :id="'subscriptions'"
-                  :label="$t('subscriptions')"
-                >
-                  <div v-for="field in filteredSubscriptionFields" :key="field.name">
-                    <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
-                  </div>
-                </SmartTab>
+          <!-- <SmartTab :id="'env'" :label="$t('environments')">
+                <Environments @use-environment="useSelectedEnvironment($event)" />
+              </SmartTab>
 
-                <SmartTab
-                  v-if="graphqlTypes.length > 0"
-                  :id="'types'"
-                  :label="$t('types')"
-                  ref="typesTab"
-                >
-                  <div v-for="type in filteredGraphqlTypes" :key="type.name">
-                    <GraphqlType
-                      :gqlType="type"
-                      :gqlTypes="graphqlTypes"
-                      :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
-                      :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
-                      :jumpTypeCallback="handleJumpToType"
-                    />
-                  </div>
-                </SmartTab>
-              </div>
-            </SmartTabs>
-          </section>
-
-          <p
-            v-if="
-              queryFields.length === 0 &&
-              mutationFields.length === 0 &&
-              subscriptionFields.length === 0 &&
-              graphqlTypes.length === 0
-            "
-            class="info"
-          >
-            {{ $t("send_request_first") }}
-          </p>
-        </AppSection>
+              <SmartTab :id="'notes'" :label="$t('notes')">
+                <HttpNotes />
+              </SmartTab> -->
+        </SmartTabs>
       </aside>
     </div>
+    <CollectionsGraphqlSaveRequest
+      :show="showSaveRequestModal"
+      @hide-modal="hideRequestModal"
+      :editing-request="editRequest"
+    />
   </div>
 </template>
 
@@ -430,14 +466,32 @@ export default {
       graphqlFieldsFilterText: undefined,
       isPollingSchema: false,
       timeoutSubscription: null,
+      activeSidebar: true,
+      editRequest: {},
+      showSaveRequestModal: false,
     }
   },
   subscriptions() {
     return {
-      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED")
+      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
     }
   },
+  watch: {
+    selectedRequest(newValue) {
+      if (!newValue) return
+      this.url = newValue.url
+      this.gqlQueryString = newValue.query
+      this.headers = newValue.headers
+      this.variableString = newValue.variables
+    },
+  },
   computed: {
+    selectedRequest() {
+      return this.$store.state.postwoman.selectedGraphqlRequest
+    },
+    editingRequest() {
+      return this.$store.state.postwoman.editingRequest
+    },
     filteredQueryFields() {
       return this.getFilteredGraphqlFields({
         filterText: this.graphqlFieldsFilterText,
@@ -527,6 +581,30 @@ export default {
     next()
   },
   methods: {
+    hideRequestModal() {
+      this.showSaveRequestModal = false
+      this.editRequest = {}
+    },
+    saveRequest() {
+      this.editRequest = {
+        url: this.url,
+        query: this.gqlQueryString,
+        headers: this.headers,
+        variables: this.variableString,
+      }
+      this.showSaveRequestModal = true
+    },
+    useSelectedEnvironment(event) {
+      console.log("use selected environment")
+    },
+    handleUseHistory(entry) {
+      this.url = entry.url
+      this.headers = entry.headers
+      this.gqlQueryString = entry.query
+      this.response = entry.responseText
+      this.variableString = entry.variables
+      this.schema = ""
+    },
     isGqlTypeHighlighted({ gqlType }) {
       if (!this.graphqlFieldsFilterText) return false
 
@@ -682,7 +760,13 @@ export default {
           },
           data: JSON.stringify({ query: gqlQueryString, variables }),
         }
-
+        let entry = {
+          url: this.url,
+          query: gqlQueryString,
+          variables: this.variableString,
+          star: false,
+          headers: this.headers,
+        }
         const res = await sendNetworkRequest(reqOptions)
 
         // HACK: Temporary trailing null character issue from the extension fix
@@ -695,6 +779,22 @@ export default {
         this.$toast.info(this.$t("finished_in", { duration }), {
           icon: "done",
         })
+
+        entry = {
+          ...entry,
+          response: this.response,
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          updatedOn: new Date(),
+          duration,
+        }
+
+        this.$refs.graphqlHistoryComponent.addEntry(entry)
+        if (fb.currentUser !== null && fb.currentSettings[2]) {
+          if (fb.currentSettings[2].value) {
+            fb.writeGraphqlHistory(entry)
+          }
+        }
       } catch (error) {
         this.response = `${error}. ${this.$t("check_console_details")}`
         this.$nuxt.$loading.finish()

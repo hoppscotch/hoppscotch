@@ -87,13 +87,16 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     selectRequest() {
@@ -111,6 +114,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
+        flag: "rest",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

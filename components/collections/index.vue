@@ -1,5 +1,5 @@
 <template>
-  <AppSection class="yellow" :label="$t('collections')" ref="collections" no-legend>
+  <AppSection :label="$t('collections')" ref="collections" no-legend>
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -114,7 +114,7 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   computed: {
@@ -205,9 +205,11 @@ export default {
       this.syncCollections()
     },
     onAddFolder({ name, path }) {
+      const flag = "rest"
       this.$store.commit("postwoman/addFolder", {
         name,
         path,
+        flag,
       })
 
       this.displayModalAddFolder(false)
@@ -247,7 +249,10 @@ export default {
     },
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
   },

@@ -54,13 +54,16 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     editFolder() {
@@ -69,6 +72,7 @@ export default {
         folder: { ...this.$props.folder, name: this.$data.name },
         folderIndex: this.$props.folderIndex,
         folderName: this.$props.folder.name,
+        flag: "rest",
       })
       this.hideModal()
       this.syncCollections()

@@ -1,5 +1,5 @@
 <template>
-  <AppSection class="green" icon="history" :label="$t('environments')" ref="environments" no-legend>
+  <AppSection icon="history" :label="$t('environments')" ref="environments" no-legend>
     <div class="show-on-large-screen">
       <span class="select-wrapper">
         <select
@@ -85,7 +85,7 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments")
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
     }
   },
   computed: {

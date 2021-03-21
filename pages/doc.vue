@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection class="blue" :label="$t('import')" ref="import" no-legend>
+        <AppSection :label="$t('import')" ref="import" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("collection") }}</label>
             <p class="info">
@@ -47,7 +47,7 @@
           </div>
         </AppSection>
 
-        <AppSection class="green" :label="$t('documentation')" ref="documentation" no-legend>
+        <AppSection :label="$t('documentation')" ref="documentation" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("documentation") }}</label>
             <p v-if="this.items.length === 0" class="info">

@@ -53,13 +53,16 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     saveCollection() {
@@ -74,6 +77,7 @@ export default {
       this.$store.commit("postwoman/editCollection", {
         collection: collectionUpdated,
         collectionIndex: this.$props.editingCollectionIndex,
+        flag: "rest",
       })
       this.$emit("hide-modal")
       this.syncCollections()

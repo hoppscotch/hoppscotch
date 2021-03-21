@@ -1,5 +1,5 @@
 <template>
-  <div class="tabs-wrapper">
+  <section class="tabs-wrapper">
     <div class="tabs" :class="styles">
       <ul>
         <li
@@ -21,20 +21,19 @@
     <div class="tabs-details">
       <slot></slot>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped lang="scss">
 .tabs-wrapper {
   @apply flex;
   @apply flex-col;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
   @apply flex-1;
 
   .tabs {
-    @apply scrolling-touch;
     @apply flex;
-    @apply whitespace-no-wrap;
+    @apply whitespace-nowrap;
     @apply overflow-auto;
     @apply mt-4;
 
@@ -87,13 +86,15 @@
   ul,
   ol {
     @apply flex-row;
-    @apply flex-no-wrap;
+    @apply flex-nowrap;
   }
 }
 </style>
 
 <script>
+import Section from "../app/Section.vue"
 export default {
+  components: { Section },
   props: {
     styles: {
       type: String,

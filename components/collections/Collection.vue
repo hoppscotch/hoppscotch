@@ -133,13 +133,16 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     toggleShowChildren() {
@@ -148,6 +151,7 @@ export default {
     removeCollection() {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
+        flag: "rest",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -160,6 +164,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
+      const flag = "rest"
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,
@@ -168,6 +173,7 @@ export default {
         oldFolderIndex,
         oldFolderName,
         requestIndex,
+        flag,
       })
       this.syncCollections()
     },

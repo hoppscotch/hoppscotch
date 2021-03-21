@@ -1,7 +1,7 @@
 // Common options
 export const options = {
   name: "Hoppscotch",
-  shortDescription: "A free, fast and beautiful API request builder",
+  shortDescription: "Open source API development ecosystem",
   description: "Helps you create requests faster, saving precious time on development.",
   loading: {
     color: "var(--ac-color)",
@@ -145,7 +145,7 @@ export default {
       name: options.name,
       short_name: options.name,
       description: options.shortDescription,
-      start_url: "/",
+      start_url: "/?source=pwa",
       background_color: options.app.background,
     },
   },
@@ -190,12 +190,19 @@ export default {
 
   // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
   googleFonts: {
+    download: true,
     display: "swap",
     families: {
       "Material+Icons": true,
       Poppins: [400, 500, 600, 700, 800],
       "Roboto+Mono": true,
     },
+  },
+
+  // TailwindCSS module configuration (https://github.com/nuxt-community/tailwindcss-module)
+  tailwindcss: {
+    jit: true,
+    viewer: false,
   },
 
   // i18n module configuration (https://github.com/nuxt-community/i18n-module)

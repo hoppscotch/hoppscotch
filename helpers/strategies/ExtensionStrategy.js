@@ -17,18 +17,18 @@ export const cancelRunningExtensionRequest = () => {
 }
 
 const extensionWithProxy = async (req) => {
-  const backupTimeDataStart = new Date().getTime();
+  const backupTimeDataStart = new Date().getTime()
 
   const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     method: "post",
-    url: settingsStore.value.PROXY_URL,
+    url: settingsStore.value.PROXY_URL || "https://proxy.hoppscotch.io/",
     data: {
       ...req,
       wantsBinary: true,
     },
   })
 
-  const backupTimeDataEnd = new Date().getTime();
+  const backupTimeDataEnd = new Date().getTime()
 
   const parsedData = JSON.parse(res.data)
 
@@ -41,11 +41,11 @@ const extensionWithProxy = async (req) => {
   }
 
   if (!(res && res.config && res.config.timeData)) {
-    res.config = { 
+    res.config = {
       timeData: {
         startTime: backupTimeDataStart,
-        endTime: backupTimeDataEnd
-      }
+        endTime: backupTimeDataEnd,
+      },
     }
   }
 
@@ -55,21 +55,21 @@ const extensionWithProxy = async (req) => {
 }
 
 const extensionWithoutProxy = async (req) => {
-  const backupTimeDataStart = new Date().getTime();
+  const backupTimeDataStart = new Date().getTime()
 
   const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     ...req,
     wantsBinary: true,
   })
 
-  const backupTimeDataEnd = new Date().getTime();
+  const backupTimeDataEnd = new Date().getTime()
 
   if (!(res && res.config && res.config.timeData)) {
     res.config = {
       timeData: {
         startTime: backupTimeDataStart,
-        endTime: backupTimeDataEnd
-      }
+        endTime: backupTimeDataEnd,
+      },
     }
   }
   return res

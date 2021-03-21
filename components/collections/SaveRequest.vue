@@ -91,7 +91,7 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   watch: {
@@ -151,7 +151,10 @@ export default {
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     saveRequestAs() {
@@ -180,6 +183,7 @@ export default {
         collectionIndex: this.$data.requestData.collectionIndex,
         folderName: this.$data.requestData.folderName,
         requestIndex: this.$data.requestData.requestIndex,
+        flag: "rest",
       })
 
       this.hideModal()

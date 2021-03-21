@@ -108,9 +108,9 @@
                   '/' +
                   $event.name,
                 collectionIndex: collectionsType.type == 'my-collections' ? index : $event.id,
+                reqIdx: $event.reqIdx,
                 collectionsType: collectionsType,
                 folderId: $event.id,
-                coll: collection,
               })
             "
           />
@@ -263,7 +263,6 @@ export default {
   },
   methods: {
     updateTeamCollections() {
-      console.log(this.collectionsType)
       this.$emit("select-collection-type")
       if (this.collectionsType.selectedTeam == undefined) return
       team_utils
@@ -373,6 +372,7 @@ export default {
       this.$data.editingFolderName = folderName
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
+      this.$emit("select-request", requestIndex)
       this.displayModalEditRequest(true)
       this.syncCollections()
     },

@@ -18,7 +18,7 @@
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!saveRequest">
         <button class="tooltip-target icon" v-tooltip="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
@@ -68,8 +68,9 @@ export default {
     collectionIndex: Number,
     folderIndex: Number,
     folderName: String,
-    requestIndex: Number,
+    requestIndex: [Number, String],
     doc: Boolean,
+    saveRequest: Boolean,
   },
   data() {
     return {
@@ -93,7 +94,12 @@ export default {
       }
     },
     selectRequest() {
-      this.$store.commit("postwoman/selectRequest", { request: this.request })
+      if (this.$props.saveRequest)
+        this.$emit("select-request", {
+          idx: this.$props.requestIndex,
+          name: this.$props.request.name,
+        })
+      else this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging

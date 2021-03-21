@@ -8,7 +8,6 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', { name: '', id: collection.id })"
     >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -113,12 +112,13 @@
                   '/' +
                   $event.name,
                 id: $event.id,
+                reqIdx: $event.reqIdx,
               })
             "
           />
         </li>
       </ul>
-      <ul class="flex-col" v-if="!saveRequest">
+      <ul class="flex-col">
         <li
           v-for="(request, index) in collection.requests"
           :key="index"
@@ -131,9 +131,17 @@
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
-            :request-index="index"
+            :request-index="collectionsType.type === 'my-collections' ? index : request.id"
             :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
+            :saveRequest="saveRequest"
+            @edit-request="editRequest($event)"
+            @select-request="
+              $emit('select-folder', {
+                name: $event.name,
+                id: collection.id,
+                reqIdx: $event.idx,
+              })
+            "
           />
         </li>
       </ul>
@@ -162,6 +170,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {
@@ -182,6 +191,15 @@ export default {
     }
   },
   methods: {
+    editRequest(event) {
+      this.$emit("edit-request", event)
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", {
+          name: this.$data.collection.name,
+          id: this.$data.collection.id,
+          reqIdx: event.requestIndex,
+        })
+    },
     syncCollections() {
       if (fb.currentUser !== null) {
         if (fb.currentSettings[0].value) {
@@ -190,6 +208,9 @@ export default {
       }
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", { name: "", id: this.$props.collection.id, reqIdx: "" })
+
       this.showChildren = !this.showChildren
       if (
         this.showChildren &&

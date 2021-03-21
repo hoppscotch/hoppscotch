@@ -8,7 +8,6 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', { name: '', id: folder.id })"
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
@@ -53,7 +52,7 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col" v-if="!saveRequest">
+      <ul class="flex-col">
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
@@ -66,9 +65,17 @@
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
-            :request-index="index"
+            :request-index="collectionsType.type === 'my-collections' ? index : request.id"
             :doc="doc"
+            :saveRequest="saveRequest"
             @edit-request="$emit('edit-request', $event)"
+            @select-request="
+              $emit('select-folder', {
+                name: $event.name,
+                id: folder.id,
+                reqIdx: $event.idx,
+              })
+            "
           />
         </li>
       </ul>
@@ -91,7 +98,11 @@
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
             @select-folder="
-              $emit('select-folder', { name: subFolder.name + '/' + $event.name, id: subFolder.id })
+              $emit('select-folder', {
+                name: subFolder.name + '/' + $event.name,
+                id: subFolder.id,
+                reqIdx: $event.reqIdx,
+              })
             "
           />
         </li>
@@ -120,7 +131,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {
@@ -151,6 +161,8 @@ export default {
       }
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })
       this.showChildren = !this.showChildren
       if (
         this.showChildren &&
@@ -174,7 +186,6 @@ export default {
         team_utils
           .getCollectionRequests(this.$apollo, this.folder.id)
           .then((requests) => {
-            console.log(requests)
             this.$set(this.folder, "requests", requests)
           })
           .catch((error) => {

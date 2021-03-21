@@ -8,7 +8,6 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', { name: '', id: collection.id, reqIdx: '' })"
     >
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
@@ -171,6 +170,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import gql from "graphql-tag"
 import team_utils from "~/helpers/teams/utils"
 
 export default {
@@ -193,11 +193,12 @@ export default {
   methods: {
     editRequest(event) {
       this.$emit("edit-request", event)
-      this.$emit("select-folder", {
-        name: this.$data.collection.name,
-        id: this.$data.collection.id,
-        reqIdx: event.requestIndex,
-      })
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", {
+          name: this.$data.collection.name,
+          id: this.$data.collection.id,
+          reqIdx: event.requestIndex,
+        })
     },
     syncCollections() {
       if (fb.currentUser !== null) {
@@ -207,6 +208,9 @@ export default {
       }
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", { name: "", id: this.$props.collection.id, reqIdx: "" })
+
       this.showChildren = !this.showChildren
       if (
         this.showChildren &&

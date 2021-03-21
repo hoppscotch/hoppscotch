@@ -94,11 +94,12 @@ export default {
       }
     },
     selectRequest() {
-      this.$emit("select-request", {
-        idx: this.$props.requestIndex,
-        name: this.$props.request.name,
-      })
-      this.$store.commit("postwoman/selectRequest", { request: this.request })
+      if (this.$props.saveRequest)
+        this.$emit("select-request", {
+          idx: this.$props.requestIndex,
+          name: this.$props.request.name,
+        })
+      else this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging

@@ -8,7 +8,6 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @click="$emit('select-folder', { name: '', id: folder.id, reqIdx: '' })"
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
@@ -162,6 +161,8 @@ export default {
       }
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })
       this.showChildren = !this.showChildren
       if (
         this.showChildren &&

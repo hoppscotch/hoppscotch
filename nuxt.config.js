@@ -113,6 +113,8 @@ export default {
     "@nuxtjs/color-mode",
     // https: //github.com/nuxt-community/google-fonts-module
     "@nuxtjs/google-fonts",
+    // https://github.com/nuxt/typescript
+    "@nuxt/typescript-build",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)

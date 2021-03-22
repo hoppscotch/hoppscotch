@@ -188,12 +188,40 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { fb } from "~/helpers/fb"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
-import { getSettingSubject, applySetting, toggleSetting } from "~/newstore/settings"
+import {
+  getSettingSubject,
+  applySetting,
+  toggleSetting,
+  defaultSettings,
+} from "~/newstore/settings"
+import type { KeysMatching } from "~/types/ts-utils"
+import { Observable } from "rxjs"
 
-export default {
+import Vue from "vue"
+
+type SettingsType = typeof defaultSettings
+
+type SubsType = {
+  SCROLL_INTO_ENABLED: Observable<boolean>
+
+  FRAME_COLORS_ENABLED: Observable<boolean>
+  PROXY_ENABLED: Observable<boolean>
+  PROXY_URL: Observable<string>
+  PROXY_KEY: Observable<string>
+
+  EXTENSIONS_ENABLED: Observable<boolean>
+
+  EXPERIMENTAL_URL_BAR_ENABLED: Observable<boolean>
+
+  SYNC_COLLECTIONS: Observable<boolean>
+  SYNC_ENVIRONMENTS: Observable<boolean>
+  SYNC_HISTORY: Observable<boolean>
+}
+
+export default Vue.extend({
   data() {
     return {
       extensionVersion: hasExtensionInstalled()
@@ -202,9 +230,16 @@ export default {
 
       doneButton: '<i class="material-icons">done</i>',
       fb,
+
+      SYNC_COLLECTIONS: true,
+      SYNC_ENVIRONMENTS: true,
+      SYNC_HISTORY: true,
+
+      PROXY_URL: "",
+      PROXY_KEY: "",
     }
   },
-  subscriptions() {
+  subscriptions(): SubsType {
     return {
       SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
 
@@ -232,13 +267,13 @@ export default {
     },
   },
   methods: {
-    applySetting(key, value) {
+    applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
       applySetting(key, value)
     },
-    toggleSetting(key) {
+    toggleSetting<K extends KeysMatching<SettingsType, boolean>>(key: K) {
       toggleSetting(key)
     },
-    toggleSettings(name, value) {
+    toggleSettings<K extends KeysMatching<SettingsType, boolean>>(name: K, value: SettingsType[K]) {
       this.applySetting(name, value)
 
       if (name === "syncCollections" && value) {
@@ -253,7 +288,7 @@ export default {
       applySetting("syncCollections", true)
       applySetting("syncEnvironments", true)
     },
-    resetProxy({ target }) {
+    resetProxy({ target }: { target: HTMLElement }) {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
 
       target.innerHTML = this.doneButton
@@ -262,7 +297,7 @@ export default {
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
-    syncCollections() {
+    syncCollections(): void {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
         fb.writeCollections(
           JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
@@ -274,14 +309,14 @@ export default {
         )
       }
     },
-    syncEnvironments() {
+    syncEnvironments(): void {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
         fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
       }
     },
   },
   computed: {
-    proxySettings() {
+    proxySettings(): { url: string; key: string } {
       return {
         url: this.PROXY_URL,
         key: this.PROXY_KEY,
@@ -293,5 +328,5 @@ export default {
       title: `Settings • Hoppscotch`,
     }
   },
-}
+})
 </script>

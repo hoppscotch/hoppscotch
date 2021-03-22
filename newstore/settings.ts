@@ -3,8 +3,8 @@ import has from "lodash/has"
 import DispatchingStore from "./DispatchingStore"
 import type { Dispatchers } from "./DispatchingStore"
 import { Observable } from "rxjs"
+import type { KeysMatching } from "~/types/ts-utils"
 
-type KeysMatching<T, V> = {[K in keyof T]-?: T[K] extends V ? K : never}[keyof T];
 
 export const defaultSettings = {
   syncCollections: true,
@@ -26,7 +26,7 @@ export const defaultSettings = {
   }
 }
 
-type SettingsType = typeof defaultSettings
+export type SettingsType = typeof defaultSettings
 
 const validKeys = Object.keys(defaultSettings)
 
@@ -90,4 +90,3 @@ export function applySetting<K extends keyof SettingsType>(settingKey: K, value:
     }
   })
 }
-

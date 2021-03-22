@@ -116,7 +116,7 @@
 ---
 
 - Choose theme: System, Light, Dark (default) and Black
-- Choose accent color: Blue, Green (default), Teal, Purple, Orange, Pink, Red, and Yellow
+- Choose accent color: Blue, Green (default), Teal, Indigo, Purple, Orange, Pink, Red, and Yellow
 - Toggle auto-scroll to response
 
 <p>

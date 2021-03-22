@@ -3,13 +3,23 @@ import { map } from "rxjs/operators"
 import assign from "lodash/assign"
 import clone from "lodash/clone"
 
-export default class DispatchingStore {
 
-  #state$
-  #dispatchers
-  #dispatches$ = new Subject()
+type Dispatch<StoreType, DispatchersType extends Dispatchers<StoreType>, K extends keyof DispatchersType> = {
+  dispatcher: K & string,
+  payload: any
+}
 
-  constructor(initialValue, dispatchers) {
+export type Dispatchers<StoreType> = { 
+  [ key: string ]: (currentVal: StoreType, payload: any) => Partial<StoreType> 
+}
+
+export default class DispatchingStore<StoreType, DispatchersType extends Dispatchers<StoreType>> {
+
+  #state$: BehaviorSubject<StoreType>
+  #dispatchers: Dispatchers<StoreType>
+  #dispatches$: Subject<Dispatch<StoreType, DispatchersType, keyof DispatchersType>> = new Subject()
+
+  constructor(initialValue: StoreType, dispatchers: DispatchersType) {
     this.#state$ = new BehaviorSubject(initialValue)
     this.#dispatchers = dispatchers
 
@@ -38,7 +48,7 @@ export default class DispatchingStore {
     return this.#dispatches$
   }
 
-  dispatch({ dispatcher, payload }) {
+  dispatch({ dispatcher, payload }: Dispatch<StoreType, DispatchersType, keyof DispatchersType>) {
     if (!this.#dispatchers[dispatcher]) throw new Error(`Undefined dispatch type '${dispatcher}'`)
 
     this.#dispatches$.next({ dispatcher, payload })

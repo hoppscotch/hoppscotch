@@ -75,11 +75,13 @@
     "raw-loader": "^4.0.2",
     "sass": "^1.32.8",
     "sass-loader": "^10.1.1",
+    "ts-jest": "^26.5.4",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
   },
   "jest": {
     "moduleFileExtensions": [
+      "ts",
       "js",
       "json",
       "vue"
@@ -105,6 +107,7 @@
       "<rootDir>/components/**/*.vue",
       "<rootDir>/pages/*.vue"
     ],
-    "testURL": "http://localhost/"
+    "testURL": "http://localhost/",
+    "preset": "ts-jest/presets/js-with-babel"
   }
 }

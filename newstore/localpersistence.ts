@@ -1,18 +1,21 @@
 import { settingsStore, bulkApplySettings, defaultSettings } from "./settings"
 import clone from "lodash/clone"
 import assign from "lodash/assign"
+import eq from "lodash/eq"
 
 function checkAndMigrateOldSettings() {
-  // Don't do migration if the new settings object exists
-  if (window.localStorage.getItem("settings")) return
-
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
-  if (vuexData === {}) return
-  
-  const settingsData = clone(defaultSettings)
-  assign(settingsData, vuexData.postwoman.settings)
+  if (eq(vuexData, {})) return
 
-  window.localStorage.setItem("settings", JSON.stringify(settingsData))
+  if (vuexData.postwoman && vuexData.postwoman.settings) {
+    const settingsData = clone(defaultSettings)
+    assign(settingsData, vuexData.postwoman.settings)
+
+    window.localStorage.setItem("settings", JSON.stringify(settingsData))
+
+    delete vuexData.postwoman.settings
+    window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+  }
 }
 
 function setupSettingsPersistence() {

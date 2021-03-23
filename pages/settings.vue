@@ -219,6 +219,9 @@ export default Vue.extend({
 
       PROXY_URL: "",
       PROXY_KEY: "",
+
+      EXTENSIONS_ENABLED: true,
+      PROXY_ENABLED: true,
     }
   },
   subscriptions() {
@@ -252,6 +255,12 @@ export default Vue.extend({
       applySetting(key, value)
     },
     toggleSetting<K extends KeysMatching<SettingsType, boolean>>(key: K) {
+      if (key === "EXTENSIONS_ENABLED" && this.PROXY_ENABLED) {
+        toggleSetting("PROXY_ENABLED")
+      }
+      if (key === "PROXY_ENABLED" && this.EXTENSIONS_ENABLED) {
+        toggleSetting("EXTENSIONS_ENABLED")
+      }
       toggleSetting(key)
     },
     toggleSettings<K extends KeysMatching<SettingsType, boolean>>(name: K, value: SettingsType[K]) {

@@ -57,7 +57,7 @@
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/google-fonts": "^1.3.0",
     "@nuxtjs/pwa": "^3.3.5",
-    "@nuxtjs/tailwindcss": "^4.0.1",
+    "@nuxtjs/tailwindcss": "^4.0.2",
     "@testing-library/jest-dom": "^5.11.9",
     "@types/lodash": "^4.14.168",
     "@vue/test-utils": "^1.1.3",

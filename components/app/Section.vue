@@ -34,19 +34,14 @@ fieldset {
 }
 </style>
 
-<script>
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import Vue from "vue"
 
-export default {
+export default Vue.extend({
   computed: {
-    sectionString() {
+    sectionString(): string {
       return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },
-  },
-  subscriptions() {
-    return {
-      FRAME_COLORS_ENABLED: getSettingSubject("FRAME_COLORS_ENABLED"),
-    }
   },
   props: {
     label: {
@@ -64,9 +59,9 @@ export default {
       // Save collapsed section into the collapsedSections array
       this.$store.commit("setCollapsedSection", this.sectionString)
     },
-    isCollapsed(label) {
+    isCollapsed(_label: string) {
       return this.$store.state.theme.collapsedSections.includes(this.sectionString) || false
     },
   },
-}
+})
 </script>

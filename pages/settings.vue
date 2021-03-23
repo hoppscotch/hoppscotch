@@ -198,28 +198,10 @@ import {
   defaultSettings,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
-import { Observable } from "rxjs"
 
 import Vue from "vue"
 
 type SettingsType = typeof defaultSettings
-
-type SubsType = {
-  SCROLL_INTO_ENABLED: Observable<boolean>
-
-  FRAME_COLORS_ENABLED: Observable<boolean>
-  PROXY_ENABLED: Observable<boolean>
-  PROXY_URL: Observable<string>
-  PROXY_KEY: Observable<string>
-
-  EXTENSIONS_ENABLED: Observable<boolean>
-
-  EXPERIMENTAL_URL_BAR_ENABLED: Observable<boolean>
-
-  SYNC_COLLECTIONS: Observable<boolean>
-  SYNC_ENVIRONMENTS: Observable<boolean>
-  SYNC_HISTORY: Observable<boolean>
-}
 
 export default Vue.extend({
   data() {
@@ -239,11 +221,10 @@ export default Vue.extend({
       PROXY_KEY: "",
     }
   },
-  subscriptions(): SubsType {
+  subscriptions() {
     return {
       SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
 
-      FRAME_COLORS_ENABLED: getSettingSubject("FRAME_COLORS_ENABLED"),
       PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
       PROXY_URL: getSettingSubject("PROXY_URL"),
       PROXY_KEY: getSettingSubject("PROXY_KEY"),

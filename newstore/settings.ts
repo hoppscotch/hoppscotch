@@ -12,7 +12,6 @@ export const defaultSettings = {
   syncEnvironments: true,
 
   SCROLL_INTO_ENABLED: true,
-  FRAME_COLORS_ENABLED: false,
   PROXY_ENABLED: false,
   PROXY_URL: "https://proxy.hoppscotch.io/",
   PROXY_KEY: "",

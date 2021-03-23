@@ -65,7 +65,6 @@
     "babel-jest": "^26.6.3",
     "eslint": "^7.22.0",
     "eslint-plugin-vue": "^7.7.0",
-    "firebase-mock": "^2.3.2",
     "husky": "^5.1.3",
     "jest": "^26.6.3",
     "jest-serializer-vue": "^2.0.2",

@@ -52,23 +52,6 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col">
-        <li
-          v-for="(request, index) in folder.requests"
-          :key="index"
-          class="flex ml-8 border-l border-brdColor"
-        >
-          <CollectionsRequest
-            :request="request"
-            :collection-index="collectionIndex"
-            :folder-index="folderIndex"
-            :folder-name="folder.name"
-            :request-index="index"
-            :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
-          />
-        </li>
-      </ul>
       <ul v-if="folder.folders && folder.folders.length" class="flex-col">
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
@@ -83,6 +66,23 @@
             :folder-path="`${folderPath}/${subFolderIndex}`"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
+            @edit-request="$emit('edit-request', $event)"
+          />
+        </li>
+      </ul>
+      <ul class="flex-col">
+        <li
+          v-for="(request, index) in folder.requests"
+          :key="index"
+          class="flex ml-8 border-l border-brdColor"
+        >
+          <CollectionsRequest
+            :request="request"
+            :collection-index="collectionIndex"
+            :folder-index="folderIndex"
+            :folder-name="folder.name"
+            :request-index="index"
+            :doc="doc"
             @edit-request="$emit('edit-request', $event)"
           />
         </li>

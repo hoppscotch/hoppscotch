@@ -113,12 +113,18 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
     return {
       fb,
       showJsonCode: false,
+    }
+  },
+  subscriptions() {
+    return {
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments")
     }
   },
   props: {
@@ -256,10 +262,8 @@ export default {
       this.fileImported()
     },
     syncToFBEnvironments() {
-      if (fb.currentUser !== null && fb.currentSettings[1]) {
-        if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
-        }
+      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
+        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
       }
     },
     fileImported() {

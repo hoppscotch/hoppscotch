@@ -448,7 +448,7 @@ import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
-import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
@@ -469,13 +469,11 @@ export default {
       activeSidebar: true,
       editRequest: {},
       showSaveRequestModal: false,
-
-      settings: {
-        SCROLL_INTO_ENABLED:
-          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
-            : true,
-      },
+    }
+  },
+  subscriptions() {
+    return {
+      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
     }
   },
   watch: {
@@ -681,7 +679,7 @@ export default {
       const rootTypeName = this.resolveRootType(type).name
 
       const target = document.getElementById(`type_${rootTypeName}`)
-      if (target && this.settings.SCROLL_INTO_ENABLED) {
+      if (target && this.SCROLL_INTO_ENABLED) {
         this.$refs.gqlTabs.$el
           .querySelector(".gqlTabs")
           .scrollTo({ top: target.offsetTop, behavior: "smooth" })
@@ -739,7 +737,7 @@ export default {
       this.$nuxt.$loading.start()
 
       this.response = this.$t("loading")
-      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
+      if (this.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       try {
         let headers = {}
@@ -769,7 +767,7 @@ export default {
           star: false,
           headers: this.headers,
         }
-        const res = await sendNetworkRequest(reqOptions, this.$store)
+        const res = await sendNetworkRequest(reqOptions)
 
         // HACK: Temporary trailing null character issue from the extension fix
         const responseText = new TextDecoder("utf-8").decode(res.data).replace(/\0+$/, "")
@@ -946,7 +944,7 @@ export default {
       this.$nuxt.$loading.start()
 
       this.schema = this.$t("loading")
-      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("schema")
+      if (this.SCROLL_INTO_ENABLED) this.scrollInto("schema")
 
       try {
         const query = JSON.stringify({

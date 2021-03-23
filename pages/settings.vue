@@ -24,16 +24,33 @@
           </button>
           <br />
           <FirebaseLogout />
-          <p v-for="setting in fb.currentSettings" :key="setting.id">
+          <p>
             <SmartToggle
-              :key="setting.name"
-              :on="setting.value"
-              @change="toggleSettings(setting.name, setting.value)"
+              :on="SYNC_COLLECTIONS"
+              @change="toggleSettings('syncCollections', !SYNC_COLLECTIONS)"
             >
-              {{ $t(setting.name) + " " + $t("sync") }}
-              {{ setting.value ? $t("enabled") : $t("disabled") }}
+              {{ $t("syncCollections") + " " + $t("sync") }}
+              {{ SYNC_COLLECTIONS ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </p>
+
+          <p>
+            <SmartToggle
+              :on="SYNC_ENVIRONMENTS"
+              @change="toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)"
+            >
+              {{ $t("syncEnvironments") + " " + $t("sync") }}
+              {{ SYNC_ENVIRONMENTS ? $t("enabled") : $t("disabled") }}
+            </SmartToggle>
+          </p>
+
+          <p>
+            <SmartToggle :on="SYNC_HISTORY" @change="toggleSettings('syncHistory', !SYNC_HISTORY)">
+              {{ $t("syncHistory") + " " + $t("sync") }}
+              {{ SYNC_HISTORY ? $t("enabled") : $t("disabled") }}
+            </SmartToggle>
+          </p>
+
           <p v-if="fb.currentSettings.length !== 3">
             <button @click="initSettings">
               <i class="material-icons">sync</i>
@@ -56,12 +73,9 @@
         <SmartColorModePicker />
         <SmartAccentModePicker />
         <span>
-          <SmartToggle
-            :on="settings.SCROLL_INTO_ENABLED"
-            @change="toggleSetting('SCROLL_INTO_ENABLED')"
-          >
+          <SmartToggle :on="SCROLL_INTO_ENABLED" @change="toggleSetting('SCROLL_INTO_ENABLED')">
             {{ $t("scrollInto_use_toggle") }}
-            {{ settings.SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
+            {{ SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
           </SmartToggle>
         </span>
       </div>
@@ -71,10 +85,7 @@
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
-          <SmartToggle
-            :on="settings.EXTENSIONS_ENABLED"
-            @change="toggleSetting('EXTENSIONS_ENABLED')"
-          >
+          <SmartToggle :on="EXTENSIONS_ENABLED" @change="toggleSetting('EXTENSIONS_ENABLED')">
             {{ $t("extensions_use_toggle") }}
           </SmartToggle>
         </div>
@@ -92,9 +103,9 @@
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
           <span>
-            <SmartToggle :on="settings.PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
+            <SmartToggle :on="PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
               {{ $t("proxy") }}
-              {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
+              {{ PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </span>
           <a
@@ -116,8 +127,8 @@
         <input
           id="url"
           type="url"
-          v-model="settings.PROXY_URL"
-          :disabled="!settings.PROXY_ENABLED"
+          v-model="PROXY_URL"
+          :disabled="!PROXY_ENABLED"
           :placeholder="$t('url')"
         />
         <p class="info">
@@ -166,7 +177,7 @@
         </p>
         <div class="row-wrapper">
           <SmartToggle
-            :on="settings.EXPERIMENTAL_URL_BAR_ENABLED"
+            :on="EXPERIMENTAL_URL_BAR_ENABLED"
             @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
           >
             {{ $t("use_experimental_url_bar") }}
@@ -177,40 +188,54 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { fb } from "~/helpers/fb"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
+import {
+  getSettingSubject,
+  applySetting,
+  toggleSetting,
+  defaultSettings,
+} from "~/newstore/settings"
+import type { KeysMatching } from "~/types/ts-utils"
 
-export default {
+import Vue from "vue"
+
+type SettingsType = typeof defaultSettings
+
+export default Vue.extend({
   data() {
     return {
       extensionVersion: hasExtensionInstalled()
         ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
         : null,
 
-      settings: {
-        SCROLL_INTO_ENABLED:
-          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
-            : true,
-
-        PROXY_ENABLED: this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "https://proxy.hoppscotch.io",
-        PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || "",
-
-        EXTENSIONS_ENABLED:
-          typeof this.$store.state.postwoman.settings.EXTENSIONS_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.EXTENSIONS_ENABLED
-            : true,
-
-        EXPERIMENTAL_URL_BAR_ENABLED:
-          typeof this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED
-            : false,
-      },
-
       doneButton: '<i class="material-icons">done</i>',
       fb,
+
+      SYNC_COLLECTIONS: true,
+      SYNC_ENVIRONMENTS: true,
+      SYNC_HISTORY: true,
+
+      PROXY_URL: "",
+      PROXY_KEY: "",
+    }
+  },
+  subscriptions() {
+    return {
+      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
+
+      PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
+      PROXY_URL: getSettingSubject("PROXY_URL"),
+      PROXY_KEY: getSettingSubject("PROXY_KEY"),
+
+      EXTENSIONS_ENABLED: getSettingSubject("EXTENSIONS_ENABLED"),
+
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
+
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
+      SYNC_HISTORY: getSettingSubject("syncHistory"),
     }
   },
   watch: {
@@ -223,16 +248,15 @@ export default {
     },
   },
   methods: {
-    applySetting(key, value) {
-      this.settings[key] = value
-      this.$store.commit("postwoman/applySetting", [key, value])
+    applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
+      applySetting(key, value)
     },
-    toggleSetting(key) {
-      this.settings[key] = !this.settings[key]
-      this.$store.commit("postwoman/applySetting", [key, this.settings[key]])
+    toggleSetting<K extends KeysMatching<SettingsType, boolean>>(key: K) {
+      toggleSetting(key)
     },
-    toggleSettings(name, value) {
-      fb.writeSettings(name, !value)
+    toggleSettings<K extends KeysMatching<SettingsType, boolean>>(name: K, value: SettingsType[K]) {
+      this.applySetting(name, value)
+
       if (name === "syncCollections" && value) {
         this.syncCollections()
       }
@@ -241,45 +265,42 @@ export default {
       }
     },
     initSettings() {
-      fb.writeSettings("syncHistory", true)
-      fb.writeSettings("syncCollections", true)
-      fb.writeSettings("syncEnvironments", true)
+      applySetting("syncHistory", true)
+      applySetting("syncCollections", true)
+      applySetting("syncEnvironments", true)
     },
-    resetProxy({ target }) {
-      this.settings.PROXY_URL = `https://proxy.hoppscotch.io`
+    resetProxy({ target }: { target: HTMLElement }) {
+      applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
+
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-            "collectionsGraphql"
-          )
-        }
+    syncCollections(): void {
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+          "collectionsGraphql"
+        )
       }
     },
-    syncEnvironments() {
-      if (fb.currentUser !== null && fb.currentSettings[1]) {
-        if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
-        }
+    syncEnvironments(): void {
+      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
+        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
       }
     },
   },
   computed: {
-    proxySettings() {
+    proxySettings(): { url: string; key: string } {
       return {
-        url: this.settings.PROXY_URL,
-        key: this.settings.PROXY_KEY,
+        url: this.PROXY_URL,
+        key: this.PROXY_KEY,
       }
     },
   },
@@ -288,5 +309,5 @@ export default {
       title: `Settings • Hoppscotch`,
     }
   },
-}
+})
 </script>

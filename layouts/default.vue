@@ -14,6 +14,9 @@
 </template>
 
 <script>
+import { setupLocalPersistence } from "~/newstore/localpersistence"
+import { performMigrations } from "~/helpers/migrations"
+
 export default {
   beforeMount() {
     let color = localStorage.getItem("THEME_COLOR") || "green"
@@ -24,13 +27,7 @@ export default {
       document.body.classList.add("afterLoad")
     }
 
-    // Migrate old default proxy URL to the new proxy URL (if not set / overridden)
-    if (
-      this.$store.state.postwoman.settings.PROXY_URL &&
-      this.$store.state.postwoman.settings.PROXY_URL === "https://hoppscotch.apollosoftware.xyz/"
-    ) {
-      this.$store.state.postwoman.settings.PROXY_URL = "https://proxy.hoppscotch.io/"
-    }
+    performMigrations()
 
     console.log(
       "%cWe ❤︎ open source!",
@@ -61,6 +58,8 @@ export default {
         }
       })
     }
+
+    setupLocalPersistence()
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

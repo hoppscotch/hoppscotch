@@ -5,6 +5,17 @@ jest.mock("../../utils/b64", () => ({
   __esModule: true,
   decodeB64StringToArrayBuffer: jest.fn((data) => `${data}-converted`),
 }))
+jest.mock("~/newstore/settings", () => {
+  return {
+    __esModule: true,
+    settingsStore: {
+      value: {
+        PROXY_ENABLED: true,
+        PROXY_URL: "test",
+      },
+    },
+  }
+})
 
 describe("cancelRunningAxiosRequest", () => {
   test("cancels axios request and does that only 1 time", () => {
@@ -17,17 +28,6 @@ describe("cancelRunningAxiosRequest", () => {
 
 describe("axiosStrategy", () => {
   describe("Proxy Requests", () => {
-    const store = {
-      state: {
-        postwoman: {
-          settings: {
-            PROXY_ENABLED: true,
-            PROXY_URL: "test",
-          },
-        },
-      },
-    }
-
     test("sends POST request to proxy if proxy is enabled", async () => {
       let passedURL
 
@@ -36,7 +36,7 @@ describe("axiosStrategy", () => {
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
 
-      await axiosStrategy({}, store)
+      await axiosStrategy({})
 
       expect(passedURL).toEqual("test")
     })
@@ -55,7 +55,7 @@ describe("axiosStrategy", () => {
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
 
-      await axiosStrategy(reqFields, store)
+      await axiosStrategy(reqFields)
 
       expect(passedFields).toMatchObject(reqFields)
     })
@@ -68,7 +68,7 @@ describe("axiosStrategy", () => {
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
 
-      await axiosStrategy({}, store)
+      await axiosStrategy({})
 
       expect(passedFields).toHaveProperty("wantsBinary")
     })
@@ -83,7 +83,7 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({}, store)).rejects.toThrow("test message")
+      await expect(axiosStrategy({})).rejects.toThrow("test message")
     })
 
     test("checks for proxy response success field and throws error 'Proxy Error' for non-success", async () => {
@@ -94,7 +94,7 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({}, store)).rejects.toThrow("Proxy Error")
+      await expect(axiosStrategy({})).rejects.toThrow("Proxy Error")
     })
 
     test("checks for proxy response success and doesn't throw for success", async () => {
@@ -105,7 +105,7 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({}, store)).resolves.toBeDefined()
+      await expect(axiosStrategy({})).resolves.toBeDefined()
     })
 
     test("checks isBinary response field and resolve with the converted value if so", async () => {
@@ -117,7 +117,7 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({}, store)).resolves.toMatchObject({
+      await expect(axiosStrategy({})).resolves.toMatchObject({
         data: "testdata-converted",
       })
     })
@@ -131,7 +131,7 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({}, store)).resolves.toMatchObject({
+      await expect(axiosStrategy({})).resolves.toMatchObject({
         data: "testdata",
       })
     })
@@ -140,14 +140,14 @@ describe("axiosStrategy", () => {
       jest.spyOn(axios, "post").mockRejectedValue("errr")
       jest.spyOn(axios, "isCancel").mockReturnValueOnce(true)
 
-      await expect(axiosStrategy({}, store)).rejects.toBe("cancellation")
+      await expect(axiosStrategy({})).rejects.toBe("cancellation")
     })
 
     test("non-cancellation errors are thrown", async () => {
       jest.spyOn(axios, "post").mockRejectedValue("errr")
       jest.spyOn(axios, "isCancel").mockReturnValueOnce(false)
 
-      await expect(axiosStrategy({}, store)).rejects.toBe("errr")
+      await expect(axiosStrategy({})).rejects.toBe("errr")
     })
   })
 })

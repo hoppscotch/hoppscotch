@@ -1,6 +1,8 @@
 import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
+import { ReplaySubject } from "rxjs"
+import { getSettingSubject, applySetting } from "~/newstore/settings"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -37,6 +39,41 @@ export class FirebaseInstance {
     this.currentCollections = []
     this.currentGraphqlCollections = []
     this.currentEnvironments = []
+
+    this.currentUser$ = new ReplaySubject(1)
+    this.idToken$ = new ReplaySubject(1)
+
+    let loadedSettings = false
+
+    getSettingSubject("syncCollections").subscribe((status) => {
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncCollections", status)
+      }
+    })
+
+    getSettingSubject("syncHistory").subscribe((status) => {
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncHistory", status)
+      }
+    })
+
+    getSettingSubject("syncEnvironments").subscribe((status) => {
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncEnvironments", status)
+      }
+    })
+
+    this.app.auth().onIdTokenChanged((user) => {
+      if (user) {
+        user.getIdToken().then((token) => {
+          this.idToken = token
+          this.idToken$.next(token)
+        })
+      } else {
+        this.idToken = null
+        this.idToken$.next(null)
+      }
+    })
 
     this.app.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -87,6 +124,14 @@ export class FirebaseInstance {
               settings.push(setting)
             })
             this.currentSettings = settings
+
+            settings.forEach((e) => {
+              if (e && e.name && e.value != null) {
+                applySetting(e.name, e.value)
+              }
+            })
+
+            loadedSettings = true
           })
 
         this.usersCollection

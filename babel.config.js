@@ -5,6 +5,7 @@ function isBabelLoader(caller) {
 module.exports = function (api) {
   if (api.env("test") && !api.caller(isBabelLoader)) {
     return {
+      plugins: ["@babel/plugin-proposal-class-properties"],
       presets: [
         [
           "@babel/preset-env",

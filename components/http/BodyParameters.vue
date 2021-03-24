@@ -27,12 +27,7 @@
           :placeholder="`key ${index + 1}`"
           :name="`bparam ${index}`"
           :value="param.key"
-          @change="
-            $store.commit('setKeyBodyParams', {
-              index,
-              value: $event.target.value,
-            })
-          "
+          @change="updateBodyParams($event, index, `setKeyBodyParams`)"
           @keyup.prevent="setRouteQueryState"
           autofocus
         />
@@ -45,10 +40,7 @@
           @change="
             // if input is form data, set value to be an array containing the value
             // only
-            $store.commit('setValueBodyParams', {
-              index,
-              value: $event.target.value,
-            })
+            updateBodyParams($event, index, `setValueBodyParams`)
           "
           @keyup.prevent="setRouteQueryState"
         />
@@ -184,6 +176,21 @@ export default {
         fileIndex,
       })
     },
+    updateBodyParams(event, index, type){
+      this.$store.commit(type, {
+        index,
+        value: event.target.value,
+      })
+      let rawParmas = {}
+        this.$store.state.request.bodyParams.forEach(_param=>{
+          rawParmas={
+            ...rawParmas,
+            [_param.key]:_param.value
+          }
+        })
+        const rawParamsStr = JSON.stringify(rawParmas,null,2)
+        this.$store.commit("setState", { value: rawParamsStr, attribute: "rawParams" })
+    }
   },
   computed: {
     contentType() {

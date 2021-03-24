@@ -4,12 +4,9 @@
  ** Docs: https://tailwindcss.com/docs/configuration
  ** Default: https://github.com/tailwindcss/tailwindcss/blob/master/stubs/defaultConfig.stub.js
  */
-module.exports = {
-  future: {
-    removeDeprecatedGapUtilities: true,
-    purgeLayersByDefault: true,
-  },
-  experimental: "all",
+import colors from "tailwindcss/colors"
+
+export default {
   dark: "class",
   corePlugins: {
     float: false,
@@ -33,6 +30,15 @@ module.exports = {
         acColor: "var(--ac-color)",
         actColor: "var(--act-color)",
         ttColor: "var(--tt-color)",
+        blue: colors.blue,
+        green: colors.green,
+        teal: colors.teal,
+        indigo: colors.indigo,
+        purple: colors.purple,
+        orange: colors.orange,
+        pink: colors.pink,
+        red: colors.red,
+        yellow: colors.yellow,
       },
     },
     fontFamily: {
@@ -44,8 +50,6 @@ module.exports = {
   variants: {},
   plugins: [],
   purge: {
-    // Learn more on https://tailwindcss.com/docs/controlling-file-size/#removing-unused-css
-    enabled: process.env.NODE_ENV === "production",
     content: [
       "components/**/*.vue",
       "layouts/**/*.vue",
@@ -53,9 +57,5 @@ module.exports = {
       "plugins/**/*.js",
       "nuxt.config.js",
     ],
-    // These options are passed through directly to PurgeCSS
-    options: {
-      whitelistPatterns: [/^bg-/, /^text-/, /^border-/, /^h-/, /^w-/, /^hover:/],
-    },
   },
 }

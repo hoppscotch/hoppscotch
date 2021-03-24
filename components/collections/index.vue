@@ -1,5 +1,5 @@
 <template>
-  <AppSection class="yellow" :label="$t('collections')" ref="collections" no-legend>
+  <AppSection :label="$t('collections')" ref="collections" no-legend>
     <div class="show-on-large-screen">
       <input
         aria-label="Search"
@@ -87,6 +87,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
@@ -109,6 +110,11 @@ export default {
       editingRequest: undefined,
       editingRequestIndex: undefined,
       filterText: "",
+    }
+  },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   computed: {
@@ -199,9 +205,11 @@ export default {
       this.syncCollections()
     },
     onAddFolder({ name, path }) {
+      const flag = "rest"
       this.$store.commit("postwoman/addFolder", {
         name,
         path,
+        flag,
       })
 
       this.displayModalAddFolder(false)
@@ -240,10 +248,11 @@ export default {
       this.$data.editingRequestIndex = undefined
     },
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
   },

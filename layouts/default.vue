@@ -14,6 +14,9 @@
 </template>
 
 <script>
+import { setupLocalPersistence } from "~/newstore/localpersistence"
+import { performMigrations } from "~/helpers/migrations"
+
 export default {
   beforeMount() {
     let color = localStorage.getItem("THEME_COLOR") || "green"
@@ -23,6 +26,9 @@ export default {
     if (process.client) {
       document.body.classList.add("afterLoad")
     }
+
+    performMigrations()
+
     console.log(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
@@ -52,6 +58,8 @@ export default {
         }
       })
     }
+
+    setupLocalPersistence()
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

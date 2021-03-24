@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper', dragging ? 'drag-el' : '']"
+      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
@@ -61,6 +61,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
@@ -84,12 +85,18 @@ export default {
       confirmRemove: false,
     }
   },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+    }
+  },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     selectRequest() {
@@ -107,6 +114,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
+        flag: "rest",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

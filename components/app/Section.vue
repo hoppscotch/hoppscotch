@@ -1,5 +1,5 @@
 <template>
-  <fieldset :id="label.toLowerCase()" :class="{ 'no-colored-frames': !frameColorsEnabled }">
+  <fieldset :id="label.toLowerCase()">
     <legend v-if="!noLegend" @click.prevent="collapse">
       <span>{{ label }}</span>
       <i class="ml-2 align-middle material-icons">
@@ -20,6 +20,7 @@ fieldset {
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
+  @apply w-full;
 
   legend {
     @apply px-4;
@@ -30,56 +31,18 @@ fieldset {
     @apply ease-in-out;
     @apply duration-150;
   }
-
-  &.blue legend {
-    @apply text-blue-400;
-  }
-
-  &.green legend {
-    @apply text-green-400;
-  }
-
-  &.teal legend {
-    @apply text-teal-400;
-  }
-
-  &.purple legend {
-    @apply text-purple-400;
-  }
-
-  &.orange legend {
-    @apply text-orange-400;
-  }
-
-  &.pink legend {
-    @apply text-pink-400;
-  }
-
-  &.red legend {
-    @apply text-red-400;
-  }
-
-  &.yellow legend {
-    @apply text-yellow-400;
-  }
-}
-
-fieldset.no-colored-frames legend {
-  @apply text-fgColor;
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue"
+
+export default Vue.extend({
   computed: {
-    frameColorsEnabled() {
-      return this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false
-    },
-    sectionString() {
+    sectionString(): string {
       return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },
   },
-
   props: {
     label: {
       type: String,
@@ -96,9 +59,9 @@ export default {
       // Save collapsed section into the collapsedSections array
       this.$store.commit("setCollapsedSection", this.sectionString)
     },
-    isCollapsed(label) {
+    isCollapsed(_label: string) {
       return this.$store.state.theme.collapsedSections.includes(this.sectionString) || false
     },
   },
-}
+})
 </script>

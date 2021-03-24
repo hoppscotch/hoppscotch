@@ -34,14 +34,15 @@ fieldset {
 }
 </style>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue"
+
+export default Vue.extend({
   computed: {
-    sectionString() {
+    sectionString(): string {
       return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },
   },
-
   props: {
     label: {
       type: String,
@@ -58,9 +59,9 @@ export default {
       // Save collapsed section into the collapsedSections array
       this.$store.commit("setCollapsedSection", this.sectionString)
     },
-    isCollapsed(label) {
+    isCollapsed(_label: string) {
       return this.$store.state.theme.collapsedSections.includes(this.sectionString) || false
     },
   },
-}
+})
 </script>

@@ -449,6 +449,7 @@ import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 import { getSettingSubject } from "~/newstore/settings"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {

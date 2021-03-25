@@ -182,7 +182,9 @@ export default {
         value: event.target.value,
       })
       let rawParmas = {}
-        this.$store.state.request.bodyParams.forEach(_param=>{
+        this.$store.state.request.bodyParams
+        .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+        .forEach(_param=>{
           rawParmas={
             ...rawParmas,
             [_param.key]:_param.value

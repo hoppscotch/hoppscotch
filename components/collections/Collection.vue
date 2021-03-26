@@ -169,7 +169,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
+      const flag = this.$props.type
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,

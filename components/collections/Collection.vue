@@ -63,6 +63,7 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsFolder
+            :type="type"
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
@@ -82,6 +83,7 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsRequest
+            :type="type"
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
@@ -118,6 +120,7 @@ import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
+    type: String,
     collectionIndex: Number,
     collection: Object,
     doc: Boolean,
@@ -140,8 +143,10 @@ export default {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
         fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
+          this.$props.type == "rest"
+            ? JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+            : JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+          this.$props.type == "rest" ? "collections" : "collectionsGraphql"
         )
       }
     },
@@ -151,7 +156,7 @@ export default {
     removeCollection() {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
-        flag: "rest",
+        flag: this.$props.type,
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

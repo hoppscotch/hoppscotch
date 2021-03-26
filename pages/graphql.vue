@@ -424,7 +424,8 @@
         </SmartTabs>
       </aside>
     </div>
-    <CollectionsGraphqlSaveRequest
+    <CollectionsSaveRequest
+      :type="'graphql'"
       :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
       :editing-request="editRequest"

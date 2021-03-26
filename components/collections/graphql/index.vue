@@ -9,28 +9,31 @@
         class="rounded-t-lg"
       />
     </div>
-    <CollectionsGraphqlAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
-    <CollectionsGraphqlEdit
+    <CollectionsAdd :type="'graphql'" :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsEdit
+      :type="'graphql'"
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
       @hide-modal="displayModalEdit(false)"
     />
-    <CollectionsGraphqlAddFolder
+    <CollectionsAddFolder
       :show="showModalAddFolder"
       :folder="editingFolder"
       :folder-path="editingFolderPath"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
     />
-    <CollectionsGraphqlEditFolder
+    <CollectionsEditFolder
+      :type="'graphql'"
       :show="showModalEditFolder"
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
       @hide-modal="displayModalEditFolder(false)"
     />
-    <CollectionsGraphqlEditRequest
+    <CollectionsEditRequest
+      :type="'graphql'"
       :show="showModalEditRequest"
       :collection-index="editingCollectionIndex"
       :folder-index="editingFolderIndex"
@@ -39,7 +42,8 @@
       :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
     />
-    <CollectionsGraphqlImportExport
+    <CollectionsImportExport
+      :type="'graphql'"
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -58,7 +62,8 @@
     <div class="virtual-list">
       <ul class="flex-col">
         <li v-for="(collection, index) in filteredCollections" :key="collection.name">
-          <CollectionsGraphqlCollection
+          <CollectionsCollection
+            :type="'graphql'"
             :name="collection.name"
             :collection-index="index"
             :collection="collection"

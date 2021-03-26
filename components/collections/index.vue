@@ -9,8 +9,9 @@
         class="rounded-t-lg"
       />
     </div>
-    <CollectionsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsAdd :type="'rest'" :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <CollectionsEdit
+      :type="'rest'"
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
@@ -24,6 +25,7 @@
       @hide-modal="displayModalAddFolder(false)"
     />
     <CollectionsEditFolder
+      :type="'rest'"
       :show="showModalEditFolder"
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
@@ -31,6 +33,7 @@
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsEditRequest
+      :type="'rest'"
       :show="showModalEditRequest"
       :collection-index="editingCollectionIndex"
       :folder-index="editingFolderIndex"
@@ -40,6 +43,7 @@
       @hide-modal="displayModalEditRequest(false)"
     />
     <CollectionsImportExport
+      :type="'rest'"
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
@@ -59,6 +63,7 @@
       <ul class="flex-col">
         <li v-for="(collection, index) in filteredCollections" :key="collection.name">
           <CollectionsCollection
+            :type="'rest'"
             :name="collection.name"
             :collection-index="index"
             :collection="collection"

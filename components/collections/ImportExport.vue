@@ -126,6 +126,7 @@ export default {
     SYNC_COLLECTIONS: getSettingSubject("syncCollections")
   },
   props: {
+    type: String,
     show: Boolean,
   },
   computed: {
@@ -176,7 +177,10 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
+          this.$store.commit("postwoman/replaceCollections", {
+            data: collections,
+            flag: this.$props.type,
+          })
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -210,7 +214,10 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
+        this.$store.commit("postwoman/replaceCollections", {
+          data: collections,
+          flag: this.$props.type,
+        })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -235,7 +242,10 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
+        this.$store.commit("postwoman/importCollections", {
+          data: collections,
+          flag: this.$props.type,
+        })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -263,15 +273,17 @@ export default {
     syncCollections() {
       this.$store.commit("postwoman/replaceCollections", {
         data: fb.currentCollections,
-        flag: "rest",
+        flag: this.$props.type,
       })
       this.fileImported()
     },
     syncToFBCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
         fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
+          this.$props.type == "rest"
+            ? JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
+            : JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+          this.$props.type == "rest" ? "collections" : "collectionsGraphql"
         )
       }
     },

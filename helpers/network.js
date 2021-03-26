@@ -3,26 +3,25 @@ import ExtensionStrategy, {
   cancelRunningExtensionRequest,
   hasExtensionInstalled,
 } from "./strategies/ExtensionStrategy"
+import { settingsStore } from "~/newstore/settings"
 
-export const cancelRunningRequest = (store) => {
-  if (isExtensionsAllowed(store) && hasExtensionInstalled()) {
+export const cancelRunningRequest = () => {
+  if (isExtensionsAllowed() && hasExtensionInstalled()) {
     cancelRunningExtensionRequest()
   } else {
     cancelRunningAxiosRequest()
   }
 }
 
-const isExtensionsAllowed = ({ state }) =>
-  typeof state.postwoman.settings.EXTENSIONS_ENABLED === "undefined" ||
-  state.postwoman.settings.EXTENSIONS_ENABLED
+const isExtensionsAllowed = () => settingsStore.value.EXTENSIONS_ENABLED
 
-const runAppropriateStrategy = (req, store) => {
-  if (isExtensionsAllowed(store) && hasExtensionInstalled()) {
-    return ExtensionStrategy(req, store)
+const runAppropriateStrategy = (req) => {
+  if (isExtensionsAllowed() && hasExtensionInstalled()) {
+    return ExtensionStrategy(req)
   }
 
-  return AxiosStrategy(req, store)
+  return AxiosStrategy(req)
 }
 
-export const sendNetworkRequest = (req, store) =>
-  runAppropriateStrategy(req, store).finally(() => window.$nuxt.$loading.finish())
+export const sendNetworkRequest = (req) =>
+  runAppropriateStrategy(req).finally(() => window.$nuxt.$loading.finish())

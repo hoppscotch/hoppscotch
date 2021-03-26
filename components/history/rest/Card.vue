@@ -2,7 +2,7 @@
   <div>
     <div class="show-on-large-screen">
       <span
-        class="p-2 m-2"
+        class="p-2 m-2 truncate"
         :class="entryStatus.className"
         :style="{ '--status-code': entry.status }"
       >

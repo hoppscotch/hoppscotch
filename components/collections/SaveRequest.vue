@@ -71,6 +71,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
@@ -86,6 +87,11 @@ export default {
         folderName: undefined,
         requestIndex: undefined,
       },
+    }
+  },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   watch: {
@@ -144,13 +150,11 @@ export default {
   },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     saveRequestAs() {

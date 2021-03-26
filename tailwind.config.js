@@ -4,7 +4,9 @@
  ** Docs: https://tailwindcss.com/docs/configuration
  ** Default: https://github.com/tailwindcss/tailwindcss/blob/master/stubs/defaultConfig.stub.js
  */
-module.exports = {
+import colors from "tailwindcss/colors"
+
+export default {
   dark: "class",
   corePlugins: {
     float: false,
@@ -28,6 +30,15 @@ module.exports = {
         acColor: "var(--ac-color)",
         actColor: "var(--act-color)",
         ttColor: "var(--tt-color)",
+        blue: colors.blue,
+        green: colors.green,
+        teal: colors.teal,
+        indigo: colors.indigo,
+        purple: colors.purple,
+        orange: colors.orange,
+        pink: colors.pink,
+        red: colors.red,
+        yellow: colors.yellow,
       },
     },
     fontFamily: {

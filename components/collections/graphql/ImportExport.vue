@@ -172,7 +172,10 @@ export default {
         })
         .then(({ files }) => {
           let collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
+          this.$store.commit("postwoman/replaceCollections", {
+            data: collections,
+            collectionType: "graphql",
+          })
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -206,7 +209,10 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "graphql" })
+        this.$store.commit("postwoman/replaceCollections", {
+          data: collections,
+          collectionType: "graphql",
+        })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -231,7 +237,10 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/importCollections", { data: collections, flag: "graphql" })
+        this.$store.commit("postwoman/importCollections", {
+          data: collections,
+          collectionType: "graphql",
+        })
         this.fileImported()
         this.syncToFBCollections()
       }
@@ -259,7 +268,7 @@ export default {
     syncCollections() {
       this.$store.commit("postwoman/replaceCollections", {
         data: fb.currentGraphqlCollections,
-        flag: "graphql",
+        collectionType: "graphql",
       })
       this.fileImported()
     },

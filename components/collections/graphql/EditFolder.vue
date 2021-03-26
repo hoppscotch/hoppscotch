@@ -68,7 +68,7 @@ export default {
         folder: { ...this.$props.folder, name: this.$data.name },
         folderIndex: this.$props.folderIndex,
         folderName: this.$props.folder.name,
-        flag: "graphql",
+        collectionType: "graphql",
       })
       this.hideModal()
       this.syncCollections()

@@ -85,7 +85,7 @@ export default {
         requestFolderIndex: this.$props.folderIndex,
         requestNew: requestUpdated,
         requestIndex: this.$props.requestIndex,
-        flag: this.$props.type,
+        collectionType: this.$props.type,
       })
 
       this.hideModal()

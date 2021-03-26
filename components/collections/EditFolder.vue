@@ -75,7 +75,7 @@ export default {
         folder: { ...this.$props.folder, name: this.$data.name },
         folderIndex: this.$props.folderIndex,
         folderName: this.$props.folder.name,
-        flag: this.$props.type,
+        collectionType: this.$props.type,
       })
       this.hideModal()
       this.syncCollections()

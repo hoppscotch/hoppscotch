@@ -73,7 +73,7 @@ export default {
       this.$store.commit("postwoman/editCollection", {
         collection: collectionUpdated,
         collectionIndex: this.$props.editingCollectionIndex,
-        flag: "graphql",
+        collectionType: "graphql",
       })
       this.$emit("hide-modal")
       this.syncCollections()

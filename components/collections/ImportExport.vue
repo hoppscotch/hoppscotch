@@ -179,7 +179,7 @@ export default {
           let collections = JSON.parse(Object.values(files)[0].content)
           this.$store.commit("postwoman/replaceCollections", {
             data: collections,
-            flag: this.$props.type,
+            collectionType: this.$props.type,
           })
           this.fileImported()
           this.syncToFBCollections()
@@ -216,7 +216,7 @@ export default {
         }
         this.$store.commit("postwoman/replaceCollections", {
           data: collections,
-          flag: this.$props.type,
+          collectionType: this.$props.type,
         })
         this.fileImported()
         this.syncToFBCollections()
@@ -244,7 +244,7 @@ export default {
         }
         this.$store.commit("postwoman/importCollections", {
           data: collections,
-          flag: this.$props.type,
+          collectionType: this.$props.type,
         })
         this.fileImported()
         this.syncToFBCollections()
@@ -273,7 +273,7 @@ export default {
     syncCollections() {
       this.$store.commit("postwoman/replaceCollections", {
         data: fb.currentCollections,
-        flag: this.$props.type,
+        collectionType: this.$props.type,
       })
       this.fileImported()
     },

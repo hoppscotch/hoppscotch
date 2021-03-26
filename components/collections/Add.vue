@@ -74,7 +74,7 @@ export default {
       }
       this.$store.commit("postwoman/addNewCollection", {
         name: this.$data.name,
-        flag: this.$props.type,
+        collectionType: this.$props.type,
       })
       this.$emit("hide-modal")
       this.syncCollections()

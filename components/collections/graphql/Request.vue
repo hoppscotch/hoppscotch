@@ -102,7 +102,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
-        flag: "graphql",
+        collectionType: "graphql",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",

@@ -80,7 +80,7 @@ export default {
       this.$store.commit("postwoman/editCollection", {
         collection: collectionUpdated,
         collectionIndex: this.$props.editingCollectionIndex,
-        flag: this.$props.type,
+        collectionType: this.$props.type,
       })
       this.$emit("hide-modal")
       this.syncCollections()

@@ -156,7 +156,7 @@ export default {
     removeCollection() {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
-        flag: this.$props.type,
+        collectionType: this.$props.type,
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -169,7 +169,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = this.$props.type
+      const collectionType = this.$props.type
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,
@@ -178,7 +178,7 @@ export default {
         oldFolderIndex,
         oldFolderName,
         requestIndex,
-        flag,
+        collectionType,
       })
       this.syncCollections()
     },

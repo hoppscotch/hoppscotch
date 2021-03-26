@@ -179,7 +179,7 @@ export default {
         collectionIndex: this.$data.requestData.collectionIndex,
         folderName: this.$data.requestData.folderName,
         requestIndex: this.$data.requestData.requestIndex,
-        flag: "graphql",
+        collectionType: "graphql",
       })
 
       this.hideModal()

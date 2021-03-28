@@ -1,5 +1,5 @@
 <template>
-  <AppSection class="pink" :label="$t('notes')" ref="sync" no-legend>
+  <AppSection :label="$t('notes')" ref="sync" no-legend>
     <div v-if="fb.currentUser">
       <FirebaseInputform />
       <FirebaseFeeds />

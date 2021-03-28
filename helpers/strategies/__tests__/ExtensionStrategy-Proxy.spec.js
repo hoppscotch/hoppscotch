@@ -10,6 +10,19 @@ jest.mock("../../utils/b64", () => ({
   decodeB64StringToArrayBuffer: jest.fn((data) => `${data}-converted`),
 }))
 
+jest.mock("~/newstore/settings", () => {
+  return {
+    __esModule: true,
+    settingsStore: {
+      value: {
+        EXTENSIONS_ENABLED: true,
+        PROXY_ENABLED: true,
+        PROXY_URL: "test"
+      }
+    }
+  }
+})
+
 describe("hasExtensionInstalled", () => {
   test("returns true if extension is present and hooked", () => {
     global.__POSTWOMAN_EXTENSION_HOOK__ = {}
@@ -127,16 +140,6 @@ describe("extensionStrategy", () => {
   })
 
   describe("Proxy Requests", () => {
-    const store = {
-      state: {
-        postwoman: {
-          settings: {
-            PROXY_ENABLED: true,
-            PROXY_URL: "testURL",
-          },
-        },
-      },
-    }
 
     test("asks extension to send request", async () => {
       global.__POSTWOMAN_EXTENSION_HOOK__ = {
@@ -147,7 +150,7 @@ describe("extensionStrategy", () => {
         data: '{"success":true,"data":""}',
       })
 
-      await extensionStrategy({}, store)
+      await extensionStrategy({})
 
       expect(sendReqFunc).toHaveBeenCalledTimes(1)
     })
@@ -169,9 +172,9 @@ describe("extensionStrategy", () => {
         })
       })
 
-      await extensionStrategy({}, store)
+      await extensionStrategy({})
 
-      expect(passedUrl).toEqual(store.state.postwoman.settings.PROXY_URL)
+      expect(passedUrl).toEqual("test")
       expect(passedMethod).toEqual("post")
     })
 
@@ -196,7 +199,7 @@ describe("extensionStrategy", () => {
         })
       })
 
-      await extensionStrategy(reqFields, store)
+      await extensionStrategy(reqFields)
 
       expect(passedFields).toMatchObject(reqFields)
     })
@@ -216,7 +219,7 @@ describe("extensionStrategy", () => {
         })
       })
 
-      await extensionStrategy({}, store)
+      await extensionStrategy({})
 
       expect(passedFields).toHaveProperty("wantsBinary")
     })
@@ -230,7 +233,7 @@ describe("extensionStrategy", () => {
         data: '{"success":false,"data": { "message": "testerr" } }',
       })
 
-      await expect(extensionStrategy({}, store)).rejects.toThrow("testerr")
+      await expect(extensionStrategy({})).rejects.toThrow("testerr")
     })
 
     test("checks for proxy response success field and throws error 'Proxy Error' for non-success", async () => {
@@ -242,7 +245,7 @@ describe("extensionStrategy", () => {
         data: '{"success":false,"data": {} }',
       })
 
-      await expect(extensionStrategy({}, store)).rejects.toThrow("Proxy Error")
+      await expect(extensionStrategy({})).rejects.toThrow("Proxy Error")
     })
 
     test("checks for proxy response success and doesn't throw for success", async () => {
@@ -254,7 +257,7 @@ describe("extensionStrategy", () => {
         data: '{"success":true,"data": {} }',
       })
 
-      await expect(extensionStrategy({}, store)).resolves.toBeDefined()
+      await expect(extensionStrategy({})).resolves.toBeDefined()
     })
 
     test("checks isBinary response field and resolve with the converted value if so", async () => {
@@ -266,7 +269,7 @@ describe("extensionStrategy", () => {
         data: '{"success": true, "isBinary": true, "data": "testdata" }',
       })
 
-      await expect(extensionStrategy({}, store)).resolves.toMatchObject({
+      await expect(extensionStrategy({})).resolves.toMatchObject({
         data: "testdata-converted",
       })
     })
@@ -280,7 +283,7 @@ describe("extensionStrategy", () => {
         data: '{"success": true, "isBinary": false, "data": "testdata" }',
       })
 
-      await expect(extensionStrategy({}, store)).resolves.toMatchObject({
+      await expect(extensionStrategy({})).resolves.toMatchObject({
         data: "testdata",
       })
     })
@@ -292,96 +295,7 @@ describe("extensionStrategy", () => {
 
       sendReqFunc.mockRejectedValue("err")
 
-      await expect(extensionStrategy({}, store)).rejects.toBe("err")
-    })
-  })
-
-  describe("Non-Proxy Requests", () => {
-    const store = {
-      state: {
-        postwoman: {
-          settings: {
-            PROXY_ENABLED: false,
-            PROXY_URL: "testURL",
-          },
-        },
-      },
-    }
-
-    test("ask extension to send request", async () => {
-      global.__POSTWOMAN_EXTENSION_HOOK__ = {
-        sendRequest: sendReqFunc,
-      }
-
-      sendReqFunc.mockResolvedValue({
-        data: '{"success":true,"data":""}',
-      })
-
-      await extensionStrategy({}, store)
-
-      expect(sendReqFunc).toHaveBeenCalledTimes(1)
-    })
-
-    test("sends request to the actual sender if proxy disabled", async () => {
-      let passedUrl
-
-      global.__POSTWOMAN_EXTENSION_HOOK__ = {
-        sendRequest: sendReqFunc,
-      }
-
-      sendReqFunc.mockImplementation(({ method, url }) => {
-        passedUrl = url
-
-        return Promise.resolve({
-          data: '{"success":true,"data":""}',
-        })
-      })
-
-      await extensionStrategy({ url: "test" }, store)
-
-      expect(passedUrl).toEqual("test")
-    })
-
-    test("asks extension to get binary data", async () => {
-      let passedFields
-
-      global.__POSTWOMAN_EXTENSION_HOOK__ = {
-        sendRequest: sendReqFunc,
-      }
-
-      sendReqFunc.mockImplementation((fields) => {
-        passedFields = fields
-
-        return Promise.resolve({
-          data: '{"success":true,"data":""}',
-        })
-      })
-
-      await extensionStrategy({}, store)
-
-      expect(passedFields).toHaveProperty("wantsBinary")
-    })
-
-    test("resolves successful requests", async () => {
-      global.__POSTWOMAN_EXTENSION_HOOK__ = {
-        sendRequest: sendReqFunc,
-      }
-
-      sendReqFunc.mockResolvedValue({
-        data: '{"success":true,"data":""}',
-      })
-
-      await expect(extensionStrategy({}, store)).resolves.toBeDefined()
-    })
-
-    test("rejects errors as-is", async () => {
-      global.__POSTWOMAN_EXTENSION_HOOK__ = {
-        sendRequest: sendReqFunc,
-      }
-
-      sendReqFunc.mockRejectedValue("err")
-
-      await expect(extensionStrategy({}, store)).rejects.toBe("err")
+      await expect(extensionStrategy({})).rejects.toBe("err")
     })
   })
 })

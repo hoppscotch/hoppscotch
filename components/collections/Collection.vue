@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper', dragging ? 'drop-zone' : '']"
+      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -114,6 +114,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
@@ -130,12 +131,18 @@ export default {
       confirmRemove: false,
     }
   },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+    }
+  },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     toggleShowChildren() {
@@ -144,6 +151,7 @@ export default {
     removeCollection() {
       this.$store.commit("postwoman/removeCollection", {
         collectionIndex: this.collectionIndex,
+        flag: "rest",
       })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
@@ -156,6 +164,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
+      const flag = "rest"
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,
@@ -164,6 +173,7 @@ export default {
         oldFolderIndex,
         oldFolderName,
         requestIndex,
+        flag,
       })
       this.syncCollections()
     },

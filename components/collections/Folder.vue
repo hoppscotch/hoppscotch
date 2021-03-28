@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper', dragging ? 'drop-zone' : '']"
+      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -52,23 +52,6 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col">
-        <li
-          v-for="(request, index) in folder.requests"
-          :key="index"
-          class="flex ml-8 border-l border-brdColor"
-        >
-          <CollectionsRequest
-            :request="request"
-            :collection-index="collectionIndex"
-            :folder-index="folderIndex"
-            :folder-name="folder.name"
-            :request-index="index"
-            :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
-          />
-        </li>
-      </ul>
       <ul v-if="folder.folders && folder.folders.length" class="flex-col">
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
@@ -83,6 +66,23 @@
             :folder-path="`${folderPath}/${subFolderIndex}`"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
+            @edit-request="$emit('edit-request', $event)"
+          />
+        </li>
+      </ul>
+      <ul class="flex-col">
+        <li
+          v-for="(request, index) in folder.requests"
+          :key="index"
+          class="flex ml-8 border-l border-brdColor"
+        >
+          <CollectionsRequest
+            :request="request"
+            :collection-index="collectionIndex"
+            :folder-index="folderIndex"
+            :folder-name="folder.name"
+            :request-index="index"
+            :doc="doc"
             @edit-request="$emit('edit-request', $event)"
           />
         </li>
@@ -111,6 +111,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   name: "folder",
@@ -129,12 +130,18 @@ export default {
       confirmRemove: false,
     }
   },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+    }
+  },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     toggleShowChildren() {
@@ -145,6 +152,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folder.name,
         folderIndex: this.$props.folderIndex,
+        flag: "rest",
       })
       this.syncCollections()
       this.$toast.error(this.$t("deleted"), {
@@ -157,6 +165,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
+      const flag = "rest"
 
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
@@ -166,6 +175,7 @@ export default {
         oldFolderIndex,
         oldFolderName,
         requestIndex,
+        flag,
       })
       this.syncCollections()
     },

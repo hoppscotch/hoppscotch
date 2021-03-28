@@ -1,6 +1,8 @@
 import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
+import { ReplaySubject } from "rxjs"
+import { getSettingSubject, applySetting } from "~/newstore/settings"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -13,6 +15,9 @@ const firebaseConfig = {
   appId: process.env.APP_ID || "1:421993993223:web:ec0baa8ee8c02ffa1fc6a2",
   measurementId: process.env.MEASUREMENT_ID || "G-ERJ6025CEB",
 }
+
+const historyLimit = 50
+const graphqlHistoryLimit = 50
 
 export const authProviders = {
   google: () => new firebase.auth.GoogleAuthProvider(),
@@ -30,8 +35,45 @@ export class FirebaseInstance {
     this.currentFeeds = []
     this.currentSettings = []
     this.currentHistory = []
+    this.currentGraphqlHistory = []
     this.currentCollections = []
+    this.currentGraphqlCollections = []
     this.currentEnvironments = []
+
+    this.currentUser$ = new ReplaySubject(1)
+    this.idToken$ = new ReplaySubject(1)
+
+    let loadedSettings = false
+
+    getSettingSubject("syncCollections").subscribe((status) => {
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncCollections", status)
+      }
+    })
+
+    getSettingSubject("syncHistory").subscribe((status) => {
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncHistory", status)
+      }
+    })
+
+    getSettingSubject("syncEnvironments").subscribe((status) => {
+      if (this.currentUser && loadedSettings) {
+        this.writeSettings("syncEnvironments", status)
+      }
+    })
+
+    this.app.auth().onIdTokenChanged((user) => {
+      if (user) {
+        user.getIdToken().then((token) => {
+          this.idToken = token
+          this.idToken$.next(token)
+        })
+      } else {
+        this.idToken = null
+        this.idToken$.next(null)
+      }
+    })
 
     this.app.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -82,11 +124,21 @@ export class FirebaseInstance {
               settings.push(setting)
             })
             this.currentSettings = settings
+
+            settings.forEach((e) => {
+              if (e && e.name && e.value != null) {
+                applySetting(e.name, e.value)
+              }
+            })
+
+            loadedSettings = true
           })
 
         this.usersCollection
           .doc(this.currentUser.uid)
           .collection("history")
+          .orderBy("updatedOn", "desc")
+          .limit(historyLimit)
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {
@@ -95,6 +147,21 @@ export class FirebaseInstance {
               history.push(entry)
             })
             this.currentHistory = history
+          })
+
+        this.usersCollection
+          .doc(this.currentUser.uid)
+          .collection("graphqlHistory")
+          .orderBy("updatedOn", "desc")
+          .limit(graphqlHistoryLimit)
+          .onSnapshot((historyRef) => {
+            const history = []
+            historyRef.forEach((doc) => {
+              const entry = doc.data()
+              entry.id = doc.id
+              history.push(entry)
+            })
+            this.currentGraphqlHistory = history
           })
 
         this.usersCollection
@@ -109,6 +176,21 @@ export class FirebaseInstance {
             })
             if (collections.length > 0) {
               this.currentCollections = collections[0].collection
+            }
+          })
+
+        this.usersCollection
+          .doc(this.currentUser.uid)
+          .collection("collectionsGraphql")
+          .onSnapshot((collectionsRef) => {
+            const collections = []
+            collectionsRef.forEach((doc) => {
+              const collection = doc.data()
+              collection.id = doc.id
+              collections.push(collection)
+            })
+            if (collections.length > 0) {
+              this.currentGraphqlCollections = collections[0].collection
             }
           })
 
@@ -215,11 +297,35 @@ export class FirebaseInstance {
     }
   }
 
+  async writeGraphqlHistory(entry) {
+    const hs = entry
+
+    try {
+      await this.usersCollection.doc(this.currentUser.uid).collection("graphqlHistory").add(hs)
+    } catch (e) {
+      console.error("error inserting", hs, e)
+      throw e
+    }
+  }
+
   async deleteHistory(entry) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("history")
+        .doc(entry.id)
+        .delete()
+    } catch (e) {
+      console.error("error deleting", entry, e)
+      throw e
+    }
+  }
+
+  async deleteGraphqlHistory(entry) {
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
         .doc(entry.id)
         .delete()
     } catch (e) {
@@ -237,6 +343,15 @@ export class FirebaseInstance {
     await Promise.all(docs.map((e) => this.deleteHistory(e)))
   }
 
+  async clearGraphqlHistory() {
+    const { docs } = await this.usersCollection
+      .doc(this.currentUser.uid)
+      .collection("graphqlHistory")
+      .get()
+
+    await Promise.all(docs.map((e) => this.deleteGraphqlHistory(e)))
+  }
+
   async toggleStar(entry, value) {
     try {
       await this.usersCollection
@@ -251,7 +366,21 @@ export class FirebaseInstance {
     }
   }
 
-  async writeCollections(collection) {
+  async toggleGraphqlHistoryStar(entry, value) {
+    try {
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
+        .doc(entry.id)
+        .update({ star: value })
+    } catch (e) {
+      console.error("error deleting", entry, e)
+
+      throw e
+    }
+  }
+
+  async writeCollections(collection, flag) {
     const cl = {
       updatedOn: new Date(),
       author: this.currentUser.uid,
@@ -261,11 +390,7 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection
-        .doc(this.currentUser.uid)
-        .collection("collections")
-        .doc("sync")
-        .set(cl)
+      await this.usersCollection.doc(this.currentUser.uid).collection(flag).doc("sync").set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
 

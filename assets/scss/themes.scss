@@ -88,6 +88,11 @@
   --ac-color: theme("colors.teal.400");
 }
 
+@mixin indigoTheme {
+  // Acent color
+  --ac-color: theme("colors.indigo.400");
+}
+
 @mixin purpleTheme {
   // Acent color
   --ac-color: theme("colors.purple.400");
@@ -139,6 +144,9 @@
 }
 :root[data-accent="teal"] {
   @include tealTheme;
+}
+:root[data-accent="indigo"] {
+  @include indigoTheme;
 }
 :root[data-accent="purple"] {
   @include purpleTheme;

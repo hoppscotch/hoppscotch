@@ -135,6 +135,10 @@ export default {
     oauth2[attribute] = value
   },
 
+  updateOAuth2(state, value) {
+    state.oauth2 = value
+  },
+
   addOAuthToken({ oauth2 }, value) {
     oauth2.tokens.push(value)
   },
@@ -147,8 +151,8 @@ export default {
     oauth2.tokens[index].name = value
   },
 
-  addOAuthTokenReq({ oauth2 }, value) {
-    oauth2.tokenReqs.push(value)
+  addOAuthTokenReq(state, value) {
+    state.oauth2.tokenReqs.push(value)
   },
 
   removeOAuthTokenReq({ oauth2 }, index) {

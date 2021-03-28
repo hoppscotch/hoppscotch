@@ -374,7 +374,12 @@
                       id="token-name"
                       :placeholder="$t('optional')"
                       name="token_name"
-                      v-model="accessTokenName"
+                      :value="oauth2.accessTokenName"
+                      @change="
+                        ($event) => {
+                          this.oauth2 = { ...this.oauth2, accessTokenName: $event.target.value }
+                        }
+                      "
                       type="text"
                     />
                   </li>
@@ -385,11 +390,16 @@
                       {{ $t("oidc_discovery_url") }}
                     </label>
                     <input
-                      :disabled="this.authUrl !== '' || this.accessTokenUrl !== ''"
+                      :disabled="this.oauth2.authUrl !== '' || this.oauth2.accessTokenUrl !== ''"
                       id="oidc-discovery-url"
                       name="oidc_discovery_url"
                       type="url"
-                      v-model="oidcDiscoveryUrl"
+                      :value="oauth2.oidcDiscoveryUrl"
+                      @change="
+                        ($event) => {
+                          this.oauth2 = { ...this.oauth2, oidcDiscoveryUrl: $event.target.value }
+                        }
+                      "
                       placeholder="https://example.com/.well-known/openid-configuration"
                     />
                   </li>
@@ -398,11 +408,16 @@
                   <li>
                     <label for="auth-url">{{ $t("auth_url") }}</label>
                     <input
-                      :disabled="this.oidcDiscoveryUrl !== ''"
+                      :disabled="this.oauth2.oidcDiscoveryUrl !== ''"
                       id="auth-url"
                       name="auth_url"
                       type="url"
-                      v-model="authUrl"
+                      :value="oauth2.authUrl"
+                      @click="
+                        ($event) => {
+                          this.oauth2 = { ...this.oauth2, authUrl: $event.target.value }
+                        }
+                      "
                       placeholder="https://example.com/login/oauth/authorize"
                     />
                   </li>
@@ -413,11 +428,11 @@
                       {{ $t("access_token_url") }}
                     </label>
                     <input
-                      :disabled="this.oidcDiscoveryUrl !== ''"
+                      :disabled="this.oauth2.oidcDiscoveryUrl !== ''"
                       id="access-token-url"
                       name="access_token_url"
                       type="url"
-                      v-model="accessTokenUrl"
+                      :value="oauth2.accessTokenUrl"
                       placeholder="https://example.com/login/oauth/access_token"
                     />
                   </li>
@@ -429,7 +444,12 @@
                       id="client-id"
                       name="client_id"
                       type="text"
-                      v-model="clientId"
+                      :value="oauth2.clientId"
+                      @change="
+                        ($event) => {
+                          this.oauth2 = { ...this.oauth2, clientId: $event.target.value }
+                        }
+                      "
                       placeholder="Client ID"
                     />
                   </li>
@@ -441,7 +461,12 @@
                       id="scope"
                       name="scope"
                       type="text"
-                      v-model="scope"
+                      :value="oauth2.scope"
+                      @click="
+                        ($event) => {
+                          this.oauth2 = { ...this.oauth2, scope: $event.target.value }
+                        }
+                      "
                       placeholder="e.g. read:org"
                     />
                   </li>
@@ -623,7 +648,7 @@
 
     <HttpTokenList
       :show="showTokenListModal"
-      :tokens="request.tokens"
+      :tokens="oauth2.tokens"
       @clear-content="clearContent"
       @use-oauth-token="useOAuthToken"
       @remove-oauth-token="removeOAuthToken"
@@ -646,7 +671,7 @@
           <label for="token-req-list">{{ $t("token_req_list") }}</label>
           <div>
             <button
-              :disabled="this.tokenReqs.length === 0"
+              :disabled="oauth2.tokenReqs.length === 0"
               class="icon"
               @click="showTokenRequestList = false"
               v-tooltip.bottom="$t('use_token_req')"
@@ -654,7 +679,7 @@
               <i class="material-icons">input</i>
             </button>
             <button
-              :disabled="this.tokenReqs.length === 0"
+              :disabled="oauth2.tokenReqs.length === 0"
               class="icon"
               @click="removeOAuthTokenReq"
               v-tooltip.bottom="$t('delete')"
@@ -668,11 +693,16 @@
             <span class="select-wrapper">
               <select
                 id="token-req-list"
-                v-model="tokenReqSelect"
-                :disabled="this.tokenReqs.length === 0"
-                @change="tokenReqChange($event)"
+                :value="oauth2.tokenReqSelect"
+                @change="
+                  ($event) => {
+                    this.oauth2 = { ...oauth2, tokenReqSelect: $event.target.value }
+                    tokenReqChange($event)
+                  }
+                "
+                :disabled="oauth2.tokenReqs.length === 0"
               >
-                <option v-for="(req, index) in tokenReqs" :key="index" :value="req.name">
+                <option v-for="(req, index) in oauth2.tokenReqs" :key="index" :value="req.name">
                   {{ req.name }}
                 </option>
               </select>
@@ -680,7 +710,14 @@
           </li>
         </ul>
         <label for="token-req-name">{{ $t("token_req_name") }}</label>
-        <input v-model="tokenReqName" />
+        <input
+          :value="oauth2.tokenReqName"
+          @change="
+            ($event) => {
+              this.oauth2 = { ...this.oauth2, tokenReqName: $event.target.value }
+            }
+          "
+        />
         <label for="token-req-details">
           {{ $t("token_req_details") }}
         </label>
@@ -717,6 +754,7 @@ import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttyp
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import { getSettingSubject, applySetting } from "~/newstore/settings"
 import clone from "lodash/clone"
+import { access } from "fs"
 
 export default {
   data() {
@@ -919,90 +957,13 @@ export default {
         this.$store.commit("updateRequest", value)
       },
     },
-    tokenReqs: {
+    oauth2: {
       get() {
-        return this.$store.state.oauth2.tokenReqs
+        return this.$store.state.oauth2
       },
       set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "tokenReqs" })
-      },
-    },
-    tokenReqSelect: {
-      get() {
-        return this.$store.state.oauth2.tokenReqSelect
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "tokenReqSelect" })
-      },
-    },
-    tokenReqName: {
-      get() {
-        return this.$store.state.oauth2.tokenReqName
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "tokenReqName" })
-      },
-    },
-    accessTokenName: {
-      get() {
-        return this.$store.state.oauth2.accessTokenName
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", {
-          value,
-          attribute: "accessTokenName",
-        })
-      },
-    },
-    oidcDiscoveryUrl: {
-      get() {
-        return this.$store.state.oauth2.oidcDiscoveryUrl
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", {
-          value,
-          attribute: "oidcDiscoveryUrl",
-        })
-      },
-    },
-    authUrl: {
-      get() {
-        return this.$store.state.oauth2.authUrl
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "authUrl" })
-      },
-    },
-    accessTokenUrl: {
-      get() {
-        return this.$store.state.oauth2.accessTokenUrl
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "accessTokenUrl" })
-      },
-    },
-    clientId: {
-      get() {
-        return this.$store.state.oauth2.clientId
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "clientId" })
-      },
-    },
-    scope: {
-      get() {
-        return this.$store.state.oauth2.scope
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "scope" })
-      },
-    },
-    state: {
-      get() {
-        return this.$store.state.oauth2.state
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "state" })
+        console.log(value)
+        this.$store.commit("updateOAuth2", value)
       },
     },
     headers: {
@@ -1153,11 +1114,11 @@ export default {
     },
     tokenReqDetails() {
       const details = {
-        oidcDiscoveryUrl: this.oidcDiscoveryUrl,
-        authUrl: this.authUrl,
-        accessTokenUrl: this.accessTokenUrl,
-        clientId: this.clientId,
-        scope: this.scope,
+        oidcDiscoveryUrl: this.oauth2.oidcDiscoveryUrl,
+        authUrl: this.oauth2.authUrl,
+        accessTokenUrl: this.oauth2.accessTokenUrl,
+        clientId: this.oauth2.clientId,
+        scope: this.oauth2.scope,
       }
       return JSON.stringify(details, null, 2)
     },
@@ -1695,21 +1656,26 @@ export default {
           this.params = []
           break
         case "auth":
-          this.request.auth = "None"
-          this.request.httpUser = ""
-          this.request.httpPassword = ""
-          this.request.bearerToken = ""
-          this.request.tokens = []
+          this.request = {
+            ...this.request,
+            auth: "None",
+            httpUser: "",
+            httpPassword: "",
+            bearerToken: "",
+          }
+          this.oauth2 = { ...this.oauth2, tokens: [], tokenReqs: [] }
           this.showTokenRequest = false
-          this.tokenReqs = []
           break
         case "access_token":
-          this.accessTokenName = ""
-          this.oidcDiscoveryUrl = ""
-          this.authUrl = ""
-          this.accessTokenUrl = ""
-          this.clientId = ""
-          this.scope = ""
+          this.oauth2 = {
+            ...this.oauth2,
+            accessTokenName: "",
+            oidcDiscoveryUrl: "",
+            authUrl: "",
+            accessTokenUrl: "",
+            clientId: "",
+            scope: "",
+          }
           break
         case "headers":
           this.headers = []
@@ -1718,7 +1684,7 @@ export default {
           this.testReports = []
           break
         case "tokens":
-          this.request.tokens = []
+          this.oauth2 = { ...this.oauth2, tokens: [] }
           break
         default:
           this.request = {
@@ -1728,7 +1694,17 @@ export default {
             httpUser: "",
             httpPassword: "",
             bearerToken: "",
+          }
+          this.oauth2 = {
+            ...this.oauth2,
             tokens: [],
+            tokenReqs: [],
+            accessTokenName: "",
+            oidcDiscoveryUrl: "",
+            authUrl: "",
+            accessTokenUrl: "",
+            clientId: "",
+            scope: "",
           }
           this.url = "https://httpbin.org"
           this.path = "/get"
@@ -1738,13 +1714,6 @@ export default {
           this.files = []
           this.params = []
           this.showTokenRequest = false
-          this.tokenReqs = []
-          this.accessTokenName = ""
-          this.oidcDiscoveryUrl = ""
-          this.authUrl = ""
-          this.accessTokenUrl = ""
-          this.clientId = ""
-          this.scope = ""
           this.headers = []
           this.testReports = []
       }
@@ -1806,7 +1775,10 @@ export default {
       this.rawParams = rawParams
     },
     async handleAccessTokenRequest() {
-      if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
+      if (
+        this.oauth2.oidcDiscoveryUrl === "" &&
+        (this.oauth2.authUrl === "" || this.oauth2.accessTokenUrl === "")
+      ) {
         this.$toast.error(this.$t("complete_config_urls"), {
           icon: "error",
         })
@@ -1815,11 +1787,11 @@ export default {
       try {
         const tokenReqParams = {
           grantType: "code",
-          oidcDiscoveryUrl: this.oidcDiscoveryUrl,
-          authUrl: this.authUrl,
-          accessTokenUrl: this.accessTokenUrl,
-          clientId: this.clientId,
-          scope: this.scope,
+          oidcDiscoveryUrl: this.oauth2.oidcDiscoveryUrl,
+          authUrl: this.oauth2.authUrl,
+          accessTokenUrl: this.oauth2.accessTokenUrl,
+          clientId: this.oauth2.clientId,
+          scope: this.oauth2.scope,
         }
         await tokenRequest(tokenReqParams)
       } catch (e) {
@@ -1833,7 +1805,7 @@ export default {
       if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
         this.request = { ...this.request, bearerToken: tokenInfo.access_token }
         this.addOAuthToken({
-          name: this.accessTokenName,
+          name: this.oauth2.accessTokenName,
           value: tokenInfo.access_token,
         })
       }
@@ -1846,14 +1818,14 @@ export default {
       return false
     },
     removeOAuthToken(index) {
-      const oldTokens = this.request.tokens.slice()
+      const oldTokens = this.oauth2.tokens.slice()
       this.$store.commit("removeOAuthToken", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.request.tokens = oldTokens
+            this.oauth2 = { ...this.oauth2, tokens: oldTokens }
             toastObject.remove()
           },
         },
@@ -1865,7 +1837,7 @@ export default {
     },
     addOAuthTokenReq() {
       try {
-        const name = this.tokenReqName
+        const name = this.oauth2.tokenReqName
         const details = JSON.parse(this.tokenReqDetails)
         this.$store.commit("addOAuthTokenReq", {
           name,
@@ -1880,8 +1852,10 @@ export default {
       }
     },
     removeOAuthTokenReq(index) {
-      const oldTokenReqs = this.tokenReqs.slice()
-      const targetReqIndex = this.tokenReqs.findIndex(({ name }) => name === this.tokenReqName)
+      const oldTokenReqs = this.oauth2.tokenReqs.slice()
+      const targetReqIndex = this.oauth2.tokenReqs.findIndex(
+        ({ name }) => name === this.oauth2.tokenReqName
+      )
       if (targetReqIndex < 0) return
       this.$store.commit("removeOAuthTokenReq", targetReqIndex)
       this.$toast.error(this.$t("deleted"), {
@@ -1889,21 +1863,26 @@ export default {
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.tokenReqs = oldTokenReqs
+            this.oauth2 = { ...this.oauth2, tokenReqs: oldTokenReqs }
             toastObject.remove()
           },
         },
       })
     },
-    tokenReqChange({ target }) {
-      const { details, name } = this.tokenReqs.find(({ name }) => name === target.value)
+    tokenReqChange($event) {
+      const { details, name } = this.oauth2.tokenReqs.find(
+        ({ name }) => name === $event.target.value
+      )
       const { oidcDiscoveryUrl, authUrl, accessTokenUrl, clientId, scope } = details
-      this.tokenReqName = name
-      this.oidcDiscoveryUrl = oidcDiscoveryUrl
-      this.authUrl = authUrl
-      this.accessTokenUrl = accessTokenUrl
-      this.clientId = clientId
-      this.scope = scope
+      this.oauth2 = {
+        ...this.oauth2,
+        tokenReqName: name,
+        oidcDiscoveryUrl: oidcDiscoveryUrl,
+        authUrl: authUrl,
+        accessTokenUrl: accessTokenUrl,
+        clientId: clientId,
+        scope: scope,
+      }
     },
     setRequestType(val) {
       this.requestType = val

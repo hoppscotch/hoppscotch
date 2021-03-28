@@ -107,9 +107,9 @@
                   :source="validContentTypes"
                   :spellcheck="false"
                   :value="request.contentType"
-                  @change="
-                    ($event) => {
-                      this.request = { ...this.request, contentType: $event.target.value }
+                  @input="
+                    (value) => {
+                      this.request = { ...this.request, contentType: value }
                     }
                   "
                   styles="text-sm"
@@ -124,8 +124,8 @@
                       v-if="canListParameters"
                       :on="request.rawInput"
                       @change="
-                        ($event) => {
-                          this.request = { ...this.request, rawInput: $event.target.value }
+                        (value) => {
+                          this.request = { ...this.request, rawInput: value }
                         }
                       "
                     >
@@ -967,7 +967,6 @@ export default {
       },
       set(value) {
         this.$store.commit("updateRequest", value)
-        console.log(this.request)
       },
     },
     oauth2: {

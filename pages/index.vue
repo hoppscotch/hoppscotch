@@ -300,7 +300,16 @@
                 <ul v-if="request.auth === 'Bearer Token' || request.auth === 'OAuth 2.0'">
                   <li>
                     <div class="row-wrapper">
-                      <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
+                      <input
+                        placeholder="Token"
+                        name="bearer_token"
+                        :value="request.bearerToken"
+                        @change="
+                          (newName) => {
+                            this.request = { ...this.request, bearerToken: newName.target.value }
+                          }
+                        "
+                      />
                       <button
                         v-if="request.auth === 'OAuth 2.0'"
                         class="icon"
@@ -614,7 +623,7 @@
 
     <HttpTokenList
       :show="showTokenListModal"
-      :tokens="tokens"
+      :tokens="request.tokens"
       @clear-content="clearContent"
       @use-oauth-token="useOAuthToken"
       @remove-oauth-token="removeOAuthToken"
@@ -910,22 +919,6 @@ export default {
         this.$store.commit("updateRequest", value)
       },
     },
-    bearerToken: {
-      get() {
-        return this.$store.state.request.bearerToken
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "bearerToken" })
-      },
-    },
-    tokens: {
-      get() {
-        return this.$store.state.oauth2.tokens
-      },
-      set(value) {
-        this.$store.commit("setOAuth2", { value, attribute: "tokens" })
-      },
-    },
     tokenReqs: {
       get() {
         return this.$store.state.oauth2.tokenReqs
@@ -1147,14 +1140,10 @@ export default {
       }
 
       return generateCodeWithGenerator(this.requestType, {
-        auth: this.request.auth,
-        method: this.request.method,
+        ...this.request,
         url: this.url,
         pathName: this.pathName,
         queryString: this.queryString,
-        httpUser: this.request.httpUser,
-        httpPassword: this.request.httpPassword,
-        bearerToken: this.bearerToken,
         headers,
         rawInput: this.rawInput,
         rawParams: this.rawParams,
@@ -1216,7 +1205,6 @@ export default {
       this.path = entry.path
       this.showPreRequestScript = entry.usesPreScripts
       this.preRequestScript = entry.preRequestScript
-      this.bearerToken = entry.bearerToken
       this.headers = entry.headers
       this.params = entry.params
       this.bodyParams = entry.bodyParams
@@ -1318,7 +1306,7 @@ export default {
       }
       // If the request uses a token for auth, we want to make sure it's sent here.
       if (this.request.auth === "Bearer Token" || this.request.auth === "OAuth 2.0")
-        headers["Authorization"] = `Bearer ${this.bearerToken}`
+        headers["Authorization"] = `Bearer ${this.request.bearerToken}`
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
         // mutate it with the request headers added by default.
@@ -1357,22 +1345,17 @@ export default {
           this.response.body = payload.data
           // Addition of an entry to the history component.
           const entry = {
-            name: this.request.name,
-            auth: this.request.auth,
-            httpUser: this.request.httpUser,
-            httpPassword: this.request.httpPassword,
+            ...this.request,
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
             updatedOn: new Date(),
-            method: this.request.method,
             url: this.url,
             path: this.path,
             usesPreScripts: this.showPreRequestScript,
             preRequestScript: this.preRequestScript,
             duration,
             star: false,
-            bearerToken: this.bearerToken,
             headers: this.headers,
             params: this.params,
             bodyParams: this.bodyParams,
@@ -1413,21 +1396,16 @@ export default {
             this.response.body = error.response.data
             // Addition of an entry to the history component.
             const entry = {
-              name: this.request.name,
-              auth: this.request.auth,
-              httpUser: this.request.httpUser,
-              httpPassword: this.request.httpPassword,
+              ...this.request,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
               updatedOn: new Date(),
-              method: this.request.method,
               url: this.url,
               path: this.path,
               usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
               star: false,
-              bearerToken: this.bearerToken,
               headers: this.headers,
               params: this.params,
               bodyParams: this.bodyParams,
@@ -1720,9 +1698,9 @@ export default {
           this.request.auth = "None"
           this.request.httpUser = ""
           this.request.httpPassword = ""
-          this.bearerToken = ""
+          this.request.bearerToken = ""
+          this.request.tokens = []
           this.showTokenRequest = false
-          this.tokens = []
           this.tokenReqs = []
           break
         case "access_token":
@@ -1740,7 +1718,7 @@ export default {
           this.testReports = []
           break
         case "tokens":
-          this.tokens = []
+          this.request.tokens = []
           break
         default:
           this.request = {
@@ -1749,6 +1727,8 @@ export default {
             auth: "None",
             httpUser: "",
             httpPassword: "",
+            bearerToken: "",
+            tokens: [],
           }
           this.url = "https://httpbin.org"
           this.path = "/get"
@@ -1757,9 +1737,7 @@ export default {
           this.rawParams = "{}"
           this.files = []
           this.params = []
-          this.bearerToken = ""
           this.showTokenRequest = false
-          this.tokens = []
           this.tokenReqs = []
           this.accessTokenName = ""
           this.oidcDiscoveryUrl = ""
@@ -1787,12 +1765,8 @@ export default {
       this.editRequest = {
         url: decodeURI(urlAndPath.url),
         path: decodeURI(urlAndPath.path),
-        method: this.request.method,
-        auth: this.request.auth,
-        httpUser: this.request.httpUser,
-        httpPassword: this.request.httpPassword,
+        ...this.request,
         passwordFieldType: this.passwordFieldType,
-        bearerToken: this.bearerToken,
         headers: this.headers,
         params: this.params,
         bodyParams: this.bodyParams,
@@ -1802,7 +1776,6 @@ export default {
         requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
-        name: this.request.name,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
@@ -1858,7 +1831,7 @@ export default {
     async oauthRedirectReq() {
       const tokenInfo = await oauthRedirect()
       if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
-        this.bearerToken = tokenInfo.access_token
+        this.request = { ...this.request, bearerToken: tokenInfo.access_token }
         this.addOAuthToken({
           name: this.accessTokenName,
           value: tokenInfo.access_token,
@@ -1873,21 +1846,21 @@ export default {
       return false
     },
     removeOAuthToken(index) {
-      const oldTokens = this.tokens.slice()
+      const oldTokens = this.request.tokens.slice()
       this.$store.commit("removeOAuthToken", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.tokens = oldTokens
+            this.request.tokens = oldTokens
             toastObject.remove()
           },
         },
       })
     },
     useOAuthToken(value) {
-      this.bearerToken = value
+      this.request = { ...this.request, bearerToken: value }
       this.showTokenListModal = false
     },
     addOAuthTokenReq() {
@@ -1997,9 +1970,7 @@ export default {
       (vm) => [
         vm.request,
         vm.url,
-        vm.auth,
         vm.path,
-        vm.bearerToken,
         vm.headers,
         vm.params,
         vm.bodyParams,

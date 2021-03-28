@@ -262,14 +262,28 @@
                 </ul>
                 <ul v-if="request.auth === 'Basic Auth'">
                   <li>
-                    <input placeholder="User" name="http_basic_user" v-model="httpUser" />
+                    <input
+                      placeholder="User"
+                      name="http_basic_user"
+                      :value="request.httpUser"
+                      @change="
+                        (newName) => {
+                          this.request = { ...this.request, httpUser: newName.target.value }
+                        }
+                      "
+                    />
                   </li>
                   <li>
                     <input
                       placeholder="Password"
                       name="http_basic_passwd"
                       :type="passwordFieldType"
-                      v-model="httpPassword"
+                      :value="request.httpPassword"
+                      @change="
+                        (newName) => {
+                          this.request = { ...this.request, httpPassword: newName.target.value }
+                        }
+                      "
                     />
                   </li>
                   <div>
@@ -812,8 +826,6 @@ export default {
       this.uri = newValue.url + newValue.path
       this.url = newValue.url
       this.path = newValue.path
-      this.httpUser = newValue.httpUser
-      this.httpPassword = newValue.httpPassword
       this.passwordFieldType = newValue.passwordFieldType
       this.bearerToken = newValue.bearerToken
       this.headers = newValue.headers
@@ -896,22 +908,6 @@ export default {
       },
       set(value) {
         this.$store.commit("updateRequest", value)
-      },
-    },
-    httpUser: {
-      get() {
-        return this.$store.state.request.httpUser
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "httpUser" })
-      },
-    },
-    httpPassword: {
-      get() {
-        return this.$store.state.request.httpPassword
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "httpPassword" })
       },
     },
     bearerToken: {
@@ -1156,8 +1152,8 @@ export default {
         url: this.url,
         pathName: this.pathName,
         queryString: this.queryString,
-        httpUser: this.httpUser,
-        httpPassword: this.httpPassword,
+        httpUser: this.request.httpUser,
+        httpPassword: this.request.httpPassword,
         bearerToken: this.bearerToken,
         headers,
         rawInput: this.rawInput,
@@ -1220,8 +1216,6 @@ export default {
       this.path = entry.path
       this.showPreRequestScript = entry.usesPreScripts
       this.preRequestScript = entry.preRequestScript
-      this.httpUser = entry.httpUser
-      this.httpPassword = entry.httpPassword
       this.bearerToken = entry.bearerToken
       this.headers = entry.headers
       this.params = entry.params
@@ -1288,8 +1282,8 @@ export default {
       const auth =
         this.request.auth === "Basic Auth"
           ? {
-              username: this.httpUser,
-              password: this.httpPassword,
+              username: this.request.httpUser,
+              password: this.request.httpPassword,
             }
           : null
       let headers = {}
@@ -1365,6 +1359,8 @@ export default {
           const entry = {
             name: this.request.name,
             auth: this.request.auth,
+            httpUser: this.request.httpUser,
+            httpPassword: this.request.httpPassword,
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
@@ -1376,8 +1372,6 @@ export default {
             preRequestScript: this.preRequestScript,
             duration,
             star: false,
-            httpUser: this.httpUser,
-            httpPassword: this.httpPassword,
             bearerToken: this.bearerToken,
             headers: this.headers,
             params: this.params,
@@ -1421,6 +1415,8 @@ export default {
             const entry = {
               name: this.request.name,
               auth: this.request.auth,
+              httpUser: this.request.httpUser,
+              httpPassword: this.request.httpPassword,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
@@ -1431,8 +1427,6 @@ export default {
               usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
               star: false,
-              httpUser: this.httpUser,
-              httpPassword: this.httpPassword,
               bearerToken: this.bearerToken,
               headers: this.headers,
               params: this.params,
@@ -1724,8 +1718,8 @@ export default {
           break
         case "auth":
           this.request.auth = "None"
-          this.httpUser = ""
-          this.httpPassword = ""
+          this.request.httpUser = ""
+          this.request.httpPassword = ""
           this.bearerToken = ""
           this.showTokenRequest = false
           this.tokens = []
@@ -1753,6 +1747,8 @@ export default {
             method: "GET",
             name: "Untitled request",
             auth: "None",
+            httpUser: "",
+            httpPassword: "",
           }
           this.url = "https://httpbin.org"
           this.path = "/get"
@@ -1761,8 +1757,6 @@ export default {
           this.rawParams = "{}"
           this.files = []
           this.params = []
-          this.httpUser = ""
-          this.httpPassword = ""
           this.bearerToken = ""
           this.showTokenRequest = false
           this.tokens = []
@@ -1795,8 +1789,8 @@ export default {
         path: decodeURI(urlAndPath.path),
         method: this.request.method,
         auth: this.request.auth,
-        httpUser: this.httpUser,
-        httpPassword: this.httpPassword,
+        httpUser: this.request.httpUser,
+        httpPassword: this.request.httpPassword,
         passwordFieldType: this.passwordFieldType,
         bearerToken: this.bearerToken,
         headers: this.headers,
@@ -2005,8 +1999,6 @@ export default {
         vm.url,
         vm.auth,
         vm.path,
-        vm.httpUser,
-        vm.httpPassword,
         vm.bearerToken,
         vm.headers,
         vm.params,

@@ -1,6 +1,10 @@
 import Vue from "vue"
 
 export default {
+  updateRequest({ request }, { value }) {
+    request = value
+  },
+
   setState({ request }, { attribute, value }) {
     request[attribute] = value
   },

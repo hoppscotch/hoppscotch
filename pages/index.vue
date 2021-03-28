@@ -11,7 +11,7 @@
                   <input
                     id="method"
                     class="method"
-                    v-model="method"
+                    v-model="request.method"
                     :readonly="!customMethod"
                     autofocus
                   />
@@ -24,7 +24,7 @@
                         class="icon"
                         @click="
                           customMethod = methodMenuItem == 'CUSTOM' ? true : false
-                          method = methodMenuItem
+                          request.method = methodMenuItem
                         "
                         v-close-popover
                       >
@@ -77,10 +77,13 @@
           <ul>
             <li>
               <label for="name" class="text-sm">{{ $t("token_req_name") }}</label>
-              <input id="name" name="name" type="text" v-model="name" class="text-sm" />
+              <input id="name" name="name" type="text" v-model="request.name" class="text-sm" />
             </li>
           </ul>
-          <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
+          <div
+            label="Request Body"
+            v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)"
+          >
             <ul>
               <li>
                 <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
@@ -781,10 +784,10 @@ export default {
     selectedRequest(newValue, oldValue) {
       // @TODO: Convert all variables to single request variable
       if (!newValue) return
+      this.request = newValue
       this.uri = newValue.url + newValue.path
       this.url = newValue.url
       this.path = newValue.path
-      this.method = newValue.method
       this.auth = newValue.auth
       this.httpUser = newValue.httpUser
       this.httpPassword = newValue.httpPassword
@@ -805,14 +808,13 @@ export default {
         this.testsEnabled = true
         this.testScript = newValue.testScript
       }
-      this.name = newValue.name
     },
     editingRequest(newValue) {
       this.editRequest = newValue
       this.showSaveRequestModal = true
     },
     method() {
-      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
+      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.request.method)
         ? "application/json"
         : ""
     },
@@ -857,14 +859,6 @@ export default {
         this.$store.commit("setState", { value, attribute: "url" })
       },
     },
-    method: {
-      get() {
-        return this.$store.state.request.method
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "method" })
-      },
-    },
     path: {
       get() {
         return this.$store.state.request.path
@@ -873,12 +867,12 @@ export default {
         this.$store.commit("setState", { value, attribute: "path" })
       },
     },
-    name: {
+    request: {
       get() {
-        return this.$store.state.request.name
+        return this.$store.state.request
       },
       set(value) {
-        this.$store.commit("setState", { value, attribute: "name" })
+        this.$store.commit("updateRequest", { value })
       },
     },
     auth: {
@@ -1080,15 +1074,12 @@ export default {
     editingRequest() {
       return this.$store.state.postwoman.editingRequest
     },
-    requestName() {
-      return this.name
-    },
     isValidURL() {
       // if showPreRequestScript, we cannot determine if a URL is valid because the full string is not known ahead of time
       return this.showPreRequestScript || httpValid(this.url)
     },
     hasRequestBody() {
-      return ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
+      return ["POST", "PUT", "PATCH", "DELETE"].includes(this.request.method)
     },
     pathName() {
       return this.path.match(/^([^?]*)\??/)[1]
@@ -1146,7 +1137,7 @@ export default {
 
       return generateCodeWithGenerator(this.requestType, {
         auth: this.auth,
-        method: this.method,
+        method: this.request.method,
         url: this.url,
         pathName: this.pathName,
         queryString: this.queryString,
@@ -1207,8 +1198,7 @@ export default {
       })
     },
     handleUseHistory(entry) {
-      this.name = entry.name
-      this.method = entry.method
+      this.request = entry
       this.uri = entry.url + entry.path
       this.url = entry.url
       this.path = entry.path
@@ -1231,7 +1221,7 @@ export default {
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
-        method: this.method,
+        method: this.request.method,
         url: this.url + this.pathName + this.queryString,
         auth,
         headers,
@@ -1358,12 +1348,12 @@ export default {
           this.response.body = payload.data
           // Addition of an entry to the history component.
           const entry = {
-            name: this.requestName,
+            name: this.request.name,
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
             updatedOn: new Date(),
-            method: this.method,
+            method: this.request.method,
             url: this.url,
             path: this.path,
             usesPreScripts: this.showPreRequestScript,
@@ -1414,12 +1404,12 @@ export default {
             this.response.body = error.response.data
             // Addition of an entry to the history component.
             const entry = {
-              name: this.requestName,
+              name: this.request.name,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
               updatedOn: new Date(),
-              method: this.method,
+              method: this.request.method,
               url: this.url,
               path: this.path,
               usesPreScripts: this.showPreRequestScript,
@@ -1689,7 +1679,7 @@ export default {
             })
           }
         }
-        this.method = parsedCurl.method.toUpperCase()
+        this.request.method = parsedCurl.method.toUpperCase()
         if (parsedCurl["data"]) {
           this.rawInput = true
           this.rawParams = parsedCurl["data"]
@@ -1744,11 +1734,13 @@ export default {
           this.tokens = []
           break
         default:
-          this.method = "GET"
+          this.request = {
+            method: "GET",
+            name: "Untitled request",
+          }
           this.url = "https://httpbin.org"
           this.path = "/get"
           this.uri = this.url + this.path
-          this.name = "Untitled request"
           this.bodyParams = []
           this.rawParams = "{}"
           this.files = []
@@ -1786,7 +1778,7 @@ export default {
       this.editRequest = {
         url: decodeURI(urlAndPath.url),
         path: decodeURI(urlAndPath.path),
-        method: this.method,
+        method: this.request.method,
         auth: this.auth,
         httpUser: this.httpUser,
         httpPassword: this.httpPassword,
@@ -1801,7 +1793,7 @@ export default {
         requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
-        name: this.requestName,
+        name: this.request.name,
       }
       if (this.selectedRequest.url) {
         this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
@@ -1963,24 +1955,28 @@ export default {
         this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = this.showCodegenModal = false
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
-        this.method = "GET"
+        this.request.method = "GET"
       }
       if ((e.key === "h" || e.key === "H") && e.altKey) {
-        this.method = "HEAD"
+        this.request.method = "HEAD"
       }
       if ((e.key === "p" || e.key === "P") && e.altKey) {
-        this.method = "POST"
+        this.request.method = "POST"
       }
       if ((e.key === "u" || e.key === "U") && e.altKey) {
-        this.method = "PUT"
+        this.request.method = "PUT"
       }
       if ((e.key === "x" || e.key === "X") && e.altKey) {
-        this.method = "DELETE"
+        this.request.method = "DELETE"
       }
       if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
-        this.method = this.methodMenuItems[--this.currentMethodIndex % this.methodMenuItems.length]
+        this.request.method = this.methodMenuItems[
+          --this.currentMethodIndex % this.methodMenuItems.length
+        ]
       } else if (e.key == "ArrowDown" && e.altKey && this.currentMethodIndex < 9) {
-        this.method = this.methodMenuItems[++this.currentMethodIndex % this.methodMenuItems.length]
+        this.request.method = this.methodMenuItems[
+          ++this.currentMethodIndex % this.methodMenuItems.length
+        ]
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
@@ -1990,8 +1986,7 @@ export default {
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
       (vm) => [
-        vm.name,
-        vm.method,
+        vm.request,
         vm.url,
         vm.auth,
         vm.path,

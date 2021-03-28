@@ -128,7 +128,7 @@
             </ul>
             <HttpBodyParameters
               v-if="!rawInput"
-              :bodyParams="bodyParams"
+              :bodyParams="request.bodyParams"
               @clear-content="clearContent"
               @set-route-query-state="setRouteQueryState"
               @remove-request-body-param="removeRequestBodyParam"
@@ -136,7 +136,7 @@
             />
             <HttpRawBody
               v-else
-              :rawParams="rawParams"
+              :rawParams="request.rawParams"
               :contentType="contentType"
               :rawInput="rawInput"
               @clear-content="clearContent"
@@ -199,12 +199,13 @@
             <SmartTab
               :id="'params'"
               :label="
-                $t('parameters') + `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
+                $t('parameters') +
+                `${request.params.length !== 0 ? ' \xA0 • \xA0 ' + request.params.length : ''}`
               "
               :selected="true"
             >
               <HttpParameters
-                :params="params"
+                :params="request.params"
                 @clear-content="clearContent"
                 @remove-request-param="removeRequestParam"
                 @add-request-param="addRequestParam"
@@ -214,11 +215,12 @@
             <SmartTab
               :id="'headers'"
               :label="
-                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+                $t('headers') +
+                `${request.headers.length !== 0 ? ' \xA0 • \xA0 ' + request.headers.length : ''}`
               "
             >
               <HttpHeaders
-                :headers="headers"
+                :headers="request.headers"
                 @clear-content="clearContent"
                 @set-route-query-state="setRouteQueryState"
                 @remove-request-header="removeRequestHeader"
@@ -822,7 +824,7 @@ export default {
       handler(canListParameters) {
         if (canListParameters) {
           this.$nextTick(() => {
-            this.rawInput = Boolean(this.rawParams && this.rawParams !== "{}")
+            this.rawInput = Boolean(this.request.rawParams && this.request.rawParams !== "{}")
           })
         } else {
           this.rawInput = true
@@ -840,8 +842,8 @@ export default {
         }
         return ""
       }
-      if (!this.rawParams || this.rawParams === getDefaultParams(oldContentType)) {
-        this.rawParams = getDefaultParams(contentType)
+      if (!this.request.rawParams || this.request.rawParams === getDefaultParams(oldContentType)) {
+        this.request.rawParams = getDefaultParams(contentType)
       }
       this.setRouteQueryState()
     },
@@ -875,10 +877,6 @@ export default {
       this.path = newValue.path
       this.passwordFieldType = newValue.passwordFieldType
       this.bearerToken = newValue.bearerToken
-      this.headers = newValue.headers
-      this.params = newValue.params
-      this.bodyParams = newValue.bodyParams
-      this.rawParams = newValue.rawParams
       this.rawInput = newValue.rawInput
       this.contentType = newValue.contentType
       this.requestType = newValue.requestType
@@ -923,9 +921,12 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
         let url = value
-        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+        if (
+          (this.preRequestScript && this.showPreRequestScript) ||
+          hasPathParams(this.request.params)
+        ) {
           let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+          environmentVariables = addPathParamsToVariables(this.request.params, environmentVariables)
           url = parseTemplateString(value, environmentVariables)
         }
         let result = parseUrlAndPath(url)
@@ -955,6 +956,7 @@ export default {
       },
       set(value) {
         this.$store.commit("updateRequest", value)
+        console.log(this.request)
       },
     },
     oauth2: {
@@ -964,38 +966,6 @@ export default {
       set(value) {
         console.log(value)
         this.$store.commit("updateOAuth2", value)
-      },
-    },
-    headers: {
-      get() {
-        return this.$store.state.request.headers
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "headers" })
-      },
-    },
-    params: {
-      get() {
-        return this.$store.state.request.params
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "params" })
-      },
-    },
-    bodyParams: {
-      get() {
-        return this.$store.state.request.bodyParams
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "bodyParams" })
-      },
-    },
-    rawParams: {
-      get() {
-        return this.$store.state.request.rawParams
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "rawParams" })
       },
     },
     rawInput: {
@@ -1050,11 +1020,10 @@ export default {
       return this.path.match(/^([^?]*)\??/)[1]
     },
     rawRequestBody() {
-      const { bodyParams, contentType } = this
-      if (isJSONContentType(contentType)) {
+      if (isJSONContentType(this.contentType)) {
         try {
           const obj = JSON.parse(
-            `{${bodyParams
+            `{${this.request.bodyParams
               .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
               .filter(({ key }) => !!key)
               .map(({ key, value }) => `"${key}": "${value}"`)
@@ -1073,7 +1042,7 @@ export default {
           return "invalid"
         }
       } else {
-        return bodyParams
+        return this.request.bodyParams
           .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
           .filter(({ key }) => !!key)
           .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
@@ -1081,17 +1050,17 @@ export default {
       }
     },
     queryString() {
-      const result = getQueryParams(this.params)
+      const result = getQueryParams(this.request.params)
         .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join("&")
       return result === "" ? "" : `?${result}`
     },
     requestCode() {
       let headers = []
-      if (this.preRequestScript || hasPathParams(this.params)) {
+      if (this.preRequestScript || hasPathParams(this.request.params)) {
         let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-        for (let k of this.headers.filter((item) =>
+        environmentVariables = addPathParamsToVariables(this.request.params, environmentVariables)
+        for (let k of this.request.headers.filter((item) =>
           item.hasOwnProperty("active") ? item.active == true : true
         )) {
           const kParsed = parseTemplateString(k.key, environmentVariables)
@@ -1105,9 +1074,8 @@ export default {
         url: this.url,
         pathName: this.pathName,
         queryString: this.queryString,
-        headers,
         rawInput: this.rawInput,
-        rawParams: this.rawParams,
+        rawParams: this.request.rawParams,
         rawRequestBody: this.rawRequestBody,
         contentType: this.contentType,
       })
@@ -1166,10 +1134,6 @@ export default {
       this.path = entry.path
       this.showPreRequestScript = entry.usesPreScripts
       this.preRequestScript = entry.preRequestScript
-      this.headers = entry.headers
-      this.params = entry.params
-      this.bodyParams = entry.bodyParams
-      this.rawParams = entry.rawParams
       this.rawInput = entry.rawInput
       this.contentType = entry.contentType
       this.requestType = entry.requestType
@@ -1187,9 +1151,9 @@ export default {
         credentials: true,
       }
 
-      if (preRequestScript || hasPathParams(this.params)) {
+      if (preRequestScript || hasPathParams(this.request.params)) {
         let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
-        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+        environmentVariables = addPathParamsToVariables(this.request.params, environmentVariables)
         requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
         if (!(requestOptions.data instanceof FormData)) {
           // TODO: Parse env variables for form data too
@@ -1244,7 +1208,7 @@ export default {
       // If the request has a body, we want to ensure Content-Type is sent.
       let requestBody
       if (this.hasRequestBody) {
-        requestBody = this.rawInput ? this.rawParams : this.rawRequestBody
+        requestBody = this.rawInput ? this.request.rawParams : this.rawRequestBody
         Object.assign(headers, {
           "Content-Type": `${this.contentType}; charset=utf-8`,
         })
@@ -1252,7 +1216,7 @@ export default {
       requestBody = requestBody ? requestBody.toString() : null
       if (this.contentType === "multipart/form-data") {
         const formData = new FormData()
-        for (const bodyParam of this.bodyParams.filter((item) =>
+        for (const bodyParam of this.request.bodyParams.filter((item) =>
           item.hasOwnProperty("active") ? item.active == true : true
         )) {
           if (bodyParam?.value?.[0] instanceof File) {
@@ -1273,7 +1237,7 @@ export default {
         // mutate it with the request headers added by default.
         Object.assign(
           {},
-          this.headers.filter((item) =>
+          this.request.headers.filter((item) =>
             item.hasOwnProperty("active") ? item.active == true : true
           )
         )
@@ -1317,10 +1281,6 @@ export default {
             preRequestScript: this.preRequestScript,
             duration,
             star: false,
-            headers: this.headers,
-            params: this.params,
-            bodyParams: this.bodyParams,
-            rawParams: this.rawParams,
             rawInput: this.rawInput,
             contentType: this.contentType,
             requestType: this.requestType,
@@ -1328,9 +1288,15 @@ export default {
             usesPostScripts: this.testsEnabled,
           }
 
-          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+          if (
+            (this.preRequestScript && this.showPreRequestScript) ||
+            hasPathParams(this.request.params)
+          ) {
             let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            environmentVariables = addPathParamsToVariables(
+              this.request.params,
+              environmentVariables
+            )
             entry.path = parseTemplateString(entry.path, environmentVariables)
             entry.url = parseTemplateString(entry.url, environmentVariables)
           }
@@ -1367,10 +1333,6 @@ export default {
               usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
               star: false,
-              headers: this.headers,
-              params: this.params,
-              bodyParams: this.bodyParams,
-              rawParams: this.rawParams,
               rawInput: this.rawInput,
               contentType: this.contentType,
               requestType: this.requestType,
@@ -1380,10 +1342,13 @@ export default {
 
             if (
               (this.preRequestScript && this.showPreRequestScript) ||
-              hasPathParams(this.params)
+              hasPathParams(this.request.params)
             ) {
               let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-              environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+              environmentVariables = addPathParamsToVariables(
+                this.request.params,
+                environmentVariables
+              )
               entry.path = parseTemplateString(entry.path, environmentVariables)
               entry.url = parseTemplateString(entry.url, environmentVariables)
             }
@@ -1455,7 +1420,7 @@ export default {
         const queryString = this.getQueryStringFromPath()
         const params = this.queryStringToArray(queryString)
         this.paramsWatchEnabled = false
-        this.params = params
+        this.request = { ...this.request, params: params }
       }
     },
     addRequestHeader() {
@@ -1468,14 +1433,14 @@ export default {
     },
     removeRequestHeader(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
-      const oldHeaders = this.headers.slice()
+      const oldHeaders = this.request.headers.slice()
       this.$store.commit("removeHeaders", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.headers = oldHeaders
+            this.request = { ...this.request, headers: oldHeaders }
             toastObject.remove()
           },
         },
@@ -1487,14 +1452,14 @@ export default {
     },
     removeRequestParam(index) {
       // .slice() gives us an entirely new array rather than giving us just the reference
-      const oldParams = this.params.slice()
+      const oldParams = this.request.params.slice()
       this.$store.commit("removeParams", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.params = oldParams
+            this.request = { ...this.request, params: oldParams }
             toastObject.remove()
           },
         },
@@ -1513,7 +1478,7 @@ export default {
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.bodyParams = oldBodyParams
+            this.request = { ...this.request, bodyParams: oldBodyParams }
             toastObject.remove()
           },
         },
@@ -1547,35 +1512,14 @@ export default {
     },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
-      const deep = (key) => {
-        const haveItems = [...this[key]].length
-        if (haveItems && this[key]["value"] !== "") {
-          // Exclude files fro  query params
-          const filesRemoved = this[key].filter((item) => !(item?.value?.[0] instanceof File))
-          return `${key}=${JSON.stringify(filesRemoved)}&`
-        }
-        return ""
-      }
-      let flats = [
-        "method",
-        "url",
-        "path",
-        !this.URL_EXCLUDES.auth ? "auth" : null,
-        !this.URL_EXCLUDES.httpUser ? "httpUser" : null,
-        !this.URL_EXCLUDES.httpPassword ? "httpPassword" : null,
-        !this.URL_EXCLUDES.bearerToken ? "bearerToken" : null,
-        "contentType",
-      ]
+      let flats = ["url", "path", "contentType"]
         .filter((item) => item !== null)
         .map((item) => flat(item))
-      const deeps = ["headers", "params"].map((item) => deep(item))
-      const bodyParams = this.rawInput ? [flat("rawParams")] : [deep("bodyParams")]
+      const request = "request=" + JSON.stringify(this.request)
       history.replaceState(
         window.location.href,
         "",
-        `${this.$router.options.base}?${encodeURI(
-          flats.concat(deeps, bodyParams).join("").slice(0, -1)
-        )}`
+        `${this.$router.options.base}?${encodeURI(flats.concat(request).join("").slice(0, -1))}`
       )
     },
     setRouteQueries(queries) {
@@ -1618,7 +1562,7 @@ export default {
         this.url = origin
         this.path = pathname
         this.uri = this.url + this.path
-        this.headers = []
+        this.request = { ...this.request, headers: [], method: parsedCurl.method.toUpperCase() }
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
             this.$store.commit("addHeaders", {
@@ -1627,10 +1571,9 @@ export default {
             })
           }
         }
-        this.request.method = parsedCurl.method.toUpperCase()
         if (parsedCurl["data"]) {
           this.rawInput = true
-          this.rawParams = parsedCurl["data"]
+          this.request = { ...this.request, rawParams: parsedCurl["data"] }
         }
         this.showCurlImportModal = false
       } catch (error) {
@@ -1646,14 +1589,14 @@ export default {
     clearContent(name, { target }) {
       switch (name) {
         case "bodyParams":
-          this.bodyParams = []
+          this.request = { ...this.request, bodyParams: [] }
           this.files = []
           break
         case "rawParams":
-          this.rawParams = "{}"
+          this.request = { ...this.request, rawParams: "{}" }
           break
         case "parameters":
-          this.params = []
+          this.request = { ...this.request, params: [] }
           break
         case "auth":
           this.request = {
@@ -1678,7 +1621,7 @@ export default {
           }
           break
         case "headers":
-          this.headers = []
+          this.request = { ...this.request, headers: [] }
           break
         case "tests":
           this.testReports = []
@@ -1688,12 +1631,14 @@ export default {
           break
         default:
           this.request = {
+            ...this.request,
             method: "GET",
             name: "Untitled request",
             auth: "None",
             httpUser: "",
             httpPassword: "",
             bearerToken: "",
+            headers: [],
           }
           this.oauth2 = {
             ...this.oauth2,
@@ -1705,16 +1650,15 @@ export default {
             accessTokenUrl: "",
             clientId: "",
             scope: "",
+            bodyParams: [],
+            rawParams: "{}",
+            params: [],
           }
           this.url = "https://httpbin.org"
           this.path = "/get"
           this.uri = this.url + this.path
-          this.bodyParams = []
-          this.rawParams = "{}"
           this.files = []
-          this.params = []
           this.showTokenRequest = false
-          this.headers = []
           this.testReports = []
       }
       target.innerHTML = this.doneButton
@@ -1736,10 +1680,6 @@ export default {
         path: decodeURI(urlAndPath.path),
         ...this.request,
         passwordFieldType: this.passwordFieldType,
-        headers: this.headers,
-        params: this.params,
-        bodyParams: this.bodyParams,
-        rawParams: this.rawParams,
         rawInput: this.rawInput,
         contentType: this.contentType,
         requestType: this.requestType,
@@ -1772,7 +1712,7 @@ export default {
       this.setRouteQueryState()
     },
     updateRawBody(rawParams) {
-      this.rawParams = rawParams
+      this.request = { ...this.request, rawParams: rawParams }
     },
     async handleAccessTokenRequest() {
       if (
@@ -1916,28 +1856,30 @@ export default {
         this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = this.showCodegenModal = false
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
-        this.request.method = "GET"
+        this.request = { ...this.request, method: "GET" }
       }
       if ((e.key === "h" || e.key === "H") && e.altKey) {
-        this.request.method = "HEAD"
+        this.request = { ...this.request, method: "HEAD" }
       }
       if ((e.key === "p" || e.key === "P") && e.altKey) {
-        this.request.method = "POST"
+        this.request = { ...this.request, method: "POST" }
       }
       if ((e.key === "u" || e.key === "U") && e.altKey) {
-        this.request.method = "PUT"
+        this.request = { ...this.request, method: "PUT" }
       }
       if ((e.key === "x" || e.key === "X") && e.altKey) {
-        this.request.method = "DELETE"
+        this.request = { ...this.request, method: "DELETE" }
       }
       if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
-        this.request.method = this.methodMenuItems[
-          --this.currentMethodIndex % this.methodMenuItems.length
-        ]
+        this.request = {
+          ...this.request,
+          method: this.methodMenuItems[--this.currentMethodIndex % this.methodMenuItems.length],
+        }
       } else if (e.key == "ArrowDown" && e.altKey && this.currentMethodIndex < 9) {
-        this.request.method = this.methodMenuItems[
-          ++this.currentMethodIndex % this.methodMenuItems.length
-        ]
+        this.request = {
+          ...this.request,
+          method: this.methodMenuItems[++this.currentMethodIndex % this.methodMenuItems.length],
+        }
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
@@ -1946,16 +1888,7 @@ export default {
   created() {
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
-      (vm) => [
-        vm.request,
-        vm.url,
-        vm.path,
-        vm.headers,
-        vm.params,
-        vm.bodyParams,
-        vm.contentType,
-        vm.rawParams,
-      ],
+      (vm) => [vm.request, vm.url, vm.path, vm.contentType],
       (val) => {
         this.setRouteQueryState()
       }

@@ -106,7 +106,12 @@
                 <SmartAutoComplete
                   :source="validContentTypes"
                   :spellcheck="false"
-                  v-model="contentType"
+                  :value="request.contentType"
+                  @change="
+                    ($event) => {
+                      this.request = { ...this.request, contentType: $event.target.value }
+                    }
+                  "
                   styles="text-sm"
                 />
               </li>
@@ -117,8 +122,12 @@
                   <span>
                     <SmartToggle
                       v-if="canListParameters"
-                      :on="rawInput"
-                      @change="rawInput = $event"
+                      :on="request.rawInput"
+                      @change="
+                        ($event) => {
+                          this.request = { ...this.request, rawInput: $event.target.value }
+                        }
+                      "
                     >
                       {{ $t("raw_input") }}
                     </SmartToggle>
@@ -127,22 +136,17 @@
               </li>
             </ul>
             <HttpBodyParameters
-              v-if="!rawInput"
+              v-if="!request.rawInput"
               :bodyParams="request.bodyParams"
               @clear-content="clearContent"
               @set-route-query-state="setRouteQueryState"
               @remove-request-body-param="removeRequestBodyParam"
               @add-request-body-param="addRequestBodyParam"
             />
-            <HttpRawBody
-              v-else
-              :rawParams="request.rawParams"
-              :contentType="contentType"
-              :rawInput="rawInput"
-              @clear-content="clearContent"
-              @update-raw-body="updateRawBody"
-              @update-raw-input="updateRawInput = (value) => (rawInput = value)"
-            />
+            <HttpRawBody v-else :rawParams="request.rawParams" :contentType="request.contentType"
+            :rawInput="request.rawInput" @clear-content="clearContent"
+            @update-raw-body="updateRawBody" @update-raw-input="updateRawInput = (value) => {
+            this.request = { ...this.request, rawInput: value } } "" />
           </div>
           <div class="row-wrapper">
             <span>
@@ -642,7 +646,7 @@
 
     <HttpCodegenModal
       :show="showCodegenModal"
-      :requestTypeProp="requestType"
+      :requestTypeProp="request.requestType"
       :requestCode="requestCode"
       @hide-modal="showCodegenModal = false"
       @set-request-type="setRequestType"
@@ -824,17 +828,21 @@ export default {
       handler(canListParameters) {
         if (canListParameters) {
           this.$nextTick(() => {
-            this.rawInput = Boolean(this.request.rawParams && this.request.rawParams !== "{}")
+            this.request = {
+              ...this.request,
+              rawInput: Boolean(this.request.rawParams && this.request.rawParams !== "{}"),
+            }
           })
         } else {
-          this.rawInput = true
+          this.request = { ...this.request, rawInput: true }
         }
       },
     },
-    contentType(contentType, oldContentType) {
+    request(request, oldRequest) {
+      if (request.contentType == oldRequest.contentType) return
       const getDefaultParams = (contentType) => {
-        if (isJSONContentType(contentType)) return "{}"
-        switch (contentType) {
+        if (isJSONContentType(request.contentType)) return "{}"
+        switch (request.contentType) {
           case "application/xml":
             return "<?xml version='1.0' encoding='utf-8'?>"
           case "text/html":
@@ -842,8 +850,11 @@ export default {
         }
         return ""
       }
-      if (!this.request.rawParams || this.request.rawParams === getDefaultParams(oldContentType)) {
-        this.request.rawParams = getDefaultParams(contentType)
+      if (
+        !this.request.rawParams ||
+        this.request.rawParams === getDefaultParams(oldRequest.contentType)
+      ) {
+        this.request.rawParams = getDefaultParams(request.contentType)
       }
       this.setRouteQueryState()
     },
@@ -877,9 +888,6 @@ export default {
       this.path = newValue.path
       this.passwordFieldType = newValue.passwordFieldType
       this.bearerToken = newValue.bearerToken
-      this.rawInput = newValue.rawInput
-      this.contentType = newValue.contentType
-      this.requestType = newValue.requestType
       if (newValue.preRequestScript) {
         this.showPreRequestScript = true
         this.preRequestScript = newValue.preRequestScript
@@ -894,9 +902,12 @@ export default {
       this.showSaveRequestModal = true
     },
     method() {
-      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.request.method)
-        ? "application/json"
-        : ""
+      this.request = {
+        ...this.request,
+        contentType: ["POST", "PUT", "PATCH", "DELETE"].includes(this.request.method)
+          ? "application/json"
+          : "",
+      }
     },
     preRequestScript(val, oldVal) {
       this.uri = this.uri
@@ -909,9 +920,9 @@ export default {
      */
     canListParameters() {
       return (
-        this.contentType === "application/x-www-form-urlencoded" ||
-        this.contentType === "multipart/form-data" ||
-        isJSONContentType(this.contentType)
+        this.request.contentType === "application/x-www-form-urlencoded" ||
+        this.request.contentType === "multipart/form-data" ||
+        isJSONContentType(this.request.contentType)
       )
     },
     uri: {
@@ -968,30 +979,6 @@ export default {
         this.$store.commit("updateOAuth2", value)
       },
     },
-    rawInput: {
-      get() {
-        return this.$store.state.request.rawInput
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "rawInput" })
-      },
-    },
-    requestType: {
-      get() {
-        return this.$store.state.request.requestType
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "requestType" })
-      },
-    },
-    contentType: {
-      get() {
-        return this.$store.state.request.contentType
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "contentType" })
-      },
-    },
     passwordFieldType: {
       get() {
         return this.$store.state.request.passwordFieldType
@@ -1020,7 +1007,7 @@ export default {
       return this.path.match(/^([^?]*)\??/)[1]
     },
     rawRequestBody() {
-      if (isJSONContentType(this.contentType)) {
+      if (isJSONContentType(this.request.contentType)) {
         try {
           const obj = JSON.parse(
             `{${this.request.bodyParams
@@ -1069,15 +1056,13 @@ export default {
         }
       }
 
-      return generateCodeWithGenerator(this.requestType, {
+      return generateCodeWithGenerator(this.request.requestType, {
         ...this.request,
         url: this.url,
         pathName: this.pathName,
         queryString: this.queryString,
-        rawInput: this.rawInput,
         rawParams: this.request.rawParams,
         rawRequestBody: this.rawRequestBody,
-        contentType: this.contentType,
       })
     },
     tokenReqDetails() {
@@ -1134,9 +1119,6 @@ export default {
       this.path = entry.path
       this.showPreRequestScript = entry.usesPreScripts
       this.preRequestScript = entry.preRequestScript
-      this.rawInput = entry.rawInput
-      this.contentType = entry.contentType
-      this.requestType = entry.requestType
       this.testScript = entry.testScript
       this.testsEnabled = entry.usesPostScripts
       if (this.SCROLL_INTO_ENABLED) this.scrollInto("request")
@@ -1208,13 +1190,13 @@ export default {
       // If the request has a body, we want to ensure Content-Type is sent.
       let requestBody
       if (this.hasRequestBody) {
-        requestBody = this.rawInput ? this.request.rawParams : this.rawRequestBody
+        requestBody = this.request.rawInput ? this.request.rawParams : this.rawRequestBody
         Object.assign(headers, {
-          "Content-Type": `${this.contentType}; charset=utf-8`,
+          "Content-Type": `${this.request.contentType}; charset=utf-8`,
         })
       }
       requestBody = requestBody ? requestBody.toString() : null
-      if (this.contentType === "multipart/form-data") {
+      if (this.request.contentType === "multipart/form-data") {
         const formData = new FormData()
         for (const bodyParam of this.request.bodyParams.filter((item) =>
           item.hasOwnProperty("active") ? item.active == true : true
@@ -1281,9 +1263,6 @@ export default {
             preRequestScript: this.preRequestScript,
             duration,
             star: false,
-            rawInput: this.rawInput,
-            contentType: this.contentType,
-            requestType: this.requestType,
             testScript: this.testScript,
             usesPostScripts: this.testsEnabled,
           }
@@ -1333,9 +1312,6 @@ export default {
               usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
               star: false,
-              rawInput: this.rawInput,
-              contentType: this.contentType,
-              requestType: this.requestType,
               testScript: this.testScript,
               usesPostScripts: this.testsEnabled,
             }
@@ -1512,9 +1488,7 @@ export default {
     },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
-      let flats = ["url", "path", "contentType"]
-        .filter((item) => item !== null)
-        .map((item) => flat(item))
+      let flats = ["url", "path"].filter((item) => item !== null).map((item) => flat(item))
       const request = "request=" + JSON.stringify(this.request)
       history.replaceState(
         window.location.href,
@@ -1525,12 +1499,8 @@ export default {
     setRouteQueries(queries) {
       if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
-        if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
-        if (key === "rawParams") {
-          this.rawInput = true
-          this.rawParams = queries["rawParams"]
-        } else if (typeof this[key] === "string") {
+        if (["request"].includes(key)) this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
+        else if (typeof this[key] === "string") {
           this[key] = queries[key]
         }
       }
@@ -1572,8 +1542,7 @@ export default {
           }
         }
         if (parsedCurl["data"]) {
-          this.rawInput = true
-          this.request = { ...this.request, rawParams: parsedCurl["data"] }
+          this.request = { ...this.request, rawInput: true, rawParams: parsedCurl["data"] }
         }
         this.showCurlImportModal = false
       } catch (error) {
@@ -1680,9 +1649,6 @@ export default {
         path: decodeURI(urlAndPath.path),
         ...this.request,
         passwordFieldType: this.passwordFieldType,
-        rawInput: this.rawInput,
-        contentType: this.contentType,
-        requestType: this.requestType,
         preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
       }
@@ -1825,7 +1791,7 @@ export default {
       }
     },
     setRequestType(val) {
-      this.requestType = val
+      this.request = { ...this.request, requestType: val }
     },
   },
   async mounted() {
@@ -1888,7 +1854,7 @@ export default {
   created() {
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
-      (vm) => [vm.request, vm.url, vm.path, vm.contentType],
+      (vm) => [vm.request, vm.url, vm.path],
       (val) => {
         this.setRouteQueryState()
       }

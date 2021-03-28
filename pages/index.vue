@@ -11,7 +11,12 @@
                   <input
                     id="method"
                     class="method"
-                    v-model="request.method"
+                    :value="request.method"
+                    @change="
+                      (newName) => {
+                        this.request = { ...this.request, method: newName.target.value }
+                      }
+                    "
                     :readonly="!customMethod"
                     autofocus
                   />
@@ -24,7 +29,7 @@
                         class="icon"
                         @click="
                           customMethod = methodMenuItem == 'CUSTOM' ? true : false
-                          request.method = methodMenuItem
+                          request = { ...request, method: methodMenuItem }
                         "
                         v-close-popover
                       >
@@ -77,7 +82,18 @@
           <ul>
             <li>
               <label for="name" class="text-sm">{{ $t("token_req_name") }}</label>
-              <input id="name" name="name" type="text" v-model="request.name" class="text-sm" />
+              <input
+                id="name"
+                name="name"
+                type="text"
+                :value="request.name"
+                @change="
+                  (newValue) => {
+                    this.request = { ...this.request, name: newValue.target.value }
+                  }
+                "
+                class="text-sm"
+              />
             </li>
           </ul>
           <div
@@ -227,7 +243,15 @@
                       </div>
                     </div>
                     <span class="select-wrapper">
-                      <select id="auth" v-model="auth">
+                      <select
+                        id="auth"
+                        :value="request.auth"
+                        @change="
+                          (newName) => {
+                            this.request = { ...this.request, auth: newName.target.value }
+                          }
+                        "
+                      >
                         <option>None</option>
                         <option>Basic Auth</option>
                         <option>Bearer Token</option>
@@ -236,7 +260,7 @@
                     </span>
                   </li>
                 </ul>
-                <ul v-if="auth === 'Basic Auth'">
+                <ul v-if="request.auth === 'Basic Auth'">
                   <li>
                     <input placeholder="User" name="http_basic_user" v-model="httpUser" />
                   </li>
@@ -259,12 +283,12 @@
                     </li>
                   </div>
                 </ul>
-                <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
+                <ul v-if="request.auth === 'Bearer Token' || request.auth === 'OAuth 2.0'">
                   <li>
                     <div class="row-wrapper">
                       <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
                       <button
-                        v-if="auth === 'OAuth 2.0'"
+                        v-if="request.auth === 'OAuth 2.0'"
                         class="icon"
                         @click="showTokenListModal = !showTokenListModal"
                         v-tooltip.bottom="$t('use_token')"
@@ -272,7 +296,7 @@
                         <i class="material-icons">open_in_new</i>
                       </button>
                       <button
-                        v-if="auth === 'OAuth 2.0'"
+                        v-if="request.auth === 'OAuth 2.0'"
                         class="icon"
                         @click="showTokenRequest = !showTokenRequest"
                         v-tooltip.bottom="$t('get_token')"
@@ -788,7 +812,6 @@ export default {
       this.uri = newValue.url + newValue.path
       this.url = newValue.url
       this.path = newValue.path
-      this.auth = newValue.auth
       this.httpUser = newValue.httpUser
       this.httpPassword = newValue.httpPassword
       this.passwordFieldType = newValue.passwordFieldType
@@ -872,15 +895,7 @@ export default {
         return this.$store.state.request
       },
       set(value) {
-        this.$store.commit("updateRequest", { value })
-      },
-    },
-    auth: {
-      get() {
-        return this.$store.state.request.auth
-      },
-      set(value) {
-        this.$store.commit("setState", { value, attribute: "auth" })
+        this.$store.commit("updateRequest", value)
       },
     },
     httpUser: {
@@ -1136,7 +1151,7 @@ export default {
       }
 
       return generateCodeWithGenerator(this.requestType, {
-        auth: this.auth,
+        auth: this.request.auth,
         method: this.request.method,
         url: this.url,
         pathName: this.pathName,
@@ -1199,12 +1214,12 @@ export default {
     },
     handleUseHistory(entry) {
       this.request = entry
+      console.log(this.request)
       this.uri = entry.url + entry.path
       this.url = entry.url
       this.path = entry.path
       this.showPreRequestScript = entry.usesPreScripts
       this.preRequestScript = entry.preRequestScript
-      this.auth = entry.auth
       this.httpUser = entry.httpUser
       this.httpPassword = entry.httpPassword
       this.bearerToken = entry.bearerToken
@@ -1271,7 +1286,7 @@ export default {
         body: this.$t("loading"),
       }
       const auth =
-        this.auth === "Basic Auth"
+        this.request.auth === "Basic Auth"
           ? {
               username: this.httpUser,
               password: this.httpPassword,
@@ -1308,7 +1323,7 @@ export default {
         requestBody = formData
       }
       // If the request uses a token for auth, we want to make sure it's sent here.
-      if (this.auth === "Bearer Token" || this.auth === "OAuth 2.0")
+      if (this.request.auth === "Bearer Token" || this.request.auth === "OAuth 2.0")
         headers["Authorization"] = `Bearer ${this.bearerToken}`
       headers = Object.assign(
         // Clone the app headers object first, we don't want to
@@ -1349,6 +1364,7 @@ export default {
           // Addition of an entry to the history component.
           const entry = {
             name: this.request.name,
+            auth: this.request.auth,
             status: this.response.status,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
@@ -1360,7 +1376,6 @@ export default {
             preRequestScript: this.preRequestScript,
             duration,
             star: false,
-            auth: this.auth,
             httpUser: this.httpUser,
             httpPassword: this.httpPassword,
             bearerToken: this.bearerToken,
@@ -1405,6 +1420,7 @@ export default {
             // Addition of an entry to the history component.
             const entry = {
               name: this.request.name,
+              auth: this.request.auth,
               status: this.response.status,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
@@ -1415,7 +1431,6 @@ export default {
               usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
               star: false,
-              auth: this.auth,
               httpUser: this.httpUser,
               httpPassword: this.httpPassword,
               bearerToken: this.bearerToken,
@@ -1708,7 +1723,7 @@ export default {
           this.params = []
           break
         case "auth":
-          this.auth = "None"
+          this.request.auth = "None"
           this.httpUser = ""
           this.httpPassword = ""
           this.bearerToken = ""
@@ -1737,6 +1752,7 @@ export default {
           this.request = {
             method: "GET",
             name: "Untitled request",
+            auth: "None",
           }
           this.url = "https://httpbin.org"
           this.path = "/get"
@@ -1745,7 +1761,6 @@ export default {
           this.rawParams = "{}"
           this.files = []
           this.params = []
-          this.auth = "None"
           this.httpUser = ""
           this.httpPassword = ""
           this.bearerToken = ""
@@ -1779,7 +1794,7 @@ export default {
         url: decodeURI(urlAndPath.url),
         path: decodeURI(urlAndPath.path),
         method: this.request.method,
-        auth: this.auth,
+        auth: this.request.auth,
         httpUser: this.httpUser,
         httpPassword: this.httpPassword,
         passwordFieldType: this.passwordFieldType,

@@ -1,8 +1,8 @@
 import Vue from "vue"
 
 export default {
-  updateRequest({ request }, { value }) {
-    request = value
+  updateRequest(state, value) {
+    state.request = value
   },
 
   setState({ request }, { attribute, value }) {

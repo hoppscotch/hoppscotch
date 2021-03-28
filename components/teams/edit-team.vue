@@ -59,7 +59,9 @@
               />
               <template slot="popover">
                 <div>
-                  <button class="icon" v-close-popover @click="member.value = 'OWNER'">OWNER</button>
+                  <button class="icon" v-close-popover @click="member.value = 'OWNER'">
+                    OWNER
+                  </button>
                 </div>
                 <div>
                   <button class="icon" v-close-popover @click="member.value = 'EDITOR'">
@@ -137,7 +139,6 @@ export default {
   computed: {
     editingTeamCopy() {
       return this.editingTeam
-      console.log("editingTeamCopy")
     },
     memberString() {
       console.log("memberString")
@@ -170,39 +171,39 @@ export default {
       console.log("removeTeamMember")
     },
     validateEmail(emailID) {
-      if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(emailID))
-        {
-          return true
-        }
+      if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(emailID)) {
+        return true
+      }
       return false
     },
     saveTeam() {
-      if (this.rename != null && (this.rename.replace(/\s/g, "")).length < 6) {
+      if (this.$data.rename !== null && this.$data.rename.replace(/\s/g, "").length < 6) {
         this.$toast.error(this.$t("string_length_insufficient"), {
-            icon: "error",
-        });
-        console.log("String length less than 6");
-        return;
+          icon: "error",
+        })
+        console.log("String length less than 6")
+        return
       }
       console.log("saveTeam", this.members)
-      this.members.forEach((element) => {
-        if (!this.validateEmail(element.key)){
+      this.$data.members.forEach((element) => {
+        if (!this.validateEmail(element.key)) {
           this.$toast.error(this.$t("invalid_emailID_format"), {
             icon: "error",
-          });
-          console.log("Email id format invalid");
-          return;
+          })
+          console.log("Email id format invalid")
+          return
         }
-      });
-      this.members.forEach((element) => {
+      })
+      this.$data.members.forEach((element) => {
         // Call to the graphql mutation
-          team_utils.addTeamMemberByEmail(this.$apollo, element.value, element.key, this.editingteamID).then((data) => {
+        team_utils
+          .addTeamMemberByEmail(this.$apollo, element.value, element.key, this.editingteamID)
+          .then((data) => {
             // Result
             this.$toast.success(this.$t("team_saved"), {
               icon: "done",
             })
             this.hideModal()
-            console.log(data)
           })
           .catch((error) => {
             // Error
@@ -212,28 +213,32 @@ export default {
             console.error(error)
           })
       })
-      const newName = this.name == this.rename ? this.name : this.rename
-      if (!/\S/.test(newName))
-        return this.$toast.error(this.$t("team_name_empty"), {
-          icon: "error",
-        })
-      // Call to the graphql mutation
-      team_utils.renameTeam(this.$apollo, newName, this.editingteamID)
-        .then((data) => {
-          // Result
-          this.$toast.success(this.$t("team_saved"), {
-            icon: "done",
+      if (this.$data.rename !== null) {
+        const newName = this.name === this.$data.rename ? this.name : this.$data.rename
+        if (!/\S/.test(newName))
+          return this.$toast.error(this.$t("team_name_empty"), {
+            icon: "error",
           })
-          this.hideModal()
-          console.log(data)
-        })
-        .catch((error) => {
-          // Error
-          this.$toast.error(this.$t("error_occurred"), {
-            icon: "done",
-          })
-          console.error(error)
-        })
+        // Call to the graphql mutation
+        if (this.name !== this.rename)
+          team_utils
+            .renameTeam(this.$apollo, newName, this.editingteamID)
+            .then((data) => {
+              // Result
+              this.$toast.success(this.$t("team_saved"), {
+                icon: "done",
+              })
+              this.hideModal()
+            })
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
+      }
+      this.hideModal()
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -71,7 +71,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-
 export default {
   props: {
     show: Boolean,
@@ -108,24 +107,19 @@ export default {
       const collectionIndex = this.$data.requestData.collectionIndex
       const userSelectedAnyCollection = collectionIndex !== undefined
       if (!userSelectedAnyCollection) return []
-
       const noCollectionAvailable = collections[collectionIndex] !== undefined
       if (!noCollectionAvailable) return []
-
       return getFolderNames(collections[collectionIndex].folders, [])
     },
     requests() {
       const collections = this.$store.state.postwoman.collectionsGraphql
       const collectionIndex = this.$data.requestData.collectionIndex
       const folderName = this.$data.requestData.folderName
-
       const userSelectedAnyCollection = collectionIndex !== undefined
       if (!userSelectedAnyCollection) {
         return []
       }
-
       const userSelectedAnyFolder = folderName !== undefined && folderName !== ""
-
       if (userSelectedAnyFolder) {
         const collection = collections[collectionIndex]
         const folder = findFolder(folderName, collection)
@@ -133,11 +127,9 @@ export default {
       } else {
         const collection = collections[collectionIndex]
         const noCollectionAvailable = collection !== undefined
-
         if (!noCollectionAvailable) {
           return []
         }
-
         return collection.requests
       }
     },
@@ -167,13 +159,11 @@ export default {
         })
         return
       }
-
       const requestUpdated = {
         ...this.$props.editingRequest,
         name: this.$data.requestData.name,
         collection: this.$data.requestData.collectionIndex,
       }
-
       this.$store.commit("postwoman/saveRequestAs", {
         request: requestUpdated,
         collectionIndex: this.$data.requestData.collectionIndex,
@@ -181,7 +171,6 @@ export default {
         requestIndex: this.$data.requestData.requestIndex,
         collectionType: "graphql",
       })
-
       this.hideModal()
       this.syncCollections()
     },
@@ -190,7 +179,6 @@ export default {
     },
   },
 }
-
 function getFolderNames(folders, namesList) {
   if (folders.length) {
     folders.forEach((folder) => {
@@ -202,20 +190,15 @@ function getFolderNames(folders, namesList) {
   }
   return namesList
 }
-
 function findFolder(folderName, currentFolder) {
   let selectedFolder
   let result
-
   if (folderName === currentFolder.name) {
     return currentFolder
   }
-
   for (let i = 0; i < currentFolder.folders.length; i++) {
     selectedFolder = currentFolder.folders[i]
-
     result = findFolder(folderName, selectedFolder)
-
     if (result !== false) {
       return result
     }

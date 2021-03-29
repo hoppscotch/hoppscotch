@@ -325,13 +325,17 @@ export const mutations = {
     if (specifiedCollection && specifiedFolder && specifiedRequest) {
       const folder = findFolder(
         folderName,
-        collectionType == "rest" ? collections[collectionIndex] : collectionsGraphql[collectionIndex]
+        collectionType == "rest"
+          ? collections[collectionIndex]
+          : collectionsGraphql[collectionIndex]
       )
       Vue.set(folder.requests, requestIndex, request)
     } else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
       const folder = findFolder(
         folderName,
-        collectionType == "rest" ? collections[collectionIndex] : collectionsGraphql[collectionIndex]
+        collectionType == "rest"
+          ? collections[collectionIndex]
+          : collectionsGraphql[collectionIndex]
       )
       const requests = folder.requests
       const lastRequestIndex = requests.length - 1
@@ -369,12 +373,9 @@ export const mutations = {
     }
   },
 
-  selectRequest(state, { request }) {
-    state.selectedRequest = Object.assign({}, request)
-  },
-
-  selectGraphqlRequest(state, { request }) {
-    state.selectedGraphqlRequest = Object.assign({}, request)
+  selectRequest(state, { request, collectionType }) {
+    if (collectionType == "rest") state.selectedRequest = Object.assign({}, request)
+    else state.selectedGraphqlRequest = Object.assign({}, request)
   },
 
   moveRequest({ collections, collectionsGraphql }, payload) {

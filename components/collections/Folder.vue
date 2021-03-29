@@ -142,9 +142,13 @@ export default {
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
         fb.writeCollections(
-          this.$props.type == "rest"
-            ? JSON.parse(JSON.stringify(this.$store.state.postwoman.collections))
-            : JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+          JSON.parse(
+            JSON.stringify(
+              this.$props.type == "rest"
+                ? this.$store.state.postwoman.collections
+                : this.$store.state.postwoman.collectionsGraphql
+            )
+          ),
           this.$props.type == "rest" ? "collections" : "collectionsGraphql"
         )
       }

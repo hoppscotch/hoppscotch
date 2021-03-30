@@ -14,9 +14,11 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <span v-if="type == 'rest'" :class="getRequestLabelColor(request.method)">{{
-            request.method
-          }}</span>
+          <span
+            v-if="type == 'rest'"
+            :class="type == 'rest' ? getRequestLabelColor(request.method) : ''"
+            >{{ request.method }}</span
+          >
           <span>{{ request.name }}</span>
         </button>
       </div>

@@ -47,6 +47,7 @@ export const state = () => ({
       name: "My Collection",
       folders: [],
       requests: [],
+      collectionType: "rest",
     },
   ],
   collectionsGraphql: [
@@ -54,6 +55,7 @@ export const state = () => ({
       name: "My GraphQL Collection",
       folders: [],
       requests: [],
+      collectionType: "graphql",
     },
   ],
   environments: [

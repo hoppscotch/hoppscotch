@@ -71,7 +71,6 @@ export default {
       }
     },
     addNewCollection() {
-      console.log(this.$props.type)
       if (!this.$data.name) {
         this.$toast.info(this.$t("invalid_collection_name"))
         return

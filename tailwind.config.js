@@ -42,7 +42,7 @@ export default {
       },
     },
     fontFamily: {
-      body: "var(--font-body)",
+      sans: "var(--font-sans)",
       mono: "var(--font-mono)",
       icon: "var(--font-icon)",
     },

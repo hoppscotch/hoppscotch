@@ -760,7 +760,6 @@ import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttyp
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import { getSettingSubject, applySetting } from "~/newstore/settings"
 import clone from "lodash/clone"
-import { access } from "fs"
 
 export default {
   data() {

@@ -6,6 +6,7 @@
     <!-- debug end -->
     <add-team :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <edit-team
+      :team="myTeams[0]"
       :show="showModalEdit"
       :editingTeam="editingTeam"
       :editingteamID="editingteamID"
@@ -88,6 +89,13 @@ export default {
             name
             myRole
             ownersCount
+            members {
+              user {
+                displayName
+                email
+              }
+              role
+            }
           }
         }
       `,

@@ -136,6 +136,11 @@ export default {
       console.log("editingTeam", update)
     },
   },
+  // mounted: {
+  //   printValues() {
+  //     console.log(this.$props.teamMembers)
+  //   },
+  // },
   computed: {
     editingTeamCopy() {
       return this.editingTeam
@@ -151,6 +156,24 @@ export default {
         this.rename = name
       },
     },
+    teamMembers: {
+      get() {
+        // this.updatedMembers = []
+        const n = this.editingTeam.members.length
+        for (let i = 0; i < n; i++) {
+          const item = {
+            key: this.editingTeam.members[i].user.email,
+            value: this.editingTeam.members[i].role,
+            // readOnly: true,
+          }
+          this.members.push(item)
+        }
+        return this.members
+      },
+      set(updatedMembers) {
+        this.members = updatedMembers
+      },
+    },
   },
   methods: {
     clearContent(e) {
@@ -162,6 +185,7 @@ export default {
       setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     addTeamMember() {
+      console.log(this.teamMembers)
       let value = { key: "", value: "" }
       this.members.push(value)
       console.log("addTeamMember")

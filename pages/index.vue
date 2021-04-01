@@ -540,7 +540,7 @@
             </SmartTab>
 
             <SmartTab :id="'env'" :label="$t('environments')">
-              <Environments @use-environment="useSelectedEnvironment($event)" />
+              <Environments :page="'rest'" @use-environment="useSelectedEnvironment($event)" />
             </SmartTab>
 
             <SmartTab :id="'notes'" :label="$t('notes')">

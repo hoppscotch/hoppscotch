@@ -17,11 +17,12 @@
         </select>
       </span>
     </div>
-    <EnvironmentsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <EnvironmentsAdd :page="page" :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <EnvironmentsEdit
       :show="showModalEdit"
       :editingEnvironment="editingEnvironment"
       :editingEnvironmentIndex="editingEnvironmentIndex"
+      :page="page"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
@@ -50,6 +51,7 @@
           <EnvironmentsEnvironment
             :environmentIndex="index"
             :environment="environment"
+            :page="page"
             @edit-environment="editEnvironment(environment, index)"
           />
         </li>
@@ -68,6 +70,9 @@
 import { fb } from "~/helpers/fb"
 
 export default {
+  props: {
+    page: String,
+  },
   data() {
     return {
       showModalImportExport: false,
@@ -84,9 +89,14 @@ export default {
   },
   computed: {
     environments() {
-      return fb.currentUser !== null
-        ? fb.currentEnvironments
-        : this.$store.state.postwoman.environments
+      // console.log(this.$props.page == "rest")
+      if (fb.currentEnvironments !== null) {
+        return this.$props.page == "rest" ? fb.currentEnvironments : fb.currentGraphqlEnvironments
+      } else {
+        return this.$props.page == "rest"
+          ? this.$store.state.postwoman.environments
+          : this.$store.state.postwoman.graphqlEnvironments
+      }
     },
   },
   watch: {
@@ -155,7 +165,16 @@ export default {
     syncEnvironments() {
       if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+          fb.writeEnvironments(
+            JSON.parse(
+              JSON.stringify(
+                this.$props.page == "rest"
+                  ? this.$store.state.postwoman.environments
+                  : this.$store.state.postwoman.graphqlEnvironments
+              )
+            ),
+            this.$props.page
+          )
         }
       }
     },

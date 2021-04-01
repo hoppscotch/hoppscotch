@@ -43,6 +43,7 @@ export default {
   props: {
     environment: Object,
     environmentIndex: Number,
+    page: String,
   },
   data() {
     return {
@@ -53,12 +54,21 @@ export default {
     syncEnvironments() {
       if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+          fb.writeEnvironments(
+            JSON.parse(
+              JSON.stringify(
+                this.$props.page == "rest"
+                  ? this.$store.state.postwoman.environments
+                  : this.$store.state.postwoman.graphqlEnvironments
+              )
+            ),
+            this.$props.page
+          )
         }
       }
     },
     removeEnvironment() {
-      this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
+      this.$store.commit("postwoman/removeEnvironment", this.environmentIndex, this.$props.page)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })

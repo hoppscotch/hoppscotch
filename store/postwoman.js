@@ -63,6 +63,13 @@ export const state = () => ({
     },
   ],
   editingEnvironment: {},
+  graphqlEnvironments: [
+    {
+      name: "My Environment Variables",
+      variables: [],
+    },
+  ],
+  editingGraphqlEnvironment: {},
   selectedRequest: {},
   selectedGraphqlRequest: {},
   editingRequest: {},
@@ -86,12 +93,20 @@ export const mutations = {
     settings[key] = value
   },
 
-  removeVariables({ editingEnvironment }, value) {
-    editingEnvironment.variables = value
+  removeVariables({ editingEnvironment }, value, page) {
+    if (page == "rest") {
+      editingEnvironment.variables = value
+    } else if (page == "graphql") {
+      editingGraphqlEnvironment.variables = value
+    }
   },
 
-  setEditingEnvironment(state, value) {
-    state.editingEnvironment = { ...value }
+  setEditingEnvironment(state, value, page) {
+    if (page == "rest") {
+      state.editingEnvironment = { ...value }
+    } else if (page == "graphql") {
+      state.editingGraphqlEnvironment = { ...value }
+    }
   },
 
   setVariableKey({ editingEnvironment }, { index, value }) {
@@ -102,19 +117,27 @@ export const mutations = {
     editingEnvironment.variables[index].value = testValue(value)
   },
 
-  removeVariable({ editingEnvironment }, variables) {
-    editingEnvironment.variables = variables
+  removeVariable({ editingEnvironment }, variables, page) {
+    if (page == "rest") {
+      editingEnvironment.variables = variables
+    } else if (page == "graphql") {
+      editingGraphqlEnvironment.variables = variables
+    }
   },
 
-  addVariable({ editingEnvironment }, value) {
-    editingEnvironment.variables.push(value)
+  addVariable({ editingEnvironment }, value, page) {
+    if (page == "rest") {
+      editingEnvironment.variables.push(value)
+    } else if (page == "graphql") {
+      editingGraphqlEnvironment.variables.push(value)
+    }
   },
 
   replaceEnvironments(state, environments) {
     state.environments = environments
   },
 
-  importAddEnvironments(state, { environments, confirmation }) {
+  importAddEnvironments(state, { environments, confirmation, page }) {
     const duplicateEnvironment = environments.some((item) => {
       return state.environments.some((item2) => {
         return item.name.toLowerCase() === item2.name.toLowerCase()
@@ -125,7 +148,6 @@ export const mutations = {
       return
     }
     state.environments = [...state.environments, ...environments]
-
     let index = 0
     for (let environment of state.environments) {
       environment.environmentIndex = index
@@ -136,8 +158,12 @@ export const mutations = {
     })
   },
 
-  removeEnvironment({ environments }, environmentIndex) {
-    environments.splice(environmentIndex, 1)
+  removeEnvironment({ environments, graphqlEnvironments }, environmentIndex, page) {
+    if (page == "rest") {
+      environments.splice(environmentIndex, 1)
+    } else if (page == "graphql") {
+      graphqlEnvironments.splice(environmentIndex, 1)
+    }
   },
 
   saveEnvironment({ environments }, payload) {

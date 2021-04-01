@@ -108,6 +108,7 @@ export default {
     show: Boolean,
     editingEnvironment: Object,
     editingEnvironmentIndex: Number,
+    page: String,
   },
   data() {
     return {
@@ -121,12 +122,20 @@ export default {
         this.$props.editingEnvironment && this.$props.editingEnvironment.name
           ? this.$props.editingEnvironment.name
           : undefined
-      this.$store.commit("postwoman/setEditingEnvironment", this.$props.editingEnvironment)
+      this.$store.commit(
+        "postwoman/setEditingEnvironment",
+        this.$props.editingEnvironment,
+        this.page
+      )
     },
   },
   computed: {
     editingEnvCopy() {
-      return this.$store.state.postwoman.editingEnvironment
+      if (page == "rest") {
+        return this.$store.state.postwoman.editingEnvironment
+      } else if (page == "graphql") {
+        return this.$store.state.postwoman.editingGraphqlEnvironment
+      }
     },
     variableString() {
       const result = this.editingEnvCopy.variables
@@ -137,12 +146,15 @@ export default {
     syncEnvironments() {
       if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+          fb.writeEnvironments(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)),
+            this.page
+          )
         }
       }
     },
     clearContent({ target }) {
-      this.$store.commit("postwoman/removeVariables", [])
+      this.$store.commit("postwoman/removeVariables", [], this.page)
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
@@ -151,7 +163,7 @@ export default {
     },
     addEnvironmentVariable() {
       let value = { key: "", value: "" }
-      this.$store.commit("postwoman/addVariable", value)
+      this.$store.commit("postwoman/addVariable", value, this.page)
       this.syncEnvironments()
     },
     removeEnvironmentVariable(index) {
@@ -161,13 +173,13 @@ export default {
         (variable, index) => variableIndex !== index
       )
 
-      this.$store.commit("postwoman/removeVariable", newVariables)
+      this.$store.commit("postwoman/removeVariable", newVariables, this.page)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.$store.commit("postwoman/removeVariable", oldVariables)
+            this.$store.commit("postwoman/removeVariable", oldVariables, this.page)
             toastObject.remove()
           },
         },

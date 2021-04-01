@@ -42,6 +42,7 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
+    page: String,
   },
   data() {
     return {
@@ -52,11 +53,21 @@ export default {
     syncEnvironments() {
       if (fb.currentUser !== null && fb.currentSettings[1]) {
         if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+          fb.writeEnvironments(
+            JSON.parse(
+              JSON.stringify(
+                this.$props.page == "rest"
+                  ? this.$store.state.postwoman.environments
+                  : this.$store.state.postwoman.graphqlEnvironments
+              )
+            ),
+            this.$props.page
+          )
         }
       }
     },
     addNewEnvironment() {
+      console.log("add environment - " + this.$data.name + " - " + this.$props.page)
       if (!this.$data.name) {
         this.$toast.info(this.$t("invalid_environment_name"))
         return
@@ -70,6 +81,7 @@ export default {
       this.$store.commit("postwoman/importAddEnvironments", {
         environments: newEnvironment,
         confirmation: "Environment added",
+        page: this.$props.page,
       })
       this.$emit("hide-modal")
       this.syncEnvironments()

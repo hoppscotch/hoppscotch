@@ -37,6 +37,7 @@ export class FirebaseInstance {
     this.currentCollections = []
     this.currentGraphqlCollections = []
     this.currentEnvironments = []
+    this.currentGraphqlEnvironments = []
 
     this.app.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -161,6 +162,21 @@ export class FirebaseInstance {
             })
             if (environments.length > 0) {
               this.currentEnvironments = environments[0].environment
+            }
+          })
+
+        this.usersCollection
+          .doc(this.currentUser.uid)
+          .collection("graphqlEnvironments")
+          .onSnapshot((environmentsRef) => {
+            const environments = []
+            environmentsRef.forEach((doc) => {
+              const environment = doc.data()
+              environment.id = doc.id
+              environments.push(environment)
+            })
+            if (environments.length > 0) {
+              this.currentGraphqlEnvironments = environments[0].environment
             }
           })
       } else {
@@ -353,7 +369,7 @@ export class FirebaseInstance {
     }
   }
 
-  async writeEnvironments(environment) {
+  async writeEnvironments(environment, page) {
     const ev = {
       updatedOn: new Date(),
       author: this.currentUser.uid,
@@ -361,11 +377,11 @@ export class FirebaseInstance {
       author_image: this.currentUser.photoURL,
       environment,
     }
-
+    let collection = page == "rest" ? "environments" : "graphqlEnvironments"
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
-        .collection("environments")
+        .collection(collection)
         .doc("sync")
         .set(ev)
     } catch (e) {

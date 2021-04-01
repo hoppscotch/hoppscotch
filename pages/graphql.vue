@@ -468,7 +468,7 @@
           </SmartTab>
 
           <SmartTab :id="'env'" :label="$t('environments')">
-            <Environments @use-environment="useSelectedEnvironment($event)" />
+            <Environments :page="'graphql'" @use-environment="useSelectedEnvironment($event)" />
           </SmartTab>
         </SmartTabs>
       </aside>

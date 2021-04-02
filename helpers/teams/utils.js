@@ -252,6 +252,24 @@ async function deleteCollection(apollo, id) {
   return response
 }
 
+async function deleteRequest(apollo, requestID) {
+  let response = undefined
+  while (true) {
+    response = await apollo.mutate({
+      mutation: gql`
+        mutation($requestID: String!) {
+          deleteRequest(requestID: $requestID)
+        }
+      `,
+      variables: {
+        requestID: requestID,
+      },
+    })
+    if (response != undefined) break
+  }
+  return response
+}
+
 async function createNewRootCollection(apollo, title, id) {
   let response = undefined
   while (true) {
@@ -329,6 +347,7 @@ export default {
   updateRequest: updateRequest,
   addChildCollection: addChildCollection,
   deleteCollection: deleteCollection,
+  deleteRequest: deleteRequest,
   createNewRootCollection: createNewRootCollection,
   createTeam: createTeam,
   addTeamMemberByEmail: addTeamMemberByEmail,

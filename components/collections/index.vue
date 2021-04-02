@@ -27,6 +27,7 @@
       :editing-collection-index="editingCollectionIndex"
       :collectionsType="collectionsType"
       @hide-modal="displayModalEdit(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <add-folder
       :show="showModalAddFolder"

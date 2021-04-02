@@ -51,7 +51,9 @@
       :folder-name="editingFolderName"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEditRequest(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <import-export-collections
       :show="showModalImportExport"
@@ -302,6 +304,7 @@ export default {
       if (!shouldDisplay) this.resetSelectedData()
     },
     editCollection(collection, collectionIndex) {
+      console.log(collection)
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
       this.displayModalEdit(true)
@@ -367,6 +370,7 @@ export default {
       this.syncCollections()
     },
     editRequest(payload) {
+      console.log("payload", payload)
       const { collectionIndex, folderIndex, folderName, request, requestIndex } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex

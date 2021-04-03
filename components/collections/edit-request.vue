@@ -70,7 +70,6 @@ export default {
         ...this.$props.request,
         name: this.$data.requestUpdateData.name || this.$props.request.name,
       }
-      console.log(this.$props.request)
       if (this.$props.collectionsType.type == "my-collections") {
         this.$store.commit("postwoman/editRequest", {
           requestCollectionIndex: this.$props.collectionIndex,

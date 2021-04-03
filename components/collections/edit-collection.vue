@@ -65,7 +65,6 @@ export default {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      console.log(this.collectionsType.type)
       if (this.collectionsType.type == "my-collections") {
         const collectionUpdated = {
           ...this.$props.editingCollection,
@@ -77,7 +76,6 @@ export default {
         })
         this.syncCollections()
       } else if (this.collectionsType.type == "team-collections") {
-        console.log(this.collectionsType)
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
           team_utils
             .renameCollection(this.$apollo, this.$data.name, this.$props.editingCollection.id)
@@ -86,7 +84,6 @@ export default {
               this.$toast.success("Collection Renamed", {
                 icon: "done",
               })
-              console.log(data)
               this.$emit("update-team-collections")
             })
             .catch((error) => {

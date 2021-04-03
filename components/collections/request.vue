@@ -111,7 +111,6 @@ export default {
       dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
-      console.log("remove", this.$props.collectionsType)
       if (this.$props.collectionsType.type == "my-collections") {
         this.$store.commit("postwoman/removeRequest", {
           collectionIndex: this.$props.collectionIndex,

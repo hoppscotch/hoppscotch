@@ -3,7 +3,7 @@
     <div class="content">
       <div class="columns">
         <AppSidenav />
-        <main class="container">
+        <main>
           <AppHeader />
           <nuxt />
           <AppFooter />

@@ -65,7 +65,7 @@ describe("tab", () => {
       }
     )
 
-    expect(wrapper.find("#testdiv").element.parentElement).toBeVisible()
+    expect(wrapper.find("#testdiv").isVisible()).toEqual(true)
   })
 
   test("if not set active, the slot is not rendered", () => {
@@ -80,6 +80,6 @@ describe("tab", () => {
       }
     )
 
-    expect(wrapper.find("#testdiv").element.parentElement).not.toBeVisible()
+    expect(wrapper.find("#testdiv").isVisible()).toEqual(false)
   })
 })

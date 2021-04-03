@@ -456,6 +456,8 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 
 ## **Docker**
 
+**Official container** &nbsp; [![hoppscotch/hoppscotch](https://img.shields.io/docker/pulls/hoppscotch/hoppscotch?style=social)](https://hub.docker.com/r/hoppscotch/hoppscotch)
+
 ```bash
 #pull
 docker pull hoppscotch/hoppscotch
@@ -466,6 +468,8 @@ docker build -t hoppscotch/hoppscotch:latest .
 #run
 docker run -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
+
+**Legacy container** &nbsp; [![liyasthomas/postwoman](https://img.shields.io/docker/pulls/liyasthomas/postwoman?style=social)](https://hub.docker.com/r/liyasthomas/postwoman)
 
 <details>
   <summary><i>Legacy container</i></summary>

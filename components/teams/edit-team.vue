@@ -29,13 +29,58 @@
         <li>
           <div class="row-wrapper">
             <label for="memberList">{{ $t("team_member_list") }}</label>
-            <div>
-              <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
-                <i class="material-icons">clear_all</i>
-              </button>
-            </div>
+            <div></div>
           </div>
         </li>
+      </ul>
+      <ul v-for="(member, index) in teamMembers" :key="`new-${index}`">
+        <li>
+          <input
+            :placeholder="$t('email')"
+            :name="'param' + index"
+            :value="member.user.email"
+            readonly
+          />
+        </li>
+        <li>
+          <span class="select-wrapper">
+            <v-popover>
+              <input
+                :placeholder="$t('permissions')"
+                :name="'value' + index"
+                :value="typeof member.role === 'string' ? member.role : JSON.stringify(member.role)"
+                readonly
+              />
+              <template slot="popover">
+                <div>
+                  <button class="icon" v-close-popover @click="member.role = 'OWNER'">OWNER</button>
+                </div>
+                <div>
+                  <button class="icon" v-close-popover @click="member.role = 'EDITOR'">
+                    EDITOR
+                  </button>
+                </div>
+                <div>
+                  <button class="icon" v-close-popover @click="member.role = 'VIEWER'">
+                    VIEWER
+                  </button>
+                </div>
+              </template>
+            </v-popover>
+          </span>
+        </li>
+        <div>
+          <li>
+            <button
+              class="icon"
+              @click="removeTeamMember(index)"
+              v-tooltip.bottom="$t('delete')"
+              id="member"
+            >
+              <i class="material-icons">delete</i>
+            </button>
+          </li>
+        </div>
       </ul>
       <ul v-for="(member, index) in members" :key="index">
         <li>
@@ -131,22 +176,9 @@ export default {
       members: [],
     }
   },
-  watch: {
-    editingTeam: function (update) {
-      console.log("editingTeam", update)
-    },
-  },
-  // mounted: {
-  //   printValues() {
-  //     console.log(this.$props.teamMembers)
-  //   },
-  // },
   computed: {
     editingTeamCopy() {
       return this.editingTeam
-    },
-    memberString() {
-      console.log("memberString")
     },
     name: {
       get() {
@@ -156,36 +188,12 @@ export default {
         this.rename = name
       },
     },
-    teamMembers: {
-      get() {
-        // this.updatedMembers = []
-        const n = this.editingTeam.members.length
-        for (let i = 0; i < n; i++) {
-          const item = {
-            key: this.editingTeam.members[i].user.email,
-            value: this.editingTeam.members[i].role,
-            // readOnly: true,
-          }
-          this.members.push(item)
-        }
-        return this.members
-      },
-      set(updatedMembers) {
-        this.members = updatedMembers
-      },
+    teamMembers() {
+      return this.editingTeam.members
     },
   },
   methods: {
-    clearContent(e) {
-      console.log("clearContent")
-      e.target.innerHTML = this.doneButton
-      this.$toast.info(this.$t("cleared"), {
-        icon: "clear_all",
-      })
-      setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
-    },
     addTeamMember() {
-      console.log(this.teamMembers)
       let value = { key: "", value: "" }
       this.members.push(value)
       console.log("addTeamMember")

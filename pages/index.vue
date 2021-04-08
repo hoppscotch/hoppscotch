@@ -1681,6 +1681,16 @@ export default {
         this.path = pathname
         this.uri = this.url + this.path
         this.headers = []
+        if (parsedCurl.query) {
+          for (const key of Object.keys(parsedCurl.query)) {
+            this.$store.commit("addParams", {
+              key,
+              value: parsedCurl.query[key],
+              type: "query",
+              active: true,
+            })
+          }
+        }
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
             this.$store.commit("addHeaders", {

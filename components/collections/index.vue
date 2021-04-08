@@ -344,7 +344,6 @@ export default {
               this.$toast.success(this.$t("folder_added"), {
                 icon: "done",
               })
-              console.log(data)
               this.$emit("update-team-collections")
             })
             .catch((error) => {

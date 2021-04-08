@@ -264,10 +264,8 @@ export default {
       this.$refs.inputChooseFileToReplaceWith.value = ""
     },
     importFromJSON() {
-      console.log("here2")
       let reader = new FileReader()
       reader.onload = ({ target }) => {
-        console.log("here3")
         let content = target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
@@ -282,7 +280,6 @@ export default {
         } else {
           return this.failedImport()
         }
-        console.log(collections)
         if (this.collectionsType.type == "team-collections") {
           team_utils
             .importFromJSON(this.$apollo, collections, this.$props.collectionsType.selectedTeam.id)
@@ -304,7 +301,6 @@ export default {
       this.$refs.inputChooseFileToImportFrom.value = ""
     },
     importFromMyCollections() {
-      console.log(this.$data.mySelectedCollectionID)
       team_utils
         .importFromMyCollections(
           this.$apollo,

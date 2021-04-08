@@ -13,7 +13,11 @@
             >
               <i class="material-icons">arrow_left</i>
             </button>
-            <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+            <button
+              class="tooltip-target icon"
+              v-tooltip.left="$t('more')"
+              v-if="mode == 'import_export' && collectionsType.type == 'my-collections'"
+            >
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
@@ -73,6 +77,7 @@
           class="icon"
           @click="openDialogChooseFileToReplaceWith"
           v-tooltip="$t('replace_current')"
+          v-if="collectionsType.type == 'my-collections'"
         >
           <i class="material-icons">create_new_folder</i>
           <span>{{ $t("replace_json") }}</span>
@@ -103,11 +108,17 @@
           class="icon"
           @click="mode = 'import_from_my_collections'"
           v-tooltip="$t('replace_current')"
+          v-if="collectionsType.type == 'team-collections'"
         >
           <i class="material-icons">folder_special</i>
           <span>{{ "Import from My Collections" }}</span>
         </button>
-        <button class="icon" @click="mode = 'export_as_json'" v-tooltip="$t('show_code')">
+        <button
+          class="icon"
+          @click="mode = 'export_as_json'"
+          v-tooltip="$t('show_code')"
+          v-if="collectionsType.type == 'my-collections'"
+        >
           <i class="material-icons">folder_special</i>
           <span>{{ "Export As JSON" }}</span>
         </button>
@@ -126,7 +137,7 @@
             <option :key="undefined" :value="undefined" hidden disabled selected>
               Select Collection
             </option>
-            <option v-for="(collection, index) in collections" :key="index" :value="index">
+            <option v-for="(collection, index) in myCollections" :key="index" :value="index">
               {{ collection.name }}
             </option>
           </select>
@@ -172,9 +183,13 @@ export default {
   },
   computed: {
     collectionJson() {
-      return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+      if (this.collectionsType.type == "my-collections") {
+        return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+      } else {
+        team_utils.get
+      }
     },
-    collections() {
+    myCollections() {
       return fb.currentUser !== null
         ? fb.currentCollections
         : this.$store.state.postwoman.collections

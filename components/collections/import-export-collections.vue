@@ -4,20 +4,16 @@
       <div class="row-wrapper">
         <h3 class="title">{{ $t(mode) }}</h3>
         <div>
-          <v-popover>
-            <button
-              class="tooltip-target icon"
-              v-if="mode != 'import_export'"
-              @click="mode = 'import_export'"
-              v-tooltip.left="$t('back')"
-            >
-              <i class="material-icons">arrow_left</i>
-            </button>
-            <button
-              class="tooltip-target icon"
-              v-tooltip.left="$t('more')"
-              v-if="mode == 'import_export' && collectionsType.type == 'my-collections'"
-            >
+          <button
+            class="tooltip-target icon"
+            v-if="mode != 'import_export'"
+            @click="mode = 'import_export'"
+            v-tooltip.left="$t('back')"
+          >
+            <i class="material-icons">arrow_left</i>
+          </button>
+          <v-popover v-if="mode == 'import_export' && collectionsType.type == 'my-collections'">
+            <button class="tooltip-target icon" v-tooltip.left="$t('more')">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">

@@ -56,6 +56,7 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
       :collectionsType="collectionsType"
+      @update-team-collections="updateTeamCollections"
     />
     <div class="border-b row-wrapper border-brdColor">
       <button
@@ -78,7 +79,14 @@
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button v-if="!saveRequest" class="icon" @click="displayModalImportExport(true)">
+      <button
+        v-if="
+          !saveRequest &&
+          (collectionsType.type == 'my-collections' || collectionsType.selectedTeam != undefined)
+        "
+        class="icon"
+        @click="displayModalImportExport(true)"
+      >
         {{ $t("import_export") }}
       </button>
     </div>

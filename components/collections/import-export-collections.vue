@@ -264,8 +264,10 @@ export default {
       this.$refs.inputChooseFileToReplaceWith.value = ""
     },
     importFromJSON() {
+      console.log("here2")
       let reader = new FileReader()
       reader.onload = ({ target }) => {
+        console.log("here3")
         let content = target.result
         let collections = JSON.parse(content)
         if (collections[0]) {
@@ -280,9 +282,23 @@ export default {
         } else {
           return this.failedImport()
         }
-        this.$store.commit("postwoman/importCollections", collections)
-        this.fileImported()
-        this.syncToFBCollections()
+        console.log(collections)
+        if (this.collectionsType.type == "team-collections") {
+          team_utils
+            .importFromJSON(this.$apollo, collections, this.$props.collectionsType.selectedTeam.id)
+            .then((status) => {
+              if (status) {
+                this.$emit("update-team-collections")
+                this.fileImported()
+              } else {
+                this.failedImport()
+              }
+            })
+        } else {
+          this.$store.commit("postwoman/importCollections", collections)
+          this.syncToFBCollections()
+          this.fileImported()
+        }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
@@ -298,6 +314,7 @@ export default {
         .then((success) => {
           if (success) {
             this.fileImported()
+            this.$emit("update-team-collections")
           } else {
             this.failedImport()
           }

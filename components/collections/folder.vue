@@ -68,6 +68,7 @@
             :request-index="collectionsType.type === 'my-collections' ? index : request.id"
             :doc="doc"
             :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             @edit-request="$emit('edit-request', $event)"
             @select-request="
               $emit('select-folder', {

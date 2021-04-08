@@ -27,6 +27,7 @@
       :editing-collection-index="editingCollectionIndex"
       :collectionsType="collectionsType"
       @hide-modal="displayModalEdit(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <add-folder
       :show="showModalAddFolder"
@@ -50,7 +51,9 @@
       :folder-name="editingFolderName"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEditRequest(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <import-export-collections
       :show="showModalImportExport"

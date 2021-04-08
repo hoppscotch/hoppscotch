@@ -189,6 +189,30 @@ async function renameCollection(apollo, title, id) {
   return response
 }
 
+async function updateRequest(apollo, request, requestName, requestID) {
+  let response = undefined
+  while (true) {
+    response = await apollo.mutate({
+      mutation: gql`
+        mutation($data: UpdateTeamRequestInput!, $requestID: String!) {
+          updateRequest(data: $data, requestID: $requestID) {
+            id
+          }
+        }
+      `,
+      variables: {
+        data: {
+          request: JSON.stringify(request),
+          title: requestName,
+        },
+        requestID: requestID,
+      },
+    })
+    if (response != undefined) break
+  }
+  return response
+}
+
 async function addChildCollection(apollo, title, id) {
   let response = undefined
   while (true) {
@@ -221,6 +245,24 @@ async function deleteCollection(apollo, id) {
       `,
       variables: {
         collectionID: id,
+      },
+    })
+    if (response != undefined) break
+  }
+  return response
+}
+
+async function deleteRequest(apollo, requestID) {
+  let response = undefined
+  while (true) {
+    response = await apollo.mutate({
+      mutation: gql`
+        mutation($requestID: String!) {
+          deleteRequest(requestID: $requestID)
+        }
+      `,
+      variables: {
+        requestID: requestID,
       },
     })
     if (response != undefined) break
@@ -339,8 +381,10 @@ export default {
   importFromMyCollections: importFromMyCollections,
   importFromJSON: importFromJSON,
   renameCollection: renameCollection,
+  updateRequest: updateRequest,
   addChildCollection: addChildCollection,
   deleteCollection: deleteCollection,
+  deleteRequest: deleteRequest,
   createNewRootCollection: createNewRootCollection,
   createTeam: createTeam,
   addTeamMemberByEmail: addTeamMemberByEmail,

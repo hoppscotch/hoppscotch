@@ -45,7 +45,7 @@ export default {
     show: Boolean,
     editingCollection: Object,
     editingCollectionIndex: Number,
-    collectionsType: Object
+    collectionsType: Object,
   },
   data() {
     return {
@@ -65,8 +65,7 @@ export default {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      console.log(this.collectionsType.type)
-      if(this.collectionsType.type == "my-collections") {
+      if (this.collectionsType.type == "my-collections") {
         const collectionUpdated = {
           ...this.$props.editingCollection,
           name: this.$data.name,
@@ -76,25 +75,24 @@ export default {
           collectionIndex: this.$props.editingCollectionIndex,
         })
         this.syncCollections()
-      }
-      else if(this.collectionsType.type == "team-collections") {
+      } else if (this.collectionsType.type == "team-collections") {
         if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils.renameCollection(this.$apollo, this.$data.name, collectionID)
-          .then((data) => {
-            // Result
-            this.$toast.success("Collection Renamed", {
-              icon: "done",
+          team_utils
+            .renameCollection(this.$apollo, this.$data.name, this.$props.editingCollection.id)
+            .then((data) => {
+              // Result
+              this.$toast.success("Collection Renamed", {
+                icon: "done",
+              })
+              this.$emit("update-team-collections")
             })
-            console.log(data)
-            this.$emit('update-team-collections');
-          })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
             })
-            console.error(error)
-          })
         }
       }
       this.hideModal()

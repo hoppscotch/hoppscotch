@@ -1,5 +1,4 @@
 import gql from "graphql-tag"
-import state from "~/store/state"
 
 async function createTeam(apollo, name) {
   return apollo.mutate({

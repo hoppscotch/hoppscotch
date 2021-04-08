@@ -163,7 +163,6 @@
 <script>
 import { fb } from "~/helpers/fb"
 import team_utils from "~/helpers/teams/utils"
-import errorVue from "~/layouts/error.vue"
 
 export default {
   data() {

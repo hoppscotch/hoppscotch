@@ -55,6 +55,7 @@
     <import-export-collections
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
+      :collectionsType="collectionsType"
     />
     <div class="border-b row-wrapper border-brdColor">
       <button

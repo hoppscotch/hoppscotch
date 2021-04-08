@@ -2,9 +2,17 @@
   <modal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
+        <h3 class="title">{{ $t(mode) }}</h3>
         <div>
           <v-popover>
+            <button
+              class="tooltip-target icon"
+              v-if="mode != 'import_export'"
+              @click="mode = 'import_export'"
+              v-tooltip.left="$t('back')"
+            >
+              <i class="material-icons">arrow_left</i>
+            </button>
             <button class="tooltip-target icon" v-tooltip.left="$t('more')">
               <i class="material-icons">more_vert</i>
             </button>
@@ -45,13 +53,18 @@
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <div class="flex flex-col items-start p-2">
+      <div v-if="mode == 'import_export'" class="flex flex-col items-start p-2">
         <span
           v-tooltip="{
             content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
           }"
         >
-          <button :disabled="!fb.currentUser" class="icon" @click="syncCollections">
+          <button
+            :disabled="!fb.currentUser"
+            v-if="collectionsType.type == 'my-collections'"
+            class="icon"
+            @click="syncCollections"
+          >
             <i class="material-icons">folder_shared</i>
             <span>{{ $t("import_from_sync") }}</span>
           </button>
@@ -86,26 +99,55 @@
             accept="application/json"
           />
         </button>
+        <button
+          class="icon"
+          @click="mode = 'import_from_my_collections'"
+          v-tooltip="$t('replace_current')"
+        >
+          <i class="material-icons">folder_special</i>
+          <span>{{ "Import from My Collections" }}</span>
+        </button>
+        <button class="icon" @click="mode = 'export_as_json'" v-tooltip="$t('show_code')">
+          <i class="material-icons">folder_special</i>
+          <span>{{ "Export As JSON" }}</span>
+        </button>
       </div>
-      <div v-if="showJsonCode" class="row-wrapper">
+      <div v-if="mode == 'import_from_my_collections'">
+        <span class="select-wrapper">
+          <select
+            type="text"
+            autofocus
+            @change="
+              ($event) => {
+                mySelectedCollectionID = $event.target.value
+              }
+            "
+          >
+            <option :key="undefined" :value="undefined" hidden disabled selected>
+              Select Collection
+            </option>
+            <option v-for="(collection, index) in collections" :key="index" :value="index">
+              {{ collection.name }}
+            </option>
+          </select>
+        </span>
+        <button
+          class="icon primary"
+          :disabled="mySelectedCollectionID == undefined"
+          @click="importFromMyCollections"
+        >
+          {{ $t("import") }}
+        </button>
+      </div>
+      <div v-if="mode == 'export_as_json'">
         <textarea v-model="collectionJson" rows="8" readonly></textarea>
-      </div>
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span>
-          <pw-toggle :on="showJsonCode" @change="showJsonCode = $event">
-            {{ $t("show_code") }}
-          </pw-toggle>
-        </span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
-            {{ $t("export") }}
-          </button>
-        </span>
+        <div class="row-wrapper">
+          <span>
+            <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
+              {{ $t("export") }}
+            </button>
+          </span>
+        </div>
       </div>
     </div>
   </modal>
@@ -113,20 +155,29 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   data() {
     return {
       fb,
       showJsonCode: false,
+      mode: "import_export",
+      mySelectedCollectionID: undefined,
     }
   },
   props: {
     show: Boolean,
+    collectionsType: Object,
   },
   computed: {
     collectionJson() {
       return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+    },
+    collections() {
+      return fb.currentUser !== null
+        ? fb.currentCollections
+        : this.$store.state.postwoman.collections
     },
   },
   methods: {
@@ -235,6 +286,22 @@ export default {
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
+    },
+    importFromMyCollections() {
+      console.log(this.$data.mySelectedCollectionID)
+      team_utils
+        .importFromMyCollections(
+          this.$apollo,
+          this.$data.mySelectedCollectionID,
+          this.collectionsType.selectedTeam.id
+        )
+        .then((success) => {
+          if (success) {
+            this.fileImported()
+          } else {
+            this.failedImport()
+          }
+        })
     },
     exportJSON() {
       let text = this.collectionJson

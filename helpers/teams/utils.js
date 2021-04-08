@@ -1,4 +1,5 @@
 import gql from "graphql-tag"
+import state from "~/store/state"
 
 async function createTeam(apollo, name) {
   return apollo.mutate({
@@ -295,12 +296,31 @@ async function overwriteRequestTeams(apollo, request, title, requestID) {
   })
 }
 
+async function importFromMyCollections(apollo, collectionID, teamID) {
+  let response = await apollo.mutate({
+    mutation: gql`
+      mutation importFromMyCollections($fbCollectionPath: String!, $teamID: String!) {
+        importCollectionFromUserFirestore(fbCollectionPath: $fbCollectionPath, teamID: $teamID) {
+          id
+          title
+        }
+      }
+    `,
+    variables: {
+      fbCollectionPath: collectionID,
+      teamID: teamID,
+    },
+  })
+  return response.data != null
+}
+
 export default {
   rootCollectionsOfTeam: rootCollectionsOfTeam,
   getCollectionChildren: getCollectionChildren,
   getCollectionRequests: getCollectionRequests,
   saveRequestAsTeams: saveRequestAsTeams,
   overwriteRequestTeams: overwriteRequestTeams,
+  importFromMyCollections: importFromMyCollections,
   renameCollection: renameCollection,
   addChildCollection: addChildCollection,
   deleteCollection: deleteCollection,

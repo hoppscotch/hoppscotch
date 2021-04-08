@@ -163,6 +163,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import team_utils from "~/helpers/teams/utils"
+import errorVue from "~/layouts/error.vue"
 
 export default {
   data() {
@@ -179,11 +180,7 @@ export default {
   },
   computed: {
     collectionJson() {
-      if (this.collectionsType.type == "my-collections") {
-        return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
-      } else {
-        team_utils.get
-      }
+      return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
     },
     myCollections() {
       return fb.currentUser !== null
@@ -302,6 +299,10 @@ export default {
                 this.failedImport()
               }
             })
+            .catch((error) => {
+              console.log(error)
+              this.failedImport()
+            })
         } else {
           this.$store.commit("postwoman/importCollections", collections)
           this.syncToFBCollections()
@@ -325,6 +326,10 @@ export default {
           } else {
             this.failedImport()
           }
+        })
+        .catch((error) => {
+          console.log(error)
+          this.failedImport()
         })
     },
     exportJSON() {

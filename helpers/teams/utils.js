@@ -381,7 +381,7 @@ async function exportAsJSON(apollo, teamID) {
       teamID: teamID,
     },
   })
-  return response
+  return response.data.exportCollectionsToJSON
 }
 
 export default {

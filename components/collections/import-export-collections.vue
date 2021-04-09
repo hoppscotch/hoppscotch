@@ -242,6 +242,8 @@ export default {
         })
     },
     hideModal() {
+      this.mode = "import_export"
+      this.mySelectedCollectionID = undefined
       this.$emit("hide-modal")
     },
     openDialogChooseFileToReplaceWith() {
@@ -339,7 +341,7 @@ export default {
       } else {
         this.collectionJson = await team_utils.exportAsJSON(
           this.$apollo,
-          this.$collectionsType.selectedTeam.id
+          this.collectionsType.selectedTeam.id
         )
       }
       console.log(this.collectionJson)

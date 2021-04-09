@@ -83,10 +83,8 @@
         <span>{{ $t("new") }}</span>
       </button>
       <button
-        v-if="
-          !saveRequest &&
-          (collectionsType.type == 'my-collections' || collectionsType.selectedTeam != undefined)
-        "
+        v-if="!saveRequest"
+        :disabled="collectionsType.type == 'team-collections' && collectionsType.selectedTeam == undefined"
         class="icon"
         @click="displayModalImportExport(true)"
       >

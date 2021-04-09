@@ -111,9 +111,13 @@
         </button>
         <button
           class="icon"
-          @click="mode = 'export_as_json'"
+          @click="
+            () => {
+              mode = 'export_as_json'
+              getJSONCollection()
+            }
+          "
           v-tooltip="$t('show_code')"
-          v-if="collectionsType.type == 'my-collections'"
         >
           <i class="material-icons">folder_special</i>
           <span>{{ "Export As JSON" }}</span>
@@ -171,6 +175,7 @@ export default {
       showJsonCode: false,
       mode: "import_export",
       mySelectedCollectionID: undefined,
+      collectionJson: "",
     }
   },
   props: {
@@ -178,9 +183,6 @@ export default {
     collectionsType: Object,
   },
   computed: {
-    collectionJson() {
-      return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
-    },
     myCollections() {
       return fb.currentUser !== null
         ? fb.currentCollections
@@ -195,7 +197,7 @@ export default {
           {
             files: {
               "hoppscotch-collections.json": {
-                content: this.collectionJson,
+                content: this.getJSONCollection(),
               },
             },
           },
@@ -289,7 +291,7 @@ export default {
         }
         if (this.collectionsType.type == "team-collections") {
           team_utils
-            .importFromJSON(this.$apollo, collections, this.$props.collectionsType.selectedTeam.id)
+            .importFromJSON(this.$apollo, collections, this.collectionsType.selectedTeam.id)
             .then((status) => {
               if (status) {
                 this.$emit("update-team-collections")
@@ -315,7 +317,7 @@ export default {
       team_utils
         .importFromMyCollections(
           this.$apollo,
-          this.$data.mySelectedCollectionID,
+          this.mySelectedCollectionID,
           this.collectionsType.selectedTeam.id
         )
         .then((success) => {
@@ -330,6 +332,18 @@ export default {
           console.log(error)
           this.failedImport()
         })
+    },
+    async getJSONCollection() {
+      if (this.collectionsType.type == "my-collections") {
+        this.collectionJson = JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+      } else {
+        this.collectionJson = await team_utils.exportAsJSON(
+          this.$apollo,
+          this.$collectionsType.selectedTeam.id
+        )
+      }
+      console.log(this.collectionJson)
+      return this.collectionJson
     },
     exportJSON() {
       let text = this.collectionJson

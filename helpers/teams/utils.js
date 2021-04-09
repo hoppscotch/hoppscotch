@@ -356,8 +356,6 @@ async function importFromMyCollections(apollo, collectionID, teamID) {
 }
 
 async function importFromJSON(apollo, collections, teamID) {
-  console.log(collections)
-  console.log(teamID)
   let response = await apollo.mutate({
     mutation: gql`
       mutation importFromJSON($jsonString: String!, $teamID: String!) {
@@ -372,6 +370,20 @@ async function importFromJSON(apollo, collections, teamID) {
   return response.data != null
 }
 
+async function exportAsJSON(apollo, teamID) {
+  let response = await apollo.query({
+    query: gql`
+      query exportAsJSON($teamID: String!) {
+        exportCollectionsToJSON(teamID: $teamID)
+      }
+    `,
+    variables: {
+      teamID: teamID,
+    },
+  })
+  return response
+}
+
 export default {
   rootCollectionsOfTeam: rootCollectionsOfTeam,
   getCollectionChildren: getCollectionChildren,
@@ -380,6 +392,7 @@ export default {
   overwriteRequestTeams: overwriteRequestTeams,
   importFromMyCollections: importFromMyCollections,
   importFromJSON: importFromJSON,
+  exportAsJSON: exportAsJSON,
   renameCollection: renameCollection,
   updateRequest: updateRequest,
   addChildCollection: addChildCollection,

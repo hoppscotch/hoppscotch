@@ -29,13 +29,58 @@
         <li>
           <div class="row-wrapper">
             <label for="memberList">{{ $t("team_member_list") }}</label>
-            <div>
-              <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
-                <i class="material-icons">clear_all</i>
-              </button>
-            </div>
+            <div></div>
           </div>
         </li>
+      </ul>
+      <ul v-for="(member, index) in teamMembers" :key="`new-${index}`">
+        <li>
+          <input
+            :placeholder="$t('email')"
+            :name="'param' + index"
+            :value="member.user.email"
+            readonly
+          />
+        </li>
+        <li>
+          <span class="select-wrapper">
+            <v-popover>
+              <input
+                :placeholder="$t('permissions')"
+                :name="'value' + index"
+                :value="typeof member.role === 'string' ? member.role : JSON.stringify(member.role)"
+                readonly
+              />
+              <template slot="popover">
+                <div>
+                  <button class="icon" v-close-popover @click="member.role = 'OWNER'">OWNER</button>
+                </div>
+                <div>
+                  <button class="icon" v-close-popover @click="member.role = 'EDITOR'">
+                    EDITOR
+                  </button>
+                </div>
+                <div>
+                  <button class="icon" v-close-popover @click="member.role = 'VIEWER'">
+                    VIEWER
+                  </button>
+                </div>
+              </template>
+            </v-popover>
+          </span>
+        </li>
+        <div>
+          <li>
+            <button
+              class="icon"
+              @click="removeExistingTeamMember(member.user.uid)"
+              v-tooltip.bottom="$t('delete')"
+              id="member"
+            >
+              <i class="material-icons">delete</i>
+            </button>
+          </li>
+        </div>
       </ul>
       <ul v-for="(member, index) in members" :key="index">
         <li>
@@ -131,17 +176,9 @@ export default {
       members: [],
     }
   },
-  watch: {
-    editingTeam: function (update) {
-      console.log("editingTeam", update)
-    },
-  },
   computed: {
     editingTeamCopy() {
       return this.editingTeam
-    },
-    memberString() {
-      console.log("memberString")
     },
     name: {
       get() {
@@ -151,20 +188,33 @@ export default {
         this.rename = name
       },
     },
+    teamMembers() {
+      return this.editingTeam.members
+    },
   },
   methods: {
-    clearContent(e) {
-      console.log("clearContent")
-      e.target.innerHTML = this.doneButton
-      this.$toast.info(this.$t("cleared"), {
-        icon: "clear_all",
-      })
-      setTimeout(() => (e.target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
-    },
     addTeamMember() {
       let value = { key: "", value: "" }
       this.members.push(value)
       console.log("addTeamMember")
+    },
+    removeExistingTeamMember(userID) {
+      team_utils
+        .removeTeamMember(this.$apollo, userID, this.editingteamID)
+        .then((data) => {
+          // Result
+          this.$toast.success(this.$t("user_removed"), {
+            icon: "done",
+          })
+          this.hideModal()
+        })
+        .catch((error) => {
+          // Error
+          this.$toast.error(this.$t("error_occurred"), {
+            icon: "done",
+          })
+          console.error(error)
+        })
     },
     removeTeamMember(index) {
       this.members.splice(index, 1)
@@ -213,6 +263,31 @@ export default {
             console.error(error)
           })
       })
+      let messageShown = true
+      this.teamMembers.forEach((element) => {
+        team_utils
+          .updateTeamMemberRole(this.$apollo, element.user.uid, element.role, this.editingteamID)
+          .then((data) => {
+            // Result
+            if (messageShown) {
+              this.$toast.success(this.$t("role_updated"), {
+                icon: "done",
+              })
+              messageShown = false
+            }
+            this.hideModal()
+          })
+          .catch((error) => {
+            // Error
+            if (messageShown) {
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              messageShown = false
+            }
+            console.error(error)
+          })
+      })
       if (this.$data.rename !== null) {
         const newName = this.name === this.$data.rename ? this.name : this.$data.rename
         if (!/\S/.test(newName))
@@ -239,6 +314,7 @@ export default {
             })
       }
       this.hideModal()
+      this.members = []
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -325,5 +325,7 @@
   "folder_added": "Folder added successfully",
   "team_exited": "Team exited",
   "disable_exit": "Only owner cannot exit the team",
-  "folder_renamed": "Folder renamed successfully"
+  "folder_renamed": "Folder renamed successfully",
+  "role_updated": "User role(s) updated successfully",
+  "user_removed": "User removed successfully"
 }

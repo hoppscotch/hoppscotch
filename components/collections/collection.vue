@@ -88,7 +88,9 @@
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
-          v-for="(folder, index) in collection.folders"
+          v-for="(folder, index) in collectionsType.type === 'my-collections'
+            ? collection.folders
+            : folders"
           :key="folder.name ? folder.name : folder.title"
           class="ml-8 border-l border-brdColor"
         >
@@ -120,7 +122,9 @@
       </ul>
       <ul class="flex-col">
         <li
-          v-for="(request, index) in collection.requests"
+          v-for="(request, index) in collectionsType.type === 'my-collections'
+            ? collection.requests
+            : requests"
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
@@ -149,8 +153,8 @@
       <ul>
         <li
           v-if="
-            (collection.folders == undefined || collection.folders.length === 0) &&
-            (collection.requests == undefined || collection.requests.length === 0)
+            (folders == undefined || folders.length === 0) &&
+            (requests == undefined || requests.length === 0)
           "
           class="flex ml-8 border-l border-brdColor"
         >
@@ -172,9 +176,54 @@
 <script>
 import { fb } from "~/helpers/fb"
 import gql from "graphql-tag"
-import team_utils from "~/helpers/teams/utils"
 
 export default {
+  apollo: {
+    requests: {
+      query: gql`
+        query getCollectionRequests($collectionID: String!, $cursor: String) {
+          requestsInCollection(collectionID: $collectionID, cursor: $cursor) {
+            id
+            title
+            request
+          }
+        }
+      `,
+      variables() {
+        return {
+          collectionID: this.$props.collection.id,
+          cursor: "",
+        }
+      },
+      update: (response) => response.requestsInCollection,
+      skip() {
+        return this.$props.collection.id === undefined
+      },
+      fetchPolicy: "no-cache",
+    },
+    folders: {
+      query: gql`
+        query getCollectionChildren($collectionID: String!) {
+          collection(collectionID: $collectionID) {
+            children {
+              id
+              title
+            }
+          }
+        }
+      `,
+      variables() {
+        return {
+          collectionID: this.$props.collection.id,
+        }
+      },
+      update: (response) => response.collection.children,
+      skip() {
+        return this.$props.collection.id === undefined
+      },
+      fetchPolicy: "no-cache",
+    },
+  },
   props: {
     collectionIndex: Number,
     collection: Object,
@@ -213,34 +262,6 @@ export default {
         this.$emit("select-folder", { name: "", id: this.$props.collection.id, reqIdx: "" })
 
       this.showChildren = !this.showChildren
-      if (
-        this.showChildren &&
-        this.collectionsType.type == "team-collections" &&
-        this.collection.folders == undefined
-      ) {
-        team_utils
-          .getCollectionChildren(this.$apollo, this.collection.id)
-          .then((children) => {
-            this.$set(this.collection, "folders", children)
-          })
-          .catch((error) => {
-            console.log(error)
-          })
-      }
-      if (
-        this.showChildren &&
-        this.collectionsType.type == "team-collections" &&
-        this.collection.requests == undefined
-      ) {
-        team_utils
-          .getCollectionRequests(this.$apollo, this.collection.id)
-          .then((requests) => {
-            this.$set(this.collection, "requests", requests)
-          })
-          .catch((error) => {
-            console.log(error)
-          })
-      }
     },
     removeCollection() {
       if (this.collectionsType.type == "my-collections") {

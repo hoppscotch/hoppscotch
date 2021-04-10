@@ -17,9 +17,9 @@ jest.mock("~/newstore/settings", () => {
       value: {
         EXTENSIONS_ENABLED: true,
         PROXY_ENABLED: true,
-        PROXY_URL: "test"
-      }
-    }
+        PROXY_URL: "test",
+      },
+    },
   }
 })
 
@@ -140,7 +140,6 @@ describe("extensionStrategy", () => {
   })
 
   describe("Proxy Requests", () => {
-
     test("asks extension to send request", async () => {
       global.__POSTWOMAN_EXTENSION_HOOK__ = {
         sendRequest: sendReqFunc,

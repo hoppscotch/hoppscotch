@@ -809,6 +809,7 @@ export default {
     },
     editingRequest(newValue) {
       this.editRequest = newValue
+      if (!newValue.name) return
       this.showSaveRequestModal = true
     },
     method() {

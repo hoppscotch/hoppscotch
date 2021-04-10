@@ -1,4 +1,3 @@
-
 import { cancelRunningRequest, sendNetworkRequest } from "../network"
 
 import AxiosStrategy, { cancelRunningAxiosRequest } from "../strategies/AxiosStrategy"
@@ -24,9 +23,9 @@ jest.mock("~/newstore/settings", () => {
   return {
     settingsStore: {
       value: {
-        EXTENSIONS_ENABLED: true
-      }
-    }
+        EXTENSIONS_ENABLED: true,
+      },
+    },
   }
 })
 

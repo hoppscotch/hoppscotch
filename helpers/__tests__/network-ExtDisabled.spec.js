@@ -23,9 +23,9 @@ jest.mock("~/newstore/settings", () => {
   return {
     settingsStore: {
       value: {
-        EXTENSIONS_ENABLED: false
-      }
-    }
+        EXTENSIONS_ENABLED: false,
+      },
+    },
   }
 })
 
@@ -60,7 +60,6 @@ describe("cancelRunningRequest", () => {
 })
 
 describe("sendNetworkRequest", () => {
-
   test("runs only axios request if extension not allowed in settings and extension is installed and clears the progress bar", async () => {
     hasExtensionInstalled.mockReturnValue(true)
 

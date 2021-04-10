@@ -7,9 +7,9 @@ jest.mock("~/newstore/settings", () => {
     __esModule: true,
     settingsStore: {
       value: {
-        PROXY_ENABLED: false
-      }
-    }
+        PROXY_ENABLED: false,
+      },
+    },
   }
 })
 
@@ -18,7 +18,6 @@ axios.mockResolvedValue({})
 
 describe("axiosStrategy", () => {
   describe("No-Proxy Requests", () => {
-
     test("sends request to the actual sender if proxy disabled", async () => {
       await axiosStrategy({ url: "test" })
 

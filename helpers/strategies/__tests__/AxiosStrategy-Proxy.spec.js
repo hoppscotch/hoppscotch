@@ -11,9 +11,9 @@ jest.mock("~/newstore/settings", () => {
     settingsStore: {
       value: {
         PROXY_ENABLED: true,
-        PROXY_URL: "test"
-      }
-    }
+        PROXY_URL: "test",
+      },
+    },
   }
 })
 
@@ -28,7 +28,6 @@ describe("cancelRunningAxiosRequest", () => {
 
 describe("axiosStrategy", () => {
   describe("Proxy Requests", () => {
-
     test("sends POST request to proxy if proxy is enabled", async () => {
       let passedURL
 

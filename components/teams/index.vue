@@ -93,6 +93,7 @@ export default {
               user {
                 displayName
                 email
+                uid
               }
               role
             }

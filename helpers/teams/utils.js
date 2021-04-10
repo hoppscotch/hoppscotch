@@ -36,6 +36,27 @@ async function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) {
   })
 }
 
+async function updateTeamMemberRole(apollo, userID, newRole, teamID) {
+  return apollo.mutate({
+    mutation: gql`
+      mutation updateTeamMemberRole(
+        $newRole: TeamMemberRole!
+        $userUid: String!
+        $teamID: String!
+      ) {
+        updateTeamMemberRole(newRole: $newRole, userUid: $userUid, teamID: $teamID) {
+          role
+        }
+      }
+    `,
+    variables: {
+      newRole: newRole,
+      userUid: userID,
+      teamID: teamID,
+    },
+  })
+}
+
 async function renameTeam(apollo, name, teamID) {
   return apollo.mutate({
     mutation: gql`
@@ -47,6 +68,20 @@ async function renameTeam(apollo, name, teamID) {
     `,
     variables: {
       newName: name,
+      teamID: teamID,
+    },
+  })
+}
+
+async function removeTeamMember(apollo, userID, teamID) {
+  return apollo.mutate({
+    mutation: gql`
+      mutation removeTeamMember($userUid: String!, $teamID: String!) {
+        removeTeamMember(userUid: $userUid, teamID: $teamID)
+      }
+    `,
+    variables: {
+      userUid: userID,
       teamID: teamID,
     },
   })
@@ -310,4 +345,6 @@ export default {
   renameTeam: renameTeam,
   deleteTeam: deleteTeam,
   exitTeam: exitTeam,
+  updateTeamMemberRole: updateTeamMemberRole,
+  removeTeamMember: removeTeamMember,
 }

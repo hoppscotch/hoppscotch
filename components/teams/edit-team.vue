@@ -73,7 +73,7 @@
           <li>
             <button
               class="icon"
-              @click="removeTeamMember(index)"
+              @click="removeExistingTeamMember(member.user.uid)"
               v-tooltip.bottom="$t('delete')"
               id="member"
             >
@@ -198,6 +198,24 @@ export default {
       this.members.push(value)
       console.log("addTeamMember")
     },
+    removeExistingTeamMember(userID) {
+      team_utils
+        .removeTeamMember(this.$apollo, userID, this.editingteamID)
+        .then((data) => {
+          // Result
+          this.$toast.success(this.$t("user_removed"), {
+            icon: "done",
+          })
+          this.hideModal()
+        })
+        .catch((error) => {
+          // Error
+          this.$toast.error(this.$t("error_occurred"), {
+            icon: "done",
+          })
+          console.error(error)
+        })
+    },
     removeTeamMember(index) {
       this.members.splice(index, 1)
       console.log("removeTeamMember")
@@ -245,6 +263,31 @@ export default {
             console.error(error)
           })
       })
+      let messageShown = true
+      this.teamMembers.forEach((element) => {
+        team_utils
+          .updateTeamMemberRole(this.$apollo, element.user.uid, element.role, this.editingteamID)
+          .then((data) => {
+            // Result
+            if (messageShown) {
+              this.$toast.success(this.$t("role_updated"), {
+                icon: "done",
+              })
+              messageShown = false
+            }
+            this.hideModal()
+          })
+          .catch((error) => {
+            // Error
+            if (messageShown) {
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              messageShown = false
+            }
+            console.error(error)
+          })
+      })
       if (this.$data.rename !== null) {
         const newName = this.name === this.$data.rename ? this.name : this.$data.rename
         if (!/\S/.test(newName))
@@ -271,6 +314,7 @@ export default {
             })
       }
       this.hideModal()
+      this.members = []
     },
     hideModal() {
       this.$emit("hide-modal")

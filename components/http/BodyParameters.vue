@@ -60,12 +60,7 @@
         <li>
           <button
             class="icon"
-            @click="
-              $store.commit('setActiveBodyParams', {
-                index,
-                value: param.hasOwnProperty('active') ? !param.active : false,
-              })
-            "
+            @click="toggleActive(index,param)"
             v-tooltip.bottom="{
               content: param.hasOwnProperty('active')
                 ? param.active
@@ -153,6 +148,9 @@ export default {
       this.$emit("set-route-query-state")
     },
     removeRequestBodyParam(index) {
+      const paramArr = this.$store.state.request.bodyParams
+        .filter((item, itemIndex) => itemIndex !== index && (item.hasOwnProperty("active") ? item.active == true : true))
+      this.setRawParams(paramArr)
       this.$emit("remove-request-body-param", index)
     },
     addRequestBodyParam() {
@@ -181,17 +179,38 @@ export default {
         index,
         value: event.target.value,
       })
-      let rawParmas = {}
-        this.$store.state.request.bodyParams
+      let paramArr = this.$store.state.request.bodyParams
         .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
-        .forEach(_param=>{
-          rawParmas={
-            ...rawParmas,
-            [_param.key]:_param.value
+        
+        this.setRawParams(paramArr)
+    },
+    toggleActive(index, param){
+      let paramArr = this.$store.state.request.bodyParams
+      .filter((item, itemIndex) => {
+          if(index === itemIndex){
+              return !param.active
+          } else {
+              return item.hasOwnProperty("active") ? item.active == true : true
           }
-        })
-        const rawParamsStr = JSON.stringify(rawParmas,null,2)
-        this.$store.commit("setState", { value: rawParamsStr, attribute: "rawParams" })
+      })
+        
+      this.setRawParams(paramArr)
+
+      this.$store.commit('setActiveBodyParams', {
+        index,
+        value: param.hasOwnProperty('active') ? !param.active : false,
+      })
+    },
+    setRawParams(filteredParamArr){
+      let rawParams = {}
+      filteredParamArr.forEach(_param=>{
+        rawParams={
+          ...rawParams,
+          [_param.key]:_param.value
+        }
+      })
+      const rawParamsStr = JSON.stringify(rawParams,null,2)
+      this.$store.commit("setState", { value: rawParamsStr, attribute: "rawParams" })
     }
   },
   computed: {

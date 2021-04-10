@@ -1037,6 +1037,22 @@ export default {
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawParams" })
+        // Convert the rawParams to bodyParams format
+        try{
+          const valueObj = JSON.parse(value)
+          const params = Object.keys(valueObj).map(key=>{
+            if(typeof valueObj[key] !== "function"){
+              return {
+                active: true,
+                key,
+                value: valueObj[key]
+              }
+            }
+            })
+          this.$store.commit("setBodyParams", { params })
+        } catch {
+          
+        }
       },
     },
     rawInput: {

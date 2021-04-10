@@ -24,6 +24,30 @@
         >
           <i class="material-icons">topic</i>
         </button>
+        <div v-if="collectionsType.type !== 'my-collections' && showChildren">
+          <button
+            class="icon"
+            v-if="cursor !== ''"
+            @click="
+              cursor = prevCursor
+              pageNo -= 1
+            "
+          >
+            Prev
+          </button>
+          <span v-if="cursor !== '' || (requests && requests.length === 10)">{{ pageNo }}</span>
+          <button
+            class="icon"
+            v-if="requests && requests.length === 10"
+            @click="
+              prevCursor = cursor
+              cursor = requests[requests.length - 1].id
+              pageNo += 1
+            "
+          >
+            Next
+          </button>
+        </div>
         <v-popover v-if="!saveRequest">
           <button class="tooltip-target icon" v-tooltip.left="$t('more')">
             <i class="material-icons">more_vert</i>
@@ -192,7 +216,7 @@ export default {
       variables() {
         return {
           collectionID: this.$props.collection.id,
-          cursor: "",
+          cursor: this.$data.cursor,
         }
       },
       update: (response) => response.requestsInCollection,
@@ -236,6 +260,9 @@ export default {
     return {
       showChildren: false,
       dragging: false,
+      prevCursor: "",
+      cursor: "",
+      pageNo: 0,
       selectedFolder: {},
       confirmRemove: false,
     }

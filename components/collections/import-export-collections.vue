@@ -73,7 +73,6 @@
           class="icon"
           @click="openDialogChooseFileToReplaceWith"
           v-tooltip="$t('replace_current')"
-          v-if="collectionsType.type == 'my-collections'"
         >
           <i class="material-icons">create_new_folder</i>
           <span>{{ $t("replace_json") }}</span>
@@ -266,10 +265,26 @@ export default {
           collections = [this.parsePostmanCollection(collections)]
         } else {
           return this.failedImport()
+        }if (this.collectionsType.type == "team-collections") {
+          team_utils
+            .replaceWithJSON(this.$apollo, collections, this.collectionsType.selectedTeam.id)
+            .then((status) => {
+              if (status) {
+                this.$emit("update-team-collections")
+                this.fileImported()
+              } else {
+                this.failedImport()
+              }
+            })
+            .catch((error) => {
+              console.log(error)
+              this.failedImport()
+            })
+        } else {
+          this.$store.commit("postwoman/replaceCollections", collections)
+          this.fileImported()
+          this.syncToFBCollections()
         }
-        this.$store.commit("postwoman/replaceCollections", collections)
-        this.fileImported()
-        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.$refs.inputChooseFileToReplaceWith.value = ""

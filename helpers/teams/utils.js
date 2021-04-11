@@ -370,6 +370,21 @@ async function importFromJSON(apollo, collections, teamID) {
   return response.data != null
 }
 
+async function replaceWithJSON(apollo, collections, teamID) {
+  let response = await apollo.mutate({
+    mutation: gql`
+      mutation replaceWithJSON($jsonString: String!, $teamID: String!) {
+        replaceCollectionsWithJSON(jsonString: $jsonString, teamID: $teamID)
+      }
+    `,
+    variables: {
+      jsonString: JSON.stringify(collections),
+      teamID: teamID,
+    },
+  })
+  return response.data != null
+}
+
 async function exportAsJSON(apollo, teamID) {
   let response = await apollo.query({
     query: gql`
@@ -392,6 +407,7 @@ export default {
   overwriteRequestTeams: overwriteRequestTeams,
   importFromMyCollections: importFromMyCollections,
   importFromJSON: importFromJSON,
+  replaceWithJSON: replaceWithJSON,
   exportAsJSON: exportAsJSON,
   renameCollection: renameCollection,
   updateRequest: updateRequest,

@@ -31,7 +31,7 @@
     "esprima": "^4.0.1",
     "firebase": "^8.3.3",
     "graphql": "^15.5.0",
-    "graphql-language-service-interface": "^2.8.2",
+    "graphql-language-service-interface": "^2.8.3",
     "lodash": "^4.17.20",
     "mustache": "^4.2.0",
     "nuxt": "^2.15.4",
@@ -50,6 +50,8 @@
   "devDependencies": {
     "@babel/core": "^7.13.15",
     "@babel/plugin-proposal-class-properties": "^7.12.13",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@babel/preset-env": "^7.13.15",
     "@nuxt/types": "^2.15.4",
     "@nuxt/typescript-build": "^2.1.0",

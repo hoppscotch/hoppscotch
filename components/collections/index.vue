@@ -58,6 +58,8 @@
     <import-export-collections
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
+      :collectionsType="collectionsType"
+      @update-team-collections="updateTeamCollections"
     />
     <div class="border-b row-wrapper border-brdColor">
       <button
@@ -80,7 +82,12 @@
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button v-if="!saveRequest" class="icon" @click="displayModalImportExport(true)">
+      <button
+        v-if="!saveRequest"
+        :disabled="collectionsType.type == 'team-collections' && collectionsType.selectedTeam == undefined"
+        class="icon"
+        @click="displayModalImportExport(true)"
+      >
         {{ $t("import_export") }}
       </button>
     </div>
@@ -338,7 +345,6 @@ export default {
               this.$toast.success(this.$t("folder_added"), {
                 icon: "done",
               })
-              console.log(data)
               this.$emit("update-team-collections")
             })
             .catch((error) => {

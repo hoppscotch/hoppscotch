@@ -372,12 +372,78 @@ async function overwriteRequestTeams(apollo, request, title, requestID) {
   })
 }
 
+async function importFromMyCollections(apollo, collectionID, teamID) {
+  let response = await apollo.mutate({
+    mutation: gql`
+      mutation importFromMyCollections($fbCollectionPath: String!, $teamID: String!) {
+        importCollectionFromUserFirestore(fbCollectionPath: $fbCollectionPath, teamID: $teamID) {
+          id
+          title
+        }
+      }
+    `,
+    variables: {
+      fbCollectionPath: collectionID,
+      teamID: teamID,
+    },
+  })
+  return response.data != null
+}
+
+async function importFromJSON(apollo, collections, teamID) {
+  let response = await apollo.mutate({
+    mutation: gql`
+      mutation importFromJSON($jsonString: String!, $teamID: String!) {
+        importCollectionsFromJSON(jsonString: $jsonString, teamID: $teamID)
+      }
+    `,
+    variables: {
+      jsonString: JSON.stringify(collections),
+      teamID: teamID,
+    },
+  })
+  return response.data != null
+}
+
+async function replaceWithJSON(apollo, collections, teamID) {
+  let response = await apollo.mutate({
+    mutation: gql`
+      mutation replaceWithJSON($jsonString: String!, $teamID: String!) {
+        replaceCollectionsWithJSON(jsonString: $jsonString, teamID: $teamID)
+      }
+    `,
+    variables: {
+      jsonString: JSON.stringify(collections),
+      teamID: teamID,
+    },
+  })
+  return response.data != null
+}
+
+async function exportAsJSON(apollo, teamID) {
+  let response = await apollo.query({
+    query: gql`
+      query exportAsJSON($teamID: String!) {
+        exportCollectionsToJSON(teamID: $teamID)
+      }
+    `,
+    variables: {
+      teamID: teamID,
+    },
+  })
+  return response.data.exportCollectionsToJSON
+}
+
 export default {
   rootCollectionsOfTeam: rootCollectionsOfTeam,
   getCollectionChildren: getCollectionChildren,
   getCollectionRequests: getCollectionRequests,
   saveRequestAsTeams: saveRequestAsTeams,
   overwriteRequestTeams: overwriteRequestTeams,
+  importFromMyCollections: importFromMyCollections,
+  importFromJSON: importFromJSON,
+  replaceWithJSON: replaceWithJSON,
+  exportAsJSON: exportAsJSON,
   renameCollection: renameCollection,
   updateRequest: updateRequest,
   addChildCollection: addChildCollection,

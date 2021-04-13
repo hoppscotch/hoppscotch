@@ -354,6 +354,20 @@ export default {
           include: /node_modules/,
           type: "javascript/auto",
         })
+
+        config.module.rules.push({
+          test: /\.js$/,
+          include: /(node_modules)/,
+          exclude: /(node_modules)\/(ace\-builds)|(@firebase)/,
+          loader: "babel-loader",
+          options: {
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-proposal-nullish-coalescing-operator",
+              "@babel/plugin-proposal-optional-chaining",
+            ],
+          },
+        })
       }
     },
     parallel: true,

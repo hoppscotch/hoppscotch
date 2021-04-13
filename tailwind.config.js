@@ -15,9 +15,9 @@ export default {
     skew: false,
   },
   theme: {
-    container: {
-      center: true,
-    },
+    // container: {
+    //   center: true,
+    // },
     extend: {
       colors: {
         bgColor: "var(--bg-color)",

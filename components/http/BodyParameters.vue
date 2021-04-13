@@ -27,12 +27,7 @@
           :placeholder="`key ${index + 1}`"
           :name="`bparam ${index}`"
           :value="param.key"
-          @change="
-            $store.commit('setKeyBodyParams', {
-              index,
-              value: $event.target.value,
-            })
-          "
+          @change="updateBodyParams($event, index, `setKeyBodyParams`)"
           @keyup.prevent="setRouteQueryState"
           autofocus
         />
@@ -45,10 +40,7 @@
           @change="
             // if input is form data, set value to be an array containing the value
             // only
-            $store.commit('setValueBodyParams', {
-              index,
-              value: $event.target.value,
-            })
+            updateBodyParams($event, index, `setValueBodyParams`)
           "
           @keyup.prevent="setRouteQueryState"
         />
@@ -68,12 +60,7 @@
         <li>
           <button
             class="icon"
-            @click="
-              $store.commit('setActiveBodyParams', {
-                index,
-                value: param.hasOwnProperty('active') ? !param.active : false,
-              })
-            "
+            @click="toggleActive(index,param)"
             v-tooltip.bottom="{
               content: param.hasOwnProperty('active')
                 ? param.active
@@ -161,6 +148,9 @@ export default {
       this.$emit("set-route-query-state")
     },
     removeRequestBodyParam(index) {
+      const paramArr = this.$store.state.request.bodyParams
+        .filter((item, itemIndex) => itemIndex !== index && (item.hasOwnProperty("active") ? item.active == true : true))
+      this.setRawParams(paramArr)
       this.$emit("remove-request-body-param", index)
     },
     addRequestBodyParam() {
@@ -184,6 +174,44 @@ export default {
         fileIndex,
       })
     },
+    updateBodyParams(event, index, type){
+      this.$store.commit(type, {
+        index,
+        value: event.target.value,
+      })
+      let paramArr = this.$store.state.request.bodyParams
+        .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+        
+        this.setRawParams(paramArr)
+    },
+    toggleActive(index, param){
+      let paramArr = this.$store.state.request.bodyParams
+      .filter((item, itemIndex) => {
+          if(index === itemIndex){
+              return !param.active
+          } else {
+              return item.hasOwnProperty("active") ? item.active == true : true
+          }
+      })
+        
+      this.setRawParams(paramArr)
+
+      this.$store.commit('setActiveBodyParams', {
+        index,
+        value: param.hasOwnProperty('active') ? !param.active : false,
+      })
+    },
+    setRawParams(filteredParamArr){
+      let rawParams = {}
+      filteredParamArr.forEach(_param=>{
+        rawParams={
+          ...rawParams,
+          [_param.key]:_param.value
+        }
+      })
+      const rawParamsStr = JSON.stringify(rawParams,null,2)
+      this.$store.commit("setState", { value: rawParamsStr, attribute: "rawParams" })
+    }
   },
   computed: {
     contentType() {

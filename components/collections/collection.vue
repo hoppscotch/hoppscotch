@@ -213,6 +213,99 @@ export default {
           }
         }
       `,
+      subscribeToMore: [
+        {
+          document: gql`
+            subscription teamRequestAdded($teamID: String!) {
+              teamRequestAdded(teamID: $teamID) {
+                id
+                request
+                title
+                collection {
+                  id
+                  title
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            if (
+              subscriptionData.data.teamRequestAdded.collection.id === this.$props.collection.id
+            ) {
+              previousResult.requestsInCollection.push({
+                id: subscriptionData.data.teamRequestAdded.id,
+                request: subscriptionData.data.teamRequestAdded.request,
+                title: subscriptionData.data.teamRequestAdded.title,
+                __typename: subscriptionData.data.teamRequestAdded.__typename,
+              })
+              return previousResult
+            }
+          },
+        },
+        {
+          document: gql`
+            subscription teamRequestUpdated($teamID: String!) {
+              teamRequestUpdated(teamID: $teamID) {
+                id
+                request
+                title
+                collection {
+                  id
+                  title
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            if (
+              subscriptionData.data.teamRequestUpdated.collection.id === this.$props.collection.id
+            ) {
+              const index = previousResult.requestsInCollection.findIndex(
+                (x) => x.id === subscriptionData.data.teamRequestUpdated.id
+              )
+              previousResult.requestsInCollection[index].title =
+                subscriptionData.data.teamRequestUpdated.title
+
+              previousResult.requestsInCollection[index].request =
+                subscriptionData.data.teamRequestUpdated.request
+
+              return previousResult
+            }
+          },
+        },
+        {
+          document: gql`
+            subscription teamRequestDeleted($teamID: String!) {
+              teamRequestDeleted(teamID: $teamID)
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const index = previousResult.requestsInCollection.findIndex(
+              (x) => x.id === subscriptionData.data.teamRequestDeleted
+            )
+            if (index !== -1) previousResult.requestsInCollection.splice(index, 1)
+            return previousResult
+          },
+        },
+      ],
       variables() {
         return {
           collectionID: this.$props.collection.id,
@@ -315,7 +408,7 @@ export default {
             const index = previousResult.collection.children.findIndex(
               (x) => x.id === subscriptionData.data.teamCollectionRemoved
             )
-            previousResult.collection.children.splice(index, 1)
+            if (index !== -1) previousResult.collection.children.splice(index, 1)
             return previousResult
           },
         },

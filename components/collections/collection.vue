@@ -315,7 +315,7 @@ export default {
             const index = previousResult.collection.children.findIndex(
               (x) => x.id === subscriptionData.data.teamCollectionRemoved
             )
-            previousResult.collection.children.splice(index, 1)
+            if (index !== -1) previousResult.collection.children.splice(index, 1)
             return previousResult
           },
         },

@@ -285,6 +285,26 @@ export default {
             }
           },
         },
+        {
+          document: gql`
+            subscription teamRequestDeleted($teamID: String!) {
+              teamRequestDeleted(teamID: $teamID)
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const index = previousResult.requestsInCollection.findIndex(
+              (x) => x.id === subscriptionData.data.teamRequestDeleted
+            )
+            if (index !== -1) previousResult.requestsInCollection.splice(index, 1)
+            return previousResult
+          },
+        },
       ],
       variables() {
         return {

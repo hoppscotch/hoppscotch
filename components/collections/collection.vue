@@ -213,6 +213,42 @@ export default {
           }
         }
       `,
+      subscribeToMore: [
+        {
+          document: gql`
+            subscription teamRequestAdded($teamID: String!) {
+              teamRequestAdded(teamID: $teamID) {
+                id
+                request
+                title
+                collection {
+                  id
+                  title
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            if (
+              subscriptionData.data.teamRequestAdded.collection.id === this.$props.collection.id
+            ) {
+              previousResult.requestsInCollection.push({
+                id: subscriptionData.data.teamRequestAdded.id,
+                request: subscriptionData.data.teamRequestAdded.request,
+                title: subscriptionData.data.teamRequestAdded.title,
+                __typename: subscriptionData.data.teamRequestAdded.__typename,
+              })
+              return previousResult
+            }
+          },
+        },
+      ],
       variables() {
         return {
           collectionID: this.$props.collection.id,

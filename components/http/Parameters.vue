@@ -32,6 +32,7 @@
               index,
               value: $event.target.value,
             })
+            updateRequestParam(params)
           "
           autofocus
         />
@@ -46,6 +47,7 @@
               index,
               value: $event.target.value,
             })
+            updateRequestParam(params)
           "
         />
       </li>
@@ -132,6 +134,9 @@ export default {
     },
     addRequestParam() {
       this.$emit("add-request-param")
+    },
+    updateRequestParam(curParams) {
+      this.$emit("update-request-param", curParams)
     },
   },
 }

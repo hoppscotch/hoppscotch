@@ -189,6 +189,7 @@
                 @clear-content="clearContent"
                 @remove-request-param="removeRequestParam"
                 @add-request-param="addRequestParam"
+                @update-request-param="updateRequestParam"
               />
             </SmartTab>
 
@@ -1038,21 +1039,19 @@ export default {
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawParams" })
         // Convert the rawParams to bodyParams format
-        try{
+        try {
           const valueObj = JSON.parse(value)
-          const params = Object.keys(valueObj).map(key=>{
-            if(typeof valueObj[key] !== "function"){
+          const params = Object.keys(valueObj).map((key) => {
+            if (typeof valueObj[key] !== "function") {
               return {
                 active: true,
                 key,
-                value: valueObj[key]
+                value: valueObj[key],
               }
             }
-            })
+          })
           this.$store.commit("setBodyParams", { params })
-        } catch {
-          
-        }
+        } catch {}
       },
     },
     rawInput: {
@@ -1577,6 +1576,14 @@ export default {
           },
         },
       })
+    },
+    updateRequestParam(curParams) {
+      const { origin = "", path = "" } = new URL(this.uri)
+      const qs = curParams
+        .filter((param) => param.active)
+        .map(({ key, value }) => `${key}=${value}`)
+        .join("&")
+      this.uri = `${origin}${path}${qs ? "?" + qs : ""}`
     },
     addRequestBodyParam() {
       this.$store.commit("addBodyParams", { key: "", value: "", active: true })

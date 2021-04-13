@@ -236,6 +236,38 @@ export default {
           }
         }
       `,
+      subscribeToMore: [
+        {
+          document: gql`
+            subscription teamCollectionAdded($teamID: String!) {
+              teamCollectionAdded(teamID: $teamID) {
+                id
+                title
+                parent {
+                  id
+                  title
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            if (subscriptionData.data.teamCollectionAdded.parent.id === this.$props.collection.id) {
+              previousResult.collection.children.push({
+                id: subscriptionData.data.teamCollectionAdded.id,
+                title: subscriptionData.data.teamCollectionAdded.title,
+                __typename: subscriptionData.data.teamCollectionAdded.__typename,
+              })
+              return previousResult
+            }
+          },
+        },
+      ],
       variables() {
         return {
           collectionID: this.$props.collection.id,

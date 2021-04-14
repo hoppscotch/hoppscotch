@@ -1485,19 +1485,38 @@ export default {
       }
     },
     setRouteQueryState() {
-      const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
-      let flats = ["url", "path"].filter((item) => item !== null).map((item) => flat(item))
-      const request = "request=" + JSON.stringify(this.request)
+      let deeps = ["params", "bodyParams", "headers"]
+      let req_url = "?"
+      for (var attr in this.request) {
+        if (
+          !this.URL_EXCLUDES[attr] &&
+          this.request[attr] &&
+          this.request[attr] != "" &&
+          !deeps.find((x) => x == attr)
+        ) {
+          req_url += `${attr}=${this.request[attr]}&`
+        }
+      }
+      req_url = req_url.slice(0, -1)
+      console.log(this.request)
+      for (var attr of deeps) {
+        console.log(attr)
+        if (this.request[attr].length > 0) {
+          req_url += `${attr}=${JSON.stringify(this.request[attr])}&`
+        }
+      }
+      console.log(req_url)
       history.replaceState(
         window.location.href,
         "",
-        `${this.$router.options.base}?${encodeURI(flats.concat(request).join("").slice(0, -1))}`
+        `${this.$router.options.base}?${encodeURI(req_url)}`
       )
     },
     setRouteQueries(queries) {
       if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
-        if (["request"].includes(key)) this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
+        if (["params", "bodyParams", "headers"].includes(key))
+          this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
         else if (typeof this[key] === "string") {
           this[key] = queries[key]
         }
@@ -1606,6 +1625,9 @@ export default {
             httpPassword: "",
             bearerToken: "",
             headers: [],
+            bodyParams: [],
+            rawParams: "{}",
+            params: [],
           }
           this.oauth2 = {
             ...this.oauth2,
@@ -1617,9 +1639,6 @@ export default {
             accessTokenUrl: "",
             clientId: "",
             scope: "",
-            bodyParams: [],
-            rawParams: "{}",
-            params: [],
           }
           this.url = "https://httpbin.org"
           this.path = "/get"

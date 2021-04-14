@@ -182,6 +182,35 @@ export default {
           }
         }
       `,
+      subscribeToMore: [
+        {
+          document: gql`
+            subscription teamMemberAdded($teamID: String!) {
+              teamMemberAdded(teamID: $teamID) {
+                role
+                user {
+                  displayName
+                  email
+                  uid
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.editingteamID }
+          },
+          skip() {
+            return this.$props.editingteamID === ""
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const teamIdx = previousResult.myTeams.findIndex(
+              (x) => x.id === this.$props.editingteamID
+            )
+            previousResult.myTeams[teamIdx].members.push(subscriptionData.data.teamMemberAdded)
+            return previousResult
+          },
+        },
+      ],
       update(response) {
         const teamIdx = response.myTeams.findIndex((x) => x.id === this.$props.editingteamID)
         return response.myTeams[teamIdx].members

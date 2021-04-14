@@ -162,8 +162,35 @@
 
 <script>
 import team_utils from "~/helpers/teams/utils"
+import gql from "graphql-tag"
 
 export default {
+  apollo: {
+    teamMembers: {
+      query: gql`
+        query GetMyTeams {
+          myTeams {
+            id
+            members {
+              user {
+                displayName
+                email
+                uid
+              }
+              role
+            }
+          }
+        }
+      `,
+      update(response) {
+        const teamIdx = response.myTeams.findIndex((x) => x.id === this.$props.editingteamID)
+        return response.myTeams[teamIdx].members
+      },
+      skip() {
+        return this.$props.editingteamID === ""
+      },
+    },
+  },
   props: {
     show: Boolean,
     editingTeam: Object,
@@ -187,9 +214,6 @@ export default {
       set(name) {
         this.rename = name
       },
-    },
-    teamMembers() {
-      return this.editingTeam.members
     },
   },
   methods: {

@@ -244,6 +244,30 @@ export default {
             return previousResult
           },
         },
+        {
+          document: gql`
+            subscription teamMemberRemoved($teamID: String!) {
+              teamMemberRemoved(teamID: $teamID)
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.editingteamID }
+          },
+          skip() {
+            return this.$props.editingteamID === ""
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const teamIdx = previousResult.myTeams.findIndex(
+              (x) => x.id === this.$props.editingteamID
+            )
+            const memberIdx = previousResult.myTeams[teamIdx].members.findIndex(
+              (x) => x.user.id === subscriptionData.data.teamMemberRemoved.id
+            )
+            if (memberIdx !== -1) previousResult.myTeams[teamIdx].members.splice(memberIdx, 1)
+
+            return previousResult
+          },
+        },
       ],
       update(response) {
         const teamIdx = response.myTeams.findIndex((x) => x.id === this.$props.editingteamID)

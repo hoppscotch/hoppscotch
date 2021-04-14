@@ -1495,9 +1495,7 @@ export default {
     },
     setRouteQueryState() {
       let deeps = ["params", "bodyParams", "headers"]
-      let req_url = "?"
-      console.log(this.URL_EXCLUDES)
-      console.log(this.request)
+      let req_url = ""
       for (var attr in this.request) {
         if (
           !this.URL_EXCLUDES[attr] &&
@@ -1508,15 +1506,12 @@ export default {
           req_url += `${attr}=${this.request[attr]}&`
         }
       }
-      console.log(this.request)
       for (var attr of deeps) {
-        console.log(attr)
         if (this.request[attr].length > 0) {
           req_url += `${attr}=${JSON.stringify(this.request[attr])}&`
         }
       }
       req_url = req_url.slice(0, -1)
-      console.log(req_url)
       history.replaceState(
         window.location.href,
         "",

@@ -47,7 +47,6 @@ body {
   @apply bg-bgColor;
   @apply text-fgColor;
   @apply text-base;
-  @apply font-body;
   @apply font-medium;
   @apply select-none;
   @apply transition;
@@ -340,7 +339,6 @@ button {
   @apply p-4;
   @apply bg-acColor;
   @apply text-actColor;
-  @apply font-body;
   @apply font-bold;
   @apply transition;
   @apply ease-in-out;
@@ -412,20 +410,6 @@ button {
 }
 
 .material-icons {
-  @apply font-icon;
-  @apply font-normal;
-  @apply not-italic;
-  @apply inline-block;
-  @apply normal-case;
-  @apply tracking-normal;
-  @apply whitespace-nowrap;
-  @apply antialiased;
-
-  word-wrap: normal;
-  direction: ltr;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "liga";
-
   &:active {
     animation: beat 0.5s forwards 1;
   }

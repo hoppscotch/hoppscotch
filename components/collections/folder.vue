@@ -220,6 +220,41 @@ export default {
             }
           },
         },
+        {
+          document: gql`
+            subscription teamRequestUpdated($teamID: String!) {
+              teamRequestUpdated(teamID: $teamID) {
+                id
+                request
+                title
+                collection {
+                  id
+                  title
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.collectionsType.selectedTeam.id }
+          },
+          skip() {
+            return this.$props.collectionsType.selectedTeam === undefined
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            if (subscriptionData.data.teamRequestUpdated.collection.id === this.$props.folder.id) {
+              const index = previousResult.requestsInCollection.findIndex(
+                (x) => x.id === subscriptionData.data.teamRequestUpdated.id
+              )
+              previousResult.requestsInCollection[index].title =
+                subscriptionData.data.teamRequestUpdated.title
+
+              previousResult.requestsInCollection[index].request =
+                subscriptionData.data.teamRequestUpdated.request
+
+              return previousResult
+            }
+          },
+        },
       ],
       variables() {
         return {

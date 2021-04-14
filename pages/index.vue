@@ -1487,6 +1487,8 @@ export default {
     setRouteQueryState() {
       let deeps = ["params", "bodyParams", "headers"]
       let req_url = "?"
+      console.log(this.URL_EXCLUDES)
+      console.log(this.request)
       for (var attr in this.request) {
         if (
           !this.URL_EXCLUDES[attr] &&
@@ -1497,7 +1499,6 @@ export default {
           req_url += `${attr}=${this.request[attr]}&`
         }
       }
-      req_url = req_url.slice(0, -1)
       console.log(this.request)
       for (var attr of deeps) {
         console.log(attr)
@@ -1505,6 +1506,7 @@ export default {
           req_url += `${attr}=${JSON.stringify(this.request[attr])}&`
         }
       }
+      req_url = req_url.slice(0, -1)
       console.log(req_url)
       history.replaceState(
         window.location.href,
@@ -1516,9 +1518,9 @@ export default {
       if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
         if (["params", "bodyParams", "headers"].includes(key))
-          this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
+          this.request[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
         else if (typeof this[key] === "string") {
-          this[key] = queries[key]
+          this.request[key] = queries[key]
         }
       }
     },

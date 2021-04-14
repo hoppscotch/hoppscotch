@@ -334,10 +334,12 @@ export default {
       }
 
       pwRequest.name = name
+      if (request.url){
       let requestObjectUrl = request.url.raw.match(/^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/)
       if (requestObjectUrl) {
         pwRequest.url = requestObjectUrl[1]
         pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+      }
       }
       pwRequest.method = request.method
       let itemAuth = request.auth ? request.auth : ""
@@ -366,6 +368,7 @@ export default {
           delete header.type
         }
       }
+    if(request.url){
       let requestObjectParams = request.url.query
       if (requestObjectParams) {
         pwRequest.params = requestObjectParams
@@ -373,6 +376,7 @@ export default {
           delete param.disabled
         }
       }
+    }
       if (request.body) {
         if (request.body.mode === "urlencoded") {
           let params = request.body.urlencoded

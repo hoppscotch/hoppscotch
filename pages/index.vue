@@ -143,10 +143,19 @@
               @remove-request-body-param="removeRequestBodyParam"
               @add-request-body-param="addRequestBodyParam"
             />
-            <HttpRawBody v-else :rawParams="request.rawParams" :contentType="request.contentType"
-            :rawInput="request.rawInput" @clear-content="clearContent"
-            @update-raw-body="updateRawBody" @update-raw-input="updateRawInput = (value) => {
-            this.request = { ...this.request, rawInput: value } } "" />
+            <HttpRawBody
+              v-else
+              :rawParams="request.rawParams"
+              :contentType="request.contentType"
+              :rawInput="request.rawInput"
+              @clear-content="clearContent"
+              @update-raw-body="updateRawBody"
+              @update-raw-input="
+                updateRawInput = (value) => {
+                  this.request = { ...this.request, rawInput: value }
+                }
+              "
+            />
           </div>
           <div class="row-wrapper">
             <span>

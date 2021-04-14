@@ -17,11 +17,20 @@ export const defaultSettings = {
   PROXY_KEY: "",
   EXTENSIONS_ENABLED: true,
   EXPERIMENTAL_URL_BAR_ENABLED: false,
-  URL_EXCLUDES: {
-    auth: true,
-    httpUser: true,
-    httpPassword: true,
-    bearerToken: true
+  URL_INCLUDES: {
+    name: false,
+    method: true,
+    path: true,
+    url: true,
+    auth: false,
+    httpUser: false,
+    httpPassword: false,
+    bearerToken: false,
+    headers: true,
+    bodyParams: true,
+    rawParams: true,
+    params: true,
+    contentType: true
   }
 }
 

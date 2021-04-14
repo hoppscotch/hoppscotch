@@ -345,7 +345,7 @@
                   </li>
                 </ul>
                 <div class="row-wrapper">
-                  <SmartToggle :on="!URL_EXCLUDES.auth" @change="setExclude('auth', !$event)">
+                  <SmartToggle :on="URL_INCLUDES.auth" @change="setInclude('auth', $event)">
                     {{ $t("include_in_url") }}
                   </SmartToggle>
                 </div>
@@ -823,7 +823,7 @@ export default {
     return {
       SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
       PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
-      URL_EXCLUDES: getSettingSubject("URL_EXCLUDES"),
+      URL_INCLUDES: getSettingSubject("URL_INCLUDES"),
       EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
 
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
@@ -1496,9 +1496,10 @@ export default {
     setRouteQueryState() {
       let deeps = ["params", "bodyParams", "headers"]
       let req_url = ""
+      console.log(this.URL_INCLUDES)
       for (var attr in this.request) {
         if (
-          !this.URL_EXCLUDES[attr] &&
+          this.URL_INCLUDES[attr] &&
           this.request[attr] &&
           this.request[attr] != "" &&
           !deeps.find((x) => x == attr)
@@ -1520,13 +1521,17 @@ export default {
     },
     setRouteQueries(queries) {
       if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
+      console.log(queries)
+      let request = this.request
       for (const key in queries) {
         if (["params", "bodyParams", "headers"].includes(key))
-          this.request[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
-        else if (typeof this[key] === "string") {
-          this.request[key] = queries[key]
+          request[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
+        else if (typeof this.request[key] === "string") {
+          request[key] = queries[key]
         }
       }
+      this.request = request
+      console.log(this.request)
     },
     // observeRequestButton() {
     //   const requestElement = this.$refs.request
@@ -1691,19 +1696,20 @@ export default {
       this.showSaveRequestModal = false
       this.editRequest = {}
     },
-    setExclude(excludedField, excluded) {
-      const update = clone(this.URL_EXCLUDES)
+    setInclude(field, included) {
+      const update = clone(this.URL_INCLUDES)
 
-      if (excludedField === "auth") {
-        update.auth = excluded
-        update.httpUser = excluded
-        update.httpPassword = excluded
-        update.bearerToken = excluded
+      console.log(this.URL_INCLUDES, field, included)
+      if (field === "auth") {
+        update.auth = included
+        update.httpUser = included
+        update.httpPassword = included
+        update.bearerToken = included
       } else {
-        update[excludedField] = excluded
+        update[field] = included
       }
 
-      applySetting("URL_EXCLUDES", update)
+      applySetting("URL_INCLUDES", update)
 
       this.setRouteQueryState()
     },

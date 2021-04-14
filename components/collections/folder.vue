@@ -54,7 +54,7 @@
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
-          v-for="(request, index) in folder.requests"
+          v-for="(request, index) in requests"
           :key="index"
           class="flex ml-8 border-l border-brdColor"
         >
@@ -108,7 +108,7 @@
           />
         </li>
       </ul>
-      <ul v-if="folders && folders.length === 0 && folder.requests && folder.requests.length === 0">
+      <ul v-if="folders && folders.length === 0 && requests && requests.length === 0">
         <li class="flex ml-8 border-l border-brdColor">
           <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
         </li>
@@ -152,6 +152,28 @@ export default {
       },
       fetchPolicy: "no-cache",
     },
+    requests: {
+      query: gql`
+        query getCollectionRequests($collectionID: String!, $cursor: String) {
+          requestsInCollection(collectionID: $collectionID, cursor: $cursor) {
+            id
+            title
+            request
+          }
+        }
+      `,
+      variables() {
+        return {
+          collectionID: this.$props.folder.id,
+          cursor: "",
+        }
+      },
+      update: (response) => response.requestsInCollection,
+      skip() {
+        return this.$props.collectionsType.selectedTeam === undefined
+      },
+      fetchPolicy: "no-cache",
+    },
   },
   name: "folder",
   props: {
@@ -183,21 +205,6 @@ export default {
       if (this.$props.saveRequest)
         this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })
       this.showChildren = !this.showChildren
-
-      if (
-        this.showChildren &&
-        this.collectionsType.type == "team-collections" &&
-        this.folder.requests == undefined
-      ) {
-        team_utils
-          .getCollectionRequests(this.$apollo, this.folder.id)
-          .then((requests) => {
-            this.$set(this.folder, "requests", requests)
-          })
-          .catch((error) => {
-            console.log(error)
-          })
-      }
     },
     removeFolder() {
       if (this.collectionsType.type == "my-collections") {

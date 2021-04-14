@@ -80,9 +80,9 @@
           />
         </li>
       </ul>
-      <ul v-if="folder.folders && folder.folders.length" class="flex-col">
+      <ul v-if="folders && folders.length" class="flex-col">
         <li
-          v-for="(subFolder, subFolderIndex) in folder.folders"
+          v-for="(subFolder, subFolderIndex) in folders"
           :key="subFolder.name"
           class="ml-8 border-l border-brdColor"
         >
@@ -108,14 +108,7 @@
           />
         </li>
       </ul>
-      <ul
-        v-if="
-          folder.folders &&
-          folder.folders.length === 0 &&
-          folder.requests &&
-          folder.requests.length === 0
-        "
-      >
+      <ul v-if="folders && folders.length === 0 && folder.requests && folder.requests.length === 0">
         <li class="flex ml-8 border-l border-brdColor">
           <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
         </li>
@@ -133,8 +126,33 @@
 <script>
 import { fb } from "~/helpers/fb"
 import team_utils from "~/helpers/teams/utils"
+import gql from "graphql-tag"
 
 export default {
+  apollo: {
+    folders: {
+      query: gql`
+        query getCollectionChildren($collectionID: String!) {
+          collection(collectionID: $collectionID) {
+            children {
+              id
+              title
+            }
+          }
+        }
+      `,
+      variables() {
+        return {
+          collectionID: this.$props.folder.id,
+        }
+      },
+      update: (response) => response.collection.children,
+      skip() {
+        return this.$props.collectionsType.selectedTeam === undefined
+      },
+      fetchPolicy: "no-cache",
+    },
+  },
   name: "folder",
   props: {
     folder: Object,
@@ -165,20 +183,7 @@ export default {
       if (this.$props.saveRequest)
         this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })
       this.showChildren = !this.showChildren
-      if (
-        this.showChildren &&
-        this.collectionsType.type == "team-collections" &&
-        this.folder.folders == undefined
-      ) {
-        team_utils
-          .getCollectionChildren(this.$apollo, this.folder.id)
-          .then((children) => {
-            this.$set(this.folder, "folders", children)
-          })
-          .catch((error) => {
-            console.log(error)
-          })
-      }
+
       if (
         this.showChildren &&
         this.collectionsType.type == "team-collections" &&

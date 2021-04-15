@@ -45,7 +45,7 @@
         <code>{{ request.bearerToken || $t("none") }}</code>
       </span>
     </p>
-    <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
+    <h4 v-if="request.headers">{{ $t("headers") }}</h4>
     <span v-if="request.headers">
       <p v-for="header in request.headers" :key="header.key" class="doc-desc">
         <span>
@@ -54,7 +54,7 @@
         </span>
       </p>
     </span>
-    <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
+    <h4 v-if="request.params">{{ $t("parameters") }}</h4>
     <span v-if="request.params">
       <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
         <span>

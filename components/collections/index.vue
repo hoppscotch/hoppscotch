@@ -64,11 +64,13 @@
             :collection="collection"
             :doc="doc"
             :isFiltered="filterText.length > 0"
+            :selected="selected.some((coll) => coll == collection)"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
+            @unselect-collection="$emit('remove-collection', collection)"
           />
         </li>
       </ul>
@@ -92,6 +94,7 @@ import { getSettingSubject } from "~/newstore/settings"
 export default {
   props: {
     doc: Boolean,
+    selected: { type: Array, default: () => [] },
   },
   data() {
     return {

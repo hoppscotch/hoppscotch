@@ -4,6 +4,9 @@
       <i class="material-icons">folder_open</i>
       {{ folder.name || $t("none") }}
     </h3>
+    <div v-for="(folder, index) in folder.folders" :key="index">
+      <DocsFolder :folder="folder" />
+    </div>
     <div v-for="(request, index) in folder.requests" :key="index">
       <DocsRequest :request="request" />
     </div>

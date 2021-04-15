@@ -85,7 +85,12 @@
       </div>
 
       <aside class="sticky-inner inner-right lg:max-w-md">
-        <Collections @use-collection="useSelectedCollection($event)" :doc="true" />
+        <Collections
+          :selected="selected"
+          @use-collection="useSelectedCollection($event)"
+          @remove-collection="removeSelectedCollection($event)"
+          :doc="true"
+        />
       </aside>
     </div>
   </div>
@@ -103,6 +108,7 @@ export default {
       collectionJSON: "[]",
       items: [],
       docsMarkdown: "",
+      selected: [],
     }
   },
   methods: {
@@ -191,7 +197,17 @@ export default {
     },
 
     useSelectedCollection(collection) {
-      let importCollection = `[${JSON.stringify(collection, null, 2)}]`
+      if (this.selected.find((coll) => coll == collection)) {
+        return
+      }
+      this.selected.push(collection)
+      let importCollection = JSON.stringify(this.selected, null, 2)
+      this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
+    },
+
+    removeSelectedCollection(collection) {
+      this.selected = this.selected.filter((coll) => coll != collection)
+      let importCollection = JSON.stringify(this.selected, null, 2)
       this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
     },
   },

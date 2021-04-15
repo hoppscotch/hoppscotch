@@ -69,6 +69,8 @@
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
+            @unselect-collection="$emit('remove-collection', collection)"
+            :selected="selected.some((coll) => coll == collection)"
           />
         </li>
       </ul>
@@ -92,6 +94,7 @@ import { getSettingSubject } from "~/newstore/settings"
 export default {
   props: {
     doc: Boolean,
+    selected: Array,
   },
   data() {
     return {

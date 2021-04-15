@@ -334,10 +334,12 @@ export default {
       }
 
       pwRequest.name = name
-      let requestObjectUrl = request.url.raw.match(/^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/)
-      if (requestObjectUrl) {
-        pwRequest.url = requestObjectUrl[1]
-        pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+      if (request.url) {
+        let requestObjectUrl = request.url.raw.match(/^(.+:\/\/[^\/]+|{[^\/]+})(\/[^\?]+|).*$/)
+        if (requestObjectUrl) {
+          pwRequest.url = requestObjectUrl[1]
+          pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+        }
       }
       pwRequest.method = request.method
       let itemAuth = request.auth ? request.auth : ""
@@ -366,11 +368,13 @@ export default {
           delete header.type
         }
       }
-      let requestObjectParams = request.url.query
-      if (requestObjectParams) {
-        pwRequest.params = requestObjectParams
-        for (let param of pwRequest.params) {
-          delete param.disabled
+      if (request.url) {
+        let requestObjectParams = request.url.query
+        if (requestObjectParams) {
+          pwRequest.params = requestObjectParams
+          for (let param of pwRequest.params) {
+            delete param.disabled
+          }
         }
       }
       if (request.body) {

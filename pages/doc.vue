@@ -201,7 +201,7 @@ export default {
         return
       }
       this.selected.push(collection)
-      let importCollection = `${JSON.stringify(this.selected, null, 2)}`
+      let importCollection = JSON.stringify(this.selected, null, 2)
       this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
     },
 

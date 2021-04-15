@@ -207,7 +207,7 @@ export default {
 
     removeSelectedCollection(collection) {
       this.selected = this.selected.filter((coll) => coll != collection)
-      let importCollection = `${JSON.stringify(this.selected, null, 2)}`
+      let importCollection = JSON.stringify(this.selected, null, 2)
       this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
     },
   },

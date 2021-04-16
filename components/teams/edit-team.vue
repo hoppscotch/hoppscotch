@@ -182,6 +182,93 @@ export default {
           }
         }
       `,
+      subscribeToMore: [
+        {
+          document: gql`
+            subscription teamMemberAdded($teamID: String!) {
+              teamMemberAdded(teamID: $teamID) {
+                role
+                user {
+                  displayName
+                  email
+                  uid
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.editingteamID }
+          },
+          skip() {
+            return this.$props.editingteamID === ""
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const teamIdx = previousResult.myTeams.findIndex(
+              (x) => x.id === this.$props.editingteamID
+            )
+            previousResult.myTeams[teamIdx].members.push(subscriptionData.data.teamMemberAdded)
+            return previousResult
+          },
+        },
+        {
+          document: gql`
+            subscription teamMemberUpdated($teamID: String!) {
+              teamMemberUpdated(teamID: $teamID) {
+                role
+                user {
+                  displayName
+                  email
+                  uid
+                }
+              }
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.editingteamID }
+          },
+          skip() {
+            return this.$props.editingteamID === ""
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const teamIdx = previousResult.myTeams.findIndex(
+              (x) => x.id === this.$props.editingteamID
+            )
+            const memberIdx = previousResult.myTeams[teamIdx].members.findIndex(
+              (x) => x.user.uid === subscriptionData.data.teamMemberUpdated.user.uid
+            )
+            previousResult.myTeams[teamIdx].members[memberIdx].user =
+              subscriptionData.data.teamMemberUpdated.user
+            previousResult.myTeams[teamIdx].members[memberIdx].role =
+              subscriptionData.data.teamMemberUpdated.role
+
+            return previousResult
+          },
+        },
+        {
+          document: gql`
+            subscription teamMemberRemoved($teamID: String!) {
+              teamMemberRemoved(teamID: $teamID)
+            }
+          `,
+          variables() {
+            return { teamID: this.$props.editingteamID }
+          },
+          skip() {
+            return this.$props.editingteamID === ""
+          },
+          updateQuery(previousResult, { subscriptionData }) {
+            const teamIdx = previousResult.myTeams.findIndex(
+              (x) => x.id === this.$props.editingteamID
+            )
+            const memberIdx = previousResult.myTeams[teamIdx].members.findIndex(
+              (x) => x.user.id === subscriptionData.data.teamMemberRemoved.id
+            )
+            if (memberIdx !== -1) previousResult.myTeams[teamIdx].members.splice(memberIdx, 1)
+
+            return previousResult
+          },
+        },
+      ],
       update(response) {
         const teamIdx = response.myTeams.findIndex((x) => x.id === this.$props.editingteamID)
         return response.myTeams[teamIdx].members

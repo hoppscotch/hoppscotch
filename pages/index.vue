@@ -977,12 +977,57 @@ export default {
         this.$store.commit("updateRequest", value)
       },
     },
+    rawParams: {
+      get() {
+        return this.$store.state.request.rawParams
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "rawParams" })
+        // Convert the rawParams to bodyParams format
+        try {
+          const valueObj = JSON.parse(value)
+          const params = Object.keys(valueObj).map((key) => {
+            if (typeof valueObj[key] !== "function") {
+              return {
+                active: true,
+                key,
+                value: valueObj[key],
+              }
+            }
+          })
+          this.$store.commit("setBodyParams", { params })
+        } catch {}
+      },
+    },
+    rawInput: {
+      get() {
+        return this.$store.state.request.rawInput
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "rawInput" })
+      },
+    },
+    requestType: {
+      get() {
+        return this.$store.state.request.requestType
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "requestType" })
+      },
+    },
+    contentType: {
+      get() {
+        return this.$store.state.request.contentType
+      },
+      set(value) {
+        this.$store.commit("setState", { value, attribute: "contentType" })
+      },
+    },
     oauth2: {
       get() {
         return this.$store.state.oauth2
       },
       set(value) {
-        console.log(value)
         this.$store.commit("updateOAuth2", value)
       },
     },
@@ -1401,9 +1446,19 @@ export default {
     pathInputHandler() {
       if (this.uri.includes("?")) {
         const queryString = this.getQueryStringFromPath()
+        let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         const params = this.queryStringToArray(queryString)
+        let parsedParams = []
+        for (let k of params.filter((item) =>
+          item.hasOwnProperty("active") ? item.active == true : true
+        )) {
+          const kParsed = parseTemplateString(k.key, environmentVariables)
+          const valParsed = parseTemplateString(k.value, environmentVariables)
+          parsedParams.push({ key: kParsed, value: valParsed, active: true })
+        }
         this.paramsWatchEnabled = false
-        this.request = { ...this.request, params: params }
+        this.request = { ...this.request, params: parsedParams }
       }
     },
     addRequestHeader() {

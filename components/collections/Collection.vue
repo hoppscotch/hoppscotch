@@ -17,12 +17,20 @@
       </button>
       <div>
         <button
-          v-if="doc"
+          v-if="doc && !selected"
           class="icon"
           @click="$emit('select-collection')"
           v-tooltip.left="$t('import')"
         >
-          <i class="material-icons">topic</i>
+          <i class="material-icons">check_box_outline_blank</i>
+        </button>
+        <button
+          v-if="doc && selected"
+          class="icon"
+          @click="$emit('unselect-collection')"
+          v-tooltip.left="$t('delete')"
+        >
+          <i class="material-icons">check_box</i>
         </button>
         <v-popover>
           <button class="tooltip-target icon" v-tooltip.left="$t('more')">
@@ -122,6 +130,7 @@ export default {
     collection: Object,
     doc: Boolean,
     isFiltered: Boolean,
+    selected: Boolean,
   },
   data() {
     return {

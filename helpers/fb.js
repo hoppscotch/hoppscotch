@@ -380,8 +380,8 @@ export class FirebaseInstance {
     }
   }
 
-  async updateGist(collection) {
-    const gistID = gist.split("/").pop()
+  async updateGist(collection, gistURL) {
+    const gistID = gistURL.split("/").pop()
     await this.$axios
       .$patch(
         `https://api.github.com/gists/${gistID}`,
@@ -414,7 +414,7 @@ export class FirebaseInstance {
     getSettingSubject("GIST_ENABLED").subscribe((enableValue) => {
       getSettingSubject("GIST_URL").subscribe((urlStatus) => {
         if (enableValue && urlStatus) {
-          this.updateGist(collection)
+          this.updateGist(collection, urlStatus)
         }
       })
     })

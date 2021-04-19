@@ -380,7 +380,44 @@ export class FirebaseInstance {
     }
   }
 
+  async updateGist(collection) {
+    const gistID = gist.split("/").pop()
+    await this.$axios
+      .$patch(
+        `https://api.github.com/gists/${gistID}`,
+        {
+          files: {
+            "hoppscotch-collections.json": {
+              content: collection,
+            },
+          },
+        },
+        {
+          headers: {
+            // Authorization: `token ${fb.currentUser.accessToken}`,
+            Accept: "application/vnd.github.v3+json",
+          },
+        }
+      )
+      .then(() => {
+        console.log("Done")
+      })
+      .catch((error) => {
+        this.$toast.error(this.$t("something_went_wrong"), {
+          icon: "error",
+        })
+        console.log(error)
+      })
+  }
+
   async writeCollections(collection, flag) {
+    getSettingSubject("GIST_ENABLED").subscribe((enableValue) => {
+      getSettingSubject("GIST_URL").subscribe((urlStatus) => {
+        if (enableValue && urlStatus) {
+          this.updateGist(collection)
+        }
+      })
+    })
     const cl = {
       updatedOn: new Date(),
       author: this.currentUser.uid,

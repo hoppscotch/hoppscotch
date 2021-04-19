@@ -22,6 +22,10 @@ export const SETTINGS_KEYS = [
    */
   "PROXY_KEY",
 
+  "GIST_ENABLED",
+
+  "GIST_URL",
+
   /**
    * An array of properties to exclude from the URL.
    * e.g. 'auth'

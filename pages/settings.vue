@@ -290,6 +290,32 @@ export default Vue.extend({
     },
   },
   methods: {
+    async createGistURL() {
+      if (this.GIST_URL) return
+      await this.$axios
+        .$post(
+          "https://api.github.com/gists",
+          {
+            files: {
+              "hoppscotch-collections.json": {
+                content: "",
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `token ${fb.currentUser.accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        )
+        .then(({ html_url }) => {
+          this.GIST_URL = html_url
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
     applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
       applySetting(key, value)
     },
@@ -302,6 +328,7 @@ export default Vue.extend({
       }
       if (key == "EXTENSIONS_ENABLED" && this.GIST_ENABLED) {
         toggleSetting("GIST_ENABLED")
+        // new fun in settings.vue
       }
       toggleSetting(key)
     },

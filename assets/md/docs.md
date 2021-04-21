@@ -1,4 +1,5 @@
 **Table of Contents**
+
 {{#collections}}
 {{>folderContents}}
 {{/collections}}

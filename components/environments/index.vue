@@ -96,8 +96,7 @@ export default {
   },
   computed: {
     environments() {
-      // console.log(this.$props.page == "rest")
-      if (fb.currentEnvironments !== null) {
+      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
         return this.$props.page == "rest" ? fb.currentEnvironments : fb.currentGraphqlEnvironments
       } else {
         return this.$props.page == "rest"

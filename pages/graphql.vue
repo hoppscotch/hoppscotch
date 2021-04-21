@@ -847,12 +847,7 @@ export default {
           star: false,
           headers: this.headers,
         }
-<<<<<<< HEAD
-
-        const res = await sendNetworkRequest(reqOptions, this.$store)
-=======
         const res = await sendNetworkRequest(reqOptions)
->>>>>>> ad252476cec6fdb63dfb93bb1aa7770b63e5b86d
 
         // HACK: Temporary trailing null character issue from the extension fix
         const responseText = new TextDecoder("utf-8").decode(res.data).replace(/\0+$/, "")

@@ -42,6 +42,7 @@
               $store.commit('postwoman/setVariableKey', {
                 index,
                 value: $event.target.value,
+                page: this.$props.page,
               })
             "
             autofocus
@@ -58,6 +59,7 @@
               $store.commit('postwoman/setVariableValue', {
                 index,
                 value: $event.target.value,
+                page: this.$props.page,
               })
             "
           />
@@ -122,11 +124,10 @@ export default {
         this.$props.editingEnvironment && this.$props.editingEnvironment.name
           ? this.$props.editingEnvironment.name
           : undefined
-      this.$store.commit(
-        "postwoman/setEditingEnvironment",
-        this.$props.editingEnvironment,
-        this.page
-      )
+      this.$store.commit("postwoman/setEditingEnvironment", {
+        value: this.$props.editingEnvironment,
+        page: this.page,
+      })
     },
   },
   computed: {
@@ -154,7 +155,7 @@ export default {
       }
     },
     clearContent({ target }) {
-      this.$store.commit("postwoman/removeVariables", [], this.page)
+      this.$store.commit("postwoman/removeVariables", { value: [], page: this.page })
       target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
@@ -163,7 +164,7 @@ export default {
     },
     addEnvironmentVariable() {
       let value = { key: "", value: "" }
-      this.$store.commit("postwoman/addVariable", value, this.page)
+      this.$store.commit("postwoman/addVariable", { value: value, page: this.page })
       this.syncEnvironments()
     },
     removeEnvironmentVariable(index) {
@@ -173,13 +174,16 @@ export default {
         (variable, index) => variableIndex !== index
       )
 
-      this.$store.commit("postwoman/removeVariable", newVariables, this.page)
+      this.$store.commit("postwoman/removeVariable", { variables: newVariables, page: this.page })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           onClick: (e, toastObject) => {
-            this.$store.commit("postwoman/removeVariable", oldVariables, this.page)
+            this.$store.commit("postwoman/removeVariable", {
+              variables: oldVariables,
+              page: this.page,
+            })
             toastObject.remove()
           },
         },
@@ -198,6 +202,7 @@ export default {
       this.$store.commit("postwoman/saveEnvironment", {
         environment: environmentUpdated,
         environmentIndex: this.$props.editingEnvironmentIndex,
+        page: this.$props.page,
       })
       this.$emit("hide-modal")
       this.syncEnvironments()

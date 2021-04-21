@@ -68,7 +68,10 @@ export default {
       }
     },
     removeEnvironment() {
-      this.$store.commit("postwoman/removeEnvironment", this.environmentIndex, this.$props.page)
+      this.$store.commit("postwoman/removeEnvironment", {
+        environmentIndex: this.environmentIndex,
+        page: this.$props.page,
+      })
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })

@@ -28,6 +28,7 @@
     <EnvironmentsImportExport
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
+      :page="page"
     />
     <div class="border-b row-wrapper border-brdColor">
       <div>

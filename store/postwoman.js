@@ -93,15 +93,15 @@ export const mutations = {
     settings[key] = value
   },
 
-  removeVariables({ editingEnvironment }, value, page) {
+  removeVariables(state, { value, page }) {
     if (page == "rest") {
-      editingEnvironment.variables = value
+      state.editingEnvironment.variables = value
     } else if (page == "graphql") {
-      editingGraphqlEnvironment.variables = value
+      state.editingGraphqlEnvironment.variables = value
     }
   },
 
-  setEditingEnvironment(state, value, page) {
+  setEditingEnvironment(state, { value, page }) {
     if (page == "rest") {
       state.editingEnvironment = { ...value }
     } else if (page == "graphql") {
@@ -109,56 +109,89 @@ export const mutations = {
     }
   },
 
-  setVariableKey({ editingEnvironment }, { index, value }) {
-    editingEnvironment.variables[index].key = value
-  },
-
-  setVariableValue({ editingEnvironment }, { index, value }) {
-    editingEnvironment.variables[index].value = testValue(value)
-  },
-
-  removeVariable({ editingEnvironment }, variables, page) {
+  setVariableKey(state, { index, value, page }) {
     if (page == "rest") {
-      editingEnvironment.variables = variables
+      state.editingEnvironment.variables[index].key = value
     } else if (page == "graphql") {
-      editingGraphqlEnvironment.variables = variables
+      state.editingGraphqlEnvironment.variables[index].key = value
     }
   },
 
-  addVariable({ editingEnvironment }, value, page) {
+  setVariableValue(state, { index, value, page }) {
     if (page == "rest") {
-      editingEnvironment.variables.push(value)
+      state.editingEnvironment.variables[index].value = testValue(value)
     } else if (page == "graphql") {
-      editingGraphqlEnvironment.variables.push(value)
+      state.editingGraphqlEnvironment.variables[index].value = testValue(value)
     }
   },
 
-  replaceEnvironments(state, environments) {
-    state.environments = environments
+  removeVariable(state, { variables, page }) {
+    if (page == "rest") {
+      state.editingEnvironment.variables = variables
+    } else if (page == "graphql") {
+      state.editingGraphqlEnvironment.variables = variables
+    }
+  },
+
+  addVariable(state, { value, page }) {
+    if (page == "rest") {
+      state.editingEnvironment.variables.push(value)
+    } else if (page == "graphql") {
+      state.editingGraphqlEnvironment.variables.push(value)
+    }
+  },
+
+  replaceEnvironments(state, { environments, page }) {
+    if (page == "rest") {
+      state.environments = environments
+    } else if (page == "graphql") {
+      state.graphqlEnvironments = environments
+    }
   },
 
   importAddEnvironments(state, { environments, confirmation, page }) {
-    const duplicateEnvironment = environments.some((item) => {
-      return state.environments.some((item2) => {
-        return item.name.toLowerCase() === item2.name.toLowerCase()
+    if (page == "rest") {
+      const duplicateEnvironment = environments.some((item) => {
+        return state.environments.some((item2) => {
+          return item.name.toLowerCase() === item2.name.toLowerCase()
+        })
       })
-    })
-    if (duplicateEnvironment) {
-      this.$toast.info("Duplicate environment")
-      return
+      if (duplicateEnvironment) {
+        this.$toast.info("Duplicate environment")
+        return
+      }
+      state.environments = [...state.environments, ...environments]
+      let index = 0
+      for (let environment of state.environments) {
+        environment.environmentIndex = index
+        index += 1
+      }
+      this.$toast.info(confirmation, {
+        icon: "folder_shared",
+      })
+    } else {
+      const duplicateEnvironment = environments.some((item) => {
+        return state.graphqlEnvironments.some((item2) => {
+          return item.name.toLowerCase() === item2.name.toLowerCase()
+        })
+      })
+      if (duplicateEnvironment) {
+        this.$toast.info("Duplicate environment")
+        return
+      }
+      state.graphqlEnvironments = [...state.graphqlEnvironments, ...environments]
+      let index = 0
+      for (let environment of state.graphqlEnvironments) {
+        environment.environmentIndex = index
+        index += 1
+      }
+      this.$toast.info(confirmation, {
+        icon: "folder_shared",
+      })
     }
-    state.environments = [...state.environments, ...environments]
-    let index = 0
-    for (let environment of state.environments) {
-      environment.environmentIndex = index
-      index += 1
-    }
-    this.$toast.info(confirmation, {
-      icon: "folder_shared",
-    })
   },
 
-  removeEnvironment({ environments, graphqlEnvironments }, environmentIndex, page) {
+  removeEnvironment({ environments, graphqlEnvironments }, { environmentIndex, page }) {
     if (page == "rest") {
       environments.splice(environmentIndex, 1)
     } else if (page == "graphql") {
@@ -166,22 +199,38 @@ export const mutations = {
     }
   },
 
-  saveEnvironment({ environments }, payload) {
-    const { environment, environmentIndex } = payload
+  saveEnvironment({ environments, graphqlEnvironments }, payload) {
+    const { environment, environmentIndex, page } = payload
     const { name } = environment
-    const duplicateEnvironment =
-      environments.length === 1
-        ? false
-        : environments.some(
-            (item) =>
-              item.environmentIndex !== environmentIndex &&
-              item.name.toLowerCase() === name.toLowerCase()
-          )
-    if (duplicateEnvironment) {
-      this.$toast.info("Duplicate environment")
-      return
+    if (page == "rest") {
+      const duplicateEnvironment =
+        environments.length === 1
+          ? false
+          : environments.some(
+              (item) =>
+                item.environmentIndex !== environmentIndex &&
+                item.name.toLowerCase() === name.toLowerCase()
+            )
+      if (duplicateEnvironment) {
+        this.$toast.info("Duplicate environment")
+        return
+      }
+      environments[environmentIndex] = environment
+    } else if (page == "graphql") {
+      const duplicateEnvironment =
+        graphqlEnvironments.length === 1
+          ? false
+          : graphqlEnvironments.some(
+              (item) =>
+                item.environmentIndex !== environmentIndex &&
+                item.name.toLowerCase() === name.toLowerCase()
+            )
+      if (duplicateEnvironment) {
+        this.$toast.info("Duplicate environment")
+        return
+      }
+      graphqlEnvironments[environmentIndex] = environment
     }
-    environments[environmentIndex] = environment
   },
 
   replaceCollections(state, item) {

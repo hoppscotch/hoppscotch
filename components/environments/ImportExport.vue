@@ -123,6 +123,7 @@ export default {
   },
   props: {
     show: Boolean,
+    page: String,
   },
   computed: {
     environmentJson() {
@@ -172,7 +173,10 @@ export default {
         })
         .then(({ files }) => {
           let environments = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceEnvironments", environments)
+          this.$store.commit("postwoman/replaceEnvironments", {
+            environments: environments,
+            page: this.$props.page,
+          })
           this.fileImported()
           this.syncToFBEnvironments()
         })
@@ -195,7 +199,10 @@ export default {
       reader.onload = ({ target }) => {
         let content = target.result
         let environments = JSON.parse(content)
-        this.$store.commit("postwoman/replaceEnvironments", environments)
+        this.$store.commit("postwoman/replaceEnvironments", {
+          environments: environments,
+          page: this.$props.page,
+        })
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
@@ -223,8 +230,9 @@ export default {
     importFromPostwoman(environments) {
       let confirmation = this.$t("file_imported")
       this.$store.commit("postwoman/importAddEnvironments", {
-        environments,
-        confirmation,
+        environments: environments,
+        confirmation: confirmation,
+        page: this.$props.page,
       })
     },
     importFromPostman({ name, values }) {
@@ -252,7 +260,10 @@ export default {
       })
     },
     syncEnvironments() {
-      this.$store.commit("postwoman/replaceEnvironments", fb.currentEnvironments)
+      this.$store.commit("postwoman/replaceEnvironments", {
+        environments: fb.currentEnvironments,
+        page: this.$props.page,
+      })
       this.fileImported()
     },
     syncToFBEnvironments() {

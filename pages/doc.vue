@@ -207,11 +207,13 @@ export default {
             isRawParams() {
               return this.rawParams && this.rawParams !== "{}"
             },
-            isPrerequestScript() {
-              return this.preRequestScript != "preRequestScript"
+            isPreRequestScript() {
+              return (
+                this.preRequestScript &&
+                this.preRequestScript != `// pw.env.set('variable', 'value');`
+              )
             },
             isTestScript() {
-              console.log(this.testScript)
               return this.testScript && this.testScript != `// pw.expect('variable').toBe('value');`
             },
           },

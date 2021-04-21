@@ -153,8 +153,14 @@ export default {
     syncEnvironments() {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
         fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)),
-          this.page
+          JSON.parse(
+            JSON.stringify(
+              this.$props.page == "rest"
+                ? this.$store.state.postwoman.environments
+                : this.$store.state.postwoman.graphqlEnvironments
+            )
+          ),
+          this.$props.page
         )
       }
     },

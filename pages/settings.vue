@@ -301,7 +301,14 @@ export default Vue.extend({
     },
     syncEnvironments(): void {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)),
+          "rest"
+        )
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.graphqlEnvironments)),
+          "graphql"
+        )
       }
     },
   },

@@ -65,7 +65,8 @@ export default {
                 ? this.$store.state.postwoman.environments
                 : this.$store.state.postwoman.graphqlEnvironments
             )
-          )
+          ),
+          this.$props.page
         )
       }
     },

@@ -100,6 +100,8 @@
 import { fb } from "~/helpers/fb"
 import Mustache from "mustache"
 import DocsTemplate from "~/assets/md/docs.md"
+import folderContents from "~/assets/md/folderContents.md"
+import folderBody from "~/assets/md/folderBody.md"
 
 export default {
   data() {
@@ -163,32 +165,64 @@ export default {
       this.$refs.collectionUpload.value = ""
     },
 
+    assignIDs(items, pref, nesting_level) {
+      for (var i = 0; i < items.length; ++i) {
+        items[i].id = `&emsp;${pref}${i + 1}.`
+        items[i].ref = `${items[i].name.split(" ").join("-")}`
+        items[i].nesting_level = nesting_level
+        items[i].folders = this.assignIDs(items[i].folders, items[i].id, nesting_level + "#")
+        for (var j = 0; j < items[i].requests.length; ++j) {
+          items[i].requests[j].id = `&emsp;${items[i].id}${i + 1}`
+          items[i].requests[j].ref = `${items[i].requests[j].name.split(" ").join("-")}`
+          items[i].requests[j].nesting_level = nesting_level + "#"
+        }
+      }
+      return items
+    },
+
     getDoc() {
       try {
         this.items = JSON.parse(this.collectionJSON)
+        this.assignIDs(this.items, "", "#")
         this.$toast.clear()
         this.$toast.info(this.$t("docs_generated"), {
           icon: "book",
         })
-        const docsMarkdown = Mustache.render(DocsTemplate, {
-          collections: this.items,
-          isHeaders() {
-            return this.headers.length
+        const docsMarkdown = Mustache.render(
+          DocsTemplate,
+          {
+            collections: this.items,
+            isHeaders() {
+              return this.headers.length
+            },
+            isParams() {
+              return this.params.length
+            },
+            isAuth() {
+              return this.auth !== "None"
+            },
+            isAuthBasic() {
+              return this.httpUser && this.httpPassword
+            },
+            isRawParams() {
+              return this.rawParams && this.rawParams !== "{}"
+            },
+            isPreRequestScript() {
+              return (
+                this.preRequestScript &&
+                this.preRequestScript != `// pw.env.set('variable', 'value');`
+              )
+            },
+            isTestScript() {
+              return this.testScript && this.testScript != `// pw.expect('variable').toBe('value');`
+            },
           },
-          isParams() {
-            return this.params.length
-          },
-          isAuth() {
-            return this.auth !== "None"
-          },
-          isAuthBasic() {
-            return this.httpUser && this.httpPassword
-          },
-          isRawParams() {
-            return this.rawParams && this.rawParams !== "{}"
-          },
-        })
-        this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n")
+          {
+            folderContents: folderContents,
+            folderBody: folderBody,
+          }
+        )
+        this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n\n")
       } catch (e) {
         this.$toast.error(e, {
           icon: "code",

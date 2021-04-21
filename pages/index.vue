@@ -38,7 +38,7 @@
             <li>
               <label for="url">{{ $t("url") }}</label>
               <input
-                v-if="!this.$store.state.postwoman.settings.EXPERIMENTAL_URL_BAR_ENABLED"
+                v-if="!EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
                 class="border-dashed md:border-l border-brdColor"
                 @keyup.enter="isValidURL ? sendRequest() : null"
@@ -280,7 +280,7 @@
                   </li>
                 </ul>
                 <div class="row-wrapper">
-                  <SmartToggle :on="!urlExcludes.auth" @change="setExclude('auth', !$event)">
+                  <SmartToggle :on="!URL_EXCLUDES.auth" @change="setExclude('auth', !$event)">
                     {{ $t("include_in_url") }}
                   </SmartToggle>
                 </div>
@@ -665,6 +665,8 @@ import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
+import { getSettingSubject, applySetting } from "~/newstore/settings"
+import clone from "lodash/clone"
 
 export default {
   data() {
@@ -693,7 +695,6 @@ export default {
       showTokenRequestList: false,
       showSaveRequestModal: false,
       editRequest: {},
-      urlExcludes: {},
       activeSidebar: true,
       fb,
       customMethod: false,
@@ -701,12 +702,6 @@ export default {
       filenames: "",
       navigatorShare: navigator.share,
       runningRequest: false,
-      settings: {
-        SCROLL_INTO_ENABLED:
-          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
-            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
-            : true,
-      },
       currentMethodIndex: 0,
       methodMenuItems: [
         "GET",
@@ -722,16 +717,18 @@ export default {
       ],
     }
   },
+  subscriptions() {
+    return {
+      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
+      PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
+      URL_EXCLUDES: getSettingSubject("URL_EXCLUDES"),
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
+
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      SYNC_HISTORY: getSettingSubject("syncHistory"),
+    }
+  },
   watch: {
-    urlExcludes: {
-      deep: true,
-      handler() {
-        this.$store.commit("postwoman/applySetting", [
-          "URL_EXCLUDES",
-          Object.assign({}, this.urlExcludes),
-        ])
-      },
-    },
     canListParameters: {
       immediate: true,
       handler(canListParameters) {
@@ -1040,6 +1037,20 @@ export default {
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawParams" })
+        // Convert the rawParams to bodyParams format
+        try {
+          const valueObj = JSON.parse(value)
+          const params = Object.keys(valueObj).map((key) => {
+            if (typeof valueObj[key] !== "function") {
+              return {
+                active: true,
+                key,
+                value: valueObj[key],
+              }
+            }
+          })
+          this.$store.commit("setBodyParams", { params })
+        } catch {}
       },
     },
     rawInput: {
@@ -1230,7 +1241,7 @@ export default {
       this.requestType = entry.requestType
       this.testScript = entry.testScript
       this.testsEnabled = entry.usesPostScripts
-      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("request")
+      if (this.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {
@@ -1260,14 +1271,14 @@ export default {
       if (typeof requestOptions.data === "string") {
         requestOptions.data = parseTemplateString(requestOptions.data)
       }
-      return await sendNetworkRequest(requestOptions, this.$store)
+      return await sendNetworkRequest(requestOptions)
     },
     cancelRequest() {
-      cancelRunningRequest(this.$store)
+      cancelRunningRequest()
     },
     async sendRequest() {
       this.$toast.clear()
-      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
+      if (this.SCROLL_INTO_ENABLED) this.scrollInto("response")
       if (!this.isValidURL) {
         this.$toast.error(this.$t("url_invalid_format"), {
           icon: "error",
@@ -1396,10 +1407,8 @@ export default {
           }
 
           this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null && fb.currentSettings[2]) {
-            if (fb.currentSettings[2].value) {
-              fb.writeHistory(entry)
-            }
+          if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+            fb.writeHistory(entry)
           }
         })()
       } catch (error) {
@@ -1456,10 +1465,8 @@ export default {
             }
 
             this.$refs.historyComponent.addEntry(entry)
-            if (fb.currentUser !== null && fb.currentSettings[2]) {
-              if (fb.currentSettings[2].value) {
-                fb.writeHistory(entry)
-              }
+            if (fb.currentUser !== null && this.SYNC_HISTORY) {
+              fb.writeHistory(entry)
             }
             return
           } else {
@@ -1468,7 +1475,7 @@ export default {
             this.$toast.error(`${error} ${this.$t("f12_details")}`, {
               icon: "error",
             })
-            if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
+            if (!this.PROXY_ENABLED) {
               this.$toast.info(this.$t("enable_proxy"), {
                 icon: "help",
                 duration: 8000,
@@ -1522,9 +1529,19 @@ export default {
     pathInputHandler() {
       if (this.uri.includes("?")) {
         const queryString = this.getQueryStringFromPath()
+        let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
         const params = this.queryStringToArray(queryString)
+        let parsedParams = []
+        for (let k of params.filter((item) =>
+          item.hasOwnProperty("active") ? item.active == true : true
+        )) {
+          const kParsed = parseTemplateString(k.key, environmentVariables)
+          const valParsed = parseTemplateString(k.value, environmentVariables)
+          parsedParams.push({ key: kParsed, value: valParsed, active: true })
+        }
         this.paramsWatchEnabled = false
-        this.params = params
+        this.params = parsedParams
       }
     },
     addRequestHeader() {
@@ -1629,10 +1646,10 @@ export default {
         "method",
         "url",
         "path",
-        !this.urlExcludes.auth ? "auth" : null,
-        !this.urlExcludes.httpUser ? "httpUser" : null,
-        !this.urlExcludes.httpPassword ? "httpPassword" : null,
-        !this.urlExcludes.bearerToken ? "bearerToken" : null,
+        !this.URL_EXCLUDES.auth ? "auth" : null,
+        !this.URL_EXCLUDES.httpUser ? "httpUser" : null,
+        !this.URL_EXCLUDES.httpPassword ? "httpPassword" : null,
+        !this.URL_EXCLUDES.bearerToken ? "bearerToken" : null,
         "contentType",
       ]
         .filter((item) => item !== null)
@@ -1642,7 +1659,9 @@ export default {
       history.replaceState(
         window.location.href,
         "",
-        `/?${encodeURI(flats.concat(deeps, bodyParams).join("").slice(0, -1))}`
+        `${this.$router.options.base}?${encodeURI(
+          flats.concat(deeps, bodyParams).join("").slice(0, -1)
+        )}`
       )
     },
     setRouteQueries(queries) {
@@ -1686,6 +1705,16 @@ export default {
         this.path = pathname
         this.uri = this.url + this.path
         this.headers = []
+        if (parsedCurl.query) {
+          for (const key of Object.keys(parsedCurl.query)) {
+            this.$store.commit("addParams", {
+              key,
+              value: parsedCurl.query[key],
+              type: "query",
+              active: true,
+            })
+          }
+        }
         if (parsedCurl.headers) {
           for (const key of Object.keys(parsedCurl.headers)) {
             this.$store.commit("addHeaders", {
@@ -1818,14 +1847,19 @@ export default {
       this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
+      const update = clone(this.URL_EXCLUDES)
+
       if (excludedField === "auth") {
-        this.urlExcludes.auth = excluded
-        this.urlExcludes.httpUser = excluded
-        this.urlExcludes.httpPassword = excluded
-        this.urlExcludes.bearerToken = excluded
+        update.auth = excluded
+        update.httpUser = excluded
+        update.httpPassword = excluded
+        update.bearerToken = excluded
       } else {
-        this.urlExcludes[excludedField] = excluded
+        update[excludedField] = excluded
       }
+
+      applySetting("URL_EXCLUDES", update)
+
       this.setRouteQueryState()
     },
     updateRawBody(rawParams) {
@@ -1987,13 +2021,6 @@ export default {
     await this.oauthRedirectReq()
   },
   created() {
-    this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
-      // Exclude authentication by default for security reasons.
-      auth: true,
-      httpUser: true,
-      httpPassword: true,
-      bearerToken: true,
-    }
     if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
     this.$watch(
       (vm) => [

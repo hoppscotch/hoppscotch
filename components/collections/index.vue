@@ -64,11 +64,13 @@
             :collection="collection"
             :doc="doc"
             :isFiltered="filterText.length > 0"
+            :selected="selected.some((coll) => coll == collection)"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
+            @unselect-collection="$emit('remove-collection', collection)"
           />
         </li>
       </ul>
@@ -87,10 +89,12 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
     doc: Boolean,
+    selected: { type: Array, default: () => [] },
   },
   data() {
     return {
@@ -109,6 +113,11 @@ export default {
       editingRequest: undefined,
       editingRequestIndex: undefined,
       filterText: "",
+    }
+  },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   computed: {
@@ -242,13 +251,11 @@ export default {
       this.$data.editingRequestIndex = undefined
     },
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
   },

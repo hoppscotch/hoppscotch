@@ -92,6 +92,7 @@ export default {
   plugins: [
     "~/plugins/vuex-persist",
     "~/plugins/v-tooltip",
+    "~/plugins/vue-rx",
     { src: "~/plugins/web-worker", ssr: false },
   ],
 
@@ -112,6 +113,8 @@ export default {
     "@nuxtjs/color-mode",
     // https: //github.com/nuxt-community/google-fonts-module
     "@nuxtjs/google-fonts",
+    // https://github.com/nuxt/typescript
+    "@nuxt/typescript-build",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -350,6 +353,20 @@ export default {
           test: /\.mjs$/,
           include: /node_modules/,
           type: "javascript/auto",
+        })
+
+        config.module.rules.push({
+          test: /\.js$/,
+          include: /(node_modules)/,
+          exclude: /(node_modules)\/(ace\-builds)|(@firebase)/,
+          loader: "babel-loader",
+          options: {
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-proposal-nullish-coalescing-operator",
+              "@babel/plugin-proposal-optional-chaining",
+            ],
+          },
         })
       }
     },

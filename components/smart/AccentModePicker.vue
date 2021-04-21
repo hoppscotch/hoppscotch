@@ -2,9 +2,15 @@
   <div class="flex flex-col">
     <label>{{ $t("color") }}: {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label>
     <div>
+      <!-- text-blue-400 -->
+      <!-- text-green-400 -->
+      <!-- text-teal-400 -->
       <!-- text-indigo-400 -->
       <!-- text-purple-400 -->
+      <!-- text-orange-400 -->
       <!-- text-pink-400 -->
+      <!-- text-red-400 -->
+      <!-- text-yellow-400 -->
       <span
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
@@ -24,7 +30,17 @@ export default {
   data() {
     return {
       active: localStorage.getItem("THEME_COLOR") || "green",
-      accentColors: ["blue", "green", "indigo", "purple", "red", "pink", "yellow"],
+      accentColors: [
+        "blue",
+        "green",
+        "teal",
+        "indigo",
+        "purple",
+        "orange",
+        "pink",
+        "red",
+        "yellow",
+      ],
     }
   },
   methods: {

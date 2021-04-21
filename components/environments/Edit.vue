@@ -104,6 +104,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
@@ -116,6 +117,11 @@ export default {
     return {
       name: undefined,
       doneButton: '<i class="material-icons">done</i>',
+    }
+  },
+  subscriptions() {
+    return {
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
     }
   },
   watch: {
@@ -145,13 +151,11 @@ export default {
   },
   methods: {
     syncEnvironments() {
-      if (fb.currentUser !== null && fb.currentSettings[1]) {
-        if (fb.currentSettings[1].value) {
-          fb.writeEnvironments(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)),
-            this.page
-          )
-        }
+      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)),
+          this.page
+        )
       }
     },
     clearContent({ target }) {

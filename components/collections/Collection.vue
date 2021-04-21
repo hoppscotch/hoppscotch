@@ -17,12 +17,20 @@
       </button>
       <div>
         <button
-          v-if="doc"
+          v-if="doc && !selected"
           class="icon"
           @click="$emit('select-collection')"
           v-tooltip.left="$t('import')"
         >
-          <i class="material-icons">topic</i>
+          <i class="material-icons">check_box_outline_blank</i>
+        </button>
+        <button
+          v-if="doc && selected"
+          class="icon"
+          @click="$emit('unselect-collection')"
+          v-tooltip.left="$t('delete')"
+        >
+          <i class="material-icons">check_box</i>
         </button>
         <v-popover>
           <button class="tooltip-target icon" v-tooltip.left="$t('more')">
@@ -118,6 +126,7 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
@@ -125,6 +134,7 @@ export default {
     collection: Object,
     doc: Boolean,
     isFiltered: Boolean,
+    selected: Boolean,
   },
   data() {
     return {
@@ -134,15 +144,18 @@ export default {
       confirmRemove: false,
     }
   },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+    }
+  },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     toggleShowChildren() {

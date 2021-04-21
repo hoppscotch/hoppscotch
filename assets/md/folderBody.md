@@ -2,11 +2,15 @@
 
 {{#requests}}
 
-{{nesting_level}} Request: {{name}} 
+{{nesting_level}} Request: {{name}}
 
 **Method**: {{method}}
 
-**Request URL**: `{{{url}}}{{{path}}}`
+**Request URL**:
+
+```
+{{{url}}}{{{path}}}
+```
 
 {{#isHeaders}}
 **Headers**:
@@ -74,7 +78,13 @@ Password: `{{{httpPassword}}}`
 **Pre Request Script**:
 
 ```js
-{{{preRequestScript}}}
+{
+  {
+    {
+      preRequestScript
+    }
+  }
+}
 ```
 
 {{/isPreRequestScript}}
@@ -83,7 +93,13 @@ Password: `{{{httpPassword}}}`
 **Test Script**:
 
 ```js
-{{{testScript}}}
+{
+  {
+    {
+      testScript
+    }
+  }
+}
 ```
 
 {{/isTestScript}}

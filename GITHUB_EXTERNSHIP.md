@@ -13,7 +13,7 @@ Before, any of you jump in and start contributing, here are a few documents from
 - [GitHub Externship: Website](https://github-externships.github.io/externship/index.html)
 - [GitHub Externship: Program Structure](https://github-externships.github.io/externship/structure.html)
 
-Our awesome community members frequently request for features on our [Discord server](https://discord.gg/GAMWxmR), [Telegram group](https://t.me/hoppscotch), [GitHub issues tab](https://github.com/hoppscotch/hoppscotch/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) and we have a never ending list of awesome ideas. However, keeping in mind the 3 months time span, we have filtered through our stockpile and come up with the following ideas for [GitHub Externship](https://github-externships.github.io/externship/index.html) program.
+Our awesome community members frequently request for features on our [Discord server](https://discord.gg/GAMWxmR), [Telegram group](https://t.me/hoppscotch_externship), [GitHub issues tab](https://github.com/hoppscotch/hoppscotch/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) and we have a never ending list of awesome ideas. However, keeping in mind the 3 months time span, we have filtered through our stockpile and come up with the following ideas for [GitHub Externship](https://github-externships.github.io/externship/index.html) program.
 
 ## **Ideas**
 
@@ -21,29 +21,42 @@ If you’re a student interested in working with Hoppscotch during GitHub Extern
 
 ### **1. Implement existing feature requests:**
 
-- [#issue_number](): Issue title
+- [gRPC-Web support](https://github.com/hoppscotch/hoppscotch/issues/402)
 
-  Description
+  Like swagger, let users view message formats from `.proto` / `URL` and test the server methods by sending any messages from the Hoppscotch.
 
-  [**`Learn more →`**](https://t.me/hoppscotch)
+  [**`Learn more →`**](https://github.com/hoppscotch/hoppscotch/issues/402)
+
+- [Swagger / OpenAPI support](https://github.com/hoppscotch/hoppscotch/issues/470)
+
+  Like [Swagger Inspector](https://inspector.swagger.io/builder) / [Swagger Editor](https://editor.swagger.io). Let users import `swagger.json` and test the server methods by sending any messages from the Hoppscotch.
+
+  [**`Learn more →`**](https://github.com/hoppscotch/hoppscotch/issues/470)
+
+- [Mock Server](https://github.com/hoppscotch/hoppscotch/issues/1598)
+
+  Mock server allows users to create mock endpoints that accepts request from the system-under-test or from a `json` file.
+
+  [**`Learn more →`**](https://github.com/hoppscotch/hoppscotch/issues/1598)
 
 ### **2. Implement new features:**
 
-- [#issue_number](): Issue title
+If you'd like to implement a totally new feature to help developers make API testing easy, feel free to come up with your own feature request or a port of feature from other API testing tools.
 
-  Description
-
-  [**`Learn more →`**](https://t.me/hoppscotch)
+[**Create new feature request →**](https://github.com/hoppscotch/hoppscotch/issues/new?assignees=&labels=&template=feature_request.md&title=Feature%20[GitHub%20Externship]:)
 
 ### **3. Refactor existing features:**
 
-- [#issue_number](): Issue title
+If you'd like to refactor an already implemented feature / workflow - feel free to open a PR to do that. We appreciate using industry best pratices and latest technologies on all of our open source projects.
 
-  Description
+## **Built with**
 
-  [**`Learn more →`**](https://t.me/hoppscotch)
-
-[**Create new feature request →**](https://github.com/hoppscotch/hoppscotch/issues/new?assignees=&labels=&template=feature_request.md&title=Feature%20[GitHub%20Externship]:)
+- [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+- [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS), [SCSS](https://sass-lang.com), [Tailwind CSS](https://tailwindcss.com)
+- [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [TypeScript](https://www.typescriptlang.org)
+- [Vue](https://vuejs.org)
+- [Nuxt](https://nuxtjs.org)
 
 ## **Contributing**
 
@@ -59,7 +72,7 @@ Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDU
 
 [**`Discord server →`**](https://discord.gg/GAMWxmR)
 
-[**`Telegram group →`**](https://t.me/hoppscotch)
+[**`Telegram group →`**](https://t.me/hoppscotch_externship)
 
 ## **Discussions channel**
 
@@ -74,7 +87,7 @@ Before asking a question please check this [How do I ask a good question?](https
 
 ## **Need help?**
 
-Start a discussion [here](https://github.com/hoppscotch/hoppscotch/discussions) if you’re unable to get a response from the [Telegram](https://t.me/hoppscotch), [Discord](https://discord.gg/GAMWxmR) communities.
+Start a discussion [here](https://github.com/hoppscotch/hoppscotch/discussions) if you’re unable to get a response from the [Telegram](https://t.me/hoppscotch_externship), [Discord](https://discord.gg/GAMWxmR) communities.
 
 Start a new idea under [discussions](https://github.com/hoppscotch/hoppscotch/discussions) only once you’ve finalized your project proposal.
 
@@ -93,4 +106,4 @@ We look forward to seeing your proposals for a happy summer of coding.
 - [Liyas Thomas](https://github.com/liyasthomas)
 - [Andrew Bastin](https://github.com/andrewbastin)
 
-If you have any questions or queries please contact us via [Telegram](https://t.me/hoppscotch), [Discord](https://discord.gg/GAMWxmR) or send an email to us at support@hoppscotch.io.
+If you have any questions or queries please contact us via [Telegram](https://t.me/hoppscotch_externship), [Discord](https://discord.gg/GAMWxmR) or send an email to us at support@hoppscotch.io.

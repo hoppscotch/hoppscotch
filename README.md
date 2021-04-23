@@ -428,6 +428,7 @@ _Notes are only available for signed-in users_
 - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
 - [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS), [SCSS](https://sass-lang.com), [Tailwind CSS](https://tailwindcss.com)
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [TypeScript](https://www.typescriptlang.org)
 - [Vue](https://vuejs.org)
 - [Nuxt](https://nuxtjs.org)
 

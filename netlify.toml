@@ -1,3 +1,21 @@
 [build]
   command = "npm run generate"
   functions = "netlify/"
+
+[[redirects]]
+  from = "/discord"
+  to = "https://discord.gg/GAMWxmR"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/telegram"
+  to = "https://t.me/hoppscotch"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/externship_telegram"
+  to = "https://t.me/hoppscotch_externship"
+  status = 301
+  force = true

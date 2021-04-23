@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.10.0](https://github.com/hoppscotch/hoppscotch/tree/v1.10.0) (2020-04-10)
+
+[Full Changelog](https://github.com/hoppscotch/hoppscotch/compare/v1.9.9...v1.10.0)
+
 ## [v1.9.9](https://github.com/liyasthomas/postwoman/tree/v1.9.9) (2020-07-30)
 
 [Full Changelog](https://github.com/liyasthomas/postwoman/compare/v1.9.7...v1.9.9)

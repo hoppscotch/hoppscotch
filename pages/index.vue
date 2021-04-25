@@ -136,6 +136,13 @@
               </button>
               <button
                 class="icon"
+                @click="showOpenAPIImportModal = !showOpenAPIImportModal"
+                v-tooltip.bottom="'import OpenAPI'"
+              >
+                <i class="material-icons">folder_special</i>
+              </button>
+              <button
+                class="icon"
                 @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('show_code')"
@@ -535,6 +542,10 @@
               <History :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
             </SmartTab>
 
+            <SmartTab :id="'openapi'" :label="'OpenAPI'">
+              <Openapi :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
+            </SmartTab>
+
             <SmartTab :id="'collections'" :label="$t('collections')">
               <Collections />
             </SmartTab>
@@ -561,6 +572,12 @@
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
       @handle-import="handleImport"
+    />
+
+    <HttpImportOpenAPI
+      :show="showOpenAPIImportModal"
+      @hide-modal="showOpenAPIImportModal = false"
+      @handle-import="showOpenAPIImportModal = false"
     />
 
     <HttpCodegenModal
@@ -671,6 +688,7 @@ import clone from "lodash/clone"
 export default {
   data() {
     return {
+      showOpenAPIImportModal: false,
       showCurlImportModal: false,
       showPreRequestScript: true,
       testsEnabled: true,

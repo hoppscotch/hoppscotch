@@ -3,7 +3,7 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if request.auth.uid != null;
     }
-    // Make sure the uid of the requesting user matches name of the user
+    // Make sure the uid of the requesting user matches the name of the user
     // document. The wildcard expression {userId} makes the userId variable
     // available in rules.
     match /users/{userId} {

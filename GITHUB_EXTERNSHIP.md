@@ -13,7 +13,7 @@ Before, any of you jump in and start contributing, here are a few documents from
 - [GitHub Externship: Website](https://github-externships.github.io/externship/index.html)
 - [GitHub Externship: Program Structure](https://github-externships.github.io/externship/structure.html)
 
-Our awesome community members frequently request for features on our [Discord server](https://discord.gg/GAMWxmR), [Telegram group](https://t.me/hoppscotch_externship), [GitHub issues tab](https://github.com/hoppscotch/hoppscotch/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) and we have a never ending list of awesome ideas. However, keeping in mind the 3 months time span, we have filtered through our stockpile and come up with the following ideas for [GitHub Externship](https://github-externships.github.io/externship/index.html) program.
+Our awesome community members frequently request for features on our [Discord server](https://hoppscotch.io/discord), [Telegram group](https://hoppscotch.io/externship_telegram), [GitHub issues tab](https://github.com/hoppscotch/hoppscotch/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) and we have a never ending list of awesome ideas. However, keeping in mind the 3 months time span, we have filtered through our stockpile and come up with the following ideas for [GitHub Externship](https://github-externships.github.io/externship/index.html) program.
 
 ## **Ideas**
 
@@ -70,9 +70,9 @@ Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDU
 
 [**`Web app →`**](https://hoppscotch.io)
 
-[**`Discord server →`**](https://discord.gg/GAMWxmR)
+[**`Discord server →`**](https://hoppscotch.io/discord)
 
-[**`Telegram group →`**](https://t.me/hoppscotch_externship)
+[**`Telegram group →`**](https://hoppscotch.io/externship_telegram)
 
 ## **Discussions channel**
 
@@ -87,7 +87,7 @@ Before asking a question please check this [How do I ask a good question?](https
 
 ## **Need help?**
 
-Start a discussion [here](https://github.com/hoppscotch/hoppscotch/discussions) if you’re unable to get a response from the [Telegram](https://t.me/hoppscotch_externship), [Discord](https://discord.gg/GAMWxmR) communities.
+Start a discussion [here](https://github.com/hoppscotch/hoppscotch/discussions) if you’re unable to get a response from the [Telegram](https://hoppscotch.io/externship_telegram), [Discord](https://hoppscotch.io/discord) communities.
 
 Start a new idea under [discussions](https://github.com/hoppscotch/hoppscotch/discussions) only once you’ve finalized your project proposal.
 
@@ -106,4 +106,4 @@ We look forward to seeing your proposals for a happy summer of coding.
 - [Liyas Thomas](https://github.com/liyasthomas)
 - [Andrew Bastin](https://github.com/andrewbastin)
 
-If you have any questions or queries please contact us via [Telegram](https://t.me/hoppscotch_externship), [Discord](https://discord.gg/GAMWxmR) or send an email to us at support@hoppscotch.io.
+If you have any questions or queries please contact us via [Telegram](https://hoppscotch.io/externship_telegram), [Discord](https://hoppscotch.io/discord) or send an email to us at support@hoppscotch.io.

@@ -1,6 +1,6 @@
 FROM node:12.10.0-alpine
 
-LABEL maintainer="Liyas Thomas (liyascthomas@gmail.com)"
+LABEL maintainer="Hoppscotch (support@hoppscotch.io)"
 
 # Add git as the prebuild target requires it to parse version information
 RUN apk add --update --no-cache \

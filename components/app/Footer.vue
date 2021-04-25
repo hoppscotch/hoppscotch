@@ -39,7 +39,7 @@
         ></iframe>
       </span>
       <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
-        <a href="mailto:liyascthomas@gmail.com" target="_blank" rel="noopener">
+        <a href="mailto:support@hoppscotch.io" target="_blank" rel="noopener">
           <button class="icon" v-tooltip="$t('contact_us')">
             <i class="material-icons">email</i>
           </button>

@@ -11,7 +11,7 @@ export const options = {
     background: "#202124",
   },
   social: {
-    twitter: "@liyasthomas",
+    twitter: "@hoppscotch_io",
   },
 }
 

@@ -39,12 +39,14 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
     show: Boolean,
     editingCollection: Object,
     editingCollectionIndex: Number,
+    collectionsType: Object,
   },
   data() {
     return {
@@ -70,20 +72,42 @@ export default {
         this.$toast.info(this.$t("invalid_collection_name"))
         return
       }
-      const collectionUpdated = {
-        ...this.$props.editingCollection,
-        name: this.$data.name,
+      if (this.collectionsType.type == "my-collections") {
+        const collectionUpdated = {
+          ...this.$props.editingCollection,
+          name: this.$data.name,
+        }
+        this.$store.commit("postwoman/editCollection", {
+          collection: collectionUpdated,
+          collectionIndex: this.$props.editingCollectionIndex,
+          flag: "rest",
+        })
+        this.syncCollections()
+      } else if (this.collectionsType.type == "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          team_utils
+            .renameCollection(this.$apollo, this.$data.name, this.$props.editingCollection.id)
+            .then((data) => {
+              // Result
+              this.$toast.success("Collection Renamed", {
+                icon: "done",
+              })
+              this.$emit("update-team-collections")
+            })
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
+        }
       }
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex,
-        flag: "rest",
-      })
-      this.$emit("hide-modal")
-      this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
       this.$emit("hide-modal")
+      this.$data.name = undefined
     },
   },
 }

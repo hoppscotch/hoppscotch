@@ -129,7 +129,15 @@ export default {
     "@nuxtjs/robots",
     // https://github.com/nuxt-community/sitemap-module
     "@nuxtjs/sitemap",
+    // https://github.com/nuxt-community/apollo-module
+    "@nuxtjs/apollo",
   ],
+
+  apollo: {
+    clientConfigs: {
+      default: "~/plugins/apollo.js",
+    },
+  },
 
   // PWA module configuration (https://pwa.nuxtjs.org/setup)
   pwa: {

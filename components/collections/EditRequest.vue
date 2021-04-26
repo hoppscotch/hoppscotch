@@ -39,6 +39,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -47,7 +48,8 @@ export default {
     folderIndex: Number,
     folderName: String,
     request: Object,
-    requestIndex: Number,
+    requestIndex: [String, Number],
+    collectionsType: Object,
   },
   data() {
     return {
@@ -76,17 +78,39 @@ export default {
         name: this.$data.requestUpdateData.name || this.$props.request.name,
       }
 
-      this.$store.commit("postwoman/editRequest", {
-        requestCollectionIndex: this.$props.collectionIndex,
-        requestFolderName: this.$props.folderName,
-        requestFolderIndex: this.$props.folderIndex,
-        requestNew: requestUpdated,
-        requestIndex: this.$props.requestIndex,
-        flag: "rest",
-      })
+      if (this.$props.collectionsType.type == "my-collections") {
+        this.$store.commit("postwoman/editRequest", {
+          requestCollectionIndex: this.$props.collectionIndex,
+          requestFolderName: this.$props.folderName,
+          requestFolderIndex: this.$props.folderIndex,
+          requestNew: requestUpdated,
+          requestIndex: this.$props.requestIndex,
+          flag: "rest",
+        })
+        this.syncCollections()
+      } else if (this.$props.collectionsType.type == "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          let requestName = this.$data.requestUpdateData.name || this.$props.request.name
+          team_utils
+            .updateRequest(this.$apollo, requestUpdated, requestName, this.$props.requestIndex)
+            .then((data) => {
+              // Result
+              this.$toast.success("Request Renamed", {
+                icon: "done",
+              })
+              this.$emit("update-team-collections")
+            })
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
+        }
+      }
 
       this.hideModal()
-      this.syncCollections()
     },
     hideModal() {
       this.$emit("hide-modal")

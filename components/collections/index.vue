@@ -5,16 +5,29 @@
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
+        v-if="!saveRequest"
         v-model="filterText"
         class="rounded-t-lg"
       />
     </div>
-    <CollectionsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsChooseType
+      :collectionsType="collectionsType"
+      @update-team-collections="updateTeamCollections"
+      :show="showTeamCollections"
+    />
+    <CollectionsAdd
+      :collectionsType="collectionsType"
+      :show="showModalAdd"
+      @update-team-collections="updateTeamCollections"
+      @hide-modal="displayModalAdd(false)"
+    />
     <CollectionsEdit
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEdit(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <CollectionsAddFolder
       :show="showModalAddFolder"
@@ -28,6 +41,7 @@
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsEditRequest
@@ -37,18 +51,45 @@
       :folder-name="editingFolderName"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalEditRequest(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <CollectionsImportExport
       :show="showModalImportExport"
+      :collectionsType="collectionsType"
       @hide-modal="displayModalImportExport(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button class="icon" @click="displayModalAdd(true)">
+      <button
+        v-if="
+          collectionsType.type == 'team-collections' &&
+          (collectionsType.selectedTeam == undefined ||
+            collectionsType.selectedTeam.myRole == 'VIEWER') &&
+          !saveRequest
+        "
+        class="icon"
+        @click="displayModalAdd(true)"
+        disabled
+      >
+        <i class="material-icons">add</i>
+        <div v-tooltip.left="$t('disable_new_collection')">
+          <span>{{ $t("new") }}</span>
+        </div>
+      </button>
+      <button v-else-if="!saveRequest" class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button class="icon" @click="displayModalImportExport(true)">
+      <button
+        v-if="!saveRequest"
+        :disabled="
+          collectionsType.type == 'team-collections' && collectionsType.selectedTeam == undefined
+        "
+        class="icon"
+        @click="displayModalImportExport(true)"
+      >
         {{ $t("import_export") }}
       </button>
     </div>
@@ -65,11 +106,26 @@
             :doc="doc"
             :isFiltered="filterText.length > 0"
             :selected="selected.some((coll) => coll == collection)"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
-            @select-collection="$emit('use-collection', collection)"
+            @update-team-collections="updateTeamCollections"
+            @select-collection="$emit('use-collection', index)"
+            @select-folder="
+              $emit('select-folder', {
+                folderName:
+                  (collectionsType.type == 'my-collections' ? collection.name : collection.title) +
+                  '/' +
+                  $event.name,
+                collectionIndex: collectionsType.type == 'my-collections' ? index : $event.id,
+                reqIdx: $event.reqIdx,
+                collectionsType: collectionsType,
+                folderId: $event.id,
+              })
+            "
             @unselect-collection="$emit('remove-collection', collection)"
           />
         </li>
@@ -90,11 +146,14 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import gql from "graphql-tag"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
     doc: Boolean,
     selected: { type: Array, default: () => [] },
+    saveRequest: Boolean,
   },
   data() {
     return {
@@ -113,6 +172,11 @@ export default {
       editingRequest: undefined,
       editingRequestIndex: undefined,
       filterText: "",
+      collectionsType: {
+        type: "my-collections",
+        selectedTeam: undefined,
+      },
+      teamCollections: {},
     }
   },
   subscriptions() {
@@ -120,17 +184,59 @@ export default {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
+  apollo: {
+    myTeams: {
+      query: gql`
+        query GetMyTeams {
+          myTeams {
+            id
+            name
+            myRole
+          }
+        }
+      `,
+      pollInterval: 10000,
+    },
+  },
+  watch: {
+    "collectionsType.type": function emitstuff() {
+      this.$emit("update-collection", this.$data.collectionsType.type)
+    },
+  },
   computed: {
+    showTeamCollections() {
+      if (fb.currentUser == null) {
+        this.collectionsType.type = "my-collections"
+      }
+      return fb.currentUser !== null
+    },
     collections() {
       return fb.currentUser !== null
         ? fb.currentCollections
         : this.$store.state.postwoman.collections
     },
     filteredCollections() {
-      const collections =
-        fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+      let collections = null
+      if (this.collectionsType.type == "my-collections") {
+        collections =
+          fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
+      } else {
+        if (
+          this.collectionsType.selectedTeam &&
+          this.collectionsType.selectedTeam.id in this.teamCollections
+        ) {
+          collections = this.teamCollections[this.collectionsType.selectedTeam.id]
+        } else {
+          collections = []
+        }
+      }
+      if (!this.filterText) {
+        return collections
+      }
 
-      if (!this.filterText) return collections
+      if (this.collectionsType.type == "team-collections") {
+        return []
+      }
 
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
@@ -154,7 +260,10 @@ export default {
           }
         }
 
-        if (filteredRequests.length + filteredFolders.length > 0) {
+        if (
+          filteredRequests.length + filteredFolders.length > 0 ||
+          collection.name.toLowerCase().includes(filterText)
+        ) {
           const filteredCollection = Object.assign({}, collection)
           filteredCollection.requests = filteredRequests
           filteredCollection.folders = filteredFolders
@@ -175,6 +284,18 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
+    updateTeamCollections() {
+      this.$emit("select-collection-type")
+      if (this.collectionsType.selectedTeam == undefined) return
+      team_utils
+        .rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id)
+        .then((collections) => {
+          this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, collections)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
     },
@@ -207,16 +328,50 @@ export default {
       this.displayModalEdit(true)
       this.syncCollections()
     },
-    onAddFolder({ name, path }) {
+    onAddFolder({ name, folder, path }) {
       const flag = "rest"
-      this.$store.commit("postwoman/addFolder", {
-        name,
-        path,
-        flag,
-      })
+      if (this.collectionsType.type === "my-collections") {
+        this.$store.commit("postwoman/addFolder", {
+          name,
+          path,
+          flag,
+        })
+        this.syncCollections()
+      } else if (this.collectionsType.type === "team-collections") {
+        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+            .mutate({
+              mutation: gql`
+                mutation($childTitle: String!, $collectionID: String!) {
+                  createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
+                    id
+                  }
+                }
+              `,
+              // Parameters
+              variables: {
+                childTitle: name,
+                collectionID: folder.id,
+              },
+            })
+            .then((data) => {
+              // Result
+              this.$toast.success(this.$t("folder_added"), {
+                icon: "done",
+              })
+              this.$emit("update-team-collections")
+            })
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
+        }
+      }
 
       this.displayModalAddFolder(false)
-      this.syncCollections()
     },
     addFolder(payload) {
       const { folder, path } = payload
@@ -229,6 +384,7 @@ export default {
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder
       this.$data.editingFolderIndex = folderIndex
+      this.$data.collectionsType = this.collectionsType
       this.displayModalEditFolder(true)
       this.syncCollections()
     },
@@ -239,6 +395,7 @@ export default {
       this.$data.editingFolderName = folderName
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
+      this.$emit("select-request", requestIndex)
       this.displayModalEditRequest(true)
       this.syncCollections()
     },

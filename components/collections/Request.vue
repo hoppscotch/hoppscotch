@@ -18,7 +18,7 @@
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!saveRequest">
         <button class="tooltip-target icon" v-tooltip="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
@@ -62,6 +62,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -69,8 +70,10 @@ export default {
     collectionIndex: Number,
     folderIndex: Number,
     folderName: String,
-    requestIndex: Number,
+    requestIndex: [Number, String],
     doc: Boolean,
+    saveRequest: Boolean,
+    collectionsType: Object,
   },
   data() {
     return {
@@ -100,7 +103,12 @@ export default {
       }
     },
     selectRequest() {
-      this.$store.commit("postwoman/selectRequest", { request: this.request })
+      if (this.$props.saveRequest)
+        this.$emit("select-request", {
+          idx: this.$props.requestIndex,
+          name: this.$props.request.name,
+        })
+      else this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
@@ -110,17 +118,35 @@ export default {
       dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
-      this.$store.commit("postwoman/removeRequest", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folderName,
-        requestIndex: this.$props.requestIndex,
-        flag: "rest",
-      })
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-      })
-      this.confirmRemove = false
-      this.syncCollections()
+      if (this.$props.collectionsType.type == "my-collections") {
+        this.$store.commit("postwoman/removeRequest", {
+          collectionIndex: this.$props.collectionIndex,
+          folderName: this.$props.folderName,
+          requestIndex: this.$props.requestIndex,
+          flag: "rest",
+        })
+        this.$toast.error(this.$t("deleted"), {
+          icon: "delete",
+        })
+        this.syncCollections()
+      } else if (this.$props.collectionsType.type == "team-collections") {
+        team_utils
+          .deleteRequest(this.$apollo, this.$props.requestIndex)
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("deleted"), {
+              icon: "delete",
+            })
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+        this.$data.confirmRemove = false
+      }
     },
     getRequestLabelColor(method) {
       return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default

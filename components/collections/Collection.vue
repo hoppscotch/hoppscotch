@@ -57,12 +57,23 @@
           </button>
         </div>
         <v-popover v-if="!saveRequest">
-          <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+          <button
+            v-if="
+              collectionsType.type == 'team-collections' &&
+              collectionsType.selectedTeam.myRole !== 'VIEWER'
+            "
+            class="tooltip-target icon"
+            v-tooltip.left="$t('more')"
+          >
             <i class="material-icons">more_vert</i>
           </button>
           <template slot="popover">
             <div>
               <button
+                v-if="
+                  collectionsType.type == 'team-collections' &&
+                  collectionsType.selectedTeam.myRole !== 'VIEWER'
+                "
                 class="icon"
                 @click="$emit('add-folder', { folder: collection, path: `${collectionIndex}` })"
                 v-close-popover
@@ -75,7 +86,7 @@
               <button
                 v-if="
                   collectionsType.type == 'team-collections' &&
-                  collectionsType.selectedTeam.myRole == 'VIEWER'
+                  collectionsType.selectedTeam.myRole !== 'VIEWER'
                 "
                 class="icon"
                 @click="$emit('edit-collection')"
@@ -96,7 +107,7 @@
               <button
                 v-if="
                   collectionsType.type == 'team-collections' &&
-                  collectionsType.selectedTeam.myRole == 'VIEWER'
+                  collectionsType.selectedTeam.myRole !== 'VIEWER'
                 "
                 class="icon"
                 @click="confirmRemove = true"
@@ -382,7 +393,10 @@ export default {
             return this.$props.collectionsType.selectedTeam === undefined
           },
           updateQuery(previousResult, { subscriptionData }) {
-            if (subscriptionData.data.teamCollectionAdded.parent.id === this.$props.collection.id) {
+            if (
+              subscriptionData.data.teamCollectionAdded.parent &&
+              subscriptionData.data.teamCollectionAdded.parent.id === this.$props.collection.id
+            ) {
               previousResult.collection.children.push({
                 id: subscriptionData.data.teamCollectionAdded.id,
                 title: subscriptionData.data.teamCollectionAdded.title,
@@ -413,6 +427,7 @@ export default {
           },
           updateQuery(previousResult, { subscriptionData }) {
             if (
+              subscriptionData.data.teamCollectionUpdated.parent &&
               subscriptionData.data.teamCollectionUpdated.parent.id === this.$props.collection.id
             ) {
               const index = previousResult.collection.children.findIndex(

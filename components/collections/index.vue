@@ -197,6 +197,88 @@ export default {
       `,
       pollInterval: 10000,
     },
+
+    $subscribe: {
+      teamsCollectionAdded: {
+        query: gql`
+          subscription teamCollectionAdded($teamID: String!) {
+            teamCollectionAdded(teamID: $teamID) {
+              id
+              title
+              parent {
+                id
+                title
+              }
+            }
+          }
+        `,
+        variables() {
+          return {
+            teamID: this.collectionsType.selectedTeam.id,
+          }
+        },
+        skip() {
+          return this.collectionsType.selectedTeam == undefined
+        },
+        result({ data }) {
+          this.teamCollections[this.collectionsType.selectedTeam.id].push({
+            id: data.teamCollectionAdded.id,
+            title: data.teamCollectionAdded.title,
+            __typename: data.teamCollectionAdded.__typename,
+          })
+        },
+      },
+      teamsCollectionUpdated: {
+        query: gql`
+          subscription teamCollectionUpdated($teamID: String!) {
+            teamCollectionUpdated(teamID: $teamID) {
+              id
+              title
+              parent {
+                id
+                title
+              }
+            }
+          }
+        `,
+        variables() {
+          return {
+            teamID: this.collectionsType.selectedTeam.id,
+          }
+        },
+        skip() {
+          return this.collectionsType.selectedTeam == undefined
+        },
+        result({ data }) {
+          const current = this.teamCollections[this.collectionsType.selectedTeam.id]
+          const index = current.findIndex((x) => x.id === data.teamCollectionUpdated.id)
+          if (index >= 0) {
+            current[index].title = data.teamCollectionUpdated.title
+          }
+          this.teamCollections[this.collectionsType.selectedTeam.id] = current
+        },
+      },
+      teamsCollectionRemoved: {
+        query: gql`
+          subscription teamCollectionRemoved($teamID: String!) {
+            teamCollectionRemoved(teamID: $teamID)
+          }
+        `,
+        variables() {
+          return {
+            teamID: this.collectionsType.selectedTeam.id,
+          }
+        },
+        skip() {
+          return this.collectionsType.selectedTeam == undefined
+        },
+        result({ data }) {
+          this.teamCollections[this.collectionsType.selectedTeam.id] = this.teamCollections[
+            this.collectionsType.selectedTeam.id
+          ].filter((x) => x.id !== data.teamCollectionRemoved)
+        },
+      },
+    },
   },
   watch: {
     "collectionsType.type": function emitstuff() {

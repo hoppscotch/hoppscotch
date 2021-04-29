@@ -48,6 +48,10 @@
         <template slot="popover">
           <div>
             <button
+              v-if="
+                collectionsType.type == 'team-collections' &&
+                collectionsType.selectedTeam.myRole !== 'VIEWER'
+              "
               class="icon"
               @click="$emit('add-folder', { folder, path: folderPath })"
               v-close-popover
@@ -58,6 +62,10 @@
           </div>
           <div>
             <button
+              v-if="
+                collectionsType.type == 'team-collections' &&
+                collectionsType.selectedTeam.myRole !== 'VIEWER'
+              "
               class="icon"
               @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"
               v-close-popover

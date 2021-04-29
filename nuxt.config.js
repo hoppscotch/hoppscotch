@@ -312,6 +312,12 @@ export default {
         iso: "nl-BE",
         file: "nl-BE.json",
       },
+      {
+        code: "nb",
+        name: "Norwegian (Bokmål)",
+        iso: "nb-NO",
+        file: "nb-NO.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {

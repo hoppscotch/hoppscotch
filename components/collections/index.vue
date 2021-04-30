@@ -221,11 +221,17 @@ export default {
           return this.collectionsType.selectedTeam == undefined
         },
         result({ data }) {
-          this.teamCollections[this.collectionsType.selectedTeam.id].push({
-            id: data.teamCollectionAdded.id,
-            title: data.teamCollectionAdded.title,
-            __typename: data.teamCollectionAdded.__typename,
-          })
+          console.log(data)
+
+          if (data.teamCollectionAdded.parent == null) {
+            debugger
+
+            this.teamCollections[this.collectionsType.selectedTeam.id].push({
+              id: data.teamCollectionAdded.id,
+              title: data.teamCollectionAdded.title,
+              __typename: data.teamCollectionAdded.__typename,
+            })
+          }
         },
       },
       teamsCollectionUpdated: {

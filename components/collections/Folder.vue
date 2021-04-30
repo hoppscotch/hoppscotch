@@ -42,7 +42,14 @@
         </button>
       </div>
       <v-popover v-if="!saveRequest">
-        <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+        <button
+          v-if="
+            collectionsType.type == 'team-collections' &&
+            collectionsType.selectedTeam.myRole !== 'VIEWER'
+          "
+          class="tooltip-target icon"
+          v-tooltip.left="$t('more')"
+        >
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
@@ -75,7 +82,15 @@
             </button>
           </div>
           <div>
-            <button class="icon" @click="confirmRemove = true" v-close-popover>
+            <button
+              v-if="
+                collectionsType.type == 'team-collections' &&
+                collectionsType.selectedTeam.myRole !== 'VIEWER'
+              "
+              class="icon"
+              @click="confirmRemove = true"
+              v-close-popover
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>

@@ -91,12 +91,9 @@
                 class="icon"
                 @click="$emit('edit-collection')"
                 v-close-popover
-                disabled
               >
                 <i class="material-icons">create</i>
-                <div v-tooltip.left="$t('disable_new_collection')">
-                  <span>{{ $t("edit") }}</span>
-                </div>
+                <span>{{ $t("edit") }}</span>
               </button>
               <button v-else class="icon" @click="$emit('edit-collection')" v-close-popover>
                 <i class="material-icons">create</i>
@@ -112,12 +109,9 @@
                 class="icon"
                 @click="confirmRemove = true"
                 v-close-popover
-                disabled
               >
                 <i class="material-icons">add</i>
-                <div v-tooltip.left="$t('disable_new_collection')">
-                  <span>{{ $t("delete") }}</span>
-                </div>
+                <span>{{ $t("delete") }}</span>
               </button>
               <button v-else class="icon" @click="confirmRemove = true" v-close-popover>
                 <i class="material-icons">delete</i>

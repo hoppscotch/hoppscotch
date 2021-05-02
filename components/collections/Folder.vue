@@ -236,7 +236,10 @@ export default {
             return this.$props.collectionsType.selectedTeam === undefined
           },
           updateQuery(previousResult, { subscriptionData }) {
-            if (subscriptionData.data.teamCollectionAdded.parent.id === this.$props.folder.id) {
+            if (
+              subscriptionData.data.teamCollectionAdded.parent &&
+              subscriptionData.data.teamCollectionAdded.parent.id === this.$props.folder.id
+            ) {
               previousResult.collection.children.push({
                 id: subscriptionData.data.teamCollectionAdded.id,
                 title: subscriptionData.data.teamCollectionAdded.title,
@@ -266,7 +269,10 @@ export default {
             return this.$props.collectionsType.selectedTeam === undefined
           },
           updateQuery(previousResult, { subscriptionData }) {
-            if (subscriptionData.data.teamCollectionUpdated.parent.id === this.$props.folder.id) {
+            if (
+              subscriptionData.data.teamCollectionUpdated.parent &&
+              subscriptionData.data.teamCollectionUpdated.parent.id === this.$props.folder.id
+            ) {
               const index = previousResult.collection.children.findIndex(
                 (x) => x.id === subscriptionData.data.teamCollectionUpdated.id
               )

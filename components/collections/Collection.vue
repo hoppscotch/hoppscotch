@@ -110,7 +110,7 @@
                 @click="confirmRemove = true"
                 v-close-popover
               >
-                <i class="material-icons">add</i>
+                <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
               <button v-else class="icon" @click="confirmRemove = true" v-close-popover>
@@ -384,9 +384,12 @@ export default {
             return { teamID: this.$props.collectionsType.selectedTeam.id }
           },
           skip() {
-            return this.$props.collectionsType.selectedTeam === undefined
+            return (
+              this.$props.collectionsType.selectedTeam === undefined && this.$props.showChildren
+            )
           },
           updateQuery(previousResult, { subscriptionData }) {
+            debugger
             if (
               subscriptionData.data.teamCollectionAdded.parent &&
               subscriptionData.data.teamCollectionAdded.parent.id === this.$props.collection.id

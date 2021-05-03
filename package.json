@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.6",
-    "@nuxtjs/apollo": "^4.0.1-rc.5",
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.5.0",
@@ -44,6 +43,7 @@
     "socketio-wildcard": "^2.0.0",
     "tern": "^0.24.3",
     "v-tooltip": "^2.1.3",
+    "vue-apollo": "^3.0.7",
     "vue-cli-plugin-apollo": "^0.22.2",
     "vue-rx": "^6.2.0",
     "vuejs-auto-complete": "^0.9.0",

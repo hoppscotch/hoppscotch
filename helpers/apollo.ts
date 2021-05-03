@@ -50,11 +50,12 @@ const wsLink = new WebSocketLink({
     ? "wss://api.hoppscotch.io/graphql"
     : "wss://api.hoppscotch.io/graphql",
   options: {
+    lazy: true,
+    reconnect: true,
+    timeout: 300,
     connectionParams: () => {
       return {
-        headers: {
-          authorization: `Bearer ${authToken}`
-        }
+        authorization: `Bearer ${authToken}`
       }
     }
   }

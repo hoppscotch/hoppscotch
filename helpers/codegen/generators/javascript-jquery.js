@@ -1,6 +1,7 @@
 export const JavascriptJqueryCodegen = {
   id: "js-jquery",
   name: "JavaScript jQuery",
+  language: "javascript",
   generator: ({
     url,
     pathName,

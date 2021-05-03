@@ -46,15 +46,20 @@
           </button>
         </div>
       </div>
-      <textarea
-        id="generatedCode"
+      <SmartAceEditor
+        :value="requestCode"
+        :lang="codegens.find((x) => x.id === requestType).language"
+        :options="{
+          maxLines: '16',
+          minLines: '10',
+          fontSize: '16px',
+          autoScrollEditorIntoView: true,
+          readOnly: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
         ref="generatedCode"
-        name="generatedCode"
-        rows="8"
-        v-model="requestCode"
-        readonly
-        class="rounded-b-lg"
-      ></textarea>
+      />
     </div>
   </SmartModal>
 </template>
@@ -97,7 +102,8 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      this.$refs.generatedCode.select()
+      this.$refs.generatedCode.editor.selectAll()
+      this.$refs.generatedCode.editor.focus()
       document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
     },

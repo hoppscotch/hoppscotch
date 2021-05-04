@@ -11,7 +11,7 @@
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <label for="requestType">{{ $t("request_type") }}</label>
+      <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
         <v-popover>
           <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
@@ -47,10 +47,11 @@
         </div>
       </div>
       <SmartAceEditor
+        v-if="requestType"
         :value="requestCode"
         :lang="codegens.find((x) => x.id === requestType).language"
         :options="{
-          maxLines: '16',
+          maxLines: '10',
           minLines: '10',
           fontSize: '16px',
           autoScrollEditorIntoView: true,
@@ -71,7 +72,7 @@ export default {
   props: {
     show: Boolean,
     requestCode: String,
-    requestTypeProp: { type: String, default: "" },
+    requestTypeProp: { type: String, default: "curl" },
   },
   data() {
     return {

@@ -59,6 +59,7 @@
           showPrintMargin: false,
           useWorker: false,
         }"
+        styles="rounded-b-lg"
         ref="generatedCode"
       />
     </div>

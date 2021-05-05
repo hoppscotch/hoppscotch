@@ -26,7 +26,7 @@
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
-    "acorn": "^8.2.2",
+    "acorn": "^8.2.4",
     "acorn-walk": "^8.1.0",
     "esprima": "^4.0.1",
     "firebase": "^8.4.3",
@@ -48,7 +48,7 @@
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.16",
+    "@babel/core": "^7.14.0",
     "@babel/plugin-proposal-class-properties": "^7.12.13",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",

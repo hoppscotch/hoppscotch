@@ -1,6 +1,7 @@
 export const JavaUnirestCodegen = {
   id: "java-unirest",
   name: "Java Unirest",
+  language: "java",
   generator: ({
     url,
     pathName,

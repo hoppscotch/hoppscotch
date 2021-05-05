@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const CsRestsharpCodegen = {
   id: "cs-restsharp",
   name: "C# RestSharp",
+  language: "csharp",
   generator: ({
     url,
     pathName,

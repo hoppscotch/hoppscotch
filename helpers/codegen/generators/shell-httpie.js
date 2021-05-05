@@ -1,6 +1,7 @@
 export const ShellHttpieCodegen = {
   id: "shell-httpie",
   name: "Shell HTTPie",
+  language: "sh",
   generator: ({
     url,
     pathName,

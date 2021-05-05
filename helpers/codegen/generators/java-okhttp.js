@@ -1,6 +1,7 @@
 export const JavaOkhttpCodegen = {
   id: "java-okhttp",
   name: "Java OkHttp",
+  language: "java",
   generator: ({
     auth,
     httpUser,

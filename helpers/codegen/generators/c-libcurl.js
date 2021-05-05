@@ -1,6 +1,7 @@
 export const CLibcurlCodegen = {
   id: "c-libcurl",
   name: "C libcurl",
+  language: "c_cpp",
   generator: ({
     auth,
     httpUser,

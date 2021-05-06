@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import team_utils from "~/helpers/teams/utils"
+import * as team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {

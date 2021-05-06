@@ -173,7 +173,7 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
-import team_utils from "~/helpers/teams/utils"
+import * as team_utils from "~/helpers/teams/utils"
 import gql from "graphql-tag"
 
 export default {

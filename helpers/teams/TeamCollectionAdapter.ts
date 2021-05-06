@@ -3,7 +3,7 @@ import { TeamCollection } from "./TeamCollection";
 import { TeamRequest } from "./TeamRequest";
 import { apolloClient } from "~/helpers/apollo";
 import { rootCollectionsOfTeam, getCollectionChildren, getCollectionRequests } from "./utils";
-import { gql } from "@apollo/client";
+import { gql } from "graphql-tag";
 import pull from "lodash/pull";
 import remove from "lodash/remove";
 
@@ -131,7 +131,7 @@ export default class TeamCollectionAdapter {
    *
    * @param {string} teamID - ID of the team to listen to
    */
-  constructor(private teamID: string) {
+  constructor (private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([]);
     this.teamCollectionAdded$ = null;
     this.teamCollectionUpdated$ = null;
@@ -143,12 +143,12 @@ export default class TeamCollectionAdapter {
     this.initialize();
   }
 
-  changeTeamID(newTeamID: string) {
+  changeTeamID(newTeamID: string | null) {
     this.collections$.next([]);
 
     this.teamID = newTeamID;
 
-    this.initialize();
+    if (this.teamID) this.initialize();
   }
 
   unsubscribeSubscriptions() {
@@ -166,7 +166,12 @@ export default class TeamCollectionAdapter {
   }
   
   private async loadRootCollections(): Promise<void> {
-    const colls = await rootCollectionsOfTeam(apolloClient, this.teamID);
+    const colls = (await rootCollectionsOfTeam(apolloClient, this.teamID))
+      .map(coll => { // TODO: Remove
+        coll.title = `debug-${coll.title}`
+        
+        return coll
+      });
     this.collections$.next(colls);
   }
 

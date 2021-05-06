@@ -147,7 +147,8 @@
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import gql from "graphql-tag"
-import team_utils from "~/helpers/teams/utils"
+import * as team_utils from "~/helpers/teams/utils"
+import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 
 export default {
   props: {
@@ -177,11 +178,13 @@ export default {
         selectedTeam: undefined,
       },
       teamCollections: {},
+      teamCollectionAdapter: new TeamCollectionAdapter(null),
     }
   },
   subscriptions() {
     return {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      teamCollectionsNew: this.teamCollectionAdapter.collections$,
     }
   },
   apollo: {
@@ -290,6 +293,9 @@ export default {
     "collectionsType.type": function emitstuff() {
       this.$emit("update-collection", this.$data.collectionsType.type)
     },
+    "collectionsType.selectedTeam": function (value) {
+      if (value?.id) this.teamCollectionAdapter.changeTeamID(value.id)
+    },
   },
   computed: {
     showTeamCollections() {
@@ -313,7 +319,7 @@ export default {
           this.collectionsType.selectedTeam &&
           this.collectionsType.selectedTeam.id in this.teamCollections
         ) {
-          collections = this.teamCollections[this.collectionsType.selectedTeam.id]
+          collections = this.teamCollectionsNew
         } else {
           collections = []
         }

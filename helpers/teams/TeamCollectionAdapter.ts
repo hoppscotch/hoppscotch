@@ -7,6 +7,23 @@ import { gql } from "graphql-tag";
 import pull from "lodash/pull";
 import remove from "lodash/remove";
 
+/*
+ * NOTE: These functions deal with REFERENCES to objects and mutates them, for a simpler implementation.
+ * Be careful when you play with these.
+ *
+ * I am not a fan of mutating references but this is so much simpler compared to mutating clones
+ * - Andrew
+ */
+
+/**
+ * Finds the parent of a collection and returns the REFERENCE (or null)
+ *
+ * @param {TeamCollection[]} tree - The tree to look in
+ * @param {string} collID - ID of the collection to find the parent of
+ * @param {TeamCollection} currentParent - (used for recursion, do not set) The parent in the current iteration (undefined if root)
+ *
+ * @returns REFERENCE to the collecton or null if not found or the collection is in root
+ */
 function findParentOfColl(tree: TeamCollection[], collID: string, currentParent?: TeamCollection): TeamCollection | null {
   for (const coll of tree) {
     // If the root is parent, return null
@@ -22,6 +39,14 @@ function findParentOfColl(tree: TeamCollection[], collID: string, currentParent?
   return null
 }
 
+/**
+ * Finds and returns a REFERENCE collection in the given tree (or null)
+ *
+ * @param {TeamCollection[]} tree - The tree to look in
+ * @param {string} targetID - The ID of the collection to look for
+ *
+ * @returns REFERENCE to the collection or null if not found
+ */
 function findCollInTree(tree: TeamCollection[], targetID: string): TeamCollection | null {
   for (const coll of tree) {
     // If the direct child matched, then return that
@@ -38,6 +63,14 @@ function findCollInTree(tree: TeamCollection[], targetID: string): TeamCollectio
   return null
 }
 
+/**
+ * Finds and returns a REFERENCE to the collection containing a given request ID in tree (or null)
+ *
+ * @param {TeamCollection[]} tree - The tree to look in
+ * @param {string} reqID - The ID of the request to look for
+ *
+ * @returns REFERENCE to the collection or null if request not found
+ */
 function findCollWithReqIDInTree(tree: TeamCollection[], reqID: string): TeamCollection | null {
   for (const coll of tree) {
     // Check in root collections (if expanded)
@@ -56,6 +89,14 @@ function findCollWithReqIDInTree(tree: TeamCollection[], reqID: string): TeamCol
   return null
 }
 
+/**
+ * Finds and returns a REFERENCE to the request with the given ID (or null)
+ *
+ * @param {TeamCollection[]} tree - The tree to look in
+ * @param {string} reqID - The ID of the request to look for
+ *
+ * @returns REFERENCE to the request or null if request not found
+ */
 function findReqInTree(tree: TeamCollection[], reqID: string): TeamRequest | null {
   for (const coll of tree) {
     // Check in root collections (if expanded)
@@ -75,6 +116,12 @@ function findReqInTree(tree: TeamCollection[], reqID: string): TeamRequest | nul
   return null
 }
 
+/**
+ * Updates a collection in the tree with the specified data
+ *
+ * @param {TeamCollection[]} tree - The tree to update in (THIS WILL BE MUTATED!)
+ * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} updateColl - An object defining all the fields that should be updated (ID is required to find the target collection)
+ */
 function updateCollInTree(tree: TeamCollection[], updateColl: Partial<TeamCollection> & Pick<TeamCollection, "id">) {
   const el = findCollInTree(tree, updateColl.id)
 
@@ -85,6 +132,12 @@ function updateCollInTree(tree: TeamCollection[], updateColl: Partial<TeamCollec
   Object.assign(el, updateColl)
 }
 
+/**
+ * Deletes a collection in the tree
+ *
+ * @param {TeamCollection[]} tree - The tree to delete in (THIS WILL BE MUTATED!)
+ * @param {string} targetID - ID of the collection to delete
+ */
 function deleteCollInTree(tree: TeamCollection[], targetID: string) {
   // Get the parent owning the collection
   const parent = findParentOfColl(tree, targetID)
@@ -119,6 +172,7 @@ export default class TeamCollectionAdapter {
    */
   collections$: BehaviorSubject<TeamCollection[]>
 
+  // Fields for subscriptions, used for destroying once not needed
   private teamCollectionAdded$: ZenObservable.Subscription | null
   private teamCollectionUpdated$: ZenObservable.Subscription | null
   private teamCollectionRemoved$: ZenObservable.Subscription | null
@@ -129,7 +183,7 @@ export default class TeamCollectionAdapter {
   /**
    * @constructor
    *
-   * @param {string} teamID - ID of the team to listen to
+   * @param {string | null} teamID - ID of the team to listen to, or null if none decided and the adapter should stand by
    */
   constructor (private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([]);
@@ -140,9 +194,14 @@ export default class TeamCollectionAdapter {
     this.teamRequestDeleted$ = null;
     this.teamRequestUpdated$ = null;
 
-    this.initialize();
+    if (this.teamID) this.initialize();
   }
 
+  /**
+   * Updates the team the adapter is looking at
+   *
+   * @param {string | null} newTeamID - ID of the team to listen to, or null if none decided and the adapter should stand by
+   */
   changeTeamID(newTeamID: string | null) {
     this.collections$.next([]);
 
@@ -151,6 +210,10 @@ export default class TeamCollectionAdapter {
     if (this.teamID) this.initialize();
   }
 
+  /**
+   * Unsubscribes from the subscriptions
+   * NOTE: Once this is called, no new updates to the tree will be detected
+   */
   unsubscribeSubscriptions() {
     this.teamCollectionAdded$?.unsubscribe();
     this.teamCollectionUpdated$?.unsubscribe();
@@ -160,16 +223,28 @@ export default class TeamCollectionAdapter {
     this.teamRequestUpdated$?.unsubscribe();
   }
 
+  /**
+   * Initializes the adapter
+   */
   private async initialize() {
     await this.loadRootCollections();
     this.registerSubscriptions();
   }
   
+  /**
+   * Loads the root collections
+   */
   private async loadRootCollections(): Promise<void> {
     const colls = await rootCollectionsOfTeam(apolloClient, this.teamID)
     this.collections$.next(colls);
   }
 
+  /**
+   * Performs addition of a collection to the tree
+   *
+   * @param {TeamCollection} collection - The collection to add to the tree
+   * @param {string | null} parentCollectionID - The parent of the new collection, pass null if this collection is in root
+   */
   private addCollection(collection: TeamCollection, parentCollectionID: string | null) {
     const tree = this.collections$.value
 
@@ -190,6 +265,11 @@ export default class TeamCollectionAdapter {
     this.collections$.next(tree)
   }
 
+  /**
+   * Updates an existing collection in tree
+   *
+   * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} collectionUpdate - Object defining the fields that need to be updated (ID is required to find the target)
+   */
   private updateCollection(collectionUpdate: Partial<TeamCollection> & Pick<TeamCollection, 'id'>) {
     const tree = this.collections$.value
 
@@ -198,6 +278,11 @@ export default class TeamCollectionAdapter {
     this.collections$.next(tree)
   }
 
+  /**
+   * Removes a collection from the tree
+   *
+   * @param {string} collectionID - ID of the collection to remove
+   */
   private removeCollection(collectionID: string) {
     const tree = this.collections$.value
 
@@ -206,6 +291,11 @@ export default class TeamCollectionAdapter {
     this.collections$.next(tree)
   }
 
+  /**
+   * Adds a request to the tree
+   *
+   * @param {TeamRequest} request - The request to add to the tree
+   */
   private addRequest(request: TeamRequest) {
     const tree = this.collections$.value
     
@@ -222,6 +312,11 @@ export default class TeamCollectionAdapter {
     this.collections$.next(tree)
   }
 
+  /**
+   * Removes a request from the tree
+   *
+   * @param {string} requestID - ID of the request to remove
+   */
   private removeRequest(requestID: string) {
     const tree = this.collections$.value
 
@@ -236,6 +331,11 @@ export default class TeamCollectionAdapter {
     this.collections$.next(tree)
   }
 
+  /**
+   * Updates the request in tree
+   *
+   * @param {Partial<TeamRequest> & Pick<TeamRequest, 'id'>} requestUpdate - Object defining all the fields to update in request (ID of the request is required)
+   */
   private updateRequest(requestUpdate: Partial<TeamRequest> & Pick<TeamRequest, 'id'>) {
     const tree = this.collections$.value
     
@@ -247,6 +347,9 @@ export default class TeamCollectionAdapter {
   }
 
 
+  /**
+   * Registers the subscriptions to listen to team collection updates
+   */
   registerSubscriptions() {
     this.teamCollectionAdded$ = apolloClient.subscribe({
       query: gql`
@@ -367,6 +470,14 @@ export default class TeamCollectionAdapter {
     })
   }
 
+  /**
+   * Expands a collection on the tree
+   * 
+   * When a collection is loaded initially in the adapter, children and requests are not loaded (they will be set to null)
+   * Upon expansion those two fields will be populated
+   *
+   * @param {string} collectionID - The ID of the collection to expand
+   */
   async expandCollection(collectionID: string): Promise<void> {
     // TODO: While expanding one collection, block (or queue) the expansion of the other, to avoid race conditions
     const tree = this.collections$.value;
@@ -381,7 +492,7 @@ export default class TeamCollectionAdapter {
       .map<TeamCollection>(el => {
         return {
           id: el.id,
-          title: `debug-${el.title}`,
+          title: el.title,
           children: null,
           requests: null
         }

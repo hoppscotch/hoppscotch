@@ -179,7 +179,9 @@ export default {
     }
   },
   subscriptions() {
-    SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+    }
   },
   props: {
     show: Boolean,
@@ -275,7 +277,6 @@ export default {
             .replaceWithJSON(this.$apollo, collections, this.collectionsType.selectedTeam.id)
             .then((status) => {
               if (status) {
-                this.$emit("update-team-collections")
                 this.fileImported()
               } else {
                 this.failedImport()

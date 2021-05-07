@@ -166,12 +166,7 @@ export default class TeamCollectionAdapter {
   }
   
   private async loadRootCollections(): Promise<void> {
-    const colls = (await rootCollectionsOfTeam(apolloClient, this.teamID))
-      .map(coll => { // TODO: Remove
-        coll.title = `debug-${coll.title}`
-        
-        return coll
-      });
+    const colls = await rootCollectionsOfTeam(apolloClient, this.teamID)
     this.collections$.next(colls);
   }
 
@@ -386,7 +381,7 @@ export default class TeamCollectionAdapter {
       .map<TeamCollection>(el => {
         return {
           id: el.id,
-          title: el.title,
+          title: `debug-${el.title}`,
           children: null,
           requests: null
         }

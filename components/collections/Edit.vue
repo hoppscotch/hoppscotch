@@ -16,7 +16,7 @@
         type="text"
         id="selectLabel"
         v-model="name"
-        :placeholder="editingCollection.name"
+        :placeholder="placeholderCollName"
         @keyup.enter="saveCollection"
       />
     </div>
@@ -37,73 +37,19 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-import * as team_utils from "~/helpers/teams/utils"
-
 export default {
   props: {
     show: Boolean,
-    editingCollection: Object,
-    editingCollectionIndex: Number,
-    collectionsType: Object,
+    placeholderCollName: String,
   },
   data() {
     return {
       name: undefined,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     saveCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
-        return
-      }
-      if (this.collectionsType.type == "my-collections") {
-        const collectionUpdated = {
-          ...this.$props.editingCollection,
-          name: this.$data.name,
-        }
-        this.$store.commit("postwoman/editCollection", {
-          collection: collectionUpdated,
-          collectionIndex: this.$props.editingCollectionIndex,
-          flag: "rest",
-        })
-        this.syncCollections()
-      } else if (this.collectionsType.type == "team-collections") {
-        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils
-            .renameCollection(this.$apollo, this.$data.name, this.$props.editingCollection.id)
-            .then((data) => {
-              // Result
-              this.$toast.success("Collection Renamed", {
-                icon: "done",
-              })
-              this.$emit("update-team-collections")
-            })
-            .catch((error) => {
-              // Error
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
-              })
-              console.error(error)
-            })
-        }
-      }
-      this.hideModal()
+      this.$emit("submit", this.name)
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -11,10 +11,7 @@
                 id="team"
                 class="team"
                 autofocus
-                @change="
-                  collectionsType.selectedTeam = myTeams[$event.target.value]
-                  $emit('update-team-collections')
-                "
+                @change="updateSelectedTeam(myTeams[$event.target.value])"
               >
                 <option :key="undefined" :value="undefined" hidden disabled selected>
                   Select team
@@ -36,7 +33,6 @@ import gql from "graphql-tag"
 
 export default {
   props: {
-    collectionsType: Object,
     show: Boolean,
   },
   apollo: {
@@ -55,8 +51,10 @@ export default {
   },
   methods: {
     updateCollectionsType(tabID) {
-      this.collectionsType.type = tabID
-      this.$emit("update-team-collections")
+      this.$emit("update-collection-type", tabID)
+    },
+    updateSelectedTeam(team) {
+      this.$emit("update-selected-team", team)
     },
   },
 }

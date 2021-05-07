@@ -37,69 +37,18 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-import * as team_utils from "~/helpers/teams/utils"
-
 export default {
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folder: Object,
-    folderIndex: Number,
-    collectionsType: Object,
   },
   data() {
     return {
       name: undefined,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     editFolder() {
-      if (this.collectionsType.type == "my-collections") {
-        this.$store.commit("postwoman/editFolder", {
-          collectionIndex: this.$props.collectionIndex,
-          folder: { ...this.$props.folder, name: this.$data.name },
-          folderIndex: this.$props.folderIndex,
-          folderName: this.$props.folder.name,
-          flag: "rest",
-        })
-        this.syncCollections()
-      } else if (this.collectionsType.type == "team-collections") {
-        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          team_utils
-            .renameCollection(this.$apollo, this.$data.name, this.folder.id)
-            .then((data) => {
-              // Result
-              this.$toast.success(this.$t("folder_renamed"), {
-                icon: "done",
-              })
-              this.$emit("update-team-collections")
-            })
-            .catch((error) => {
-              // Error
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
-              })
-              console.error(error)
-            })
-        }
-      }
-
-      this.hideModal()
+      this.$emit("submit", this.name)
     },
     hideModal() {
       this.$emit("hide-modal")

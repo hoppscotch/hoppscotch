@@ -12,22 +12,20 @@
     </div>
     <CollectionsChooseType
       :collectionsType="collectionsType"
-      @update-team-collections="updateTeamCollections"
       :show="showTeamCollections"
+      @update-collection-type="updateCollectionType"
+      @update-selected-team="updateSelectedTeam"
     />
     <CollectionsAdd
-      :collectionsType="collectionsType"
       :show="showModalAdd"
-      @update-team-collections="updateTeamCollections"
+      @submit="addNewRootCollection"
       @hide-modal="displayModalAdd(false)"
     />
     <CollectionsEdit
       :show="showModalEdit"
-      :editing-collection="editingCollection"
-      :editing-collection-index="editingCollectionIndex"
-      :collectionsType="collectionsType"
+      :editing-coll-name="editingCollection ? editingCollection.name : ''"
       @hide-modal="displayModalEdit(false)"
-      @update-team-collections="updateTeamCollections"
+      @submit="updateEditingCollection"
     />
     <CollectionsAddFolder
       :show="showModalAddFolder"
@@ -38,22 +36,14 @@
     />
     <CollectionsEditFolder
       :show="showModalEditFolder"
-      :collection-index="editingCollectionIndex"
-      :folder="editingFolder"
-      :folder-index="editingFolderIndex"
-      :collectionsType="collectionsType"
+      @submit="updateEditingFolder"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsEditRequest
       :show="showModalEditRequest"
-      :collection-index="editingCollectionIndex"
-      :folder-index="editingFolderIndex"
-      :folder-name="editingFolderName"
-      :request="editingRequest"
-      :request-index="editingRequestIndex"
-      :collectionsType="collectionsType"
+      :placeholder-req-name="editingRequest ? editingRequest.name : ''"
+      @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
-      @update-team-collections="updateTeamCollections"
     />
     <CollectionsImportExport
       :show="showModalImportExport"
@@ -147,8 +137,8 @@
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import gql from "graphql-tag"
-import * as team_utils from "~/helpers/teams/utils"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
+import * as team_utils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -177,7 +167,6 @@ export default {
         type: "my-collections",
         selectedTeam: undefined,
       },
-      teamCollections: {},
       teamCollectionAdapter: new TeamCollectionAdapter(null),
     }
   },
@@ -186,108 +175,6 @@ export default {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       teamCollectionsNew: this.teamCollectionAdapter.collections$,
     }
-  },
-  apollo: {
-    myTeams: {
-      query: gql`
-        query GetMyTeams {
-          myTeams {
-            id
-            name
-            myRole
-          }
-        }
-      `,
-      pollInterval: 10000,
-    },
-
-    $subscribe: {
-      teamsCollectionAdded: {
-        query: gql`
-          subscription teamCollectionAdded($teamID: String!) {
-            teamCollectionAdded(teamID: $teamID) {
-              id
-              title
-              parent {
-                id
-                title
-              }
-            }
-          }
-        `,
-        variables() {
-          return {
-            teamID: this.collectionsType.selectedTeam.id,
-          }
-        },
-        skip() {
-          return this.collectionsType.selectedTeam == undefined
-        },
-        result({ data }) {
-          console.log(data)
-
-          if (data.teamCollectionAdded.parent == null) {
-            debugger
-
-            this.teamCollections[this.collectionsType.selectedTeam.id].push({
-              id: data.teamCollectionAdded.id,
-              title: data.teamCollectionAdded.title,
-              __typename: data.teamCollectionAdded.__typename,
-            })
-          }
-        },
-      },
-      teamsCollectionUpdated: {
-        query: gql`
-          subscription teamCollectionUpdated($teamID: String!) {
-            teamCollectionUpdated(teamID: $teamID) {
-              id
-              title
-              parent {
-                id
-                title
-              }
-            }
-          }
-        `,
-        variables() {
-          return {
-            teamID: this.collectionsType.selectedTeam.id,
-          }
-        },
-        skip() {
-          return this.collectionsType.selectedTeam == undefined
-        },
-        result({ data }) {
-          const current = this.teamCollections[this.collectionsType.selectedTeam.id]
-          const index = current.findIndex((x) => x.id === data.teamCollectionUpdated.id)
-          if (index >= 0) {
-            current[index].title = data.teamCollectionUpdated.title
-          }
-          this.teamCollections[this.collectionsType.selectedTeam.id] = current
-        },
-      },
-      teamsCollectionRemoved: {
-        query: gql`
-          subscription teamCollectionRemoved($teamID: String!) {
-            teamCollectionRemoved(teamID: $teamID)
-          }
-        `,
-        variables() {
-          return {
-            teamID: this.collectionsType.selectedTeam.id,
-          }
-        },
-        skip() {
-          return this.collectionsType.selectedTeam == undefined
-        },
-        result({ data }) {
-          this.teamCollections[this.collectionsType.selectedTeam.id] = this.teamCollections[
-            this.collectionsType.selectedTeam.id
-          ].filter((x) => x.id !== data.teamCollectionRemoved)
-        },
-      },
-    },
   },
   watch: {
     "collectionsType.type": function emitstuff() {
@@ -315,15 +202,9 @@ export default {
         collections =
           fb.currentUser !== null ? fb.currentCollections : this.$store.state.postwoman.collections
       } else {
-        if (
-          this.collectionsType.selectedTeam &&
-          this.collectionsType.selectedTeam.id in this.teamCollections
-        ) {
-          collections = this.teamCollectionsNew
-        } else {
-          collections = []
-        }
+        collections = this.teamCollectionsNew
       }
+
       if (!this.filterText) {
         return collections
       }
@@ -341,7 +222,9 @@ export default {
         for (let request of collection.requests) {
           if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
         }
-        for (let folder of collection.folders) {
+        for (let folder of this.collectionsType.type === "team-collections"
+          ? collection.children
+          : collection.folders) {
           const filteredFolderRequests = []
           for (let request of folder.requests) {
             if (request.name.toLowerCase().includes(filterText))
@@ -379,16 +262,158 @@ export default {
   },
   methods: {
     updateTeamCollections() {
-      this.$emit("select-collection-type")
-      if (this.collectionsType.selectedTeam == undefined) return
-      team_utils
-        .rootCollectionsOfTeam(this.$apollo, this.collectionsType.selectedTeam.id)
-        .then((collections) => {
-          this.$set(this.teamCollections, this.collectionsType.selectedTeam.id, collections)
+      // TODO: Remove this at some point
+    },
+    updateSelectedTeam(newSelectedTeam) {
+      this.collectionsType.selectedTeam = newSelectedTeam
+    },
+    updateCollectionType(newCollectionType) {
+      this.collectionsType.type = newCollectionType
+    },
+    // Intented to be called by the CollectionAdd modal submit event
+    addNewRootCollection(name) {
+      if (!name) {
+        this.$toast.info(this.$t("invalid_collection_name"))
+        return
+      }
+      if (this.collectionsType.type === "my-collections") {
+        this.$store.commit("postwoman/addNewCollection", {
+          name,
+          flag: "rest",
         })
-        .catch((error) => {
-          console.log(error)
+
+        this.syncCollections()
+      } else if (
+        this.collectionsType.type === "team-collections" &&
+        this.collectionsType.selectedTeam.myRole !== "VIEWER"
+      ) {
+        team_utils
+          .createNewRootCollection(this.$apollo, name, this.collectionsType.selectedTeam.id)
+          .then(() => {
+            this.$toast.success(this.$t("collection_added"), {
+              icon: "done",
+            })
+          })
+          .catch((error) => {
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+      }
+      this.displayModalAdd(false)
+    },
+    // Intented to be called by CollectionEdit modal submit event
+    updateEditingCollection(newName) {
+      if (!newName) {
+        this.$toast.info(this.$t("invalid_collection_name"))
+        return
+      }
+      if (this.collectionsType.type === "my-collections") {
+        const collectionUpdated = {
+          ...this.editingCollection,
+          name: newName,
+        }
+        this.$store.commit("postwoman/editCollection", {
+          collection: collectionUpdated,
+          collectionIndex: this.editingCollectionIndex,
+          flag: "rest",
         })
+        this.syncCollections()
+      } else if (
+        this.collectionsType.type === "team-collections" &&
+        this.collectionsType.selectedTeam.myRole !== "VIEWER"
+      ) {
+        team_utils
+          .renameCollection(this.$apollo, newName, this.editingCollection.id)
+          .then(() => {
+            // TODO: $t translations ?
+            this.$toast.success("Collection Renamed", {
+              icon: "done",
+            })
+          })
+          .catch((error) => {
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+      }
+      this.displayModalEdit(false)
+    },
+    // Intended to be called by CollectionEditFolder modal submit event
+    updateEditingFolder(name) {
+      if (this.collectionsType.type == "my-collections") {
+        this.$store.commit("postwoman/editFolder", {
+          collectionIndex: this.editingCollectionIndex,
+          folder: { ...this.editingFolder, name: name },
+          folderIndex: this.editingFolderIndex,
+          folderName: this.editingFolder.name,
+          flag: "rest",
+        })
+        this.syncCollections()
+      } else if (
+        this.collectionsType.type == "team-collections" &&
+        this.collectionsType.selectedTeam.myRole !== "VIEWER"
+      ) {
+        team_utils
+          .renameCollection(this.$apollo, name, this.editingFolder.id)
+          .then(() => {
+            // Result
+            this.$toast.success(this.$t("folder_renamed"), {
+              icon: "done",
+            })
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+      }
+
+      this.displayModalEditFolder(false)
+    },
+    // Intented to by called by CollectionsEditRequest modal submit event
+    updateEditingRequest(requestUpdateData) {
+      const requestUpdated = {
+        ...this.editingRequest,
+        name: requestUpdateData.name || this.editingRequest.name,
+      }
+
+      if (this.collectionsType.type == "my-collections") {
+        this.$store.commit("postwoman/editRequest", {
+          requestCollectionIndex: this.editingCollectionIndex,
+          requestFolderName: this.editingFolderName,
+          requestFolderIndex: this.editingFolderIndex,
+          requestNew: requestUpdated,
+          requestIndex: this.editingRequestIndex,
+          flag: "rest",
+        })
+        this.syncCollections()
+      } else if (
+        this.collectionsType.type === "team-collections" &&
+        this.collectionsType.selectedTeam.myRole !== "VIEWER"
+      ) {
+        let requestName = requestUpdateData.name || this.editingRequest.name
+        team_utils
+          .updateRequest(this.$apollo, requestUpdated, requestName, this.editingRequestIndex)
+          .then(() => {
+            this.$toast.success("Request Renamed", {
+              icon: "done",
+            })
+            this.$emit("update-team-collections")
+          })
+          .catch((error) => {
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
+      }
+
+      this.displayModalEditRequest(false)
     },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
@@ -436,7 +461,7 @@ export default {
           this.$apollo
             .mutate({
               mutation: gql`
-                mutation($childTitle: String!, $collectionID: String!) {
+                mutation CreateChildCollection($childTitle: String!, $collectionID: String!) {
                   createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
                     id
                   }
@@ -448,7 +473,7 @@ export default {
                 collectionID: folder.id,
               },
             })
-            .then((data) => {
+            .then(() => {
               // Result
               this.$toast.success(this.$t("folder_added"), {
                 icon: "done",

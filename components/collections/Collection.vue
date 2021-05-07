@@ -389,7 +389,6 @@ export default {
             )
           },
           updateQuery(previousResult, { subscriptionData }) {
-            debugger
             if (
               subscriptionData.data.teamCollectionAdded.parent &&
               subscriptionData.data.teamCollectionAdded.parent.id === this.$props.collection.id

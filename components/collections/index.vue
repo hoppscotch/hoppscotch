@@ -143,6 +143,7 @@ import { getSettingSubject } from "~/newstore/settings"
 import gql from "graphql-tag"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import * as team_utils from "~/helpers/teams/utils"
+import cloneDeep from "lodash/cloneDeep"
 
 export default {
   props: {
@@ -172,12 +173,12 @@ export default {
         selectedTeam: undefined,
       },
       teamCollectionAdapter: new TeamCollectionAdapter(null),
+      teamCollectionsNew: [],
     }
   },
   subscriptions() {
     return {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-      teamCollectionsNew: this.teamCollectionAdapter.collections$,
     }
   },
   watch: {
@@ -263,6 +264,10 @@ export default {
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
+
+    this.$subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
+      this.teamCollectionsNew = cloneDeep(colls)
+    })
   },
   methods: {
     updateTeamCollections() {

@@ -8,6 +8,7 @@ import colors from "tailwindcss/colors"
 
 export default {
   dark: "class",
+  mode: "jit",
   corePlugins: {
     float: false,
     clear: false,
@@ -49,13 +50,11 @@ export default {
   },
   variants: {},
   plugins: [],
-  purge: {
-    content: [
-      "components/**/*.vue",
-      "layouts/**/*.vue",
-      "pages/**/*.vue",
-      "plugins/**/*.js",
-      "nuxt.config.js",
-    ],
-  },
+  purge: [
+    "components/**/*.vue",
+    "layouts/**/*.vue",
+    "pages/**/*.vue",
+    "plugins/**/*.js",
+    "nuxt.config.js",
+  ],
 }

@@ -32,30 +32,6 @@
         >
           <i class="material-icons">check_box</i>
         </button>
-        <div v-if="collectionsType.type !== 'my-collections' && showChildren">
-          <button
-            class="icon"
-            v-if="cursor !== ''"
-            @click="
-              cursor = prevCursor
-              pageNo -= 1
-            "
-          >
-            Prev
-          </button>
-          <span v-if="cursor !== '' || (requests && requests.length === 10)">{{ pageNo }}</span>
-          <button
-            class="icon"
-            v-if="requests && requests.length === 10"
-            @click="
-              prevCursor = cursor
-              cursor = requests[requests.length - 1].id
-              pageNo += 1
-            "
-          >
-            Next
-          </button>
-        </div>
         <v-popover v-if="!saveRequest">
           <button
             v-if="
@@ -127,7 +103,7 @@
         <li
           v-for="(folder, index) in collectionsType.type === 'my-collections'
             ? collection.folders
-            : folders"
+            : collection.children"
           :key="folder.name ? folder.name : folder.title"
           class="ml-8 border-l border-brdColor"
         >
@@ -143,7 +119,6 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
-            @update-team-collections="$emit('update-team-collections')"
             @select-folder="
               $emit('select-folder', {
                 name:
@@ -161,7 +136,7 @@
         <li
           v-for="(request, index) in collectionsType.type === 'my-collections'
             ? collection.requests
-            : requests"
+            : collection.requests"
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
@@ -190,8 +165,8 @@
       <ul>
         <li
           v-if="
-            (folders == undefined || folders.length === 0) &&
-            (requests == undefined || requests.length === 0)
+            (collection.folders == undefined || collection.folders.length === 0) &&
+            (collection.requests == undefined || collection.requests.length === 0)
           "
           class="flex ml-8 border-l border-brdColor"
         >
@@ -219,6 +194,8 @@ export default {
   props: {
     collectionIndex: Number,
     collection: Object,
+    folders: Array,
+    requests: Array,
     doc: Boolean,
     isFiltered: Boolean,
     selected: Boolean,
@@ -240,233 +217,6 @@ export default {
     return {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
-  },
-  apollo: {
-    requests: {
-      query: gql`
-        query getCollectionRequests($collectionID: String!, $cursor: String) {
-          requestsInCollection(collectionID: $collectionID, cursor: $cursor) {
-            id
-            title
-            request
-          }
-        }
-      `,
-      subscribeToMore: [
-        {
-          document: gql`
-            subscription teamRequestAdded($teamID: String!) {
-              teamRequestAdded(teamID: $teamID) {
-                id
-                request
-                title
-                collection {
-                  id
-                  title
-                }
-              }
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.collectionsType.selectedTeam.id }
-          },
-          skip() {
-            return this.$props.collectionsType.selectedTeam === undefined
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            if (
-              subscriptionData.data.teamRequestAdded.collection.id === this.$props.collection.id
-            ) {
-              previousResult.requestsInCollection.push({
-                id: subscriptionData.data.teamRequestAdded.id,
-                request: subscriptionData.data.teamRequestAdded.request,
-                title: subscriptionData.data.teamRequestAdded.title,
-                __typename: subscriptionData.data.teamRequestAdded.__typename,
-              })
-              return previousResult
-            }
-          },
-        },
-        {
-          document: gql`
-            subscription teamRequestUpdated($teamID: String!) {
-              teamRequestUpdated(teamID: $teamID) {
-                id
-                request
-                title
-                collection {
-                  id
-                  title
-                }
-              }
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.collectionsType.selectedTeam.id }
-          },
-          skip() {
-            return this.$props.collectionsType.selectedTeam === undefined
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            if (
-              subscriptionData.data.teamRequestUpdated.collection.id === this.$props.collection.id
-            ) {
-              const index = previousResult.requestsInCollection.findIndex(
-                (x) => x.id === subscriptionData.data.teamRequestUpdated.id
-              )
-              previousResult.requestsInCollection[index].title =
-                subscriptionData.data.teamRequestUpdated.title
-              previousResult.requestsInCollection[index].request =
-                subscriptionData.data.teamRequestUpdated.request
-              return previousResult
-            }
-          },
-        },
-        {
-          document: gql`
-            subscription teamRequestDeleted($teamID: String!) {
-              teamRequestDeleted(teamID: $teamID)
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.collectionsType.selectedTeam.id }
-          },
-          skip() {
-            return this.$props.collectionsType.selectedTeam === undefined
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            const index = previousResult.requestsInCollection.findIndex(
-              (x) => x.id === subscriptionData.data.teamRequestDeleted
-            )
-            if (index !== -1) previousResult.requestsInCollection.splice(index, 1)
-            return previousResult
-          },
-        },
-      ],
-      variables() {
-        return {
-          collectionID: this.$props.collection.id,
-          cursor: this.$data.cursor,
-        }
-      },
-      update: (response) => response.requestsInCollection,
-      skip() {
-        return this.$props.collection.id === undefined
-      },
-      fetchPolicy: "no-cache",
-    },
-    folders: {
-      query: gql`
-        query getCollectionChildren($collectionID: String!) {
-          collection(collectionID: $collectionID) {
-            children {
-              id
-              title
-            }
-          }
-        }
-      `,
-      subscribeToMore: [
-        {
-          document: gql`
-            subscription teamCollectionAdded($teamID: String!) {
-              teamCollectionAdded(teamID: $teamID) {
-                id
-                title
-                parent {
-                  id
-                  title
-                }
-              }
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.collectionsType.selectedTeam.id }
-          },
-          skip() {
-            return (
-              this.$props.collectionsType.selectedTeam === undefined && this.$props.showChildren
-            )
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            if (
-              subscriptionData.data.teamCollectionAdded.parent &&
-              subscriptionData.data.teamCollectionAdded.parent.id === this.$props.collection.id
-            ) {
-              previousResult.collection.children.push({
-                id: subscriptionData.data.teamCollectionAdded.id,
-                title: subscriptionData.data.teamCollectionAdded.title,
-                __typename: subscriptionData.data.teamCollectionAdded.__typename,
-              })
-              return previousResult
-            }
-          },
-        },
-        {
-          document: gql`
-            subscription teamCollectionUpdated($teamID: String!) {
-              teamCollectionUpdated(teamID: $teamID) {
-                id
-                title
-                parent {
-                  id
-                  title
-                }
-              }
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.collectionsType.selectedTeam.id }
-          },
-          skip() {
-            return this.$props.collectionsType.selectedTeam === undefined
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            if (
-              subscriptionData.data.teamCollectionUpdated.parent &&
-              subscriptionData.data.teamCollectionUpdated.parent.id === this.$props.collection.id
-            ) {
-              const index = previousResult.collection.children.findIndex(
-                (x) => x.id === subscriptionData.data.teamCollectionUpdated.id
-              )
-              previousResult.collection.children[index].title =
-                subscriptionData.data.teamCollectionUpdated.title
-              return previousResult
-            }
-          },
-        },
-        {
-          document: gql`
-            subscription teamCollectionRemoved($teamID: String!) {
-              teamCollectionRemoved(teamID: $teamID)
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.collectionsType.selectedTeam.id }
-          },
-          skip() {
-            return this.$props.collectionsType.selectedTeam === undefined
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            const index = previousResult.collection.children.findIndex(
-              (x) => x.id === subscriptionData.data.teamCollectionRemoved
-            )
-            if (index !== -1) previousResult.collection.children.splice(index, 1)
-            return previousResult
-          },
-        },
-      ],
-      variables() {
-        return {
-          collectionID: this.$props.collection.id,
-        }
-      },
-      update: (response) => response.collection.children,
-      skip() {
-        return this.$props.collection.id === undefined
-      },
-      fetchPolicy: "no-cache",
-    },
   },
   methods: {
     editRequest(event) {
@@ -490,50 +240,15 @@ export default {
       if (this.$props.saveRequest)
         this.$emit("select-folder", { name: "", id: this.$props.collection.id, reqIdx: "" })
 
+      this.$emit("expand-collection", this.collection.id)
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      if (this.collectionsType.type == "my-collections") {
-        this.$store.commit("postwoman/removeCollection", {
-          collectionIndex: this.collectionIndex,
-          flag: "rest",
-        })
-        this.$toast.error(this.$t("deleted"), {
-          icon: "delete",
-        })
-        this.syncCollections()
-      } else if (this.collectionsType.type == "team-collections") {
-        if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-          this.$apollo
-            .mutate({
-              // Query
-              mutation: gql`
-                mutation($collectionID: String!) {
-                  deleteCollection(collectionID: $collectionID)
-                }
-              `,
-              // Parameters
-              variables: {
-                collectionID: this.collection.id,
-              },
-            })
-            .then((data) => {
-              // Result
-              this.$toast.success(this.$t("deleted"), {
-                icon: "delete",
-              })
-              console.log(data)
-              this.$emit("update-team-collections")
-            })
-            .catch((error) => {
-              // Error
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
-              })
-              console.error(error)
-            })
-        }
-      }
+      this.$emit("remove-collection", {
+        collectionsType: this.collectionsType,
+        collectionIndex: this.collectionIndex,
+        collectionID: this.collection.id,
+      })
       this.confirmRemove = false
     },
     dropEvent({ dataTransfer }) {

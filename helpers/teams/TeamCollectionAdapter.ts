@@ -1,11 +1,11 @@
-import { BehaviorSubject } from "rxjs";
-import { TeamCollection } from "./TeamCollection";
-import { TeamRequest } from "./TeamRequest";
-import { apolloClient } from "~/helpers/apollo";
-import { rootCollectionsOfTeam, getCollectionChildren, getCollectionRequests } from "./utils";
-import { gql } from "graphql-tag";
-import pull from "lodash/pull";
-import remove from "lodash/remove";
+import { BehaviorSubject } from "rxjs"
+import { TeamCollection } from "./TeamCollection"
+import { TeamRequest } from "./TeamRequest"
+import { apolloClient } from "~/helpers/apollo"
+import { rootCollectionsOfTeam, getCollectionChildren, getCollectionRequests } from "./utils"
+import { gql } from "graphql-tag"
+import pull from "lodash/pull"
+import remove from "lodash/remove"
 
 /*
  * NOTE: These functions deal with REFERENCES to objects and mutates them, for a simpler implementation.
@@ -24,11 +24,15 @@ import remove from "lodash/remove";
  *
  * @returns REFERENCE to the collecton or null if not found or the collection is in root
  */
-function findParentOfColl(tree: TeamCollection[], collID: string, currentParent?: TeamCollection): TeamCollection | null {
+function findParentOfColl(
+  tree: TeamCollection[],
+  collID: string,
+  currentParent?: TeamCollection
+): TeamCollection | null {
   for (const coll of tree) {
     // If the root is parent, return null
     if (coll.id === collID) return currentParent ? currentParent : null
-    
+
     // Else run it in children
     if (coll.children) {
       const result = findParentOfColl(coll.children, collID, coll)
@@ -75,7 +79,7 @@ function findCollWithReqIDInTree(tree: TeamCollection[], reqID: string): TeamCol
   for (const coll of tree) {
     // Check in root collections (if expanded)
     if (coll.requests) {
-      if (coll.requests.find(req => req.id === reqID)) return coll
+      if (coll.requests.find((req) => req.id === reqID)) return coll
     }
 
     // Check in children of collections
@@ -101,7 +105,7 @@ function findReqInTree(tree: TeamCollection[], reqID: string): TeamRequest | nul
   for (const coll of tree) {
     // Check in root collections (if expanded)
     if (coll.requests) {
-      const match = coll.requests.find(req => req.id === reqID)
+      const match = coll.requests.find((req) => req.id === reqID)
       if (match) return match
     }
 
@@ -122,12 +126,15 @@ function findReqInTree(tree: TeamCollection[], reqID: string): TeamRequest | nul
  * @param {TeamCollection[]} tree - The tree to update in (THIS WILL BE MUTATED!)
  * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} updateColl - An object defining all the fields that should be updated (ID is required to find the target collection)
  */
-function updateCollInTree(tree: TeamCollection[], updateColl: Partial<TeamCollection> & Pick<TeamCollection, "id">) {
+function updateCollInTree(
+  tree: TeamCollection[],
+  updateColl: Partial<TeamCollection> & Pick<TeamCollection, "id">
+) {
   const el = findCollInTree(tree, updateColl.id)
 
   // If no match, stop the operation
   if (!el) return
-  
+
   // Update all the specified keys
   Object.assign(el, updateColl)
 }
@@ -144,7 +151,7 @@ function deleteCollInTree(tree: TeamCollection[], targetID: string) {
 
   // If we found a parent, update it
   if (parent && parent.children) {
-    parent.children = parent.children.filter(coll => coll.id !== targetID)
+    parent.children = parent.children.filter((coll) => coll.id !== targetID)
   }
 
   // If there is no parent, it could mean:
@@ -157,13 +164,12 @@ function deleteCollInTree(tree: TeamCollection[], targetID: string) {
 
   // Collection exists, so this should be in root, hence removing element
   pull(tree, el)
-} 
+}
 
 /**
  * TeamCollectionAdapter provides a reactive collections list for a specific team
  */
 export default class TeamCollectionAdapter {
-
   /**
    * The reactive list of collections
    *
@@ -185,16 +191,16 @@ export default class TeamCollectionAdapter {
    *
    * @param {string | null} teamID - ID of the team to listen to, or null if none decided and the adapter should stand by
    */
-  constructor (private teamID: string | null) {
-    this.collections$ = new BehaviorSubject<TeamCollection[]>([]);
-    this.teamCollectionAdded$ = null;
-    this.teamCollectionUpdated$ = null;
-    this.teamCollectionRemoved$ = null;
-    this.teamRequestAdded$ = null;
-    this.teamRequestDeleted$ = null;
-    this.teamRequestUpdated$ = null;
+  constructor(private teamID: string | null) {
+    this.collections$ = new BehaviorSubject<TeamCollection[]>([])
+    this.teamCollectionAdded$ = null
+    this.teamCollectionUpdated$ = null
+    this.teamCollectionRemoved$ = null
+    this.teamRequestAdded$ = null
+    this.teamRequestDeleted$ = null
+    this.teamRequestUpdated$ = null
 
-    if (this.teamID) this.initialize();
+    if (this.teamID) this.initialize()
   }
 
   /**
@@ -203,11 +209,11 @@ export default class TeamCollectionAdapter {
    * @param {string | null} newTeamID - ID of the team to listen to, or null if none decided and the adapter should stand by
    */
   changeTeamID(newTeamID: string | null) {
-    this.collections$.next([]);
+    this.collections$.next([])
 
-    this.teamID = newTeamID;
+    this.teamID = newTeamID
 
-    if (this.teamID) this.initialize();
+    if (this.teamID) this.initialize()
   }
 
   /**
@@ -215,28 +221,28 @@ export default class TeamCollectionAdapter {
    * NOTE: Once this is called, no new updates to the tree will be detected
    */
   unsubscribeSubscriptions() {
-    this.teamCollectionAdded$?.unsubscribe();
-    this.teamCollectionUpdated$?.unsubscribe();
-    this.teamCollectionRemoved$?.unsubscribe();
-    this.teamRequestAdded$?.unsubscribe();
-    this.teamRequestDeleted$?.unsubscribe();
-    this.teamRequestUpdated$?.unsubscribe();
+    this.teamCollectionAdded$?.unsubscribe()
+    this.teamCollectionUpdated$?.unsubscribe()
+    this.teamCollectionRemoved$?.unsubscribe()
+    this.teamRequestAdded$?.unsubscribe()
+    this.teamRequestDeleted$?.unsubscribe()
+    this.teamRequestUpdated$?.unsubscribe()
   }
 
   /**
    * Initializes the adapter
    */
   private async initialize() {
-    await this.loadRootCollections();
-    this.registerSubscriptions();
+    await this.loadRootCollections()
+    this.registerSubscriptions()
   }
-  
+
   /**
    * Loads the root collections
    */
   private async loadRootCollections(): Promise<void> {
     const colls = await rootCollectionsOfTeam(apolloClient, this.teamID)
-    this.collections$.next(colls);
+    this.collections$.next(colls)
   }
 
   /**
@@ -249,7 +255,7 @@ export default class TeamCollectionAdapter {
     const tree = this.collections$.value
 
     if (!parentCollectionID) {
-      tree.push(collection);
+      tree.push(collection)
     } else {
       const parentCollection = findCollInTree(tree, parentCollectionID)
 
@@ -270,7 +276,7 @@ export default class TeamCollectionAdapter {
    *
    * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} collectionUpdate - Object defining the fields that need to be updated (ID is required to find the target)
    */
-  private updateCollection(collectionUpdate: Partial<TeamCollection> & Pick<TeamCollection, 'id'>) {
+  private updateCollection(collectionUpdate: Partial<TeamCollection> & Pick<TeamCollection, "id">) {
     const tree = this.collections$.value
 
     updateCollInTree(tree, collectionUpdate)
@@ -298,7 +304,7 @@ export default class TeamCollectionAdapter {
    */
   private addRequest(request: TeamRequest) {
     const tree = this.collections$.value
-    
+
     // Check if we have the collection (if not, then not loaded?)
     const coll = findCollInTree(tree, request.collectionID)
     if (!coll) return // Ignore add request
@@ -325,7 +331,7 @@ export default class TeamCollectionAdapter {
     if (!coll || !coll.requests) return
 
     // Remove the collection
-    remove(coll.requests, req => req.id === requestID)
+    remove(coll.requests, (req) => req.id === requestID)
 
     // Publish new tree
     this.collections$.next(tree)
@@ -336,9 +342,9 @@ export default class TeamCollectionAdapter {
    *
    * @param {Partial<TeamRequest> & Pick<TeamRequest, 'id'>} requestUpdate - Object defining all the fields to update in request (ID of the request is required)
    */
-  private updateRequest(requestUpdate: Partial<TeamRequest> & Pick<TeamRequest, 'id'>) {
+  private updateRequest(requestUpdate: Partial<TeamRequest> & Pick<TeamRequest, "id">) {
     const tree = this.collections$.value
-    
+
     // Find request, if not present, don't update
     const req = findReqInTree(tree, requestUpdate.id)
     if (!req) return
@@ -346,133 +352,147 @@ export default class TeamCollectionAdapter {
     Object.assign(req, requestUpdate)
   }
 
-
   /**
    * Registers the subscriptions to listen to team collection updates
    */
   registerSubscriptions() {
-    this.teamCollectionAdded$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamCollectionAdded($teamID: String!) {
-          teamCollectionAdded(teamID: $teamID) {
-            id
-            title
-            parent {
+    this.teamCollectionAdded$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamCollectionAdded($teamID: String!) {
+            teamCollectionAdded(teamID: $teamID) {
               id
+              title
+              parent {
+                id
+              }
             }
           }
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.addCollection({
-        id: data.teamCollectionAdded.id,
-        children: null,
-        requests: null,
-        title: data.teamCollectionAdded.title
-      }, data.teamCollectionAdded.parent?.id)
-    });
-    
-    this.teamCollectionUpdated$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamCollectionUpdated($teamID: String!) {
-          teamCollectionUpdated(teamID: $teamID) {
-            id
-            title
-            parent {
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        this.addCollection(
+          {
+            id: data.teamCollectionAdded.id,
+            children: null,
+            requests: null,
+            title: data.teamCollectionAdded.title,
+          },
+          data.teamCollectionAdded.parent?.id
+        )
+      })
+
+    this.teamCollectionUpdated$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamCollectionUpdated($teamID: String!) {
+            teamCollectionUpdated(teamID: $teamID) {
               id
+              title
+              parent {
+                id
+              }
             }
           }
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.updateCollection({
-        id: data.teamCollectionUpdated.id,
-        title: data.teamCollectionUpdated.title
-      });
-    });
-
-    this.teamCollectionRemoved$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamCollectionRemoved($teamID: String!) {
-          teamCollectionRemoved(teamID: $teamID)
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.removeCollection(data.teamCollectionRemoved)
-    })
-
-    this.teamRequestAdded$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamRequestAdded($teamID: String!) {
-          teamRequestAdded(teamID: $teamID) {
-            id
-            collectionID
-            request
-            title
-          }
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.addRequest({
-        id: data.teamRequestAdded.id,
-        collectionID: data.teamRequestAdded.collectionID,
-        request: JSON.parse(data.teamRequestAdded.request),
-        title: data.teamRequestAdded.title
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
       })
-    })
-
-    this.teamRequestUpdated$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamRequestUpdated($teamID: String!) {
-          teamRequestUpdated(teamID: $teamID) {
-            id
-            collectionID
-            request
-            title
-          }
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.updateRequest({
-        id: data.teamRequestUpdated.id,
-        collectionID: data.teamRequestUpdated.collectionID,
-        request: data.teamRequestUpdated.request,
-        title: data.teamRequestUpdated.title
+      .subscribe(({ data }) => {
+        this.updateCollection({
+          id: data.teamCollectionUpdated.id,
+          title: data.teamCollectionUpdated.title,
+        })
       })
-    })
 
-    this.teamRequestDeleted$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamRequestDeleted($teamID: String!) {
-          teamRequestDeleted(teamID: $teamID)
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.removeRequest(data.teamRequestDeleted)
-    })
+    this.teamCollectionRemoved$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamCollectionRemoved($teamID: String!) {
+            teamCollectionRemoved(teamID: $teamID)
+          }
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        this.removeCollection(data.teamCollectionRemoved)
+      })
+
+    this.teamRequestAdded$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamRequestAdded($teamID: String!) {
+            teamRequestAdded(teamID: $teamID) {
+              id
+              collectionID
+              request
+              title
+            }
+          }
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        this.addRequest({
+          id: data.teamRequestAdded.id,
+          collectionID: data.teamRequestAdded.collectionID,
+          request: JSON.parse(data.teamRequestAdded.request),
+          title: data.teamRequestAdded.title,
+        })
+      })
+
+    this.teamRequestUpdated$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamRequestUpdated($teamID: String!) {
+            teamRequestUpdated(teamID: $teamID) {
+              id
+              collectionID
+              request
+              title
+            }
+          }
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        this.updateRequest({
+          id: data.teamRequestUpdated.id,
+          collectionID: data.teamRequestUpdated.collectionID,
+          request: data.teamRequestUpdated.request,
+          title: data.teamRequestUpdated.title,
+        })
+      })
+
+    this.teamRequestDeleted$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamRequestDeleted($teamID: String!) {
+            teamRequestDeleted(teamID: $teamID)
+          }
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        this.removeRequest(data.teamRequestDeleted)
+      })
   }
 
   /**
    * Expands a collection on the tree
-   * 
+   *
    * When a collection is loaded initially in the adapter, children and requests are not loaded (they will be set to null)
    * Upon expansion those two fields will be populated
    *
@@ -480,7 +500,7 @@ export default class TeamCollectionAdapter {
    */
   async expandCollection(collectionID: string): Promise<void> {
     // TODO: While expanding one collection, block (or queue) the expansion of the other, to avoid race conditions
-    const tree = this.collections$.value;
+    const tree = this.collections$.value
 
     const collection = findCollInTree(tree, collectionID)
 
@@ -488,25 +508,27 @@ export default class TeamCollectionAdapter {
 
     if (collection.children != null) return
 
-    const collections: TeamCollection[] = (await getCollectionChildren(apolloClient, collectionID))
-      .map<TeamCollection>(el => {
-        return {
-          id: el.id,
-          title: el.title,
-          children: null,
-          requests: null
-        }
-      })
+    const collections: TeamCollection[] = (
+      await getCollectionChildren(apolloClient, collectionID)
+    ).map<TeamCollection>((el) => {
+      return {
+        id: el.id,
+        title: el.title,
+        children: null,
+        requests: null,
+      }
+    })
 
-    const requests: TeamRequest[] = (await getCollectionRequests(apolloClient, collectionID))
-      .map<TeamRequest>(el => {
-        return {
-          id: el.id,
-          collectionID: collectionID,
-          title: el.title,
-          request: el.request
-        }
-      })
+    const requests: TeamRequest[] = (
+      await getCollectionRequests(apolloClient, collectionID)
+    ).map<TeamRequest>((el) => {
+      return {
+        id: el.id,
+        collectionID: collectionID,
+        title: el.title,
+        request: el.request,
+      }
+    })
 
     collection.children = collections
     collection.requests = requests

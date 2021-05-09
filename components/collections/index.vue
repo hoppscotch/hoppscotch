@@ -93,6 +93,8 @@
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
+            :folders="collection.children"
+            :requests="collection.requests"
             :doc="doc"
             :isFiltered="filterText.length > 0"
             :selected="selected.some((coll) => coll == collection)"
@@ -117,6 +119,8 @@
               })
             "
             @unselect-collection="$emit('remove-collection', collection)"
+            @expand-collection="expandCollection"
+            @removve-collection="removeCollection"
           />
         </li>
       </ul>
@@ -532,6 +536,53 @@ export default {
           JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
           "collections"
         )
+      }
+    },
+    expandCollection(collectionID) {
+      console.log(collectionID)
+      this.teamCollectionAdapter.expandCollection(collectionID)
+    },
+    removeCollection(collectionsType, collectionIndex, collectionID) {
+      console.log("removing")
+      if (collectionsType.type == "my-collections") {
+        this.$store.commit("postwoman/removeCollection", {
+          collectionIndex: collectionIndex,
+          flag: "rest",
+        })
+        this.$toast.error(this.$t("deleted"), {
+          icon: "delete",
+        })
+        this.syncCollections()
+      } else if (collectionsType.type == "team-collections") {
+        if (collectionsType.selectedTeam.myRole != "VIEWER") {
+          this.$apollo
+            .mutate({
+              // Query
+              mutation: gql`
+                mutation($collectionID: String!) {
+                  deleteCollection(collectionID: $collectionID)
+                }
+              `,
+              // Parameters
+              variables: {
+                collectionID: collectionID,
+              },
+            })
+            .then((data) => {
+              // Result
+              this.$toast.success(this.$t("deleted"), {
+                icon: "delete",
+              })
+              console.log(data)
+            })
+            .catch((error) => {
+              // Error
+              this.$toast.error(this.$t("error_occurred"), {
+                icon: "done",
+              })
+              console.error(error)
+            })
+        }
       }
     },
   },

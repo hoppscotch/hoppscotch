@@ -13,7 +13,7 @@
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
         <i class="material-icons">folder</i>
-        <span>{{ collection.name ? collection.name : collection.title }}</span>
+        <span>{{ collection.name }}</span>
       </button>
       <div>
         <button
@@ -33,23 +33,12 @@
           <i class="material-icons">check_box</i>
         </button>
         <v-popover v-if="!saveRequest">
-          <button
-            v-if="
-              collectionsType.type == 'team-collections' &&
-              collectionsType.selectedTeam.myRole !== 'VIEWER'
-            "
-            class="tooltip-target icon"
-            v-tooltip.left="$t('more')"
-          >
+          <button class="tooltip-target icon" v-tooltip.left="$t('more')">
             <i class="material-icons">more_vert</i>
           </button>
           <template slot="popover">
             <div>
               <button
-                v-if="
-                  collectionsType.type == 'team-collections' &&
-                  collectionsType.selectedTeam.myRole !== 'VIEWER'
-                "
                 class="icon"
                 @click="$emit('add-folder', { folder: collection, path: `${collectionIndex}` })"
                 v-close-popover
@@ -59,37 +48,13 @@
               </button>
             </div>
             <div>
-              <button
-                v-if="
-                  collectionsType.type == 'team-collections' &&
-                  collectionsType.selectedTeam.myRole !== 'VIEWER'
-                "
-                class="icon"
-                @click="$emit('edit-collection')"
-                v-close-popover
-              >
-                <i class="material-icons">create</i>
-                <span>{{ $t("edit") }}</span>
-              </button>
-              <button v-else class="icon" @click="$emit('edit-collection')" v-close-popover>
+              <button class="icon" @click="$emit('edit-collection')" v-close-popover>
                 <i class="material-icons">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
             <div>
-              <button
-                v-if="
-                  collectionsType.type == 'team-collections' &&
-                  collectionsType.selectedTeam.myRole !== 'VIEWER'
-                "
-                class="icon"
-                @click="confirmRemove = true"
-                v-close-popover
-              >
-                <i class="material-icons">delete</i>
-                <span>{{ $t("delete") }}</span>
-              </button>
-              <button v-else class="icon" @click="confirmRemove = true" v-close-popover>
+              <button class="icon" @click="confirmRemove = true" v-close-popover>
                 <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
@@ -101,10 +66,8 @@
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
-          v-for="(folder, index) in collectionsType.type === 'my-collections'
-            ? collection.folders
-            : collection.children"
-          :key="folder.name ? folder.name : folder.title"
+          v-for="(folder, index) in collection.folders"
+          :key="index"
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsFolder
@@ -121,10 +84,7 @@
             @edit-request="$emit('edit-request', $event)"
             @select-folder="
               $emit('select-folder', {
-                name:
-                  (collectionsType.type == 'my-collections' ? folder.name : folder.title) +
-                  '/' +
-                  $event.name,
+                name: folder.name + '/' + $event.name,
                 id: $event.id,
                 reqIdx: $event.reqIdx,
               })
@@ -134,20 +94,16 @@
       </ul>
       <ul class="flex-col">
         <li
-          v-for="(request, index) in collectionsType.type === 'my-collections'
-            ? collection.requests
-            : collection.requests"
+          v-for="(request, index) in collection.requests"
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsRequest
-            :request="
-              collectionsType.type === 'my-collections' ? request : JSON.parse(request.request)
-            "
+            :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
-            :request-index="collectionsType.type === 'my-collections' ? index : request.id"
+            :request-index="index"
             :doc="doc"
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
@@ -194,8 +150,6 @@ export default {
   props: {
     collectionIndex: Number,
     collection: Object,
-    folders: Array,
-    requests: Array,
     doc: Boolean,
     isFiltered: Boolean,
     selected: Boolean,

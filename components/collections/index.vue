@@ -89,12 +89,15 @@
     <div class="virtual-list">
       <ul class="flex-col">
         <li v-for="(collection, index) in filteredCollections" :key="collection.name">
-          <CollectionsCollection
+          <component
+            :is="
+              collectionsType.type == 'my-collections'
+                ? 'CollectionsMyCollection'
+                : 'CollectionsTeamsCollection'
+            "
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
-            :folders="collection.children"
-            :requests="collection.requests"
             :doc="doc"
             :isFiltered="filterText.length > 0"
             :selected="selected.some((coll) => coll == collection)"

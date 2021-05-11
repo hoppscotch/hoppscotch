@@ -86,7 +86,7 @@
           :key="index"
           class="flex ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
+          <CollectionsMyRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"

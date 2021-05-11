@@ -1,13 +1,6 @@
 <template>
   <div>
-    <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
-      draggable="true"
-      @dragstart="dragStart"
-      @dragover.stop
-      @dragleave="dragging = false"
-      @dragend="dragging = false"
-    >
+    <div class="transition duration-150 ease-in-out row-wrapper">
       <div>
         <button
           class="icon"
@@ -19,7 +12,11 @@
         </button>
       </div>
       <v-popover v-if="!saveRequest">
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+        <button
+          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+          class="tooltip-target icon"
+          v-tooltip="$t('more')"
+        >
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
@@ -118,35 +115,22 @@ export default {
       dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
-      if (this.$props.collectionsType.type == "my-collections") {
-        this.$store.commit("postwoman/removeRequest", {
-          collectionIndex: this.$props.collectionIndex,
-          folderName: this.$props.folderName,
-          requestIndex: this.$props.requestIndex,
-          flag: "rest",
-        })
-        this.$toast.error(this.$t("deleted"), {
-          icon: "delete",
-        })
-        this.syncCollections()
-      } else if (this.$props.collectionsType.type == "team-collections") {
-        team_utils
-          .deleteRequest(this.$apollo, this.$props.requestIndex)
-          .then((data) => {
-            // Result
-            this.$toast.success(this.$t("deleted"), {
-              icon: "delete",
-            })
+      team_utils
+        .deleteRequest(this.$apollo, this.$props.requestIndex)
+        .then((data) => {
+          // Result
+          this.$toast.success(this.$t("deleted"), {
+            icon: "delete",
           })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
-            })
-            console.error(error)
+        })
+        .catch((error) => {
+          // Error
+          this.$toast.error(this.$t("error_occurred"), {
+            icon: "done",
           })
-        this.$data.confirmRemove = false
-      }
+          console.error(error)
+        })
+      this.$data.confirmRemove = false
     },
     getRequestLabelColor(method) {
       return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default

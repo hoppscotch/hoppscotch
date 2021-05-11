@@ -90,7 +90,7 @@
           :key="index"
           class="flex ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
+          <CollectionsTeamsRequest
             :request="JSON.parse(request.request)"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"

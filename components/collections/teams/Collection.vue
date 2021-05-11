@@ -106,7 +106,7 @@
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
+          <CollectionsTeamsRequest
             :request="JSON.parse(request.request)"
             :collection-index="collectionIndex"
             :folder-index="-1"

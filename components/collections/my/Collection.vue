@@ -70,7 +70,7 @@
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsFolder
+          <CollectionsMyFolder
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"

@@ -46,7 +46,7 @@ export default {
           }
         }
       `,
-      pollInterval: 10000,
+      pollInterval: 5000,
     },
   },
   methods: {

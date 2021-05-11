@@ -14,10 +14,10 @@
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
           <i class="material-icons">folder_open</i>
-          <span>{{ folder.name }}</span>
+          <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!saveRequest">
         <button class="tooltip-target icon" v-tooltip.left="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
@@ -58,15 +58,25 @@
           :key="subFolder.name"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsGraphqlFolder
+          <CollectionsMyFolder
             :folder="subFolder"
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @update-team-collections="$emit('update-team-collections')"
+            @select-folder="
+              $emit('select-folder', {
+                name: subFolder.name + '/' + $event.name,
+                id: subFolder.id,
+                reqIdx: $event.reqIdx,
+              })
+            "
           />
         </li>
       </ul>
@@ -76,14 +86,23 @@
           :key="index"
           class="flex ml-8 border-l border-brdColor"
         >
-          <CollectionsGraphqlRequest
+          <CollectionsRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
             :request-index="index"
             :doc="doc"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             @edit-request="$emit('edit-request', $event)"
+            @select-request="
+              $emit('select-folder', {
+                name: $event.name,
+                id: folder.id,
+                reqIdx: $event.idx,
+              })
+            "
           />
         </li>
       </ul>
@@ -111,6 +130,9 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import { getSettingSubject } from "~/newstore/settings"
+import * as team_utils from "~/helpers/teams/utils"
+import gql from "graphql-tag"
 
 export default {
   name: "folder",
@@ -120,27 +142,36 @@ export default {
     collectionIndex: Number,
     folderPath: String,
     doc: Boolean,
+    saveRequest: Boolean,
     isFiltered: Boolean,
+    collectionsType: Object,
   },
   data() {
     return {
       showChildren: false,
       dragging: false,
       confirmRemove: false,
+      prevCursor: "",
+      cursor: "",
+    }
+  },
+  subscriptions() {
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   methods: {
     syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-            "collectionsGraphql"
-          )
-        }
+      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
+        fb.writeCollections(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+          "collections"
+        )
       }
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })
       this.showChildren = !this.showChildren
     },
     removeFolder() {
@@ -148,7 +179,7 @@ export default {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folder.name,
         folderIndex: this.$props.folderIndex,
-        flag: "graphql",
+        flag: "rest",
       })
       this.syncCollections()
       this.$toast.error(this.$t("deleted"), {
@@ -161,7 +192,7 @@ export default {
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "graphql"
+      const flag = "rest"
 
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,

@@ -77,7 +77,7 @@
           :key="folder.title"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsFolder
+          <CollectionsTeamsFolder
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
@@ -96,6 +96,7 @@
                 reqIdx: $event.reqIdx,
               })
             "
+            @expand-collection="expandCollection"
           />
         </li>
       </ul>
@@ -198,6 +199,9 @@ export default {
         collectionID: this.collection.id,
       })
       this.confirmRemove = false
+    },
+    expandCollection(collectionID) {
+      this.$emit("expand-collection", collectionID)
     },
   },
 }

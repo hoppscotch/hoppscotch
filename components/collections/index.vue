@@ -123,7 +123,7 @@
             "
             @unselect-collection="$emit('remove-collection', collection)"
             @expand-collection="expandCollection"
-            @removve-collection="removeCollection"
+            @remove-collection="removeCollection"
           />
         </li>
       </ul>
@@ -269,6 +269,9 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
 
     this.$subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
+      console.log("new tree!")
+      console.log(colls)
+
       this.teamCollectionsNew = cloneDeep(colls)
     })
   },
@@ -550,8 +553,7 @@ export default {
       console.log(collectionID)
       this.teamCollectionAdapter.expandCollection(collectionID)
     },
-    removeCollection(collectionsType, collectionIndex, collectionID) {
-      console.log("removing")
+    removeCollection({ collectionsType, collectionIndex, collectionID }) {
       if (collectionsType.type == "my-collections") {
         this.$store.commit("postwoman/removeCollection", {
           collectionIndex: collectionIndex,

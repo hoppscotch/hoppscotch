@@ -6,20 +6,22 @@
         <ul>
           <li>
             <span class="select-wrapper">
-              <select
-                type="text"
-                id="team"
-                class="team"
-                autofocus
-                @change="updateSelectedTeam(myTeams[$event.target.value])"
-              >
-                <option :key="undefined" :value="undefined" hidden disabled selected>
-                  Select team
-                </option>
-                <option v-for="(team, index) in myTeams" :key="index" :value="index">
-                  {{ team.name }}
-                </option>
-              </select>
+              <SmartIntersection @intersecting="onTeamSelectIntersect">
+                <select
+                  type="text"
+                  id="team"
+                  class="team"
+                  autofocus
+                  @change="updateSelectedTeam(myTeams[$event.target.value])"
+                >
+                  <option :key="undefined" :value="undefined" hidden disabled selected>
+                    Select team
+                  </option>
+                  <option v-for="(team, index) in myTeams" :key="index" :value="index">
+                    {{ team.name }}
+                  </option>
+                </select>
+              </SmartIntersection>
             </span>
           </li>
         </ul>
@@ -46,10 +48,14 @@ export default {
           }
         }
       `,
-      pollInterval: 5000,
+      pollInterval: 10000,
     },
   },
   methods: {
+    onTeamSelectIntersect() {
+      // Load team data as soon as intersection
+      this.$apollo.queries.myTeams.refetch()
+    },
     updateCollectionsType(tabID) {
       this.$emit("update-collection-type", tabID)
     },

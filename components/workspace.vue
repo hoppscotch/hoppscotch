@@ -82,6 +82,7 @@ export default {
       try {
         const toSave = createObjectToSave(this.$store)
         const savedContent = await saveWorkspaceToFile(toSave)
+        console.info("Saved Workspace", savedContent)
         this.$toast.info(`File saved successfully`)
       } catch (ex) {
         reportError.call(this, ex)

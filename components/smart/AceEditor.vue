@@ -37,7 +37,7 @@
 
 .outline {
   @apply flex;
-  @apply flex-no-wrap;
+  @apply flex-nowrap;
   @apply w-full;
   @apply overflow-auto;
   @apply font-mono;

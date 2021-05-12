@@ -1,4 +1,5 @@
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
+import { settingsStore } from "~/newstore/settings"
 
 export const hasExtensionInstalled = () =>
   typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined"
@@ -15,19 +16,19 @@ export const cancelRunningExtensionRequest = () => {
   }
 }
 
-const extensionWithProxy = async (req, { state }) => {
-  const backupTimeDataStart = new Date().getTime();
+const extensionWithProxy = async (req) => {
+  const backupTimeDataStart = new Date().getTime()
 
   const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     method: "post",
-    url: state.postwoman.settings.PROXY_URL || "https://hoppscotch.apollosoftware.xyz/",
+    url: settingsStore.value.PROXY_URL || "https://proxy.hoppscotch.io/",
     data: {
       ...req,
       wantsBinary: true,
     },
   })
 
-  const backupTimeDataEnd = new Date().getTime();
+  const backupTimeDataEnd = new Date().getTime()
 
   const parsedData = JSON.parse(res.data)
 
@@ -40,11 +41,11 @@ const extensionWithProxy = async (req, { state }) => {
   }
 
   if (!(res && res.config && res.config.timeData)) {
-    res.config = { 
+    res.config = {
       timeData: {
         startTime: backupTimeDataStart,
-        endTime: backupTimeDataEnd
-      }
+        endTime: backupTimeDataEnd,
+      },
     }
   }
 
@@ -53,32 +54,32 @@ const extensionWithProxy = async (req, { state }) => {
   return parsedData
 }
 
-const extensionWithoutProxy = async (req, _store) => {
-  const backupTimeDataStart = new Date().getTime();
+const extensionWithoutProxy = async (req) => {
+  const backupTimeDataStart = new Date().getTime()
 
   const res = await window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
     ...req,
     wantsBinary: true,
   })
 
-  const backupTimeDataEnd = new Date().getTime();
+  const backupTimeDataEnd = new Date().getTime()
 
   if (!(res && res.config && res.config.timeData)) {
     res.config = {
       timeData: {
         startTime: backupTimeDataStart,
-        endTime: backupTimeDataEnd
-      }
+        endTime: backupTimeDataEnd,
+      },
     }
   }
   return res
 }
 
-const extensionStrategy = (req, store) => {
-  if (store.state.postwoman.settings.PROXY_ENABLED) {
-    return extensionWithProxy(req, store)
+const extensionStrategy = (req) => {
+  if (settingsStore.value.PROXY_ENABLED) {
+    return extensionWithProxy(req)
   }
-  return extensionWithoutProxy(req, store)
+  return extensionWithoutProxy(req)
 }
 
 export default extensionStrategy

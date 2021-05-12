@@ -124,6 +124,7 @@
             @unselect-collection="$emit('remove-collection', collection)"
             @expand-collection="expandCollection"
             @remove-collection="removeCollection"
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -593,6 +594,36 @@ export default {
               console.error(error)
             })
         }
+      }
+    },
+    removeRequest({ collectionIndex, folderName, requestIndex }) {
+      if (this.collectionsType.type == "my-collections") {
+        this.$store.commit("postwoman/removeRequest", {
+          collectionIndex: collectionIndex,
+          folderName: folderName,
+          requestIndex: requestIndex,
+          flag: "rest",
+        })
+        this.$toast.error(this.$t("deleted"), {
+          icon: "delete",
+        })
+        this.syncCollections()
+      } else if (this.collectionsType.type == "team-collections") {
+        team_utils
+          .deleteRequest(this.$apollo, requestIndex)
+          .then((data) => {
+            // Result
+            this.$toast.success(this.$t("deleted"), {
+              icon: "delete",
+            })
+          })
+          .catch((error) => {
+            // Error
+            this.$toast.error(this.$t("error_occurred"), {
+              icon: "done",
+            })
+            console.error(error)
+          })
       }
     },
   },

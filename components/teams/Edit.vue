@@ -6,7 +6,7 @@
           <div class="row-wrapper">
             <h3 class="title">{{ $t("edit_team") }}</h3>
             <div>
-              <button class="icon" @click="hideModal">
+              <button class="icon" @click="ideModal">
                 <i class="material-icons">close</i>
               </button>
             </div>
@@ -53,15 +53,17 @@
               />
               <template slot="popover">
                 <div>
-                  <button class="icon" v-close-popover @click="member.role = 'OWNER'">OWNER</button>
+                  <button class="icon" v-close-popover @click="updateRole(index, 'OWNER')">
+                    OWNER
+                  </button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover @click="member.role = 'EDITOR'">
+                  <button class="icon" v-close-popover @click="updateRole(index, 'EDITOR')">
                     EDITOR
                   </button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover @click="member.role = 'VIEWER'">
+                  <button class="icon" v-close-popover @click="updateRole(index, 'VIEWER')">
                     VIEWER
                   </button>
                 </div>
@@ -304,6 +306,9 @@ export default {
     },
   },
   methods: {
+    updateRole(id, role) {
+      this.teamMembers[id].role = role
+    },
     addTeamMember() {
       let value = { key: "", value: "" }
       this.members.push(value)

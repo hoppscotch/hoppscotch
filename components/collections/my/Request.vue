@@ -88,20 +88,7 @@ export default {
       confirmRemove: false,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     selectRequest() {
       if (this.$props.saveRequest)
         this.$emit("select-request", {
@@ -118,16 +105,11 @@ export default {
       dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
-      this.$store.commit("postwoman/removeRequest", {
+      this.$emit("remove-request", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
-        flag: "rest",
       })
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-      })
-      this.syncCollections()
     },
     getRequestLabelColor(method) {
       return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default

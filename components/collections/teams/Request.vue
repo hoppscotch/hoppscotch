@@ -85,20 +85,7 @@ export default {
       confirmRemove: false,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     selectRequest() {
       if (this.$props.saveRequest)
         this.$emit("select-request", {
@@ -107,30 +94,12 @@ export default {
         })
       else this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
-    dragStart({ dataTransfer }) {
-      this.dragging = !this.dragging
-      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
-      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
-      dataTransfer.setData("oldFolderName", this.$props.folderName)
-      dataTransfer.setData("requestIndex", this.$props.requestIndex)
-    },
     removeRequest() {
-      team_utils
-        .deleteRequest(this.$apollo, this.$props.requestIndex)
-        .then((data) => {
-          // Result
-          this.$toast.success(this.$t("deleted"), {
-            icon: "delete",
-          })
-        })
-        .catch((error) => {
-          // Error
-          this.$toast.error(this.$t("error_occurred"), {
-            icon: "done",
-          })
-          console.error(error)
-        })
-      this.$data.confirmRemove = false
+      this.$emit("remove-request", {
+        collectionIndex: this.$props.collectionIndex,
+        folderName: this.$props.folderName,
+        requestIndex: this.$props.requestIndex,
+      })
     },
     getRequestLabelColor(method) {
       return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default

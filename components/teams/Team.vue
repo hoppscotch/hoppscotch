@@ -1,7 +1,11 @@
 <template>
   <div class="row-wrapper">
     <div>
-      <button class="icon" v-tooltip.right="$t('use_team')">
+      <button
+        class="icon"
+        @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
+        v-tooltip.right="$t('edit')"
+      >
         <i class="material-icons">group</i>
         <span>{{ team.name }}</span>
       </button>

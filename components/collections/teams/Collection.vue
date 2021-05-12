@@ -97,6 +97,7 @@
               })
             "
             @expand-collection="expandCollection"
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -123,6 +124,7 @@
                 reqIdx: $event.idx,
               })
             "
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -202,6 +204,13 @@ export default {
     },
     expandCollection(collectionID) {
       this.$emit("expand-collection", collectionID)
+    },
+    removeRequest({ collectionIndex, folderName, requestIndex }) {
+      this.$emit("remove-request", {
+        collectionIndex,
+        folderName,
+        requestIndex,
+      })
     },
   },
 }

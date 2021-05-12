@@ -89,6 +89,7 @@
                 reqIdx: $event.reqIdx,
               })
             "
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -115,6 +116,7 @@
                 reqIdx: $event.idx,
               })
             "
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -223,6 +225,13 @@ export default {
         flag,
       })
       this.syncCollections()
+    },
+    removeRequest({ collectionIndex, folderName, requestIndex }) {
+      this.$emit("remove-request", {
+        collectionIndex,
+        folderName,
+        requestIndex,
+      })
     },
   },
 }

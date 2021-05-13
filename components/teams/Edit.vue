@@ -290,7 +290,21 @@ export default {
       rename: null,
       doneButton: '<i class="material-icons">done</i>',
       members: [],
+      membersSubject: null,
+      membersSubscription: null,
     }
+  },
+  watch: {
+    editingteamID(teamID) {
+      team_utils.getLiveTeamMembersList(this.$apollo, teamID).then((subject) => {
+        this.membersSubject = subject
+
+        this.membersSubscription = this.membersSubject.subscribe((memberList) => {
+          console.log(memberList)
+          this.members = memberList
+        })
+      })
+    },
   },
   computed: {
     editingTeamCopy() {

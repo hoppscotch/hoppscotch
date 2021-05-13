@@ -1,4 +1,117 @@
+import { ApolloClient } from "@apollo/client/core"
 import gql from "graphql-tag"
+import { BehaviorSubject } from "rxjs"
+
+/**
+ * Returns an observable list of team members in the given Team
+ *
+ * @param {ApolloClient<any>} apollo - Instance of ApolloClient
+ * @param {string} teamID - ID of the team to observe
+ *
+ * @returns {{user: {uid: string, email: string}, role: 'OWNER' | 'EDITOR' | 'VIEWER'}}
+ */
+export async function getLiveTeamMembersList(apollo, teamID) {
+  const subject = new BehaviorSubject([])
+
+  const { data } = await apollo.query({
+    query: gql`
+      query GetTeamMembers($teamID: String!) {
+        team(teamID: $teamID) {
+          members {
+            user {
+              uid
+              email
+            }
+            role
+          }
+        }
+      }
+    `,
+    variables: {
+      teamID,
+    },
+  })
+
+  debugger
+  subject.next(data.team.members)
+
+  const addedSub = apollo
+    .subscribe({
+      query: gql`
+        subscription TeamMemberAdded($teamID: String!) {
+          teamMemberAdded(teamID: $teamID) {
+            user {
+              uid
+              email
+            }
+            role
+          }
+        }
+      `,
+      variables: {
+        teamID,
+      },
+    })
+    .subscribe(({ data }) => {
+      subject.next([...subject.value, data.teamMemberAdded])
+    })
+
+  const updateSub = apollo
+    .subscribe({
+      query: gql`
+        subscription TeamMemberUpdated($teamID: String!) {
+          teamMemberUpdated(teamID: $teamID) {
+            user {
+              uid
+              email
+            }
+            role
+          }
+        }
+      `,
+      variables: {
+        teamID,
+      },
+    })
+    .subscribe(({ data }) => {
+      const val = subject.value.find(
+        (member) => member.user.uid === data.teamMemberUpdated.user.uid
+      )
+
+      if (!val) return
+
+      Object.assign(val, data.teamMemberUpdated)
+    })
+
+  const removeSub = apollo
+    .subscribe({
+      query: gql`
+        subscription TeamMemberRemoved($teamID: String!) {
+          teamMemberRemoved(teamID: $teamID)
+        }
+      `,
+      variables: {
+        teamID,
+      },
+    })
+    .subscribe(({ data }) => {
+      subject.next(
+        subject.value.filter((member) => member.user.uid !== data.teamMemberAdded.user.uid)
+      )
+    })
+
+  const mainSub = subject.subscribe({
+    complete() {
+      addedSub.unsubscribe()
+      updateSub.unsubscribe()
+      removeSub.unsubscribe()
+
+      mainSub.unsubscribe()
+    },
+  })
+
+  return subject
+}
 
 export async function createTeam(apollo, name) {
   return apollo.mutate({

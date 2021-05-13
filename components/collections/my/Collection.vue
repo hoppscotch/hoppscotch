@@ -12,7 +12,8 @@
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-        <i class="material-icons">folder</i>
+        <i v-if="picked === collectionIndex" class="text-green-400 material-icons">check_circle</i>
+        <i v-else class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
       </button>
       <div>
@@ -87,9 +88,11 @@
                 name: folder.name + '/' + $event.name,
                 id: $event.id,
                 reqIdx: $event.reqIdx,
+                folderPath: $event.folderPath,
               })
             "
             @remove-request="removeRequest"
+            :picked="picked"
           />
         </li>
       </ul>
@@ -157,6 +160,7 @@ export default {
     selected: Boolean,
     saveRequest: Boolean,
     collectionsType: Object,
+    picked: { default: "", type: String },
   },
   data() {
     return {

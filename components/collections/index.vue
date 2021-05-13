@@ -120,11 +120,19 @@
                 collectionsType: collectionsType,
                 folderId: $event.id,
               })
+              if (collectionsType.type == 'my-collections') {
+                if ($event.folderPath) {
+                  picked = $event.folderPath
+                } else picked = index
+              } else {
+                picked = $event.id
+              }
             "
             @unselect-collection="$emit('remove-collection', collection)"
             @expand-collection="expandCollection"
             @remove-collection="removeCollection"
             @remove-request="removeRequest"
+            :picked="picked"
           />
         </li>
       </ul>
@@ -178,6 +186,7 @@ export default {
       },
       teamCollectionAdapter: new TeamCollectionAdapter(null),
       teamCollectionsNew: [],
+      picked: "",
     }
   },
   subscriptions() {

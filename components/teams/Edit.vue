@@ -6,7 +6,7 @@
           <div class="row-wrapper">
             <h3 class="title">{{ $t("edit_team") }}</h3>
             <div>
-              <button class="icon" @click="ideModal">
+              <button class="icon" @click="hideModal">
                 <i class="material-icons">close</i>
               </button>
             </div>

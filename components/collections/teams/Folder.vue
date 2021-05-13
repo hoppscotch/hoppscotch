@@ -5,7 +5,8 @@
         <button class="icon" @click="toggleShowChildren">
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-          <i class="material-icons">folder_open</i>
+          <i v-if="picked === folder.id" class="text-green-400 material-icons">check_circle</i>
+          <i v-else class="material-icons">folder_open</i>
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
@@ -149,6 +150,7 @@ export default {
     saveRequest: Boolean,
     isFiltered: Boolean,
     collectionsType: Object,
+    picked: { default: "", type: String },
   },
   data() {
     return {
@@ -158,20 +160,7 @@ export default {
       cursor: "",
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })

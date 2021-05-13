@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("token_req_name") }}</label>
       <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
-      <label for="selectLabel">Request path</label>
-      <input readonly :value="path" />
-      <collections
+      <label for="selectLabel">Select location</label>
+      <!-- <input readonly :value="path" /> -->
+      <Collections
         @select-folder="changeRequestDetails($event)"
         @update-collection="collectionsType.type = $event"
         :saveRequest="true"
@@ -188,7 +188,9 @@ export default {
           )
         }
       }
-
+      this.$toast.success("Requested added", {
+        icon: "done",
+      })
       this.hideModal()
     },
     hideModal() {

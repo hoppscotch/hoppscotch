@@ -4,15 +4,27 @@ import { setContext } from "@apollo/client/link/context"
 import { fb } from "./fb"
 import { getMainDefinition } from "@apollo/client/utilities"
 
+let authToken: String | null = null
+
+export function registerApolloAuthUpdate() {
+  fb.idToken$.subscribe((token: String | null) => {
+    console.log(token, "from sub")
+
+    authToken = token
+  })
+}
+
 /**
  * Injects auth token if available
  */
 const authLink = setContext((_, { headers }) => {
-  if (fb.idToken) {
+  console.log(authToken)
+
+  if (authToken) {
     return {
       headers: {
         ...headers,
-        authorization: `Bearer ${fb.idToken}`,
+        authorization: `Bearer ${authToken}`,
       },
     }
   } else {
@@ -38,11 +50,11 @@ const wsLink = new WebSocketLink({
     reconnect: true,
     lazy: true,
     connectionParams: () => {
-      if (fb.idToken) {
+      if (authToken) {
         return {}
       } else {
         return {
-          authorization: `Bearer ${fb.idToken}`,
+          authorization: `Bearer ${authToken}`,
         }
       }
     },

@@ -4,7 +4,7 @@
       <button
         class="icon"
         @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
-        v-tooltip.right="$t('edit')"
+        v-tooltip.right="team.myRole === 'OWNER' ? $t('edit') : ''"
       >
         <i class="material-icons">group</i>
         <span>{{ team.name }}</span>

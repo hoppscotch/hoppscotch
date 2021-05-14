@@ -1,9 +1,5 @@
 <template>
   <AppSection class="green" icon="history" :label="$t('teams')" ref="teams" no-legend>
-    <!-- debug start -->
-    <pre>me: {{ me }}</pre>
-    <pre>myTeams: {{ myTeams }}</pre>
-    <!-- debug end -->
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <TeamsEdit
       :team="myTeams[0]"
@@ -12,11 +8,11 @@
       :editingteamID="editingteamID"
       @hide-modal="displayModalEdit(false)"
     />
-    <TeamsImportExport
+    <!-- <TeamsImportExport
       :show="showModalImportExport"
       :teams="myTeams"
       @hide-modal="displayModalImportExport(false)"
-    />
+    /> -->
     <div class="row-wrapper">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
@@ -24,11 +20,11 @@
           <span>{{ $t("new") }}</span>
         </button>
       </div>
-      <div>
+      <!-- <div>
         <button class="icon" @click="displayModalImportExport(true)">
           {{ $t("import_export") }}
         </button>
-      </div>
+      </div> -->
     </div>
     <p v-if="$apollo.queries.myTeams.loading" class="info">{{ $t("loading") }}</p>
     <p v-if="myTeams.length === 0" class="info">
@@ -76,6 +72,7 @@ export default {
         query GetMe {
           me {
             uid
+            eaInvited
           }
         }
       `,

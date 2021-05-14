@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div v-if="fb.currentUser">
+    <div v-if="currentUser && currentUser.eaInvited">
       <Teams />
     </div>
 
@@ -202,6 +202,7 @@ import {
   defaultSettings,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
+import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 
 import Vue from "vue"
 
@@ -243,6 +244,9 @@ export default Vue.extend({
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
+
+      // Teams feature flag
+      currentUser: currentUserInfo$,
     }
   },
   watch: {

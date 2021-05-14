@@ -33,7 +33,7 @@
           </div>
         </li>
       </ul>
-      <ul v-for="(member, index) in teamMembers" :key="`new-${index}`">
+      <ul v-for="(member, index) in members" :key="`new-${index}`">
         <li>
           <input
             :placeholder="$t('email')"
@@ -84,7 +84,7 @@
           </li>
         </div>
       </ul>
-      <ul v-for="(member, index) in members" :key="index">
+      <ul v-for="(member, index) in newMembers" :key="index">
         <li>
           <input
             :placeholder="$t('email')"
@@ -164,122 +164,9 @@
 
 <script>
 import * as team_utils from "~/helpers/teams/utils"
-import gql from "graphql-tag"
+import cloneDeep from "lodash/cloneDeep"
 
 export default {
-  apollo: {
-    teamMembers: {
-      query: gql`
-        query GetMyTeams {
-          myTeams {
-            id
-            members {
-              user {
-                displayName
-                email
-                uid
-              }
-              role
-            }
-          }
-        }
-      `,
-      subscribeToMore: [
-        {
-          document: gql`
-            subscription teamMemberAdded($teamID: String!) {
-              teamMemberAdded(teamID: $teamID) {
-                role
-                user {
-                  displayName
-                  email
-                  uid
-                }
-              }
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.editingteamID }
-          },
-          skip() {
-            return this.$props.editingteamID === ""
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            const teamIdx = previousResult.myTeams.findIndex(
-              (x) => x.id === this.$props.editingteamID
-            )
-            previousResult.myTeams[teamIdx].members.push(subscriptionData.data.teamMemberAdded)
-            return previousResult
-          },
-        },
-        {
-          document: gql`
-            subscription teamMemberUpdated($teamID: String!) {
-              teamMemberUpdated(teamID: $teamID) {
-                role
-                user {
-                  displayName
-                  email
-                  uid
-                }
-              }
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.editingteamID }
-          },
-          skip() {
-            return this.$props.editingteamID === ""
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            const teamIdx = previousResult.myTeams.findIndex(
-              (x) => x.id === this.$props.editingteamID
-            )
-            const memberIdx = previousResult.myTeams[teamIdx].members.findIndex(
-              (x) => x.user.uid === subscriptionData.data.teamMemberUpdated.user.uid
-            )
-            previousResult.myTeams[teamIdx].members[memberIdx].user =
-              subscriptionData.data.teamMemberUpdated.user
-            previousResult.myTeams[teamIdx].members[memberIdx].role =
-              subscriptionData.data.teamMemberUpdated.role
-
-            return previousResult
-          },
-        },
-        {
-          document: gql`
-            subscription teamMemberRemoved($teamID: String!) {
-              teamMemberRemoved(teamID: $teamID)
-            }
-          `,
-          variables() {
-            return { teamID: this.$props.editingteamID }
-          },
-          skip() {
-            return this.$props.editingteamID === ""
-          },
-          updateQuery(previousResult, { subscriptionData }) {
-            const teamIdx = previousResult.myTeams.findIndex(
-              (x) => x.id === this.$props.editingteamID
-            )
-            const memberIdx = previousResult.myTeams[teamIdx].members.findIndex(
-              (x) => x.user.id === subscriptionData.data.teamMemberRemoved.id
-            )
-            if (memberIdx !== -1) previousResult.myTeams[teamIdx].members.splice(memberIdx, 1)
-
-            return previousResult
-          },
-        },
-      ],
-      update(response) {
-        const teamIdx = response.myTeams.findIndex((x) => x.id === this.$props.editingteamID)
-        return response.myTeams[teamIdx].members
-      },
-      skip() {
-        return this.$props.editingteamID === ""
-      },
-    },
-  },
   props: {
     show: Boolean,
     editingTeam: Object,
@@ -292,6 +179,7 @@ export default {
       members: [],
       membersSubject: null,
       membersSubscription: null,
+      newMembers: [],
     }
   },
   watch: {
@@ -301,7 +189,7 @@ export default {
 
         this.membersSubscription = this.membersSubject.subscribe((memberList) => {
           console.log(memberList)
-          this.members = memberList
+          this.members = cloneDeep(memberList)
         })
       })
     },
@@ -321,11 +209,12 @@ export default {
   },
   methods: {
     updateRole(id, role) {
-      this.teamMembers[id].role = role
+      console.log(this.members, id)
+      this.members[id].role = role
     },
     addTeamMember() {
       let value = { key: "", value: "" }
-      this.members.push(value)
+      this.newMembers.push(value)
       console.log("addTeamMember")
     },
     removeExistingTeamMember(userID) {
@@ -347,7 +236,7 @@ export default {
         })
     },
     removeTeamMember(index) {
-      this.members.splice(index, 1)
+      this.newMembers.splice(index, 1)
       console.log("removeTeamMember")
     },
     validateEmail(emailID) {
@@ -364,8 +253,7 @@ export default {
         console.log("String length less than 6")
         return
       }
-      console.log("saveTeam", this.members)
-      this.$data.members.forEach((element) => {
+      this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
           this.$toast.error(this.$t("invalid_emailID_format"), {
             icon: "error",
@@ -374,7 +262,7 @@ export default {
           return
         }
       })
-      this.$data.members.forEach((element) => {
+      this.$data.newMembers.forEach((element) => {
         // Call to the graphql mutation
         team_utils
           .addTeamMemberByEmail(this.$apollo, element.value, element.key, this.editingteamID)
@@ -394,7 +282,7 @@ export default {
           })
       })
       let messageShown = true
-      this.teamMembers.forEach((element) => {
+      this.members.forEach((element) => {
         team_utils
           .updateTeamMemberRole(this.$apollo, element.user.uid, element.role, this.editingteamID)
           .then((data) => {
@@ -444,7 +332,7 @@ export default {
             })
       }
       this.hideModal()
-      this.members = []
+      this.newMembers = []
     },
     hideModal() {
       this.$emit("hide-modal")

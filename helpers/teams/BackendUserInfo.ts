@@ -42,12 +42,14 @@ export const currentUserInfo$ = new BehaviorSubject<UserInfo | null>(null)
 /**
  * Initializes the currenUserInfo$ view and sets up its update mechanism
  */
-export function initUserInfo() {
-  updateUserInfo()
+export async function initUserInfo() {
+  await updateUserInfo()
+  console.log("updated")
 
-  fb.idToken$.subscribe(token => {
+  fb.idToken$.subscribe((token) => {
     if (token) {
       updateUserInfo()
+      console.log(token, "updateUserInfo")
     } else {
       currentUserInfo$.next(null)
     }
@@ -63,22 +65,24 @@ async function updateUserInfo() {
       query: gql`
         query GetUserInfo {
           me {
-            uid,
-            displayName,
-            email,
-            photoURL,
+            uid
+            displayName
+            email
+            photoURL
             eaInvited
           }
         }
-      `
+      `,
     })
-    
+
+    console.log(data)
+
     currentUserInfo$.next({
       uid: data.me.uid,
       displayName: data.me.displayName,
       email: data.me.email,
-      photoURL : data.me.photoURL,
-      eaInvited: data.me.eaInvited
+      photoURL: data.me.photoURL,
+      eaInvited: data.me.eaInvited,
     })
   } catch (e) {
     currentUserInfo$.next(null)

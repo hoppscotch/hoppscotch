@@ -17,9 +17,12 @@
 import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
+import { registerApolloAuthUpdate } from "~/helpers/apollo"
 
 export default {
   beforeMount() {
+    registerApolloAuthUpdate()
+
     let color = localStorage.getItem("THEME_COLOR") || "green"
     document.documentElement.setAttribute("data-accent", color)
   },

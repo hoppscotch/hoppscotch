@@ -350,6 +350,8 @@ export default class TeamCollectionAdapter {
     if (!req) return
 
     Object.assign(req, requestUpdate)
+
+    this.collections$.next(tree)
   }
 
   /**
@@ -466,12 +468,10 @@ export default class TeamCollectionAdapter {
         },
       })
       .subscribe(({ data }) => {
-        console.log("from adapter")
-
         this.updateRequest({
           id: data.teamRequestUpdated.id,
           collectionID: data.teamRequestUpdated.collectionID,
-          request: data.teamRequestUpdated.request,
+          request: JSON.parse(data.teamRequestUpdated.request),
           title: data.teamRequestUpdated.title,
         })
       })

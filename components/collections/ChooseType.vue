@@ -2,7 +2,11 @@
   <div v-if="show">
     <SmartTabs styles="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
       <SmartTab :id="'my-collections'" :label="'My Collections'" :selected="true"> </SmartTab>
-      <SmartTab :id="'team-collections'" :label="'Team Collections'">
+      <SmartTab
+        :id="'team-collections'"
+        :label="'Team Collections'"
+        v-if="currentUser && currentUser.eaInvited"
+      >
         <ul>
           <li>
             <span class="select-wrapper">
@@ -32,10 +36,16 @@
 
 <script>
 import gql from "graphql-tag"
+import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 
 export default {
   props: {
     show: Boolean,
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUserInfo$,
+    }
   },
   apollo: {
     myTeams: {

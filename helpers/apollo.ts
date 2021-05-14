@@ -5,29 +5,14 @@ import { fb } from "./fb"
 import { getMainDefinition } from "@apollo/client/utilities"
 
 /**
- * Stores the current authentication token
- *
- * The token stored here is the Firebase Auth token.
- * If null, no token is passed (no user signed in)
- */
-let authToken: string | null = null
-
-/*
- * Updates the token value on Firebase ID Token changes
- */
-fb.idToken$.subscribe((newToken) => {
-  authToken = newToken
-})
-
-/**
  * Injects auth token if available
  */
 const authLink = setContext((_, { headers }) => {
-  if (authToken) {
+  if (fb.idToken) {
     return {
       headers: {
         ...headers,
-        authorization: `Bearer ${authToken}`,
+        authorization: `Bearer ${fb.idToken}`,
       },
     }
   } else {
@@ -53,11 +38,12 @@ const wsLink = new WebSocketLink({
     reconnect: true,
     lazy: true,
     connectionParams: () => {
-      console.log("WS Authorization")
-      console.log(authToken)
-
-      return {
-        authorization: `Bearer ${authToken}`,
+      if (fb.idToken) {
+        return {}
+      } else {
+        return {
+          authorization: `Bearer ${fb.idToken}`,
+        }
       }
     },
   },

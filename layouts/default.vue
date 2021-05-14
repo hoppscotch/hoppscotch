@@ -14,9 +14,9 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
+import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 
 export default {
   beforeMount() {
@@ -62,6 +62,8 @@ export default {
     }
 
     setupLocalPersistence()
+
+    initUserInfo()
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

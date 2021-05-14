@@ -13,6 +13,7 @@
     <CollectionsChooseType
       :collectionsType="collectionsType"
       :show="showTeamCollections"
+      :doc="doc"
       @update-collection-type="updateCollectionType"
       @update-selected-team="updateSelectedTeam"
     />
@@ -108,7 +109,8 @@
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @update-team-collections="updateTeamCollections"
-            @select-collection="$emit('use-collection', index)"
+            @select-collection="$emit('use-collection', collection)"
+            @unselect-collection="$emit('remove-collection', collection)"
             @select-folder="
               $emit('select-folder', {
                 folderName:
@@ -128,11 +130,10 @@
                 picked = $event.id
               }
             "
-            @unselect-collection="$emit('remove-collection', collection)"
             @expand-collection="expandCollection"
             @remove-collection="removeCollection"
             @remove-request="removeRequest"
-            :picked="picked"
+            :picked="picked.toString()"
           />
         </li>
       </ul>

@@ -5,7 +5,7 @@
       <SmartTab
         :id="'team-collections'"
         :label="'Team Collections'"
-        v-if="currentUser && currentUser.eaInvited"
+        v-if="currentUser && currentUser.eaInvited && !doc"
       >
         <ul>
           <li>
@@ -40,6 +40,7 @@ import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 
 export default {
   props: {
+    doc: Boolean,
     show: Boolean,
   },
   subscriptions() {

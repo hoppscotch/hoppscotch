@@ -32,13 +32,12 @@
             class="icon"
             @click="exitTeam"
             v-close-popover
-            :disabled="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
+            :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
           >
             <i class="material-icons">remove</i>
             <div
               v-tooltip.left="{
-                content:
-                  team.myRole === 'OWNER' && team.ownersCount == 1 ? null : $t('disable_exit'),
+                content: team.myRole === 'OWNER' && team.ownersCount == 1 ? $t('disable_exit') : '',
               }"
             >
               <span>{{ $t("exit") }}</span>

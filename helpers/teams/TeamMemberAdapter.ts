@@ -12,7 +12,6 @@ interface TeamsTeamMember {
 }
 
 export default class TeamMemberAdapter {
-
   members$: BehaviorSubject<TeamsTeamMember[]>
 
   private teamMemberAdded$: ZenObservable.Subscription | null
@@ -21,7 +20,7 @@ export default class TeamMemberAdapter {
 
   constructor(private teamID: string | null) {
     this.members$ = new BehaviorSubject<TeamsTeamMember[]>([])
-    
+
     this.teamMemberAdded$ = null
     this.teamMemberUpdated$ = null
     this.teamMemberRemoved$ = null
@@ -66,72 +65,76 @@ export default class TeamMemberAdapter {
       variables: {
         teamID: this.teamID,
       },
-    });
+    })
 
     this.members$.next(data.team.members)
   }
 
   private registerSubscriptions() {
-    this.teamMemberAdded$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamMemberAdded($teamID: String!) {
-          teamMemberAdded(teamID: $teamID) {
-            user {
-              uid
-              email
+    this.teamMemberAdded$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamMemberAdded($teamID: String!) {
+            teamMemberAdded(teamID: $teamID) {
+              user {
+                uid
+                email
+              }
+              role
             }
-            role
           }
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.members$.next([...this.members$.value, data.teamMemberAdded])
-    })
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        this.members$.next([...this.members$.value, data.teamMemberAdded])
+      })
 
-    this.teamMemberRemoved$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamMemberRemoved($teamID: String!) {
-          teamMemberRemoved(teamID: $teamID)
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      this.members$.next(
-        this.members$.value.filter(
-          el => el.user.uid !== data.teamMemberRemoved
+    this.teamMemberRemoved$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamMemberRemoved($teamID: String!) {
+            teamMemberRemoved(teamID: $teamID)
+          }
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        console.log(data)
+
+        this.members$.next(
+          this.members$.value.filter((el) => el.user.uid !== data.teamMemberRemoved)
         )
-      )
-    })
+      })
 
-    this.teamMemberUpdated$ = apolloClient.subscribe({
-      query: gql`
-        subscription TeamMemberUpdated($teamID: String!) {
-          teamMemberUpdated(teamID: $teamID) {
-            user {
-              uid
-              email
+    this.teamMemberUpdated$ = apolloClient
+      .subscribe({
+        query: gql`
+          subscription TeamMemberUpdated($teamID: String!) {
+            teamMemberUpdated(teamID: $teamID) {
+              user {
+                uid
+                email
+              }
+              role
             }
-            role
           }
-        }
-      `,
-      variables: {
-        teamID: this.teamID
-      }
-    }).subscribe(({ data }) => {
-      const list = cloneDeep(this.members$.value)
-      const obj = list.find(
-        el => el.user.uid === data.teamMemberUpdated.user.uid
-      )
+        `,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+      .subscribe(({ data }) => {
+        const list = cloneDeep(this.members$.value)
+        const obj = list.find((el) => el.user.uid === data.teamMemberUpdated.user.uid)
 
-      if (!obj) return
+        if (!obj) return
 
-      Object.assign(obj, data.teamMemberUpdated)
-    })
+        Object.assign(obj, data.teamMemberUpdated)
+      })
   }
 }

@@ -93,7 +93,7 @@
           class="flex ml-8 border-l border-brdColor"
         >
           <CollectionsTeamsRequest
-            :request="JSON.parse(request.request)"
+            :request="request.request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"

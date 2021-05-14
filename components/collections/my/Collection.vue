@@ -12,7 +12,9 @@
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-        <i v-if="picked === collectionIndex" class="text-green-400 material-icons">check_circle</i>
+        <i v-if="picked === collectionIndex.toString()" class="text-green-400 material-icons"
+          >check_circle</i
+        >
         <i v-else class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
       </button>
@@ -92,7 +94,7 @@
               })
             "
             @remove-request="removeRequest"
-            :picked="picked"
+            :picked="picked.toString()"
           />
         </li>
       </ul>

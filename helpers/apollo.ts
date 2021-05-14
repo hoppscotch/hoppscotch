@@ -50,12 +50,8 @@ const wsLink = new WebSocketLink({
     reconnect: true,
     lazy: true,
     connectionParams: () => {
-      if (authToken) {
-        return {}
-      } else {
-        return {
-          authorization: `Bearer ${authToken}`,
-        }
+      return {
+        authorization: `Bearer ${authToken}`,
       }
     },
   },

@@ -1,5 +1,16 @@
 <template>
   <AppSection class="green" icon="history" :label="$t('teams')" ref="teams" no-legend>
+    <div class="flex flex-col">
+      <label>{{ $t("teams") }}</label>
+      <div v-if="fb.currentUser"></div>
+      <div v-else>
+        <label>{{ $t("login_with") }}</label>
+        <p>
+          <FirebaseLogin />
+        </p>
+      </div>
+    </div>
+
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <TeamsEdit
       :team="myTeams[0]"
@@ -53,6 +64,7 @@ ul {
 
 <script>
 import gql from "graphql-tag"
+import { fb } from "~/helpers/fb"
 
 export default {
   data() {
@@ -64,6 +76,7 @@ export default {
       editingteamID: "",
       me: {},
       myTeams: [],
+      fb,
     }
   },
   apollo: {

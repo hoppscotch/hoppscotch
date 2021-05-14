@@ -466,6 +466,8 @@ export default class TeamCollectionAdapter {
         },
       })
       .subscribe(({ data }) => {
+        console.log("from adapter")
+
         this.updateRequest({
           id: data.teamRequestUpdated.id,
           collectionID: data.teamRequestUpdated.collectionID,
@@ -526,7 +528,7 @@ export default class TeamCollectionAdapter {
         id: el.id,
         collectionID: collectionID,
         title: el.title,
-        request: el.request,
+        request: JSON.parse(el.request),
       }
     })
 

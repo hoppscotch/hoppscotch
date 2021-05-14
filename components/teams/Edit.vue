@@ -165,6 +165,7 @@
 <script>
 import * as team_utils from "~/helpers/teams/utils"
 import cloneDeep from "lodash/cloneDeep"
+import TeamMemberAdapter from "~/helpers/teams/TeamMemberAdapter"
 
 export default {
   props: {
@@ -177,21 +178,19 @@ export default {
       rename: null,
       doneButton: '<i class="material-icons">done</i>',
       members: [],
-      membersSubject: null,
-      membersSubscription: null,
       newMembers: [],
+      membersAdapter: new TeamMemberAdapter(null),
     }
+  },
+  mounted() {
+    this.membersAdapter.members$.subscribe((list) => {
+      console.log(list)
+      this.members = cloneDeep(list)
+    })
   },
   watch: {
     editingteamID(teamID) {
-      team_utils.getLiveTeamMembersList(this.$apollo, teamID).then((subject) => {
-        this.membersSubject = subject
-
-        this.membersSubscription = this.membersSubject.subscribe((memberList) => {
-          console.log(memberList)
-          this.members = cloneDeep(memberList)
-        })
-      })
+      this.membersAdapter.changeTeamID(teamID)
     },
   },
   computed: {

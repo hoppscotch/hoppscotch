@@ -99,7 +99,7 @@
             "
             @expand-collection="expandCollection"
             @remove-request="removeRequest"
-            :picked="picked"
+            :picked="picked.toString()"
           />
         </li>
       </ul>
@@ -110,7 +110,7 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsTeamsRequest
-            :request="JSON.parse(request.request)"
+            :request="request.request"
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"

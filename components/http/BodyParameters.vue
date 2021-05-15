@@ -19,7 +19,14 @@
     <ul
       v-for="(param, index) in bodyParams"
       :key="index"
-      class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+      class="
+        border-b border-dashed
+        divide-y
+        md:divide-x
+        border-brdColor
+        divide-dashed divide-brdColor
+        md:divide-y-0
+      "
       :class="{ 'border-t': index == 0 }"
     >
       <li>
@@ -60,7 +67,7 @@
         <li>
           <button
             class="icon"
-            @click="toggleActive(index,param)"
+            @click="toggleActive(index, param)"
             v-tooltip.bottom="{
               content: param.hasOwnProperty('active')
                 ? param.active
@@ -148,8 +155,10 @@ export default {
       this.$emit("set-route-query-state")
     },
     removeRequestBodyParam(index) {
-      const paramArr = this.$store.state.request.bodyParams
-        .filter((item, itemIndex) => itemIndex !== index && (item.hasOwnProperty("active") ? item.active == true : true))
+      const paramArr = this.$store.state.request.bodyParams.filter(
+        (item, itemIndex) =>
+          itemIndex !== index && (item.hasOwnProperty("active") ? item.active == true : true)
+      )
       this.setRawParams(paramArr)
       this.$emit("remove-request-body-param", index)
     },
@@ -174,44 +183,44 @@ export default {
         fileIndex,
       })
     },
-    updateBodyParams(event, index, type){
+    updateBodyParams(event, index, type) {
       this.$store.commit(type, {
         index,
         value: event.target.value,
       })
-      let paramArr = this.$store.state.request.bodyParams
-        .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
-        
-        this.setRawParams(paramArr)
-    },
-    toggleActive(index, param){
-      let paramArr = this.$store.state.request.bodyParams
-      .filter((item, itemIndex) => {
-          if(index === itemIndex){
-              return !param.active
-          } else {
-              return item.hasOwnProperty("active") ? item.active == true : true
-          }
-      })
-        
-      this.setRawParams(paramArr)
+      let paramArr = this.$store.state.request.bodyParams.filter((item) =>
+        item.hasOwnProperty("active") ? item.active == true : true
+      )
 
-      this.$store.commit('setActiveBodyParams', {
-        index,
-        value: param.hasOwnProperty('active') ? !param.active : false,
-      })
+      this.setRawParams(paramArr)
     },
-    setRawParams(filteredParamArr){
-      let rawParams = {}
-      filteredParamArr.forEach(_param=>{
-        rawParams={
-          ...rawParams,
-          [_param.key]:_param.value
+    toggleActive(index, param) {
+      let paramArr = this.$store.state.request.bodyParams.filter((item, itemIndex) => {
+        if (index === itemIndex) {
+          return !param.active
+        } else {
+          return item.hasOwnProperty("active") ? item.active == true : true
         }
       })
-      const rawParamsStr = JSON.stringify(rawParams,null,2)
+
+      this.setRawParams(paramArr)
+
+      this.$store.commit("setActiveBodyParams", {
+        index,
+        value: param.hasOwnProperty("active") ? !param.active : false,
+      })
+    },
+    setRawParams(filteredParamArr) {
+      let rawParams = {}
+      filteredParamArr.forEach((_param) => {
+        rawParams = {
+          ...rawParams,
+          [_param.key]: _param.value,
+        }
+      })
+      const rawParamsStr = JSON.stringify(rawParams, null, 2)
       this.$store.commit("setState", { value: rawParamsStr, attribute: "rawParams" })
-    }
+    },
   },
   computed: {
     contentType() {

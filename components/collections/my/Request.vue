@@ -14,7 +14,7 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+          <i v-if="isSelected" class="mx-3 text-green-400 material-icons">check_circle</i>
 
           <span v-else :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
           <span>{{ request.name }}</span>
@@ -104,7 +104,6 @@ export default {
         this.$emit("select", {
           picked: {
             pickedType: "my-request",
-
             collectionIndex: this.collectionIndex,
             folderPath: this.folderPath,
             folderName: this.folderName,

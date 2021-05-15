@@ -3,18 +3,20 @@ import { map } from "rxjs/operators"
 import assign from "lodash/assign"
 import clone from "lodash/clone"
 
-
-type Dispatch<StoreType, DispatchersType extends Dispatchers<StoreType>, K extends keyof DispatchersType> = {
-  dispatcher: K & string,
+type Dispatch<
+  StoreType,
+  DispatchersType extends Dispatchers<StoreType>,
+  K extends keyof DispatchersType
+> = {
+  dispatcher: K & string
   payload: any
 }
 
-export type Dispatchers<StoreType> = { 
-  [ key: string ]: (currentVal: StoreType, payload: any) => Partial<StoreType> 
+export type Dispatchers<StoreType> = {
+  [key: string]: (currentVal: StoreType, payload: any) => Partial<StoreType>
 }
 
 export default class DispatchingStore<StoreType, DispatchersType extends Dispatchers<StoreType>> {
-
   #state$: BehaviorSubject<StoreType>
   #dispatchers: Dispatchers<StoreType>
   #dispatches$: Subject<Dispatch<StoreType, DispatchersType, keyof DispatchersType>> = new Subject()
@@ -24,11 +26,8 @@ export default class DispatchingStore<StoreType, DispatchersType extends Dispatc
     this.#dispatchers = dispatchers
 
     this.#dispatches$
-      .pipe(
-        map(
-          ({ dispatcher, payload }) => this.#dispatchers[dispatcher](this.value, payload)
-        )
-      ).subscribe(val => {
+      .pipe(map(({ dispatcher, payload }) => this.#dispatchers[dispatcher](this.value, payload)))
+      .subscribe((val) => {
         const data = clone(this.value)
         assign(data, val)
 

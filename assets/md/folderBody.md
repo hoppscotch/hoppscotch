@@ -49,7 +49,7 @@
 {{/isParams}}
 
 {{#isAuth}}
-**Authentication Type**: {{{auth}}}  
+**Authentication Type**: {{{auth}}}
 {{/isAuth}}
 
 {{#bearerToken}}
@@ -57,7 +57,7 @@
 {{/bearerToken}}
 
 {{#isAuthBasic}}
-Username: `{{{httpUser}}}`  
+Username: `{{{httpUser}}}`
 Password: `{{{httpPassword}}}`
 {{/isAuthBasic}}
 

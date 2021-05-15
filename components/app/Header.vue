@@ -22,7 +22,18 @@
           href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
           target="_blank"
           rel="noopener"
-          class="inline-flex items-center px-4 py-2 mx-4 font-mono text-sm rounded-md bg-bgDarkColor hide-on-small-screen"
+          class="
+            inline-flex
+            items-center
+            px-4
+            py-2
+            mx-4
+            font-mono
+            text-sm
+            rounded-md
+            bg-bgDarkColor
+            hide-on-small-screen
+          "
         >
           Appwrite - Open-Source Backend as a Service
           <img class="w-8 ml-2" src="~assets/images/appwrite-icon.svg" alt="Appwrite" />
@@ -301,8 +312,7 @@ export default {
         navigator
           .share({
             title: "Hoppscotch",
-            text:
-              "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
+            text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
             url: "https://hoppscotch.io",
           })
           .then(() => {})

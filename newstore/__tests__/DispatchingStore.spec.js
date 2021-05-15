@@ -3,7 +3,6 @@ import isEqual from "lodash/isEqual"
 import DispatchingStore from "~/newstore/DispatchingStore"
 
 describe("DispatchingStore", () => {
-
   test("'subject$' property properly returns an BehaviorSubject", () => {
     const store = new DispatchingStore({}, {})
 
@@ -28,22 +27,25 @@ describe("DispatchingStore", () => {
     expect(() => {
       store.dispatch({
         dispatcher: "non-existent",
-        payload: {}
+        payload: {},
       })
     }).toThrow()
   })
 
   test("valid dispatcher calls run without throwing", () => {
-    const store = new DispatchingStore({}, {
-      testDispatcher(_currentValue, _payload) {
-        // Nothing here
+    const store = new DispatchingStore(
+      {},
+      {
+        testDispatcher(_currentValue, _payload) {
+          // Nothing here
+        },
       }
-    })
+    )
 
     expect(() => {
       store.dispatch({
         dispatcher: "testDispatcher",
-        payload: {}
+        payload: {},
       })
     }).not.toThrow()
   })
@@ -52,14 +54,17 @@ describe("DispatchingStore", () => {
     const dispatchFn = jest.fn().mockReturnValue({})
     const dontCallDispatchFn = jest.fn().mockReturnValue({})
 
-    const store = new DispatchingStore({}, {
-      testDispatcher: dispatchFn,
-      dontCallDispatcher: dontCallDispatchFn
-    })
+    const store = new DispatchingStore(
+      {},
+      {
+        testDispatcher: dispatchFn,
+        dontCallDispatcher: dontCallDispatchFn,
+      }
+    )
 
     store.dispatch({
       dispatcher: "testDispatcher",
-      payload: {}
+      payload: {},
     })
 
     expect(dispatchFn).toHaveBeenCalledTimes(1)
@@ -73,17 +78,17 @@ describe("DispatchingStore", () => {
     const testDispatchFn = jest.fn().mockReturnValue({})
 
     const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn
+      testDispatcher: testDispatchFn,
     })
 
     store.dispatch({
       dispatcher: "testDispatcher",
-      payload: testPayload
+      payload: testPayload,
     })
-    
+
     expect(testDispatchFn).toHaveBeenCalledWith(testInitValue, testPayload)
   })
-  
+
   test("dispatcher returns are used to update the store correctly", () => {
     const testInitValue = { name: "bob" }
     const testDispatchReturnVal = { name: "alice" }
@@ -91,12 +96,12 @@ describe("DispatchingStore", () => {
     const testDispatchFn = jest.fn().mockReturnValue(testDispatchReturnVal)
 
     const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn
+      testDispatcher: testDispatchFn,
     })
 
     store.dispatch({
       dispatcher: "testDispatcher",
-      payload: {}         // Payload doesn't matter because the function is mocked
+      payload: {}, // Payload doesn't matter because the function is mocked
     })
 
     expect(store.value).toEqual(testDispatchReturnVal)
@@ -109,47 +114,47 @@ describe("DispatchingStore", () => {
     const testDispatchFn = jest.fn().mockReturnValue(testDispatchReturnVal)
 
     const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn
+      testDispatcher: testDispatchFn,
     })
 
     store.dispatch({
       dispatcher: "testDispatcher",
-      payload: {}
+      payload: {},
     })
-    
+
     expect(store.value).toEqual({
       name: "bob",
-      age: 25
+      age: 25,
     })
   })
 
-  test("emits the current store value to the new subscribers", done => {
+  test("emits the current store value to the new subscribers", (done) => {
     const testInitValue = { name: "bob" }
 
     const testDispatchFn = jest.fn().mockReturnValue({})
 
     const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn 
+      testDispatcher: testDispatchFn,
     })
 
-    store.subject$.subscribe(value => {
+    store.subject$.subscribe((value) => {
       if (value === testInitValue) {
         done()
       }
     })
   })
 
-  test("emits the dispatched store value to the subscribers", done => {
+  test("emits the dispatched store value to the subscribers", (done) => {
     const testInitValue = { name: "bob" }
     const testDispatchReturnVal = { age: 25 }
 
     const testDispatchFn = jest.fn().mockReturnValue(testDispatchReturnVal)
 
     const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn 
+      testDispatcher: testDispatchFn,
     })
 
-    store.subject$.subscribe(value => {
+    store.subject$.subscribe((value) => {
       if (isEqual(value, { name: "bob", age: 25 })) {
         done()
       }
@@ -157,7 +162,7 @@ describe("DispatchingStore", () => {
 
     store.dispatch({
       dispatcher: "testDispatcher",
-      payload: {} 
+      payload: {},
     })
   })
 
@@ -168,10 +173,10 @@ describe("DispatchingStore", () => {
     const testDispatchFn = jest.fn().mockReturnValue({})
 
     const store = new DispatchingStore(testInitValue, {
-      testDispatcher: testDispatchFn 
+      testDispatcher: testDispatchFn,
     })
 
-    store.dispatches$.subscribe(value => {
+    store.dispatches$.subscribe((value) => {
       if (isEqual(value, { dispatcher: "testDispatcher", payload: testPayload })) {
         done()
       }
@@ -179,7 +184,7 @@ describe("DispatchingStore", () => {
 
     store.dispatch({
       dispatcher: "testDispatcher",
-      payload: {} 
+      payload: {},
     })
   })
 })

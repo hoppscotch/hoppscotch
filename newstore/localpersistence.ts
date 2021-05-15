@@ -24,12 +24,10 @@ function setupSettingsPersistence() {
   if (settingsData) {
     bulkApplySettings(settingsData)
   }
-  
 
-  settingsStore.subject$
-    .subscribe(settings => {
-      window.localStorage.setItem("settings", JSON.stringify(settings))
-    })
+  settingsStore.subject$.subscribe((settings) => {
+    window.localStorage.setItem("settings", JSON.stringify(settings))
+  })
 }
 
 export function setupLocalPersistence() {

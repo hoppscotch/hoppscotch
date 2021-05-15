@@ -183,7 +183,6 @@ export default {
         this.$emit("select", {
           picked: {
             pickedType: "teams-collection",
-
             collectionID: this.collection.id,
           },
         })
@@ -193,7 +192,6 @@ export default {
         this.$emit("select", {
           picked: {
             pickedType: "teams-collection",
-
             collectionID: this.collection.id,
           },
         })

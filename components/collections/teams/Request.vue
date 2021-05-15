@@ -7,9 +7,9 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <i v-if="isSelected" class="material-icons"> check </i>
+          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
 
-          <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+          <span v-else :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>
@@ -102,7 +102,6 @@ export default {
             requestID: this.requestIndex,
           },
         })
-      else this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     removeRequest() {
       this.$emit("remove-request", {

@@ -67,6 +67,7 @@
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
+            :picked="picked"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"

@@ -2,13 +2,13 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t(mode) }}</h3>
+        <h3 class="title">Export</h3>
         <div>
           <button
             class="tooltip-target icon"
             v-if="mode != 'import_export'"
             @click="mode = 'import_export'"
-            v-tooltip.left="$t('back')"
+            v-tooltip.left="'Back'"
           >
             <i class="material-icons">arrow_left</i>
           </button>
@@ -152,7 +152,7 @@
       <div v-if="mode == 'export_as_json'">
         <textarea v-model="collectionJson" rows="8" readonly></textarea>
         <div class="row-wrapper">
-          <span>
+          <span class="m-2">
             <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
               {{ $t("export") }}
             </button>
@@ -287,7 +287,10 @@ export default {
               this.failedImport()
             })
         } else {
-          this.$store.commit("postwoman/replaceCollections", collections)
+          this.$store.commit("postwoman/replaceCollections", {
+            data: collections,
+            flag: "rest",
+          })
           this.fileImported()
           this.syncToFBCollections()
         }
@@ -329,7 +332,7 @@ export default {
               this.failedImport()
             })
         } else {
-          this.$store.commit("postwoman/importCollections", collections)
+          this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
           this.syncToFBCollections()
           this.fileImported()
         }

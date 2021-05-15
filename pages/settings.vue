@@ -297,14 +297,16 @@ export default Vue.extend({
     },
     syncCollections(): void {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-          "collectionsGraphql"
-        )
+        if (this.$store.state.postwoman.collections)
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+            "collections"
+          )
+        if (this.$store.state.postwoman.collectionsGraphql)
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
+          )
       }
     },
     syncEnvironments(): void {

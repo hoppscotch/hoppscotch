@@ -126,6 +126,8 @@
 </template>
 
 <script>
+import * as team_utils from "~/helpers/teams/utils"
+
 export default {
   name: "folder",
   props: {

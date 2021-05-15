@@ -12,13 +12,7 @@
     </div>
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
-      <input
-        type="text"
-        id="selectLabel"
-        v-model="name"
-        :placeholder="folder.name"
-        @keyup.enter="editFolder"
-      />
+      <input type="text" id="selectLabel" v-model="name" @keyup.enter="editFolder" />
     </div>
     <div slot="footer">
       <div class="row-wrapper">

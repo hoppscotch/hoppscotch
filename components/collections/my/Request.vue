@@ -14,10 +14,9 @@
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
 
-          <i v-if="isSelected" class="material-icons"> check </i>
-
+          <span v-else :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>

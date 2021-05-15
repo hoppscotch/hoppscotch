@@ -89,8 +89,6 @@
             alt="OSS Capital"
           />
         </a>
-      </div>
-      <div class="contributors">
         <a
           href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
           target="_blank"
@@ -102,8 +100,9 @@
             alt="Appwrite"
           />
         </a>
-      </div>
-      <div class="contributors">
+        <a href="https://pipedream.com/?ref=hoppscotch" target="_blank" rel="noopener">
+          <img style="max-width: 100px" src="~assets/images/pipedream.png" alt="pipedream" />
+        </a>
         <a
           href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
           target="_blank"
@@ -115,8 +114,6 @@
             alt="Paw"
           />
         </a>
-      </div>
-      <div class="contributors">
         <a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
           <img
             style="max-height: 50px"
@@ -124,30 +121,12 @@
             alt="Simplescraper"
           />
         </a>
-      </div>
-      <div class="contributors">
         <a href="https://tyk.io?ref=hoppscotch" target="_blank" rel="noopener">
           <img
             style="max-width: 320px"
             src="~assets/images/Tyk-side-project-logo-tagline-blk.png"
             alt="Tyk Banner"
           />
-        </a>
-      </div>
-      <div class="contributors">
-        <a
-          target="_blank"
-          rel="noopener"
-          href="https://opencollective.com/hoppscotch/organization/0/website"
-        >
-          <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
-        </a>
-        <a
-          target="_blank"
-          rel="noopener"
-          href="https://opencollective.com/hoppscotch/organization/1/website"
-        >
-          <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
         </a>
       </div>
     </div>
@@ -171,8 +150,10 @@
 .contributors {
   @apply flex;
   @apply items-center;
-  @apply flex-nowrap;
+  @apply flex-wrap;
   @apply overflow-auto;
   @apply m-2;
+  @apply space-x-2;
+  @apply space-y-2;
 }
 </style>

@@ -546,10 +546,6 @@
             <SmartTab :id="'notes'" :label="$t('notes')">
               <HttpNotes />
             </SmartTab>
-
-            <SmartTab :id="'teams'" :label="'Teams'">
-              <Teams />
-            </SmartTab>
           </SmartTabs>
         </section>
       </aside>

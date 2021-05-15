@@ -33,7 +33,19 @@
           </div>
         </li>
       </ul>
-      <ul v-for="(member, index) in members" :key="`new-${index}`">
+      <ul
+        v-for="(member, index) in members"
+        :key="`new-${index}`"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-brdColor
+          divide-dashed divide-brdColor
+          md:divide-y-0
+        "
+        :class="{ 'border-t': index == 0 }"
+      >
         <li>
           <input
             :placeholder="$t('email')"
@@ -84,7 +96,18 @@
           </li>
         </div>
       </ul>
-      <ul v-for="(member, index) in newMembers" :key="index">
+      <ul
+        v-for="(member, index) in newMembers"
+        :key="index"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-brdColor
+          divide-dashed divide-brdColor
+          md:divide-y-0
+        "
+      >
         <li>
           <input
             :placeholder="$t('email')"

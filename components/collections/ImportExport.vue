@@ -10,7 +10,7 @@
             @click="mode = 'import_export'"
             v-tooltip.left="'Back'"
           >
-            <i class="material-icons">arrow_left</i>
+            <i class="material-icons">arrow_back</i>
           </button>
           <v-popover v-if="mode == 'import_export' && collectionsType.type == 'my-collections'">
             <button class="tooltip-target icon" v-tooltip.left="$t('more')">
@@ -142,7 +142,7 @@
           </select>
         </span>
         <button
-          class="icon primary"
+          class="m-2 icon primary"
           :disabled="mySelectedCollectionID == undefined"
           @click="importFromMyCollections"
         >

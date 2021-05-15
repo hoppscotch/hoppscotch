@@ -52,7 +52,7 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul v-if="folder.folders && folder.folders.length" class="flex-col">
+      <ul class="flex-col">
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="subFolder.name"

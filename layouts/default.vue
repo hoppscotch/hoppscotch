@@ -16,9 +16,13 @@
 <script>
 import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
+import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
+import { registerApolloAuthUpdate } from "~/helpers/apollo"
 
 export default {
   beforeMount() {
+    registerApolloAuthUpdate()
+
     let color = localStorage.getItem("THEME_COLOR") || "green"
     document.documentElement.setAttribute("data-accent", color)
   },
@@ -37,6 +41,7 @@ export default {
       "%cContribute: https://github.com/hoppscotch/hoppscotch",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
+
     const workbox = await window.$workbox
     if (workbox) {
       workbox.addEventListener("installed", (event) => {
@@ -60,6 +65,8 @@ export default {
     }
 
     setupLocalPersistence()
+
+    initUserInfo()
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

@@ -1,25 +1,24 @@
 <template>
   <div>
-    <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
-      draggable="true"
-      @dragstart="dragStart"
-      @dragover.stop
-      @dragleave="dragging = false"
-      @dragend="dragging = false"
-    >
+    <div class="transition duration-150 ease-in-out row-wrapper">
       <div>
         <button
           class="icon"
           @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+
+          <span v-else :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover>
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+      <v-popover v-if="!saveRequest">
+        <button
+          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+          class="tooltip-target icon"
+          v-tooltip="$t('more')"
+        >
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
@@ -60,17 +59,17 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-
 export default {
   props: {
     request: Object,
     collectionIndex: Number,
     folderIndex: Number,
     folderName: String,
-    requestIndex: Number,
+    requestIndex: [Number, String],
     doc: Boolean,
+    saveRequest: Boolean,
+    collectionsType: Object,
+    picked: Object,
   },
   data() {
     return {
@@ -85,42 +84,31 @@ export default {
       confirmRemove: false,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "teams-request" &&
+        this.picked.requestID === this.requestIndex
+      )
+    },
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     selectRequest() {
-      this.$store.commit("postwoman/selectRequest", { request: this.request })
-    },
-    dragStart({ dataTransfer }) {
-      this.dragging = !this.dragging
-      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
-      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
-      dataTransfer.setData("oldFolderName", this.$props.folderName)
-      dataTransfer.setData("requestIndex", this.$props.requestIndex)
+      if (this.$props.saveRequest)
+        this.$emit("select", {
+          picked: {
+            pickedType: "teams-request",
+            requestID: this.requestIndex,
+          },
+        })
     },
     removeRequest() {
-      this.$store.commit("postwoman/removeRequest", {
+      this.$emit("remove-request", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         requestIndex: this.$props.requestIndex,
-        flag: "rest",
       })
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-      })
-      this.confirmRemove = false
-      this.syncCollections()
     },
     getRequestLabelColor(method) {
       return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default

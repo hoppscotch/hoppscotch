@@ -117,6 +117,7 @@ export default {
       this.tabs.forEach((tab) => {
         tab.isActive = tab.id == id
       })
+      this.$emit("tab-changed", id)
     },
   },
 }

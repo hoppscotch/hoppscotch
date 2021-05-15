@@ -13,11 +13,12 @@
         <button class="icon" @click="toggleShowChildren">
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-          <i class="material-icons">folder_open</i>
-          <span>{{ folder.name }}</span>
+          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+          <i v-else class="material-icons">folder_open</i>
+          <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!saveRequest">
         <button class="tooltip-target icon" v-tooltip.left="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
@@ -52,21 +53,27 @@
       </v-popover>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul v-if="folder.folders && folder.folders.length" class="flex-col">
+      <ul class="flex-col">
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="subFolder.name"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsFolder
+          <CollectionsMyFolder
             :folder="subFolder"
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
+            :picked="picked"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @update-team-collections="$emit('update-team-collections')"
+            @select="$emit('select', $event)"
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -76,14 +83,20 @@
           :key="index"
           class="flex ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
+          <CollectionsMyRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
             :request-index="index"
+            :folder-path="folderPath"
             :doc="doc"
+            :picked="picked"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -121,19 +134,33 @@ export default {
     collectionIndex: Number,
     folderPath: String,
     doc: Boolean,
+    saveRequest: Boolean,
     isFiltered: Boolean,
+    collectionsType: Object,
+    picked: Object,
   },
   data() {
     return {
       showChildren: false,
       dragging: false,
       confirmRemove: false,
+      prevCursor: "",
+      cursor: "",
     }
   },
   subscriptions() {
     return {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
+  },
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "my-folder" &&
+        this.picked.folderPath === this.folderPath
+      )
+    },
   },
   methods: {
     syncCollections() {
@@ -145,6 +172,16 @@ export default {
       }
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select", {
+          picked: {
+            pickedType: "my-folder",
+
+            collectionIndex: this.collectionIndex,
+            folderName: this.folder.name,
+            folderPath: this.folderPath,
+          },
+        })
       this.showChildren = !this.showChildren
     },
     removeFolder() {
@@ -178,6 +215,13 @@ export default {
         flag,
       })
       this.syncCollections()
+    },
+    removeRequest({ collectionIndex, folderName, requestIndex }) {
+      this.$emit("remove-request", {
+        collectionIndex,
+        folderName,
+        requestIndex,
+      })
     },
   },
 }

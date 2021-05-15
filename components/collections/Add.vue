@@ -37,9 +37,6 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-
 export default {
   props: {
     show: Boolean,
@@ -49,31 +46,9 @@ export default {
       name: undefined,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     addNewCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
-        return
-      }
-      this.$store.commit("postwoman/addNewCollection", {
-        name: this.$data.name,
-        flag: "rest",
-      })
-      this.$emit("hide-modal")
-      this.syncCollections()
+      this.$emit("submit", this.name)
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -8,8 +8,6 @@ let authToken: String | null = null
 
 export function registerApolloAuthUpdate() {
   fb.idToken$.subscribe((token: String | null) => {
-    console.log(token, "from sub")
-
     authToken = token
   })
 }
@@ -18,8 +16,6 @@ export function registerApolloAuthUpdate() {
  * Injects auth token if available
  */
 const authLink = setContext((_, { headers }) => {
-  console.log(authToken)
-
   if (authToken) {
     return {
       headers: {

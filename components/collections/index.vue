@@ -281,9 +281,6 @@ export default {
     document.addEventListener("keydown", this._keyListener.bind(this))
 
     this.$subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
-      console.log("new tree!")
-      console.log(colls)
-
       this.teamCollectionsNew = cloneDeep(colls)
     })
   },
@@ -564,7 +561,6 @@ export default {
       }
     },
     expandCollection(collectionID) {
-      console.log(collectionID)
       this.teamCollectionAdapter.expandCollection(collectionID)
     },
     removeCollection({ collectionsType, collectionIndex, collectionID }) {
@@ -597,7 +593,6 @@ export default {
               this.$toast.success(this.$t("deleted"), {
                 icon: "delete",
               })
-              console.log(data)
             })
             .catch((error) => {
               // Error

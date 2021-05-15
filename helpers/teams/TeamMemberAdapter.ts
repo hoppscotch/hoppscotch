@@ -104,8 +104,6 @@ export default class TeamMemberAdapter {
         },
       })
       .subscribe(({ data }) => {
-        console.log(data)
-
         this.members$.next(
           this.members$.value.filter((el) => el.user.uid !== data.teamMemberRemoved)
         )

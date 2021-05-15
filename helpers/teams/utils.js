@@ -52,7 +52,6 @@ export async function getLiveTeamMembersList(apollo, teamID) {
       },
     })
     .subscribe(({ data }) => {
-      console.log(data)
       subject.next([...subject.value, data.teamMemberAdded])
     })
 

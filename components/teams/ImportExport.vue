@@ -111,7 +111,6 @@ export default {
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
-      this.syncToFBTeams()
     },
     importFromJSON() {
       let reader = new FileReader()
@@ -125,7 +124,6 @@ export default {
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
-      this.syncToFBTeams()
     },
     importFromPostwoman(teams) {
       let confirmation = this.$t("file_imported")
@@ -159,9 +157,6 @@ export default {
     },
     syncTeams() {
       this.fileImported()
-    },
-    syncToFBTeams() {
-      console.log("syncToFBTeams")
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

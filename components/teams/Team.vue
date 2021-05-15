@@ -73,7 +73,6 @@ export default {
   methods: {
     deleteTeam() {
       if (!confirm("Are you sure you want to remove this team?")) return
-      console.log("deleteTeam", this.teamID)
       // Call to the graphql mutation
       team_utils
         .deleteTeam(this.$apollo, this.teamID)
@@ -82,7 +81,6 @@ export default {
           this.$toast.success(this.$t("new_team_created"), {
             icon: "done",
           })
-          console.log(data)
         })
         .catch((error) => {
           // Error
@@ -94,7 +92,6 @@ export default {
     },
     exitTeam() {
       if (!confirm("Are you sure you want to exit this team?")) return
-      console.log("leaveTeam", this.teamID)
       team_utils
         .exitTeam(this.$apollo, this.teamID)
         .then((data) => {
@@ -102,7 +99,6 @@ export default {
           this.$toast.success(this.$t("team_exited"), {
             icon: "done",
           })
-          console.log(data)
         })
         .catch((error) => {
           // Error

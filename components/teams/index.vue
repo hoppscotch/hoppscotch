@@ -135,17 +135,13 @@ export default {
       this.showModalImportExport = shouldDisplay
     },
     editTeam(team, teamID) {
-      console.log("editTeamStart", team)
       this.editingTeam = team
       this.editingteamID = team.id
       this.displayModalEdit(true)
-      this.syncTeams()
     },
     resetSelectedData() {
-      console.log("resetSelectedData")
-    },
-    syncTeams() {
-      console.log("syncTeams")
+      this.$data.editingTeam = undefined
+      this.$data.editingteamID = undefined
     },
   },
   beforeDestroy() {

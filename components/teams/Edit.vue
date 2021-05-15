@@ -184,7 +184,6 @@ export default {
   },
   mounted() {
     this.membersAdapter.members$.subscribe((list) => {
-      console.log(list)
       this.members = cloneDeep(list)
     })
   },
@@ -208,13 +207,11 @@ export default {
   },
   methods: {
     updateRole(id, role) {
-      console.log(this.members, id)
       this.members[id].role = role
     },
     addTeamMember() {
       let value = { key: "", value: "" }
       this.newMembers.push(value)
-      console.log("addTeamMember")
     },
     removeExistingTeamMember(userID) {
       team_utils
@@ -236,7 +233,6 @@ export default {
     },
     removeTeamMember(index) {
       this.newMembers.splice(index, 1)
-      console.log("removeTeamMember")
     },
     validateEmail(emailID) {
       if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(emailID)) {
@@ -249,7 +245,6 @@ export default {
         this.$toast.error(this.$t("string_length_insufficient"), {
           icon: "error",
         })
-        console.log("String length less than 6")
         return
       }
       this.$data.newMembers.forEach((element) => {
@@ -257,7 +252,6 @@ export default {
           this.$toast.error(this.$t("invalid_emailID_format"), {
             icon: "error",
           })
-          console.log("Email id format invalid")
           return
         }
       })

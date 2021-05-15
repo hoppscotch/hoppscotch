@@ -56,7 +56,6 @@ export default {
   },
   methods: {
     addNewTeam() {
-      console.log("addNewTeam start")
       // We save the user input in case of an error
       const name = this.name
       // We clear it early to give the UI a snappy feel
@@ -65,7 +64,6 @@ export default {
         this.$toast.error(this.$t("string_length_insufficient"), {
           icon: "error",
         })
-        console.log("String length less than 6")
         return
       }
       // Call to the graphql mutation
@@ -74,7 +72,6 @@ export default {
         .then((data) => {
           // Result
           this.hideModal()
-          console.log(data)
         })
         .catch((error) => {
           // Error

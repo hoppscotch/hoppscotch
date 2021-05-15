@@ -181,7 +181,6 @@ export default {
             this.$toast.success(this.$t("deleted"), {
               icon: "delete",
             })
-            console.log(data)
             this.$emit("update-team-collections")
             this.confirmRemove = false
           })

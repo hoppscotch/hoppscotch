@@ -44,12 +44,10 @@ export const currentUserInfo$ = new BehaviorSubject<UserInfo | null>(null)
  */
 export async function initUserInfo() {
   await updateUserInfo()
-  console.log("updated")
 
   fb.idToken$.subscribe((token) => {
     if (token) {
       updateUserInfo()
-      console.log(token, "updateUserInfo")
     } else {
       currentUserInfo$.next(null)
     }
@@ -74,8 +72,6 @@ async function updateUserInfo() {
         }
       `,
     })
-
-    console.log(data)
 
     currentUserInfo$.next({
       uid: data.me.uid,

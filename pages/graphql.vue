@@ -595,9 +595,9 @@ export default {
       }
       this.showSaveRequestModal = true
     },
-    useSelectedEnvironment(event) {
-      console.log("use selected environment")
-    },
+    // useSelectedEnvironment(event) {
+    //   console.log("use selected environment")
+    // },
     handleUseHistory(entry) {
       this.url = entry.url
       this.headers = entry.headers

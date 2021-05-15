@@ -369,7 +369,6 @@ export default {
           this.collectionsType.selectedTeam.id
         )
       }
-      console.log(this.collectionJson)
       return this.collectionJson
     },
     exportJSON() {

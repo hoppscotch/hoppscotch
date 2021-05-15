@@ -4,10 +4,14 @@
       <i class="material-icons">folder</i>
       {{ collection.name || $t("none") }}
     </h2>
-    <span class="folder" v-for="(folder, index) in collection.folders" :key="index">
+    <span
+      class="folder"
+      v-for="(folder, index) in collection.folders"
+      :key="`sub-collection-${index}`"
+    >
       <DocsFolder :folder="folder" />
     </span>
-    <div v-for="(request, index) in collection.requests" :key="index">
+    <div v-for="(request, index) in collection.requests" :key="`request-${index}`">
       <DocsRequest :request="request" />
     </div>
   </div>

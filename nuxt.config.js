@@ -93,6 +93,7 @@ export default {
     "~/plugins/vuex-persist",
     "~/plugins/v-tooltip",
     "~/plugins/vue-rx",
+    "~/plugins/vue-apollo",
     { src: "~/plugins/web-worker", ssr: false },
   ],
 
@@ -130,7 +131,6 @@ export default {
     // https://github.com/nuxt-community/sitemap-module
     "@nuxtjs/sitemap",
   ],
-
   // PWA module configuration (https://pwa.nuxtjs.org/setup)
   pwa: {
     meta: {

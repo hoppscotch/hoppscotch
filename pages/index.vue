@@ -546,6 +546,10 @@
             <SmartTab :id="'notes'" :label="$t('notes')">
               <HttpNotes />
             </SmartTab>
+
+            <SmartTab :id="'teams'" :label="'Teams'">
+              <Teams />
+            </SmartTab>
           </SmartTabs>
         </section>
       </aside>
@@ -1810,12 +1814,6 @@ export default {
       setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
     },
     saveRequest() {
-      if (!this.checkCollections()) {
-        this.$toast.error(this.$t("create_collection"), {
-          icon: "error",
-        })
-        return
-      }
       let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
         url: decodeURI(urlAndPath.url),

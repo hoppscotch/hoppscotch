@@ -17,7 +17,7 @@
         id="selectLabel"
         v-model="requestUpdateData.name"
         @keyup.enter="saveRequest"
-        :placeholder="request.name"
+        :placeholder="placeholderReqName"
       />
     </div>
     <div slot="footer">
@@ -37,17 +37,10 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-
 export default {
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folderIndex: Number,
-    folderName: String,
-    request: Object,
-    requestIndex: Number,
+    placeholderReqName: String,
   },
   data() {
     return {
@@ -56,37 +49,9 @@ export default {
       },
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     saveRequest() {
-      const requestUpdated = {
-        ...this.$props.request,
-        name: this.$data.requestUpdateData.name || this.$props.request.name,
-      }
-
-      this.$store.commit("postwoman/editRequest", {
-        requestCollectionIndex: this.$props.collectionIndex,
-        requestFolderName: this.$props.folderName,
-        requestFolderIndex: this.$props.folderIndex,
-        requestNew: requestUpdated,
-        requestIndex: this.$props.requestIndex,
-        flag: "rest",
-      })
-
-      this.hideModal()
-      this.syncCollections()
+      this.$emit("submit", this.requestUpdateData)
     },
     hideModal() {
       this.$emit("hide-modal")

@@ -76,7 +76,7 @@
               </div>
             </div>
             <div>
-              <span v-for="(collection, index) in this.items" :key="index">
+              <span v-for="(collection, index) in this.items" :key="`collection-${index}`">
                 <DocsCollection :collection="collection" />
               </span>
             </div>

@@ -1,5 +1,9 @@
 <template>
   <div class="page">
+    <div v-if="currentUser && currentUser.eaInvited">
+      <Teams />
+    </div>
+
     <AppSection :label="$t('account')" ref="account" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
@@ -198,6 +202,7 @@ import {
   defaultSettings,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
+import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 
 import Vue from "vue"
 
@@ -239,6 +244,9 @@ export default Vue.extend({
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
+
+      // Teams feature flag
+      currentUser: currentUserInfo$,
     }
   },
   watch: {
@@ -289,14 +297,16 @@ export default Vue.extend({
     },
     syncCollections(): void {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-          "collectionsGraphql"
-        )
+        if (this.$store.state.postwoman.collections)
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
+            "collections"
+          )
+        if (this.$store.state.postwoman.collectionsGraphql)
+          fb.writeCollections(
+            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            "collectionsGraphql"
+          )
       }
     },
     syncEnvironments(): void {

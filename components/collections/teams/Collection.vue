@@ -1,19 +1,14 @@
 <template>
   <div>
-    <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
-      @dragover.prevent
-      @drop.prevent="dropEvent"
-      @dragover="dragging = true"
-      @drop="dragging = false"
-      @dragleave="dragging = false"
-      @dragend="dragging = false"
-    >
+    <div class="transition duration-150 ease-in-out row-wrapper">
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-        <i class="material-icons">folder</i>
-        <span>{{ collection.name }}</span>
+
+        <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+
+        <i v-else class="material-icons">folder</i>
+        <span>{{ collection.title }}</span>
       </button>
       <div>
         <button
@@ -32,13 +27,18 @@
         >
           <i class="material-icons">check_box</i>
         </button>
-        <v-popover>
-          <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+        <v-popover v-if="!saveRequest">
+          <button
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            class="tooltip-target icon"
+            v-tooltip.left="$t('more')"
+          >
             <i class="material-icons">more_vert</i>
           </button>
           <template slot="popover">
             <div>
               <button
+                v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
                 class="icon"
                 @click="$emit('add-folder', { folder: collection, path: `${collectionIndex}` })"
                 v-close-popover
@@ -48,13 +48,23 @@
               </button>
             </div>
             <div>
-              <button class="icon" @click="$emit('edit-collection')" v-close-popover>
+              <button
+                v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+                class="icon"
+                @click="$emit('edit-collection')"
+                v-close-popover
+              >
                 <i class="material-icons">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
             <div>
-              <button class="icon" @click="confirmRemove = true" v-close-popover>
+              <button
+                v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+                class="icon"
+                @click="confirmRemove = true"
+                v-close-popover
+              >
                 <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
@@ -66,20 +76,26 @@
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">
         <li
-          v-for="(folder, index) in collection.folders"
-          :key="folder.name"
+          v-for="(folder, index) in collection.children"
+          :key="folder.title"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsFolder
+          <CollectionsTeamsFolder
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
             :collection-index="collectionIndex"
             :doc="doc"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
             :isFiltered="isFiltered"
+            :picked="picked"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
+            @expand-collection="expandCollection"
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
@@ -89,20 +105,28 @@
           :key="index"
           class="ml-8 border-l border-brdColor"
         >
-          <CollectionsRequest
-            :request="request"
+          <CollectionsTeamsRequest
+            :request="request.request"
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
-            :request-index="index"
+            :request-index="request.id"
             :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
+            :saveRequest="saveRequest"
+            :collectionsType="collectionsType"
+            :picked="picked"
+            @edit-request="editRequest($event)"
+            @select="$emit('select', $event)"
+            @remove-request="removeRequest"
           />
         </li>
       </ul>
       <ul>
         <li
-          v-if="collection.folders.length === 0 && collection.requests.length === 0"
+          v-if="
+            (collection.children == undefined || collection.children.length === 0) &&
+            (collection.requests == undefined || collection.requests.length === 0)
+          "
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">
@@ -121,9 +145,6 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-
 export default {
   props: {
     collectionIndex: Number,
@@ -131,6 +152,9 @@ export default {
     doc: Boolean,
     isFiltered: Boolean,
     selected: Boolean,
+    saveRequest: Boolean,
+    collectionsType: Object,
+    picked: Object,
   },
   data() {
     return {
@@ -138,53 +162,62 @@ export default {
       dragging: false,
       selectedFolder: {},
       confirmRemove: false,
+      prevCursor: "",
+      cursor: "",
+      pageNo: 0,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "teams-collection" &&
+        this.picked.collectionID === this.collection.id
+      )
+    },
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
+    editRequest(event) {
+      this.$emit("edit-request", event)
+      if (this.$props.saveRequest)
+        this.$emit("select", {
+          picked: {
+            pickedType: "teams-collection",
+
+            collectionID: this.collection.id,
+          },
+        })
     },
     toggleShowChildren() {
+      if (this.$props.saveRequest)
+        this.$emit("select", {
+          picked: {
+            pickedType: "teams-collection",
+
+            collectionID: this.collection.id,
+          },
+        })
+
+      this.$emit("expand-collection", this.collection.id)
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      this.$store.commit("postwoman/removeCollection", {
+      this.$emit("remove-collection", {
+        collectionsType: this.collectionsType,
         collectionIndex: this.collectionIndex,
-        flag: "rest",
+        collectionID: this.collection.id,
       })
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-      })
-      this.syncCollections()
+      this.confirmRemove = false
     },
-    dropEvent({ dataTransfer }) {
-      this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
-      const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: -1,
-        newFolderName: this.$props.collection.name,
-        oldFolderIndex,
-        oldFolderName,
+    expandCollection(collectionID) {
+      this.$emit("expand-collection", collectionID)
+    },
+    removeRequest({ collectionIndex, folderName, requestIndex }) {
+      this.$emit("remove-request", {
+        collectionIndex,
+        folderName,
         requestIndex,
-        flag,
       })
-      this.syncCollections()
     },
   },
 }

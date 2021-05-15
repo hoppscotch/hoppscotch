@@ -288,6 +288,12 @@ export default {
         file: "ko-KR.json",
       },
       {
+        code: "in",
+        name: "हिंदी",
+        iso: "in-IN",
+        file: "in-IN.json",
+      },
+      {
         code: "bn",
         name: "Bengali",
         iso: "bn-BD",
@@ -310,6 +316,12 @@ export default {
         name: "Dutch",
         iso: "nl-BE",
         file: "nl-BE.json",
+      },
+      {
+        code: "nb",
+        name: "Norwegian (Bokmål)",
+        iso: "nb-NO",
+        file: "nb-NO.json",
       },
     ],
     defaultLocale: "en",

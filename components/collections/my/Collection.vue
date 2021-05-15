@@ -12,9 +12,9 @@
       <button class="icon" @click="toggleShowChildren">
         <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
         <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-        <i v-if="picked === collectionIndex.toString()" class="text-green-400 material-icons"
-          >check_circle</i
-        >
+
+        <i v-if="isSelected" class="text-green-400 material-icons"> check_circle </i>
+
         <i v-else class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
       </button>
@@ -82,19 +82,12 @@
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
             :isFiltered="isFiltered"
+            :picked="picked"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
-            @select-folder="
-              $emit('select-folder', {
-                name: folder.name + '/' + $event.name,
-                id: $event.id,
-                reqIdx: $event.reqIdx,
-                folderPath: $event.folderPath,
-              })
-            "
+            @select="$emit('select', $event)"
             @remove-request="removeRequest"
-            :picked="picked.toString()"
           />
         </li>
       </ul>
@@ -109,18 +102,14 @@
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
+            :folder-path="collectionIndex.toString()"
             :request-index="index"
             :doc="doc"
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
+            :picked="picked"
             @edit-request="editRequest($event)"
-            @select-request="
-              $emit('select-folder', {
-                name: $event.name,
-                id: collection.id,
-                reqIdx: $event.idx,
-              })
-            "
+            @select="$emit('select', $event)"
             @remove-request="removeRequest"
           />
         </li>
@@ -151,7 +140,6 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
-import gql from "graphql-tag"
 
 export default {
   props: {
@@ -162,7 +150,7 @@ export default {
     selected: Boolean,
     saveRequest: Boolean,
     collectionsType: Object,
-    picked: { default: "", type: String },
+    picked: Object,
   },
   data() {
     return {
@@ -180,15 +168,18 @@ export default {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "my-collection" &&
+        this.picked.collectionIndex === this.collectionIndex
+      )
+    },
+  },
   methods: {
     editRequest(event) {
       this.$emit("edit-request", event)
-      if (this.$props.saveRequest)
-        this.$emit("select-folder", {
-          name: this.$data.collection.name,
-          id: this.$data.collection.id,
-          reqIdx: event.requestIndex,
-        })
     },
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
@@ -200,7 +191,13 @@ export default {
     },
     toggleShowChildren() {
       if (this.$props.saveRequest)
-        this.$emit("select-folder", { name: "", id: this.$props.collection.id, reqIdx: "" })
+        this.$emit("select", {
+          picked: {
+            pickedType: "my-collection",
+
+            collectionIndex: this.collectionIndex,
+          },
+        })
 
       this.$emit("expand-collection", this.collection.id)
       this.showChildren = !this.showChildren

@@ -15,6 +15,9 @@
           v-tooltip="!doc ? $t('use_request') : ''"
         >
           <span :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+
+          <i v-if="isSelected" class="material-icons"> check </i>
+
           <span>{{ request.name }}</span>
         </button>
       </div>
@@ -60,10 +63,6 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-import * as team_utils from "~/helpers/teams/utils"
-
 export default {
   props: {
     request: Object,
@@ -74,6 +73,18 @@ export default {
     doc: Boolean,
     saveRequest: Boolean,
     collectionsType: Object,
+    folderPath: String,
+    picked: Object,
+  },
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+      )
+    },
   },
   data() {
     return {
@@ -91,9 +102,15 @@ export default {
   methods: {
     selectRequest() {
       if (this.$props.saveRequest)
-        this.$emit("select-request", {
-          idx: this.$props.requestIndex,
-          name: this.$props.request.name,
+        this.$emit("select", {
+          picked: {
+            pickedType: "my-request",
+
+            collectionIndex: this.collectionIndex,
+            folderPath: this.folderPath,
+            folderName: this.folderName,
+            requestIndex: this.requestIndex,
+          },
         })
       else this.$store.commit("postwoman/selectRequest", { request: this.request })
     },

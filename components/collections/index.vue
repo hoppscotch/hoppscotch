@@ -104,6 +104,7 @@
             :selected="selected.some((coll) => coll == collection)"
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
+            :picked="picked"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
@@ -130,10 +131,10 @@
                 picked = $event.id
               }
             "
+            @select="$emit('select', $event)"
             @expand-collection="expandCollection"
             @remove-collection="removeCollection"
             @remove-request="removeRequest"
-            :picked="picked.toString()"
           />
         </li>
       </ul>
@@ -163,6 +164,7 @@ export default {
     doc: Boolean,
     selected: { type: Array, default: () => [] },
     saveRequest: Boolean,
+    picked: Object,
   },
   data() {
     return {
@@ -187,7 +189,6 @@ export default {
       },
       teamCollectionAdapter: new TeamCollectionAdapter(null),
       teamCollectionsNew: [],
-      picked: "",
     }
   },
   subscriptions() {
@@ -292,9 +293,11 @@ export default {
     },
     updateSelectedTeam(newSelectedTeam) {
       this.collectionsType.selectedTeam = newSelectedTeam
+      this.$emit("update-coll-type", this.collectionsType)
     },
     updateCollectionType(newCollectionType) {
       this.collectionsType.type = newCollectionType
+      this.$emit("update-coll-type", this.collectionsType)
     },
     // Intented to be called by the CollectionAdd modal submit event
     addNewRootCollection(name) {

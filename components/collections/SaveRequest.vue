@@ -16,8 +16,10 @@
       <label for="selectLabel">Select location</label>
       <!-- <input readonly :value="path" /> -->
       <Collections
-        @select-folder="changeRequestDetails($event)"
+        @select="onSelect"
         @update-collection="collectionsType.type = $event"
+        @update-coll-type="onUpdateCollType"
+        :picked="picked"
         :saveRequest="true"
       />
     </div>
@@ -61,6 +63,7 @@ export default {
         type: "my-collections",
         selectedTeam: undefined,
       },
+      picked: null,
     }
   },
   subscriptions() {
@@ -123,14 +126,11 @@ export default {
     },
   },
   methods: {
-    changeRequestDetails(data) {
-      this.$data.requestData.folderName = data.folderName.split("/").slice(-2)[0]
-      this.$data.path = data.folderName
-      this.$data.requestData.collectionIndex = data.collectionIndex
-      this.$data.requestData.requestIndex = data.reqIdx
-      if (data.collectionsType.type !== "my-collections") {
-        this.$data.collectionsType = data.collectionsType
-      }
+    onUpdateCollType(newCollType) {
+      this.collectionsType = newCollType
+    },
+    onSelect({ picked }) {
+      this.picked = picked
     },
     syncCollections() {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
@@ -141,8 +141,7 @@ export default {
       }
     },
     saveRequestAs() {
-      const userDidntSpecifyCollection = this.$data.requestData.collectionIndex === undefined
-      if (userDidntSpecifyCollection) {
+      if (this.picked == null) {
         this.$toast.error(this.$t("select_collection"), {
           icon: "error",
         })
@@ -161,32 +160,56 @@ export default {
         collection: this.$data.requestData.collectionIndex,
       }
 
-      if (this.$data.collectionsType.type === "my-collections") {
+      if (this.picked.pickedType === "my-request") {
         this.$store.commit("postwoman/saveRequestAs", {
           request: requestUpdated,
-          collectionIndex: this.$data.requestData.collectionIndex,
-          folderName: this.$data.requestData.folderName,
-          requestIndex: this.$data.requestData.requestIndex,
+          collectionIndex: this.picked.collectionIndex,
+          folderName: this.picked.folderName,
+          requestIndex: this.picked.requestIndex,
           flag: "rest",
         })
+
         this.syncCollections()
-      } else {
-        if (this.$data.requestData.requestIndex) {
-          team_utils.overwriteRequestTeams(
-            this.$apollo,
-            JSON.stringify(requestUpdated),
-            requestUpdated.name,
-            this.$data.requestData.requestIndex
-          )
-        } else {
-          team_utils.saveRequestAsTeams(
-            this.$apollo,
-            JSON.stringify(requestUpdated),
-            requestUpdated.name,
-            this.$data.collectionsType.selectedTeam.id,
-            this.$data.requestData.collectionIndex
-          )
-        }
+      } else if (this.picked.pickedType === "my-folder") {
+        this.$store.commit("postwoman/saveRequestAs", {
+          request: requestUpdated,
+          collectionIndex: this.picked.collectionIndex,
+          folderName: this.picked.folderName,
+          flag: "rest",
+        })
+
+        this.syncCollections()
+      } else if (this.picked.pickedType === "my-collection") {
+        this.$store.commit("postwoman/saveRequestAs", {
+          request: requestUpdated,
+          collectionIndex: this.picked.collectionIndex,
+          flag: "rest",
+        })
+
+        this.syncCollections()
+      } else if (this.picked.pickedType === "teams-request") {
+        team_utils.overwriteRequestTeams(
+          this.$apollo,
+          JSON.stringify(requestUpdated),
+          requestUpdated.name,
+          this.picked.requestID
+        )
+      } else if (this.picked.pickedType === "teams-folder") {
+        team_utils.saveRequestAsTeams(
+          this.$apollo,
+          JSON.stringify(requestUpdated),
+          requestUpdated.name,
+          this.collectionsType.selectedTeam.id,
+          this.picked.folderID
+        )
+      } else if (this.picked.pickedType === "teams-collection") {
+        team_utils.saveRequestAsTeams(
+          this.$apollo,
+          JSON.stringify(requestUpdated),
+          requestUpdated.name,
+          this.collectionsType.selectedTeam.id,
+          this.picked.collectionID
+        )
       }
       this.$toast.success("Requested added", {
         icon: "done",

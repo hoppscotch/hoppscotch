@@ -5,7 +5,9 @@
         <button class="icon" @click="toggleShowChildren">
           <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
           <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-          <i v-if="picked === folder.id" class="text-green-400 material-icons">check_circle</i>
+
+          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+
           <i v-else class="material-icons">folder_open</i>
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
@@ -70,17 +72,12 @@
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
+            :picked="picked"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
             @update-team-collections="$emit('update-team-collections')"
-            @select-folder="
-              $emit('select-folder', {
-                name: subFolder.name + '/' + $event.name,
-                id: subFolder.id,
-                reqIdx: $event.reqIdx,
-              })
-            "
+            @select="$emit('select', $event)"
             @expand-collection="expandCollection"
             @remove-request="removeRequest"
           />
@@ -101,14 +98,9 @@
             :doc="doc"
             :saveRequest="saveRequest"
             :collectionsType="collectionsType"
+            :picked="picked"
             @edit-request="$emit('edit-request', $event)"
-            @select-request="
-              $emit('select-folder', {
-                name: $event.name,
-                id: folder.id,
-                reqIdx: $event.idx,
-              })
-            "
+            @select="$emit('select', $event)"
             @remove-request="removeRequest"
           />
         </li>
@@ -134,11 +126,6 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-import * as team_utils from "~/helpers/teams/utils"
-import gql from "graphql-tag"
-
 export default {
   name: "folder",
   props: {
@@ -150,7 +137,7 @@ export default {
     saveRequest: Boolean,
     isFiltered: Boolean,
     collectionsType: Object,
-    picked: { default: "", type: String },
+    picked: Object,
   },
   data() {
     return {
@@ -160,10 +147,25 @@ export default {
       cursor: "",
     }
   },
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "teams-folder" &&
+        this.picked.folderID === this.folder.id
+      )
+    },
+  },
   methods: {
     toggleShowChildren() {
       if (this.$props.saveRequest)
-        this.$emit("select-folder", { name: "", id: this.$props.folder.id, reqIdx: "" })
+        this.$emit("select", {
+          picked: {
+            pickedType: "teams-folder",
+
+            folderID: this.folder.id,
+          },
+        })
 
       this.$emit("expand-collection", this.$props.folder.id)
       this.showChildren = !this.showChildren

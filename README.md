@@ -549,6 +549,16 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 #### GitHub Sponsors
 
 <p align="center">
+<a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
+<img
+  width="100"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Simplescraper.png"
+	alt="Simplescraper"
+/>
+</a>
+</p>
+
+<p align="center">
 <a href="https://github.com/eldadfux" target="_blank" rel="noopener">
 <img
   width="64"

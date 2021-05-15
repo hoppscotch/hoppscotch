@@ -1,6 +1,7 @@
 export const RubyNetHttpCodeGen = {
   id: "ruby-net-http",
   name: "Ruby Net::HTTP",
+  language: "ruby",
   generator: ({
     url,
     pathName,

@@ -203,7 +203,6 @@ export default {
 
   // TailwindCSS module configuration (https://github.com/nuxt-community/tailwindcss-module)
   tailwindcss: {
-    jit: true,
     viewer: false,
   },
 

@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const JavascriptXhrCodegen = {
   id: "js-xhr",
   name: "JavaScript XHR",
+  language: "javascript",
   generator: ({
     auth,
     httpUser,

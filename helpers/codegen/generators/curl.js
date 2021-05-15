@@ -1,6 +1,7 @@
 export const CurlCodegen = {
   id: "curl",
   name: "cURL",
+  language: "sh",
   generator: ({
     url,
     pathName,

@@ -1,6 +1,7 @@
 export const ShellWgetCodegen = {
   id: "shell-wget",
   name: "Shell wget",
+  language: "sh",
   generator: ({
     url,
     pathName,

@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const NodejsUnirestCodegen = {
   id: "nodejs-unirest",
   name: "NodeJs Unirest",
+  language: "javascript",
   generator: ({
     url,
     pathName,

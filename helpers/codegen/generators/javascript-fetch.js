@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const JavascriptFetchCodegen = {
   id: "js-fetch",
   name: "JavaScript Fetch",
+  language: "javascript",
   generator: ({
     url,
     pathName,

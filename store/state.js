@@ -15,7 +15,7 @@ export default () => ({
     bodyParams: [],
     rawParams: "",
     rawInput: false,
-    requestType: "",
+    requestType: "curl",
     contentType: "",
   },
   gql: {

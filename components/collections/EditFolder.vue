@@ -12,13 +12,7 @@
     </div>
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
-      <input
-        type="text"
-        id="selectLabel"
-        v-model="name"
-        :placeholder="folder.name"
-        @keyup.enter="editFolder"
-      />
+      <input type="text" id="selectLabel" v-model="name" @keyup.enter="editFolder" />
     </div>
     <div slot="footer">
       <div class="row-wrapper">
@@ -37,45 +31,18 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-
 export default {
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folder: Object,
-    folderIndex: Number,
   },
   data() {
     return {
       name: undefined,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     editFolder() {
-      this.$store.commit("postwoman/editFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folder: { ...this.$props.folder, name: this.$data.name },
-        folderIndex: this.$props.folderIndex,
-        folderName: this.$props.folder.name,
-        flag: "rest",
-      })
-      this.hideModal()
-      this.syncCollections()
+      this.$emit("submit", this.name)
     },
     hideModal() {
       this.$emit("hide-modal")

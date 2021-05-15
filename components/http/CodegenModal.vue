@@ -11,7 +11,7 @@
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <label for="requestType">{{ $t("request_type") }}</label>
+      <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
         <v-popover>
           <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
@@ -46,15 +46,22 @@
           </button>
         </div>
       </div>
-      <textarea
-        id="generatedCode"
+      <SmartAceEditor
+        v-if="requestType"
+        :value="requestCode"
+        :lang="codegens.find((x) => x.id === requestType).language"
+        :options="{
+          maxLines: '10',
+          minLines: '10',
+          fontSize: '16px',
+          autoScrollEditorIntoView: true,
+          readOnly: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
+        styles="rounded-b-lg"
         ref="generatedCode"
-        name="generatedCode"
-        rows="8"
-        v-model="requestCode"
-        readonly
-        class="rounded-b-lg"
-      ></textarea>
+      />
     </div>
   </SmartModal>
 </template>
@@ -66,7 +73,7 @@ export default {
   props: {
     show: Boolean,
     requestCode: String,
-    requestTypeProp: { type: String, default: "" },
+    requestTypeProp: { type: String, default: "curl" },
   },
   data() {
     return {
@@ -97,7 +104,8 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      this.$refs.generatedCode.select()
+      this.$refs.generatedCode.editor.selectAll()
+      this.$refs.generatedCode.editor.focus()
       document.execCommand("copy")
       setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
     },

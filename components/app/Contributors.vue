@@ -117,6 +117,15 @@
         </a>
       </div>
       <div class="contributors">
+        <a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
+          <img
+            style="max-height: 50px"
+            src="~assets/images/Simplescraper_dark.png"
+            alt="Simplescraper"
+          />
+        </a>
+      </div>
+      <div class="contributors">
         <a href="https://tyk.io?ref=hoppscotch" target="_blank" rel="noopener">
           <img
             style="max-width: 320px"

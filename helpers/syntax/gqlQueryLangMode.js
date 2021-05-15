@@ -98,8 +98,9 @@ export function defineGQLLanguageMode(ace) {
     (aceRequire, exports) => {
       const oop = aceRequire("ace/lib/oop")
       const TextMode = aceRequire("ace/mode/text").Mode
-      const GQLQueryTextHighlightRules = aceRequire("ace/mode/gql-query-highlight")
-        .GQLQueryTextHighlightRules
+      const GQLQueryTextHighlightRules = aceRequire(
+        "ace/mode/gql-query-highlight"
+      ).GQLQueryTextHighlightRules
       const FoldMode = aceRequire("ace/mode/folding/cstyle").FoldMode
 
       const Mode = function () {

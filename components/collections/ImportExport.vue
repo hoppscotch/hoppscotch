@@ -2,9 +2,17 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
+        <h3 class="title">Export</h3>
         <div>
-          <v-popover>
+          <button
+            class="tooltip-target icon"
+            v-if="mode != 'import_export'"
+            @click="mode = 'import_export'"
+            v-tooltip.left="'Back'"
+          >
+            <i class="material-icons">arrow_left</i>
+          </button>
+          <v-popover v-if="mode == 'import_export' && collectionsType.type == 'my-collections'">
             <button class="tooltip-target icon" v-tooltip.left="$t('more')">
               <i class="material-icons">more_vert</i>
             </button>
@@ -45,13 +53,18 @@
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <div class="flex flex-col items-start p-2">
+      <div v-if="mode == 'import_export'" class="flex flex-col items-start p-2">
         <span
           v-tooltip="{
             content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
           }"
         >
-          <button :disabled="!fb.currentUser" class="icon" @click="syncCollections">
+          <button
+            :disabled="!fb.currentUser"
+            v-if="collectionsType.type == 'my-collections'"
+            class="icon"
+            @click="syncCollections"
+          >
             <i class="material-icons">folder_shared</i>
             <span>{{ $t("import_from_sync") }}</span>
           </button>
@@ -86,26 +99,65 @@
             accept="application/json"
           />
         </button>
+        <button
+          class="icon"
+          @click="mode = 'import_from_my_collections'"
+          v-tooltip="$t('replace_current')"
+          v-if="collectionsType.type == 'team-collections'"
+        >
+          <i class="material-icons">folder_special</i>
+          <span>{{ "Import from My Collections" }}</span>
+        </button>
+        <button
+          class="icon"
+          @click="
+            () => {
+              mode = 'export_as_json'
+              getJSONCollection()
+            }
+          "
+          v-tooltip="$t('show_code')"
+        >
+          <i class="material-icons">folder_special</i>
+          <span>{{ "Export As JSON" }}</span>
+        </button>
       </div>
-      <div v-if="showJsonCode" class="row-wrapper">
+      <div v-if="mode == 'import_from_my_collections'">
+        <span class="select-wrapper">
+          <select
+            type="text"
+            autofocus
+            @change="
+              ($event) => {
+                mySelectedCollectionID = $event.target.value
+              }
+            "
+          >
+            <option :key="undefined" :value="undefined" hidden disabled selected>
+              Select Collection
+            </option>
+            <option v-for="(collection, index) in myCollections" :key="index" :value="index">
+              {{ collection.name }}
+            </option>
+          </select>
+        </span>
+        <button
+          class="icon primary"
+          :disabled="mySelectedCollectionID == undefined"
+          @click="importFromMyCollections"
+        >
+          {{ $t("import") }}
+        </button>
+      </div>
+      <div v-if="mode == 'export_as_json'">
         <textarea v-model="collectionJson" rows="8" readonly></textarea>
-      </div>
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span>
-          <SmartToggle :on="showJsonCode" @change="showJsonCode = $event">
-            {{ $t("show_code") }}
-          </SmartToggle>
-        </span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
-            {{ $t("export") }}
-          </button>
-        </span>
+        <div class="row-wrapper">
+          <span class="m-2">
+            <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
+              {{ $t("export") }}
+            </button>
+          </span>
+        </div>
       </div>
     </div>
   </SmartModal>
@@ -114,23 +166,32 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import * as team_utils from "~/helpers/teams/utils"
 
 export default {
   data() {
     return {
       fb,
       showJsonCode: false,
+      mode: "import_export",
+      mySelectedCollectionID: undefined,
+      collectionJson: "",
     }
   },
   subscriptions() {
-    SYNC_COLLECTIONS: getSettingSubject("syncCollections")
+    return {
+      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+    }
   },
   props: {
     show: Boolean,
+    collectionsType: Object,
   },
   computed: {
-    collectionJson() {
-      return JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+    myCollections() {
+      return fb.currentUser !== null
+        ? fb.currentCollections
+        : this.$store.state.postwoman.collections
     },
   },
   methods: {
@@ -141,7 +202,7 @@ export default {
           {
             files: {
               "hoppscotch-collections.json": {
-                content: this.collectionJson,
+                content: this.getJSONCollection(),
               },
             },
           },
@@ -186,6 +247,8 @@ export default {
         })
     },
     hideModal() {
+      this.mode = "import_export"
+      this.mySelectedCollectionID = undefined
       this.$emit("hide-modal")
     },
     openDialogChooseFileToReplaceWith() {
@@ -208,11 +271,29 @@ export default {
           collections = [this.parsePostmanCollection(collections)]
         } else {
           this.failedImport()
-          return
         }
-        this.$store.commit("postwoman/replaceCollections", { data: collections, flag: "rest" })
-        this.fileImported()
-        this.syncToFBCollections()
+        if (this.collectionsType.type == "team-collections") {
+          team_utils
+            .replaceWithJSON(this.$apollo, collections, this.collectionsType.selectedTeam.id)
+            .then((status) => {
+              if (status) {
+                this.fileImported()
+              } else {
+                this.failedImport()
+              }
+            })
+            .catch((error) => {
+              console.log(error)
+              this.failedImport()
+            })
+        } else {
+          this.$store.commit("postwoman/replaceCollections", {
+            data: collections,
+            flag: "rest",
+          })
+          this.fileImported()
+          this.syncToFBCollections()
+        }
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.$refs.inputChooseFileToReplaceWith.value = ""
@@ -235,12 +316,60 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
-        this.fileImported()
-        this.syncToFBCollections()
+        if (this.collectionsType.type == "team-collections") {
+          team_utils
+            .importFromJSON(this.$apollo, collections, this.collectionsType.selectedTeam.id)
+            .then((status) => {
+              if (status) {
+                this.$emit("update-team-collections")
+                this.fileImported()
+              } else {
+                this.failedImport()
+              }
+            })
+            .catch((error) => {
+              console.log(error)
+              this.failedImport()
+            })
+        } else {
+          this.$store.commit("postwoman/importCollections", { data: collections, flag: "rest" })
+          this.syncToFBCollections()
+          this.fileImported()
+        }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
+    },
+    importFromMyCollections() {
+      team_utils
+        .importFromMyCollections(
+          this.$apollo,
+          this.mySelectedCollectionID,
+          this.collectionsType.selectedTeam.id
+        )
+        .then((success) => {
+          if (success) {
+            this.fileImported()
+            this.$emit("update-team-collections")
+          } else {
+            this.failedImport()
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+          this.failedImport()
+        })
+    },
+    async getJSONCollection() {
+      if (this.collectionsType.type == "my-collections") {
+        this.collectionJson = JSON.stringify(this.$store.state.postwoman.collections, null, 2)
+      } else {
+        this.collectionJson = await team_utils.exportAsJSON(
+          this.$apollo,
+          this.collectionsType.selectedTeam.id
+        )
+      }
+      return this.collectionJson
     },
     exportJSON() {
       let text = this.collectionJson

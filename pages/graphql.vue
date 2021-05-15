@@ -55,7 +55,14 @@
             <ul
               v-for="(header, index) in headers"
               :key="`${header.value}_${index}`"
-              class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+              class="
+                border-b border-dashed
+                divide-y
+                md:divide-x
+                border-brdColor
+                divide-dashed divide-brdColor
+                md:divide-y-0
+              "
               :class="{ 'border-t': index == 0 }"
             >
               <li>
@@ -595,9 +602,9 @@ export default {
       }
       this.showSaveRequestModal = true
     },
-    useSelectedEnvironment(event) {
-      console.log("use selected environment")
-    },
+    // useSelectedEnvironment(event) {
+    //   console.log("use selected environment")
+    // },
     handleUseHistory(entry) {
       this.url = entry.url
       this.headers = entry.headers

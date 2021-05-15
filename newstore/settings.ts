@@ -5,7 +5,6 @@ import type { Dispatchers } from "./DispatchingStore"
 import { Observable } from "rxjs"
 import type { KeysMatching } from "~/types/ts-utils"
 
-
 export const defaultSettings = {
   syncCollections: true,
   syncHistory: true,
@@ -21,8 +20,8 @@ export const defaultSettings = {
     auth: true,
     httpUser: true,
     httpPassword: true,
-    bearerToken: true
-  }
+    bearerToken: true,
+  },
 }
 
 export type SettingsType = typeof defaultSettings
@@ -44,7 +43,10 @@ const dispatchers: Dispatchers<SettingsType> = {
 
     return result
   },
-  applySetting<K extends keyof SettingsType>(_currentState: SettingsType, { settingKey, value }: { settingKey: K, value: SettingsType[K] }) {
+  applySetting<K extends keyof SettingsType>(
+    _currentState: SettingsType,
+    { settingKey, value }: { settingKey: K; value: SettingsType[K] }
+  ) {
     if (!validKeys.includes(settingKey)) {
       console.log(`Ignoring non-existent setting key '${settingKey}' assignment`)
       return {}
@@ -54,20 +56,21 @@ const dispatchers: Dispatchers<SettingsType> = {
     result[settingKey] = value
 
     return result
-  }
+  },
 }
-
 
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
 
-export function getSettingSubject<K extends keyof SettingsType>(settingKey: K): Observable<SettingsType[K]> {
+export function getSettingSubject<K extends keyof SettingsType>(
+  settingKey: K
+): Observable<SettingsType[K]> {
   return settingsStore.subject$.pipe(pluck(settingKey), distinctUntilChanged())
 }
 
 export function bulkApplySettings(settingsObj: Partial<SettingsType>) {
   settingsStore.dispatch({
     dispatcher: "bulkApplySettings",
-    payload: settingsObj
+    payload: settingsObj,
   })
 }
 
@@ -75,8 +78,8 @@ export function toggleSetting(settingKey: KeysMatching<SettingsType, boolean>) {
   settingsStore.dispatch({
     dispatcher: "toggleSetting",
     payload: {
-      settingKey
-    }
+      settingKey,
+    },
   })
 }
 
@@ -85,7 +88,7 @@ export function applySetting<K extends keyof SettingsType>(settingKey: K, value:
     dispatcher: "applySetting",
     payload: {
       settingKey,
-      value
-    }
+      value,
+    },
   })
 }

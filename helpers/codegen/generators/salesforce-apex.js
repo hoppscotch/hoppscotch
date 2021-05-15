@@ -1,6 +1,7 @@
 export const SalesforceApexCodegen = {
   id: "salesforce-apex",
   name: "Salesforce Apex",
+  language: "apex",
   generator: ({
     url,
     pathName,

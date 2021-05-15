@@ -1,6 +1,7 @@
 export const NodejsAxiosCodegen = {
   id: "nodejs-axios",
   name: "NodeJs Axios",
+  language: "javascript",
   generator: ({
     url,
     pathName,

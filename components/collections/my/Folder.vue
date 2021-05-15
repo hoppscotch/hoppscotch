@@ -176,7 +176,6 @@ export default {
         this.$emit("select", {
           picked: {
             pickedType: "my-folder",
-
             collectionIndex: this.collectionIndex,
             folderName: this.folder.name,
             folderPath: this.folderPath,

@@ -19,7 +19,14 @@
     <ul
       v-for="(param, index) in params"
       :key="index"
-      class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+      class="
+        border-b border-dashed
+        divide-y
+        md:divide-x
+        border-brdColor
+        divide-dashed divide-brdColor
+        md:divide-y-0
+      "
       :class="{ 'border-t': index == 0 }"
     >
       <li>

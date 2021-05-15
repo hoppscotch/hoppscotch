@@ -164,7 +164,6 @@ export default {
         this.$emit("select", {
           picked: {
             pickedType: "teams-folder",
-
             folderID: this.folder.id,
           },
         })

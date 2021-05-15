@@ -107,7 +107,7 @@ export default {
     request.bodyParams[index].value = value
   },
 
-  setBodyParams({request},{params}){
+  setBodyParams({ request }, { params }) {
     request.bodyParams = params
   },
 

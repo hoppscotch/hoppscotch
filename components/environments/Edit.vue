@@ -30,7 +30,14 @@
       <ul
         v-for="(variable, index) in this.editingEnvCopy.variables"
         :key="index"
-        class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-brdColor
+          divide-dashed divide-brdColor
+          md:divide-y-0
+        "
         :class="{ 'border-t': index == 0 }"
       >
         <li>
@@ -118,7 +125,7 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments")
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
     }
   },
   watch: {

@@ -176,9 +176,8 @@ export default {
           break
 
         case "Tab":
-          let activeSuggestion = this.suggestions[
-            this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
-          ]
+          let activeSuggestion =
+            this.suggestions[this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0]
 
           if (!activeSuggestion) {
             return

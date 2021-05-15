@@ -15,7 +15,20 @@
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
         v-tooltip="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
-        class="inline-flex items-center justify-center p-3 m-2 transition duration-150 ease-in-out bg-transparent rounded-full cursor-pointer hover:shadow-none"
+        class="
+          inline-flex
+          items-center
+          justify-center
+          p-3
+          m-2
+          transition
+          duration-150
+          ease-in-out
+          bg-transparent
+          rounded-full
+          cursor-pointer
+          hover:shadow-none
+        "
         :class="[`text-${color}-400`, { 'bg-actColor': color === active }]"
         @click="setActiveColor(color)"
       >

@@ -275,7 +275,13 @@ export default {
     this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false
+        this.showModalAdd =
+          this.showModalEdit =
+          this.showModalImportExport =
+          this.showModalAddFolder =
+          this.showModalEditFolder =
+          this.showModalEditRequest =
+            false
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
@@ -579,7 +585,7 @@ export default {
             .mutate({
               // Query
               mutation: gql`
-                mutation($collectionID: String!) {
+                mutation ($collectionID: String!) {
                   deleteCollection(collectionID: $collectionID)
                 }
               `,

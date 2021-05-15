@@ -194,7 +194,6 @@ export default {
         this.$emit("select", {
           picked: {
             pickedType: "my-collection",
-
             collectionIndex: this.collectionIndex,
           },
         })

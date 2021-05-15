@@ -124,7 +124,7 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments")
+      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
     }
   },
   props: {

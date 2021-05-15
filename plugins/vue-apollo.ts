@@ -1,12 +1,12 @@
 import Vue from "vue"
 import VueApollo from "vue-apollo"
-import { apolloClient } from "~/helpers/apollo";
+import { apolloClient } from "~/helpers/apollo"
 
 const vueApolloProvider = new VueApollo({
-  defaultClient: apolloClient as any
-});
+  defaultClient: apolloClient as any,
+})
 
-Vue.use(VueApollo);
+Vue.use(VueApollo)
 
 export default (ctx: any) => {
   const { app } = ctx

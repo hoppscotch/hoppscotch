@@ -17,7 +17,18 @@
       {{ gqlField.description }}
     </div>
     <div
-      class="inline-block px-4 py-2 my-2 text-sm font-bold text-black bg-yellow-200 rounded-lg field-deprecated"
+      class="
+        inline-block
+        px-4
+        py-2
+        my-2
+        text-sm
+        font-bold
+        text-black
+        bg-yellow-200
+        rounded-lg
+        field-deprecated
+      "
       v-if="gqlField.isDeprecated"
     >
       {{ $t("deprecated") }}

@@ -288,6 +288,12 @@ export default {
         file: "ko-KR.json",
       },
       {
+        code: "in",
+        name: "हिंदी",
+        iso: "in-IN",
+        file: "in-IN.json",
+      },
+      {
         code: "bn",
         name: "Bengali",
         iso: "bn-BD",

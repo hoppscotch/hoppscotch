@@ -43,7 +43,7 @@ export const currentUserInfo$ = new BehaviorSubject<UserInfo | null>(null)
  * Initializes the currenUserInfo$ view and sets up its update mechanism
  */
 export async function initUserInfo() {
-  await updateUserInfo()
+  if (fb.idToken) await updateUserInfo()
 
   fb.idToken$.subscribe((token) => {
     if (token) {

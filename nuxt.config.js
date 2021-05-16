@@ -1,5 +1,3 @@
-require("dotenv").config()
-
 // Common options
 export const options = {
   name: "Hoppscotch",

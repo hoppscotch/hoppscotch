@@ -176,7 +176,7 @@ export default {
 
   // Sitemap module configuration (https://github.com/nuxt-community/sitemap-module)
   sitemap: {
-    hostname: process.env.BASE_URL,
+    hostname: process.env.BASE_URL || "https://hoppscotch.io",
   },
 
   // Robots module configuration (https://github.com/nuxt-community/robots-module)

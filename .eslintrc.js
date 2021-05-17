@@ -6,12 +6,12 @@ module.exports = {
     jest: true,
   },
   parserOptions: {
-    parser: "@babel/eslint-parser",
     sourceType: "module",
     requireConfigFile: false,
   },
   extends: [
     "@nuxtjs",
+    "@nuxtjs/eslint-config-typescript",
     "prettier/prettier",
     "eslint:recommended",
     "plugin:vue/recommended",

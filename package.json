@@ -9,15 +9,18 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate --modern",
-    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(html|js|json|vue)\"",
+    "analyze": "npx nuxt build -a",
+    "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "lint:style": "stylelint **/*.{vue,css} --ignore-path .gitignore",
+    "lint": "npm run lint:js && npm run lint:style",
+    "lintfix": "eslint --ext .js,.vue --ignore-path .gitignore . --fix",
     "test": "jest",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "pre-commit": "lint-staged"
   },
-  "prettier": {
-    "trailingComma": "es5",
-    "semi": false,
-    "singleQuote": false,
-    "printWidth": 100
+  "lint-staged": {
+    "*.{js,vue}": "eslint",
+    "*.{css,vue}": "stylelint"
   },
   "dependencies": {
     "@apollo/client": "^3.3.18",
@@ -52,14 +55,18 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.2",
+    "@babel/eslint-parser": "^7.13.14",
     "@babel/preset-env": "^7.14.2",
     "@nuxt/types": "^2.15.6",
     "@nuxt/typescript-build": "^2.1.0",
     "@nuxtjs/color-mode": "^2.0.5",
     "@nuxtjs/dotenv": "^1.4.1",
+    "@nuxtjs/eslint-config": "^6.0.0",
+    "@nuxtjs/eslint-module": "^3.0.2",
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/google-fonts": "^1.3.0",
     "@nuxtjs/pwa": "^3.3.5",
+    "@nuxtjs/stylelint-module": "^4.0.0",
     "@nuxtjs/tailwindcss": "^4.1.2",
     "@testing-library/jest-dom": "^5.12.0",
     "@types/lodash": "^4.14.169",
@@ -67,49 +74,25 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.6.3",
     "eslint": "^7.26.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-nuxt": ">=2.0.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.9.0",
     "husky": "^6.0.0",
     "jest": "^26.6.3",
     "jest-serializer-vue": "^2.0.2",
+    "lint-staged": "^11.0.0",
     "postcss": "^8.2.15",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
     "raw-loader": "^4.0.2",
     "sass": "^1.32.13",
     "sass-loader": "^10.2.0",
+    "stylelint": "^13.12.0",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-standard": "^22.0.0",
     "ts-jest": "^26.5.6",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json",
-      "vue"
-    ],
-    "watchman": false,
-    "moduleNameMapper": {
-      ".+\\.(svg)\\?inline$": "<rootDir>/__mocks__/svgMock.js",
-      "^~/(.*)$": "<rootDir>/$1",
-      "^~~/(.*)$": "<rootDir>/$1"
-    },
-    "transform": {
-      "^.+\\.js$": "babel-jest",
-      ".*\\.(vue)$": "vue-jest"
-    },
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js"
-    ],
-    "snapshotSerializers": [
-      "jest-serializer-vue"
-    ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "<rootDir>/components/**/*.vue",
-      "<rootDir>/pages/*.vue"
-    ],
-    "testURL": "http://localhost/",
-    "preset": "ts-jest/presets/js-with-babel"
   }
 }

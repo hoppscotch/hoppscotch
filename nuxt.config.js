@@ -4,7 +4,8 @@ require("dotenv").config()
 export const options = {
   name: "Hoppscotch",
   shortDescription: "Open source API development ecosystem",
-  description: "Helps you create requests faster, saving precious time on development.",
+  description:
+    "Helps you create requests faster, saving precious time on development.",
   loading: {
     color: "var(--ac-color)",
     background: "var(--bg-color)",
@@ -106,6 +107,10 @@ export default {
   buildModules: [
     // https://github.com/nuxt-community/pwa-module
     "@nuxtjs/pwa",
+    // https://github.com/nuxt-community/eslint-module
+    "@nuxtjs/eslint-module",
+    // https://github.com/nuxt-community/stylelint-module
+    "@nuxtjs/stylelint-module",
     // https://github.com/nuxt-community/analytics-module
     "@nuxtjs/google-analytics",
     // https://github.com/nuxt-community/gtm-module
@@ -135,6 +140,7 @@ export default {
     // https://github.com/nuxt-community/sitemap-module
     "@nuxtjs/sitemap",
   ],
+
   // PWA module configuration (https://pwa.nuxtjs.org/setup)
   pwa: {
     meta: {
@@ -154,6 +160,13 @@ export default {
       start_url: "/?source=pwa",
       background_color: options.app.background,
     },
+  },
+
+  // ESLint module configuration (https://github.com/nuxt-community/eslint-module)
+  eslint: {
+    // fix: true,
+    // emitWarning: true,
+    // quiet: true,
   },
 
   // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)
@@ -373,7 +386,7 @@ export default {
         config.module.rules.push({
           test: /\.js$/,
           include: /(node_modules)/,
-          exclude: /(node_modules)\/(ace\-builds)|(@firebase)/,
+          exclude: /(node_modules)\/(ace-builds)|(@firebase)/,
           loader: "babel-loader",
           options: {
             plugins: [

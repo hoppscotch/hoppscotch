@@ -4,8 +4,8 @@
       <i class="material-icons">folder_open</i>
       {{ folder.name || $t("none") }}
     </h3>
-    <div v-for="(folder, index) in folder.folders" :key="index">
-      <DocsFolder :folder="folder" />
+    <div v-for="(subFolder, index) in folder.folders" :key="index">
+      <DocsFolder :folder="subFolder" />
     </div>
     <div v-for="(request, index) in folder.requests" :key="index">
       <DocsRequest :request="request" />
@@ -16,7 +16,7 @@
 <script>
 export default {
   props: {
-    folder: Object,
+    folder: { type: Object, default: () => {} },
   },
 }
 </script>
@@ -28,15 +28,12 @@ export default {
   @apply justify-center;
   @apply flex-1;
   @apply p-4;
+  @apply border-l;
+  @apply border-brdColor;
+  @apply mt-4;
 
   .material-icons {
     @apply mr-4;
   }
-}
-
-.folder {
-  @apply border-l;
-  @apply border-brdColor;
-  @apply mt-4;
 }
 </style>

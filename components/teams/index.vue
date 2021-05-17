@@ -19,11 +19,6 @@
       :editingteamID="editingteamID"
       @hide-modal="displayModalEdit(false)"
     />
-    <!-- <TeamsImportExport
-      :show="showModalImportExport"
-      :teams="myTeams"
-      @hide-modal="displayModalImportExport(false)"
-    /> -->
     <div class="row-wrapper">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
@@ -31,11 +26,6 @@
           <span>{{ $t("new") }}</span>
         </button>
       </div>
-      <!-- <div>
-        <button class="icon" @click="displayModalImportExport(true)">
-          {{ $t("import_export") }}
-        </button>
-      </div> -->
     </div>
     <p v-if="$apollo.queries.myTeams.loading" class="info">{{ $t("loading") }}</p>
     <p v-if="myTeams.length === 0" class="info">
@@ -69,7 +59,6 @@ import { fb } from "~/helpers/fb"
 export default {
   data() {
     return {
-      showModalImportExport: false,
       showModalAdd: false,
       showModalEdit: false,
       editingTeam: {},
@@ -113,15 +102,6 @@ export default {
       pollInterval: 10000,
     },
   },
-  async mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showModalImportExport = false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-  },
   methods: {
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
@@ -130,9 +110,6 @@ export default {
       this.showModalEdit = shouldDisplay
 
       if (!shouldDisplay) this.resetSelectedData()
-    },
-    displayModalImportExport(shouldDisplay) {
-      this.showModalImportExport = shouldDisplay
     },
     editTeam(team, teamID) {
       this.editingTeam = team

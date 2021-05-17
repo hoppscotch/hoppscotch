@@ -76,7 +76,7 @@
     "pretty-quick": "^3.1.0",
     "raw-loader": "^4.0.2",
     "sass": "^1.32.13",
-    "sass-loader": "^10.2.0",
+    "sass-loader": "^11.1.1",
     "ts-jest": "^26.5.6",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"

@@ -165,8 +165,8 @@ export default {
   // ESLint module configuration (https://github.com/nuxt-community/eslint-module)
   eslint: {
     // fix: true,
-    // emitWarning: true,
-    // quiet: true,
+    emitWarning: true,
+    quiet: true,
   },
 
   // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)

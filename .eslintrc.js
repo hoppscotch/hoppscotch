@@ -37,7 +37,9 @@ module.exports = {
     ],
     "vue/singleline-html-element-content-newline": "off",
     "vue/multiline-html-element-content-newline": "off",
-    "prettier/prettier": ["error", { semi: false }],
+    "prettier/prettier": ["warn", { semi: false }],
+    "import/no-named-as-default": "off",
+    "no-undef": "off",
   },
   globals: {
     $nuxt: true,

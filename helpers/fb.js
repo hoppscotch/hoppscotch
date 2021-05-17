@@ -83,7 +83,7 @@ export class FirebaseInstance {
         this.currentUser = user
 
         this.currentUser.providerData.forEach((profile) => {
-          let us = {
+          const us = {
             updatedOn: new Date(),
             provider: profile.providerId,
             name: profile.displayName,
@@ -222,7 +222,9 @@ export class FirebaseInstance {
   }
 
   async signInUserWithGithub() {
-    return await this.app.auth().signInWithPopup(this.authProviders.github().addScope("gist"))
+    return await this.app
+      .auth()
+      .signInWithPopup(this.authProviders.github().addScope("gist"))
   }
 
   async signInWithEmailAndPassword(email, password) {
@@ -251,7 +253,10 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").add(dt)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("feeds")
+        .add(dt)
     } catch (e) {
       console.error("error inserting", dt, e)
       throw e
@@ -260,7 +265,11 @@ export class FirebaseInstance {
 
   async deleteFeed(id) {
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").doc(id).delete()
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("feeds")
+        .doc(id)
+        .delete()
     } catch (e) {
       console.error("error deleting", id, e)
       throw e
@@ -293,7 +302,10 @@ export class FirebaseInstance {
     const hs = entry
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("history").add(hs)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("history")
+        .add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e
@@ -304,7 +316,10 @@ export class FirebaseInstance {
     const hs = entry
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("graphqlHistory").add(hs)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
+        .add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e
@@ -393,7 +408,11 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection(flag).doc("sync").set(cl)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection(flag)
+        .doc("sync")
+        .set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
 
@@ -435,11 +454,14 @@ export class FirebaseInstance {
         .update(us)
         .catch((e) => console.error("error updating", us, e))
     } catch (e) {
-      console.error("error updating", ev, e)
+      console.error("error updating", e)
 
       throw e
     }
   }
 }
 
-export const fb = new FirebaseInstance(firebase.initializeApp(firebaseConfig), authProviders)
+export const fb = new FirebaseInstance(
+  firebase.initializeApp(firebaseConfig),
+  authProviders
+)

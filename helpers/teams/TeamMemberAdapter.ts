@@ -1,9 +1,11 @@
 import { BehaviorSubject } from "rxjs"
-import { apolloClient } from "~/helpers/apollo"
 import gql from "graphql-tag"
 import cloneDeep from "lodash/cloneDeep"
+import { ApolloQueryResult } from "@apollo/client/core"
+import { apolloClient } from "~/helpers/apollo"
 
 interface TeamsTeamMember {
+  membershipID: string
   user: {
     uid: string
     email: string
@@ -48,26 +50,44 @@ export default class TeamMemberAdapter {
   }
 
   private async loadTeamMembers(): Promise<void> {
-    const { data } = await apolloClient.query({
-      query: gql`
-        query GetTeamMembers($teamID: String!) {
-          team(teamID: $teamID) {
-            members {
-              user {
-                uid
-                email
+    const result: TeamsTeamMember[] = []
+
+    let cursor: string | null = null
+    while (true) {
+      const response: ApolloQueryResult<any> = await apolloClient.query({
+        query: gql`
+          query GetTeamMembers($teamID: String!, $cursor: String) {
+            team(teamID: $teamID) {
+              members(cursor: $cursor) {
+                membershipID
+                user {
+                  uid
+                  email
+                }
+                role
               }
-              role
             }
           }
-        }
-      `,
-      variables: {
-        teamID: this.teamID,
-      },
-    })
+        `,
+        variables: {
+          teamID: this.teamID,
+          cursor,
+        },
+      })
+      
+      debugger
 
-    this.members$.next(data.team.members)
+      result.push(...response.data.team.members)
+
+      if ((response.data.team.members as any[]).length === 0) break
+      else {
+        cursor =
+          response.data.team.members[response.data.team.members.length - 1]
+            .membershipID
+      }
+    }
+
+    this.members$.next(result)
   }
 
   private registerSubscriptions() {
@@ -105,7 +125,9 @@ export default class TeamMemberAdapter {
       })
       .subscribe(({ data }) => {
         this.members$.next(
-          this.members$.value.filter((el) => el.user.uid !== data.teamMemberRemoved)
+          this.members$.value.filter(
+            (el) => el.user.uid !== data.teamMemberRemoved
+          )
         )
       })
 
@@ -128,7 +150,9 @@ export default class TeamMemberAdapter {
       })
       .subscribe(({ data }) => {
         const list = cloneDeep(this.members$.value)
-        const obj = list.find((el) => el.user.uid === data.teamMemberUpdated.user.uid)
+        const obj = list.find(
+          (el) => el.user.uid === data.teamMemberUpdated.user.uid
+        )
 
         if (!obj) return
 

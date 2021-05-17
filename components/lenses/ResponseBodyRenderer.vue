@@ -2,8 +2,8 @@
   <SmartTabs styles="m-4">
     <SmartTab
       v-for="(lens, index) in validLenses"
-      :key="lens.lensName"
       :id="lens.lensName"
+      :key="lens.lensName"
       :label="lens.lensName"
       :selected="index === 0"
     >
@@ -28,7 +28,7 @@ export default {
     ...getLensRenderers(),
   },
   props: {
-    response: {},
+    response: { type: Object, default: () => {} },
   },
   computed: {
     validLenses() {

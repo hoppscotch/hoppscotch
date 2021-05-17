@@ -1,44 +1,44 @@
+import { shallowMount } from "@vue/test-utils"
 import History from "../"
 import { fb } from "~/helpers/fb"
-import { shallowMount } from "@vue/test-utils"
 
 const restHistory = [
   {
-    id: "0",
+    id: 0,
     type: "rest",
   },
   {
-    id: "1",
+    id: 1,
     type: "rest",
   },
   {
-    id: "2",
+    id: 2,
     type: "rest",
   },
 ]
 
 const graphqlHistory = [
   {
-    id: "0",
+    id: 0,
     type: "graphql",
   },
   {
-    id: "1",
+    id: 1,
     type: "graphql",
   },
   {
-    id: "2",
+    id: 2,
     type: "graphql",
   },
 ]
 
-var localStorageMock = (function () {
-  var store = {
+const localStorageMock = (function () {
+  const store = {
     history: JSON.stringify(restHistory),
     graphqlHistory: JSON.stringify(graphqlHistory),
   }
   return {
-    getItem: function (key) {
+    getItem(key) {
       return store[key]
     },
     setItem: jest.fn(),
@@ -105,13 +105,13 @@ beforeEach(() => {
 })
 
 describe("Mount History", () => {
-  test("Mounts rest history without login", async () => {
+  test("Mounts rest history without login", () => {
     const wrapper = factory({
       page: "rest",
     })
     expect(wrapper).toBeTruthy()
   })
-  test("Mounts rest history with login", async () => {
+  test("Mounts rest history with login", () => {
     fb.currentUser = "user"
     const wrapper = factory({
       page: "rest",
@@ -119,13 +119,13 @@ describe("Mount History", () => {
     expect(wrapper).toBeTruthy()
   })
 
-  test("Mounts graphql history without login", async () => {
+  test("Mounts graphql history without login", () => {
     const wrapper = factory({
       page: "rest",
     })
     expect(wrapper).toBeTruthy()
   })
-  test("Mounts graphql history with login", async () => {
+  test("Mounts graphql history with login", () => {
     fb.currentUser = "user"
     const wrapper = factory({
       page: "rest",
@@ -142,9 +142,14 @@ describe("Clear History", () => {
     })
     expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
-    await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
+    await wrapper
+      .find("button[data-testid='confirm_clear_history']")
+      .trigger("click")
     expect(fb.clearHistory).not.toHaveBeenCalled()
-    expect(window.localStorage.setItem).toHaveBeenCalledWith("history", JSON.stringify([]))
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      "history",
+      JSON.stringify([])
+    )
   })
   test("Clear rest history with login", async () => {
     fb.currentUser = "user"
@@ -153,9 +158,14 @@ describe("Clear History", () => {
     })
     expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
-    await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
+    await wrapper
+      .find("button[data-testid='confirm_clear_history']")
+      .trigger("click")
     expect(fb.clearHistory).toHaveBeenCalledTimes(1)
-    expect(window.localStorage.setItem).toHaveBeenCalledWith("history", JSON.stringify([]))
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      "history",
+      JSON.stringify([])
+    )
   })
   test("Dont confirm Clear rest history", async () => {
     fb.currentUser = "user"
@@ -164,9 +174,14 @@ describe("Clear History", () => {
     })
     expect(wrapper.vm.filteredHistory).toStrictEqual(restHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
-    await wrapper.find("button[data-testid='reject_clear_history']").trigger("click")
+    await wrapper
+      .find("button[data-testid='reject_clear_history']")
+      .trigger("click")
     expect(fb.clearHistory).not.toHaveBeenCalled()
-    expect(window.localStorage.setItem).not.toHaveBeenCalledWith("history", JSON.stringify([]))
+    expect(window.localStorage.setItem).not.toHaveBeenCalledWith(
+      "history",
+      JSON.stringify([])
+    )
   })
 
   test("Clear graphql history without login", async () => {
@@ -176,9 +191,14 @@ describe("Clear History", () => {
     })
     expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
-    await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
+    await wrapper
+      .find("button[data-testid='confirm_clear_history']")
+      .trigger("click")
     expect(fb.clearGraphqlHistory).not.toHaveBeenCalled()
-    expect(window.localStorage.setItem).toHaveBeenCalledWith("graphqlHistory", JSON.stringify([]))
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      "graphqlHistory",
+      JSON.stringify([])
+    )
   })
   test("Clear graphql history with login", async () => {
     fb.currentUser = "user"
@@ -187,9 +207,14 @@ describe("Clear History", () => {
     })
     expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
-    await wrapper.find("button[data-testid='confirm_clear_history']").trigger("click")
+    await wrapper
+      .find("button[data-testid='confirm_clear_history']")
+      .trigger("click")
     expect(fb.clearGraphqlHistory).toHaveBeenCalledTimes(1)
-    expect(window.localStorage.setItem).toHaveBeenCalledWith("graphqlHistory", JSON.stringify([]))
+    expect(window.localStorage.setItem).toHaveBeenCalledWith(
+      "graphqlHistory",
+      JSON.stringify([])
+    )
   })
   test("Dont confirm Clear graphql history", async () => {
     fb.currentUser = "user"
@@ -198,7 +223,9 @@ describe("Clear History", () => {
     })
     expect(wrapper.vm.filteredHistory).toStrictEqual(graphqlHistory)
     await wrapper.find("button[data-testid='clear_history']").trigger("click")
-    await wrapper.find("button[data-testid='reject_clear_history']").trigger("click")
+    await wrapper
+      .find("button[data-testid='reject_clear_history']")
+      .trigger("click")
     expect(window.localStorage.setItem).not.toHaveBeenCalledWith(
       "graphqlHistory",
       JSON.stringify([])
@@ -207,78 +234,39 @@ describe("Clear History", () => {
 })
 
 describe("Use History", () => {
-  test("use rest history", async () => {
+  test("use rest history", () => {
     fb.currentUser = "user"
     const wrapper = factory({
       page: "rest",
     })
-    expect(wrapper.findAll("div[data-testid='rest_card']").length).toEqual(restHistory.length)
-    var index = restHistory.length - 1
-    wrapper.findAll("div[data-testid='rest_card']").at(index).vm.$emit("use-entry")
+    expect(wrapper.findAll("div[data-testid='rest_card']").length).toEqual(
+      restHistory.length
+    )
+    const index = restHistory.length - 1
+    wrapper
+      .findAll("div[data-testid='rest_card']")
+      .at(index)
+      .vm.$emit("use-entry")
     expect(wrapper.emitted("useHistory")).toBeTruthy()
     expect(wrapper.emitted("useHistory")[0]).toStrictEqual([restHistory[index]])
   })
 
-  test("use graphql history", async () => {
+  test("use graphql history", () => {
     fb.currentUser = "user"
     const wrapper = factory({
       page: "graphql",
     })
-    expect(wrapper.findAll("div[data-testid='graphql_card']").length).toEqual(graphqlHistory.length)
-    var index = restHistory.length - 1
-    wrapper.findAll("div[data-testid='graphql_card']").at(index).vm.$emit("use-entry")
+    expect(wrapper.findAll("div[data-testid='graphql_card']").length).toEqual(
+      graphqlHistory.length
+    )
+    const index = restHistory.length - 1
+    wrapper
+      .findAll("div[data-testid='graphql_card']")
+      .at(index)
+      .vm.$emit("use-entry")
     expect(wrapper.emitted("useHistory")).toBeTruthy()
-    expect(wrapper.emitted("useHistory")[0]).toStrictEqual([graphqlHistory[index]])
-  })
-})
-
-describe("Delete History", () => {
-  test("delete rest history with login", async () => {
-    fb.currentUser = "user"
-    const wrapper = factory({
-      page: "rest",
-    })
-    expect(wrapper.findAll("div[data-testid='rest_card']").length).toEqual(restHistory.length)
-    var index = 1
-    wrapper.findAll("div[data-testid='rest_card']").at(index).vm.$emit("delete-entry")
-    expect(fb.deleteHistory).toBeCalledWith(restHistory[index])
-  })
-
-  test("delete rest history without login", async () => {
-    fb.currentUser = null
-    const wrapper = factory({
-      page: "rest",
-    })
-    expect(wrapper.findAll("div[data-testid='rest_card']").length).toEqual(restHistory.length)
-    var index = 1
-    wrapper.findAll("div[data-testid='rest_card']").at(index).vm.$emit("delete-entry")
-    expect(window.localStorage.setItem).toBeCalledWith(
-      "history",
-      JSON.stringify(restHistory.filter((entry) => entry.id != index))
-    )
-  })
-  test("delete graphql history with login", async () => {
-    fb.currentUser = "user"
-    const wrapper = factory({
-      page: "graphql",
-    })
-    expect(wrapper.findAll("div[data-testid='graphql_card']").length).toEqual(graphqlHistory.length)
-    var index = 1
-    wrapper.findAll("div[data-testid='graphql_card']").at(index).vm.$emit("delete-entry")
-    expect(fb.deleteGraphqlHistory).toBeCalledWith(graphqlHistory[index])
-  })
-
-  test("delete graphql history without login", async () => {
-    fb.currentUser = null
-    const wrapper = factory({
-      page: "graphql",
-    })
-    expect(wrapper.findAll("div[data-testid='graphql_card']").length).toEqual(graphqlHistory.length)
-    var index = 1
-    wrapper.findAll("div[data-testid='graphql_card']").at(index).vm.$emit("delete-entry")
-    expect(window.localStorage.setItem).toBeCalledWith(
-      "graphqlHistory",
-      JSON.stringify(graphqlHistory.filter((entry) => entry.id != index))
-    )
+    expect(wrapper.emitted("useHistory")[0]).toStrictEqual([
+      graphqlHistory[index],
+    ])
   })
 })

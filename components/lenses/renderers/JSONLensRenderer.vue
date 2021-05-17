@@ -4,46 +4,45 @@
       <label for="body">{{ $t("response_body") }}</label>
       <div>
         <button
+          v-if="response.body"
+          ref="ToggleExpandResponse"
+          v-tooltip="{
+            content: !expandResponse
+              ? $t('expand_response')
+              : $t('collapse_response'),
+          }"
           class="icon"
           @click="ToggleExpandResponse"
-          ref="ToggleExpandResponse"
-          v-if="response.body"
-          v-tooltip="{
-            content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-          }"
         >
           <i class="material-icons">
             {{ !expandResponse ? "unfold_more" : "unfold_less" }}
           </i>
         </button>
         <button
+          v-if="response.body && canDownloadResponse"
+          ref="downloadResponse"
+          v-tooltip="$t('download_file')"
           class="icon"
           @click="downloadResponse"
-          ref="downloadResponse"
-          v-if="response.body && canDownloadResponse"
-          v-tooltip="$t('download_file')"
         >
           <i class="material-icons">save_alt</i>
         </button>
         <button
+          v-if="response.body"
+          ref="copyResponse"
+          v-tooltip="$t('copy_response')"
           class="icon"
           @click="copyResponse"
-          ref="copyResponse"
-          v-if="response.body"
-          v-tooltip="$t('copy_response')"
         >
           <i class="material-icons">content_copy</i>
         </button>
       </div>
     </div>
-    <div class="valid-warning" v-if="jsonInvalid">
-      <p class="info"><i class="material-icons">error_outline</i> Invalid JSON</p>
-    </div>
     <div id="response-details-wrapper">
       <SmartAceEditor
         :value="jsonBodyText"
         :lang="'json'"
-        :provideJSONOutline="true"
+        :provide-j-s-o-n-outline="true"
         :options="{
           maxLines: responseBodyMaxLines,
           minLines: '16',
@@ -60,18 +59,17 @@
 </template>
 
 <script>
-import { isJSONContentType } from "~/helpers/utils/contenttypes"
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
+import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
 export default {
   mixins: [TextContentRendererMixin],
   props: {
-    response: {},
+    response: { type: Object, default: () => {} },
   },
   data() {
     return {
       expandResponse: false,
-      jsonInvalid: false,
       responseBodyMaxLines: 16,
       doneButton: '<i class="material-icons">done</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
@@ -81,16 +79,16 @@ export default {
   computed: {
     jsonBodyText() {
       try {
-        this.jsonInvalid = false
         return JSON.stringify(JSON.parse(this.responseBodyText), null, 2)
       } catch (e) {
         // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
-        this.jsonInvalid = true
         return this.responseBodyText
       }
     },
     responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
+      return (this.response.headers["content-type"] || "")
+        .split(";")[0]
+        .toLowerCase()
     },
     canDownloadResponse() {
       return (
@@ -104,7 +102,8 @@ export default {
   methods: {
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines === Infinity ? 16 : Infinity
     },
     downloadResponse() {
       const dataToWrite = this.responseBodyText
@@ -138,7 +137,10 @@ export default {
       aux.select()
       document.execCommand("copy")
       document.body.removeChild(aux)
-      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyResponse.innerHTML = this.copyButton),
+        1000
+      )
     },
   },
 }

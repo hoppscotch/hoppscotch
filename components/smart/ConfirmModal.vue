@@ -33,7 +33,7 @@
 export default {
   props: {
     show: Boolean,
-    title: { type: String, default: "" },
+    title: { type: String, default: null },
     yes: {
       type: String,
       default() {

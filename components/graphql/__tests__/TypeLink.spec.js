@@ -1,6 +1,6 @@
-import typelink from "../TypeLink.vue"
 import { shallowMount } from "@vue/test-utils"
-import {GraphQLInt} from "graphql"
+import { GraphQLInt } from "graphql"
+import typelink from "../TypeLink.vue"
 
 const factory = (props) =>
   shallowMount(typelink, {
@@ -39,7 +39,7 @@ describe("typelink", () => {
 
     const wrapper = factory({
       gqlType: GraphQLInt,
-      jumpTypeCallback: callback
+      jumpTypeCallback: callback,
     })
 
     await wrapper.trigger("click")

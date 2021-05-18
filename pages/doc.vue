@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection :label="$t('import')" ref="import" no-legend>
+        <AppSection ref="import" :label="$t('import')" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("collection") }}</label>
             <p class="info">
@@ -10,7 +10,11 @@
             </p>
             <div class="row-wrapper">
               <label for="collectionUpload">
-                <button class="icon" @click="$refs.collectionUpload.click()" v-tooltip="'JSON'">
+                <button
+                  v-tooltip="'JSON'"
+                  class="icon"
+                  @click="$refs.collectionUpload.click()"
+                >
                   <i class="material-icons">folder</i>
                   <span>{{ $t("import_collections") }}</span>
                 </button>
@@ -22,7 +26,11 @@
                 @change="uploadCollection"
               />
               <div>
-                <button class="icon" @click="collectionJSON = '[]'" v-tooltip.bottom="$t('clear')">
+                <button
+                  v-tooltip.bottom="$t('clear')"
+                  class="icon"
+                  @click="collectionJSON = '[]'"
+                >
                   <i class="material-icons">clear_all</i>
                 </button>
               </div>
@@ -47,10 +55,10 @@
           </div>
         </AppSection>
 
-        <AppSection :label="$t('documentation')" ref="documentation" no-legend>
+        <AppSection ref="documentation" :label="$t('documentation')" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("documentation") }}</label>
-            <p v-if="this.items.length === 0" class="info">
+            <p v-if="items.length === 0" class="info">
               {{ $t("generate_docs_first") }}
             </p>
             <div v-else class="row-wrapper">
@@ -65,7 +73,11 @@
               >
                 <button
                   :disabled="
-                    !fb.currentUser ? true : fb.currentUser.provider !== 'github.com' ? true : false
+                    !fb.currentUser
+                      ? true
+                      : fb.currentUser.provider !== 'github.com'
+                      ? true
+                      : false
                   "
                   class="icon"
                   @click="createDocsGist"
@@ -76,7 +88,10 @@
               </div>
             </div>
             <div>
-              <span v-for="(collection, index) in this.items" :key="`collection-${index}`">
+              <span
+                v-for="(collection, index) in items"
+                :key="`collection-${index}`"
+              >
                 <DocsCollection :collection="collection" />
               </span>
             </div>
@@ -87,9 +102,9 @@
       <aside class="sticky-inner inner-right lg:max-w-md">
         <Collections
           :selected="selected"
+          :doc="true"
           @use-collection="useSelectedCollection($event)"
           @remove-collection="removeSelectedCollection($event)"
-          :doc="true"
         />
       </aside>
     </div>
@@ -97,8 +112,8 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import Mustache from "mustache"
+import { fb } from "~/helpers/fb"
 import DocsTemplate from "~/assets/md/docs.md"
 import folderContents from "~/assets/md/folderContents.md"
 import folderBody from "~/assets/md/folderBody.md"
@@ -111,6 +126,11 @@ export default {
       items: [],
       docsMarkdown: "",
       selected: [],
+    }
+  },
+  head() {
+    return {
+      title: `Documentation • Hoppscotch`,
     }
   },
   methods: {
@@ -132,11 +152,11 @@ export default {
             },
           }
         )
-        .then(({ html_url }) => {
+        .then((res) => {
           this.$toast.success(this.$t("gist_created"), {
             icon: "done",
           })
-          window.open(html_url)
+          window.open(res.html_url)
         })
         .catch((error) => {
           this.$toast.error(this.$t("something_went_wrong"), {
@@ -147,9 +167,9 @@ export default {
     },
 
     uploadCollection() {
-      let file = this.$refs.collectionUpload.files[0]
+      const file = this.$refs.collectionUpload.files[0]
       if (file !== undefined && file !== null) {
-        let reader = new FileReader()
+        const reader = new FileReader()
         reader.onload = ({ target }) => {
           this.collectionJSON = target.result
         }
@@ -165,16 +185,22 @@ export default {
       this.$refs.collectionUpload.value = ""
     },
 
-    assignIDs(items, pref, nesting_level) {
-      for (var i = 0; i < items.length; ++i) {
+    assignIDs(items, pref, nestingLevel) {
+      for (let i = 0; i < items.length; ++i) {
         items[i].id = `&emsp;${pref}${i + 1}.`
         items[i].ref = `${items[i].name.split(" ").join("-")}`
-        items[i].nesting_level = nesting_level
-        items[i].folders = this.assignIDs(items[i].folders, items[i].id, nesting_level + "#")
-        for (var j = 0; j < items[i].requests.length; ++j) {
+        items[i].nestingLevel = nestingLevel
+        items[i].folders = this.assignIDs(
+          items[i].folders,
+          items[i].id,
+          nestingLevel + "#"
+        )
+        for (let j = 0; j < items[i].requests.length; ++j) {
           items[i].requests[j].id = `&emsp;${items[i].id}${i + 1}`
-          items[i].requests[j].ref = `${items[i].requests[j].name.split(" ").join("-")}`
-          items[i].requests[j].nesting_level = nesting_level + "#"
+          items[i].requests[j].ref = `${items[i].requests[j].name
+            .split(" ")
+            .join("-")}`
+          items[i].requests[j].nestingLevel = nestingLevel + "#"
         }
       }
       return items
@@ -210,16 +236,19 @@ export default {
             isPreRequestScript() {
               return (
                 this.preRequestScript &&
-                this.preRequestScript != `// pw.env.set('variable', 'value');`
+                this.preRequestScript !== `// pw.env.set('variable', 'value');`
               )
             },
             isTestScript() {
-              return this.testScript && this.testScript != `// pw.expect('variable').toBe('value');`
+              return (
+                this.testScript &&
+                this.testScript !== `// pw.expect('variable').toBe('value');`
+              )
             },
           },
           {
-            folderContents: folderContents,
-            folderBody: folderBody,
+            folderContents,
+            folderBody,
           }
         )
         this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n\n")
@@ -231,24 +260,27 @@ export default {
     },
 
     useSelectedCollection(collection) {
-      if (this.selected.find((coll) => coll == collection)) {
+      if (this.selected.find((coll) => coll === collection)) {
         return
       }
       this.selected.push(collection)
-      let importCollection = JSON.stringify(this.selected, null, 2)
-      this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
+      const importCollection = JSON.stringify(this.selected, null, 2)
+      this.collectionJSON = JSON.stringify(
+        JSON.parse(importCollection),
+        null,
+        2
+      )
     },
 
     removeSelectedCollection(collection) {
-      this.selected = this.selected.filter((coll) => coll != collection)
-      let importCollection = JSON.stringify(this.selected, null, 2)
-      this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
+      this.selected = this.selected.filter((coll) => coll !== collection)
+      const importCollection = JSON.stringify(this.selected, null, 2)
+      this.collectionJSON = JSON.stringify(
+        JSON.parse(importCollection),
+        null,
+        2
+      )
     },
-  },
-  head() {
-    return {
-      title: `Documentation • Hoppscotch`,
-    }
   },
 }
 </script>

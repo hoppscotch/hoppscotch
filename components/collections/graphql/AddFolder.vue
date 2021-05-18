@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="show = false">
+  <SmartModal v-if="show" @close="$emit('hide-modal')">
     <div slot="header">
       <div class="row-wrapper">
         <h3 class="title">{{ $t("new_folder") }}</h3>
@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="$t('my_new_folder')"
         @keyup.enter="addFolder"
       />
@@ -40,9 +40,9 @@
 export default {
   props: {
     show: Boolean,
-    folder: Object,
-    folderPath: String,
-    collectionIndex: Number,
+    folder: { type: Object, default: () => {} },
+    folderPath: { type: String, default: null },
+    collectionIndex: { type: Number, default: null },
   },
   data() {
     return {

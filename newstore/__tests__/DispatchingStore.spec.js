@@ -177,7 +177,9 @@ describe("DispatchingStore", () => {
     })
 
     store.dispatches$.subscribe((value) => {
-      if (isEqual(value, { dispatcher: "testDispatcher", payload: testPayload })) {
+      if (
+        isEqual(value, { dispatcher: "testDispatcher", payload: testPayload })
+      ) {
         done()
       }
     })

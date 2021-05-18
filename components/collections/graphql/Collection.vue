@@ -1,7 +1,10 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
+      :class="[
+        'row-wrapper transition duration-150 ease-in-out',
+        { 'bg-bgDarkColor': dragging },
+      ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -10,43 +13,60 @@
       @dragend="dragging = false"
     >
       <button class="icon" @click="toggleShowChildren">
-        <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
-        <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
+        <i v-show="!showChildren && !isFiltered" class="material-icons"
+          >arrow_right</i
+        >
+        <i v-show="showChildren || isFiltered" class="material-icons"
+          >arrow_drop_down</i
+        >
         <i class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
       </button>
       <div>
         <button
           v-if="doc"
+          v-tooltip.left="$t('import')"
           class="icon"
           @click="$emit('select-collection')"
-          v-tooltip.left="$t('import')"
         >
           <i class="material-icons">topic</i>
         </button>
         <v-popover>
-          <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+          <button v-tooltip.left="$t('more')" class="tooltip-target icon">
             <i class="material-icons">more_vert</i>
           </button>
           <template slot="popover">
             <div>
               <button
-                class="icon"
-                @click="$emit('add-folder', { folder: collection, path: `${collectionIndex}` })"
                 v-close-popover
+                class="icon"
+                @click="
+                  $emit('add-folder', {
+                    folder: collection,
+                    path: `${collectionIndex}`,
+                  })
+                "
               >
                 <i class="material-icons">create_new_folder</i>
                 <span>{{ $t("new_folder") }}</span>
               </button>
             </div>
             <div>
-              <button class="icon" @click="$emit('edit-collection')" v-close-popover>
+              <button
+                v-close-popover
+                class="icon"
+                @click="$emit('edit-collection')"
+              >
                 <i class="material-icons">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
             <div>
-              <button class="icon" @click="confirmRemove = true" v-close-popover>
+              <button
+                v-close-popover
+                class="icon"
+                @click="confirmRemove = true"
+              >
                 <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
@@ -68,7 +88,7 @@
             :folder-path="`${collectionIndex}/${index}`"
             :collection-index="collectionIndex"
             :doc="doc"
-            :isFiltered="isFiltered"
+            :is-filtered="isFiltered"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
@@ -94,11 +114,14 @@
       </ul>
       <ul>
         <li
-          v-if="collection.folders.length === 0 && collection.requests.length === 0"
+          v-if="
+            collection.folders.length === 0 && collection.requests.length === 0
+          "
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">
-            <i class="material-icons">not_interested</i> {{ $t("collection_empty") }}
+            <i class="material-icons">not_interested</i>
+            {{ $t("collection_empty") }}
           </p>
         </li>
       </ul>
@@ -117,8 +140,8 @@ import { fb } from "~/helpers/fb"
 
 export default {
   props: {
-    collectionIndex: Number,
-    collection: Object,
+    collectionIndex: { type: Number, default: null },
+    collection: { type: Object, default: () => {} },
     doc: Boolean,
     isFiltered: Boolean,
   },
@@ -135,7 +158,9 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }

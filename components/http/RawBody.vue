@@ -62,8 +62,8 @@ import { getEditorLangForMimeType } from "~/helpers/editorutils"
 
 export default {
   props: {
-    rawParams: { type: String, default: "{}" },
-    contentType: { type: String, default: "" },
+    rawParams: { type: String, default: null },
+    contentType: { type: String, default: null },
     rawInput: { type: Boolean, default: false },
   },
   data() {

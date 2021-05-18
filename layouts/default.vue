@@ -53,7 +53,7 @@ export default {
                 text: this.$t("reload"),
                 onClick: (_, toastObject) => {
                   toastObject.goAway(0)
-                  this.$router.push("/", () => window.location.reload())
+                  window.location.reload()
                 },
               },
             ],

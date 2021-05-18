@@ -78,7 +78,7 @@ import { codegens } from "~/helpers/codegen/codegen"
 export default {
   props: {
     show: Boolean,
-    requestCode: { type: String, default: "" },
+    requestCode: { type: String, default: null },
     requestTypeProp: { type: String, default: "curl" },
   },
   data() {

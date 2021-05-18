@@ -9,10 +9,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('recurring')"
           href="https://github.com/sponsors/hoppscotch"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('recurring')"
         >
           <button class="icon">
             <i class="material-icons">
@@ -36,10 +36,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('one_time_recurring')"
           href="https://opencollective.com/hoppscotch"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('one_time_recurring')"
         >
           <button class="icon">
             <i class="material-icons">donut_large</i>
@@ -51,10 +51,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('recurring')"
           href="https://www.patreon.com/liyasthomas"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('recurring')"
         >
           <button class="icon">
             <i class="material-icons">local_parking</i>
@@ -66,10 +66,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('one_time')"
           href="https://www.paypal.me/liyascthomas"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('one_time')"
         >
           <button class="icon">
             <i class="material-icons">payment</i>
@@ -82,7 +82,11 @@
     <div class="p-2">
       <h3 class="title">Financial Contributors</h3>
       <div class="contributors">
-        <a href="https://oss.capital/?ref=hoppscotch" target="_blank" rel="noopener">
+        <a
+          href="https://oss.capital/?ref=hoppscotch"
+          target="_blank"
+          rel="noopener"
+        >
           <img
             style="height: 100%; width: 300px"
             src="~assets/images/ossc-banner.svg"
@@ -100,8 +104,16 @@
             alt="Appwrite"
           />
         </a>
-        <a href="https://pipedream.com/?ref=hoppscotch" target="_blank" rel="noopener">
-          <img style="max-width: 100px" src="~assets/images/pipedream.png" alt="pipedream" />
+        <a
+          href="https://pipedream.com/?ref=hoppscotch"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            style="max-width: 100px"
+            src="~assets/images/pipedream.png"
+            alt="pipedream"
+          />
         </a>
         <a
           href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
@@ -114,7 +126,11 @@
             alt="Paw"
           />
         </a>
-        <a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
+        <a
+          href="https://simplescraper.io/?utm_source=hs"
+          target="_blank"
+          rel="noopener"
+        >
           <img
             style="max-height: 50px"
             src="~assets/images/Simplescraper_dark.png"

@@ -23,13 +23,11 @@ export default {
   beforeMount() {
     registerApolloAuthUpdate()
 
-    let color = localStorage.getItem("THEME_COLOR") || "green"
+    const color = localStorage.getItem("THEME_COLOR") || "green"
     document.documentElement.setAttribute("data-accent", color)
   },
   async mounted() {
-    if (process.client) {
-      document.body.classList.add("afterLoad")
-    }
+    document.body.classList.add("afterLoad")
 
     performMigrations()
 
@@ -53,7 +51,7 @@ export default {
             action: [
               {
                 text: this.$t("reload"),
-                onClick: (e, toastObject) => {
+                onClick: (_, toastObject) => {
                   toastObject.goAway(0)
                   this.$router.push("/", () => window.location.reload())
                 },

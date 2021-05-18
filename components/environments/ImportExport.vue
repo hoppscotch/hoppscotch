@@ -2,15 +2,21 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("import_export") }} {{ $t("environments") }}</h3>
+        <h3 class="title">
+          {{ $t("import_export") }} {{ $t("environments") }}
+        </h3>
         <div>
           <v-popover>
-            <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+            <button v-tooltip.left="$t('more')" class="tooltip-target icon">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
               <div>
-                <button class="icon" @click="readEnvironmentGist" v-close-popover>
+                <button
+                  v-close-popover
+                  class="icon"
+                  @click="readEnvironmentGist"
+                >
                   <i class="material-icons">assignment_returned</i>
                   <span>{{ $t("import_from_gist") }}</span>
                 </button>
@@ -25,12 +31,16 @@
                 }"
               >
                 <button
+                  v-close-popover
                   :disabled="
-                    !fb.currentUser ? true : fb.currentUser.provider !== 'github.com' ? true : false
+                    !fb.currentUser
+                      ? true
+                      : fb.currentUser.provider !== 'github.com'
+                      ? true
+                      : false
                   "
                   class="icon"
                   @click="createEnvironmentGist"
-                  v-close-popover
                 >
                   <i class="material-icons">assignment_turned_in</i>
                   <span>{{ $t("create_secret_gist") }}</span>
@@ -48,42 +58,48 @@
       <div class="flex flex-col items-start p-2">
         <span
           v-tooltip="{
-            content: !fb.currentUser ? $t('login_first') : $t('replace_current'),
+            content: !fb.currentUser
+              ? $t('login_first')
+              : $t('replace_current'),
           }"
         >
-          <button :disabled="!fb.currentUser" class="icon" @click="syncEnvironments">
+          <button
+            :disabled="!fb.currentUser"
+            class="icon"
+            @click="syncEnvironments"
+          >
             <i class="material-icons">folder_shared</i>
             <span>{{ $t("import_from_sync") }}</span>
           </button>
         </span>
         <button
+          v-tooltip="$t('replace_current')"
           class="icon"
           @click="openDialogChooseFileToReplaceWith"
-          v-tooltip="$t('replace_current')"
         >
           <i class="material-icons">create_new_folder</i>
           <span>{{ $t("replace_json") }}</span>
           <input
-            type="file"
-            @change="replaceWithJSON"
-            style="display: none"
             ref="inputChooseFileToReplaceWith"
+            type="file"
+            style="display: none"
             accept="application/json"
+            @change="replaceWithJSON"
           />
         </button>
         <button
+          v-tooltip="$t('preserve_current')"
           class="icon"
           @click="openDialogChooseFileToImportFrom"
-          v-tooltip="$t('preserve_current')"
         >
           <i class="material-icons">folder_special</i>
           <span>{{ $t("import_json") }}</span>
           <input
-            type="file"
-            @change="importFromJSON"
-            style="display: none"
             ref="inputChooseFileToImportFrom"
+            type="file"
+            style="display: none"
             accept="application/json"
+            @change="importFromJSON"
           />
         </button>
       </div>
@@ -102,7 +118,11 @@
           <button class="icon" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="exportJSON" v-tooltip="$t('download_file')">
+          <button
+            v-tooltip="$t('download_file')"
+            class="icon primary"
+            @click="exportJSON"
+          >
             {{ $t("export") }}
           </button>
         </span>
@@ -116,6 +136,9 @@ import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 
 export default {
+  props: {
+    show: Boolean,
+  },
   data() {
     return {
       fb,
@@ -126,9 +149,6 @@ export default {
     return {
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
     }
-  },
-  props: {
-    show: Boolean,
   },
   computed: {
     environmentJson() {
@@ -154,11 +174,11 @@ export default {
             },
           }
         )
-        .then(({ html_url }) => {
+        .then((res) => {
           this.$toast.success(this.$t("gist_created"), {
             icon: "done",
           })
-          window.open(html_url)
+          window.open(res.html_url)
         })
         .catch((error) => {
           this.$toast.error(this.$t("something_went_wrong"), {
@@ -168,7 +188,7 @@ export default {
         })
     },
     async readEnvironmentGist() {
-      let gist = prompt(this.$t("enter_gist_url"))
+      const gist = prompt(this.$t("enter_gist_url"))
       if (!gist) return
       await this.$axios
         .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
@@ -177,7 +197,7 @@ export default {
           },
         })
         .then(({ files }) => {
-          let environments = JSON.parse(Object.values(files)[0].content)
+          const environments = JSON.parse(Object.values(files)[0].content)
           this.$store.commit("postwoman/replaceEnvironments", environments)
           this.fileImported()
           this.syncToFBEnvironments()
@@ -197,10 +217,10 @@ export default {
       this.$refs.inputChooseFileToImportFrom.click()
     },
     replaceWithJSON() {
-      let reader = new FileReader()
+      const reader = new FileReader()
       reader.onload = ({ target }) => {
-        let content = target.result
-        let environments = JSON.parse(content)
+        const content = target.result
+        const environments = JSON.parse(content)
         this.$store.commit("postwoman/replaceEnvironments", environments)
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
@@ -209,13 +229,13 @@ export default {
       this.$refs.inputChooseFileToReplaceWith.value = ""
     },
     importFromJSON() {
-      let reader = new FileReader()
+      const reader = new FileReader()
       reader.onload = ({ target }) => {
-        let content = target.result
-        let importFileObj = JSON.parse(content)
+        const content = target.result
+        const importFileObj = JSON.parse(content)
         if (
-          importFileObj["_postman_variable_scope"] === "environment" ||
-          importFileObj["_postman_variable_scope"] === "globals"
+          importFileObj._postman_variable_scope === "environment" ||
+          importFileObj._postman_variable_scope === "globals"
         ) {
           this.importFromPostman(importFileObj)
         } else {
@@ -227,25 +247,27 @@ export default {
       this.$refs.inputChooseFileToImportFrom.value = ""
     },
     importFromPostwoman(environments) {
-      let confirmation = this.$t("file_imported")
+      const confirmation = this.$t("file_imported")
       this.$store.commit("postwoman/importAddEnvironments", {
         environments,
         confirmation,
       })
     },
     importFromPostman({ name, values }) {
-      let environment = { name, variables: [] }
-      values.forEach(({ key, value }) => environment.variables.push({ key, value }))
-      let environments = [environment]
+      const environment = { name, variables: [] }
+      values.forEach(({ key, value }) =>
+        environment.variables.push({ key, value })
+      )
+      const environments = [environment]
       this.importFromPostwoman(environments)
     },
     exportJSON() {
       let text = this.environmentJson
       text = text.replace(/\n/g, "\r\n")
-      let blob = new Blob([text], {
+      const blob = new Blob([text], {
         type: "text/json",
       })
-      let anchor = document.createElement("a")
+      const anchor = document.createElement("a")
       anchor.download = "hoppscotch-environment.json"
       anchor.href = window.URL.createObjectURL(blob)
       anchor.target = "_blank"
@@ -258,12 +280,17 @@ export default {
       })
     },
     syncEnvironments() {
-      this.$store.commit("postwoman/replaceEnvironments", fb.currentEnvironments)
+      this.$store.commit(
+        "postwoman/replaceEnvironments",
+        fb.currentEnvironments
+      )
       this.fileImported()
     },
     syncToFBEnvironments() {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+        )
       }
     },
     fileImported() {

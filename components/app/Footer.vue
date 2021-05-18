@@ -1,8 +1,16 @@
 <template>
   <footer class="footer">
     <div class="row-wrapper">
-      <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
-        <a class="footer-link" href="https://www.netlify.com" target="_blank" rel="noopener">
+      <span
+        class="flex flex-col font-mono md:flex-row"
+        style="align-items: start"
+      >
+        <a
+          class="footer-link"
+          href="https://www.netlify.com"
+          target="_blank"
+          rel="noopener"
+        >
           Powered by Netlify
         </a>
         <span>
@@ -42,20 +50,23 @@
           loading="lazy"
         ></iframe>
       </span>
-      <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
+      <span
+        class="flex flex-col font-mono md:flex-row"
+        style="align-items: start"
+      >
         <a href="mailto:support@hoppscotch.io" target="_blank" rel="noopener">
-          <button class="icon" v-tooltip="$t('contact_us')">
+          <button v-tooltip="$t('contact_us')" class="icon">
             <i class="material-icons">email</i>
           </button>
         </a>
         <v-popover>
-          <button class="icon" v-tooltip="$t('choose_language')">
+          <button v-tooltip="$t('choose_language')" class="icon">
             <i class="material-icons">translate</i>
           </button>
           <template slot="popover">
             <div v-for="locale in availableLocales" :key="locale.code">
               <nuxt-link :to="switchLocalePath(locale.code)">
-                <button class="icon" v-close-popover>
+                <button v-close-popover class="icon">
                   {{ locale.name }}
                 </button>
               </nuxt-link>
@@ -66,6 +77,16 @@
     </div>
   </footer>
 </template>
+
+<script>
+export default {
+  computed: {
+    availableLocales() {
+      return this.$i18n.locales.filter(({ code }) => code !== this.$i18n.locale)
+    },
+  },
+}
+</script>
 
 <style scoped lang="scss">
 .footer-link {
@@ -81,13 +102,3 @@
   }
 }
 </style>
-
-<script>
-export default {
-  computed: {
-    availableLocales() {
-      return this.$i18n.locales.filter(({ code }) => code !== this.$i18n.locale)
-    },
-  },
-}
-</script>

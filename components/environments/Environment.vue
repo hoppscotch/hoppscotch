@@ -8,18 +8,22 @@
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
-            <button class="icon" @click="$emit('edit-environment')" v-close-popover>
+            <button
+              v-close-popover
+              class="icon"
+              @click="$emit('edit-environment')"
+            >
               <i class="material-icons">create</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
-            <button class="icon" @click="confirmRemove = true" v-close-popover>
+            <button v-close-popover class="icon" @click="confirmRemove = true">
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -42,8 +46,8 @@ import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
-    environment: Object,
-    environmentIndex: Number,
+    environment: { type: Object, default: () => {} },
+    environmentIndex: { type: Number, default: null },
   },
   data() {
     return {
@@ -58,7 +62,9 @@ export default {
   methods: {
     syncEnvironments() {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+        )
       }
     },
     removeEnvironment() {

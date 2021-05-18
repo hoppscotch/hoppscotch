@@ -73,18 +73,6 @@
   </SmartModal>
 </template>
 
-<style scoped lang="scss">
-kbd {
-  @apply inline-flex;
-  @apply resize-none;
-  @apply m-2;
-  @apply rounded-lg;
-  @apply py-2;
-  @apply px-4;
-  @apply text-sm;
-}
-</style>
-
 <script>
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
@@ -100,3 +88,15 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+kbd {
+  @apply inline-flex;
+  @apply resize-none;
+  @apply m-2;
+  @apply rounded-lg;
+  @apply py-2;
+  @apply px-4;
+  @apply text-sm;
+}
+</style>

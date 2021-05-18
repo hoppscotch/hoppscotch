@@ -18,8 +18,8 @@
       <ul>
         <li>
           <input
-            type="text"
             v-model="name"
+            type="text"
             :placeholder="$t('my_new_team')"
             @keyup.enter="addNewTeam"
           />
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import * as team_utils from "~/helpers/teams/utils"
+import * as teamUtils from "~/helpers/teams/utils"
 
 export default {
   props: {
@@ -67,9 +67,9 @@ export default {
         return
       }
       // Call to the graphql mutation
-      team_utils
+      teamUtils
         .createTeam(this.$apollo, name)
-        .then((data) => {
+        .then(() => {
           // Result
           this.hideModal()
         })

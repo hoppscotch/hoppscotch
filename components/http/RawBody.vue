@@ -6,24 +6,33 @@
           <label for="rawBody">{{ $t("raw_request_body") }}</label>
           <div>
             <button
-              class="icon"
-              ref="prettifyRequest"
-              @click="prettifyRequestBody"
-              v-tooltip="$t('prettify_body')"
               v-if="rawInput && contentType.endsWith('json')"
+              ref="prettifyRequest"
+              v-tooltip="$t('prettify_body')"
+              class="icon"
+              @click="prettifyRequestBody"
             >
               <i class="material-icons">photo_filter</i>
             </button>
             <label for="payload" class="p-0">
-              <button class="icon" @click="$refs.payload.click()" v-tooltip="$t('import_json')">
+              <button
+                v-tooltip="$t('import_json')"
+                class="icon"
+                @click="$refs.payload.click()"
+              >
                 <i class="material-icons">post_add</i>
               </button>
             </label>
-            <input ref="payload" name="payload" type="file" @change="uploadPayload" />
+            <input
+              ref="payload"
+              name="payload"
+              type="file"
+              @change="uploadPayload"
+            />
             <button
+              v-tooltip.bottom="$t('clear')"
               class="icon"
               @click="clearContent('rawParams', $event)"
-              v-tooltip.bottom="$t('clear')"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -102,7 +111,7 @@ export default {
       try {
         const jsonObj = JSON.parse(this.rawParamsBody)
         this.rawParamsBody = JSON.stringify(jsonObj, null, 2)
-        let oldIcon = this.$refs.prettifyRequest.innerHTML
+        const oldIcon = this.$refs.prettifyRequest.innerHTML
         this.$refs.prettifyRequest.innerHTML = this.doneButton
         setTimeout(() => (this.$refs.prettifyRequest.innerHTML = oldIcon), 1000)
       } catch (e) {

@@ -2,42 +2,45 @@
   <div class="row-wrapper">
     <div>
       <button
+        v-tooltip.right="team.myRole === 'OWNER' ? $t('edit') : ''"
         class="icon"
         @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
-        v-tooltip.right="team.myRole === 'OWNER' ? $t('edit') : ''"
       >
         <i class="material-icons">group</i>
         <span>{{ team.name }}</span>
       </button>
     </div>
     <v-popover>
-      <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+      <button v-tooltip.left="$t('more')" class="tooltip-target icon">
         <i class="material-icons">more_vert</i>
       </button>
       <template slot="popover">
         <div v-if="team.myRole === 'OWNER'">
-          <button class="icon" @click="$emit('edit-team')" v-close-popover>
+          <button v-close-popover class="icon" @click="$emit('edit-team')">
             <i class="material-icons">create</i>
             <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div v-if="team.myRole === 'OWNER'">
-          <button class="icon" @click="deleteTeam" v-close-popover>
+          <button v-close-popover class="icon" @click="deleteTeam">
             <i class="material-icons">delete</i>
             <span>{{ $t("delete") }}</span>
           </button>
         </div>
         <div>
           <button
-            class="icon"
-            @click="exitTeam"
             v-close-popover
+            class="icon"
             :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
+            @click="exitTeam"
           >
             <i class="material-icons">remove</i>
             <div
               v-tooltip.left="{
-                content: team.myRole === 'OWNER' && team.ownersCount == 1 ? $t('disable_exit') : '',
+                content:
+                  team.myRole === 'OWNER' && team.ownersCount == 1
+                    ? $t('disable_exit')
+                    : '',
               }"
             >
               <span>{{ $t("exit") }}</span>
@@ -49,34 +52,21 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-ul {
-  display: flex;
-  flex-direction: column;
-}
-
-ul li {
-  display: flex;
-  padding-left: 16px;
-  border-left: 1px solid var(--brd-color);
-}
-</style>
-
 <script>
-import * as team_utils from "~/helpers/teams/utils"
+import * as teamUtils from "~/helpers/teams/utils"
 
 export default {
   props: {
-    team: Object,
-    teamID: String,
+    team: { type: Object, default: () => {} },
+    teamID: { type: String, default: null },
   },
   methods: {
     deleteTeam() {
       if (!confirm("Are you sure you want to remove this team?")) return
       // Call to the graphql mutation
-      team_utils
+      teamUtils
         .deleteTeam(this.$apollo, this.teamID)
-        .then((data) => {
+        .then(() => {
           // Result
           this.$toast.success(this.$t("new_team_created"), {
             icon: "done",
@@ -92,9 +82,9 @@ export default {
     },
     exitTeam() {
       if (!confirm("Are you sure you want to exit this team?")) return
-      team_utils
+      teamUtils
         .exitTeam(this.$apollo, this.teamID)
-        .then((data) => {
+        .then(() => {
           // Result
           this.$toast.success(this.$t("team_exited"), {
             icon: "done",
@@ -111,3 +101,16 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+ul {
+  display: flex;
+  flex-direction: column;
+}
+
+ul li {
+  display: flex;
+  padding-left: 16px;
+  border-left: 1px solid var(--brd-color);
+}
+</style>

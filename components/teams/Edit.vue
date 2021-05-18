@@ -18,8 +18,8 @@
       <ul>
         <li>
           <input
-            type="text"
             v-model="name"
+            type="text"
             :placeholder="editingTeam.name"
             @keyup.enter="saveTeam"
           />
@@ -60,22 +60,38 @@
               <input
                 :placeholder="$t('permissions')"
                 :name="'value' + index"
-                :value="typeof member.role === 'string' ? member.role : JSON.stringify(member.role)"
+                :value="
+                  typeof member.role === 'string'
+                    ? member.role
+                    : JSON.stringify(member.role)
+                "
                 readonly
               />
               <template slot="popover">
                 <div>
-                  <button class="icon" v-close-popover @click="updateRole(index, 'OWNER')">
+                  <button
+                    v-close-popover
+                    class="icon"
+                    @click="updateRole(index, 'OWNER')"
+                  >
                     OWNER
                   </button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover @click="updateRole(index, 'EDITOR')">
+                  <button
+                    v-close-popover
+                    class="icon"
+                    @click="updateRole(index, 'EDITOR')"
+                  >
                     EDITOR
                   </button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover @click="updateRole(index, 'VIEWER')">
+                  <button
+                    v-close-popover
+                    class="icon"
+                    @click="updateRole(index, 'VIEWER')"
+                  >
                     VIEWER
                   </button>
                 </div>
@@ -86,10 +102,10 @@
         <div>
           <li>
             <button
+              id="member"
+              v-tooltip.bottom="$t('delete')"
               class="icon"
               @click="removeExistingTeamMember(member.user.uid)"
-              v-tooltip.bottom="$t('delete')"
-              id="member"
             >
               <i class="material-icons">delete</i>
             </button>
@@ -110,9 +126,9 @@
       >
         <li>
           <input
+            v-model="member.key"
             :placeholder="$t('email')"
             :name="'param' + index"
-            v-model="member.key"
             autofocus
           />
         </li>
@@ -123,23 +139,37 @@
                 :placeholder="$t('permissions')"
                 :name="'value' + index"
                 :value="
-                  typeof member.value === 'string' ? member.value : JSON.stringify(member.value)
+                  typeof member.value === 'string'
+                    ? member.value
+                    : JSON.stringify(member.value)
                 "
                 readonly
               />
               <template slot="popover">
                 <div>
-                  <button class="icon" v-close-popover @click="member.value = 'OWNER'">
+                  <button
+                    v-close-popover
+                    class="icon"
+                    @click="member.value = 'OWNER'"
+                  >
                     OWNER
                   </button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover @click="member.value = 'EDITOR'">
+                  <button
+                    v-close-popover
+                    class="icon"
+                    @click="member.value = 'EDITOR'"
+                  >
                     EDITOR
                   </button>
                 </div>
                 <div>
-                  <button class="icon" v-close-popover @click="member.value = 'VIEWER'">
+                  <button
+                    v-close-popover
+                    class="icon"
+                    @click="member.value = 'VIEWER'"
+                  >
                     VIEWER
                   </button>
                 </div>
@@ -150,10 +180,10 @@
         <div>
           <li>
             <button
+              id="member"
+              v-tooltip.bottom="$t('delete')"
               class="icon"
               @click="removeTeamMember(index)"
-              v-tooltip.bottom="$t('delete')"
-              id="member"
             >
               <i class="material-icons">delete</i>
             </button>
@@ -186,15 +216,15 @@
 </template>
 
 <script>
-import * as team_utils from "~/helpers/teams/utils"
 import cloneDeep from "lodash/cloneDeep"
+import * as teamUtils from "~/helpers/teams/utils"
 import TeamMemberAdapter from "~/helpers/teams/TeamMemberAdapter"
 
 export default {
   props: {
     show: Boolean,
-    editingTeam: Object,
-    editingteamID: String,
+    editingTeam: { type: Object, default: () => {} },
+    editingteamID: { type: String, default: null },
   },
   data() {
     return {
@@ -204,16 +234,6 @@ export default {
       newMembers: [],
       membersAdapter: new TeamMemberAdapter(null),
     }
-  },
-  mounted() {
-    this.membersAdapter.members$.subscribe((list) => {
-      this.members = cloneDeep(list)
-    })
-  },
-  watch: {
-    editingteamID(teamID) {
-      this.membersAdapter.changeTeamID(teamID)
-    },
   },
   computed: {
     editingTeamCopy() {
@@ -228,18 +248,28 @@ export default {
       },
     },
   },
+  watch: {
+    editingteamID(teamID) {
+      this.membersAdapter.changeTeamID(teamID)
+    },
+  },
+  mounted() {
+    this.membersAdapter.members$.subscribe((list) => {
+      this.members = cloneDeep(list)
+    })
+  },
   methods: {
     updateRole(id, role) {
       this.members[id].role = role
     },
     addTeamMember() {
-      let value = { key: "", value: "" }
+      const value = { key: "", value: "" }
       this.newMembers.push(value)
     },
     removeExistingTeamMember(userID) {
-      team_utils
+      teamUtils
         .removeTeamMember(this.$apollo, userID, this.editingteamID)
-        .then((data) => {
+        .then(() => {
           // Result
           this.$toast.success(this.$t("user_removed"), {
             icon: "done",
@@ -258,13 +288,20 @@ export default {
       this.newMembers.splice(index, 1)
     },
     validateEmail(emailID) {
-      if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(emailID)) {
+      if (
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+          emailID
+        )
+      ) {
         return true
       }
       return false
     },
     saveTeam() {
-      if (this.$data.rename !== null && this.$data.rename.replace(/\s/g, "").length < 6) {
+      if (
+        this.$data.rename !== null &&
+        this.$data.rename.replace(/\s/g, "").length < 6
+      ) {
         this.$toast.error(this.$t("string_length_insufficient"), {
           icon: "error",
         })
@@ -275,14 +312,18 @@ export default {
           this.$toast.error(this.$t("invalid_emailID_format"), {
             icon: "error",
           })
-          return
         }
       })
       this.$data.newMembers.forEach((element) => {
         // Call to the graphql mutation
-        team_utils
-          .addTeamMemberByEmail(this.$apollo, element.value, element.key, this.editingteamID)
-          .then((data) => {
+        teamUtils
+          .addTeamMemberByEmail(
+            this.$apollo,
+            element.value,
+            element.key,
+            this.editingteamID
+          )
+          .then(() => {
             // Result
             this.$toast.success(this.$t("team_saved"), {
               icon: "done",
@@ -299,9 +340,14 @@ export default {
       })
       let messageShown = true
       this.members.forEach((element) => {
-        team_utils
-          .updateTeamMemberRole(this.$apollo, element.user.uid, element.role, this.editingteamID)
-          .then((data) => {
+        teamUtils
+          .updateTeamMemberRole(
+            this.$apollo,
+            element.user.uid,
+            element.role,
+            this.editingteamID
+          )
+          .then(() => {
             // Result
             if (messageShown) {
               this.$toast.success(this.$t("role_updated"), {
@@ -323,16 +369,17 @@ export default {
           })
       })
       if (this.$data.rename !== null) {
-        const newName = this.name === this.$data.rename ? this.name : this.$data.rename
+        const newName =
+          this.name === this.$data.rename ? this.name : this.$data.rename
         if (!/\S/.test(newName))
           return this.$toast.error(this.$t("team_name_empty"), {
             icon: "error",
           })
         // Call to the graphql mutation
         if (this.name !== this.rename)
-          team_utils
+          teamUtils
             .renameTeam(this.$apollo, newName, this.editingteamID)
-            .then((data) => {
+            .then(() => {
               // Result
               this.$toast.success(this.$t("team_saved"), {
                 icon: "done",

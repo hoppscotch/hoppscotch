@@ -1,30 +1,6 @@
 <template>
-  <div contenteditable class="url-field" ref="editor" spellcheck="false"></div>
+  <div ref="editor" contenteditable class="url-field" spellcheck="false"></div>
 </template>
-
-<style lang="scss">
-.url-field {
-  @apply border-dashed;
-  @apply md:border-l;
-  @apply border-brdColor;
-}
-
-.highlight-VAR {
-  @apply font-bold;
-  @apply text-acColor;
-}
-
-.highlight-TEXT {
-  @apply overflow-auto;
-  @apply break-all;
-
-  height: 22px;
-}
-
-.highlight-TEXT::-webkit-scrollbar {
-  @apply hidden;
-}
-</style>
 
 <script>
 export default {
@@ -80,7 +56,11 @@ export default {
       let index = 0
       while ((match = text.substring(index).match(regex))) {
         map.push([index, index + (match.index - 1), "TEXT"])
-        map.push([index + match.index, index + match.index + match[0].length - 1, "VAR"])
+        map.push([
+          index + match.index,
+          index + match.index + match[0].length - 1,
+          "VAR",
+        ])
         index += match.index + match[0].length
 
         if (index >= text.length - 1) break
@@ -101,7 +81,11 @@ export default {
             break
 
           case Node.ELEMENT_NODE:
-            textSegments.splice(textSegments.length, 0, ...this.getTextSegments(node))
+            textSegments.splice(
+              textSegments.length,
+              0,
+              ...this.getTextSegments(node)
+            )
             break
         }
       })
@@ -118,11 +102,17 @@ export default {
       textSegments.forEach(({ text, node }) => {
         const startIndexOfNode = currentIndex
         const endIndexOfNode = startIndexOfNode + text.length
-        if (startIndexOfNode <= absoluteAnchorIndex && absoluteAnchorIndex <= endIndexOfNode) {
+        if (
+          startIndexOfNode <= absoluteAnchorIndex &&
+          absoluteAnchorIndex <= endIndexOfNode
+        ) {
           anchorNode = node
           anchorIndex = absoluteAnchorIndex - startIndexOfNode
         }
-        if (startIndexOfNode <= absoluteFocusIndex && absoluteFocusIndex <= endIndexOfNode) {
+        if (
+          startIndexOfNode <= absoluteFocusIndex &&
+          absoluteFocusIndex <= endIndexOfNode
+        ) {
           focusNode = node
           focusIndex = absoluteFocusIndex - startIndexOfNode
         }
@@ -161,3 +151,27 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+.url-field {
+  @apply border-dashed;
+  @apply md:border-l;
+  @apply border-brdColor;
+}
+
+.highlight-VAR {
+  @apply font-bold;
+  @apply text-acColor;
+}
+
+.highlight-TEXT {
+  @apply overflow-auto;
+  @apply break-all;
+
+  height: 22px;
+}
+
+.highlight-TEXT::-webkit-scrollbar {
+  @apply hidden;
+}
+</style>

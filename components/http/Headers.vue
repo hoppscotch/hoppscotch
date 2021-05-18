@@ -1,14 +1,14 @@
 <template>
-  <AppSection label="Headers" ref="headers" no-legend>
+  <AppSection ref="headers" label="Headers" no-legend>
     <ul v-if="headers.length !== 0">
       <li>
         <div class="row-wrapper">
           <label for="headerList">{{ $t("header_list") }}</label>
           <div>
             <button
+              v-tooltip.bottom="$t('clear')"
               class="icon"
               @click="clearContent('headers', $event)"
-              v-tooltip.bottom="$t('clear')"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -35,6 +35,7 @@
           :source="commonHeaders"
           :spellcheck="false"
           :value="header.key"
+          autofocus
           @input="
             $store.commit('setKeyHeader', {
               index,
@@ -42,7 +43,6 @@
             })
           "
           @keyup.prevent="setRouteQueryState"
-          autofocus
         />
       </li>
       <li>
@@ -62,13 +62,6 @@
       <div>
         <li>
           <button
-            class="icon"
-            @click="
-              $store.commit('setActiveHeader', {
-                index,
-                value: header.hasOwnProperty('active') ? !header.active : false,
-              })
-            "
             v-tooltip.bottom="{
               content: header.hasOwnProperty('active')
                 ? header.active
@@ -76,6 +69,13 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            class="icon"
+            @click="
+              $store.commit('setActiveHeader', {
+                index,
+                value: header.hasOwnProperty('active') ? !header.active : false,
+              })
+            "
           >
             <i class="material-icons">
               {{
@@ -91,7 +91,11 @@
       </div>
       <div>
         <li>
-          <button class="icon" @click="removeRequestHeader(index)" v-tooltip.bottom="$t('delete')">
+          <button
+            v-tooltip.bottom="$t('delete')"
+            class="icon"
+            @click="removeRequestHeader(index)"
+          >
             <i class="material-icons">delete</i>
           </button>
         </li>

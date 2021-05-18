@@ -5,7 +5,9 @@ describe("decodeB64StringToArrayBuffer", () => {
   test("decodes content correctly", () => {
     const decoder = new TextDecoder("utf-8")
     expect(
-      decoder.decode(decodeB64StringToArrayBuffer("aG9wcHNjb3RjaCBpcyBhd2Vzb21lIQ=="))
+      decoder.decode(
+        decodeB64StringToArrayBuffer("aG9wcHNjb3RjaCBpcyBhd2Vzb21lIQ==")
+      )
     ).toMatch("hoppscotch is awesome!")
   })
 

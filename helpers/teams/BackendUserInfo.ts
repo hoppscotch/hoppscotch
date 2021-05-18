@@ -1,7 +1,7 @@
-import { fb } from "../fb"
 import { BehaviorSubject } from "rxjs"
-import { apolloClient } from "../apollo"
 import gql from "graphql-tag"
+import { fb } from "../fb"
+import { apolloClient } from "../apollo"
 
 /*
  * This file deals with interfacing data provided by the

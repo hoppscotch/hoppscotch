@@ -1,5 +1,11 @@
 <template>
-  <AppSection class="green" icon="history" :label="$t('teams')" ref="teams" no-legend>
+  <AppSection
+    ref="teams"
+    class="green"
+    icon="history"
+    :label="$t('teams')"
+    no-legend
+  >
     <div class="flex flex-col">
       <label>{{ $t("teams") }}</label>
       <div v-if="fb.currentUser"></div>
@@ -15,8 +21,8 @@
     <TeamsEdit
       :team="myTeams[0]"
       :show="showModalEdit"
-      :editingTeam="editingTeam"
-      :editingteamID="editingteamID"
+      :editing-team="editingTeam"
+      :editingteam-i-d="editingteamID"
       @hide-modal="displayModalEdit(false)"
     />
     <div class="row-wrapper">
@@ -27,30 +33,25 @@
         </button>
       </div>
     </div>
-    <p v-if="$apollo.queries.myTeams.loading" class="info">{{ $t("loading") }}</p>
+    <p v-if="$apollo.queries.myTeams.loading" class="info">
+      {{ $t("loading") }}
+    </p>
     <p v-if="myTeams.length === 0" class="info">
       <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
     </p>
     <div v-else class="virtual-list">
       <ul class="flex-col">
         <li v-for="(team, index) in myTeams" :key="`team-${index}`">
-          <TeamsTeam :teamID="team.id" :team="team" @edit-team="editTeam(team, team.id)" />
+          <TeamsTeam
+            :team-i-d="team.id"
+            :team="team"
+            @edit-team="editTeam(team, team.id)"
+          />
         </li>
       </ul>
     </div>
   </AppSection>
 </template>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 241px);
-}
-
-ul {
-  display: flex;
-  flex-direction: column;
-}
-</style>
 
 <script>
 import gql from "graphql-tag"
@@ -102,6 +103,9 @@ export default {
       pollInterval: 10000,
     },
   },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener)
+  },
   methods: {
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
@@ -113,7 +117,7 @@ export default {
     },
     editTeam(team, teamID) {
       this.editingTeam = team
-      this.editingteamID = team.id
+      this.editingteamID = teamID
       this.displayModalEdit(true)
     },
     resetSelectedData() {
@@ -121,8 +125,16 @@ export default {
       this.$data.editingteamID = undefined
     },
   },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
 }
 </script>
+
+<style scoped lang="scss">
+.virtual-list {
+  max-height: calc(100vh - 241px);
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+}
+</style>

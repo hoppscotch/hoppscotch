@@ -9,7 +9,7 @@ export default {
   props: {
     label: { type: String, default: "" },
     icon: { type: String, default: "" },
-    id: { required: true },
+    id: { type: String, default: "", required: true },
     selected: {
       type: Boolean,
       default: false,

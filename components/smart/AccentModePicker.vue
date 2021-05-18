@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col">
-    <label>{{ $t("color") }}: {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label>
+    <label
+      >{{ $t("color") }}:
+      {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label
+    >
     <div>
       <!-- text-blue-400 -->
       <!-- text-green-400 -->
@@ -56,15 +59,15 @@ export default {
       ],
     }
   },
+  watch: {
+    active(color) {
+      localStorage.setItem("THEME_COLOR", color)
+    },
+  },
   methods: {
     setActiveColor(color) {
       document.documentElement.setAttribute("data-accent", color)
       this.active = color
-    },
-  },
-  watch: {
-    active(color) {
-      localStorage.setItem("THEME_COLOR", color)
     },
   },
 }

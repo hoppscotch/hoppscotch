@@ -1,5 +1,5 @@
-import autocomplete from "../AutoComplete"
 import { mount } from "@vue/test-utils"
+import autocomplete from "../AutoComplete"
 
 const props = {
   placeholder: "",
@@ -9,7 +9,9 @@ const props = {
 }
 
 // ["pp", "pple", "ppliance", "lice"]
-const suggestionStr = props.source.filter((str) => str.startsWith("a")).map((str) => str.slice(1))
+const suggestionStr = props.source
+  .filter((str) => str.startsWith("a"))
+  .map((str) => str.slice(1))
 
 const factory = (props) =>
   mount(autocomplete, {
@@ -118,7 +120,9 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(0).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(0).element.classList.contains("active")
+    ).toEqual(true)
   })
 
   test("pressing down arrow when nothing is selected selects the first in the list", async () => {
@@ -134,7 +138,9 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(0).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(0).element.classList.contains("active")
+    ).toEqual(true)
   })
 
   test("pressing down arrow moves down the selection list", async () => {
@@ -154,7 +160,9 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(1).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(1).element.classList.contains("active")
+    ).toEqual(true)
   })
 
   test("pressing up arrow moves up the selection list", async () => {
@@ -179,7 +187,9 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(0).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(0).element.classList.contains("active")
+    ).toEqual(true)
   })
 
   test("pressing down arrow at the end of the list doesn't update the selection", async () => {
@@ -199,14 +209,18 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(1).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(1).element.classList.contains("active")
+    ).toEqual(true)
 
     await input.trigger("keydown", {
       code: "ArrowDown",
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(1).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(1).element.classList.contains("active")
+    ).toEqual(true)
   })
 
   test("pressing up arrow at the top of the list doesn't update the selection", async () => {
@@ -226,14 +240,18 @@ describe("autocomplete", () => {
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(0).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(0).element.classList.contains("active")
+    ).toEqual(true)
 
     await input.trigger("keydown", {
       code: "ArrowUp",
     })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll("li").at(0).element.classList.contains("active")).toEqual(true)
+    expect(
+      wrapper.findAll("li").at(0).element.classList.contains("active")
+    ).toEqual(true)
   })
 
   test("pressing tab performs the current completion", async () => {

@@ -57,12 +57,16 @@ export const CsRestsharpCodegen = {
         `client.Authenticator = new HttpBasicAuthenticator("${httpUser}", "${httpPassword}");\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(`request.AddHeader("Authorization", "Bearer ${bearerToken}");\n`)
+      requestString.push(
+        `request.AddHeader("Authorization", "Bearer ${bearerToken}");\n`
+      )
     }
 
     // content type
     if (contentType) {
-      requestString.push(`request.AddHeader("Content-Type", "${contentType}");\n`)
+      requestString.push(
+        `request.AddHeader("Content-Type", "${contentType}");\n`
+      )
     }
 
     // custom headers

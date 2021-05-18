@@ -14,7 +14,9 @@
       <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
         <v-popover>
-          <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
+          <pre v-if="requestType">{{
+            codegens.find((x) => x.id === requestType).name
+          }}</pre>
           <input
             v-else
             id="requestType"
@@ -26,7 +28,11 @@
           />
           <template slot="popover">
             <div v-for="gen in codegens" :key="gen.id">
-              <button class="icon" @click="requestType = gen.id" v-close-popover>
+              <button
+                v-close-popover
+                class="icon"
+                @click="requestType = gen.id"
+              >
                 {{ gen.name }}
               </button>
             </div>
@@ -37,10 +43,10 @@
         <label for="generatedCode">{{ $t("generated_code") }}</label>
         <div>
           <button
-            class="icon"
-            @click="copyRequestCode"
             ref="copyRequestCode"
             v-tooltip="$t('copy_code')"
+            class="icon"
+            @click="copyRequestCode"
           >
             <i class="material-icons">content_copy</i>
           </button>
@@ -48,6 +54,7 @@
       </div>
       <SmartAceEditor
         v-if="requestType"
+        ref="generatedCode"
         :value="requestCode"
         :lang="codegens.find((x) => x.id === requestType).language"
         :options="{
@@ -60,7 +67,6 @@
           useWorker: false,
         }"
         styles="rounded-b-lg"
-        ref="generatedCode"
       />
     </div>
   </SmartModal>
@@ -72,7 +78,7 @@ import { codegens } from "~/helpers/codegen/codegen"
 export default {
   props: {
     show: Boolean,
-    requestCode: String,
+    requestCode: { type: String, default: "" },
     requestTypeProp: { type: String, default: "curl" },
   },
   data() {
@@ -107,7 +113,10 @@ export default {
       this.$refs.generatedCode.editor.selectAll()
       this.$refs.generatedCode.editor.focus()
       document.execCommand("copy")
-      setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
+        1000
+      )
     },
   },
 }

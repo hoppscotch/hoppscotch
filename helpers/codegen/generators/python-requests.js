@@ -28,7 +28,7 @@ export const PythonRequestsCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
+    const genHeaders = []
 
     requestString.push(`import requests\n\n`)
     requestString.push(`url = '${url}${pathName}${queryString}'\n`)
@@ -37,7 +37,9 @@ export const PythonRequestsCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `'Authorization': 'Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+        `'Authorization': 'Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}'`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`'Authorization': 'Bearer ${bearerToken}'`)
@@ -52,7 +54,7 @@ export const PythonRequestsCodegen = {
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    if (method == "GET") {
+    if (method === "GET") {
       requestString.push(...printHeaders(genHeaders))
       requestString.push(`response = requests.request(\n`)
       requestString.push(`  '${method}',\n`)

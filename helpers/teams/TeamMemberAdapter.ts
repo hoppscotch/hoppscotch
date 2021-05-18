@@ -74,7 +74,7 @@ export default class TeamMemberAdapter {
           cursor,
         },
       })
-      
+
       debugger
 
       result.push(...response.data.team.members)

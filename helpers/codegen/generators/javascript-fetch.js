@@ -26,7 +26,9 @@ export const JavascriptFetchCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
+        `    "Authorization": "Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}",\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)

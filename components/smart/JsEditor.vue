@@ -4,33 +4,18 @@
   </div>
 </template>
 
-<style lang="scss">
-.show-if-initialized {
-  @apply opacity-0;
-
-  &.initialized {
-    @apply opacity-100;
-  }
-
-  & > * {
-    @apply transition-none;
-  }
-}
-</style>
-
 <script>
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
+import * as esprima from "esprima"
 import debounce from "~/helpers/utils/debounce"
 import {
   getPreRequestScriptCompletions,
   getTestScriptCompletions,
   performPreRequestLinting,
 } from "~/helpers/tern"
-
-import * as esprima from "esprima"
 
 export default {
   props: {
@@ -45,7 +30,7 @@ export default {
     },
     options: {
       type: Object,
-      default: {},
+      default: () => {},
     },
     styles: {
       type: String,
@@ -115,7 +100,13 @@ export default {
     })
 
     const completer = {
-      getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
+      getCompletions: (
+        editor,
+        _session,
+        { row, column },
+        _prefix,
+        callback
+      ) => {
         if (this.completeMode === "pre") {
           getPreRequestScriptCompletions(editor.getValue(), row, column)
             .then((res) => {
@@ -165,14 +156,21 @@ export default {
     this.provideLinting(this.value)
   },
 
+  destroyed() {
+    this.editor.destroy()
+  },
+
   methods: {
     defineTheme() {
       if (this.theme) {
         return this.theme
       }
-      const strip = (str) => str.replace(/#/g, "").replace(/ /g, "").replace(/"/g, "")
+      const strip = (str) =>
+        str.replace(/#/g, "").replace(/ /g, "").replace(/"/g, "")
       return strip(
-        window.getComputedStyle(document.documentElement).getPropertyValue("--editor-theme")
+        window
+          .getComputedStyle(document.documentElement)
+          .getPropertyValue("--editor-theme")
       )
     },
 
@@ -195,7 +193,9 @@ export default {
             if (res.errors && res.errors.length > 0) {
               results = results.concat(
                 res.errors.map((err) => {
-                  const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+                  const pos = this.editor.session
+                    .getDocument()
+                    .indexToPosition(err.index, 0)
 
                   return {
                     row: pos.row,
@@ -207,7 +207,9 @@ export default {
               )
             }
           } catch (e) {
-            const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+            const pos = this.editor.session
+              .getDocument()
+              .indexToPosition(e.index, 0)
             results = results.concat([
               {
                 row: pos.row,
@@ -226,7 +228,9 @@ export default {
             if (res.errors && res.errors.length > 0) {
               results = results.concat(
                 res.errors.map((err) => {
-                  const pos = this.editor.session.getDocument().indexToPosition(err.index, 0)
+                  const pos = this.editor.session
+                    .getDocument()
+                    .indexToPosition(err.index, 0)
 
                   return {
                     row: pos.row,
@@ -238,7 +242,9 @@ export default {
               )
             }
           } catch (e) {
-            const pos = this.editor.session.getDocument().indexToPosition(e.index, 0)
+            const pos = this.editor.session
+              .getDocument()
+              .indexToPosition(e.index, 0)
             results = results.concat([
               {
                 row: pos.row,
@@ -253,9 +259,19 @@ export default {
         })
     }, 2000),
   },
-
-  destroyed() {
-    this.editor.destroy()
-  },
 }
 </script>
+
+<style lang="scss">
+.show-if-initialized {
+  @apply opacity-0;
+
+  &.initialized {
+    @apply opacity-100;
+  }
+
+  & > * {
+    @apply transition-none;
+  }
+}
+</style>

@@ -33,21 +33,21 @@
 export default {
   props: {
     show: Boolean,
-    title: "",
+    title: { type: String, default: "" },
     yes: {
       type: String,
-      default: function () {
+      default() {
         return this.$t("yes")
       },
     },
     no: {
       type: String,
-      default: function () {
+      default() {
         return this.$t("no")
       },
     },
   },
-  async mounted() {
+  mounted() {
     this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
@@ -56,6 +56,9 @@ export default {
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
   },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener)
+  },
   methods: {
     hideModal() {
       this.$emit("hide-modal")
@@ -63,9 +66,6 @@ export default {
     resolve() {
       this.$emit("resolve")
     },
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
 }
 </script>

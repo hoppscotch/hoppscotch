@@ -305,10 +305,10 @@ export default {
         file: "ko-KR.json",
       },
       {
-        code: "in",
+        code: "hi",
         name: "हिंदी",
-        iso: "in-IN",
-        file: "in-IN.json",
+        iso: "hi-IN",
+        file: "hi-IN.json",
       },
       {
         code: "bn",

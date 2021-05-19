@@ -2,18 +2,18 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection :label="$t('endpoint')" ref="endpoint" no-legend>
+        <AppSection ref="endpoint" :label="$t('endpoint')" no-legend>
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
               <input
                 id="url"
-                type="url"
                 v-model="url"
+                type="url"
                 spellcheck="false"
-                @keyup.enter="onPollSchemaClick()"
                 class="md:rounded-bl-lg"
                 :placeholder="$t('url')"
+                @keyup.enter="onPollSchemaClick()"
               />
             </li>
             <div>
@@ -22,8 +22,8 @@
                 <button
                   id="get"
                   name="get"
-                  @click="onPollSchemaClick"
                   class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+                  @click="onPollSchemaClick"
                 >
                   {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
                   <span
@@ -37,7 +37,7 @@
           </ul>
         </AppSection>
 
-        <AppSection :label="$t('headers')" ref="headers" no-legend>
+        <AppSection ref="headers" :label="$t('headers')" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("headers") }}</label>
             <ul v-if="headers.length !== 0">
@@ -45,7 +45,11 @@
                 <div class="row-wrapper">
                   <label for="headerList">{{ $t("header_list") }}</label>
                   <div>
-                    <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
+                    <button
+                      v-tooltip.bottom="$t('clear')"
+                      class="icon"
+                      @click="headers = []"
+                    >
                       <i class="material-icons">clear_all</i>
                     </button>
                   </div>
@@ -71,13 +75,13 @@
                   :source="commonHeaders"
                   :spellcheck="false"
                   :value="header.key"
+                  autofocus
                   @input="
                     $store.commit('setGQLHeaderKey', {
                       index,
                       value: $event,
                     })
                   "
-                  autofocus
                 />
               </li>
               <li>
@@ -85,25 +89,18 @@
                   :placeholder="$t('value_count', { count: index + 1 })"
                   :name="`value ${index}`"
                   :value="header.value"
+                  autofocus
                   @change="
                     $store.commit('setGQLHeaderValue', {
                       index,
                       value: $event.target.value,
                     })
                   "
-                  autofocus
                 />
               </li>
               <div>
                 <li>
                   <button
-                    class="icon"
-                    @click="
-                      $store.commit('setActiveGQLHeader', {
-                        index,
-                        value: header.hasOwnProperty('active') ? !header.active : false,
-                      })
-                    "
                     v-tooltip.bottom="{
                       content: header.hasOwnProperty('active')
                         ? header.active
@@ -111,6 +108,15 @@
                           : $t('turn_on')
                         : $t('turn_off'),
                     }"
+                    class="icon"
+                    @click="
+                      $store.commit('setActiveGQLHeader', {
+                        index,
+                        value: header.hasOwnProperty('active')
+                          ? !header.active
+                          : false,
+                      })
+                    "
                   >
                     <i class="material-icons">
                       {{
@@ -127,9 +133,9 @@
               <div>
                 <li>
                   <button
+                    v-tooltip.bottom="$t('delete')"
                     class="icon"
                     @click="removeRequestHeader(index)"
-                    v-tooltip.bottom="$t('delete')"
                   >
                     <i class="material-icons">delete</i>
                   </button>
@@ -147,35 +153,37 @@
           </div>
         </AppSection>
 
-        <AppSection :label="$t('schema')" ref="schema" no-legend>
+        <AppSection ref="schema" :label="$t('schema')" no-legend>
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
               <button
-                class="icon"
-                @click="ToggleExpandResponse"
                 ref="ToggleExpandResponse"
                 v-tooltip="{
-                  content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
+                  content: !expandResponse
+                    ? $t('expand_response')
+                    : $t('collapse_response'),
                 }"
+                class="icon"
+                @click="ToggleExpandResponse"
               >
                 <i class="material-icons">
                   {{ !expandResponse ? "unfold_more" : "unfold_less" }}
                 </i>
               </button>
               <button
-                class="icon"
-                @click="downloadSchema"
                 ref="downloadSchema"
                 v-tooltip="$t('download_file')"
+                class="icon"
+                @click="downloadSchema"
               >
                 <i class="material-icons">save_alt</i>
               </button>
               <button
-                class="icon"
                 ref="copySchemaCode"
-                @click="copySchema"
                 v-tooltip="$t('copy_schema')"
+                class="icon"
+                @click="copySchema"
               >
                 <i class="material-icons">content_copy</i>
               </button>
@@ -198,45 +206,47 @@
           />
           <input
             v-else
+            ref="status"
             class="rounded-b-lg missing-data-response"
             :value="$t('waiting_receive_schema')"
-            ref="status"
             name="status"
             readonly
             type="text"
           />
         </AppSection>
 
-        <AppSection :label="$t('query')" ref="query" no-legend>
+        <AppSection ref="query" :label="$t('query')" no-legend>
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
+                v-tooltip.bottom="
+                  `${$t('run_query')} (${getSpecialKey()}-Enter)`
+                "
                 @click="runQuery()"
-                v-tooltip.bottom="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
               >
                 <i class="material-icons">play_arrow</i>
               </button>
               <button
-                class="icon"
-                @click="copyQuery"
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
+                class="icon"
+                @click="copyQuery"
               >
                 <i class="material-icons">content_copy</i>
               </button>
               <button
+                v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
                 class="icon"
                 @click="doPrettifyQuery"
-                v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
               >
                 <i class="material-icons">photo_filter</i>
               </button>
               <button
-                class="icon"
-                @click="saveRequest"
                 ref="saveRequest"
                 v-tooltip.bottom="$t('save_to_collections')"
+                class="icon"
+                @click="saveRequest"
               >
                 <i class="material-icons">create_new_folder</i>
               </button>
@@ -245,7 +255,8 @@
           <GraphqlQueryEditor
             ref="queryEditor"
             v-model="gqlQueryString"
-            :onRunGQLQuery="runQuery"
+            styles="rounded-b-lg"
+            :on-run-g-q-l-query="runQuery"
             :options="{
               maxLines: responseBodyMaxLines,
               minLines: 10,
@@ -254,11 +265,11 @@
               showPrintMargin: false,
               useWorker: false,
             }"
-            styles="rounded-b-lg"
+            @update-query="updateQuery"
           />
         </AppSection>
 
-        <AppSection :label="$t('variables')" ref="variables" no-legend>
+        <AppSection ref="variables" :label="$t('variables')" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("variables") }}</label>
             <SmartAceEditor
@@ -277,27 +288,27 @@
           </div>
         </AppSection>
 
-        <AppSection :label="$t('response')" ref="response" no-legend>
+        <AppSection ref="response" :label="$t('response')" no-legend>
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
               <label for="responseField">{{ $t("response_body") }}</label>
               <div>
                 <button
+                  v-if="response"
+                  ref="downloadResponse"
+                  v-tooltip="$t('download_file')"
                   class="icon"
                   @click="downloadResponse"
-                  ref="downloadResponse"
-                  v-if="response"
-                  v-tooltip="$t('download_file')"
                 >
                   <i class="material-icons">save_alt</i>
                 </button>
                 <button
+                  v-if="response"
+                  ref="copyResponseButton"
+                  v-tooltip="$t('copy_response')"
                   class="icon"
                   @click="copyResponse"
-                  ref="copyResponseButton"
-                  v-if="response"
-                  v-tooltip="$t('copy_response')"
                 >
                   <i class="material-icons">content_copy</i>
                 </button>
@@ -321,9 +332,9 @@
             />
             <input
               v-else
+              ref="status"
               class="rounded-b-lg missing-data-response"
               :value="$t('waiting_receive_response')"
-              ref="status"
               name="status"
               readonly
               type="text"
@@ -335,12 +346,12 @@
       <aside class="sticky-inner inner-right lg:max-w-md">
         <SmartTabs>
           <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
-            <AppSection :label="$t('docs')" ref="docs" no-legend>
+            <AppSection ref="docs" :label="$t('docs')" no-legend>
               <section class="flex-col">
                 <input
+                  v-model="graphqlFieldsFilterText"
                   type="text"
                   :placeholder="$t('search')"
-                  v-model="graphqlFieldsFilterText"
                   class="rounded-t-lg"
                 />
                 <SmartTabs ref="gqlTabs" styles="m-4">
@@ -351,8 +362,14 @@
                       :label="$t('queries')"
                       :selected="true"
                     >
-                      <div v-for="field in filteredQueryFields" :key="field.name">
-                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      <div
+                        v-for="field in filteredQueryFields"
+                        :key="field.name"
+                      >
+                        <GraphqlField
+                          :gql-field="field"
+                          :jump-type-callback="handleJumpToType"
+                        />
                       </div>
                     </SmartTab>
 
@@ -361,8 +378,14 @@
                       :id="'mutations'"
                       :label="$t('mutations')"
                     >
-                      <div v-for="field in filteredMutationFields" :key="field.name">
-                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      <div
+                        v-for="field in filteredMutationFields"
+                        :key="field.name"
+                      >
+                        <GraphqlField
+                          :gql-field="field"
+                          :jump-type-callback="handleJumpToType"
+                        />
                       </div>
                     </SmartTab>
 
@@ -371,24 +394,37 @@
                       :id="'subscriptions'"
                       :label="$t('subscriptions')"
                     >
-                      <div v-for="field in filteredSubscriptionFields" :key="field.name">
-                        <GraphqlField :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                      <div
+                        v-for="field in filteredSubscriptionFields"
+                        :key="field.name"
+                      >
+                        <GraphqlField
+                          :gql-field="field"
+                          :jump-type-callback="handleJumpToType"
+                        />
                       </div>
                     </SmartTab>
 
                     <SmartTab
                       v-if="graphqlTypes.length > 0"
                       :id="'types'"
-                      :label="$t('types')"
                       ref="typesTab"
+                      :label="$t('types')"
                     >
-                      <div v-for="type in filteredGraphqlTypes" :key="type.name">
+                      <div
+                        v-for="type in filteredGraphqlTypes"
+                        :key="type.name"
+                      >
                         <GraphqlType
-                          :gqlType="type"
-                          :gqlTypes="graphqlTypes"
-                          :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
-                          :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
-                          :jumpTypeCallback="handleJumpToType"
+                          :gql-type="type"
+                          :gql-types="graphqlTypes"
+                          :is-highlighted="
+                            isGqlTypeHighlighted({ gqlType: type })
+                          "
+                          :highlighted-fields="
+                            getGqlTypeHighlightedFields({ gqlType: type })
+                          "
+                          :jump-type-callback="handleJumpToType"
                         />
                       </div>
                     </SmartTab>
@@ -411,9 +447,9 @@
 
           <SmartTab :id="'history'" :label="$t('history')">
             <History
-              @useHistory="handleUseHistory"
               ref="graphqlHistoryComponent"
               :page="'graphql'"
+              @useHistory="handleUseHistory"
             />
           </SmartTab>
 
@@ -433,22 +469,11 @@
     </div>
     <CollectionsGraphqlSaveRequest
       :show="showSaveRequestModal"
-      @hide-modal="hideRequestModal"
       :editing-request="editRequest"
+      @hide-modal="hideRequestModal"
     />
   </div>
 </template>
-
-<style scoped lang="scss">
-.gqlTabs {
-  max-height: calc(100vh - 192px);
-  position: relative;
-  @apply overflow-auto;
-}
-.gqlRunQuery {
-  @apply mb-8;
-}
-</style>
 
 <script>
 import * as gql from "graphql"
@@ -459,6 +484,12 @@ import { getSettingSubject } from "~/newstore/settings"
 import { fb } from "~/helpers/fb"
 
 export default {
+  beforeRouteLeave(_to, _from, next) {
+    this.isPollingSchema = false
+    if (this.timeoutSubscription) clearTimeout(this.timeoutSubscription)
+
+    next()
+  },
   data() {
     return {
       commonHeaders,
@@ -484,14 +515,10 @@ export default {
       SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
     }
   },
-  watch: {
-    selectedRequest(newValue) {
-      if (!newValue) return
-      this.url = newValue.url
-      this.gqlQueryString = newValue.query
-      this.headers = newValue.headers
-      this.variableString = newValue.variables
-    },
+  head() {
+    return {
+      title: `GraphQL • Hoppscotch`,
+    }
   },
   computed: {
     selectedRequest() {
@@ -576,17 +603,25 @@ export default {
       },
     },
   },
+  watch: {
+    selectedRequest(newValue) {
+      if (!newValue) return
+      this.url = newValue.url
+      this.gqlQueryString = newValue.query
+      this.headers = newValue.headers
+      this.variableString = newValue.variables
+    },
+  },
   mounted() {
-    if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {
-      const gqlSchema = gql.buildClientSchema(JSON.parse(this.$store.state.gql.schemaIntrospection))
+    if (
+      this.$store.state.gql.schemaIntrospection &&
+      this.$store.state.gql.schema
+    ) {
+      const gqlSchema = gql.buildClientSchema(
+        JSON.parse(this.$store.state.gql.schemaIntrospection)
+      )
       this.getDocsFromSchema(gqlSchema)
     }
-  },
-  beforeRouteLeave(_to, _from, next) {
-    this.isPollingSchema = false
-    if (this.timeoutSubscription) clearTimeout(this.timeoutSubscription)
-
-    next()
   },
   methods: {
     hideRequestModal() {
@@ -641,7 +676,9 @@ export default {
       const isFilterTextFoundInDescription = graphqlFieldObject.description
         ? graphqlFieldObject.description.toLowerCase().includes(normalizedText)
         : false
-      const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(normalizedText)
+      const isFilterTextFoundInName = graphqlFieldObject.name
+        .toLowerCase()
+        .includes(normalizedText)
 
       return isFilterTextFoundInDescription || isFilterTextFoundInName
     },
@@ -649,7 +686,10 @@ export default {
       if (!filterText) return fields
 
       return fields.filter((field) =>
-        this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
+        this.isTextFoundInGraphqlFieldObject({
+          text: filterText,
+          graphqlFieldObject: field,
+        })
       )
     },
     getFilteredGraphqlTypes({ filterText, types }) {
@@ -665,12 +705,13 @@ export default {
           return true
         }
 
-        const isFilterTextMatchingAtLeastOneField = Object.values(type._fields || {}).some(
-          (field) =>
-            this.isTextFoundInGraphqlFieldObject({
-              text: filterText,
-              graphqlFieldObject: field,
-            })
+        const isFilterTextMatchingAtLeastOneField = Object.values(
+          type._fields || {}
+        ).some((field) =>
+          this.isTextFoundInGraphqlFieldObject({
+            text: filterText,
+            graphqlFieldObject: field,
+          })
         )
 
         return isFilterTextMatchingAtLeastOneField
@@ -709,7 +750,10 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      setTimeout(() => (this.$refs.copySchemaCode.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
+        1000
+      )
     },
     copyQuery() {
       this.$refs.copyQueryButton.innerHTML = this.doneButton
@@ -722,7 +766,10 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      setTimeout(() => (this.$refs.copyQueryButton.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
+        1000
+      )
     },
     copyResponse() {
       this.$refs.copyResponseButton.innerHTML = this.doneButton
@@ -735,7 +782,10 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      setTimeout(() => (this.$refs.copyResponseButton.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
+        1000
+      )
     },
     async runQuery() {
       const startTime = Date.now()
@@ -748,14 +798,18 @@ export default {
       if (this.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       try {
-        let headers = {}
+        const headers = {}
         this.headers
-          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .filter((item) =>
+            Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          )
           .forEach(({ key, value }) => {
             headers[key] = value
           })
 
-        let variables = JSON.parse(this.variableString || "{}")
+        const variables = JSON.parse(this.variableString || "{}")
 
         const gqlQueryString = this.gqlQueryString
 
@@ -778,7 +832,9 @@ export default {
         const res = await sendNetworkRequest(reqOptions)
 
         // HACK: Temporary trailing null character issue from the extension fix
-        const responseText = new TextDecoder("utf-8").decode(res.data).replace(/\0+$/, "")
+        const responseText = new TextDecoder("utf-8")
+          .decode(res.data)
+          .replace(/\0+$/, "")
 
         this.response = JSON.stringify(JSON.parse(responseText), null, 2)
 
@@ -846,17 +902,23 @@ export default {
       const typeMap = schema.getTypeMap()
       const types = []
 
-      const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ""
-      const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ""
+      const queryTypeName = schema.getQueryType()
+        ? schema.getQueryType().name
+        : ""
+      const mutationTypeName = schema.getMutationType()
+        ? schema.getMutationType().name
+        : ""
       const subscriptionTypeName = schema.getSubscriptionType()
         ? schema.getSubscriptionType().name
         : ""
 
       for (const typeName in typeMap) {
-        let type = typeMap[typeName]
+        const type = typeMap[typeName]
         if (
           !type.name.startsWith("__") &&
-          ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(type.name) &&
+          ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(
+            type.name
+          ) &&
           (type instanceof gql.GraphQLObjectType ||
             type instanceof gql.GraphQLInputObjectType ||
             type instanceof gql.GraphQLEnumType ||
@@ -887,9 +949,13 @@ export default {
           query: gql.getIntrospectionQuery(),
         })
 
-        let headers = {}
+        const headers = {}
         this.headers
-          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .filter((item) =>
+            Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          )
           .forEach(({ key, value }) => {
             headers[key] = value
           })
@@ -907,7 +973,9 @@ export default {
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
         // HACK : Temporary trailing null character issue from the extension fix
-        const response = new TextDecoder("utf-8").decode(data.data).replace(/\0+$/, "")
+        const response = new TextDecoder("utf-8")
+          .decode(data.data)
+          .replace(/\0+$/, "")
         const introspectResponse = JSON.parse(response)
 
         const schema = gql.buildClientSchema(introspectResponse.data)
@@ -926,13 +994,16 @@ export default {
         this.$refs.queryEditor.setValidationSchema(schema)
         this.$nuxt.$loading.finish()
 
-        if (this.isPollingSchema) this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
+        if (this.isPollingSchema)
+          this.timeoutSubscription = setTimeout(this.pollSchema, 7000)
       } catch (error) {
         this.$nuxt.$loading.finish()
 
         this.schema = `${error}. ${this.$t("check_console_details")}`
         this.$toast.error(
-          `${this.$t("graphql_introspect_failed")} ${this.$t("check_graphql_valid")}`,
+          `${this.$t("graphql_introspect_failed")} ${this.$t(
+            "check_graphql_valid"
+          )}`,
           {
             icon: "error",
           }
@@ -959,9 +1030,13 @@ export default {
           query: gql.getIntrospectionQuery(),
         })
 
-        let headers = {}
+        const headers = {}
         this.headers
-          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .filter((item) =>
+            Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          )
           .forEach(({ key, value }) => {
             headers[key] = value
           })
@@ -979,7 +1054,9 @@ export default {
         const data = await sendNetworkRequest(reqOptions, this.$store)
 
         // HACK : Temporary trailing null character issue from the extension fix
-        const response = new TextDecoder("utf-8").decode(data.data).replace(/\0+$/, "")
+        const response = new TextDecoder("utf-8")
+          .decode(data.data)
+          .replace(/\0+$/, "")
         const introspectResponse = JSON.parse(response)
 
         const schema = gql.buildClientSchema(introspectResponse.data)
@@ -1006,7 +1083,9 @@ export default {
 
         this.schema = `${error}. ${this.$t("check_console_details")}`
         this.$toast.error(
-          `${this.$t("graphql_introspect_failed")} ${this.$t("check_graphql_valid")}`,
+          `${this.$t("graphql_introspect_failed")} ${this.$t(
+            "check_graphql_valid"
+          )}`,
           {
             icon: "error",
           }
@@ -1016,7 +1095,8 @@ export default {
     },
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines === Infinity ? 16 : Infinity
     },
     downloadResponse() {
       const dataToWrite = this.response
@@ -1056,7 +1136,7 @@ export default {
         this.$refs.downloadSchema.innerHTML = this.downloadButton
       }, 1000)
     },
-    addRequestHeader(index) {
+    addRequestHeader() {
       this.$store.commit("addGQLHeader", {
         key: "",
         value: "",
@@ -1073,7 +1153,7 @@ export default {
         action: {
           text: this.$t("undo"),
           duration: 4000,
-          onClick: (e, toastObject) => {
+          onClick: (_, toastObject) => {
             this.headers = oldHeaders
             toastObject.remove()
           },
@@ -1085,11 +1165,20 @@ export default {
         behavior: "smooth",
       })
     },
-  },
-  head() {
-    return {
-      title: `GraphQL • Hoppscotch`,
-    }
+    updateQuery(updatedQuery) {
+      this.gqlQueryString = updatedQuery
+    },
   },
 }
 </script>
+
+<style scoped lang="scss">
+.gqlTabs {
+  max-height: calc(100vh - 192px);
+  position: relative;
+  @apply overflow-auto;
+}
+.gqlRunQuery {
+  @apply mb-8;
+}
+</style>

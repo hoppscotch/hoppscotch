@@ -1,7 +1,10 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
+      :class="[
+        'row-wrapper transition duration-150 ease-in-out',
+        { 'bg-bgDarkColor': dragging },
+      ]"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
@@ -10,23 +13,28 @@
     >
       <div>
         <button
+          v-tooltip="!doc ? $t('use_request') : ''"
           class="icon"
           @click="!doc ? selectRequest() : {}"
-          v-tooltip="!doc ? $t('use_request') : ''"
         >
-          <i v-if="isSelected" class="mx-3 text-green-400 material-icons">check_circle</i>
+          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+            >check_circle</i
+          >
 
-          <span v-else :class="getRequestLabelColor(request.method)">{{ request.method }}</span>
+          <span v-else :class="getRequestLabelColor(request.method)">{{
+            request.method
+          }}</span>
           <span>{{ request.name }}</span>
         </button>
       </div>
       <v-popover v-if="!saveRequest">
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+        <button v-tooltip="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
+              v-close-popover
               class="icon"
               @click="
                 $emit('edit-request', {
@@ -37,14 +45,13 @@
                   requestIndex,
                 })
               "
-              v-close-popover
             >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
-            <button class="icon" @click="confirmRemove = true" v-close-popover>
+            <button v-close-popover class="icon" @click="confirmRemove = true">
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -64,26 +71,17 @@
 <script>
 export default {
   props: {
-    request: Object,
-    collectionIndex: Number,
-    folderIndex: Number,
-    folderName: String,
+    request: { type: Object, default: () => {} },
+    collectionIndex: { type: Number, default: null },
+    folderIndex: { type: Number, default: null },
+    folderName: { type: String, default: null },
+    // eslint-disable-next-line vue/require-default-prop
     requestIndex: [Number, String],
     doc: Boolean,
     saveRequest: Boolean,
-    collectionsType: Object,
-    folderPath: String,
-    picked: Object,
-  },
-  computed: {
-    isSelected() {
-      return (
-        this.picked &&
-        this.picked.pickedType === "my-request" &&
-        this.picked.folderPath === this.folderPath &&
-        this.picked.requestIndex === this.requestIndex
-      )
-    },
+    collectionsType: { type: Object, default: () => {} },
+    folderPath: { type: String, default: null },
+    picked: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -98,6 +96,16 @@ export default {
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected() {
+      return (
+        this.picked &&
+        this.picked.pickedType === "my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+      )
+    },
+  },
   methods: {
     selectRequest() {
       if (this.$props.saveRequest)
@@ -110,7 +118,8 @@ export default {
             requestIndex: this.requestIndex,
           },
         })
-      else this.$store.commit("postwoman/selectRequest", { request: this.request })
+      else
+        this.$store.commit("postwoman/selectRequest", { request: this.request })
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
@@ -127,7 +136,10 @@ export default {
       })
     },
     getRequestLabelColor(method) {
-      return this.requestMethodLabels[method.toLowerCase()] || this.requestMethodLabels.default
+      return (
+        this.requestMethodLabels[method.toLowerCase()] ||
+        this.requestMethodLabels.default
+      )
     },
   },
 }

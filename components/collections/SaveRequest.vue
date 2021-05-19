@@ -12,15 +12,20 @@
     </div>
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("token_req_name") }}</label>
-      <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
+      <input
+        id="selectLabel"
+        v-model="requestData.name"
+        type="text"
+        @keyup.enter="saveRequestAs"
+      />
       <label for="selectLabel">Select location</label>
       <!-- <input readonly :value="path" /> -->
       <Collections
+        :picked="picked"
+        :save-request="true"
         @select="onSelect"
         @update-collection="collectionsType.type = $event"
         @update-coll-type="onUpdateCollType"
-        :picked="picked"
-        :saveRequest="true"
       />
     </div>
     <div slot="footer">
@@ -42,12 +47,12 @@
 <script>
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
-import * as team_utils from "~/helpers/teams/utils"
+import * as teamUtils from "~/helpers/teams/utils"
 
 export default {
   props: {
     show: Boolean,
-    editingRequest: Object,
+    editingRequest: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -71,20 +76,6 @@ export default {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
-  watch: {
-    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
-      // if user has chosen some folder, than selected other collection, which doesn't have any folders
-      // than `requestUpdateData.folderName` won't be reseted
-      this.$data.requestData.folderName = undefined
-      this.$data.requestData.requestIndex = undefined
-    },
-    "requestData.folderName": function resetRequestIndex() {
-      this.$data.requestData.requestIndex = undefined
-    },
-    editingRequest({ name }) {
-      this.$data.requestData.name = name || this.$data.defaultRequestName
-    },
-  },
   computed: {
     folders() {
       const collections = this.$store.state.postwoman.collections
@@ -107,7 +98,8 @@ export default {
         return []
       }
 
-      const userSelectedAnyFolder = folderName !== undefined && folderName !== ""
+      const userSelectedAnyFolder =
+        folderName !== undefined && folderName !== ""
 
       if (userSelectedAnyFolder) {
         const collection = collections[collectionIndex]
@@ -123,6 +115,20 @@ export default {
 
         return collection.requests
       }
+    },
+  },
+  watch: {
+    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
+      // if user has chosen some folder, than selected other collection, which doesn't have any folders
+      // than `requestUpdateData.folderName` won't be reseted
+      this.$data.requestData.folderName = undefined
+      this.$data.requestData.requestIndex = undefined
+    },
+    "requestData.folderName": function resetRequestIndex() {
+      this.$data.requestData.requestIndex = undefined
+    },
+    editingRequest({ name }) {
+      this.$data.requestData.name = name || this.$data.defaultRequestName
     },
   },
   methods: {
@@ -188,14 +194,14 @@ export default {
 
         this.syncCollections()
       } else if (this.picked.pickedType === "teams-request") {
-        team_utils.overwriteRequestTeams(
+        teamUtils.overwriteRequestTeams(
           this.$apollo,
           JSON.stringify(requestUpdated),
           requestUpdated.name,
           this.picked.requestID
         )
       } else if (this.picked.pickedType === "teams-folder") {
-        team_utils.saveRequestAsTeams(
+        teamUtils.saveRequestAsTeams(
           this.$apollo,
           JSON.stringify(requestUpdated),
           requestUpdated.name,
@@ -203,7 +209,7 @@ export default {
           this.picked.folderID
         )
       } else if (this.picked.pickedType === "teams-collection") {
-        team_utils.saveRequestAsTeams(
+        teamUtils.saveRequestAsTeams(
           this.$apollo,
           JSON.stringify(requestUpdated),
           requestUpdated.name,

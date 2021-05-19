@@ -37,6 +37,8 @@ module.exports = {
     ],
     "vue/singleline-html-element-content-newline": "off",
     "vue/multiline-html-element-content-newline": "off",
+    "vue/require-default-prop": "warn",
+    "vue/require-prop-types": "warn",
     "prettier/prettier": ["warn", { semi: false }],
     "import/no-named-as-default": "off",
     "no-undef": "off",

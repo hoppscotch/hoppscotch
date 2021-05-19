@@ -1,4 +1,3 @@
-import { ApolloClient } from "@apollo/client/core"
 import gql from "graphql-tag"
 import { BehaviorSubject } from "rxjs"
 
@@ -95,7 +94,9 @@ export async function getLiveTeamMembersList(apollo, teamID) {
     })
     .subscribe(({ data }) => {
       subject.next(
-        subject.value.filter((member) => member.user.uid !== data.teamMemberAdded.user.uid)
+        subject.value.filter(
+          (member) => member.user.uid !== data.teamMemberAdded.user.uid
+        )
       )
     })
 
@@ -112,22 +113,22 @@ export async function getLiveTeamMembersList(apollo, teamID) {
   return subject
 }
 
-export async function createTeam(apollo, name) {
+export function createTeam(apollo, name) {
   return apollo.mutate({
     mutation: gql`
-      mutation($name: String!) {
+      mutation ($name: String!) {
         createTeam(name: $name) {
           name
         }
       }
     `,
     variables: {
-      name: name,
+      name,
     },
   })
 }
 
-export async function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) {
+export function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) {
   return apollo.mutate({
     mutation: gql`
       mutation addTeamMemberByEmail(
@@ -135,20 +136,24 @@ export async function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) 
         $userEmail: String!
         $teamID: String!
       ) {
-        addTeamMemberByEmail(userRole: $userRole, userEmail: $userEmail, teamID: $teamID) {
+        addTeamMemberByEmail(
+          userRole: $userRole
+          userEmail: $userEmail
+          teamID: $teamID
+        ) {
           role
         }
       }
     `,
     variables: {
-      userRole: userRole,
-      userEmail: userEmail,
-      teamID: teamID,
+      userRole,
+      userEmail,
+      teamID,
     },
   })
 }
 
-export async function updateTeamMemberRole(apollo, userID, newRole, teamID) {
+export function updateTeamMemberRole(apollo, userID, newRole, teamID) {
   return apollo.mutate({
     mutation: gql`
       mutation updateTeamMemberRole(
@@ -156,20 +161,24 @@ export async function updateTeamMemberRole(apollo, userID, newRole, teamID) {
         $userUid: String!
         $teamID: String!
       ) {
-        updateTeamMemberRole(newRole: $newRole, userUid: $userUid, teamID: $teamID) {
+        updateTeamMemberRole(
+          newRole: $newRole
+          userUid: $userUid
+          teamID: $teamID
+        ) {
           role
         }
       }
     `,
     variables: {
-      newRole: newRole,
+      newRole,
       userUid: userID,
-      teamID: teamID,
+      teamID,
     },
   })
 }
 
-export async function renameTeam(apollo, name, teamID) {
+export function renameTeam(apollo, name, teamID) {
   return apollo.mutate({
     mutation: gql`
       mutation renameTeam($newName: String!, $teamID: String!) {
@@ -180,12 +189,12 @@ export async function renameTeam(apollo, name, teamID) {
     `,
     variables: {
       newName: name,
-      teamID: teamID,
+      teamID,
     },
   })
 }
 
-export async function removeTeamMember(apollo, userID, teamID) {
+export function removeTeamMember(apollo, userID, teamID) {
   return apollo.mutate({
     mutation: gql`
       mutation removeTeamMember($userUid: String!, $teamID: String!) {
@@ -194,47 +203,47 @@ export async function removeTeamMember(apollo, userID, teamID) {
     `,
     variables: {
       userUid: userID,
-      teamID: teamID,
+      teamID,
     },
   })
 }
 
 export async function deleteTeam(apollo, teamID) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($teamID: String!) {
+        mutation ($teamID: String!) {
           deleteTeam(teamID: $teamID)
         }
       `,
       variables: {
-        teamID: teamID,
+        teamID,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
-export async function exitTeam(apollo, teamID) {
+export function exitTeam(apollo, teamID) {
   apollo.mutate({
     mutation: gql`
-      mutation($teamID: String!) {
+      mutation ($teamID: String!) {
         leaveTeam(teamID: $teamID)
       }
     `,
     variables: {
-      teamID: teamID,
+      teamID,
     },
   })
 }
 
 export async function rootCollectionsOfTeam(apollo, teamID) {
-  var collections = []
-  var cursor = ""
+  const collections = []
+  let cursor = ""
   while (true) {
-    var response = await apollo.query({
+    const response = await apollo.query({
       query: gql`
         query rootCollectionsOfTeam($teamID: String!, $cursor: String!) {
           rootCollectionsOfTeam(teamID: $teamID, cursor: $cursor) {
@@ -244,12 +253,12 @@ export async function rootCollectionsOfTeam(apollo, teamID) {
         }
       `,
       variables: {
-        teamID: teamID,
-        cursor: cursor,
+        teamID,
+        cursor,
       },
       fetchPolicy: "no-cache",
     })
-    if (response.data.rootCollectionsOfTeam.length == 0) break
+    if (response.data.rootCollectionsOfTeam.length === 0) break
     response.data.rootCollectionsOfTeam.forEach((collection) => {
       collections.push(collection)
     })
@@ -259,8 +268,8 @@ export async function rootCollectionsOfTeam(apollo, teamID) {
 }
 
 export async function getCollectionChildren(apollo, collectionID) {
-  var children = []
-  var response = await apollo.query({
+  const children = []
+  const response = await apollo.query({
     query: gql`
       query getCollectionChildren($collectionID: String!) {
         collection(collectionID: $collectionID) {
@@ -272,7 +281,7 @@ export async function getCollectionChildren(apollo, collectionID) {
       }
     `,
     variables: {
-      collectionID: collectionID,
+      collectionID,
     },
     fetchPolicy: "no-cache",
   })
@@ -283,10 +292,10 @@ export async function getCollectionChildren(apollo, collectionID) {
 }
 
 export async function getCollectionRequests(apollo, collectionID) {
-  var requests = []
-  var cursor = ""
+  const requests = []
+  let cursor = ""
   while (true) {
-    var response = await apollo.query({
+    const response = await apollo.query({
       query: gql`
         query getCollectionRequests($collectionID: String!, $cursor: String) {
           requestsInCollection(collectionID: $collectionID, cursor: $cursor) {
@@ -297,8 +306,8 @@ export async function getCollectionRequests(apollo, collectionID) {
         }
       `,
       variables: {
-        collectionID: collectionID,
-        cursor: cursor,
+        collectionID,
+        cursor,
       },
       fetchPolicy: "no-cache",
     })
@@ -316,11 +325,11 @@ export async function getCollectionRequests(apollo, collectionID) {
 }
 
 export async function renameCollection(apollo, title, id) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($newTitle: String!, $collectionID: String!) {
+        mutation ($newTitle: String!, $collectionID: String!) {
           renameCollection(newTitle: $newTitle, collectionID: $collectionID) {
             id
           }
@@ -331,17 +340,17 @@ export async function renameCollection(apollo, title, id) {
         collectionID: id,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
 export async function updateRequest(apollo, request, requestName, requestID) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($data: UpdateTeamRequestInput!, $requestID: String!) {
+        mutation ($data: UpdateTeamRequestInput!, $requestID: String!) {
           updateRequest(data: $data, requestID: $requestID) {
             id
           }
@@ -352,21 +361,24 @@ export async function updateRequest(apollo, request, requestName, requestID) {
           request: JSON.stringify(request),
           title: requestName,
         },
-        requestID: requestID,
+        requestID,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
 export async function addChildCollection(apollo, title, id) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($childTitle: String!, $collectionID: String!) {
-          createChildCollection(childTitle: $childTitle, collectionID: $collectionID) {
+        mutation ($childTitle: String!, $collectionID: String!) {
+          createChildCollection(
+            childTitle: $childTitle
+            collectionID: $collectionID
+          ) {
             id
           }
         }
@@ -376,17 +388,17 @@ export async function addChildCollection(apollo, title, id) {
         collectionID: id,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
 export async function deleteCollection(apollo, id) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($collectionID: String!) {
+        mutation ($collectionID: String!) {
           deleteCollection(collectionID: $collectionID)
         }
       `,
@@ -394,54 +406,60 @@ export async function deleteCollection(apollo, id) {
         collectionID: id,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
 export async function deleteRequest(apollo, requestID) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($requestID: String!) {
+        mutation ($requestID: String!) {
           deleteRequest(requestID: $requestID)
         }
       `,
       variables: {
-        requestID: requestID,
+        requestID,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
 export async function createNewRootCollection(apollo, title, id) {
-  let response = undefined
+  let response
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation($title: String!, $teamID: String!) {
+        mutation ($title: String!, $teamID: String!) {
           createRootCollection(title: $title, teamID: $teamID) {
             id
           }
         }
       `,
       variables: {
-        title: title,
+        title,
         teamID: id,
       },
     })
-    if (response != undefined) break
+    if (response !== undefined) break
   }
   return response
 }
 
-export async function saveRequestAsTeams(apollo, request, title, teamID, collectionID) {
+export async function saveRequestAsTeams(
+  apollo,
+  request,
+  title,
+  teamID,
+  collectionID
+) {
   await apollo.mutate({
     mutation: gql`
-      mutation($data: CreateTeamRequestInput!, $collectionID: String!) {
+      mutation ($data: CreateTeamRequestInput!, $collectionID: String!) {
         createRequestInCollection(data: $data, collectionID: $collectionID) {
           collection {
             id
@@ -454,11 +472,11 @@ export async function saveRequestAsTeams(apollo, request, title, teamID, collect
       }
     `,
     variables: {
-      collectionID: collectionID,
+      collectionID,
       data: {
-        teamID: teamID,
-        title: title,
-        request: request,
+        teamID,
+        title,
+        request,
       },
     },
   })
@@ -467,7 +485,10 @@ export async function saveRequestAsTeams(apollo, request, title, teamID, collect
 export async function overwriteRequestTeams(apollo, request, title, requestID) {
   await apollo.mutate({
     mutation: gql`
-      mutation updateRequest($data: UpdateTeamRequestInput!, $requestID: String!) {
+      mutation updateRequest(
+        $data: UpdateTeamRequestInput!
+        $requestID: String!
+      ) {
         updateRequest(data: $data, requestID: $requestID) {
           id
           title
@@ -475,20 +496,26 @@ export async function overwriteRequestTeams(apollo, request, title, requestID) {
       }
     `,
     variables: {
-      requestID: requestID,
+      requestID,
       data: {
-        request: request,
-        title: title,
+        request,
+        title,
       },
     },
   })
 }
 
 export async function importFromMyCollections(apollo, collectionID, teamID) {
-  let response = await apollo.mutate({
+  const response = await apollo.mutate({
     mutation: gql`
-      mutation importFromMyCollections($fbCollectionPath: String!, $teamID: String!) {
-        importCollectionFromUserFirestore(fbCollectionPath: $fbCollectionPath, teamID: $teamID) {
+      mutation importFromMyCollections(
+        $fbCollectionPath: String!
+        $teamID: String!
+      ) {
+        importCollectionFromUserFirestore(
+          fbCollectionPath: $fbCollectionPath
+          teamID: $teamID
+        ) {
           id
           title
         }
@@ -496,14 +523,14 @@ export async function importFromMyCollections(apollo, collectionID, teamID) {
     `,
     variables: {
       fbCollectionPath: collectionID,
-      teamID: teamID,
+      teamID,
     },
   })
   return response.data != null
 }
 
 export async function importFromJSON(apollo, collections, teamID) {
-  let response = await apollo.mutate({
+  const response = await apollo.mutate({
     mutation: gql`
       mutation importFromJSON($jsonString: String!, $teamID: String!) {
         importCollectionsFromJSON(jsonString: $jsonString, teamID: $teamID)
@@ -511,14 +538,14 @@ export async function importFromJSON(apollo, collections, teamID) {
     `,
     variables: {
       jsonString: JSON.stringify(collections),
-      teamID: teamID,
+      teamID,
     },
   })
   return response.data != null
 }
 
 export async function replaceWithJSON(apollo, collections, teamID) {
-  let response = await apollo.mutate({
+  const response = await apollo.mutate({
     mutation: gql`
       mutation replaceWithJSON($jsonString: String!, $teamID: String!) {
         replaceCollectionsWithJSON(jsonString: $jsonString, teamID: $teamID)
@@ -526,21 +553,21 @@ export async function replaceWithJSON(apollo, collections, teamID) {
     `,
     variables: {
       jsonString: JSON.stringify(collections),
-      teamID: teamID,
+      teamID,
     },
   })
   return response.data != null
 }
 
 export async function exportAsJSON(apollo, teamID) {
-  let response = await apollo.query({
+  const response = await apollo.query({
     query: gql`
       query exportAsJSON($teamID: String!) {
         exportCollectionsToJSON(teamID: $teamID)
       }
     `,
     variables: {
-      teamID: teamID,
+      teamID,
     },
   })
   return response.data.exportCollectionsToJSON

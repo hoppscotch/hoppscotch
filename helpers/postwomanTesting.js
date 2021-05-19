@@ -12,7 +12,7 @@ const styles = {
 // TODO: probably have to use a more global state for `test`
 
 export default function runTestScriptWithVariables(script, variables) {
-  let pw = {
+  const pw = {
     _errors: [],
     _testReports: [],
     _report: "",
@@ -29,6 +29,7 @@ export default function runTestScriptWithVariables(script, variables) {
   Object.assign(pw, variables)
 
   // run pre-request script within this function so that it has access to the pw object.
+  // eslint-disable-next-line no-new-func
   new Function("pw", script)(pw)
   //
   const testReports = pw._testReports.map((item) => {
@@ -80,6 +81,7 @@ class Expectation {
       }
     }
   }
+
   _fmtNot(message) {
     // given a string with "(not)" in it, replaces with "not" or "", depending if the expectation is expecting the positive or inverse (this._not)
     if (this.not === true) {
@@ -88,62 +90,102 @@ class Expectation {
       return message.replace("(not)", "")
     }
   }
+
   _fail(message) {
     return this._testReports.push({ result: FAIL, message })
   }
+
   _pass() {
     return this._testReports.push({ result: PASS })
   }
+
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)
   toBe(value) {
     return this._satisfies(value)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} (not)to be ${value}`))
-  }
-  toHaveProperty(value) {
-    return this._satisfies(Object.prototype.hasOwnProperty.call(this.expectValue, value), true)
-      ? this._pass()
       : this._fail(
-          this._fmtNot(`Expected object ${this.expectValue} to (not)have property ${value}`)
+          this._fmtNot(`Expected ${this.expectValue} (not)to be ${value}`)
         )
   }
+
+  toHaveProperty(value) {
+    return this._satisfies(
+      Object.prototype.hasOwnProperty.call(this.expectValue, value),
+      true
+    )
+      ? this._pass()
+      : this._fail(
+          this._fmtNot(
+            `Expected object ${this.expectValue} to (not)have property ${value}`
+          )
+        )
+  }
+
   toBeLevel2xx() {
     const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 200-level status but could not parse value ${this.expectValue}`)
+      return this._fail(
+        `Expected 200-level status but could not parse value ${this.expectValue}`
+      )
     }
     return this._satisfies(code >= 200 && code < 300, true)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 200-level status`))
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 200-level status`
+          )
+        )
   }
+
   toBeLevel3xx() {
     const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 300-level status but could not parse value ${this.expectValue}`)
+      return this._fail(
+        `Expected 300-level status but could not parse value ${this.expectValue}`
+      )
     }
     return this._satisfies(code >= 300 && code < 400, true)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 300-level status`))
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 300-level status`
+          )
+        )
   }
+
   toBeLevel4xx() {
     const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 400-level status but could not parse value ${this.expectValue}`)
+      return this._fail(
+        `Expected 400-level status but could not parse value ${this.expectValue}`
+      )
     }
     return this._satisfies(code >= 400 && code < 500, true)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 400-level status`))
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 400-level status`
+          )
+        )
   }
+
   toBeLevel5xx() {
     const code = parseInt(this.expectValue, 10)
     if (Number.isNaN(code)) {
-      return this._fail(`Expected 500-level status but could not parse value ${this.expectValue}`)
+      return this._fail(
+        `Expected 500-level status but could not parse value ${this.expectValue}`
+      )
     }
     return this._satisfies(code >= 500 && code < 600, true)
       ? this._pass()
-      : this._fail(this._fmtNot(`Expected ${this.expectValue} to (not)be 500-level status`))
+      : this._fail(
+          this._fmtNot(
+            `Expected ${this.expectValue} to (not)be 500-level status`
+          )
+        )
   }
+
   toHaveLength(expectedLength) {
     const actualLength = this.expectValue.length
     return this._satisfies(actualLength, expectedLength)
@@ -154,6 +196,7 @@ class Expectation {
           )
         )
   }
+
   toBeType(expectedType) {
     const actualType = typeof this.expectValue
     if (
@@ -177,7 +220,9 @@ class Expectation {
     return this._satisfies(actualType, expectedType)
       ? this._pass()
       : this._fail(
-          this._fmtNot(`Expected type to be "${expectedType}" but actual type was "${actualType}"`)
+          this._fmtNot(
+            `Expected type to be "${expectedType}" but actual type was "${actualType}"`
+          )
         )
   }
 }

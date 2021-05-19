@@ -1,15 +1,23 @@
 <template>
-  <AppSection class="yellow" :label="$t('collections')" ref="collections" no-legend>
+  <AppSection
+    ref="collections"
+    class="yellow"
+    :label="$t('collections')"
+    no-legend
+  >
     <div class="show-on-large-screen">
       <input
+        v-model="filterText"
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        v-model="filterText"
         class="rounded-t-lg"
       />
     </div>
-    <CollectionsGraphqlAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsGraphqlAdd
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+    />
     <CollectionsGraphqlEdit
       :show="showModalEdit"
       :editing-collection="editingCollection"
@@ -53,17 +61,21 @@
       </button>
     </div>
     <p v-if="collections.length === 0" class="info">
-      <i class="material-icons">help_outline</i> {{ $t("create_new_collection") }}
+      <i class="material-icons">help_outline</i>
+      {{ $t("create_new_collection") }}
     </p>
     <div class="virtual-list">
       <ul class="flex-col">
-        <li v-for="(collection, index) in filteredCollections" :key="collection.name">
+        <li
+          v-for="(collection, index) in filteredCollections"
+          :key="collection.name"
+        >
           <CollectionsGraphqlCollection
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
             :doc="doc"
-            :isFiltered="filterText.length > 0"
+            :is-filtered="filterText.length > 0"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
@@ -74,16 +86,12 @@
       </ul>
     </div>
     <p v-if="filterText && filteredCollections.length === 0" class="info">
-      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{ filterText }}"
+      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{
+        filterText
+      }}"
     </p>
   </AppSection>
 </template>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-</style>
 
 <script>
 import { fb } from "~/helpers/fb"
@@ -128,15 +136,16 @@ export default {
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
 
-      for (let collection of collections) {
+      for (const collection of collections) {
         const filteredRequests = []
         const filteredFolders = []
-        for (let request of collection.requests) {
-          if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
+        for (const request of collection.requests) {
+          if (request.name.toLowerCase().includes(filterText))
+            filteredRequests.push(request)
         }
-        for (let folder of collection.folders) {
+        for (const folder of collection.folders) {
           const filteredFolderRequests = []
-          for (let request of folder.requests) {
+          for (const request of folder.requests) {
             if (request.name.toLowerCase().includes(filterText))
               filteredFolderRequests.push(request)
           }
@@ -158,7 +167,7 @@ export default {
       return filteredCollections
     },
   },
-  async mounted() {
+  mounted() {
     this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
@@ -172,6 +181,9 @@ export default {
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
+  },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     displayModalAdd(shouldDisplay) {
@@ -232,7 +244,13 @@ export default {
       this.syncCollections()
     },
     editRequest(payload) {
-      const { collectionIndex, folderIndex, folderName, request, requestIndex } = payload
+      const {
+        collectionIndex,
+        folderIndex,
+        folderName,
+        request,
+        requestIndex,
+      } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex
       this.$data.editingFolderName = folderName
@@ -253,15 +271,20 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }
       }
     },
   },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
 }
 </script>
+
+<style scoped lang="scss">
+.virtual-list {
+  max-height: calc(100vh - 270px);
+}
+</style>

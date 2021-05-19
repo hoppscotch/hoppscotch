@@ -1,7 +1,10 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
+      :class="[
+        'row-wrapper transition duration-150 ease-in-out',
+        { 'bg-bgDarkColor': dragging },
+      ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -10,10 +13,16 @@
       @dragend="dragging = false"
     >
       <button class="icon" @click="toggleShowChildren">
-        <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
-        <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
+        <i v-show="!showChildren && !isFiltered" class="material-icons"
+          >arrow_right</i
+        >
+        <i v-show="showChildren || isFiltered" class="material-icons"
+          >arrow_drop_down</i
+        >
 
-        <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+        <i v-if="isSelected" class="text-green-400 material-icons"
+          >check_circle</i
+        >
 
         <i v-else class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
@@ -21,43 +30,56 @@
       <div>
         <button
           v-if="doc && !selected"
+          v-tooltip.left="$t('import')"
           class="icon"
           @click="$emit('select-collection')"
-          v-tooltip.left="$t('import')"
         >
           <i class="material-icons">check_box_outline_blank</i>
         </button>
         <button
           v-if="doc && selected"
+          v-tooltip.left="$t('delete')"
           class="icon"
           @click="$emit('unselect-collection')"
-          v-tooltip.left="$t('delete')"
         >
           <i class="material-icons">check_box</i>
         </button>
         <v-popover v-if="!saveRequest">
-          <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+          <button v-tooltip.left="$t('more')" class="tooltip-target icon">
             <i class="material-icons">more_vert</i>
           </button>
           <template slot="popover">
             <div>
               <button
-                class="icon"
-                @click="$emit('add-folder', { folder: collection, path: `${collectionIndex}` })"
                 v-close-popover
+                class="icon"
+                @click="
+                  $emit('add-folder', {
+                    folder: collection,
+                    path: `${collectionIndex}`,
+                  })
+                "
               >
                 <i class="material-icons">create_new_folder</i>
                 <span>{{ $t("new_folder") }}</span>
               </button>
             </div>
             <div>
-              <button class="icon" @click="$emit('edit-collection')" v-close-popover>
+              <button
+                v-close-popover
+                class="icon"
+                @click="$emit('edit-collection')"
+              >
                 <i class="material-icons">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
             <div>
-              <button class="icon" @click="confirmRemove = true" v-close-popover>
+              <button
+                v-close-popover
+                class="icon"
+                @click="confirmRemove = true"
+              >
                 <i class="material-icons">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
@@ -79,9 +101,9 @@
             :folder-path="`${collectionIndex}/${index}`"
             :collection-index="collectionIndex"
             :doc="doc"
-            :saveRequest="saveRequest"
-            :collectionsType="collectionsType"
-            :isFiltered="isFiltered"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
+            :is-filtered="isFiltered"
             :picked="picked"
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
@@ -105,8 +127,8 @@
             :folder-path="collectionIndex.toString()"
             :request-index="index"
             :doc="doc"
-            :saveRequest="saveRequest"
-            :collectionsType="collectionsType"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
             :picked="picked"
             @edit-request="editRequest($event)"
             @select="$emit('select', $event)"
@@ -117,13 +139,16 @@
       <ul>
         <li
           v-if="
-            (collection.folders == undefined || collection.folders.length === 0) &&
-            (collection.requests == undefined || collection.requests.length === 0)
+            (collection.folders == undefined ||
+              collection.folders.length === 0) &&
+            (collection.requests == undefined ||
+              collection.requests.length === 0)
           "
           class="flex ml-8 border-l border-brdColor"
         >
           <p class="info">
-            <i class="material-icons">not_interested</i> {{ $t("collection_empty") }}
+            <i class="material-icons">not_interested</i>
+            {{ $t("collection_empty") }}
           </p>
         </li>
       </ul>
@@ -143,14 +168,14 @@ import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   props: {
-    collectionIndex: Number,
-    collection: Object,
+    collectionIndex: { type: Number, default: null },
+    collection: { type: Object, default: () => {} },
     doc: Boolean,
     isFiltered: Boolean,
     selected: Boolean,
     saveRequest: Boolean,
-    collectionsType: Object,
-    picked: Object,
+    collectionsType: { type: Object, default: () => {} },
+    picked: { type: Object, default: () => {} },
   },
   data() {
     return {

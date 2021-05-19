@@ -6,17 +6,24 @@
         (
         <span v-for="(field, index) in fieldArgs" :key="index">
           {{ field.name }}:
-          <GraphqlTypeLink :gqlType="field.type" :jumpTypeCallback="jumpTypeCallback" />
+          <GraphqlTypeLink
+            :gql-type="field.type"
+            :jump-type-callback="jumpTypeCallback"
+          />
           <span v-if="index !== fieldArgs.length - 1"> , </span>
         </span>
         ) </span
       >:
-      <GraphqlTypeLink :gqlType="gqlField.type" :jumpTypeCallback="jumpTypeCallback" />
+      <GraphqlTypeLink
+        :gql-type="gqlField.type"
+        :jump-type-callback="jumpTypeCallback"
+      />
     </div>
-    <div class="mt-2 text-fgLightColor field-desc" v-if="gqlField.description">
+    <div v-if="gqlField.description" class="mt-2 text-fgLightColor field-desc">
       {{ gqlField.description }}
     </div>
     <div
+      v-if="gqlField.isDeprecated"
       class="
         inline-block
         px-4
@@ -29,7 +36,6 @@
         rounded-lg
         field-deprecated
       "
-      v-if="gqlField.isDeprecated"
     >
       {{ $t("deprecated") }}
     </div>
@@ -38,8 +44,14 @@
       <div class="px-4 border-l-2 border-acColor">
         <div v-for="(field, index) in fieldArgs" :key="index">
           {{ field.name }}:
-          <GraphqlTypeLink :gqlType="field.type" :jumpTypeCallback="jumpTypeCallback" />
-          <div class="mt-2 text-fgLightColor field-desc" v-if="field.description">
+          <GraphqlTypeLink
+            :gql-type="field.type"
+            :jump-type-callback="jumpTypeCallback"
+          />
+          <div
+            v-if="field.description"
+            class="mt-2 text-fgLightColor field-desc"
+          >
             {{ field.description }}
           </div>
         </div>
@@ -48,18 +60,11 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.field-highlighted {
-  @apply border-b-2;
-  @apply border-acColor;
-}
-</style>
-
 <script>
 export default {
   props: {
-    gqlField: Object,
-    jumpTypeCallback: Function,
+    gqlField: { type: Object, default: () => {} },
+    jumpTypeCallback: { type: Function, default: () => {} },
     isHighlighted: { type: Boolean, default: false },
   },
   computed: {
@@ -73,3 +78,10 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+.field-highlighted {
+  @apply border-b-2;
+  @apply border-acColor;
+}
+</style>

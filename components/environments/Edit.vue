@@ -13,22 +13,26 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="editingEnvironment.name"
         @keyup.enter="saveEnvironment"
       />
       <div class="row-wrapper">
         <label for="variableList">{{ $t("env_variable_list") }}</label>
         <div>
-          <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
+          <button
+            v-tooltip.bottom="$t('clear')"
+            class="icon"
+            @click="clearContent($event)"
+          >
             <i class="material-icons">clear_all</i>
           </button>
         </div>
       </div>
       <ul
-        v-for="(variable, index) in this.editingEnvCopy.variables"
+        v-for="(variable, index) in editingEnvCopy.variables"
         :key="index"
         class="
           border-b border-dashed
@@ -45,13 +49,13 @@
             :placeholder="$t('variable_count', { count: index + 1 })"
             :name="'param' + index"
             :value="variable.key"
+            autofocus
             @change="
               $store.commit('postwoman/setVariableKey', {
                 index,
                 value: $event.target.value,
               })
             "
-            autofocus
           />
         </li>
         <li>
@@ -59,7 +63,9 @@
             :placeholder="$t('value_count', { count: index + 1 })"
             :name="'value' + index"
             :value="
-              typeof variable.value === 'string' ? variable.value : JSON.stringify(variable.value)
+              typeof variable.value === 'string'
+                ? variable.value
+                : JSON.stringify(variable.value)
             "
             @change="
               $store.commit('postwoman/setVariableValue', {
@@ -72,10 +78,10 @@
         <div>
           <li>
             <button
+              id="variable"
+              v-tooltip.bottom="$t('delete')"
               class="icon"
               @click="removeEnvironmentVariable(index)"
-              v-tooltip.bottom="$t('delete')"
-              id="variable"
             >
               <i class="material-icons">delete</i>
             </button>
@@ -114,8 +120,8 @@ import { getSettingSubject } from "~/newstore/settings"
 export default {
   props: {
     show: Boolean,
-    editingEnvironment: Object,
-    editingEnvironmentIndex: Number,
+    editingEnvironment: { type: Object, default: () => {} },
+    editingEnvironmentIndex: { type: Number, default: null },
   },
   data() {
     return {
@@ -128,15 +134,6 @@ export default {
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
     }
   },
-  watch: {
-    editingEnvironment(update) {
-      this.name =
-        this.$props.editingEnvironment && this.$props.editingEnvironment.name
-          ? this.$props.editingEnvironment.name
-          : undefined
-      this.$store.commit("postwoman/setEditingEnvironment", this.$props.editingEnvironment)
-    },
-  },
   computed: {
     editingEnvCopy() {
       return this.$store.state.postwoman.editingEnvironment
@@ -146,10 +143,24 @@ export default {
       return result === "" ? "" : JSON.stringify(result)
     },
   },
+  watch: {
+    editingEnvironment() {
+      this.name =
+        this.$props.editingEnvironment && this.$props.editingEnvironment.name
+          ? this.$props.editingEnvironment.name
+          : undefined
+      this.$store.commit(
+        "postwoman/setEditingEnvironment",
+        this.$props.editingEnvironment
+      )
+    },
+  },
   methods: {
     syncEnvironments() {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+        )
       }
     },
     clearContent({ target }) {
@@ -158,18 +169,21 @@ export default {
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(
+        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      )
     },
     addEnvironmentVariable() {
-      let value = { key: "", value: "" }
+      const value = { key: "", value: "" }
       this.$store.commit("postwoman/addVariable", value)
       this.syncEnvironments()
     },
     removeEnvironmentVariable(index) {
-      let variableIndex = index
+      const variableIndex = index
       const oldVariables = this.editingEnvCopy.variables.slice()
       const newVariables = this.editingEnvCopy.variables.filter(
-        (variable, index) => variableIndex !== index
+        (_, index) => variableIndex !== index
       )
 
       this.$store.commit("postwoman/removeVariable", newVariables)
@@ -177,7 +191,7 @@ export default {
         icon: "delete",
         action: {
           text: this.$t("undo"),
-          onClick: (e, toastObject) => {
+          onClick: (_, toastObject) => {
             this.$store.commit("postwoman/removeVariable", oldVariables)
             toastObject.remove()
           },

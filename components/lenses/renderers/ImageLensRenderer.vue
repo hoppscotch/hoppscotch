@@ -4,11 +4,11 @@
       <label for="body">{{ $t("response_body") }}</label>
       <div>
         <button
+          v-if="response.body"
+          ref="downloadResponse"
+          v-tooltip="$t('download_file')"
           class="icon"
           @click="downloadResponse"
-          ref="downloadResponse"
-          v-if="response.body"
-          v-tooltip="$t('download_file')"
         >
           <i class="material-icons">save_alt</i>
         </button>
@@ -23,7 +23,7 @@
 <script>
 export default {
   props: {
-    response: {},
+    response: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -34,13 +34,15 @@ export default {
   },
   computed: {
     responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
+      return (this.response.headers["content-type"] || "")
+        .split(";")[0]
+        .toLowerCase()
     },
   },
   watch: {
     response: {
       immediate: true,
-      handler(newValue) {
+      handler() {
         this.imageSource = ""
 
         const buf = this.response.body

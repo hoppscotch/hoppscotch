@@ -1,11 +1,15 @@
 import { BehaviorSubject } from "rxjs"
-import { TeamCollection } from "./TeamCollection"
-import { TeamRequest } from "./TeamRequest"
-import { apolloClient } from "~/helpers/apollo"
-import { rootCollectionsOfTeam, getCollectionChildren, getCollectionRequests } from "./utils"
 import { gql } from "graphql-tag"
 import pull from "lodash/pull"
 import remove from "lodash/remove"
+import { TeamCollection } from "./TeamCollection"
+import { TeamRequest } from "./TeamRequest"
+import {
+  rootCollectionsOfTeam,
+  getCollectionChildren,
+  getCollectionRequests,
+} from "./utils"
+import { apolloClient } from "~/helpers/apollo"
 
 /*
  * NOTE: These functions deal with REFERENCES to objects and mutates them, for a simpler implementation.
@@ -31,7 +35,7 @@ function findParentOfColl(
 ): TeamCollection | null {
   for (const coll of tree) {
     // If the root is parent, return null
-    if (coll.id === collID) return currentParent ? currentParent : null
+    if (coll.id === collID) return currentParent || null
 
     // Else run it in children
     if (coll.children) {
@@ -51,7 +55,10 @@ function findParentOfColl(
  *
  * @returns REFERENCE to the collection or null if not found
  */
-function findCollInTree(tree: TeamCollection[], targetID: string): TeamCollection | null {
+function findCollInTree(
+  tree: TeamCollection[],
+  targetID: string
+): TeamCollection | null {
   for (const coll of tree) {
     // If the direct child matched, then return that
     if (coll.id === targetID) return coll
@@ -75,7 +82,10 @@ function findCollInTree(tree: TeamCollection[], targetID: string): TeamCollectio
  *
  * @returns REFERENCE to the collection or null if request not found
  */
-function findCollWithReqIDInTree(tree: TeamCollection[], reqID: string): TeamCollection | null {
+function findCollWithReqIDInTree(
+  tree: TeamCollection[],
+  reqID: string
+): TeamCollection | null {
   for (const coll of tree) {
     // Check in root collections (if expanded)
     if (coll.requests) {
@@ -101,7 +111,10 @@ function findCollWithReqIDInTree(tree: TeamCollection[], reqID: string): TeamCol
  *
  * @returns REFERENCE to the request or null if request not found
  */
-function findReqInTree(tree: TeamCollection[], reqID: string): TeamRequest | null {
+function findReqInTree(
+  tree: TeamCollection[],
+  reqID: string
+): TeamRequest | null {
   for (const coll of tree) {
     // Check in root collections (if expanded)
     if (coll.requests) {
@@ -251,7 +264,10 @@ export default class TeamCollectionAdapter {
    * @param {TeamCollection} collection - The collection to add to the tree
    * @param {string | null} parentCollectionID - The parent of the new collection, pass null if this collection is in root
    */
-  private addCollection(collection: TeamCollection, parentCollectionID: string | null) {
+  private addCollection(
+    collection: TeamCollection,
+    parentCollectionID: string | null
+  ) {
     const tree = this.collections$.value
 
     if (!parentCollectionID) {
@@ -276,7 +292,9 @@ export default class TeamCollectionAdapter {
    *
    * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} collectionUpdate - Object defining the fields that need to be updated (ID is required to find the target)
    */
-  private updateCollection(collectionUpdate: Partial<TeamCollection> & Pick<TeamCollection, "id">) {
+  private updateCollection(
+    collectionUpdate: Partial<TeamCollection> & Pick<TeamCollection, "id">
+  ) {
     const tree = this.collections$.value
 
     updateCollInTree(tree, collectionUpdate)
@@ -342,7 +360,9 @@ export default class TeamCollectionAdapter {
    *
    * @param {Partial<TeamRequest> & Pick<TeamRequest, 'id'>} requestUpdate - Object defining all the fields to update in request (ID of the request is required)
    */
-  private updateRequest(requestUpdate: Partial<TeamRequest> & Pick<TeamRequest, "id">) {
+  private updateRequest(
+    requestUpdate: Partial<TeamRequest> & Pick<TeamRequest, "id">
+  ) {
     const tree = this.collections$.value
 
     // Find request, if not present, don't update
@@ -526,7 +546,7 @@ export default class TeamCollectionAdapter {
     ).map<TeamRequest>((el) => {
       return {
         id: el.id,
-        collectionID: collectionID,
+        collectionID,
         title: el.title,
         request: JSON.parse(el.request),
       }

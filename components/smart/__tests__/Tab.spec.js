@@ -1,5 +1,5 @@
-import tab from "../Tab"
 import { mount } from "@vue/test-utils"
+import tab from "../Tab"
 
 const factory = (props, data) => {
   if (data) {

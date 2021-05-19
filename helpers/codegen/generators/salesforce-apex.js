@@ -29,7 +29,9 @@ export const SalesforceApexCodegen = {
     // create request
     requestString.push(`HttpRequest request = new HttpRequest();\n`)
     requestString.push(`request.setMethod('${method}');\n`)
-    requestString.push(`request.setEndpoint('${url}${pathName}${queryString}');\n\n`)
+    requestString.push(
+      `request.setEndpoint('${url}${pathName}${queryString}');\n\n`
+    )
 
     // authentification
     if (auth === "Basic Auth") {
@@ -40,12 +42,16 @@ export const SalesforceApexCodegen = {
         )}');\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(`request.setHeader('Authorization', 'Bearer ${bearerToken}');\n`)
+      requestString.push(
+        `request.setHeader('Authorization', 'Bearer ${bearerToken}');\n`
+      )
     }
 
     // content type
     if (contentType) {
-      requestString.push(`request.setHeader('Content-Type', '${contentType}');\n`)
+      requestString.push(
+        `request.setHeader('Content-Type', '${contentType}');\n`
+      )
     }
 
     // custom headers
@@ -70,7 +76,9 @@ export const SalesforceApexCodegen = {
     requestString.push(`    HttpResponse response = client.send(request);\n`)
     requestString.push(`    System.debug(response.getBody());\n`)
     requestString.push(`} catch (CalloutException ex) {\n`)
-    requestString.push(`    System.debug('An error occured ' + ex.getMessage());\n`)
+    requestString.push(
+      `    System.debug('An error occured ' + ex.getMessage());\n`
+    )
     requestString.push(`}`)
 
     return requestString.join("")

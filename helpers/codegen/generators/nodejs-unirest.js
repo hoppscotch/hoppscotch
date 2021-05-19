@@ -20,16 +20,20 @@ export const NodejsUnirestCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
+    const genHeaders = []
 
     requestString.push(`const unirest = require('unirest');\n`)
     requestString.push(`const req = unirest(\n`)
-    requestString.push(`'${method.toLowerCase()}', '${url}${pathName}${queryString}')\n`)
+    requestString.push(
+      `'${method.toLowerCase()}', '${url}${pathName}${queryString}')\n`
+    )
 
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
+        `    "Authorization": "Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}",\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
@@ -58,7 +62,9 @@ export const NodejsUnirestCodegen = {
         reqBodyType = "send"
       }
       if (contentType) {
-        genHeaders.push(`    "Content-Type": "${contentType}; charset=utf-8",\n`)
+        genHeaders.push(
+          `    "Content-Type": "${contentType}; charset=utf-8",\n`
+        )
       }
       requestString.push(`.\n  ${reqBodyType}( ${requestBody})`)
     }
@@ -69,7 +75,9 @@ export const NodejsUnirestCodegen = {
       })
     }
     if (genHeaders.length > 0 || headers.length > 0) {
-      requestString.push(`.\n  headers({\n${genHeaders.join("").slice(0, -2)}\n  }`)
+      requestString.push(
+        `.\n  headers({\n${genHeaders.join("").slice(0, -2)}\n  }`
+      )
     }
 
     requestString.push(`\n)`)

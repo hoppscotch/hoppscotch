@@ -13,11 +13,11 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="requestUpdateData.name"
-        @keyup.enter="saveRequest"
+        type="text"
         :placeholder="request.name"
+        @keyup.enter="saveRequest"
       />
     </div>
     <div slot="footer">
@@ -42,11 +42,11 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folderIndex: Number,
-    folderName: String,
-    request: Object,
-    requestIndex: Number,
+    collectionIndex: { type: Number, default: null },
+    folderIndex: { type: Number, default: null },
+    folderName: { type: String, default: null },
+    request: { type: Object, default: () => {} },
+    requestIndex: { type: Number, default: null },
   },
   data() {
     return {
@@ -60,7 +60,9 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }

@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="editingCollection.name"
         @keyup.enter="saveCollection"
       />
@@ -42,8 +42,8 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-    editingCollection: Object,
-    editingCollectionIndex: Number,
+    editingCollection: { type: Object, default: () => {} },
+    editingCollectionIndex: { type: Number, default: null },
   },
   data() {
     return {
@@ -55,7 +55,9 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }

@@ -1,5 +1,5 @@
-import field from "../Field"
 import { shallowMount } from "@vue/test-utils"
+import field from "../Field"
 
 const gqlField = {
   name: "testField",

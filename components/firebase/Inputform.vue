@@ -2,25 +2,30 @@
   <div class="flex-col">
     <div class="show-on-large-screen">
       <input
+        v-model="message"
         :aria-label="$t('label')"
         type="text"
         autofocus
-        v-model="message"
         :placeholder="$t('paste_a_note')"
-        @keyup.enter="formPost"
         class="rounded-t-lg"
+        @keyup.enter="formPost"
       />
     </div>
     <div class="border-b show-on-large-screen border-brdColor">
       <input
+        v-model="label"
         :aria-label="$t('label')"
         type="text"
         autofocus
-        v-model="label"
         :placeholder="$t('label')"
         @keyup.enter="formPost"
       />
-      <button class="icon" :disabled="!(this.message || this.label)" value="Save" @click="formPost">
+      <button
+        class="icon"
+        :disabled="!(message || label)"
+        value="Save"
+        @click="formPost"
+      >
         <i class="material-icons">add</i>
         <span>Add</span>
       </button>

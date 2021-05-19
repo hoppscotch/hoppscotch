@@ -1,5 +1,5 @@
 <template>
-  <AppSection id="response" :label="$t('response')" ref="response" no-legend>
+  <AppSection id="response" ref="response" :label="$t('response')" no-legend>
     <HttpResponseMeta :response="response" :active="active" />
     <div v-if="response.body && response.body !== $t('loading')">
       <LensesResponseBodyRenderer :response="response" />
@@ -12,7 +12,7 @@ export default {
   props: {
     response: {
       type: Object,
-      default: {},
+      default: () => {},
     },
     active: {
       type: Boolean,

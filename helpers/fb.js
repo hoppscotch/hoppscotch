@@ -6,14 +6,14 @@ import { getSettingSubject, applySetting } from "~/newstore/settings"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
-  apiKey: process.env.API_KEY || "AIzaSyCMsFreESs58-hRxTtiqQrIcimh4i1wbsM",
-  authDomain: process.env.AUTH_DOMAIN || "postwoman-api.firebaseapp.com",
-  databaseURL: process.env.DATABASE_URL || "https://postwoman-api.firebaseio.com",
-  projectId: process.env.PROJECT_ID || "postwoman-api",
-  storageBucket: process.env.STORAGE_BUCKET || "postwoman-api.appspot.com",
-  messagingSenderId: process.env.MESSAGING_SENDER_ID || "421993993223",
-  appId: process.env.APP_ID || "1:421993993223:web:ec0baa8ee8c02ffa1fc6a2",
-  measurementId: process.env.MEASUREMENT_ID || "G-ERJ6025CEB",
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  databaseURL: process.env.DATABASE_URL,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASUREMENT_ID,
 }
 
 const historyLimit = 50
@@ -83,7 +83,7 @@ export class FirebaseInstance {
         this.currentUser = user
 
         this.currentUser.providerData.forEach((profile) => {
-          let us = {
+          const us = {
             updatedOn: new Date(),
             provider: profile.providerId,
             name: profile.displayName,
@@ -222,7 +222,9 @@ export class FirebaseInstance {
   }
 
   async signInUserWithGithub() {
-    return await this.app.auth().signInWithPopup(this.authProviders.github().addScope("gist"))
+    return await this.app
+      .auth()
+      .signInWithPopup(this.authProviders.github().addScope("gist"))
   }
 
   async signInWithEmailAndPassword(email, password) {
@@ -251,7 +253,10 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").add(dt)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("feeds")
+        .add(dt)
     } catch (e) {
       console.error("error inserting", dt, e)
       throw e
@@ -260,7 +265,11 @@ export class FirebaseInstance {
 
   async deleteFeed(id) {
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").doc(id).delete()
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("feeds")
+        .doc(id)
+        .delete()
     } catch (e) {
       console.error("error deleting", id, e)
       throw e
@@ -293,7 +302,10 @@ export class FirebaseInstance {
     const hs = entry
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("history").add(hs)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("history")
+        .add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e
@@ -304,7 +316,10 @@ export class FirebaseInstance {
     const hs = entry
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("graphqlHistory").add(hs)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
+        .add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e
@@ -393,7 +408,11 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection(flag).doc("sync").set(cl)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection(flag)
+        .doc("sync")
+        .set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
 
@@ -435,11 +454,14 @@ export class FirebaseInstance {
         .update(us)
         .catch((e) => console.error("error updating", us, e))
     } catch (e) {
-      console.error("error updating", ev, e)
+      console.error("error updating", e)
 
       throw e
     }
   }
 }
 
-export const fb = new FirebaseInstance(firebase.initializeApp(firebaseConfig), authProviders)
+export const fb = new FirebaseInstance(
+  firebase.initializeApp(firebaseConfig),
+  authProviders
+)

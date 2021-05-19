@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="$t('my_new_environment')"
         @keyup.enter="addNewEnvironment"
       />
@@ -57,7 +57,9 @@ export default {
   methods: {
     syncEnvironments() {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+        )
       }
     },
     addNewEnvironment() {
@@ -65,7 +67,7 @@ export default {
         this.$toast.info(this.$t("invalid_environment_name"))
         return
       }
-      let newEnvironment = [
+      const newEnvironment = [
         {
           name: this.$data.name,
           variables: [],

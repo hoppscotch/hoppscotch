@@ -12,17 +12,33 @@
     </div>
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("token_req_name") }}</label>
-      <input type="text" id="selectLabel" v-model="requestData.name" @keyup.enter="saveRequestAs" />
+      <input
+        id="selectLabel"
+        v-model="requestData.name"
+        type="text"
+        @keyup.enter="saveRequestAs"
+      />
       <ul>
         <li>
           <label for="selectCollection">{{ $t("collection") }}</label>
           <span class="select-wrapper">
-            <select type="text" id="selectCollection" v-model="requestData.collectionIndex">
-              <option :key="undefined" :value="undefined" hidden disabled selected>
+            <select
+              id="selectCollection"
+              v-model="requestData.collectionIndex"
+              type="text"
+            >
+              <option
+                :key="undefined"
+                :value="undefined"
+                hidden
+                disabled
+                selected
+              >
                 {{ $t("select_collection") }}
               </option>
               <option
-                v-for="(collection, index) in $store.state.postwoman.collectionsGraphql"
+                v-for="(collection, index) in $store.state.postwoman
+                  .collectionsGraphql"
                 :key="index"
                 :value="index"
               >
@@ -34,18 +50,26 @@
       </ul>
       <label>{{ $t("folder") }}</label>
       <SmartAutoComplete
+        v-model="requestData.folderName"
         :placeholder="$t('search')"
         :source="folders"
         :spellcheck="false"
-        v-model="requestData.folderName"
       />
       <ul>
         <li>
           <label for="selectRequest">{{ $t("request") }}</label>
           <span class="select-wrapper">
-            <select type="text" id="selectRequest" v-model="requestData.requestIndex">
+            <select
+              id="selectRequest"
+              v-model="requestData.requestIndex"
+              type="text"
+            >
               <option :key="undefined" :value="undefined">/</option>
-              <option v-for="(folder, index) in requests" :key="index" :value="index">
+              <option
+                v-for="(folder, index) in requests"
+                :key="index"
+                :value="index"
+              >
                 {{ folder.name }}
               </option>
             </select>
@@ -75,7 +99,7 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-    editingRequest: Object,
+    editingRequest: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -87,20 +111,6 @@ export default {
         requestIndex: undefined,
       },
     }
-  },
-  watch: {
-    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
-      // if user has chosen some folder, than selected other collection, which doesn't have any folders
-      // than `requestUpdateData.folderName` won't be reseted
-      this.$data.requestData.folderName = undefined
-      this.$data.requestData.requestIndex = undefined
-    },
-    "requestData.folderName": function resetRequestIndex() {
-      this.$data.requestData.requestIndex = undefined
-    },
-    editingRequest({ name }) {
-      this.$data.requestData.name = name || this.$data.defaultRequestName
-    },
   },
   computed: {
     folders() {
@@ -124,7 +134,8 @@ export default {
         return []
       }
 
-      const userSelectedAnyFolder = folderName !== undefined && folderName !== ""
+      const userSelectedAnyFolder =
+        folderName !== undefined && folderName !== ""
 
       if (userSelectedAnyFolder) {
         const collection = collections[collectionIndex]
@@ -142,19 +153,36 @@ export default {
       }
     },
   },
+  watch: {
+    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
+      // if user has chosen some folder, than selected other collection, which doesn't have any folders
+      // than `requestUpdateData.folderName` won't be reseted
+      this.$data.requestData.folderName = undefined
+      this.$data.requestData.requestIndex = undefined
+    },
+    "requestData.folderName": function resetRequestIndex() {
+      this.$data.requestData.requestIndex = undefined
+    },
+    editingRequest({ name }) {
+      this.$data.requestData.name = name || this.$data.defaultRequestName
+    },
+  },
   methods: {
     syncCollections() {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }
       }
     },
     saveRequestAs() {
-      const userDidntSpecifyCollection = this.$data.requestData.collectionIndex === undefined
+      const userDidntSpecifyCollection =
+        this.$data.requestData.collectionIndex === undefined
       if (userDidntSpecifyCollection) {
         this.$toast.error(this.$t("select_collection"), {
           icon: "error",

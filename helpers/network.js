@@ -1,4 +1,6 @@
-import AxiosStrategy, { cancelRunningAxiosRequest } from "./strategies/AxiosStrategy"
+import AxiosStrategy, {
+  cancelRunningAxiosRequest,
+} from "./strategies/AxiosStrategy"
 import ExtensionStrategy, {
   cancelRunningExtensionRequest,
   hasExtensionInstalled,

@@ -1,6 +1,6 @@
-import * as cookie from "cookie"
 import * as URL from "url"
 import * as querystring from "querystring"
+import * as cookie from "cookie"
 import parser from "yargs-parser"
 
 /**
@@ -21,7 +21,7 @@ const joinDataArguments = (dataArguments) => {
 }
 
 const parseCurlCommand = (curlCommand) => {
-  let newlineFound = /\\/gi.test(curlCommand)
+  const newlineFound = /\\/gi.test(curlCommand)
   if (newlineFound) {
     // remove '\' and newlines
     curlCommand = curlCommand.replace(/\\/gi, "")
@@ -34,12 +34,12 @@ const parseCurlCommand = (curlCommand) => {
   curlCommand = curlCommand.replace(/ -XPATCH/, " -X PATCH")
   curlCommand = curlCommand.replace(/ -XDELETE/, " -X DELETE")
   curlCommand = curlCommand.trim()
-  let parsedArguments = parser(curlCommand)
+  const parsedArguments = parser(curlCommand)
   let cookieString
   let cookies
   let url = parsedArguments._[1]
   if (!url) {
-    for (let argName in parsedArguments) {
+    for (const argName in parsedArguments) {
       if (typeof parsedArguments[argName] === "string") {
         if (["http", "www."].includes(parsedArguments[argName])) {
           url = parsedArguments[argName]
@@ -62,9 +62,9 @@ const parseCurlCommand = (curlCommand) => {
           // stupid javascript tricks: closure
           cookieString = header
         } else {
-          let colonIndex = header.indexOf(":")
-          let headerName = header.substring(0, colonIndex)
-          let headerValue = header.substring(colonIndex + 1).trim()
+          const colonIndex = header.indexOf(":")
+          const headerName = header.substring(0, colonIndex)
+          const headerValue = header.substring(colonIndex + 1).trim()
           headers[headerName] = headerValue
         }
       })
@@ -109,12 +109,15 @@ const parseCurlCommand = (curlCommand) => {
     }
     // separate out cookie headers into separate data structure
     // note: cookie is case insensitive
-    cookies = cookie.parse(cookieString.replace(/^Cookie: /gi, ""), cookieParseOptions)
+    cookies = cookie.parse(
+      cookieString.replace(/^Cookie: /gi, ""),
+      cookieParseOptions
+    )
   }
   let method
   if (parsedArguments.X === "POST") {
     method = "post"
-  } else if (parsedArguments.X === "PUT" || parsedArguments["T"]) {
+  } else if (parsedArguments.X === "PUT" || parsedArguments.T) {
     method = "put"
   } else if (parsedArguments.X === "PATCH") {
     method = "patch"
@@ -123,29 +126,30 @@ const parseCurlCommand = (curlCommand) => {
   } else if (parsedArguments.X === "OPTIONS") {
     method = "options"
   } else if (
-    (parsedArguments["d"] ||
-      parsedArguments["data"] ||
+    (parsedArguments.d ||
+      parsedArguments.data ||
       parsedArguments["data-ascii"] ||
       parsedArguments["data-binary"] ||
-      parsedArguments["F"] ||
-      parsedArguments["form"]) &&
-    !(parsedArguments["G"] || parsedArguments["get"])
+      parsedArguments.F ||
+      parsedArguments.form) &&
+    !(parsedArguments.G || parsedArguments.get)
   ) {
     method = "post"
-  } else if (parsedArguments["I"] || parsedArguments["head"]) {
+  } else if (parsedArguments.I || parsedArguments.head) {
     method = "head"
   } else {
     method = "get"
   }
 
-  let compressed = !!parsedArguments.compressed
+  const compressed = !!parsedArguments.compressed
   let urlObject = URL.parse(url) // eslint-disable-line
 
   // if GET request with data, convert data to query string
   // NB: the -G flag does not change the http verb. It just moves the data into the url.
-  if (parsedArguments["G"] || parsedArguments["get"]) {
+  if (parsedArguments.G || parsedArguments.get) {
     urlObject.query = urlObject.query ? urlObject.query : ""
-    let option = "d" in parsedArguments ? "d" : "data" in parsedArguments ? "data" : null
+    const option =
+      "d" in parsedArguments ? "d" : "data" in parsedArguments ? "data" : null
     if (option) {
       let urlQueryString = ""
 
@@ -165,7 +169,7 @@ const parseCurlCommand = (curlCommand) => {
       delete parsedArguments[option]
     }
   }
-  let query = querystring.parse(urlObject.query, null, null, {
+  const query = querystring.parse(urlObject.query, null, null, {
     maxKeys: 10000,
   })
 
@@ -175,7 +179,7 @@ const parseCurlCommand = (curlCommand) => {
     urlWithoutQuery: URL.format(urlObject),
   }
   if (compressed) {
-    request["compressed"] = true
+    request.compressed = true
   }
 
   if (Object.keys(query).length > 0) {
@@ -184,7 +188,7 @@ const parseCurlCommand = (curlCommand) => {
   if (headers) {
     request.headers = headers
   }
-  request["method"] = method
+  request.method = method
 
   if (cookies) {
     request.cookies = cookies
@@ -198,24 +202,24 @@ const parseCurlCommand = (curlCommand) => {
   } else if (parsedArguments["data-binary"]) {
     request.data = parsedArguments["data-binary"]
     request.isDataBinary = true
-  } else if (parsedArguments["d"]) {
-    request.data = parsedArguments["d"]
+  } else if (parsedArguments.d) {
+    request.data = parsedArguments.d
   } else if (parsedArguments["data-ascii"]) {
     request.data = parsedArguments["data-ascii"]
   }
 
-  if (parsedArguments["u"]) {
-    request.auth = parsedArguments["u"]
+  if (parsedArguments.u) {
+    request.auth = parsedArguments.u
   }
-  if (parsedArguments["user"]) {
-    request.auth = parsedArguments["user"]
+  if (parsedArguments.user) {
+    request.auth = parsedArguments.user
   }
   if (Array.isArray(request.data)) {
     request.dataArray = request.data
     request.data = joinDataArguments(request.data)
   }
 
-  if (parsedArguments["k"] || parsedArguments["insecure"]) {
+  if (parsedArguments.k || parsedArguments.insecure) {
     request.insecure = true
   }
   return request

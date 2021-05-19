@@ -18,9 +18,11 @@ export const JavascriptJqueryCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
+    const genHeaders = []
 
-    requestString.push(`jQuery.ajax({\n  url: "${url}${pathName}${queryString}"`)
+    requestString.push(
+      `jQuery.ajax({\n  url: "${url}${pathName}${queryString}"`
+    )
     requestString.push(`,\n  method: "${method.toUpperCase()}"`)
     const requestBody = rawInput ? rawParams : rawRequestBody
 
@@ -41,12 +43,16 @@ export const JavascriptJqueryCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
+        `    "Authorization": "Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}",\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
     }
-    requestString.push(`,\n  headers: {\n${genHeaders.join("").slice(0, -2)}\n  }\n})`)
+    requestString.push(
+      `,\n  headers: {\n${genHeaders.join("").slice(0, -2)}\n  }\n})`
+    )
     requestString.push(".then(response => {\n")
     requestString.push("    console.log(response);\n")
     requestString.push("})")

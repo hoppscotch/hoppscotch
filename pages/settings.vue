@@ -4,7 +4,7 @@
       <Teams />
     </div>
 
-    <AppSection :label="$t('account')" ref="account" no-legend>
+    <AppSection ref="account" :label="$t('account')" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="fb.currentUser">
@@ -49,7 +49,10 @@
           </p>
 
           <p>
-            <SmartToggle :on="SYNC_HISTORY" @change="toggleSettings('syncHistory', !SYNC_HISTORY)">
+            <SmartToggle
+              :on="SYNC_HISTORY"
+              @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
+            >
               {{ $t("syncHistory") + " " + $t("sync") }}
               {{ SYNC_HISTORY ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
@@ -71,13 +74,16 @@
       </div>
     </AppSection>
 
-    <AppSection :label="$t('theme')" ref="theme" no-legend>
+    <AppSection ref="theme" :label="$t('theme')" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
         <SmartColorModePicker />
         <SmartAccentModePicker />
         <span>
-          <SmartToggle :on="SCROLL_INTO_ENABLED" @change="toggleSetting('SCROLL_INTO_ENABLED')">
+          <SmartToggle
+            :on="SCROLL_INTO_ENABLED"
+            @change="toggleSetting('SCROLL_INTO_ENABLED')"
+          >
             {{ $t("scrollInto_use_toggle") }}
             {{ SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
           </SmartToggle>
@@ -85,16 +91,21 @@
       </div>
     </AppSection>
 
-    <AppSection :label="$t('extensions')" ref="extensions" no-legend>
+    <AppSection ref="extensions" :label="$t('extensions')" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
-          <SmartToggle :on="EXTENSIONS_ENABLED" @change="toggleSetting('EXTENSIONS_ENABLED')">
+          <SmartToggle
+            :on="EXTENSIONS_ENABLED"
+            @change="toggleSetting('EXTENSIONS_ENABLED')"
+          >
             {{ $t("extensions_use_toggle") }}
           </SmartToggle>
         </div>
         <p v-if="extensionVersion != null" class="info">
-          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{ extensionVersion.minor }}
+          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{
+            extensionVersion.minor
+          }}
         </p>
         <p v-else class="info">
           {{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}
@@ -102,12 +113,15 @@
       </div>
     </AppSection>
 
-    <AppSection :label="$t('proxy')" ref="proxy" no-legend>
+    <AppSection ref="proxy" :label="$t('proxy')" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
           <span>
-            <SmartToggle :on="PROXY_ENABLED" @change="toggleSetting('PROXY_ENABLED')">
+            <SmartToggle
+              :on="PROXY_ENABLED"
+              @change="toggleSetting('PROXY_ENABLED')"
+            >
               {{ $t("proxy") }}
               {{ PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
@@ -117,21 +131,25 @@
             target="_blank"
             rel="noopener"
           >
-            <button class="icon" v-tooltip="$t('wiki')">
+            <button v-tooltip="$t('wiki')" class="icon">
               <i class="material-icons">help_outline</i>
             </button>
           </a>
         </div>
         <div class="row-wrapper">
           <label for="url">{{ $t("url") }}</label>
-          <button class="icon" @click="resetProxy" v-tooltip.bottom="$t('reset_default')">
+          <button
+            v-tooltip.bottom="$t('reset_default')"
+            class="icon"
+            @click="resetProxy"
+          >
             <i class="material-icons">clear_all</i>
           </button>
         </div>
         <input
           id="url"
-          type="url"
           v-model="PROXY_URL"
+          type="url"
           :disabled="!PROXY_ENABLED"
           :placeholder="$t('url')"
         />
@@ -166,7 +184,7 @@
       -->
     </AppSection>
 
-    <AppSection :label="$t('experiments')" ref="experiments" no-legend>
+    <AppSection ref="experiments" :label="$t('experiments')" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">
@@ -193,8 +211,9 @@
 </template>
 
 <script lang="ts">
-import { fb } from "~/helpers/fb"
+import Vue from "vue"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
+import { fb } from "~/helpers/fb"
 import {
   getSettingSubject,
   applySetting,
@@ -203,8 +222,6 @@ import {
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
-
-import Vue from "vue"
 
 type SettingsType = typeof defaultSettings
 
@@ -239,7 +256,9 @@ export default Vue.extend({
 
       EXTENSIONS_ENABLED: getSettingSubject("EXTENSIONS_ENABLED"),
 
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
 
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
@@ -248,6 +267,19 @@ export default Vue.extend({
       // Teams feature flag
       currentUser: currentUserInfo$,
     }
+  },
+  head() {
+    return {
+      title: `Settings • Hoppscotch`,
+    }
+  },
+  computed: {
+    proxySettings(): { url: string; key: string } {
+      return {
+        url: this.PROXY_URL,
+        key: this.PROXY_KEY,
+      }
+    },
   },
   watch: {
     proxySettings: {
@@ -271,7 +303,10 @@ export default Vue.extend({
       }
       toggleSetting(key)
     },
-    toggleSettings<K extends KeysMatching<SettingsType, boolean>>(name: K, value: SettingsType[K]) {
+    toggleSettings<K extends KeysMatching<SettingsType, boolean>>(
+      name: K,
+      value: SettingsType[K]
+    ) {
       this.applySetting(name, value)
 
       if (name === "syncCollections" && value) {
@@ -293,7 +328,10 @@ export default Vue.extend({
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(
+        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      )
     },
     syncCollections(): void {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
@@ -304,29 +342,20 @@ export default Vue.extend({
           )
         if (this.$store.state.postwoman.collectionsGraphql)
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
       }
     },
     syncEnvironments(): void {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+        )
       }
     },
-  },
-  computed: {
-    proxySettings(): { url: string; key: string } {
-      return {
-        url: this.PROXY_URL,
-        key: this.PROXY_KEY,
-      }
-    },
-  },
-  head() {
-    return {
-      title: `Settings • Hoppscotch`,
-    }
   },
 })
 </script>

@@ -28,24 +28,28 @@ export const PythonHttpClientCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
+    const genHeaders = []
 
     requestString.push(`import http.client\n`)
     requestString.push(`import mimetypes\n`)
 
     const currentUrl = new URL(url)
-    let hostname = currentUrl["hostname"]
-    let port = currentUrl["port"]
+    const hostname = currentUrl.hostname
+    const port = currentUrl.port
     if (!port) {
       requestString.push(`conn = http.client.HTTPSConnection("${hostname}")\n`)
     } else {
-      requestString.push(`conn = http.client.HTTPSConnection("${hostname}", ${port})\n`)
+      requestString.push(
+        `conn = http.client.HTTPSConnection("${hostname}", ${port})\n`
+      )
     }
     // auth headers
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `'Authorization': 'Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+        `'Authorization': 'Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}'`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`'Authorization': 'Bearer ${bearerToken}'`)
@@ -60,7 +64,7 @@ export const PythonHttpClientCodegen = {
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    if (method == "GET") {
+    if (method === "GET") {
       requestString.push(...printHeaders(genHeaders))
       requestString.push(`payload = ''\n`)
     }
@@ -86,7 +90,9 @@ export const PythonHttpClientCodegen = {
         requestString.push(`paylod = '''${requestBody}'''\n`)
       }
     }
-    requestString.push(`conn.request("${method}", "${pathName}${queryString}", payload, headers)\n`)
+    requestString.push(
+      `conn.request("${method}", "${pathName}${queryString}", payload, headers)\n`
+    )
     requestString.push(`res = conn.getresponse()\n`)
     requestString.push(`data = res.read()\n`)
     requestString.push(`print(data.decode("utf-8"))`)

@@ -38,6 +38,7 @@
     "graphql-language-service-interface": "^2.8.3",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0",
+    "node-interval-tree": "^1.3.3",
     "nuxt": "^2.15.6",
     "nuxt-i18n": "^6.27.0",
     "paho-mqtt": "^1.1.0",

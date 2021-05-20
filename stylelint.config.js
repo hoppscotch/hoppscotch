@@ -7,6 +7,7 @@ module.exports = {
       true,
       {
         ignoreAtRules: [
+          "extends",
           "tailwind",
           "apply",
           "variants",

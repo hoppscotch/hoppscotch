@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   subscriptions() {
@@ -77,12 +77,12 @@ export default {
         environments: newEnvironment,
         confirmation: "Environment added",
       })
-      this.$emit("hide-modal")
       this.syncEnvironments()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

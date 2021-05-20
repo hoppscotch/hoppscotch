@@ -42,14 +42,16 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
     editFolder() {
       this.$emit("submit", this.name)
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

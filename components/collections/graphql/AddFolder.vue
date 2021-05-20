@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import { fb } from "~/helpers/fb"
+
 export default {
   props: {
     show: Boolean,
@@ -46,18 +48,33 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null && fb.currentSettings[0]) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
+            "collectionsGraphql"
+          )
+        }
+      }
+    },
     addFolder() {
       this.$emit("add-folder", {
         name: this.name,
         folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
+      this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

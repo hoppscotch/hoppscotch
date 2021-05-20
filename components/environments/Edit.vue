@@ -125,7 +125,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
       doneButton: '<i class="material-icons">done</i>',
     }
   },
@@ -212,12 +212,12 @@ export default {
         environment: environmentUpdated,
         environmentIndex: this.$props.editingEnvironmentIndex,
       })
-      this.$emit("hide-modal")
       this.syncEnvironments()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

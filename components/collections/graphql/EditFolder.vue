@@ -48,7 +48,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -72,10 +72,11 @@ export default {
         folderName: this.$props.folder.name,
         flag: "graphql",
       })
-      this.hideModal()
       this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

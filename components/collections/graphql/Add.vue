@@ -45,7 +45,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -70,12 +70,12 @@ export default {
         name: this.$data.name,
         flag: "graphql",
       })
-      this.$emit("hide-modal")
       this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

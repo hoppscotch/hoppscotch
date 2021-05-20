@@ -398,8 +398,8 @@ export default {
       this.newMembers = []
     },
     hideModal() {
+      this.rename = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

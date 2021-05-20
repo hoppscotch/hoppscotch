@@ -47,7 +47,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -77,10 +77,11 @@ export default {
         collectionIndex: this.$props.editingCollectionIndex,
         flag: "graphql",
       })
-      this.$emit("hide-modal")
       this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

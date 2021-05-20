@@ -51,7 +51,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -79,9 +79,10 @@ export default {
           // We restore the initial user input
           this.name = name
         })
+      this.hideModal()
     },
     hideModal() {
-      this.$data.name = undefined
+      this.name = null
       this.$emit("hide-modal")
     },
   },

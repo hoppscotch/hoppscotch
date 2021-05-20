@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -56,8 +56,10 @@ export default {
         folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

@@ -45,15 +45,17 @@ export default {
   data() {
     return {
       requestUpdateData: {
-        name: undefined,
+        name: null,
       },
     }
   },
   methods: {
     saveRequest() {
       this.$emit("submit", this.requestUpdateData)
+      this.hideModal()
     },
     hideModal() {
+      this.requestUpdateData = { name: null }
       this.$emit("hide-modal")
     },
   },

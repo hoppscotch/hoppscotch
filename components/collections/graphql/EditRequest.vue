@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       requestUpdateData: {
-        name: undefined,
+        name: null,
       },
     }
   },
@@ -82,11 +82,11 @@ export default {
         requestIndex: this.$props.requestIndex,
         flag: "graphql",
       })
-
-      this.hideModal()
       this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.requestUpdateData = { name: null }
       this.$emit("hide-modal")
     },
   },

@@ -764,7 +764,6 @@ export default {
           this.paramsWatchEnabled = true
           return
         }
-
         let path = this.path || ""
 
         let queryString =

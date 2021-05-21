@@ -61,6 +61,11 @@ export default {
     doc: Boolean,
     show: Boolean,
   },
+  data() {
+    return {
+      skipTeamsFetching: true
+    }
+  },
   subscriptions() {
     return {
       currentUser: currentUserInfo$,
@@ -78,12 +83,16 @@ export default {
         }
       `,
       pollInterval: 10000,
+      skip() {
+        return this.skipTeamsFetching
+      }
     },
   },
   methods: {
     onTeamSelectIntersect() {
       // Load team data as soon as intersection
       this.$apollo.queries.myTeams.refetch()
+      this.skipTeamsFetching = false 
     },
     updateCollectionsType(tabID) {
       this.$emit("update-collection-type", tabID)

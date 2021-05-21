@@ -755,6 +755,7 @@ export default {
       if (!this.rawParams || this.rawParams === getDefaultParams(oldContentType)) {
         this.rawParams = getDefaultParams(contentType)
       }
+
       this.setRouteQueryState()
     },
     params: {
@@ -763,10 +764,16 @@ export default {
           this.paramsWatchEnabled = true
           return
         }
-        let path = this.path
-        let queryString = getQueryParams(newValue)
-          .map(({ key, value }) => `${key.trim()}=${value.trim()}`)
-          .join("&")
+
+        let path = this.path || ""
+
+        let queryString =
+          newValue && newValue.length && newValue.Length > 0
+            ? getQueryParams(newValue)
+                .map(({ key, value }) => `${key.trim()}=${value.trim()}`)
+                .join("&")
+            : ""
+
         queryString = queryString === "" ? "" : `?${encodeURI(queryString)}`
         if (path.includes("?")) {
           path = path.slice(0, path.indexOf("?")) + queryString
@@ -774,6 +781,7 @@ export default {
           path = path + queryString
         }
         this.path = path
+
         this.setRouteQueryState()
       },
       deep: true,
@@ -839,15 +847,17 @@ export default {
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
-        let url = value
-        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
-          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-          url = parseTemplateString(value, environmentVariables)
-        }
-        let result = parseUrlAndPath(url)
-        this.url = result.url
-        this.path = result.path
+        try {
+          let url = value
+          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
+            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
+            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+            url = parseTemplateString(value, environmentVariables)
+          }
+          let result = parseUrlAndPath(url)
+          this.url = result.url
+          this.path = result.path
+        } catch (ex) {}
       },
     },
     url: {
@@ -1010,7 +1020,7 @@ export default {
     },
     headers: {
       get() {
-        return this.$store.state.request.headers
+        return this.$store.state.request.headers || []
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "headers" })
@@ -1018,7 +1028,7 @@ export default {
     },
     params: {
       get() {
-        return this.$store.state.request.params
+        return this.$store.state.request.params || []
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "params" })
@@ -1026,7 +1036,7 @@ export default {
     },
     bodyParams: {
       get() {
-        return this.$store.state.request.bodyParams
+        return this.$store.state.request.bodyParams || []
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "bodyParams" })
@@ -1034,7 +1044,7 @@ export default {
     },
     rawParams: {
       get() {
-        return this.$store.state.request.rawParams
+        return this.$store.state.request.rawParams || []
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "rawParams" })
@@ -1611,6 +1621,8 @@ export default {
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {
+        if (typeof this[key] === "undefined") return ""
+
         const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
           // Exclude files fro  query params

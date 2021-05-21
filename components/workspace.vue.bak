@@ -29,9 +29,9 @@ function reportError(ex) {
   this.$toast.error(ex.message)
 }
 
-function massageStateForRestoring(state, configuration) {
+function massageStateForRestoring(state) {
   return {
-    name: state.name,
+    name: this.$store.state.name,
     ...configuration,
   }
 }
@@ -53,18 +53,16 @@ export default {
   },
 
   methods: {
-    async loadWorkspace(evt) {
+    async loadWorkspace() {
       try {
         const loaded = await loadWorkspaceFile()
         const configuration = loaded.configuration
-        const currentState = this.$store.state
-
         setTimeout(async () => {
           try {
             console.log("Current state", this.$store.state)
             console.log("loaded settings", loaded)
 
-            let toApply = massageStateForRestoring(currentState, configuration)
+            let toApply = massageStateForRestoring(configuration)
 
             console.log("settings to apply", toApply)
 
@@ -80,18 +78,17 @@ export default {
       }
       return true
     },
-    async saveWorkspace(evt) {
+    async saveWorkspace() {
       try {
         const toSave = createObjectToSave(this.$store)
         const savedContent = await saveWorkspaceToFile(toSave)
-        console.info("Saved Workspace", savedContent)
         this.$toast.info(`File saved successfully`)
       } catch (ex) {
         reportError.call(this, ex)
       }
       return true
     },
-    async createWorkspace(evt) {
+    async createWorkspace() {
       try {
         const toSave = createObjectToSave(this.$store)
         await saveWorkspaceToNewFile(toSave)

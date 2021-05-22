@@ -28,19 +28,6 @@
   </ul>
 </template>
 
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-
-.clamb-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  @apply overflow-hidden;
-}
-</style>
-
 <script>
 import { fb } from "~/helpers/fb"
 
@@ -60,3 +47,16 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+.virtual-list {
+  max-height: calc(100vh - 270px);
+}
+
+.clamb-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  @apply overflow-hidden;
+}
+</style>

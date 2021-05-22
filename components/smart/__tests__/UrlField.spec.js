@@ -24,7 +24,7 @@ describe("url-field", () => {
   //  const wrapper = factory({
   //    value: "https://hoppscotch.io/<<testa>>/<<testb>>",
   //  })
-  //  
+  //
   //  console.log(wrapper.html())
 
   //  const highlights = wrapper.findAll(".VAR").wrappers

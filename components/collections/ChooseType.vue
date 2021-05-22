@@ -63,7 +63,7 @@ export default {
   },
   data() {
     return {
-      skipTeamsFetching: true
+      skipTeamsFetching: true,
     }
   },
   subscriptions() {
@@ -85,14 +85,14 @@ export default {
       pollInterval: 10000,
       skip() {
         return this.skipTeamsFetching
-      }
+      },
     },
   },
   methods: {
     onTeamSelectIntersect() {
       // Load team data as soon as intersection
       this.$apollo.queries.myTeams.refetch()
-      this.skipTeamsFetching = false 
+      this.skipTeamsFetching = false
     },
     updateCollectionsType(tabID) {
       this.$emit("update-collection-type", tabID)

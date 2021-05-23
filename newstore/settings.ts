@@ -64,6 +64,22 @@ const dispatchers: Dispatchers<SettingsType> = {
 
     return result
   },
+  applySettingFB<K extends keyof SettingsType>(
+    _currentState: SettingsType,
+    { settingKey, value }: { settingKey: K; value: SettingsType[K] }
+  ) {
+    if (!validKeys.includes(settingKey)) {
+      console.log(
+        `Ignoring non-existent setting key '${settingKey}' assignment by firebase`
+      )
+      return {}
+    }
+
+    const result: Partial<SettingsType> = {}
+    result[settingKey] = value
+
+    return result
+  },
 }
 
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
@@ -96,6 +112,19 @@ export function applySetting<K extends keyof SettingsType>(
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
+    payload: {
+      settingKey,
+      value,
+    },
+  })
+}
+
+export function applySettingFB<K extends keyof SettingsType>(
+  settingKey: K,
+  value: SettingsType[K]
+) {
+  settingsStore.dispatch({
+    dispatcher: "applySettingFB",
     payload: {
       settingKey,
       value,

@@ -2,7 +2,7 @@ import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
 import { ReplaySubject } from "rxjs"
-import { getSettingSubject, applySetting } from "~/newstore/settings"
+import { applySettingFB, settingsStore } from "~/newstore/settings"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -16,8 +16,8 @@ const firebaseConfig = {
   measurementId: process.env.MEASUREMENT_ID,
 }
 
-const historyLimit = 50
-const graphqlHistoryLimit = 50
+const HISTORY_LIMIT = 50
+const GQL_HISTORY_LIMIT = 50
 
 export const authProviders = {
   google: () => new firebase.auth.GoogleAuthProvider(),
@@ -46,21 +46,16 @@ export class FirebaseInstance {
 
     let loadedSettings = false
 
-    getSettingSubject("syncCollections").subscribe((status) => {
-      if (this.currentUser && loadedSettings) {
-        this.writeSettings("syncCollections", status)
-      }
-    })
-
-    getSettingSubject("syncHistory").subscribe((status) => {
-      if (this.currentUser && loadedSettings) {
-        this.writeSettings("syncHistory", status)
-      }
-    })
-
-    getSettingSubject("syncEnvironments").subscribe((status) => {
-      if (this.currentUser && loadedSettings) {
-        this.writeSettings("syncEnvironments", status)
+    settingsStore.dispatches$.subscribe((dispatch) => {
+      if (
+        this.currentSettings &&
+        loadedSettings &&
+        dispatch.dispatcher !== "applySettingFB"
+      ) {
+        this.writeSettings(
+          dispatch.payload.settingKey,
+          settingsStore.value[dispatch.payload.settingKey]
+        )
       }
     })
 
@@ -130,7 +125,7 @@ export class FirebaseInstance {
 
             settings.forEach((e) => {
               if (e && e.name && e.value != null) {
-                applySetting(e.name, e.value)
+                applySettingFB(e.name, e.value)
               }
             })
 
@@ -141,7 +136,7 @@ export class FirebaseInstance {
           .doc(this.currentUser.uid)
           .collection("history")
           .orderBy("updatedOn", "desc")
-          .limit(historyLimit)
+          .limit(HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {
@@ -156,7 +151,7 @@ export class FirebaseInstance {
           .doc(this.currentUser.uid)
           .collection("graphqlHistory")
           .orderBy("updatedOn", "desc")
-          .limit(graphqlHistoryLimit)
+          .limit(GQL_HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
             historyRef.forEach((doc) => {

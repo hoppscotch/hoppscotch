@@ -3,28 +3,37 @@ import { map } from "rxjs/operators"
 import assign from "lodash/assign"
 import clone from "lodash/clone"
 
-export type Dispatchers<StoreType> = {
-  [key: string]: (currentVal: StoreType, payload: any) => Partial<StoreType>
-}
+type dispatcherFunc<StoreType> = (
+  currentVal: StoreType,
+  payload: any
+) => Partial<StoreType>
+
+/**
+ * Defines a dispatcher.
+ *
+ * This function exists to provide better typing for dispatch function.
+ * As you can see, its pretty much an identity function.
+ */
+export const defineDispatchers = <StoreType, T>(
+  // eslint-disable-next-line no-unused-vars
+  dispatchers: { [_ in keyof T]: dispatcherFunc<StoreType> }
+) => dispatchers
 
 type Dispatch<
   StoreType,
-  DispatchersType extends Dispatchers<StoreType>,
-  K extends keyof DispatchersType
+  DispatchersType extends Record<string, dispatcherFunc<StoreType>>
 > = {
-  dispatcher: K & string
+  dispatcher: keyof DispatchersType
   payload: any
 }
 
 export default class DispatchingStore<
   StoreType,
-  DispatchersType extends Dispatchers<StoreType>
+  DispatchersType extends Record<string, dispatcherFunc<StoreType>>
 > {
   #state$: BehaviorSubject<StoreType>
-  #dispatchers: Dispatchers<StoreType>
-  #dispatches$: Subject<
-    Dispatch<StoreType, DispatchersType, keyof DispatchersType>
-  > = new Subject()
+  #dispatchers: DispatchersType
+  #dispatches$: Subject<Dispatch<StoreType, DispatchersType>> = new Subject()
 
   constructor(initialValue: StoreType, dispatchers: DispatchersType) {
     this.#state$ = new BehaviorSubject(initialValue)
@@ -56,10 +65,7 @@ export default class DispatchingStore<
     return this.#dispatches$
   }
 
-  dispatch({
-    dispatcher,
-    payload,
-  }: Dispatch<StoreType, DispatchersType, keyof DispatchersType>) {
+  dispatch({ dispatcher, payload }: Dispatch<StoreType, DispatchersType>) {
     if (!this.#dispatchers[dispatcher])
       throw new Error(`Undefined dispatch type '${dispatcher}'`)
 

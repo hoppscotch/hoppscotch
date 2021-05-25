@@ -1,8 +1,7 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
 import has from "lodash/has"
 import { Observable } from "rxjs"
-import DispatchingStore from "./DispatchingStore"
-import type { Dispatchers } from "./DispatchingStore"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import type { KeysMatching } from "~/types/ts-utils"
 
 export const defaultSettings = {
@@ -28,12 +27,15 @@ export type SettingsType = typeof defaultSettings
 
 const validKeys = Object.keys(defaultSettings)
 
-const dispatchers: Dispatchers<SettingsType> = {
-  bulkApplySettings(_currentState, payload: Partial<SettingsType>) {
+const dispatchers = defineDispatchers({
+  bulkApplySettings(
+    _currentState: SettingsType,
+    payload: Partial<SettingsType>
+  ) {
     return payload
   },
   toggleSetting(
-    currentState,
+    currentState: SettingsType,
     { settingKey }: { settingKey: KeysMatching<SettingsType, boolean> }
   ) {
     if (!has(currentState, settingKey)) {
@@ -80,7 +82,7 @@ const dispatchers: Dispatchers<SettingsType> = {
 
     return result
   },
-}
+})
 
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
 

@@ -10,7 +10,7 @@ export const defaultGraphqlHistoryState = {
   state: [] as any[],
 }
 
-const HISTORY_LIMIT = 50
+export const HISTORY_LIMIT = 50
 
 type RESTHistoryType = typeof defaultRESTHistoryState
 type GraphqlHistoryType = typeof defaultGraphqlHistoryState

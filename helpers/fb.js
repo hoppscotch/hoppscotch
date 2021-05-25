@@ -8,6 +8,7 @@ import {
   setRESTHistoryEntries,
   graphqlHistoryStore,
   setGraphqlHistoryEntries,
+  HISTORY_LIMIT,
 } from "~/newstore/history"
 
 // Initialize Firebase, copied from cloud console
@@ -21,9 +22,6 @@ const firebaseConfig = {
   appId: process.env.APP_ID,
   measurementId: process.env.MEASUREMENT_ID,
 }
-
-const HISTORY_LIMIT = 50
-const GQL_HISTORY_LIMIT = 50
 
 export const authProviders = {
   google: () => new firebase.auth.GoogleAuthProvider(),
@@ -197,7 +195,7 @@ export class FirebaseInstance {
           .doc(this.currentUser.uid)
           .collection("graphqlHistory")
           .orderBy("updatedOn", "desc")
-          .limit(GQL_HISTORY_LIMIT)
+          .limit(HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
 

@@ -3,6 +3,12 @@ import "firebase/firestore"
 import "firebase/auth"
 import { ReplaySubject } from "rxjs"
 import { applySettingFB, settingsStore } from "~/newstore/settings"
+import {
+  restHistoryStore,
+  setRESTHistoryEntries,
+  graphqlHistoryStore,
+  setGraphqlHistoryEntries,
+} from "~/newstore/history"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -35,8 +41,6 @@ export class FirebaseInstance {
     this.idToken = null
     this.currentFeeds = []
     this.currentSettings = []
-    this.currentHistory = []
-    this.currentGraphqlHistory = []
     this.currentCollections = []
     this.currentGraphqlCollections = []
     this.currentEnvironments = []
@@ -45,6 +49,44 @@ export class FirebaseInstance {
     this.idToken$ = new ReplaySubject(1)
 
     let loadedSettings = false
+    let loadedRESTHistory = false
+    let loadedGraphqlHistory = false
+
+    restHistoryStore.dispatches$.subscribe((dispatch) => {
+      if (
+        loadedRESTHistory &&
+        this.currentUser &&
+        settingsStore.value.syncHistory
+      ) {
+        if (dispatch.dispatcher === "addEntry") {
+          this.writeHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "deleteEntry") {
+          this.deleteHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "clearHistory") {
+          this.clearHistory()
+        } else if (dispatch.dispatcher === "toggleStar") {
+          this.toggleStar(dispatch.payload.entry)
+        }
+      }
+    })
+
+    graphqlHistoryStore.dispatches$.subscribe((dispatch) => {
+      if (
+        loadedGraphqlHistory &&
+        this.currentUser &&
+        settingsStore.value.syncHistory
+      ) {
+        if (dispatch.dispatcher === "addEntry") {
+          this.writeGraphqlHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "deleteEntry") {
+          this.deleteGraphqlHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "clearHistory") {
+          this.clearGraphqlHistory()
+        } else if (dispatch.dispatcher === "toggleStar") {
+          this.toggleGraphqlHistoryStar(dispatch.payload.entry)
+        }
+      }
+    })
 
     settingsStore.dispatches$.subscribe((dispatch) => {
       if (
@@ -139,12 +181,16 @@ export class FirebaseInstance {
           .limit(HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
+
             historyRef.forEach((doc) => {
               const entry = doc.data()
               entry.id = doc.id
               history.push(entry)
             })
-            this.currentHistory = history
+
+            setRESTHistoryEntries(history)
+
+            loadedRESTHistory = true
           })
 
         this.usersCollection
@@ -154,12 +200,16 @@ export class FirebaseInstance {
           .limit(GQL_HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
+
             historyRef.forEach((doc) => {
               const entry = doc.data()
               entry.id = doc.id
               history.push(entry)
             })
-            this.currentGraphqlHistory = history
+
+            setGraphqlHistoryEntries(history)
+
+            loadedGraphqlHistory = true
           })
 
         this.usersCollection
@@ -365,13 +415,13 @@ export class FirebaseInstance {
     await Promise.all(docs.map((e) => this.deleteGraphqlHistory(e)))
   }
 
-  async toggleStar(entry, value) {
+  async toggleStar(entry) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("history")
         .doc(entry.id)
-        .update({ star: value })
+        .update({ star: !entry.star })
     } catch (e) {
       console.error("error deleting", entry, e)
 
@@ -379,13 +429,13 @@ export class FirebaseInstance {
     }
   }
 
-  async toggleGraphqlHistoryStar(entry, value) {
+  async toggleGraphqlHistoryStar(entry) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("graphqlHistory")
         .doc(entry.id)
-        .update({ star: value })
+        .update({ star: !entry.star })
     } catch (e) {
       console.error("error deleting", entry, e)
 

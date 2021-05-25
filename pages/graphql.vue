@@ -481,7 +481,6 @@ import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 import { getSettingSubject } from "~/newstore/settings"
-import { fb } from "~/helpers/fb"
 
 export default {
   beforeRouteLeave(_to, _from, next) {
@@ -853,12 +852,8 @@ export default {
           duration,
         }
 
+        // TODO: Use history store system mechanism instead!
         this.$refs.graphqlHistoryComponent.addEntry(entry)
-        if (fb.currentUser !== null && fb.currentSettings[2]) {
-          if (fb.currentSettings[2].value) {
-            fb.writeGraphqlHistory(entry)
-          }
-        }
       } catch (error) {
         this.response = `${error}. ${this.$t("check_console_details")}`
         this.$nuxt.$loading.finish()

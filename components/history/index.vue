@@ -91,10 +91,18 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-
-const updateOnLocalStorage = (propertyName, property) =>
-  window.localStorage.setItem(propertyName, JSON.stringify(property))
+import {
+  restHistory$, 
+  graphqlHistory$,
+  clearRESTHistory,
+  clearGraphqlHistory,
+  toggleGraphqlHistoryEntryStar,
+  toggleRESTHistoryEntryStar,
+  addGraphqlHistoryEntry,
+  addRESTHistoryEntry,
+  deleteGraphqlHistoryEntry,
+  deleteRESTHistoryEntry
+} from "~/newstore/history"
 
 export default {
   props: {
@@ -102,34 +110,21 @@ export default {
   },
   data() {
     return {
-      history:
-        fb.currentUser !== null
-          ? this.page === "rest"
-            ? fb.currentHistory
-            : fb.currentGraphqlHistory
-          : JSON.parse(
-              window.localStorage.getItem(
-                this.page === "rest" ? "history" : "graphqlHistory"
-              )
-            ) || [],
       filterText: "",
       showFilter: false,
       isClearingHistory: false,
       showMore: false,
     }
   },
+  subscriptions() {
+    return {
+      history: this.page === "rest" ? restHistory$ : graphqlHistory$
+    }
+  },
   computed: {
     filteredHistory() {
-      const filteringHistory =
-        fb.currentUser !== null
-          ? this.page === "rest"
-            ? fb.currentHistory
-            : fb.currentGraphqlHistory
-          : JSON.parse(
-              window.localStorage.getItem(
-                this.page === "rest" ? "history" : "graphqlHistory"
-              )
-            ) || []
+      const filteringHistory = this.history
+
       return filteringHistory.filter((entry) => {
         const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some((key) => {
@@ -141,19 +136,10 @@ export default {
     },
   },
   methods: {
-    async clearHistory() {
-      if (fb.currentUser !== null) {
-        this.page === "rest"
-          ? await fb.clearHistory()
-          : await fb.clearGraphqlHistory()
-      }
-      this.history = []
-      this.filterText = ""
-      this.disableHistoryClearing()
-      updateOnLocalStorage(
-        this.page === "rest" ? "history" : "graphqlHistory",
-        this.history
-      )
+    clearHistory() {
+      if (this.page === "rest") clearRESTHistory()
+      else clearGraphqlHistory()
+
       this.$toast.error(this.$t("history_deleted"), {
         icon: "delete",
       })
@@ -161,36 +147,17 @@ export default {
     useHistory(entry) {
       this.$emit("useHistory", entry)
     },
-    async deleteHistory(entry) {
-      if (this.history.length === 0) {
-        this.filterText = ""
-      }
-      if (fb.currentUser !== null) {
-        await (this.page === "rest"
-          ? fb.deleteHistory(entry)
-          : fb.deleteGraphqlHistory(entry))
-        this.history = fb.currentHistory
-        updateOnLocalStorage(
-          this.page === "rest" ? "history" : "graphqlHistory",
-          this.history
-        )
-      } else {
-        this.history.splice(this.history.indexOf(entry), 1)
-        updateOnLocalStorage(
-          this.page === "rest" ? "history" : "graphqlHistory",
-          this.history
-        )
-      }
+    deleteHistory(entry) {
+      if (this.page === "rest") deleteRESTHistoryEntry(entry)
+      else deleteGraphqlHistoryEntry(entry)
+
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },
     addEntry(entry) {
-      this.history.push(entry)
-      updateOnLocalStorage(
-        this.page === "rest" ? "history" : "graphqlHistory",
-        this.history
-      )
+      if (this.page === "rest") addRESTHistoryEntry(entry)
+      else addGraphqlHistoryEntry(entry)
     },
     enableHistoryClearing() {
       if (!this.history || !this.history.length) return
@@ -202,17 +169,9 @@ export default {
     toggleCollapse() {
       this.showMore = !this.showMore
     },
-    async toggleStar(entry) {
-      if (fb.currentUser !== null) {
-        this.page === "rest"
-          ? await fb.toggleStar(entry, !entry.star)
-          : await fb.toggleGraphqlHistoryStar(entry, !entry.star)
-      }
-      entry.star = !entry.star
-      updateOnLocalStorage(
-        this.page === "rest" ? "history" : "graphqlHistory",
-        this.history
-      )
+    toggleStar(entry) {
+      if (this.page === "rest") toggleRESTHistoryEntryStar(entry)
+      else toggleGraphqlHistoryEntryStar(entry)
     },
   },
 }

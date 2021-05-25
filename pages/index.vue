@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable -->
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
@@ -651,6 +652,8 @@
 </template>
 
 <script>
+/* eslint-disable */
+
 import url from "url"
 import querystring from "querystring"
 import parseCurlCommand from "~/helpers/curlparser"
@@ -1406,10 +1409,8 @@ export default {
             entry.url = parseTemplateString(entry.url, environmentVariables)
           }
 
+          // TODO: Use the history store mechanism instead!
           this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-            fb.writeHistory(entry)
-          }
         })()
       } catch (error) {
         this.runningRequest = false
@@ -1464,10 +1465,8 @@ export default {
               entry.url = parseTemplateString(entry.url, environmentVariables)
             }
 
+            // TODO: Use the history state mechanism instead!
             this.$refs.historyComponent.addEntry(entry)
-            if (fb.currentUser !== null && this.SYNC_HISTORY) {
-              fb.writeHistory(entry)
-            }
             return
           } else {
             this.response.status = error.message

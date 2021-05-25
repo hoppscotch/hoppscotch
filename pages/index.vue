@@ -669,6 +669,7 @@ import { httpValid } from "~/helpers/utils/valid"
 import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import { getSettingSubject, applySetting } from "~/newstore/settings"
+import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
 
 export default {
@@ -1409,8 +1410,7 @@ export default {
             entry.url = parseTemplateString(entry.url, environmentVariables)
           }
 
-          // TODO: Use the history store mechanism instead!
-          this.$refs.historyComponent.addEntry(entry)
+          addRESTHistoryEntry(entry)
         })()
       } catch (error) {
         this.runningRequest = false
@@ -1465,8 +1465,7 @@ export default {
               entry.url = parseTemplateString(entry.url, environmentVariables)
             }
 
-            // TODO: Use the history state mechanism instead!
-            this.$refs.historyComponent.addEntry(entry)
+            addRESTHistoryEntry(entry)
             return
           } else {
             this.response.status = error.message

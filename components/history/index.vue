@@ -98,8 +98,6 @@ import {
   clearGraphqlHistory,
   toggleGraphqlHistoryEntryStar,
   toggleRESTHistoryEntryStar,
-  addGraphqlHistoryEntry,
-  addRESTHistoryEntry,
   deleteGraphqlHistoryEntry,
   deleteRESTHistoryEntry
 } from "~/newstore/history"
@@ -154,10 +152,6 @@ export default {
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
-    },
-    addEntry(entry) {
-      if (this.page === "rest") addRESTHistoryEntry(entry)
-      else addGraphqlHistoryEntry(entry)
     },
     enableHistoryClearing() {
       if (!this.history || !this.history.length) return

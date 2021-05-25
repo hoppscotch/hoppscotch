@@ -481,6 +481,7 @@ import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { sendNetworkRequest } from "~/helpers/network"
 import { getSettingSubject } from "~/newstore/settings"
+import { addGraphqlHistoryEntry } from "~/newstore/history"
 
 export default {
   beforeRouteLeave(_to, _from, next) {
@@ -852,8 +853,7 @@ export default {
           duration,
         }
 
-        // TODO: Use history store system mechanism instead!
-        this.$refs.graphqlHistoryComponent.addEntry(entry)
+        addGraphqlHistoryEntry(entry)
       } catch (error) {
         this.response = `${error}. ${this.$t("check_console_details")}`
         this.$nuxt.$loading.finish()

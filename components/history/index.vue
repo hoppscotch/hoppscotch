@@ -138,6 +138,8 @@ export default {
       if (this.page === "rest") clearRESTHistory()
       else clearGraphqlHistory()
 
+      this.isClearingHistory = false
+
       this.$toast.error(this.$t("history_deleted"), {
         icon: "delete",
       })

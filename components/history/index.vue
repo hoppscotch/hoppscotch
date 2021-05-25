@@ -92,14 +92,14 @@
 
 <script>
 import {
-  restHistory$, 
+  restHistory$,
   graphqlHistory$,
   clearRESTHistory,
   clearGraphqlHistory,
   toggleGraphqlHistoryEntryStar,
   toggleRESTHistoryEntryStar,
   deleteGraphqlHistoryEntry,
-  deleteRESTHistoryEntry
+  deleteRESTHistoryEntry,
 } from "~/newstore/history"
 
 export default {
@@ -116,7 +116,7 @@ export default {
   },
   subscriptions() {
     return {
-      history: this.page === "rest" ? restHistory$ : graphqlHistory$
+      history: this.page === "rest" ? restHistory$ : graphqlHistory$,
     }
   },
   computed: {

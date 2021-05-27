@@ -17,9 +17,9 @@ ADD . /app/
 
 COPY . .
 
-RUN npm run generate
-
 ENV HOST 0.0.0.0
 EXPOSE 3000
+
+RUN mv .env.example .env
 
 CMD ["npm", "run", "dev"]

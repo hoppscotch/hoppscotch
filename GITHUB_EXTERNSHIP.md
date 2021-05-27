@@ -97,7 +97,7 @@ Send us an email at support@hoppscotch.io for any administrative or operational 
 
 You can find the complete GitHub Externship program timeline [here](https://github-externships.github.io/externship/structure.html). Students can begin registering and submitting project proposals to mentor organizations—including Hoppscotch—on April 22, 2021.
 
-All proposals must be submitted by May 21, 2021.
+All proposals must be submitted by May 31, 2021.
 
 We look forward to seeing your proposals for a happy summer of coding.
 

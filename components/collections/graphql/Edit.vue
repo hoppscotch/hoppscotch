@@ -36,10 +36,11 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { editGraphqlCollection } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
     editingCollection: { type: Object, default: () => {} },
@@ -47,37 +48,21 @@ export default {
   },
   data() {
     return {
-      name: null,
+      name: null as string | null,
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     saveCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+      if (!this.name) {
+        this.$toast.info(this.$t("invalid_collection_name").toString())
         return
       }
       const collectionUpdated = {
         ...this.$props.editingCollection,
-        name: this.$data.name,
+        name: this.name,
       }
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex,
-        flag: "graphql",
-      })
-      this.syncCollections()
+
+      editGraphqlCollection(this.editingCollectionIndex, collectionUpdated)
       this.hideModal()
     },
     hideModal() {
@@ -85,5 +70,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

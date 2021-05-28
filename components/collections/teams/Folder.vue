@@ -44,7 +44,12 @@
               v-close-popover
               class="icon"
               @click="
-                $emit('edit-folder', { folder, folderIndex, collectionIndex })
+                $emit('edit-folder', {
+                  folder,
+                  folderIndex,
+                  collectionIndex,
+                  folderPath: '',
+                })
               "
             >
               <i class="material-icons">edit</i>

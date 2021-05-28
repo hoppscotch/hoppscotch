@@ -74,6 +74,7 @@
               : $t('replace_current'),
           }"
         >
+          <!-- TODO: wtf -->
           <button
             v-if="collectionsType.type == 'my-collections'"
             :disabled="!fb.currentUser"
@@ -196,6 +197,11 @@
 import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
+import {
+  restCollections$,
+  setRESTCollections,
+  appendRESTCollections,
+} from "~/newstore/collections"
 
 export default {
   props: {
@@ -204,7 +210,6 @@ export default {
   },
   data() {
     return {
-      fb,
       showJsonCode: false,
       mode: "import_export",
       mySelectedCollectionID: undefined,
@@ -214,14 +219,8 @@ export default {
   subscriptions() {
     return {
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      myCollections: restCollections$,
     }
-  },
-  computed: {
-    myCollections() {
-      return fb.currentUser !== null
-        ? fb.currentCollections
-        : this.$store.state.postwoman.collections
-    },
   },
   methods: {
     async createCollectionGist() {
@@ -266,10 +265,7 @@ export default {
         })
         .then(({ files }) => {
           const collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", {
-            data: collections,
-            flag: "rest",
-          })
+          setRESTCollections(collections)
           this.fileImported()
           this.syncToFBCollections()
         })
@@ -330,10 +326,7 @@ export default {
               this.failedImport()
             })
         } else {
-          this.$store.commit("postwoman/replaceCollections", {
-            data: collections,
-            flag: "rest",
-          })
+          setRESTCollections(collections)
           this.fileImported()
           this.syncToFBCollections()
         }
@@ -388,10 +381,7 @@ export default {
               this.failedImport()
             })
         } else {
-          this.$store.commit("postwoman/importCollections", {
-            data: collections,
-            flag: "rest",
-          })
+          appendRESTCollections(collections)
           this.syncToFBCollections()
           this.fileImported()
         }
@@ -421,11 +411,7 @@ export default {
     },
     async getJSONCollection() {
       if (this.collectionsType.type === "my-collections") {
-        this.collectionJson = JSON.stringify(
-          this.$store.state.postwoman.collections,
-          null,
-          2
-        )
+        this.collectionJson = JSON.stringify(myCollections, null, 2)
       } else {
         this.collectionJson = await teamUtils.exportAsJSON(
           this.$apollo,
@@ -451,21 +437,6 @@ export default {
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
-    },
-    syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", {
-        data: fb.currentCollections,
-        flag: "rest",
-      })
-      this.fileImported()
-    },
-    syncToFBCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

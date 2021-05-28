@@ -45,9 +45,9 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
+import { saveRESTRequestAs, editRESTRequest } from "~/newstore/collections"
 
 export default {
   props: {
@@ -138,14 +138,6 @@ export default {
     onSelect({ picked }) {
       this.picked = picked
     },
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     saveRequestAs() {
       if (this.picked == null) {
         this.$toast.error(this.$t("select_collection"), {
@@ -163,36 +155,18 @@ export default {
       const requestUpdated = {
         ...this.$props.editingRequest,
         name: this.$data.requestData.name,
-        collection: this.$data.requestData.collectionIndex,
       }
 
       if (this.picked.pickedType === "my-request") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          folderName: this.picked.folderName,
-          requestIndex: this.picked.requestIndex,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        editRESTRequest(
+          this.picked.folderPath,
+          this.picked.requestIndex,
+          requestUpdated
+        )
       } else if (this.picked.pickedType === "my-folder") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          folderName: this.picked.folderName,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        saveRESTRequestAs(this.picked.folderPath, requestUpdated)
       } else if (this.picked.pickedType === "my-collection") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        saveRESTRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       } else if (this.picked.pickedType === "teams-request") {
         teamUtils.overwriteRequestTeams(
           this.$apollo,

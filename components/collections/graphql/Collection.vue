@@ -42,7 +42,6 @@
                 class="icon"
                 @click="
                   $emit('add-folder', {
-                    folder: collection,
                     path: `${collectionIndex}`,
                   })
                 "
@@ -135,10 +134,11 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { removeGraphqlCollection } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     collectionIndex: { type: Number, default: null },
     collection: { type: Object, default: () => {} },
@@ -154,38 +154,27 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      this.$store.commit("postwoman/removeCollection", {
-        collectionIndex: this.collectionIndex,
-        flag: "graphql",
-      })
-      this.$toast.error(this.$t("deleted"), {
+      removeGraphqlCollection(this.collectionIndex)
+
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
-      this.syncCollections()
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
+
+      // TODO: Fix this
+
       const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
       const flag = "graphql"
+
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
         newCollectionIndex: this.$props.collectionIndex,
@@ -196,8 +185,8 @@ export default {
         requestIndex,
         flag,
       })
-      this.syncCollections()
+      // this.syncCollections()
     },
   },
-}
+})
 </script>

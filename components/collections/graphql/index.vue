@@ -26,7 +26,6 @@
     />
     <CollectionsGraphqlAddFolder
       :show="showModalAddFolder"
-      :folder="editingFolder"
       :folder-path="editingFolderPath"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
@@ -36,13 +35,12 @@
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
+      :folder-path="editingFolderPath"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsGraphqlEditRequest
       :show="showModalEditRequest"
-      :collection-index="editingCollectionIndex"
-      :folder-index="editingFolderIndex"
-      :folder-name="editingFolderName"
+      :folder-path="editingFolderPath"
       :request="editingRequest"
       :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
@@ -94,7 +92,7 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
+import { graphqlCollections$, addGraphqlFolder } from "~/newstore/collections"
 
 export default {
   props: {
@@ -119,17 +117,14 @@ export default {
       filterText: "",
     }
   },
+  subscriptions() {
+    return {
+      collections: graphqlCollections$,
+    }
+  },
   computed: {
-    collections() {
-      return fb.currentUser !== null
-        ? fb.currentGraphqlCollections
-        : this.$store.state.postwoman.collectionsGraphql
-    },
     filteredCollections() {
-      const collections =
-        fb.currentUser !== null
-          ? fb.currentGraphqlCollections
-          : this.$store.state.postwoman.collectionsGraphql
+      const collections = this.collections
 
       if (!this.filterText) return collections
 
@@ -216,32 +211,21 @@ export default {
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
       this.displayModalEdit(true)
-      this.syncCollections()
     },
     onAddFolder({ name, path }) {
-      const flag = "graphql"
-      this.$store.commit("postwoman/addFolder", {
-        name,
-        path,
-        flag,
-      })
-
+      addGraphqlFolder(name, path)
       this.displayModalAddFolder(false)
-      this.syncCollections()
     },
     addFolder(payload) {
-      const { folder, path } = payload
-      this.$data.editingFolder = folder
+      const { path } = payload
       this.$data.editingFolderPath = path
       this.displayModalAddFolder(true)
     },
     editFolder(payload) {
-      const { collectionIndex, folder, folderIndex } = payload
-      this.$data.editingCollectionIndex = collectionIndex
-      this.$data.editingFolder = folder
-      this.$data.editingFolderIndex = folderIndex
+      const { folder, folderPath } = payload
+      this.editingFolder = folder
+      this.editingFolderPath = folderPath
       this.displayModalEditFolder(true)
-      this.syncCollections()
     },
     editRequest(payload) {
       const {
@@ -257,7 +241,6 @@ export default {
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
       this.displayModalEditRequest(true)
-      this.syncCollections()
     },
     resetSelectedData() {
       this.$data.editingCollection = undefined
@@ -266,18 +249,6 @@ export default {
       this.$data.editingFolderIndex = undefined
       this.$data.editingRequest = undefined
       this.$data.editingRequestIndex = undefined
-    },
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
     },
   },
 }

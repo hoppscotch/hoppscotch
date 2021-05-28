@@ -32,11 +32,9 @@
               class="icon"
               @click="
                 $emit('edit-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
                   request,
                   requestIndex,
+                  folderPath,
                 })
               "
             >
@@ -62,15 +60,14 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { removeGraphqlRequest } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     request: { type: Object, default: () => {} },
-    collectionIndex: { type: Number, default: null },
-    folderIndex: { type: Number, default: null },
-    folderName: { type: String, default: null },
+    folderPath: { type: String, default: null },
     requestIndex: { type: Number, default: null },
     doc: Boolean,
   },
@@ -81,43 +78,26 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     selectRequest() {
       this.$store.commit("postwoman/selectGraphqlRequest", {
         request: this.request,
       })
     },
-    dragStart({ dataTransfer }) {
+    dragStart({ dataTransfer }: any) {
       this.dragging = !this.dragging
+      // TODO: Discuss
       dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
       dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
       dataTransfer.setData("oldFolderName", this.$props.folderName)
       dataTransfer.setData("requestIndex", this.$props.requestIndex)
     },
     removeRequest() {
-      this.$store.commit("postwoman/removeRequest", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folderName,
-        requestIndex: this.$props.requestIndex,
-        flag: "graphql",
-      })
-      this.$toast.error(this.$t("deleted"), {
+      removeGraphqlRequest(this.folderPath, this.requestIndex)
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
       this.confirmRemove = false
-      this.syncCollections()
     },
   },
-}
+})
 </script>

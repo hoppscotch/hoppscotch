@@ -43,9 +43,7 @@
             <button
               v-close-popover
               class="icon"
-              @click="
-                $emit('edit-folder', { folder, folderIndex, collectionIndex })
-              "
+              @click="$emit('edit-folder', { folder, folderPath })"
             >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
@@ -122,10 +120,11 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { removeGraphqlFolder } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   name: "Folder",
   props: {
     folder: { type: Object, default: () => {} },
@@ -143,40 +142,24 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     toggleShowChildren() {
       this.showChildren = !this.showChildren
     },
     removeFolder() {
-      this.$store.commit("postwoman/removeFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folder.name,
-        folderIndex: this.$props.folderIndex,
-        flag: "graphql",
-      })
-      this.syncCollections()
-      this.$toast.error(this.$t("deleted"), {
+      removeGraphqlFolder(this.folderPath)
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
       const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
       const flag = "graphql"
+
+      // TODO: Discuss
 
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
@@ -188,8 +171,8 @@ export default {
         requestIndex,
         flag,
       })
-      this.syncCollections()
+      // this.syncCollections()
     },
   },
-}
+})
 </script>

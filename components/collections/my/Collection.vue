@@ -109,7 +109,7 @@
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
             @select="$emit('select', $event)"
-            @remove-request="removeRequest"
+            @remove-request="$emit('remove-request', $event)"
           />
         </li>
       </ul>
@@ -132,7 +132,7 @@
             :picked="picked"
             @edit-request="editRequest($event)"
             @select="$emit('select', $event)"
-            @remove-request="removeRequest"
+            @remove-request="$emit('remove-request', $event)"
           />
         </li>
       </ul>
@@ -252,13 +252,6 @@ export default {
         flag,
       })
       this.syncCollections()
-    },
-    removeRequest({ collectionIndex, folderName, requestIndex }) {
-      this.$emit("remove-request", {
-        collectionIndex,
-        folderName,
-        requestIndex,
-      })
     },
   },
 }

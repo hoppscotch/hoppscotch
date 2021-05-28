@@ -42,20 +42,6 @@ export const SETTINGS_KEYS = [
 
 export const state = () => ({
   settings: {},
-  collections: [
-    {
-      name: "My Collection",
-      folders: [],
-      requests: [],
-    },
-  ],
-  collectionsGraphql: [
-    {
-      name: "My GraphQL Collection",
-      folders: [],
-      requests: [],
-    },
-  ],
   environments: [
     {
       name: "My Environment Variables",

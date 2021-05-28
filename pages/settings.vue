@@ -333,6 +333,7 @@ export default Vue.extend({
         1000
       )
     },
+    // TODO: Use the new collection store
     syncCollections(): void {
       if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
         if (this.$store.state.postwoman.collections)

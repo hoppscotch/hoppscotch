@@ -131,6 +131,10 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import {
+  graphqlCollections$,
+  setGraphqlCollections,
+} from "~/newstore/collections"
 
 export default {
   props: {
@@ -142,13 +146,14 @@ export default {
       showJsonCode: false,
     }
   },
+  subscriptions() {
+    return {
+      collections: graphqlCollections$,
+    }
+  },
   computed: {
     collectionJson() {
-      return JSON.stringify(
-        this.$store.state.postwoman.collectionsGraphql,
-        null,
-        2
-      )
+      return JSON.stringify(this.collections, null, 2)
     },
   },
   methods: {
@@ -194,12 +199,8 @@ export default {
         })
         .then(({ files }) => {
           const collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", {
-            data: collections,
-            flag: "graphql",
-          })
+          setGraphqlCollections(collections)
           this.fileImported()
-          this.syncToFBCollections()
         })
         .catch((error) => {
           this.failedImport()
@@ -238,12 +239,8 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/replaceCollections", {
-          data: collections,
-          flag: "graphql",
-        })
+        setGraphqlCollections(collections)
         this.fileImported()
-        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.$refs.inputChooseFileToReplaceWith.value = ""
@@ -309,18 +306,6 @@ export default {
         flag: "graphql",
       })
       this.fileImported()
-    },
-    syncToFBCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

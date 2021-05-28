@@ -43,6 +43,7 @@
                   folderName,
                   request,
                   requestIndex,
+                  folderPath,
                 })
               "
             >
@@ -132,6 +133,7 @@ export default {
       this.$emit("remove-request", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
+        folderPath: this.folderPath,
         requestIndex: this.$props.requestIndex,
       })
     },

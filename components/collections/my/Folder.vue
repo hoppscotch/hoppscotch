@@ -47,7 +47,12 @@
               v-close-popover
               class="icon"
               @click="
-                $emit('edit-folder', { folder, folderIndex, collectionIndex })
+                $emit('edit-folder', {
+                  folder,
+                  folderIndex,
+                  collectionIndex,
+                  folderPath,
+                })
               "
             >
               <i class="material-icons">edit</i>
@@ -137,8 +142,8 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import { removeRESTFolder, removeRESTRequest } from "~/newstore/collections"
 
 export default {
   name: "Folder",
@@ -177,14 +182,6 @@ export default {
     },
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {
@@ -198,13 +195,8 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeFolder() {
-      this.$store.commit("postwoman/removeFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folder.name,
-        folderIndex: this.$props.folderIndex,
-        flag: "rest",
-      })
-      this.syncCollections()
+      removeRESTFolder(this.folderPath)
+
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
@@ -216,6 +208,8 @@ export default {
       const oldFolderName = dataTransfer.getData("oldFolderName")
       const requestIndex = dataTransfer.getData("requestIndex")
       const flag = "rest"
+
+      // TODO: Implement for the new collection state system
 
       this.$store.commit("postwoman/moveRequest", {
         oldCollectionIndex,
@@ -229,12 +223,8 @@ export default {
       })
       this.syncCollections()
     },
-    removeRequest({ collectionIndex, folderName, requestIndex }) {
-      this.$emit("remove-request", {
-        collectionIndex,
-        folderName,
-        requestIndex,
-      })
+    removeRequest({ requestIndex }) {
+      removeRESTRequest(this.folderPath, requestIndex)
     },
   },
 }

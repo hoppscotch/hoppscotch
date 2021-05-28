@@ -67,24 +67,6 @@
     </div>
     <div slot="body" class="flex flex-col">
       <div v-if="mode == 'import_export'" class="flex flex-col items-start p-2">
-        <span
-          v-tooltip="{
-            content: !fb.currentUser
-              ? $t('login_first')
-              : $t('replace_current'),
-          }"
-        >
-          <!-- TODO: wtf -->
-          <button
-            v-if="collectionsType.type == 'my-collections'"
-            :disabled="!fb.currentUser"
-            class="icon"
-            @click="syncCollections"
-          >
-            <i class="material-icons">folder_shared</i>
-            <span>{{ $t("import_from_sync") }}</span>
-          </button>
-        </span>
         <button
           v-tooltip="$t('replace_current')"
           class="icon"
@@ -214,6 +196,7 @@ export default {
       mode: "import_export",
       mySelectedCollectionID: undefined,
       collectionJson: "",
+      fb
     }
   },
   subscriptions() {
@@ -267,7 +250,6 @@ export default {
           const collections = JSON.parse(Object.values(files)[0].content)
           setRESTCollections(collections)
           this.fileImported()
-          this.syncToFBCollections()
         })
         .catch((error) => {
           this.failedImport()
@@ -328,7 +310,6 @@ export default {
         } else {
           setRESTCollections(collections)
           this.fileImported()
-          this.syncToFBCollections()
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
@@ -382,7 +363,6 @@ export default {
             })
         } else {
           appendRESTCollections(collections)
-          this.syncToFBCollections()
           this.fileImported()
         }
       }
@@ -411,7 +391,7 @@ export default {
     },
     async getJSONCollection() {
       if (this.collectionsType.type === "my-collections") {
-        this.collectionJson = JSON.stringify(myCollections, null, 2)
+        this.collectionJson = JSON.stringify(this.myCollections, null, 2)
       } else {
         this.collectionJson = await teamUtils.exportAsJSON(
           this.$apollo,

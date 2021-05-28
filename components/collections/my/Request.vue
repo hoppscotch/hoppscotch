@@ -124,10 +124,8 @@ export default {
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
-      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
-      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
-      dataTransfer.setData("oldFolderName", this.$props.folderName)
-      dataTransfer.setData("requestIndex", this.$props.requestIndex)
+      dataTransfer.setData("folderPath", this.folderPath)
+      dataTransfer.setData("requestIndex", this.requestIndex)
     },
     removeRequest() {
       this.$emit("remove-request", {

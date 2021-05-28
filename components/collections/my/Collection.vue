@@ -163,8 +163,7 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+import { moveRESTRequest } from "~/newstore/collections"
 
 export default {
   props: {
@@ -188,11 +187,6 @@ export default {
       pageNo: 0,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   computed: {
     isSelected() {
       return (
@@ -205,14 +199,6 @@ export default {
   methods: {
     editRequest(event) {
       this.$emit("edit-request", event)
-    },
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
     },
     toggleShowChildren() {
       if (this.$props.saveRequest)
@@ -236,22 +222,9 @@ export default {
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: -1,
-        newFolderName: this.$props.collection.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      this.syncCollections()
+      moveRESTRequest(folderPath, requestIndex, this.collectionIndex.toString())
     },
   },
 }

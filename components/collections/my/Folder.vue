@@ -104,8 +104,8 @@
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
-            :request-index="index"
             :folder-path="folderPath"
+            :request-index="index"
             :doc="doc"
             :picked="picked"
             :save-request="saveRequest"
@@ -142,8 +142,11 @@
 </template>
 
 <script>
-import { getSettingSubject } from "~/newstore/settings"
-import { removeRESTFolder, removeRESTRequest } from "~/newstore/collections"
+import {
+  removeRESTFolder,
+  removeRESTRequest,
+  moveRESTRequest,
+} from "~/newstore/collections"
 
 export default {
   name: "Folder",
@@ -165,11 +168,6 @@ export default {
       confirmRemove: false,
       prevCursor: "",
       cursor: "",
-    }
-  },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
     }
   },
   computed: {
@@ -203,25 +201,9 @@ export default {
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
-
-      // TODO: Implement for the new collection state system
-
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: this.$props.folderIndex,
-        newFolderName: this.$props.folder.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      this.syncCollections()
+      moveRESTRequest(folderPath, requestIndex, this.folderPath)
     },
     removeRequest({ requestIndex }) {
       removeRESTRequest(this.folderPath, requestIndex)

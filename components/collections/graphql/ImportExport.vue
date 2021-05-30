@@ -54,22 +54,6 @@
     </div>
     <div slot="body" class="flex flex-col">
       <div class="flex flex-col items-start p-2">
-        <span
-          v-tooltip="{
-            content: !fb.currentUser
-              ? $t('login_first')
-              : $t('replace_current'),
-          }"
-        >
-          <button
-            :disabled="!fb.currentUser"
-            class="icon"
-            @click="syncCollections"
-          >
-            <i class="material-icons">folder_shared</i>
-            <span>{{ $t("import_from_sync") }}</span>
-          </button>
-        </span>
         <button
           v-tooltip="$t('replace_current')"
           class="icon"
@@ -134,6 +118,7 @@ import { fb } from "~/helpers/fb"
 import {
   graphqlCollections$,
   setGraphqlCollections,
+  appendGraphqlCollections,
 } from "~/newstore/collections"
 
 export default {
@@ -272,12 +257,8 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/importCollections", {
-          data: collections,
-          flag: "graphql",
-        })
+        appendGraphqlCollections(collections)
         this.fileImported()
-        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
@@ -299,13 +280,6 @@ export default {
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
-    },
-    syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", {
-        data: fb.currentGraphqlCollections,
-        flag: "graphql",
-      })
-      this.fileImported()
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

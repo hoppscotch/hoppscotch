@@ -2,7 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">Export</h3>
+        <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
         <div>
           <button
             v-if="mode != 'import_export'"
@@ -177,7 +177,6 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
 import {
   restCollections$,
@@ -201,7 +200,6 @@ export default {
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       myCollections: restCollections$,
     }
   },

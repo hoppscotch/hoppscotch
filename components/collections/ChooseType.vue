@@ -1,27 +1,45 @@
 <template>
   <div v-if="show">
-    <SmartTabs styles="m-4" :id="'collections_tab'" v-on:tab-changed="updateCollectionsType">
-      <SmartTab :id="'my-collections'" :label="'My Collections'" :selected="true"> </SmartTab>
+    <SmartTabs
+      :id="'collections_tab'"
+      styles="m-4"
+      @tab-changed="updateCollectionsType"
+    >
       <SmartTab
+        :id="'my-collections'"
+        :label="'My Collections'"
+        :selected="true"
+      />
+      <SmartTab
+        v-if="currentUser && currentUser.eaInvited && !doc"
         :id="'team-collections'"
         :label="'Team Collections'"
-        v-if="currentUser && currentUser.eaInvited && !doc"
       >
         <ul>
           <li>
             <span class="select-wrapper">
               <SmartIntersection @intersecting="onTeamSelectIntersect">
                 <select
-                  type="text"
                   id="team"
+                  type="text"
                   class="team"
                   autofocus
                   @change="updateSelectedTeam(myTeams[$event.target.value])"
                 >
-                  <option :key="undefined" :value="undefined" hidden disabled selected>
+                  <option
+                    :key="undefined"
+                    :value="undefined"
+                    hidden
+                    disabled
+                    selected
+                  >
                     Select team
                   </option>
-                  <option v-for="(team, index) in myTeams" :key="index" :value="index">
+                  <option
+                    v-for="(team, index) in myTeams"
+                    :key="index"
+                    :value="index"
+                  >
                     {{ team.name }}
                   </option>
                 </select>
@@ -43,6 +61,11 @@ export default {
     doc: Boolean,
     show: Boolean,
   },
+  data() {
+    return {
+      skipTeamsFetching: true,
+    }
+  },
   subscriptions() {
     return {
       currentUser: currentUserInfo$,
@@ -60,12 +83,16 @@ export default {
         }
       `,
       pollInterval: 10000,
+      skip() {
+        return this.skipTeamsFetching
+      },
     },
   },
   methods: {
     onTeamSelectIntersect() {
       // Load team data as soon as intersection
       this.$apollo.queries.myTeams.refetch()
+      this.skipTeamsFetching = false
     },
     updateCollectionsType(tabID) {
       this.$emit("update-collection-type", tabID)

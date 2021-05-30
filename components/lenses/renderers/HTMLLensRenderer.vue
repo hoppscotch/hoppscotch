@@ -4,13 +4,15 @@
       <label for="body">{{ $t("response_body") }}</label>
       <div>
         <button
+          v-if="response.body"
+          ref="ToggleExpandResponse"
+          v-tooltip="{
+            content: !expandResponse
+              ? $t('expand_response')
+              : $t('collapse_response'),
+          }"
           class="icon"
           @click="ToggleExpandResponse"
-          ref="ToggleExpandResponse"
-          v-if="response.body"
-          v-tooltip="{
-            content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
-          }"
         >
           <i class="material-icons">
             {{ !expandResponse ? "unfold_more" : "unfold_less" }}
@@ -18,31 +20,31 @@
         </button>
         <button
           v-if="response.body"
-          class="icon"
-          @click.prevent="togglePreview"
           v-tooltip="{
             content: previewEnabled ? $t('hide_preview') : $t('preview_html'),
           }"
+          class="icon"
+          @click.prevent="togglePreview"
         >
           <i class="material-icons">
             {{ !previewEnabled ? "visibility" : "visibility_off" }}
           </i>
         </button>
         <button
+          v-if="response.body"
+          ref="downloadResponse"
+          v-tooltip="$t('download_file')"
           class="icon"
           @click="downloadResponse"
-          ref="downloadResponse"
-          v-if="response.body"
-          v-tooltip="$t('download_file')"
         >
           <i class="material-icons">save_alt</i>
         </button>
         <button
+          v-if="response.body"
+          ref="copyResponse"
+          v-tooltip="$t('copy_response')"
           class="icon"
           @click="copyResponse"
-          ref="copyResponse"
-          v-if="response.body"
-          v-tooltip="$t('copy_response')"
         >
           <i class="material-icons">content_copy</i>
         </button>
@@ -64,9 +66,9 @@
         styles="rounded-b-lg"
       />
       <iframe
+        ref="previewFrame"
         :class="{ hidden: !previewEnabled }"
         class="covers-response"
-        ref="previewFrame"
         src="about:blank"
       ></iframe>
     </div>
@@ -79,7 +81,7 @@ import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 export default {
   mixins: [TextContentRendererMixin],
   props: {
-    response: {},
+    response: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -94,7 +96,8 @@ export default {
   methods: {
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines === Infinity ? 16 : Infinity
     },
     downloadResponse() {
       const dataToWrite = this.responseBodyText
@@ -128,19 +131,30 @@ export default {
       aux.select()
       document.execCommand("copy")
       document.body.removeChild(aux)
-      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyResponse.innerHTML = this.copyButton),
+        1000
+      )
     },
     togglePreview() {
       this.previewEnabled = !this.previewEnabled
       if (this.previewEnabled) {
-        if (this.$refs.previewFrame.getAttribute("data-previewing-url") === this.url) return
+        if (
+          this.$refs.previewFrame.getAttribute("data-previewing-url") ===
+          this.url
+        )
+          return
         // Use DOMParser to parse document HTML.
-        const previewDocument = new DOMParser().parseFromString(this.responseBodyText, "text/html")
+        const previewDocument = new DOMParser().parseFromString(
+          this.responseBodyText,
+          "text/html"
+        )
         // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
         previewDocument.head.innerHTML =
           `<base href="${this.url}">` + previewDocument.head.innerHTML
         // Finally, set the iframe source to the resulting HTML.
-        this.$refs.previewFrame.srcdoc = previewDocument.documentElement.outerHTML
+        this.$refs.previewFrame.srcdoc =
+          previewDocument.documentElement.outerHTML
         this.$refs.previewFrame.setAttribute("data-previewing-url", this.url)
       }
     },

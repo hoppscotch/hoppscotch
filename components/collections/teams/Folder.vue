@@ -3,10 +3,16 @@
     <div class="transition duration-150 ease-in-out row-wrapper">
       <div>
         <button class="icon" @click="toggleShowChildren">
-          <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
-          <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
+          <i v-show="!showChildren && !isFiltered" class="material-icons"
+            >arrow_right</i
+          >
+          <i v-show="showChildren || isFiltered" class="material-icons"
+            >arrow_drop_down</i
+          >
 
-          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+          <i v-if="isSelected" class="text-green-400 material-icons"
+            >check_circle</i
+          >
 
           <i v-else class="material-icons">folder_open</i>
           <span>{{ folder.name ? folder.name : folder.title }}</span>
@@ -15,8 +21,8 @@
       <v-popover v-if="!saveRequest">
         <button
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-          class="tooltip-target icon"
           v-tooltip.left="$t('more')"
+          class="tooltip-target icon"
         >
           <i class="material-icons">more_vert</i>
         </button>
@@ -24,9 +30,9 @@
           <div>
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              v-close-popover
               class="icon"
               @click="$emit('add-folder', { folder, path: folderPath })"
-              v-close-popover
             >
               <i class="material-icons">create_new_folder</i>
               <span>{{ $t("new_folder") }}</span>
@@ -35,9 +41,11 @@
           <div>
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              class="icon"
-              @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"
               v-close-popover
+              class="icon"
+              @click="
+                $emit('edit-folder', { folder, folderIndex, collectionIndex })
+              "
             >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
@@ -46,9 +54,9 @@
           <div>
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              v-close-popover
               class="icon"
               @click="confirmRemove = true"
-              v-close-popover
             >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
@@ -69,8 +77,8 @@
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
-            :saveRequest="saveRequest"
-            :collectionsType="collectionsType"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
             :picked="picked"
             @add-folder="$emit('add-folder', $event)"
@@ -96,8 +104,8 @@
             :folder-name="folder.name"
             :request-index="request.id"
             :doc="doc"
-            :saveRequest="saveRequest"
-            :collectionsType="collectionsType"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
             :picked="picked"
             @edit-request="$emit('edit-request', $event)"
             @select="$emit('select', $event)"
@@ -112,7 +120,10 @@
         "
       >
         <li class="flex ml-8 border-l border-brdColor">
-          <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
+          <p class="info">
+            <i class="material-icons">not_interested</i>
+            {{ $t("folder_empty") }}
+          </p>
         </li>
       </ul>
     </div>
@@ -126,20 +137,20 @@
 </template>
 
 <script>
-import * as team_utils from "~/helpers/teams/utils"
+import * as teamUtils from "~/helpers/teams/utils"
 
 export default {
-  name: "folder",
+  name: "Folder",
   props: {
-    folder: Object,
-    folderIndex: Number,
-    collectionIndex: Number,
-    folderPath: String,
+    folder: { type: Object, default: () => {} },
+    folderIndex: { type: Number, default: null },
+    collectionIndex: { type: Number, default: null },
+    folderPath: { type: String, default: null },
     doc: Boolean,
     saveRequest: Boolean,
     isFiltered: Boolean,
-    collectionsType: Object,
-    picked: Object,
+    collectionsType: { type: Object, default: () => {} },
+    picked: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -172,10 +183,10 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeFolder() {
-      if (this.collectionsType.selectedTeam.myRole != "VIEWER") {
-        team_utils
+      if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
+        teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
-          .then((data) => {
+          .then(() => {
             // Result
             this.$toast.success(this.$t("deleted"), {
               icon: "delete",

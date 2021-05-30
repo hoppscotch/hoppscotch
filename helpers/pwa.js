@@ -1,11 +1,14 @@
 export default () => {
-  //*** Determine whether or not the PWA has been installed. ***//
+  //* ** Determine whether or not the PWA has been installed. ***//
 
   // Step 1: Check local storage
   let pwaInstalled = localStorage.getItem("pwaInstalled") === "yes"
 
   // Step 2: Check if the display-mode is standalone. (Only permitted for PWAs.)
-  if (!pwaInstalled && window.matchMedia("(display-mode: standalone)").matches) {
+  if (
+    !pwaInstalled &&
+    window.matchMedia("(display-mode: standalone)").matches
+  ) {
     localStorage.setItem("pwaInstalled", "yes")
     pwaInstalled = true
   }
@@ -16,7 +19,7 @@ export default () => {
     pwaInstalled = true
   }
 
-  //*** If the PWA has not been installed, show the install PWA prompt.. ***//
+  //* ** If the PWA has not been installed, show the install PWA prompt.. ***//
   let deferredPrompt = null
   window.addEventListener("beforeinstallprompt", (event) => {
     deferredPrompt = event
@@ -28,7 +31,7 @@ export default () => {
   })
 
   // When the app is installed, remove install prompts.
-  window.addEventListener("appinstalled", (event) => {
+  window.addEventListener("appinstalled", () => {
     localStorage.setItem("pwaInstalled", "yes")
     pwaInstalled = true
     document.getElementById("installPWA").style.display = "none"
@@ -38,12 +41,14 @@ export default () => {
   return async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt()
-      let outcome = await deferredPrompt.userChoice
+      const outcome = await deferredPrompt.userChoice
 
       if (outcome === "accepted") {
         console.log("Hoppscotch was installed successfully.")
       } else {
-        console.log("Hoppscotch could not be installed. (Installation rejected by user.)")
+        console.log(
+          "Hoppscotch could not be installed. (Installation rejected by user.)"
+        )
       }
       deferredPrompt = null
     }

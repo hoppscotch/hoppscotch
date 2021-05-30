@@ -1,5 +1,7 @@
-import feeds from "../Feeds"
 import { shallowMount } from "@vue/test-utils"
+import feeds from "../Feeds"
+
+import { fb } from "~/helpers/fb"
 
 jest.mock("~/helpers/fb", () => ({
   __esModule: true,
@@ -27,8 +29,6 @@ jest.mock("~/helpers/fb", () => ({
   },
 }))
 
-import { fb } from "~/helpers/fb"
-
 const factory = () =>
   shallowMount(feeds, {
     mocks: {
@@ -53,7 +53,9 @@ describe("feeds", () => {
   test("renders all the current feeds", () => {
     const wrapper = factory()
 
-    expect(wrapper.findAll("div[data-test='list-item']").wrappers).toHaveLength(4)
+    expect(wrapper.findAll("div[data-test='list-item']").wrappers).toHaveLength(
+      4
+    )
   })
 
   test("feeds with no label displays the 'no_label' message", () => {
@@ -63,7 +65,7 @@ describe("feeds", () => {
       wrapper
         .findAll("label[data-test='list-label']")
         .wrappers.map((e) => e.text())
-        .filter((text) => text == "no_label")
+        .filter((text) => text === "no_label")
     ).toHaveLength(2)
   })
 
@@ -74,30 +76,28 @@ describe("feeds", () => {
       wrapper
         .findAll("li[data-test='list-message']")
         .wrappers.map((e) => e.text())
-        .filter((text) => text == "empty")
+        .filter((text) => text === "empty")
     ).toHaveLength(2)
   })
 
   test("labels in the list are proper", () => {
     const wrapper = factory()
 
-    expect(wrapper.findAll("label[data-test='list-label']").wrappers.map((e) => e.text())).toEqual([
-      "First",
-      "Second",
-      "no_label",
-      "no_label",
-    ])
+    expect(
+      wrapper
+        .findAll("label[data-test='list-label']")
+        .wrappers.map((e) => e.text())
+    ).toEqual(["First", "Second", "no_label", "no_label"])
   })
 
   test("messages in the list are proper", () => {
     const wrapper = factory()
 
-    expect(wrapper.findAll("li[data-test='list-message']").wrappers.map((e) => e.text())).toEqual([
-      "First Message",
-      "empty",
-      "Third Message",
-      "empty",
-    ])
+    expect(
+      wrapper
+        .findAll("li[data-test='list-message']")
+        .wrappers.map((e) => e.text())
+    ).toEqual(["First Message", "empty", "Third Message", "empty"])
   })
 
   test("clicking on the delete button deletes the feed", async () => {

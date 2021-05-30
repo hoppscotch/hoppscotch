@@ -3,7 +3,10 @@
     <label>
       <ColorScheme placeholder="..." tag="span">
         {{ $t("background") }}:
-        {{ $colorMode.preference.charAt(0).toUpperCase() + $colorMode.preference.slice(1) }}
+        {{
+          $colorMode.preference.charAt(0).toUpperCase() +
+          $colorMode.preference.slice(1)
+        }}
         <span v-if="$colorMode.preference === 'system'">
           ({{ $colorMode.value }} mode detected)
         </span>

@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="show = false">
+  <SmartModal v-if="show" @close="$emit('hide-modal')">
     <div slot="header">
       <div class="row-wrapper">
         <h3 class="title">{{ $t("edit_folder") }}</h3>
@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="folder.name"
         @keyup.enter="editFolder"
       />
@@ -42,13 +42,13 @@ import { fb } from "~/helpers/fb"
 export default {
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folder: Object,
-    folderIndex: Number,
+    collectionIndex: { type: Number, default: null },
+    folder: { type: Object, default: () => {} },
+    folderIndex: { type: Number, default: null },
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -56,7 +56,9 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }
@@ -70,10 +72,11 @@ export default {
         folderName: this.$props.folder.name,
         flag: "graphql",
       })
-      this.hideModal()
       this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

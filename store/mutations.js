@@ -11,7 +11,9 @@ export default {
 
   setCollapsedSection({ theme }, value) {
     theme.collapsedSections.includes(value)
-      ? (theme.collapsedSections = theme.collapsedSections.filter((section) => section !== value))
+      ? (theme.collapsedSections = theme.collapsedSections.filter(
+          (section) => section !== value
+        ))
       : theme.collapsedSections.push(value)
   },
 
@@ -20,7 +22,7 @@ export default {
   },
 
   setActiveGQLHeader({ gql }, { index, value }) {
-    if (!gql.headers[index].hasOwnProperty("active")) {
+    if (!Object.prototype.hasOwnProperty.call(gql.headers[index], "active")) {
       Vue.set(gql.headers[index], "active", value)
     } else {
       gql.headers[index].active = value
@@ -56,7 +58,9 @@ export default {
   },
 
   setActiveHeader({ request }, { index, value }) {
-    if (!request.headers[index].hasOwnProperty("active")) {
+    if (
+      !Object.prototype.hasOwnProperty.call(request.headers[index], "active")
+    ) {
       Vue.set(request.headers[index], "active", value)
     } else {
       request.headers[index].active = value
@@ -84,7 +88,9 @@ export default {
   },
 
   setActiveParams({ request }, { index, value }) {
-    if (!request.params[index].hasOwnProperty("active")) {
+    if (
+      !Object.prototype.hasOwnProperty.call(request.params[index], "active")
+    ) {
       Vue.set(request.params[index], "active", value)
     } else {
       request.params[index].active = value
@@ -124,7 +130,9 @@ export default {
   },
 
   setActiveBodyParams({ request }, { index, value }) {
-    if (!request.bodyParams[index].hasOwnProperty("active")) {
+    if (
+      !Object.prototype.hasOwnProperty.call(request.bodyParams[index], "active")
+    ) {
       Vue.set(request.bodyParams[index], "active", value)
     } else {
       request.bodyParams[index].active = value

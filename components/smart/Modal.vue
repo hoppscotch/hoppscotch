@@ -20,6 +20,16 @@
   </transition>
 </template>
 
+<script>
+export default {
+  computed: {
+    hasFooterSlot() {
+      return !!this.$slots.footer
+    },
+  },
+}
+</script>
+
 <style scoped lang="scss">
 .modal-backdrop {
   @apply fixed;
@@ -118,13 +128,3 @@
   }
 }
 </style>
-
-<script>
-export default {
-  computed: {
-    hasFooterSlot() {
-      return !!this.$slots.footer
-    },
-  },
-}
-</script>

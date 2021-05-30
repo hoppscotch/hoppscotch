@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="show = false">
+  <SmartModal v-if="show" @close="$emit('hide-modal')">
     <div slot="header">
       <div class="row-wrapper">
         <h3 class="title">{{ $t("new_folder") }}</h3>
@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="$t('my_new_folder')"
         @keyup.enter="addFolder"
       />
@@ -37,27 +37,44 @@
 </template>
 
 <script>
+import { fb } from "~/helpers/fb"
+
 export default {
   props: {
     show: Boolean,
-    folder: Object,
-    folderPath: String,
-    collectionIndex: Number,
+    folder: { type: Object, default: () => {} },
+    folderPath: { type: String, default: null },
+    collectionIndex: { type: Number, default: null },
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null && fb.currentSettings[0]) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
+            "collectionsGraphql"
+          )
+        }
+      }
+    },
     addFolder() {
       this.$emit("add-folder", {
         name: this.name,
         folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
+      this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

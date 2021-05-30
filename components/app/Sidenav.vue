@@ -6,27 +6,32 @@
         seems to mess up the nuxt-link active class.
       -->
       <nuxt-link
+        v-tooltip.right="$t('home')"
         :to="localePath('index')"
         :class="linkActive('/')"
-        v-tooltip.right="$t('home')"
         :aria-label="$t('home')"
       >
         <AppLogo alt class="material-icons" style="height: 24px" />
       </nuxt-link>
       <nuxt-link
+        v-tooltip.right="$t('realtime')"
         :to="localePath('realtime')"
         :class="linkActive('/realtime')"
-        v-tooltip.right="$t('realtime')"
       >
         <i class="material-icons">language</i>
       </nuxt-link>
       <nuxt-link
+        v-tooltip.right="$t('graphql')"
         :to="localePath('graphql')"
         :class="linkActive('/graphql')"
-        v-tooltip.right="$t('graphql')"
         :aria-label="$t('graphql')"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 29.999 30">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24"
+          width="24"
+          viewBox="0 0 29.999 30"
+        >
           <path d="M4.08 22.864l-1.1-.636L15.248.98l1.1.636z" />
           <path d="M2.727 20.53h24.538v1.272H2.727z" />
           <path
@@ -43,79 +48,110 @@
         </svg>
       </nuxt-link>
       <nuxt-link
+        v-tooltip.right="$t('documentation')"
         :to="localePath('doc')"
         :class="linkActive('/doc')"
-        v-tooltip.right="$t('documentation')"
         :aria-label="$t('documentation')"
       >
         <i class="material-icons">topic</i>
       </nuxt-link>
       <nuxt-link
+        v-tooltip.right="$t('settings')"
         :to="localePath('settings')"
         :class="linkActive('/settings')"
-        v-tooltip.right="$t('settings')"
         :aria-label="$t('settings')"
       >
         <i class="material-icons">settings</i>
       </nuxt-link>
     </nav>
     <nav v-if="$route.path == '/'" class="secondary-nav">
-      <a href="#request" v-tooltip.right="$t('request')">
+      <a v-tooltip.right="$t('request')" href="#request">
         <i class="material-icons">cloud_upload</i>
       </a>
-      <a href="#options" v-tooltip.right="$t('options')">
+      <a v-tooltip.right="$t('options')" href="#options">
         <i class="material-icons">toc</i>
       </a>
-      <a href="#response" v-tooltip.right="$t('response')">
+      <a v-tooltip.right="$t('response')" href="#response">
         <i class="material-icons">cloud_download</i>
       </a>
     </nav>
     <nav v-else-if="$route.path.includes('/realtime')" class="secondary-nav">
-      <a href="#request" v-tooltip.right="$t('request')">
+      <a v-tooltip.right="$t('request')" href="#request">
         <i class="material-icons">cloud_upload</i>
       </a>
-      <a href="#response" v-tooltip.right="$t('communication')">
+      <a v-tooltip.right="$t('communication')" href="#response">
         <i class="material-icons">cloud_download</i>
       </a>
     </nav>
     <nav v-else-if="$route.path.includes('/graphql')" class="secondary-nav">
-      <a href="#endpoint" v-tooltip.right="$t('endpoint')">
+      <a v-tooltip.right="$t('endpoint')" href="#endpoint">
         <i class="material-icons">cloud</i>
       </a>
-      <a href="#schema" v-tooltip.right="$t('schema')">
+      <a v-tooltip.right="$t('schema')" href="#schema">
         <i class="material-icons">assignment_returned</i>
       </a>
-      <a href="#query" v-tooltip.right="$t('query')">
+      <a v-tooltip.right="$t('query')" href="#query">
         <i class="material-icons">cloud_upload</i>
       </a>
-      <a href="#response" v-tooltip.right="$t('response')">
+      <a v-tooltip.right="$t('response')" href="#response">
         <i class="material-icons">cloud_download</i>
       </a>
     </nav>
     <nav v-else-if="$route.path.includes('/doc')" class="secondary-nav">
-      <a href="#import" v-tooltip.right="$t('import')">
+      <a v-tooltip.right="$t('import')" href="#import">
         <i class="material-icons">folder</i>
       </a>
-      <a href="#documentation" v-tooltip.right="$t('documentation')">
+      <a v-tooltip.right="$t('documentation')" href="#documentation">
         <i class="material-icons">insert_drive_file</i>
       </a>
     </nav>
     <nav v-else-if="$route.path.includes('/settings')" class="secondary-nav">
-      <a href="#account" v-tooltip.right="$t('account')">
+      <a v-tooltip.right="$t('account')" href="#account">
         <i class="material-icons">person</i>
       </a>
-      <a href="#theme" v-tooltip.right="$t('theme')">
+      <a v-tooltip.right="$t('theme')" href="#theme">
         <i class="material-icons">brush</i>
       </a>
-      <a href="#extensions" v-tooltip.right="$t('extensions')">
+      <a v-tooltip.right="$t('extensions')" href="#extensions">
         <i class="material-icons">extension</i>
       </a>
-      <a href="#proxy" v-tooltip.right="$t('proxy')">
+      <a v-tooltip.right="$t('proxy')" href="#proxy">
         <i class="material-icons">public</i>
       </a>
     </nav>
   </aside>
 </template>
+
+<script>
+export default {
+  mounted() {
+    window.addEventListener("scroll", () => {
+      const mainNavLinks = document.querySelectorAll("nav.secondary-nav a")
+      const fromTop = window.scrollY
+      mainNavLinks.forEach(({ hash, classList }) => {
+        const section = document.querySelector(hash)
+        if (
+          section &&
+          section.offsetTop <= fromTop &&
+          section.offsetTop + section.offsetHeight > fromTop
+        ) {
+          classList.add("current")
+        } else {
+          classList.remove("current")
+        }
+      })
+    })
+  },
+  methods: {
+    linkActive(path) {
+      return {
+        "nuxt-link-exact-active": this.$route.path === path,
+        "nuxt-link-active": this.$route.path === path,
+      }
+    },
+  },
+}
+</script>
 
 <style scoped lang="scss">
 $responsiveWidth: 768px;
@@ -269,39 +305,3 @@ nav.secondary-nav {
   }
 }
 </style>
-
-<script>
-export default {
-  methods: {
-    linkActive(path) {
-      return {
-        "nuxt-link-exact-active": this.$route.path === path,
-        "nuxt-link-active": this.$route.path === path,
-      }
-    },
-  },
-  mounted() {
-    window.addEventListener("scroll", (event) => {
-      let mainNavLinks = document.querySelectorAll("nav ul li a")
-      let fromTop = window.scrollY
-      mainNavLinks.forEach(({ hash, classList }) => {
-        let section = document.querySelector(hash)
-        if (
-          section &&
-          section.offsetTop <= fromTop &&
-          section.offsetTop + section.offsetHeight > fromTop
-        ) {
-          classList.add("current")
-        } else {
-          classList.remove("current")
-        }
-      })
-    })
-  },
-  // watch: {
-  //   $route() {
-  //     // this.$toast.clear();
-  //   },
-  // },
-}
-</script>

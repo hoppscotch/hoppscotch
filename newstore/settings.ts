@@ -1,8 +1,7 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
 import has from "lodash/has"
-import DispatchingStore from "./DispatchingStore"
-import type { Dispatchers } from "./DispatchingStore"
 import { Observable } from "rxjs"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import type { KeysMatching } from "~/types/ts-utils"
 
 export const defaultSettings = {
@@ -28,13 +27,21 @@ export type SettingsType = typeof defaultSettings
 
 const validKeys = Object.keys(defaultSettings)
 
-const dispatchers: Dispatchers<SettingsType> = {
-  bulkApplySettings(_currentState, payload: Partial<SettingsType>) {
+const dispatchers = defineDispatchers({
+  bulkApplySettings(
+    _currentState: SettingsType,
+    payload: Partial<SettingsType>
+  ) {
     return payload
   },
-  toggleSetting(currentState, { settingKey }: { settingKey: KeysMatching<SettingsType, boolean> }) {
+  toggleSetting(
+    currentState: SettingsType,
+    { settingKey }: { settingKey: KeysMatching<SettingsType, boolean> }
+  ) {
     if (!has(currentState, settingKey)) {
-      console.log(`Toggling of a non-existent setting key '${settingKey}' ignored.`)
+      console.log(
+        `Toggling of a non-existent setting key '${settingKey}' ignored.`
+      )
       return {}
     }
 
@@ -48,7 +55,9 @@ const dispatchers: Dispatchers<SettingsType> = {
     { settingKey, value }: { settingKey: K; value: SettingsType[K] }
   ) {
     if (!validKeys.includes(settingKey)) {
-      console.log(`Ignoring non-existent setting key '${settingKey}' assignment`)
+      console.log(
+        `Ignoring non-existent setting key '${settingKey}' assignment`
+      )
       return {}
     }
 
@@ -57,7 +66,23 @@ const dispatchers: Dispatchers<SettingsType> = {
 
     return result
   },
-}
+  applySettingFB<K extends keyof SettingsType>(
+    _currentState: SettingsType,
+    { settingKey, value }: { settingKey: K; value: SettingsType[K] }
+  ) {
+    if (!validKeys.includes(settingKey)) {
+      console.log(
+        `Ignoring non-existent setting key '${settingKey}' assignment by firebase`
+      )
+      return {}
+    }
+
+    const result: Partial<SettingsType> = {}
+    result[settingKey] = value
+
+    return result
+  },
+})
 
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
 
@@ -83,9 +108,25 @@ export function toggleSetting(settingKey: KeysMatching<SettingsType, boolean>) {
   })
 }
 
-export function applySetting<K extends keyof SettingsType>(settingKey: K, value: SettingsType[K]) {
+export function applySetting<K extends keyof SettingsType>(
+  settingKey: K,
+  value: SettingsType[K]
+) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
+    payload: {
+      settingKey,
+      value,
+    },
+  })
+}
+
+export function applySettingFB<K extends keyof SettingsType>(
+  settingKey: K,
+  value: SettingsType[K]
+) {
+  settingsStore.dispatch({
+    dispatcher: "applySettingFB",
     payload: {
       settingKey,
       value,

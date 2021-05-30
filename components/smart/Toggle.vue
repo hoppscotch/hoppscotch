@@ -1,13 +1,31 @@
 <template>
-  <div @click="toggle()" class="inline-block cursor-pointer">
-    <label class="toggle" :class="{ on: on }" ref="toggle">
+  <div class="inline-block cursor-pointer" @click="toggle()">
+    <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
     <label class="pl-0 align-middle cursor-pointer">
-      <slot />
+      <slot></slot>
     </label>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    on: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  methods: {
+    toggle() {
+      const containsOnClass = this.$refs.toggle.classList.toggle("on")
+      this.$emit("change", containsOnClass)
+    },
+  },
+}
+</script>
 
 <style scoped lang="scss">
 $useBorder: false;
@@ -63,21 +81,3 @@ $transition: all 0.2s ease-in-out;
   }
 }
 </style>
-
-<script>
-export default {
-  props: {
-    on: {
-      type: Boolean,
-      default: false,
-    },
-  },
-
-  methods: {
-    toggle() {
-      const containsOnClass = this.$refs.toggle.classList.toggle("on")
-      this.$emit("change", containsOnClass)
-    },
-  },
-}
-</script>

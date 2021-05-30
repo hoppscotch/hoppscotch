@@ -1,28 +1,28 @@
 <template>
   <div class="page">
-    <AppSection :label="$t('request')" ref="request" no-legend>
+    <AppSection ref="request" :label="$t('request')" no-legend>
       <ul>
         <li>
           <label for="server">{{ $t("server") }}</label>
           <input
             id="server"
+            v-model="server"
             type="url"
             :class="{ error: !serverValid }"
-            v-model="server"
-            @keyup.enter="serverValid ? toggleSSEConnection() : null"
             class="md:rounded-bl-lg"
             :placeholder="$t('url')"
+            @keyup.enter="serverValid ? toggleSSEConnection() : null"
           />
         </li>
         <div>
           <li>
             <label for="start" class="hide-on-small-screen">&nbsp;</label>
             <button
-              :disabled="!serverValid"
               id="start"
+              :disabled="!serverValid"
               name="start"
-              @click="toggleSSEConnection"
               class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              @click="toggleSSEConnection"
             >
               {{ !connectionSSEState ? $t("start") : $t("stop") }}
               <span>
@@ -36,7 +36,12 @@
       </ul>
     </AppSection>
 
-    <AppSection :label="$t('communication')" id="response" ref="response" no-legend>
+    <AppSection
+      id="response"
+      ref="response"
+      :label="$t('communication')"
+      no-legend
+    >
       <ul>
         <li>
           <RealtimeLog :title="$t('events')" :log="events.log" />
@@ -63,8 +68,13 @@ export default {
       },
     }
   },
+  computed: {
+    serverValid() {
+      return this.isUrlValid
+    },
+  },
   watch: {
-    server(val) {
+    server() {
       this.debouncer()
     },
   },
@@ -76,11 +86,6 @@ export default {
   },
   destroyed() {
     this.worker.terminate()
-  },
-  computed: {
-    serverValid() {
-      return this.isUrlValid
-    },
   },
   methods: {
     debouncer: debounce(function () {
@@ -106,7 +111,7 @@ export default {
       if (typeof EventSource !== "undefined") {
         try {
           this.sse = new EventSource(this.server)
-          this.sse.onopen = (event) => {
+          this.sse.onopen = () => {
             this.connectionSSEState = true
             this.events.log = [
               {
@@ -120,10 +125,10 @@ export default {
               icon: "sync",
             })
           }
-          this.sse.onerror = (event) => {
+          this.sse.onerror = () => {
             this.handleSSEError()
           }
-          this.sse.onclose = (event) => {
+          this.sse.onclose = () => {
             this.connectionSSEState = false
             this.events.log.push({
               payload: this.$t("disconnected_from", { name: this.server }),

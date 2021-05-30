@@ -13,42 +13,46 @@
         />
       </li>
       <button
+        v-tooltip="{
+          content: !entry.star ? $t('add_star') : $t('remove_star'),
+        }"
         data-testid="star_button"
         class="icon"
         :class="{ stared: entry.star }"
         @click="$emit('toggle-star')"
-        v-tooltip="{
-          content: !entry.star ? $t('add_star') : $t('remove_star'),
-        }"
       >
         <i class="material-icons">
           {{ entry.star ? "star" : "star_border" }}
         </i>
       </button>
       <button
-        data-testid="query_expand"
-        class="icon"
-        @click="expand = !expand"
         v-tooltip="{
           content: expand ? $t('hide_more') : $t('show_more'),
         }"
+        data-testid="query_expand"
+        class="icon"
+        @click="expand = !expand"
       >
         <i class="material-icons">
           {{ expand ? "unfold_less" : "unfold_more" }}
         </i>
       </button>
       <v-popover>
-        <button data-testid="options" class="tooltip-target icon" v-tooltip="$t('options')">
+        <button
+          v-tooltip="$t('options')"
+          data-testid="options"
+          class="tooltip-target icon"
+        >
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
+              v-close-popover
               data-testid="restore_history_entry"
               class="icon"
-              @click="$emit('use-entry')"
               :aria-label="$t('restore')"
-              v-close-popover
+              @click="$emit('use-entry')"
             >
               <i class="material-icons">restore</i>
               <span>{{ $t("restore") }}</span>
@@ -56,11 +60,11 @@
           </div>
           <div>
             <button
+              v-close-popover
               data-testid="delete_history_entry"
               class="icon"
-              @click="$emit('delete-entry')"
               :aria-label="$t('delete')"
-              v-close-popover
+              @click="$emit('delete-entry')"
             >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
@@ -86,11 +90,11 @@
       <div v-if="showMore" class="show-on-large-screen">
         <li>
           <input
+            v-tooltip="entry.date"
             :aria-label="$t('time')"
             type="text"
             readonly
             :value="entry.time"
-            v-tooltip="entry.date"
             class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
           />
         </li>
@@ -119,24 +123,10 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.stared {
-  color: #f8e81c !important;
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
-
 <script>
 export default {
   props: {
-    entry: Object,
+    entry: { type: Object, default: () => {} },
     showMore: Boolean,
   },
   data() {
@@ -153,3 +143,17 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+.stared {
+  color: #f8e81c !important;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

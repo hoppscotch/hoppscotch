@@ -2,22 +2,26 @@ import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
 import { ReplaySubject } from "rxjs"
-import { getSettingSubject, applySetting } from "~/newstore/settings"
+import { applySettingFB, settingsStore } from "~/newstore/settings"
+import {
+  restHistoryStore,
+  setRESTHistoryEntries,
+  graphqlHistoryStore,
+  setGraphqlHistoryEntries,
+  HISTORY_LIMIT,
+} from "~/newstore/history"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
-  apiKey: process.env.API_KEY || "AIzaSyCMsFreESs58-hRxTtiqQrIcimh4i1wbsM",
-  authDomain: process.env.AUTH_DOMAIN || "postwoman-api.firebaseapp.com",
-  databaseURL: process.env.DATABASE_URL || "https://postwoman-api.firebaseio.com",
-  projectId: process.env.PROJECT_ID || "postwoman-api",
-  storageBucket: process.env.STORAGE_BUCKET || "postwoman-api.appspot.com",
-  messagingSenderId: process.env.MESSAGING_SENDER_ID || "421993993223",
-  appId: process.env.APP_ID || "1:421993993223:web:ec0baa8ee8c02ffa1fc6a2",
-  measurementId: process.env.MEASUREMENT_ID || "G-ERJ6025CEB",
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  databaseURL: process.env.DATABASE_URL,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASUREMENT_ID,
 }
-
-const historyLimit = 50
-const graphqlHistoryLimit = 50
 
 export const authProviders = {
   google: () => new firebase.auth.GoogleAuthProvider(),
@@ -35,8 +39,6 @@ export class FirebaseInstance {
     this.idToken = null
     this.currentFeeds = []
     this.currentSettings = []
-    this.currentHistory = []
-    this.currentGraphqlHistory = []
     this.currentCollections = []
     this.currentGraphqlCollections = []
     this.currentEnvironments = []
@@ -45,22 +47,55 @@ export class FirebaseInstance {
     this.idToken$ = new ReplaySubject(1)
 
     let loadedSettings = false
+    let loadedRESTHistory = false
+    let loadedGraphqlHistory = false
 
-    getSettingSubject("syncCollections").subscribe((status) => {
-      if (this.currentUser && loadedSettings) {
-        this.writeSettings("syncCollections", status)
+    restHistoryStore.dispatches$.subscribe((dispatch) => {
+      if (
+        loadedRESTHistory &&
+        this.currentUser &&
+        settingsStore.value.syncHistory
+      ) {
+        if (dispatch.dispatcher === "addEntry") {
+          this.writeHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "deleteEntry") {
+          this.deleteHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "clearHistory") {
+          this.clearHistory()
+        } else if (dispatch.dispatcher === "toggleStar") {
+          this.toggleStar(dispatch.payload.entry)
+        }
       }
     })
 
-    getSettingSubject("syncHistory").subscribe((status) => {
-      if (this.currentUser && loadedSettings) {
-        this.writeSettings("syncHistory", status)
+    graphqlHistoryStore.dispatches$.subscribe((dispatch) => {
+      if (
+        loadedGraphqlHistory &&
+        this.currentUser &&
+        settingsStore.value.syncHistory
+      ) {
+        if (dispatch.dispatcher === "addEntry") {
+          this.writeGraphqlHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "deleteEntry") {
+          this.deleteGraphqlHistory(dispatch.payload.entry)
+        } else if (dispatch.dispatcher === "clearHistory") {
+          this.clearGraphqlHistory()
+        } else if (dispatch.dispatcher === "toggleStar") {
+          this.toggleGraphqlHistoryStar(dispatch.payload.entry)
+        }
       }
     })
 
-    getSettingSubject("syncEnvironments").subscribe((status) => {
-      if (this.currentUser && loadedSettings) {
-        this.writeSettings("syncEnvironments", status)
+    settingsStore.dispatches$.subscribe((dispatch) => {
+      if (
+        this.currentSettings &&
+        loadedSettings &&
+        dispatch.dispatcher !== "applySettingFB"
+      ) {
+        this.writeSettings(
+          dispatch.payload.settingKey,
+          settingsStore.value[dispatch.payload.settingKey]
+        )
       }
     })
 
@@ -83,7 +118,7 @@ export class FirebaseInstance {
         this.currentUser = user
 
         this.currentUser.providerData.forEach((profile) => {
-          let us = {
+          const us = {
             updatedOn: new Date(),
             provider: profile.providerId,
             name: profile.displayName,
@@ -130,7 +165,7 @@ export class FirebaseInstance {
 
             settings.forEach((e) => {
               if (e && e.name && e.value != null) {
-                applySetting(e.name, e.value)
+                applySettingFB(e.name, e.value)
               }
             })
 
@@ -141,30 +176,38 @@ export class FirebaseInstance {
           .doc(this.currentUser.uid)
           .collection("history")
           .orderBy("updatedOn", "desc")
-          .limit(historyLimit)
+          .limit(HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
+
             historyRef.forEach((doc) => {
               const entry = doc.data()
               entry.id = doc.id
               history.push(entry)
             })
-            this.currentHistory = history
+
+            setRESTHistoryEntries(history)
+
+            loadedRESTHistory = true
           })
 
         this.usersCollection
           .doc(this.currentUser.uid)
           .collection("graphqlHistory")
           .orderBy("updatedOn", "desc")
-          .limit(graphqlHistoryLimit)
+          .limit(HISTORY_LIMIT)
           .onSnapshot((historyRef) => {
             const history = []
+
             historyRef.forEach((doc) => {
               const entry = doc.data()
               entry.id = doc.id
               history.push(entry)
             })
-            this.currentGraphqlHistory = history
+
+            setGraphqlHistoryEntries(history)
+
+            loadedGraphqlHistory = true
           })
 
         this.usersCollection
@@ -222,7 +265,9 @@ export class FirebaseInstance {
   }
 
   async signInUserWithGithub() {
-    return await this.app.auth().signInWithPopup(this.authProviders.github().addScope("gist"))
+    return await this.app
+      .auth()
+      .signInWithPopup(this.authProviders.github().addScope("gist"))
   }
 
   async signInWithEmailAndPassword(email, password) {
@@ -251,7 +296,10 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").add(dt)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("feeds")
+        .add(dt)
     } catch (e) {
       console.error("error inserting", dt, e)
       throw e
@@ -260,7 +308,11 @@ export class FirebaseInstance {
 
   async deleteFeed(id) {
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("feeds").doc(id).delete()
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("feeds")
+        .doc(id)
+        .delete()
     } catch (e) {
       console.error("error deleting", id, e)
       throw e
@@ -293,7 +345,10 @@ export class FirebaseInstance {
     const hs = entry
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("history").add(hs)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("history")
+        .add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e
@@ -304,7 +359,10 @@ export class FirebaseInstance {
     const hs = entry
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection("graphqlHistory").add(hs)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection("graphqlHistory")
+        .add(hs)
     } catch (e) {
       console.error("error inserting", hs, e)
       throw e
@@ -355,13 +413,13 @@ export class FirebaseInstance {
     await Promise.all(docs.map((e) => this.deleteGraphqlHistory(e)))
   }
 
-  async toggleStar(entry, value) {
+  async toggleStar(entry) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("history")
         .doc(entry.id)
-        .update({ star: value })
+        .update({ star: !entry.star })
     } catch (e) {
       console.error("error deleting", entry, e)
 
@@ -369,13 +427,13 @@ export class FirebaseInstance {
     }
   }
 
-  async toggleGraphqlHistoryStar(entry, value) {
+  async toggleGraphqlHistoryStar(entry) {
     try {
       await this.usersCollection
         .doc(this.currentUser.uid)
         .collection("graphqlHistory")
         .doc(entry.id)
-        .update({ star: value })
+        .update({ star: !entry.star })
     } catch (e) {
       console.error("error deleting", entry, e)
 
@@ -393,7 +451,11 @@ export class FirebaseInstance {
     }
 
     try {
-      await this.usersCollection.doc(this.currentUser.uid).collection(flag).doc("sync").set(cl)
+      await this.usersCollection
+        .doc(this.currentUser.uid)
+        .collection(flag)
+        .doc("sync")
+        .set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
 
@@ -435,11 +497,14 @@ export class FirebaseInstance {
         .update(us)
         .catch((e) => console.error("error updating", us, e))
     } catch (e) {
-      console.error("error updating", ev, e)
+      console.error("error updating", e)
 
       throw e
     }
   }
 }
 
-export const fb = new FirebaseInstance(firebase.initializeApp(firebaseConfig), authProviders)
+export const fb = new FirebaseInstance(
+  firebase.initializeApp(firebaseConfig),
+  authProviders
+)

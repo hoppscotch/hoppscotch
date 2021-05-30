@@ -1,7 +1,13 @@
-import { settingsStore, bulkApplySettings, defaultSettings } from "./settings"
 import clone from "lodash/clone"
 import assign from "lodash/assign"
 import eq from "lodash/eq"
+import { settingsStore, bulkApplySettings, defaultSettings } from "./settings"
+import {
+  restHistoryStore,
+  graphqlHistoryStore,
+  setRESTHistoryEntries,
+  setGraphqlHistoryEntries,
+} from "./history"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -19,7 +25,9 @@ function checkAndMigrateOldSettings() {
 }
 
 function setupSettingsPersistence() {
-  const settingsData = JSON.parse(window.localStorage.getItem("settings") || "{}")
+  const settingsData = JSON.parse(
+    window.localStorage.getItem("settings") || "{}"
+  )
 
   if (settingsData) {
     bulkApplySettings(settingsData)
@@ -30,8 +38,30 @@ function setupSettingsPersistence() {
   })
 }
 
+function setupHistoryPersistence() {
+  const restHistoryData = JSON.parse(
+    window.localStorage.getItem("history") || "[]"
+  )
+
+  const graphqlHistoryData = JSON.parse(
+    window.localStorage.getItem("graphqlHistory") || "[]"
+  )
+
+  setRESTHistoryEntries(restHistoryData)
+  setGraphqlHistoryEntries(graphqlHistoryData)
+
+  restHistoryStore.subject$.subscribe(({ state }) => {
+    window.localStorage.setItem("history", JSON.stringify(state))
+  })
+
+  graphqlHistoryStore.subject$.subscribe(({ state }) => {
+    window.localStorage.setItem("graphqlHistory", JSON.stringify(state))
+  })
+}
+
 export function setupLocalPersistence() {
   checkAndMigrateOldSettings()
 
   setupSettingsPersistence()
+  setupHistoryPersistence()
 }

@@ -71,7 +71,9 @@ export const RubyNetHttpCodeGen = {
 
     // analyse result
     requestString.push(`unless response.is_a?(Net::HTTPSuccess) then`)
-    requestString.push(`  raise "An error occurred: #{response.code} #{response.message}"`)
+    requestString.push(
+      `  raise "An error occurred: #{response.code} #{response.message}"`
+    )
     requestString.push(`else`)
     requestString.push(`  puts response.body`)
     requestString.push(`end`)

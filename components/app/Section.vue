@@ -6,11 +6,50 @@
         {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
       </i>
     </legend>
-    <div class="collapsible" :class="{ hidden: isCollapsed(label.toLowerCase()) }">
-      <slot />
+    <div
+      class="collapsible"
+      :class="{ hidden: isCollapsed(label.toLowerCase()) }"
+    >
+      <slot></slot>
     </div>
   </fieldset>
 </template>
+
+<script lang="ts">
+import Vue from "vue"
+
+export default Vue.extend({
+  props: {
+    label: {
+      type: String,
+      default: "Section",
+    },
+    noLegend: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  computed: {
+    sectionString(): string {
+      return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
+    },
+  },
+
+  methods: {
+    collapse() {
+      // Save collapsed section into the collapsedSections array
+      this.$store.commit("setCollapsedSection", this.sectionString)
+    },
+    isCollapsed(_label: string) {
+      return (
+        this.$store.state.theme.collapsedSections.includes(
+          this.sectionString
+        ) || false
+      )
+    },
+  },
+})
+</script>
 
 <style scoped lang="scss">
 fieldset {
@@ -33,35 +72,3 @@ fieldset {
   }
 }
 </style>
-
-<script lang="ts">
-import Vue from "vue"
-
-export default Vue.extend({
-  computed: {
-    sectionString(): string {
-      return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
-    },
-  },
-  props: {
-    label: {
-      type: String,
-      default: "Section",
-    },
-    noLegend: {
-      type: Boolean,
-      default: false,
-    },
-  },
-
-  methods: {
-    collapse() {
-      // Save collapsed section into the collapsedSections array
-      this.$store.commit("setCollapsedSection", this.sectionString)
-    },
-    isCollapsed(_label: string) {
-      return this.$store.state.theme.collapsedSections.includes(this.sectionString) || false
-    },
-  },
-})
-</script>

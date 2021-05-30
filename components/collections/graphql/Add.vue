@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="$t('my_new_collection')"
         @keyup.enter="addNewCollection"
       />
@@ -45,7 +45,7 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -53,7 +53,9 @@ export default {
       if (fb.currentUser !== null && fb.currentSettings[0]) {
         if (fb.currentSettings[0].value) {
           fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
+            JSON.parse(
+              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
+            ),
             "collectionsGraphql"
           )
         }
@@ -68,12 +70,12 @@ export default {
         name: this.$data.name,
         flag: "graphql",
       })
-      this.$emit("hide-modal")
       this.syncCollections()
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

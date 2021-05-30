@@ -15,9 +15,9 @@
         <label>{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">
           <button
+            v-tooltip.bottom="$t('clear')"
             class="icon"
             @click="clearContent('tokens', $event)"
-            v-tooltip.bottom="$t('clear')"
           >
             <i class="material-icons">clear_all</i>
           </button>
@@ -42,15 +42,19 @@
         <div class="row-wrapper">
           <li>
             <button
+              v-tooltip.bottom="$t('use_token')"
               class="icon"
               @click="useOAuthToken(token.value)"
-              v-tooltip.bottom="$t('use_token')"
             >
               <i class="material-icons">input</i>
             </button>
           </li>
           <li>
-            <button class="icon" @click="removeOAuthToken(index)" v-tooltip.bottom="$t('delete')">
+            <button
+              v-tooltip.bottom="$t('delete')"
+              class="icon"
+              @click="removeOAuthToken(index)"
+            >
               <i class="material-icons">delete</i>
             </button>
           </li>

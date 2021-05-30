@@ -3,30 +3,48 @@ import { map } from "rxjs/operators"
 import assign from "lodash/assign"
 import clone from "lodash/clone"
 
+type dispatcherFunc<StoreType> = (
+  currentVal: StoreType,
+  payload: any
+) => Partial<StoreType>
+
+/**
+ * Defines a dispatcher.
+ *
+ * This function exists to provide better typing for dispatch function.
+ * As you can see, its pretty much an identity function.
+ */
+export const defineDispatchers = <StoreType, T>(
+  // eslint-disable-next-line no-unused-vars
+  dispatchers: { [_ in keyof T]: dispatcherFunc<StoreType> }
+) => dispatchers
+
 type Dispatch<
   StoreType,
-  DispatchersType extends Dispatchers<StoreType>,
-  K extends keyof DispatchersType
+  DispatchersType extends Record<string, dispatcherFunc<StoreType>>
 > = {
-  dispatcher: K & string
+  dispatcher: keyof DispatchersType
   payload: any
 }
 
-export type Dispatchers<StoreType> = {
-  [key: string]: (currentVal: StoreType, payload: any) => Partial<StoreType>
-}
-
-export default class DispatchingStore<StoreType, DispatchersType extends Dispatchers<StoreType>> {
+export default class DispatchingStore<
+  StoreType,
+  DispatchersType extends Record<string, dispatcherFunc<StoreType>>
+> {
   #state$: BehaviorSubject<StoreType>
-  #dispatchers: Dispatchers<StoreType>
-  #dispatches$: Subject<Dispatch<StoreType, DispatchersType, keyof DispatchersType>> = new Subject()
+  #dispatchers: DispatchersType
+  #dispatches$: Subject<Dispatch<StoreType, DispatchersType>> = new Subject()
 
   constructor(initialValue: StoreType, dispatchers: DispatchersType) {
     this.#state$ = new BehaviorSubject(initialValue)
     this.#dispatchers = dispatchers
 
     this.#dispatches$
-      .pipe(map(({ dispatcher, payload }) => this.#dispatchers[dispatcher](this.value, payload)))
+      .pipe(
+        map(({ dispatcher, payload }) =>
+          this.#dispatchers[dispatcher](this.value, payload)
+        )
+      )
       .subscribe((val) => {
         const data = clone(this.value)
         assign(data, val)
@@ -47,8 +65,9 @@ export default class DispatchingStore<StoreType, DispatchersType extends Dispatc
     return this.#dispatches$
   }
 
-  dispatch({ dispatcher, payload }: Dispatch<StoreType, DispatchersType, keyof DispatchersType>) {
-    if (!this.#dispatchers[dispatcher]) throw new Error(`Undefined dispatch type '${dispatcher}'`)
+  dispatch({ dispatcher, payload }: Dispatch<StoreType, DispatchersType>) {
+    if (!this.#dispatchers[dispatcher])
+      throw new Error(`Undefined dispatch type '${dispatcher}'`)
 
     this.#dispatches$.next({ dispatcher, payload })
   }

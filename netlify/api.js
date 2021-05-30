@@ -1,5 +1,5 @@
 // Docs on event and context https://www.netlify.com/docs/functions/#the-handler-method
-exports.handler = async (event, context) => {
+exports.handler = (event) => {
   switch (event.httpMethod) {
     case "GET":
       try {

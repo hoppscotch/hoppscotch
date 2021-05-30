@@ -48,7 +48,9 @@ export const ShellHttpieCodegen = {
 
     if (headers) {
       headers.forEach(({ key, value }) => {
-        requestString.push(` $'${key.replace(/'/g, "\\'")}:${value.replace(/'/g, "\\'")}'`)
+        requestString.push(
+          ` $'${key.replace(/'/g, "\\'")}:${value.replace(/'/g, "\\'")}'`
+        )
       })
     }
 

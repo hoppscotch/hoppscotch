@@ -1,8 +1,13 @@
-import { ApolloClient, HttpLink, InMemoryCache, split } from "@apollo/client/core"
+import {
+  ApolloClient,
+  HttpLink,
+  InMemoryCache,
+  split,
+} from "@apollo/client/core"
 import { WebSocketLink } from "@apollo/client/link/ws"
 import { setContext } from "@apollo/client/link/context"
-import { fb } from "./fb"
 import { getMainDefinition } from "@apollo/client/utilities"
+import { fb } from "./fb"
 
 let authToken: String | null = null
 
@@ -56,7 +61,10 @@ const wsLink = new WebSocketLink({
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query)
-    return definition.kind === "OperationDefinition" && definition.operation === "subscription"
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    )
   },
   wsLink,
   httpLink

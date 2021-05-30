@@ -1,7 +1,10 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
+      :class="[
+        'row-wrapper transition duration-150 ease-in-out',
+        { 'bg-bgDarkColor': dragging },
+      ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -11,23 +14,29 @@
     >
       <div>
         <button class="icon" @click="toggleShowChildren">
-          <i class="material-icons" v-show="!showChildren && !isFiltered">arrow_right</i>
-          <i class="material-icons" v-show="showChildren || isFiltered">arrow_drop_down</i>
-          <i v-if="isSelected" class="text-green-400 material-icons">check_circle</i>
+          <i v-show="!showChildren && !isFiltered" class="material-icons"
+            >arrow_right</i
+          >
+          <i v-show="showChildren || isFiltered" class="material-icons"
+            >arrow_drop_down</i
+          >
+          <i v-if="isSelected" class="text-green-400 material-icons"
+            >check_circle</i
+          >
           <i v-else class="material-icons">folder_open</i>
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
       <v-popover v-if="!saveRequest">
-        <button class="tooltip-target icon" v-tooltip.left="$t('more')">
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
+              v-close-popover
               class="icon"
               @click="$emit('add-folder', { folder, path: folderPath })"
-              v-close-popover
             >
               <i class="material-icons">create_new_folder</i>
               <span>{{ $t("new_folder") }}</span>
@@ -35,16 +44,18 @@
           </div>
           <div>
             <button
-              class="icon"
-              @click="$emit('edit-folder', { folder, folderIndex, collectionIndex })"
               v-close-popover
+              class="icon"
+              @click="
+                $emit('edit-folder', { folder, folderIndex, collectionIndex })
+              "
             >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
-            <button class="icon" @click="confirmRemove = true" v-close-popover>
+            <button v-close-popover class="icon" @click="confirmRemove = true">
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -64,8 +75,8 @@
             :folder-index="subFolderIndex"
             :collection-index="collectionIndex"
             :doc="doc"
-            :saveRequest="saveRequest"
-            :collectionsType="collectionsType"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
             :folder-path="`${folderPath}/${subFolderIndex}`"
             :picked="picked"
             @add-folder="$emit('add-folder', $event)"
@@ -92,8 +103,8 @@
             :folder-path="folderPath"
             :doc="doc"
             :picked="picked"
-            :saveRequest="saveRequest"
-            :collectionsType="collectionsType"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
             @edit-request="$emit('edit-request', $event)"
             @select="$emit('select', $event)"
             @remove-request="removeRequest"
@@ -109,7 +120,10 @@
         "
       >
         <li class="flex ml-8 border-l border-brdColor">
-          <p class="info"><i class="material-icons">not_interested</i> {{ $t("folder_empty") }}</p>
+          <p class="info">
+            <i class="material-icons">not_interested</i>
+            {{ $t("folder_empty") }}
+          </p>
         </li>
       </ul>
     </div>
@@ -127,17 +141,17 @@ import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 
 export default {
-  name: "folder",
+  name: "Folder",
   props: {
-    folder: Object,
-    folderIndex: Number,
-    collectionIndex: Number,
-    folderPath: String,
+    folder: { type: Object, default: () => {} },
+    folderIndex: { type: Number, default: null },
+    collectionIndex: { type: Number, default: null },
+    folderPath: { type: String, default: null },
     doc: Boolean,
     saveRequest: Boolean,
     isFiltered: Boolean,
-    collectionsType: Object,
-    picked: Object,
+    collectionsType: { type: Object, default: () => {} },
+    picked: { type: Object, default: () => {} },
   },
   data() {
     return {

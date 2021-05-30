@@ -1,14 +1,14 @@
 <template>
-  <AppSection label="Parameters" ref="parameters" no-legend>
+  <AppSection ref="parameters" label="Parameters" no-legend>
     <ul v-if="params.length !== 0">
       <li>
         <div class="row-wrapper">
           <label for="paramList">{{ $t("parameter_list") }}</label>
           <div>
             <button
+              v-tooltip.bottom="$t('clear')"
               class="icon"
               @click="clearContent('parameters', $event)"
-              v-tooltip.bottom="$t('clear')"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -34,13 +34,13 @@
           :placeholder="$t('parameter_count', { count: index + 1 })"
           :name="'param' + index"
           :value="param.key"
+          autofocus
           @change="
             $store.commit('setKeyParams', {
               index,
               value: $event.target.value,
             })
           "
-          autofocus
         />
       </li>
       <li>
@@ -79,13 +79,6 @@
       <div>
         <li>
           <button
-            class="icon"
-            @click="
-              $store.commit('setActiveParams', {
-                index,
-                value: param.hasOwnProperty('active') ? !param.active : false,
-              })
-            "
             v-tooltip.bottom="{
               content: param.hasOwnProperty('active')
                 ? param.active
@@ -93,6 +86,13 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            class="icon"
+            @click="
+              $store.commit('setActiveParams', {
+                index,
+                value: param.hasOwnProperty('active') ? !param.active : false,
+              })
+            "
           >
             <i class="material-icons">
               {{
@@ -108,7 +108,11 @@
       </div>
       <div>
         <li>
-          <button class="icon" @click="removeRequestParam(index)" v-tooltip.bottom="$t('delete')">
+          <button
+            v-tooltip.bottom="$t('delete')"
+            class="icon"
+            @click="removeRequestParam(index)"
+          >
             <i class="material-icons">delete</i>
           </button>
         </li>

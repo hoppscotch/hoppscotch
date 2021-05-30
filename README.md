@@ -410,6 +410,21 @@ _Notes are only available for signed-in users_
 
 </details>
 
+👨‍👩‍👧‍👦 **Teams β:** Helps you collaborate across your team to design, develop, and test APIs faster.
+
+<details>
+  <summary><i>Features</i></summary>
+
+---
+
+- Unlimited team collections and shared requests
+- Unlimited team members
+- User roles
+
+---
+
+</details>
+
 **To find out more, please check out [Hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
 
 ## **Demo**
@@ -559,6 +574,20 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 </p>
 
 <p align="center">
+<a href="https://github.com/anmolm96" target="_blank" rel="noopener">
+<img
+  width="64"
+	src="https://github.com/anmolm96.png?size=64"
+	alt="Anmol Maini"
+/>
+</a>
+<a href="https://github.com/juzhiyuan" target="_blank" rel="noopener">
+<img
+  width="64"
+	src="https://github.com/juzhiyuan.png?size=64"
+	alt="琚致远"
+/>
+</a>
 <a href="https://github.com/eldadfux" target="_blank" rel="noopener">
 <img
   width="64"
@@ -608,13 +637,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	alt="Erica Brescia"
 />
 </a>
-<a href="https://tom.preston-werner.com" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/mojombo.png?size=64"
-	alt="Tom Preston-Werner"
-/>
-</a>
 <a href="https://github.com/mlynch" target="_blank" rel="noopener">
 <img
   width="64"
@@ -648,6 +670,13 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 #### Open Collective
 
 <p align="center">
+<a href="https://pipedream.com/?ref=hoppscotch" target="_blank" rel="noopener">
+<img
+  width="100"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/pipedream.png"
+	alt="pipedream"
+/>
+</a>
 <a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">
 <img
   width="100"
@@ -655,11 +684,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	alt="Paw"
 />
 </a>
-</p>
-
-<p align="center">
-<a href="https://opencollective.com/hoppscotch/organization/0/website"><img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/1/website"><img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg"></a>
 </p>
 
 ### Code Contributors

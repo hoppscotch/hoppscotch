@@ -6,9 +6,9 @@
           <label for="reqParamList">{{ $t("request_body") }}</label>
           <div>
             <button
+              v-tooltip.bottom="$t('clear')"
               class="icon"
               @click="clearContent('bodyParams', $event)"
-              v-tooltip.bottom="$t('clear')"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -34,9 +34,9 @@
           :placeholder="`key ${index + 1}`"
           :name="`bparam ${index}`"
           :value="param.key"
+          autofocus
           @change="updateBodyParams($event, index, `setKeyBodyParams`)"
           @keyup.prevent="setRouteQueryState"
-          autofocus
         />
       </li>
       <li>
@@ -66,8 +66,6 @@
       <div>
         <li>
           <button
-            class="icon"
-            @click="toggleActive(index, param)"
             v-tooltip.bottom="{
               content: param.hasOwnProperty('active')
                 ? param.active
@@ -75,6 +73,8 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            class="icon"
+            @click="toggleActive(index, param)"
           >
             <i class="material-icons">
               {{
@@ -91,7 +91,10 @@
       <div v-if="contentType === 'multipart/form-data'">
         <li>
           <label for="attachment" class="p-0">
-            <button class="w-full icon" @click="$refs.attachment[index].click()">
+            <button
+              class="w-full icon"
+              @click="$refs.attachment[index].click()"
+            >
               <i class="material-icons">attach_file</i>
             </button>
           </label>
@@ -99,17 +102,17 @@
             ref="attachment"
             name="attachment"
             type="file"
-            @change="setRequestAttachment($event, index)"
             multiple
+            @change="setRequestAttachment($event, index)"
           />
         </li>
       </div>
       <div>
         <li>
           <button
+            v-tooltip.bottom="$t('delete')"
             class="icon"
             @click="removeRequestBodyParam(index)"
-            v-tooltip.bottom="$t('delete')"
           >
             <i class="material-icons">delete</i>
           </button>
@@ -118,7 +121,7 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestBodyParam" name="addrequest">
+        <button class="icon" name="addrequest" @click="addRequestBodyParam">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>
@@ -127,25 +130,15 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.file-chips-container {
-  @apply flex;
-  @apply flex-1;
-  @apply whitespace-nowrap;
-  @apply overflow-auto;
-  @apply bg-bgDarkColor;
-
-  .file-chips-wrapper {
-    @apply flex;
-    @apply w-0;
-  }
-}
-</style>
-
 <script>
 export default {
   props: {
     bodyParams: { type: Array, default: () => [] },
+  },
+  computed: {
+    contentType() {
+      return this.$store.state.request.contentType
+    },
   },
   methods: {
     clearContent(bodyParams, $event) {
@@ -157,7 +150,10 @@ export default {
     removeRequestBodyParam(index) {
       const paramArr = this.$store.state.request.bodyParams.filter(
         (item, itemIndex) =>
-          itemIndex !== index && (item.hasOwnProperty("active") ? item.active == true : true)
+          itemIndex !== index &&
+          (Object.prototype.hasOwnProperty.call(item, "active")
+            ? item.active === true
+            : true)
       )
       this.setRawParams(paramArr)
       this.$emit("remove-request-body-param", index)
@@ -188,26 +184,34 @@ export default {
         index,
         value: event.target.value,
       })
-      let paramArr = this.$store.state.request.bodyParams.filter((item) =>
-        item.hasOwnProperty("active") ? item.active == true : true
+      const paramArr = this.$store.state.request.bodyParams.filter((item) =>
+        Object.prototype.hasOwnProperty.call(item, "active")
+          ? item.active === true
+          : true
       )
 
       this.setRawParams(paramArr)
     },
     toggleActive(index, param) {
-      let paramArr = this.$store.state.request.bodyParams.filter((item, itemIndex) => {
-        if (index === itemIndex) {
-          return !param.active
-        } else {
-          return item.hasOwnProperty("active") ? item.active == true : true
+      const paramArr = this.$store.state.request.bodyParams.filter(
+        (item, itemIndex) => {
+          if (index === itemIndex) {
+            return !param.active
+          } else {
+            return Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          }
         }
-      })
+      )
 
       this.setRawParams(paramArr)
 
       this.$store.commit("setActiveBodyParams", {
         index,
-        value: param.hasOwnProperty("active") ? !param.active : false,
+        value: Object.prototype.hasOwnProperty.call(param, "active")
+          ? !param.active
+          : false,
       })
     },
     setRawParams(filteredParamArr) {
@@ -219,13 +223,26 @@ export default {
         }
       })
       const rawParamsStr = JSON.stringify(rawParams, null, 2)
-      this.$store.commit("setState", { value: rawParamsStr, attribute: "rawParams" })
-    },
-  },
-  computed: {
-    contentType() {
-      return this.$store.state.request.contentType
+      this.$store.commit("setState", {
+        value: rawParamsStr,
+        attribute: "rawParams",
+      })
     },
   },
 }
 </script>
+
+<style scoped lang="scss">
+.file-chips-container {
+  @apply flex;
+  @apply flex-1;
+  @apply whitespace-nowrap;
+  @apply overflow-auto;
+  @apply bg-bgDarkColor;
+
+  .file-chips-wrapper {
+    @apply flex;
+    @apply w-0;
+  }
+}
+</style>

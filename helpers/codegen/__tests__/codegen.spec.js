@@ -8,7 +8,7 @@ const TEST_HTTP_PASSWORD = "mockPassword"
 const TEST_BEARER_TOKEN = "abcdefghijklmn"
 const TEST_RAW_REQUEST_BODY = "foo=bar&baz=qux"
 const TEST_RAW_PARAMS_JSON = '{"foo": "bar", "baz": "qux"}'
-const TEST_RAW_PARAMS_XML = `<?xml version=\'1.0\' encoding=\'utf-8\'?>
+const TEST_RAW_PARAMS_XML = `<?xml version='1.0' encoding='utf-8'?>
 <xml>
   <element foo="bar"></element>
 </xml>`

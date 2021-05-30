@@ -18,10 +18,12 @@ export const NodejsAxiosCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
-    let requestBody = rawInput ? rawParams : rawRequestBody
+    const genHeaders = []
+    const requestBody = rawInput ? rawParams : rawRequestBody
 
-    requestString.push(`axios.${method.toLowerCase()}('${url}${pathName}${queryString}'`)
+    requestString.push(
+      `axios.${method.toLowerCase()}('${url}${pathName}${queryString}'`
+    )
     if (requestBody.length !== 0) {
       requestString.push(", ")
     }
@@ -36,12 +38,16 @@ export const NodejsAxiosCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `    "Authorization": "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
+        `    "Authorization": "Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}",\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
     }
-    requestString.push(`${requestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n})`)
+    requestString.push(
+      `${requestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n})`
+    )
     requestString.push(".then(response => {\n")
     requestString.push("    console.log(response);\n")
     requestString.push("})")

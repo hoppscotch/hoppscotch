@@ -1,35 +1,35 @@
 <template>
   <div>
-    <AppSection :label="$t('request')" ref="request" no-legend>
+    <AppSection ref="request" :label="$t('request')" no-legend>
       <ul>
         <li>
           <label for="socketio-url">{{ $t("url") }}</label>
           <input
             id="socketio-url"
+            v-model="url"
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
-            v-model="url"
-            @keyup.enter="urlValid ? toggleConnection() : null"
             class="md:rounded-bl-lg"
             :placeholder="$t('url')"
+            @keyup.enter="urlValid ? toggleConnection() : null"
           />
         </li>
         <div>
           <li>
             <label for="socketio-path">{{ $t("path") }}</label>
-            <input id="socketio-path" spellcheck="false" v-model="path" />
+            <input id="socketio-path" v-model="path" spellcheck="false" />
           </li>
         </div>
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button
-              :disabled="!urlValid"
               id="connect"
+              :disabled="!urlValid"
               name="connect"
-              @click="toggleConnection"
               class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              @click="toggleConnection"
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
               <span>
@@ -43,7 +43,12 @@
       </ul>
     </AppSection>
 
-    <AppSection :label="$t('communication')" id="response" ref="response" no-legend>
+    <AppSection
+      id="response"
+      ref="response"
+      :label="$t('communication')"
+      no-legend
+    >
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="communication.log" />
@@ -54,9 +59,9 @@
           <label for="event_name">{{ $t("event_name") }}</label>
           <input
             id="event_name"
+            v-model="communication.eventName"
             name="event_name"
             type="text"
-            v-model="communication.eventName"
             :readonly="!connectionState"
           />
         </li>
@@ -71,6 +76,7 @@
       <ul
         v-for="(input, index) of communication.inputs"
         :key="`input-${index}`"
+        :class="{ 'border-t': index == 0 }"
         class="
           border-b border-dashed
           divide-y
@@ -79,13 +85,12 @@
           divide-dashed divide-brdColor
           md:divide-y-0
         "
-        :class="{ 'border-t': index == 0 }"
       >
         <li>
           <input
+            v-model="communication.inputs[index]"
             name="message"
             type="text"
-            v-model="communication.inputs[index]"
             :readonly="!connectionState"
             @keyup.enter="connectionState ? sendMessage() : null"
           />
@@ -93,9 +98,9 @@
         <div v-if="index + 1 !== communication.inputs.length">
           <li>
             <button
+              v-tooltip.bottom="$t('delete')"
               class="icon"
               @click="removeCommunicationInput({ index })"
-              v-tooltip.bottom="$t('delete')"
             >
               <i class="material-icons">delete</i>
             </button>
@@ -103,7 +108,12 @@
         </div>
         <div v-if="index + 1 === communication.inputs.length">
           <li>
-            <button id="send" name="send" :disabled="!connectionState" @click="sendMessage">
+            <button
+              id="send"
+              name="send"
+              :disabled="!connectionState"
+              @click="sendMessage"
+            >
               {{ $t("send") }}
               <span>
                 <i class="material-icons">send</i>
@@ -125,7 +135,7 @@
 </template>
 
 <script>
-import io from "socket.io-client"
+import { io as Client } from "socket.io-client"
 import wildcard from "socketio-wildcard"
 import debounce from "~/helpers/utils/debounce"
 
@@ -144,6 +154,16 @@ export default {
       },
     }
   },
+  computed: {
+    urlValid() {
+      return this.isUrlValid
+    },
+  },
+  watch: {
+    url() {
+      this.debouncer()
+    },
+  },
   mounted() {
     if (process.browser) {
       this.worker = this.$worker.createRejexWorker()
@@ -152,16 +172,6 @@ export default {
   },
   destroyed() {
     this.worker.terminate()
-  },
-  computed: {
-    urlValid() {
-      return this.isUrlValid
-    },
-  },
-  watch: {
-    url(val) {
-      this.debouncer()
-    },
   },
   methods: {
     debouncer: debounce(function () {
@@ -195,11 +205,11 @@ export default {
         if (!this.path) {
           this.path = "/socket.io"
         }
-        this.io = new io(this.url, {
+        this.io = new Client(this.url, {
           path: this.path,
         })
         // Add ability to listen to all events
-        wildcard(io.Manager)(this.io)
+        wildcard(Client.Manager)(this.io)
         this.io.on("connect", () => {
           this.connectionState = true
           this.communication.log = [
@@ -228,7 +238,7 @@ export default {
         this.io.on("reconnect_error", (error) => {
           this.handleError(error)
         })
-        this.io.on("error", (data) => {
+        this.io.on("error", () => {
           this.handleError()
         })
         this.io.on("disconnect", () => {

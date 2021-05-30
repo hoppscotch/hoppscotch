@@ -106,6 +106,7 @@ function parseVal() {
     case "Number":
     case "Boolean":
     case "Null":
+      // eslint-disable-next-line no-case-declarations
       const token = curToken()
       lex()
       return token

@@ -13,11 +13,11 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="requestUpdateData.name"
-        @keyup.enter="saveRequest"
+        type="text"
         :placeholder="placeholderReqName"
+        @keyup.enter="saveRequest"
       />
     </div>
     <div slot="footer">
@@ -40,20 +40,22 @@
 export default {
   props: {
     show: Boolean,
-    placeholderReqName: String,
+    placeholderReqName: { type: String, default: null },
   },
   data() {
     return {
       requestUpdateData: {
-        name: undefined,
+        name: null,
       },
     }
   },
   methods: {
     saveRequest() {
       this.$emit("submit", this.requestUpdateData)
+      this.hideModal()
     },
     hideModal() {
+      this.requestUpdateData = { name: null }
       this.$emit("hide-modal")
     },
   },

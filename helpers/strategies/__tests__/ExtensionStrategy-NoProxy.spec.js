@@ -1,4 +1,3 @@
-
 import extensionStrategy, {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,
@@ -17,9 +16,9 @@ jest.mock("~/newstore/settings", () => {
     settingsStore: {
       value: {
         EXTENSIONS_ENABLED: true,
-        PROXY_ENABLED: false
-      }
-    }
+        PROXY_ENABLED: false,
+      },
+    },
   }
 })
 
@@ -140,7 +139,6 @@ describe("extensionStrategy", () => {
   })
 
   describe("Non-Proxy Requests", () => {
-
     test("ask extension to send request", async () => {
       global.__POSTWOMAN_EXTENSION_HOOK__ = {
         sendRequest: sendReqFunc,
@@ -162,7 +160,7 @@ describe("extensionStrategy", () => {
         sendRequest: sendReqFunc,
       }
 
-      sendReqFunc.mockImplementation(({ method, url }) => {
+      sendReqFunc.mockImplementation(({ url }) => {
         passedUrl = url
 
         return Promise.resolve({

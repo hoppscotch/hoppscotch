@@ -17,7 +17,10 @@ const regex = { ws, sse, socketio }
 // type = ws/sse/socketio
 async function validator(type, url) {
   console.time(`validator ${url}`)
-  const [res1, res2] = await Promise.all([regex[type][0].test(url), regex[type][1].test(url)])
+  const [res1, res2] = await Promise.all([
+    regex[type][0].test(url),
+    regex[type][1].test(url),
+  ])
   console.timeEnd(`validator ${url}`)
   return res1 || res2
 }

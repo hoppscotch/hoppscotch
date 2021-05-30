@@ -22,8 +22,8 @@ export const GoNativeCodegen = {
     const requestString = []
     let genHeaders = []
     // initial request setup
-    let requestBody = rawInput ? rawParams : rawRequestBody
-    if (method == "GET") {
+    const requestBody = rawInput ? rawParams : rawRequestBody
+    if (method === "GET") {
       requestString.push(
         `req, err := http.NewRequest("${method}", "${url}${pathName}${queryString}")\n`
       )
@@ -52,7 +52,9 @@ export const GoNativeCodegen = {
         )}")\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      genHeaders.push(`req.Header.Set("Authorization", "Bearer ${bearerToken}")\n`)
+      genHeaders.push(
+        `req.Header.Set("Authorization", "Bearer ${bearerToken}")\n`
+      )
     }
     // custom headers
     if (headers) {
@@ -62,7 +64,9 @@ export const GoNativeCodegen = {
     }
     genHeaders = genHeaders.join("").slice(0, -1)
     requestString.push(`${genHeaders}\n`)
-    requestString.push(`if err != nil {\n  log.Fatalf("An Error Occured %v", err)\n}\n\n`)
+    requestString.push(
+      `if err != nil {\n  log.Fatalf("An Error Occured %v", err)\n}\n\n`
+    )
 
     // request boilerplate
     requestString.push(`client := &http.Client{}\n`)

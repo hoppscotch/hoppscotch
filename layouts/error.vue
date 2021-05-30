@@ -1,18 +1,59 @@
 <template>
   <div class="page page-error">
-    <img src="~static/icons/error.svg" :alt="$t('error')" class="error_banner" />
-    <h2>{{ error.statusCode }}</h2>
-    <h3>{{ error.message }}</h3>
-    <p>
+    <h1 class="mb-4 font-mono text-4xl">{{ statusCode }}</h1>
+    <h3 class="mb-4 font-mono text-xs">{{ message }}</h3>
+    <p class="mt-4 border-t border-ttColor">
       <nuxt-link to="/">
-        <button>{{ $t("go_home") }}</button>
+        <button class="icon">
+          <i class="material-icons">home</i>
+          <span>
+            {{ $t("go_home") }}
+          </span>
+        </button>
       </nuxt-link>
-    </p>
-    <p>
-      <a href @click.prevent="reloadApplication">{{ $t("reload") }}</a>
+      <button class="icon" @click="reloadApplication">
+        <i class="material-icons">refresh</i>
+        <span>
+          {{ $t("reload") }}
+        </span>
+      </button>
     </p>
   </div>
 </template>
+
+<script>
+export default {
+  props: {
+    error: {
+      type: Object,
+      default: null,
+    },
+  },
+
+  head() {
+    return {
+      bodyAttrs: {
+        class: "sticky-footer",
+      },
+    }
+  },
+
+  computed: {
+    statusCode() {
+      return (this.error && this.error.statusCode) || 500
+    },
+    message() {
+      return this.error.message || this.$t("something_went_wrong")
+    },
+  },
+
+  methods: {
+    reloadApplication() {
+      window.location.reload()
+    },
+  },
+}
+</script>
 
 <style scoped lang="scss">
 // Center the error page in the viewport.
@@ -25,26 +66,7 @@
 }
 
 .error_banner {
-  width: 256px;
+  @apply w-24;
+  @apply mb-12;
 }
 </style>
-
-<script>
-export default {
-  props: ["error"],
-
-  methods: {
-    reloadApplication() {
-      this.$router.push("/", () => window.location.reload())
-    },
-  },
-
-  head() {
-    return {
-      bodyAttrs: {
-        class: "sticky-footer",
-      },
-    }
-  },
-}
-</script>

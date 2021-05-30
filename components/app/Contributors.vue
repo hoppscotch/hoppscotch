@@ -9,10 +9,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('recurring')"
           href="https://github.com/sponsors/hoppscotch"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('recurring')"
         >
           <button class="icon">
             <i class="material-icons">
@@ -36,10 +36,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('one_time_recurring')"
           href="https://opencollective.com/hoppscotch"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('one_time_recurring')"
         >
           <button class="icon">
             <i class="material-icons">donut_large</i>
@@ -51,10 +51,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('recurring')"
           href="https://www.patreon.com/liyasthomas"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('recurring')"
         >
           <button class="icon">
             <i class="material-icons">local_parking</i>
@@ -66,10 +66,10 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
+          v-tooltip.right="$t('one_time')"
           href="https://www.paypal.me/liyascthomas"
           target="_blank"
           rel="noopener"
-          v-tooltip.right="$t('one_time')"
         >
           <button class="icon">
             <i class="material-icons">payment</i>
@@ -82,15 +82,17 @@
     <div class="p-2">
       <h3 class="title">Financial Contributors</h3>
       <div class="contributors">
-        <a href="https://oss.capital/?ref=hoppscotch" target="_blank" rel="noopener">
+        <a
+          href="https://oss.capital/?ref=hoppscotch"
+          target="_blank"
+          rel="noopener"
+        >
           <img
             style="height: 100%; width: 300px"
             src="~assets/images/ossc-banner.svg"
             alt="OSS Capital"
           />
         </a>
-      </div>
-      <div class="contributors">
         <a
           href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
           target="_blank"
@@ -102,8 +104,17 @@
             alt="Appwrite"
           />
         </a>
-      </div>
-      <div class="contributors">
+        <a
+          href="https://pipedream.com/?ref=hoppscotch"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            style="max-width: 100px"
+            src="~assets/images/pipedream.png"
+            alt="pipedream"
+          />
+        </a>
         <a
           href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
           target="_blank"
@@ -115,39 +126,23 @@
             alt="Paw"
           />
         </a>
-      </div>
-      <div class="contributors">
-        <a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
+        <a
+          href="https://simplescraper.io/?utm_source=hs"
+          target="_blank"
+          rel="noopener"
+        >
           <img
             style="max-height: 50px"
             src="~assets/images/Simplescraper_dark.png"
             alt="Simplescraper"
           />
         </a>
-      </div>
-      <div class="contributors">
         <a href="https://tyk.io?ref=hoppscotch" target="_blank" rel="noopener">
           <img
             style="max-width: 320px"
             src="~assets/images/Tyk-side-project-logo-tagline-blk.png"
             alt="Tyk Banner"
           />
-        </a>
-      </div>
-      <div class="contributors">
-        <a
-          target="_blank"
-          rel="noopener"
-          href="https://opencollective.com/hoppscotch/organization/0/website"
-        >
-          <img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg" />
-        </a>
-        <a
-          target="_blank"
-          rel="noopener"
-          href="https://opencollective.com/hoppscotch/organization/1/website"
-        >
-          <img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg" />
         </a>
       </div>
     </div>
@@ -171,8 +166,10 @@
 .contributors {
   @apply flex;
   @apply items-center;
-  @apply flex-nowrap;
+  @apply flex-wrap;
   @apply overflow-auto;
   @apply m-2;
+  @apply space-x-2;
+  @apply space-y-2;
 }
 </style>

@@ -4,27 +4,15 @@
   </div>
 </template>
 
-<style scoped lang="scss">
-.show-if-initialized {
-  &.initialized {
-    @apply opacity-100;
-  }
-
-  & > * {
-    @apply transition-none;
-  }
-}
-</style>
-
 <script>
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
-import { defineGQLLanguageMode } from "~/helpers/syntax/gqlQueryLangMode"
 
 import * as gql from "graphql"
 import { getAutocompleteSuggestions } from "graphql-language-service-interface"
+import { defineGQLLanguageMode } from "~/helpers/syntax/gqlQueryLangMode"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
@@ -44,7 +32,7 @@ export default {
     },
     options: {
       type: Object,
-      default: {},
+      default: () => {},
     },
     styles: {
       type: String,
@@ -84,7 +72,7 @@ export default {
   mounted() {
     defineGQLLanguageMode(ace)
 
-    let langTools = ace.require("ace/ext/language_tools")
+    const langTools = ace.require("ace/ext/language_tools")
 
     const editor = ace.edit(this.$refs.editor, {
       mode: `ace/mode/gql-query`,
@@ -108,12 +96,22 @@ export default {
     })
 
     const completer = {
-      getCompletions: (editor, _session, { row, column }, _prefix, callback) => {
+      getCompletions: (
+        editor,
+        _session,
+        { row, column },
+        _prefix,
+        callback
+      ) => {
         if (this.validationSchema) {
-          const completions = getAutocompleteSuggestions(this.validationSchema, editor.getValue(), {
-            line: row,
-            character: column,
-          })
+          const completions = getAutocompleteSuggestions(
+            this.validationSchema,
+            editor.getValue(),
+            {
+              line: row,
+              character: column,
+            }
+          )
 
           callback(
             null,
@@ -165,10 +163,14 @@ export default {
     this.parseContents(this.value)
   },
 
+  beforeDestroy() {
+    this.editor.destroy()
+  },
+
   methods: {
     prettifyQuery() {
       try {
-        this.value = gql.print(gql.parse(this.editor.getValue()))
+        this.$emit("update-query", gql.print(gql.parse(this.editor.getValue())))
       } catch (e) {
         this.$toast.error(`${this.$t("gql_prettify_invalid_query")}`, {
           icon: "error",
@@ -180,9 +182,12 @@ export default {
       if (this.theme) {
         return this.theme
       }
-      const strip = (str) => str.replace(/#/g, "").replace(/ /g, "").replace(/"/g, "")
+      const strip = (str) =>
+        str.replace(/#/g, "").replace(/ /g, "").replace(/"/g, "")
       return strip(
-        window.getComputedStyle(document.documentElement).getPropertyValue("--editor-theme")
+        window
+          .getComputedStyle(document.documentElement)
+          .getPropertyValue("--editor-theme")
       )
     },
 
@@ -198,12 +203,14 @@ export default {
 
           if (this.validationSchema) {
             this.editor.session.setAnnotations(
-              gql.validate(this.validationSchema, doc).map(({ locations, message }) => ({
-                row: locations[0].line - 1,
-                column: locations[0].column - 1,
-                text: message,
-                type: "error",
-              }))
+              gql
+                .validate(this.validationSchema, doc)
+                .map(({ locations, message }) => ({
+                  row: locations[0].line - 1,
+                  column: locations[0].column - 1,
+                  text: message,
+                  type: "error",
+                }))
             )
           }
         } catch (e) {
@@ -221,9 +228,17 @@ export default {
       }
     }, 2000),
   },
-
-  beforeDestroy() {
-    this.editor.destroy()
-  },
 }
 </script>
+
+<style scoped lang="scss">
+.show-if-initialized {
+  &.initialized {
+    @apply opacity-100;
+  }
+
+  & > * {
+    @apply transition-none;
+  }
+}
+</style>

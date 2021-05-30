@@ -1,10 +1,10 @@
 export default function getEnvironmentVariablesFromScript(script) {
-  let _variables = {}
+  const _variables = {}
 
   try {
     // the pw object is the proxy by which pre-request scripts can pass variables to the request.
     // for security and control purposes, this is the only way a pre-request script should modify variables.
-    let pw = {
+    const pw = {
       environment: {
         set: (key, value) => (_variables[key] = value),
       },
@@ -15,6 +15,7 @@ export default function getEnvironmentVariablesFromScript(script) {
     }
 
     // run pre-request script within this function so that it has access to the pw object.
+    // eslint-disable-next-line no-new-func
     new Function("pw", script)(pw)
   } catch (_e) {}
 

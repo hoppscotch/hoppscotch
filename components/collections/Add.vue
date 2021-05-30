@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="$t('my_new_collection')"
         @keyup.enter="addNewCollection"
       />
@@ -43,16 +43,17 @@ export default {
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
     addNewCollection() {
       this.$emit("submit", this.name)
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

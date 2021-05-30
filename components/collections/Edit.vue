@@ -13,9 +13,9 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        type="text"
         :placeholder="placeholderCollName"
         @keyup.enter="saveCollection"
       />
@@ -40,20 +40,21 @@
 export default {
   props: {
     show: Boolean,
-    placeholderCollName: String,
+    placeholderCollName: { type: String, default: null },
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
     saveCollection() {
       this.$emit("submit", this.name)
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
 }

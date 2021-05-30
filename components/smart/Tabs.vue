@@ -4,8 +4,8 @@
       <ul>
         <li
           v-for="(tab, index) in tabs"
-          :class="{ 'is-active': tab.isActive }"
           :key="index"
+          :class="{ 'is-active': tab.isActive }"
           :tabindex="0"
           @keyup.enter="selectTab(tab)"
         >
@@ -23,6 +23,36 @@
     </div>
   </section>
 </template>
+
+<script>
+export default {
+  props: {
+    styles: {
+      type: String,
+      default: "",
+    },
+  },
+
+  data() {
+    return {
+      tabs: [],
+    }
+  },
+
+  created() {
+    this.tabs = this.$children
+  },
+
+  methods: {
+    selectTab({ id }) {
+      this.tabs.forEach((tab) => {
+        tab.isActive = tab.id === id
+      })
+      this.$emit("tab-changed", id)
+    },
+  },
+}
+</script>
 
 <style scoped lang="scss">
 .tabs-wrapper {
@@ -90,35 +120,3 @@
   }
 }
 </style>
-
-<script>
-import Section from "../app/Section.vue"
-export default {
-  components: { Section },
-  props: {
-    styles: {
-      type: String,
-      default: "",
-    },
-  },
-
-  data() {
-    return {
-      tabs: [],
-    }
-  },
-
-  created() {
-    this.tabs = this.$children
-  },
-
-  methods: {
-    selectTab({ id }) {
-      this.tabs.forEach((tab) => {
-        tab.isActive = tab.id == id
-      })
-      this.$emit("tab-changed", id)
-    },
-  },
-}
-</script>

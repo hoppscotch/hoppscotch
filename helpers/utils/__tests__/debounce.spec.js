@@ -10,7 +10,7 @@ describe("debounce", () => {
     expect(fn).not.toHaveBeenCalled()
   })
 
-  test("calls the function after the given timeout", async () => {
+  test("calls the function after the given timeout", () => {
     const fn = jest.fn()
 
     jest.useFakeTimers()
@@ -24,7 +24,7 @@ describe("debounce", () => {
     expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 100)
   })
 
-  test("calls the function only one time within the timeframe", async () => {
+  test("calls the function only one time within the timeframe", () => {
     const fn = jest.fn()
 
     const debFunc = debounce(fn, 1000)

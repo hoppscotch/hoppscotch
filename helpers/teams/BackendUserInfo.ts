@@ -1,7 +1,7 @@
-import { fb } from "../fb"
 import { BehaviorSubject } from "rxjs"
-import { apolloClient } from "../apollo"
 import gql from "graphql-tag"
+import { fb } from "../fb"
+import { apolloClient } from "../apollo"
 
 /*
  * This file deals with interfacing data provided by the
@@ -43,7 +43,7 @@ export const currentUserInfo$ = new BehaviorSubject<UserInfo | null>(null)
  * Initializes the currenUserInfo$ view and sets up its update mechanism
  */
 export async function initUserInfo() {
-  await updateUserInfo()
+  if (fb.idToken) await updateUserInfo()
 
   fb.idToken$.subscribe((token) => {
     if (token) {

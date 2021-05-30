@@ -23,7 +23,9 @@ export const CurlCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(
-        `  -H 'Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+        `  -H 'Authorization: Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}'`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       requestString.push(`  -H 'Authorization: Bearer ${bearerToken}'`)

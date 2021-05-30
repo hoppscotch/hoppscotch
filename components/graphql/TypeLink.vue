@@ -13,8 +13,10 @@ import { GraphQLScalarType } from "graphql"
 
 export default {
   props: {
+    // eslint-disable-next-line vue/require-default-prop
     gqlType: null,
     // (typeName: string) => void
+    // eslint-disable-next-line vue/require-default-prop
     jumpTypeCallback: Function,
   },
 

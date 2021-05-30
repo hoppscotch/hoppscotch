@@ -1,8 +1,8 @@
-{{nesting_level}} {{name}}
+{{nestingLevel}} {{name}}
 
 {{#requests}}
 
-{{nesting_level}} Request: {{name}}
+{{nestingLevel}} Request: {{name}}
 
 **Method**: {{method}}
 

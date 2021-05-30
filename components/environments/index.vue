@@ -1,5 +1,10 @@
 <template>
-  <AppSection icon="history" :label="$t('environments')" ref="environments" no-legend>
+  <AppSection
+    ref="environments"
+    icon="history"
+    :label="$t('environments')"
+    no-legend
+  >
     <div class="show-on-large-screen">
       <span class="select-wrapper">
         <select
@@ -11,17 +16,24 @@
           <option v-if="environments.length === 0" value="0">
             {{ $t("create_new_environment") }}
           </option>
-          <option v-for="(environment, index) in environments" :value="index" :key="index">
+          <option
+            v-for="(environment, index) in environments"
+            :key="index"
+            :value="index"
+          >
             {{ environment.name }}
           </option>
         </select>
       </span>
     </div>
-    <EnvironmentsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <EnvironmentsAdd
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+    />
     <EnvironmentsEdit
       :show="showModalEdit"
-      :editingEnvironment="editingEnvironment"
-      :editingEnvironmentIndex="editingEnvironmentIndex"
+      :editing-environment="editingEnvironment"
+      :editing-environment-index="editingEnvironmentIndex"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
@@ -42,13 +54,17 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      <i class="material-icons">help_outline</i> {{ $t("create_new_environment") }}
+      <i class="material-icons">help_outline</i>
+      {{ $t("create_new_environment") }}
     </p>
     <div class="virtual-list">
       <ul class="flex-col">
-        <li v-for="(environment, index) in environments" :key="environment.name">
+        <li
+          v-for="(environment, index) in environments"
+          :key="environment.name"
+        >
           <EnvironmentsEnvironment
-            :environmentIndex="index"
+            :environment-index="index"
             :environment="environment"
             @edit-environment="editEnvironment(environment, index)"
           />
@@ -57,12 +73,6 @@
     </div>
   </AppSection>
 </template>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-</style>
 
 <script>
 import { fb } from "~/helpers/fb"
@@ -116,25 +126,29 @@ export default {
             environment: this.defaultEnvironment,
             environments: this.environments,
           })
-        } else {
-          if (this.environments[this.selectedEnvironmentIndex])
-            this.$emit("use-environment", {
-              environment: this.environments[this.selectedEnvironmentIndex],
-              environments: this.environments,
-            })
-          else this.selectedEnvironmentIndex = -1
-        }
+        } else if (this.environments[this.selectedEnvironmentIndex])
+          this.$emit("use-environment", {
+            environment: this.environments[this.selectedEnvironmentIndex],
+            environments: this.environments,
+          })
+        else this.selectedEnvironmentIndex = -1
       },
     },
   },
-  async mounted() {
+  mounted() {
     this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()
-        this.showModalImportExport = this.showModalAdd = this.showModalEdit = false
+        this.showModalImportExport =
+          this.showModalAdd =
+          this.showModalEdit =
+            false
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
+  },
+  beforeDestroy() {
+    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     displayModalAdd(shouldDisplay) {
@@ -160,12 +174,17 @@ export default {
     },
     syncEnvironments() {
       if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
+        fb.writeEnvironments(
+          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
+        )
       }
     },
   },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
 }
 </script>
+
+<style scoped lang="scss">
+.virtual-list {
+  max-height: calc(100vh - 270px);
+}
+</style>

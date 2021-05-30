@@ -196,7 +196,7 @@ export default {
       mode: "import_export",
       mySelectedCollectionID: undefined,
       collectionJson: "",
-      fb
+      fb,
     }
   },
   subscriptions() {

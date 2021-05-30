@@ -170,18 +170,20 @@ export default Vue.extend({
   },
   computed: {
     isSelected(): boolean {
-      return this.picked &&
+      return (
+        this.picked &&
         this.picked.pickedType === "gql-my-collection" &&
         this.picked.collectionIndex === this.collectionIndex
-    }
+      )
+    },
   },
   methods: {
     pick() {
       this.$emit("select", {
         picked: {
           pickedType: "gql-my-collection",
-          collectionIndex: this.collectionIndex
-        }
+          collectionIndex: this.collectionIndex,
+        },
       })
     },
     toggleShowChildren() {

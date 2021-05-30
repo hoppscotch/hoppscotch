@@ -17,7 +17,6 @@
           class="icon"
           @click="!doc ? selectRequest() : {}"
         >
-
           <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
             >check_circle</i
           >
@@ -88,20 +87,22 @@ export default Vue.extend({
   },
   computed: {
     isSelected(): boolean {
-      return this.picked &&
+      return (
+        this.picked &&
         this.picked.pickedType === "gql-my-request" &&
         this.picked.folderPath === this.folderPath &&
         this.picked.requestIndex === this.requestIndex
-    }
+      )
+    },
   },
   methods: {
     pick() {
-      this.$emit('select', {
+      this.$emit("select", {
         picked: {
           pickedType: "gql-my-request",
           folderPath: this.folderPath,
-          requestIndex: this.requestIndex
-        }
+          requestIndex: this.requestIndex,
+        },
       })
     },
     selectRequest() {

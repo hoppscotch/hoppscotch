@@ -58,7 +58,12 @@
 <script>
 import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
-import { saveRESTRequestAs, editRESTRequest, editGraphqlRequest, saveGraphqlRequestAs } from "~/newstore/collections"
+import {
+  saveRESTRequestAs,
+  editRESTRequest,
+  editGraphqlRequest,
+  saveGraphqlRequestAs,
+} from "~/newstore/collections"
 
 export default {
   props: {
@@ -204,7 +209,11 @@ export default {
           this.picked.collectionID
         )
       } else if (this.picked.pickedType === "gql-my-request") {
-        editGraphqlRequest(this.picked.folderPath, this.picked.requestIndex, requestUpdated)
+        editGraphqlRequest(
+          this.picked.folderPath,
+          this.picked.requestIndex,
+          requestUpdated
+        )
       } else if (this.picked.pickedType === "gql-my-folder") {
         saveGraphqlRequestAs(this.picked.folderPath, requestUpdated)
       } else if (this.picked.pickedType === "gql-my-collection") {

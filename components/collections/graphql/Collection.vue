@@ -19,7 +19,12 @@
         <i v-show="showChildren || isFiltered" class="material-icons"
           >arrow_drop_down</i
         >
-        <i class="material-icons">folder</i>
+
+        <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+          >check_circle</i
+        >
+
+        <i v-else class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
       </button>
       <div>
@@ -31,7 +36,7 @@
         >
           <i class="material-icons">topic</i>
         </button>
-        <v-popover>
+        <v-popover v-if="!savingMode">
           <button v-tooltip.left="$t('more')" class="tooltip-target icon">
             <i class="material-icons">more_vert</i>
           </button>
@@ -82,6 +87,8 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsGraphqlFolder
+            :picked="picked"
+            :saving-mode="savingMode"
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
@@ -91,6 +98,7 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -101,13 +109,17 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsGraphqlRequest
+            :picked="picked"
+            :saving-mode="savingMode"
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
+            :folder-path="`${collectionIndex}`"
             :request-index="index"
             :doc="doc"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -140,6 +152,9 @@ import { removeGraphqlCollection } from "~/newstore/collections"
 
 export default Vue.extend({
   props: {
+    picked: { type: Object, default: null },
+    // Whether the viewing context is related to picking (activates 'select' events)
+    savingMode: { type: Boolean, default: false },
     collectionIndex: { type: Number, default: null },
     collection: { type: Object, default: () => {} },
     doc: Boolean,
@@ -153,8 +168,27 @@ export default Vue.extend({
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected(): boolean {
+      return this.picked &&
+        this.picked.pickedType === "gql-my-collection" &&
+        this.picked.collectionIndex === this.collectionIndex
+    }
+  },
   methods: {
+    pick() {
+      this.$emit("select", {
+        picked: {
+          pickedType: "gql-my-collection",
+          collectionIndex: this.collectionIndex
+        }
+      })
+    },
     toggleShowChildren() {
+      if (this.savingMode) {
+        this.pick()
+      }
+
       this.showChildren = !this.showChildren
     },
     removeCollection() {

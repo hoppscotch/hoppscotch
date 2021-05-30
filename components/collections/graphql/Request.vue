@@ -17,11 +17,16 @@
           class="icon"
           @click="!doc ? selectRequest() : {}"
         >
-          <i class="material-icons">description</i>
+
+          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+            >check_circle</i
+          >
+
+          <i v-else class="material-icons">description</i>
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!savingMode">
         <button v-tooltip="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
@@ -66,6 +71,10 @@ import { removeGraphqlRequest } from "~/newstore/collections"
 
 export default Vue.extend({
   props: {
+    // Whether the object is selected (show the tick mark)
+    picked: { type: Object, default: null },
+    // Whether the request is being saved (activate 'select' event)
+    savingMode: { type: Boolean, default: false },
     request: { type: Object, default: () => {} },
     folderPath: { type: String, default: null },
     requestIndex: { type: Number, default: null },
@@ -77,8 +86,30 @@ export default Vue.extend({
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected(): boolean {
+      return this.picked &&
+        this.picked.pickedType === "gql-my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+    }
+  },
   methods: {
+    pick() {
+      this.$emit('select', {
+        picked: {
+          pickedType: "gql-my-request",
+          folderPath: this.folderPath,
+          requestIndex: this.requestIndex
+        }
+      })
+    },
     selectRequest() {
+      if (this.savingMode) {
+        this.pick()
+        return
+      }
+
       this.$store.commit("postwoman/selectGraphqlRequest", {
         request: this.request,
       })

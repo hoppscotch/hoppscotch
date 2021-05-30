@@ -553,6 +553,7 @@
     </div>
 
     <CollectionsSaveRequest
+      mode="rest"
       :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
       :editing-request="editRequest"

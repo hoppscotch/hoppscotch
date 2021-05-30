@@ -20,11 +20,15 @@
           <i v-show="showChildren || isFiltered" class="material-icons"
             >arrow_drop_down</i
           >
-          <i class="material-icons">folder_open</i>
+          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+            >check_circle</i
+          >
+
+          <i v-else class="material-icons">folder_open</i>
           <span>{{ folder.name }}</span>
         </button>
       </div>
-      <v-popover>
+      <v-popover v-if="!savingMode">
         <button v-tooltip.left="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
@@ -66,6 +70,8 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsGraphqlFolder
+            :picked="picked"
+            :saving-mode="savingMode"
             :folder="subFolder"
             :folder-index="subFolderIndex"
             :folder-path="`${folderPath}/${subFolderIndex}`"
@@ -75,6 +81,7 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -85,6 +92,8 @@
           class="flex ml-8 border-l border-brdColor"
         >
           <CollectionsGraphqlRequest
+            :picked="picked"
+            :saving-mode="savingMode"
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
@@ -92,6 +101,7 @@
             :request-index="index"
             :doc="doc"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -127,6 +137,9 @@ import { removeGraphqlFolder } from "~/newstore/collections"
 export default Vue.extend({
   name: "Folder",
   props: {
+    picked: { type: Object, default: null },
+    // Whether the request is in a selectable mode (activates 'select' event)
+    savingMode: { type: Boolean, default: false },
     folder: { type: Object, default: () => {} },
     folderIndex: { type: Number, default: null },
     collectionIndex: { type: Number, default: null },
@@ -141,8 +154,27 @@ export default Vue.extend({
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected(): boolean {
+      return this.picked &&
+        this.picked.pickedType === "gql-my-folder" && 
+        this.picked.folderPath === this.folderPath
+    }
+  },
   methods: {
+    pick() {
+      this.$emit('select', {
+        picked: {
+          pickedType: "gql-my-folder",
+          folderPath: this.folderPath
+        }
+      })
+    },
     toggleShowChildren() {
+      if (this.savingMode) {
+        this.pick()
+      }
+
       this.showChildren = !this.showChildren
     },
     removeFolder() {

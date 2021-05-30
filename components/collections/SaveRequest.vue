@@ -20,7 +20,18 @@
       />
       <label for="selectLabel">Select location</label>
       <!-- <input readonly :value="path" /> -->
+
+      <CollectionsGraphql
+        v-if="mode === 'graphql'"
+        :doc="false"
+        :show-coll-actions="false"
+        :picked="picked"
+        :saving-mode="true"
+        @select="onSelect"
+      />
+
       <Collections
+        v-else
         :picked="picked"
         :save-request="true"
         @select="onSelect"
@@ -47,10 +58,12 @@
 <script>
 import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
-import { saveRESTRequestAs, editRESTRequest } from "~/newstore/collections"
+import { saveRESTRequestAs, editRESTRequest, editGraphqlRequest, saveGraphqlRequestAs } from "~/newstore/collections"
 
 export default {
   props: {
+    // mode can be either "graphql" or "rest"
+    mode: { type: String, default: "rest" },
     show: Boolean,
     editingRequest: { type: Object, default: () => {} },
   },
@@ -190,6 +203,12 @@ export default {
           this.collectionsType.selectedTeam.id,
           this.picked.collectionID
         )
+      } else if (this.picked.pickedType === "gql-my-request") {
+        editGraphqlRequest(this.picked.folderPath, this.picked.requestIndex, requestUpdated)
+      } else if (this.picked.pickedType === "gql-my-folder") {
+        saveGraphqlRequestAs(this.picked.folderPath, requestUpdated)
+      } else if (this.picked.pickedType === "gql-my-collection") {
+        saveGraphqlRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       }
       this.$toast.success("Requested added", {
         icon: "done",

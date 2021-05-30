@@ -50,11 +50,19 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button v-if="showCollActions" class="icon" @click="displayModalAdd(true)">
+      <button
+        v-if="showCollActions"
+        class="icon"
+        @click="displayModalAdd(true)"
+      >
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button v-if="showCollActions" class="icon" @click="displayModalImportExport(true)">
+      <button
+        v-if="showCollActions"
+        class="icon"
+        @click="displayModalImportExport(true)"
+      >
         {{ $t("import_export") }}
       </button>
     </div>
@@ -104,7 +112,7 @@ export default {
     doc: { type: Boolean, default: false },
     picked: { type: Object, default: null },
     // Whether to show the 'New' and 'Import/Export' actions
-    showCollActions: { type: Boolean, default: true }
+    showCollActions: { type: Boolean, default: true },
   },
   data() {
     return {

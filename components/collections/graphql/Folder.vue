@@ -156,18 +156,20 @@ export default Vue.extend({
   },
   computed: {
     isSelected(): boolean {
-      return this.picked &&
-        this.picked.pickedType === "gql-my-folder" && 
+      return (
+        this.picked &&
+        this.picked.pickedType === "gql-my-folder" &&
         this.picked.folderPath === this.folderPath
-    }
+      )
+    },
   },
   methods: {
     pick() {
-      this.$emit('select', {
+      this.$emit("select", {
         picked: {
           pickedType: "gql-my-folder",
-          folderPath: this.folderPath
-        }
+          folderPath: this.folderPath,
+        },
       })
     },
     toggleShowChildren() {

@@ -50,11 +50,11 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-brdColor">
-      <button class="icon" @click="displayModalAdd(true)">
+      <button v-if="showCollActions" class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button class="icon" @click="displayModalImportExport(true)">
+      <button v-if="showCollActions" class="icon" @click="displayModalImportExport(true)">
         {{ $t("import_export") }}
       </button>
     </div>
@@ -69,16 +69,19 @@
           :key="collection.name"
         >
           <CollectionsGraphqlCollection
+            :picked="picked"
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
             :doc="doc"
             :is-filtered="filterText.length > 0"
+            :saving-mode="savingMode"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -96,7 +99,12 @@ import { graphqlCollections$, addGraphqlFolder } from "~/newstore/collections"
 
 export default {
   props: {
-    doc: Boolean,
+    // Whether to activate the ability to pick items (activates 'select' events)
+    savingMode: { type: Boolean, default: false },
+    doc: { type: Boolean, default: false },
+    picked: { type: Object, default: null },
+    // Whether to show the 'New' and 'Import/Export' actions
+    showCollActions: { type: Boolean, default: true }
   },
   data() {
     return {

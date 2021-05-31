@@ -97,6 +97,7 @@
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
+            :folder-path="folderPath"
             :folder-name="folder.name"
             :request-index="index"
             :doc="doc"
@@ -132,7 +133,7 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { removeGraphqlFolder } from "~/newstore/collections"
+import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
 
 export default Vue.extend({
   name: "Folder",
@@ -187,25 +188,10 @@ export default Vue.extend({
     },
     dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "graphql"
 
-      // TODO: Discuss
-
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: this.$props.folderIndex,
-        newFolderName: this.$props.folder.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      // this.syncCollections()
+      moveGraphqlRequest(folderPath, requestIndex, this.folderPath)
     },
   },
 })

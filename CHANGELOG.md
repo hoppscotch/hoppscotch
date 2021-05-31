@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.12.0](https://github.com/hoppscotch/hoppscotch/tree/v1.12.0) (2020-05-27)
+
+[Full Changelog](https://github.com/hoppscotch/hoppscotch/compare/v1.10.0...v1.12.0)
+
 ## [v1.10.0](https://github.com/hoppscotch/hoppscotch/tree/v1.10.0) (2020-04-10)
 
 [Full Changelog](https://github.com/hoppscotch/hoppscotch/compare/v1.9.9...v1.10.0)

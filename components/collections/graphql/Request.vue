@@ -117,11 +117,9 @@ export default Vue.extend({
     },
     dragStart({ dataTransfer }: any) {
       this.dragging = !this.dragging
-      // TODO: Discuss
-      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
-      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
-      dataTransfer.setData("oldFolderName", this.$props.folderName)
-      dataTransfer.setData("requestIndex", this.$props.requestIndex)
+
+      dataTransfer.setData("folderPath", this.folderPath)
+      dataTransfer.setData("requestIndex", this.requestIndex)
     },
     removeRequest() {
       removeGraphqlRequest(this.folderPath, this.requestIndex)

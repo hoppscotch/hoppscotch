@@ -148,7 +148,10 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { removeGraphqlCollection } from "~/newstore/collections"
+import {
+  removeGraphqlCollection,
+  moveGraphqlRequest,
+} from "~/newstore/collections"
 
 export default Vue.extend({
   props: {
@@ -203,25 +206,10 @@ export default Vue.extend({
     dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
 
-      // TODO: Fix this
-
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "graphql"
 
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: -1,
-        newFolderName: this.$props.collection.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      // this.syncCollections()
+      moveGraphqlRequest(folderPath, requestIndex, `${this.collectionIndex}`)
     },
   },
 })

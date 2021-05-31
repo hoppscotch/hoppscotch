@@ -19,4 +19,5 @@ module.exports = {
   ],
   testURL: "http://localhost/",
   preset: "ts-jest/presets/js-with-babel",
+  testEnvironment: "jsdom",
 }

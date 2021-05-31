@@ -175,6 +175,13 @@ export default {
         name: this.$data.requestData.name,
       }
 
+      // Filter out all REST file inputs
+      if (this.mode === "rest" && requestUpdated.bodyParams) {
+        requestUpdated.bodyParams = requestUpdated.bodyParams.map((param) =>
+          param?.value?.[0] instanceof File ? { ...param, value: "" } : param
+        )
+      }
+
       if (this.picked.pickedType === "my-request") {
         editRESTRequest(
           this.picked.folderPath,

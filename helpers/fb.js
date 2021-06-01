@@ -10,6 +10,12 @@ import {
   setGraphqlHistoryEntries,
   HISTORY_LIMIT,
 } from "~/newstore/history"
+import {
+  restCollectionStore,
+  setRESTCollections,
+  graphqlCollectionStore,
+  setGraphqlCollections,
+} from "~/newstore/collections"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -39,8 +45,6 @@ export class FirebaseInstance {
     this.idToken = null
     this.currentFeeds = []
     this.currentSettings = []
-    this.currentCollections = []
-    this.currentGraphqlCollections = []
     this.currentEnvironments = []
 
     this.currentUser$ = new ReplaySubject(1)
@@ -49,6 +53,28 @@ export class FirebaseInstance {
     let loadedSettings = false
     let loadedRESTHistory = false
     let loadedGraphqlHistory = false
+    let loadedRESTCollections = false
+    let loadedGraphqlCollections = false
+
+    graphqlCollectionStore.subject$.subscribe(({ state }) => {
+      if (
+        loadedGraphqlCollections &&
+        this.currentUser &&
+        settingsStore.value.syncCollections
+      ) {
+        this.writeCollections(state, "collectionsGraphql")
+      }
+    })
+
+    restCollectionStore.subject$.subscribe(({ state }) => {
+      if (
+        loadedRESTCollections &&
+        this.currentUser &&
+        settingsStore.value.syncCollections
+      ) {
+        this.writeCollections(state, "collections")
+      }
+    })
 
     restHistoryStore.dispatches$.subscribe((dispatch) => {
       if (
@@ -87,15 +113,17 @@ export class FirebaseInstance {
     })
 
     settingsStore.dispatches$.subscribe((dispatch) => {
-      if (
-        this.currentSettings &&
-        loadedSettings &&
-        dispatch.dispatcher !== "applySettingFB"
-      ) {
-        this.writeSettings(
-          dispatch.payload.settingKey,
-          settingsStore.value[dispatch.payload.settingKey]
-        )
+      if (this.currentSettings && loadedSettings) {
+        if (dispatch.dispatcher === "bulkApplySettings") {
+          Object.keys(dispatch.payload).forEach((key) => {
+            this.writeSettings(key, dispatch.payload[key])
+          })
+        } else if (dispatch.dispatcher !== "applySettingFB") {
+          this.writeSettings(
+            dispatch.payload.settingKey,
+            settingsStore.value[dispatch.payload.settingKey]
+          )
+        }
       }
     })
 
@@ -220,9 +248,16 @@ export class FirebaseInstance {
               collection.id = doc.id
               collections.push(collection)
             })
+
+            // Prevent infinite ping-pong of updates
+            loadedRESTCollections = false
+
+            // TODO: Wth is with collections[0]
             if (collections.length > 0) {
-              this.currentCollections = collections[0].collection
+              setRESTCollections(collections[0].collection)
             }
+
+            loadedRESTCollections = true
           })
 
         this.usersCollection
@@ -235,9 +270,16 @@ export class FirebaseInstance {
               collection.id = doc.id
               collections.push(collection)
             })
+
+            // Prevent infinite ping-pong of updates
+            loadedGraphqlCollections = false
+
+            // TODO: Wth is with collections[0]
             if (collections.length > 0) {
-              this.currentGraphqlCollections = collections[0].collection
+              setGraphqlCollections(collections[0].collection)
             }
+
+            loadedGraphqlCollections = true
           })
 
         this.usersCollection
@@ -458,7 +500,6 @@ export class FirebaseInstance {
         .set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
-
       throw e
     }
   }

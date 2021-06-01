@@ -20,7 +20,18 @@
       />
       <label for="selectLabel">Select location</label>
       <!-- <input readonly :value="path" /> -->
+
+      <CollectionsGraphql
+        v-if="mode === 'graphql'"
+        :doc="false"
+        :show-coll-actions="false"
+        :picked="picked"
+        :saving-mode="true"
+        @select="onSelect"
+      />
+
       <Collections
+        v-else
         :picked="picked"
         :save-request="true"
         @select="onSelect"
@@ -45,12 +56,19 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
+import {
+  saveRESTRequestAs,
+  editRESTRequest,
+  editGraphqlRequest,
+  saveGraphqlRequestAs,
+} from "~/newstore/collections"
 
 export default {
   props: {
+    // mode can be either "graphql" or "rest"
+    mode: { type: String, default: "rest" },
     show: Boolean,
     editingRequest: { type: Object, default: () => {} },
   },
@@ -138,14 +156,6 @@ export default {
     onSelect({ picked }) {
       this.picked = picked
     },
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     saveRequestAs() {
       if (this.picked == null) {
         this.$toast.error(this.$t("select_collection"), {
@@ -163,36 +173,25 @@ export default {
       const requestUpdated = {
         ...this.$props.editingRequest,
         name: this.$data.requestData.name,
-        collection: this.$data.requestData.collectionIndex,
+      }
+
+      // Filter out all REST file inputs
+      if (this.mode === "rest" && requestUpdated.bodyParams) {
+        requestUpdated.bodyParams = requestUpdated.bodyParams.map((param) =>
+          param?.value?.[0] instanceof File ? { ...param, value: "" } : param
+        )
       }
 
       if (this.picked.pickedType === "my-request") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          folderName: this.picked.folderName,
-          requestIndex: this.picked.requestIndex,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        editRESTRequest(
+          this.picked.folderPath,
+          this.picked.requestIndex,
+          requestUpdated
+        )
       } else if (this.picked.pickedType === "my-folder") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          folderName: this.picked.folderName,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        saveRESTRequestAs(this.picked.folderPath, requestUpdated)
       } else if (this.picked.pickedType === "my-collection") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        saveRESTRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       } else if (this.picked.pickedType === "teams-request") {
         teamUtils.overwriteRequestTeams(
           this.$apollo,
@@ -216,6 +215,16 @@ export default {
           this.collectionsType.selectedTeam.id,
           this.picked.collectionID
         )
+      } else if (this.picked.pickedType === "gql-my-request") {
+        editGraphqlRequest(
+          this.picked.folderPath,
+          this.picked.requestIndex,
+          requestUpdated
+        )
+      } else if (this.picked.pickedType === "gql-my-folder") {
+        saveGraphqlRequestAs(this.picked.folderPath, requestUpdated)
+      } else if (this.picked.pickedType === "gql-my-collection") {
+        saveGraphqlRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       }
       this.$toast.success("Requested added", {
         icon: "done",

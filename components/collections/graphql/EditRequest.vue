@@ -36,53 +36,33 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { editGraphqlRequest } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    collectionIndex: { type: Number, default: null },
-    folderIndex: { type: Number, default: null },
-    folderName: { type: String, default: null },
+    folderPath: { type: String, default: null },
     request: { type: Object, default: () => {} },
     requestIndex: { type: Number, default: null },
   },
   data() {
     return {
       requestUpdateData: {
-        name: null,
+        name: null as any | null,
       },
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     saveRequest() {
       const requestUpdated = {
         ...this.$props.request,
         name: this.$data.requestUpdateData.name || this.$props.request.name,
       }
 
-      this.$store.commit("postwoman/editRequest", {
-        requestCollectionIndex: this.$props.collectionIndex,
-        requestFolderName: this.$props.folderName,
-        requestFolderIndex: this.$props.folderIndex,
-        requestNew: requestUpdated,
-        requestIndex: this.$props.requestIndex,
-        flag: "graphql",
-      })
-      this.syncCollections()
+      editGraphqlRequest(this.folderPath, this.requestIndex, requestUpdated)
+
       this.hideModal()
     },
     hideModal() {
@@ -90,5 +70,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

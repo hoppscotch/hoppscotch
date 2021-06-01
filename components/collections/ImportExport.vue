@@ -2,7 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">Export</h3>
+        <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
         <div>
           <button
             v-if="mode != 'import_export'"
@@ -67,23 +67,6 @@
     </div>
     <div slot="body" class="flex flex-col">
       <div v-if="mode == 'import_export'" class="flex flex-col items-start p-2">
-        <span
-          v-tooltip="{
-            content: !fb.currentUser
-              ? $t('login_first')
-              : $t('replace_current'),
-          }"
-        >
-          <button
-            v-if="collectionsType.type == 'my-collections'"
-            :disabled="!fb.currentUser"
-            class="icon"
-            @click="syncCollections"
-          >
-            <i class="material-icons">folder_shared</i>
-            <span>{{ $t("import_from_sync") }}</span>
-          </button>
-        </span>
         <button
           v-tooltip="$t('replace_current')"
           class="icon"
@@ -194,8 +177,12 @@
 
 <script>
 import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
+import {
+  restCollections$,
+  setRESTCollections,
+  appendRESTCollections,
+} from "~/newstore/collections"
 
 export default {
   props: {
@@ -204,24 +191,17 @@ export default {
   },
   data() {
     return {
-      fb,
       showJsonCode: false,
       mode: "import_export",
       mySelectedCollectionID: undefined,
       collectionJson: "",
+      fb,
     }
   },
   subscriptions() {
     return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      myCollections: restCollections$,
     }
-  },
-  computed: {
-    myCollections() {
-      return fb.currentUser !== null
-        ? fb.currentCollections
-        : this.$store.state.postwoman.collections
-    },
   },
   methods: {
     async createCollectionGist() {
@@ -266,12 +246,8 @@ export default {
         })
         .then(({ files }) => {
           const collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", {
-            data: collections,
-            flag: "rest",
-          })
+          setRESTCollections(collections)
           this.fileImported()
-          this.syncToFBCollections()
         })
         .catch((error) => {
           this.failedImport()
@@ -330,12 +306,8 @@ export default {
               this.failedImport()
             })
         } else {
-          this.$store.commit("postwoman/replaceCollections", {
-            data: collections,
-            flag: "rest",
-          })
+          setRESTCollections(collections)
           this.fileImported()
-          this.syncToFBCollections()
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
@@ -388,11 +360,7 @@ export default {
               this.failedImport()
             })
         } else {
-          this.$store.commit("postwoman/importCollections", {
-            data: collections,
-            flag: "rest",
-          })
-          this.syncToFBCollections()
+          appendRESTCollections(collections)
           this.fileImported()
         }
       }
@@ -421,11 +389,7 @@ export default {
     },
     async getJSONCollection() {
       if (this.collectionsType.type === "my-collections") {
-        this.collectionJson = JSON.stringify(
-          this.$store.state.postwoman.collections,
-          null,
-          2
-        )
+        this.collectionJson = JSON.stringify(this.myCollections, null, 2)
       } else {
         this.collectionJson = await teamUtils.exportAsJSON(
           this.$apollo,
@@ -451,21 +415,6 @@ export default {
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
-    },
-    syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", {
-        data: fb.currentCollections,
-        flag: "rest",
-      })
-      this.fileImported()
-    },
-    syncToFBCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

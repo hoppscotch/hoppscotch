@@ -19,7 +19,12 @@
         <i v-show="showChildren || isFiltered" class="material-icons"
           >arrow_drop_down</i
         >
-        <i class="material-icons">folder</i>
+
+        <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+          >check_circle</i
+        >
+
+        <i v-else class="material-icons">folder</i>
         <span>{{ collection.name }}</span>
       </button>
       <div>
@@ -31,7 +36,7 @@
         >
           <i class="material-icons">topic</i>
         </button>
-        <v-popover>
+        <v-popover v-if="!savingMode">
           <button v-tooltip.left="$t('more')" class="tooltip-target icon">
             <i class="material-icons">more_vert</i>
           </button>
@@ -42,7 +47,6 @@
                 class="icon"
                 @click="
                   $emit('add-folder', {
-                    folder: collection,
                     path: `${collectionIndex}`,
                   })
                 "
@@ -83,6 +87,8 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsGraphqlFolder
+            :picked="picked"
+            :saving-mode="savingMode"
             :folder="folder"
             :folder-index="index"
             :folder-path="`${collectionIndex}/${index}`"
@@ -92,6 +98,7 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -102,13 +109,17 @@
           class="ml-8 border-l border-brdColor"
         >
           <CollectionsGraphqlRequest
+            :picked="picked"
+            :saving-mode="savingMode"
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="-1"
             :folder-name="collection.name"
+            :folder-path="`${collectionIndex}`"
             :request-index="index"
             :doc="doc"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -135,11 +146,18 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import {
+  removeGraphqlCollection,
+  moveGraphqlRequest,
+} from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
+    picked: { type: Object, default: null },
+    // Whether the viewing context is related to picking (activates 'select' events)
+    savingMode: { type: Boolean, default: false },
     collectionIndex: { type: Number, default: null },
     collection: { type: Object, default: () => {} },
     doc: Boolean,
@@ -153,51 +171,46 @@ export default {
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected(): boolean {
+      return (
+        this.picked &&
+        this.picked.pickedType === "gql-my-collection" &&
+        this.picked.collectionIndex === this.collectionIndex
+      )
+    },
+  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
+    pick() {
+      this.$emit("select", {
+        picked: {
+          pickedType: "gql-my-collection",
+          collectionIndex: this.collectionIndex,
+        },
+      })
     },
     toggleShowChildren() {
+      if (this.savingMode) {
+        this.pick()
+      }
+
       this.showChildren = !this.showChildren
     },
     removeCollection() {
-      this.$store.commit("postwoman/removeCollection", {
-        collectionIndex: this.collectionIndex,
-        flag: "graphql",
-      })
-      this.$toast.error(this.$t("deleted"), {
+      removeGraphqlCollection(this.collectionIndex)
+
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
-      this.syncCollections()
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "graphql"
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: -1,
-        newFolderName: this.$props.collection.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      this.syncCollections()
+
+      moveGraphqlRequest(folderPath, requestIndex, `${this.collectionIndex}`)
     },
   },
-}
+})
 </script>

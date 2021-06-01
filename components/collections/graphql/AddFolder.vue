@@ -36,13 +36,12 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    folder: { type: Object, default: () => {} },
     folderPath: { type: String, default: null },
     collectionIndex: { type: Number, default: null },
   },
@@ -52,25 +51,13 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     addFolder() {
+      // TODO: Blocking when name is null ?
+
       this.$emit("add-folder", {
         name: this.name,
-        folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
-      this.syncCollections()
       this.hideModal()
     },
     hideModal() {
@@ -78,5 +65,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

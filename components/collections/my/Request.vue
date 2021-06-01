@@ -43,6 +43,7 @@
                   folderName,
                   request,
                   requestIndex,
+                  folderPath,
                 })
               "
             >
@@ -123,15 +124,14 @@ export default {
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
-      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
-      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
-      dataTransfer.setData("oldFolderName", this.$props.folderName)
-      dataTransfer.setData("requestIndex", this.$props.requestIndex)
+      dataTransfer.setData("folderPath", this.folderPath)
+      dataTransfer.setData("requestIndex", this.requestIndex)
     },
     removeRequest() {
       this.$emit("remove-request", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
+        folderPath: this.folderPath,
         requestIndex: this.$props.requestIndex,
       })
     },

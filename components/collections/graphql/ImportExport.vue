@@ -54,22 +54,6 @@
     </div>
     <div slot="body" class="flex flex-col">
       <div class="flex flex-col items-start p-2">
-        <span
-          v-tooltip="{
-            content: !fb.currentUser
-              ? $t('login_first')
-              : $t('replace_current'),
-          }"
-        >
-          <button
-            :disabled="!fb.currentUser"
-            class="icon"
-            @click="syncCollections"
-          >
-            <i class="material-icons">folder_shared</i>
-            <span>{{ $t("import_from_sync") }}</span>
-          </button>
-        </span>
         <button
           v-tooltip="$t('replace_current')"
           class="icon"
@@ -131,6 +115,11 @@
 
 <script>
 import { fb } from "~/helpers/fb"
+import {
+  graphqlCollections$,
+  setGraphqlCollections,
+  appendGraphqlCollections,
+} from "~/newstore/collections"
 
 export default {
   props: {
@@ -142,13 +131,14 @@ export default {
       showJsonCode: false,
     }
   },
+  subscriptions() {
+    return {
+      collections: graphqlCollections$,
+    }
+  },
   computed: {
     collectionJson() {
-      return JSON.stringify(
-        this.$store.state.postwoman.collectionsGraphql,
-        null,
-        2
-      )
+      return JSON.stringify(this.collections, null, 2)
     },
   },
   methods: {
@@ -194,12 +184,8 @@ export default {
         })
         .then(({ files }) => {
           const collections = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceCollections", {
-            data: collections,
-            flag: "graphql",
-          })
+          setGraphqlCollections(collections)
           this.fileImported()
-          this.syncToFBCollections()
         })
         .catch((error) => {
           this.failedImport()
@@ -238,12 +224,8 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/replaceCollections", {
-          data: collections,
-          flag: "graphql",
-        })
+        setGraphqlCollections(collections)
         this.fileImported()
-        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.$refs.inputChooseFileToReplaceWith.value = ""
@@ -275,12 +257,8 @@ export default {
           this.failedImport()
           return
         }
-        this.$store.commit("postwoman/importCollections", {
-          data: collections,
-          flag: "graphql",
-        })
+        appendGraphqlCollections(collections)
         this.fileImported()
-        this.syncToFBCollections()
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
@@ -302,25 +280,6 @@ export default {
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
-    },
-    syncCollections() {
-      this.$store.commit("postwoman/replaceCollections", {
-        data: fb.currentGraphqlCollections,
-        flag: "graphql",
-      })
-      this.fileImported()
-    },
-    syncToFBCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

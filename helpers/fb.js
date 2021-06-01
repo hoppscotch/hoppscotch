@@ -254,7 +254,6 @@ export class FirebaseInstance {
 
             // TODO: Wth is with collections[0]
             if (collections.length > 0) {
-              console.log(collections[0].collection)
               setRESTCollections(collections[0].collection)
             }
 
@@ -363,7 +362,6 @@ export class FirebaseInstance {
   }
 
   async writeSettings(setting, value) {
-    console.log(setting)
     const st = {
       updatedOn: new Date(),
       author: this.currentUser.uid,
@@ -502,8 +500,6 @@ export class FirebaseInstance {
         .set(cl)
     } catch (e) {
       console.error("error updating", cl, e)
-      console.log(collection)
-
       throw e
     }
   }

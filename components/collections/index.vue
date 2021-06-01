@@ -514,7 +514,6 @@ export default {
       this.displayModalAddFolder(true)
     },
     editFolder(payload) {
-      console.log(payload)
       const { collectionIndex, folder, folderIndex, folderPath } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder
@@ -524,7 +523,6 @@ export default {
       this.displayModalEditFolder(true)
     },
     editRequest(payload) {
-      console.log(payload)
       const {
         collectionIndex,
         folderIndex,

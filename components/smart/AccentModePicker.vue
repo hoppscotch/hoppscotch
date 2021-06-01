@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <label
       >{{ $t("color") }}:
-      {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label
+      {{ capitalized(active) }}</label
     >
     <div>
       <!-- text-blue-400 -->
@@ -17,7 +17,7 @@
       <span
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
-        v-tooltip="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+        v-tooltip="capitalized(color)"
         class="
           inline-flex
           items-center
@@ -61,13 +61,18 @@ export default {
   },
   watch: {
     active(color) {
+      
       localStorage.setItem("THEME_COLOR", color)
     },
   },
+
   methods: {
     setActiveColor(color) {
       document.documentElement.setAttribute("data-accent", color)
       this.active = color
+    },
+    capitalized(color) {
+      return `${color.charAt(0).toUpperCase()}${color.slice(1)}`  
     },
   },
 }

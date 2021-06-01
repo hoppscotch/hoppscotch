@@ -3,8 +3,7 @@
     <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="hide-on-small-screen logo">Hoppscotch</h1>
-          <h1 class="show-on-small-screen logo">Hs</h1>
+          <h1 class="logo">Hoppscotch</h1>
         </nuxt-link>
         <iframe
           src="https://ghbtns.com/github-btn.html?user=hoppscotch&repo=hoppscotch&type=star&count=true"
@@ -330,13 +329,4 @@ $responsiveWidth: 768px;
   animation: slideIn 0.2s forwards ease-in-out;
 }
 
-.show-on-small-screen {
-  @apply hidden;
-}
-
-@media (max-width: $responsiveWidth) {
-  .show-on-small-screen {
-    @apply inline-flex;
-  }
-}
 </style>

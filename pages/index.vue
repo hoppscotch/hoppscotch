@@ -817,7 +817,7 @@ export default {
       this.editRequest = newValue
       this.showSaveRequestModal = true
     },
-    method(newValue, oldValue) {
+    method() {
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
         ? this.contentType ?? "application/json"
         : ""

@@ -86,6 +86,7 @@
               <li>
                 <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
                 <SmartAutoComplete
+                  :key="contentType"
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"
@@ -816,9 +817,9 @@ export default {
       this.editRequest = newValue
       this.showSaveRequestModal = true
     },
-    method() {
+    method(newValue, oldValue) {
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
-        ? "application/json"
+        ? this.contentType ?? "application/json"
         : ""
     },
     preRequestScript(val, oldVal) {

@@ -107,6 +107,9 @@ export default {
     text() {
       this.$emit("input", this.text)
     },
+    value(newValue) {
+      this.text = newValue
+    }
   },
 
   mounted() {

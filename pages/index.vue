@@ -86,7 +86,6 @@
               <li>
                 <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
                 <SmartAutoComplete
-                  :key="contentType"
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"

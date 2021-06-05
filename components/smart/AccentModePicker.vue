@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <label
-      >{{ $t("color") }}:
-      {{ capitalized(active) }}</label
-    >
+    <label>{{ $t("color") }}: {{ capitalized(active) }}</label>
     <div>
       <!-- text-blue-400 -->
       <!-- text-green-400 -->
@@ -61,7 +58,6 @@ export default {
   },
   watch: {
     active(color) {
-      
       localStorage.setItem("THEME_COLOR", color)
     },
   },
@@ -72,7 +68,7 @@ export default {
       this.active = color
     },
     capitalized(color) {
-      return `${color.charAt(0).toUpperCase()}${color.slice(1)}`  
+      return `${color.charAt(0).toUpperCase()}${color.slice(1)}`
     },
   },
 }

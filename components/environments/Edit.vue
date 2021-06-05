@@ -32,7 +32,7 @@
         </div>
       </div>
       <ul
-        v-for="(variable, index) in editingEnvCopy.variables"
+        v-for="(variable, index) in vars"
         :key="index"
         class="
           border-b border-dashed
@@ -46,33 +46,16 @@
       >
         <li>
           <input
+            v-model="variable.key"
             :placeholder="$t('variable_count', { count: index + 1 })"
             :name="'param' + index"
-            :value="variable.key"
-            autofocus
-            @change="
-              $store.commit('postwoman/setVariableKey', {
-                index,
-                value: $event.target.value,
-              })
-            "
           />
         </li>
         <li>
           <input
+            v-model="variable.value"
             :placeholder="$t('value_count', { count: index + 1 })"
             :name="'value' + index"
-            :value="
-              typeof variable.value === 'string'
-                ? variable.value
-                : JSON.stringify(variable.value)
-            "
-            @change="
-              $store.commit('postwoman/setVariableValue', {
-                index,
-                value: $event.target.value,
-              })
-            "
           />
         </li>
         <div>
@@ -113,60 +96,44 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import Vue, { PropType } from "vue"
+import clone from "lodash/clone"
+import type { Environment } from "~/newstore/environments"
+import { updateEnvironment } from "~/newstore/environments"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    editingEnvironment: { type: Object, default: () => {} },
+    editingEnvironment: {
+      type: Object as PropType<Environment | null>,
+      default: null,
+    },
     editingEnvironmentIndex: { type: Number, default: null },
   },
   data() {
     return {
-      name: null,
+      name: null as string | null,
+      vars: [] as { key: string; value: string }[],
       doneButton: '<i class="material-icons">done</i>',
     }
   },
-  subscriptions() {
-    return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
-    }
-  },
-  computed: {
-    editingEnvCopy() {
-      return this.$store.state.postwoman.editingEnvironment
-    },
-    variableString() {
-      const result = this.editingEnvCopy.variables
-      return result === "" ? "" : JSON.stringify(result)
-    },
-  },
   watch: {
     editingEnvironment() {
-      this.name =
-        this.$props.editingEnvironment && this.$props.editingEnvironment.name
-          ? this.$props.editingEnvironment.name
-          : undefined
-      this.$store.commit(
-        "postwoman/setEditingEnvironment",
-        this.$props.editingEnvironment
-      )
+      this.name = this.editingEnvironment?.name ?? null
+      this.vars = clone(this.editingEnvironment?.variables ?? [])
+    },
+    show() {
+      this.name = this.editingEnvironment?.name ?? null
+      this.vars = clone(this.editingEnvironment?.variables ?? [])
     },
   },
   methods: {
-    syncEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
-    },
-    clearContent({ target }) {
-      this.$store.commit("postwoman/removeVariables", [])
+    clearContent({ target }: { target: HTMLElement }) {
+      this.vars = []
+
       target.innerHTML = this.doneButton
-      this.$toast.info(this.$t("cleared"), {
+      this.$toast.info(this.$t("cleared").toString(), {
         icon: "clear_all",
       })
       setTimeout(
@@ -175,44 +142,26 @@ export default {
       )
     },
     addEnvironmentVariable() {
-      const value = { key: "", value: "" }
-      this.$store.commit("postwoman/addVariable", value)
-      this.syncEnvironments()
-    },
-    removeEnvironmentVariable(index) {
-      const variableIndex = index
-      const oldVariables = this.editingEnvCopy.variables.slice()
-      const newVariables = this.editingEnvCopy.variables.filter(
-        (_, index) => variableIndex !== index
-      )
-
-      this.$store.commit("postwoman/removeVariable", newVariables)
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-        action: {
-          text: this.$t("undo"),
-          onClick: (_, toastObject) => {
-            this.$store.commit("postwoman/removeVariable", oldVariables)
-            toastObject.remove()
-          },
-        },
+      this.vars.push({
+        key: "",
+        value: "",
       })
-      this.syncEnvironments()
+    },
+    removeEnvironmentVariable(index: number) {
+      this.vars.splice(index, 1)
     },
     saveEnvironment() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_environment_name"))
+      if (!this.name) {
+        this.$toast.info(this.$t("invalid_environment_name").toString())
         return
       }
-      const environmentUpdated = {
-        ...this.editingEnvCopy,
-        name: this.$data.name,
+
+      const environmentUpdated: Environment = {
+        name: this.name,
+        variables: this.vars,
       }
-      this.$store.commit("postwoman/saveEnvironment", {
-        environment: environmentUpdated,
-        environmentIndex: this.$props.editingEnvironmentIndex,
-      })
-      this.syncEnvironments()
+
+      updateEnvironment(this.editingEnvironmentIndex, environmentUpdated)
       this.hideModal()
     },
     hideModal() {
@@ -220,5 +169,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

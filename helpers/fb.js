@@ -16,6 +16,7 @@ import {
   graphqlCollectionStore,
   setGraphqlCollections,
 } from "~/newstore/collections"
+import { environments$ } from "~/newstore/environments"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -55,6 +56,7 @@ export class FirebaseInstance {
     let loadedGraphqlHistory = false
     let loadedRESTCollections = false
     let loadedGraphqlCollections = false
+    const loadedEnvironments = false
 
     graphqlCollectionStore.subject$.subscribe(({ state }) => {
       if (
@@ -113,7 +115,7 @@ export class FirebaseInstance {
     })
 
     settingsStore.dispatches$.subscribe((dispatch) => {
-      if (this.currentSettings && loadedSettings) {
+      if (this.currentUser && loadedSettings) {
         if (dispatch.dispatcher === "bulkApplySettings") {
           Object.keys(dispatch.payload).forEach((key) => {
             this.writeSettings(key, dispatch.payload[key])
@@ -124,6 +126,12 @@ export class FirebaseInstance {
             settingsStore.value[dispatch.payload.settingKey]
           )
         }
+      }
+    })
+
+    environments$.subscribe((envs) => {
+      if (this.currentUser && loadedEnvironments) {
+        this.writeEnvironments(envs)
       }
     })
 

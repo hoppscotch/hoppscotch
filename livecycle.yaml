@@ -1,0 +1,17 @@
+version: v1alpha1
+
+web:
+    build:
+        type: Dockerfile    
+        dockerfile:
+            contents: |
+                        FROM node:14-buster as build
+                        WORKDIR /app
+                        COPY package.json package-lock.json ./
+                        RUN npm ci
+                        COPY . .
+                        RUN npm generate
+    output:
+        type: static
+        static:
+            path: /app/dist

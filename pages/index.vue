@@ -11,7 +11,7 @@
                 <v-popover>
                   <input
                     id="method"
-                    class="method"
+                    class="drop-down-input"
                     v-model="method"
                     :readonly="!customMethod"
                     autofocus
@@ -85,12 +85,38 @@
             <ul>
               <li>
                 <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
-                <SmartAutoComplete
+                <span class="select-wrapper">
+                  <v-popover>
+                    <input
+                      id="contentType"
+                      class="drop-down-input"
+                      v-model="contentType"
+                      readonly
+                    />
+                    <template slot="popover">
+                      <div
+                        v-for="(contentTypeMenuItem, index) in validContentTypes"
+                        :key="`content-type-${index}`"
+                      >
+                        <button
+                          class="icon"
+                          @click="
+                            contentType = contentTypeMenuItem
+                          "
+                          v-close-popover
+                        >
+                          {{ contentTypeMenuItem }}
+                        </button>
+                      </div>
+                    </template>
+                  </v-popover>
+                </span>
+                <!-- <SmartAutoComplete
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"
                   styles="text-sm"
-                />
+                /> -->
               </li>
             </ul>
             <ul>

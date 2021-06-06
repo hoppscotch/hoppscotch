@@ -441,7 +441,7 @@ input[type="radio"],
   @apply flex-1;
 }
 
-.method,
+.drop-down-input,
 .url-field,
 kbd,
 select,
@@ -470,9 +470,8 @@ code {
   }
 }
 
-.method {
+.drop-down-input {
   @apply cursor-pointer;
-  @apply uppercase;
   @apply rounded-none;
 
   min-width: 128px;

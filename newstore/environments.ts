@@ -216,6 +216,16 @@ export function setCurrentEnvironment(newEnvIndex: number) {
   })
 }
 
+export function getGlobalEnvironment(): Environment | null {
+  const envs = environmentsStore.value.environments
+
+  const el = envs.find(
+    (env) => env.name === "globals" || env.name === "Globals"
+  )
+
+  return el ?? null
+}
+
 export function replaceEnvironments(newEnvironments: any[]) {
   environmentsStore.dispatch({
     dispatcher: "replaceEnvironments",

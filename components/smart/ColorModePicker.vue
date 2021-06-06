@@ -32,7 +32,6 @@
           border-collapseer-2
           text-fgLightColor
           hover:text-fgColor
-          hover:shadow-none
         "
         :class="[
           { 'bg-actColor': color === $colorMode.preference },

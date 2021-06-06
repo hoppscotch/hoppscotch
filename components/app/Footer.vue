@@ -1,19 +1,16 @@
 <template>
   <footer class="footer">
-    <div class="row-wrapper">
-      <span
-        class="flex flex-col font-mono md:flex-row"
-        style="align-items: start"
-      >
+    <div class="flex justify-between items-center flex-1">
+      <span class="flex font-mono" style="align-items: start">
         <a
-          class="footer-link"
+          class="footer-link hidden md:inline-flex"
           href="https://www.netlify.com"
           target="_blank"
           rel="noopener"
         >
           Powered by Netlify
         </a>
-        <span>
+        <span class="hidden md:inline-flex">
           <a
             class="footer-link"
             href="https://oss.capital/?ref=hoppscotch"
@@ -50,10 +47,7 @@
           loading="lazy"
         ></iframe>
       </span>
-      <span
-        class="flex flex-col font-mono md:flex-row"
-        style="align-items: start"
-      >
+      <span class="flex font-mono" style="align-items: start">
         <a href="mailto:support@hoppscotch.io" target="_blank" rel="noopener">
           <button v-tooltip="$t('contact_us')" class="icon">
             <i class="material-icons">email</i>
@@ -90,7 +84,6 @@ export default {
 
 <style scoped lang="scss">
 .footer-link {
-  @apply inline-flex;
   @apply flex-shrink-0;
   @apply my-2;
   @apply mx-4;

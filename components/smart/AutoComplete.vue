@@ -109,7 +109,7 @@ export default {
     },
     value(newValue) {
       this.text = newValue
-    }
+    },
   },
 
   mounted() {

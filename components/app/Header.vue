@@ -328,5 +328,4 @@ $responsiveWidth: 768px;
 
   animation: slideIn 0.2s forwards ease-in-out;
 }
-
 </style>

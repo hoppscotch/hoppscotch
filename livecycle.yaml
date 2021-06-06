@@ -10,7 +10,7 @@ web:
                         COPY package.json package-lock.json ./
                         RUN npm ci
                         COPY . .
-                        RUN npm generate
+                        RUN npm run generate
     output:
         type: static
         static:

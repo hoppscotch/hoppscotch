@@ -818,8 +818,8 @@ export default {
     },
     method() {
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
-        ? this.contentType ?? "application/json"
-        : ""
+        ? this.contentType
+        : "application/json"
     },
     preRequestScript(val, oldVal) {
       this.uri = this.uri

@@ -10,6 +10,7 @@ web:
                         COPY package.json package-lock.json ./
                         RUN npm ci
                         COPY . .
+                        RUN mv .env.example .env
                         RUN npm run generate
     output:
         type: static

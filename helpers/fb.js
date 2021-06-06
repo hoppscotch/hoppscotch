@@ -16,7 +16,7 @@ import {
   graphqlCollectionStore,
   setGraphqlCollections,
 } from "~/newstore/collections"
-import { environments$ } from "~/newstore/environments"
+import { environments$, replaceEnvironments } from "~/newstore/environments"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {

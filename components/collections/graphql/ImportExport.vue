@@ -59,7 +59,7 @@
           class="icon"
           @click="openDialogChooseFileToReplaceWith"
         >
-          <i class="material-icons">create_new_folder</i>
+          <i class="material-icons">folder_special</i>
           <span>{{ $t("replace_json") }}</span>
           <input
             ref="inputChooseFileToReplaceWith"
@@ -74,7 +74,7 @@
           class="icon"
           @click="openDialogChooseFileToImportFrom"
         >
-          <i class="material-icons">folder_special</i>
+          <i class="material-icons">create_new_folder</i>
           <span>{{ $t("import_json") }}</span>
           <input
             ref="inputChooseFileToImportFrom"
@@ -84,30 +84,16 @@
             @change="importFromJSON"
           />
         </button>
-      </div>
-      <div v-if="showJsonCode" class="row-wrapper">
-        <textarea v-model="collectionJson" rows="8" readonly></textarea>
-      </div>
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span>
-          <SmartToggle :on="showJsonCode" @change="showJsonCode = $event">
-            {{ $t("show_code") }}
-          </SmartToggle>
-        </span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button
-            v-tooltip="$t('download_file')"
-            class="icon primary"
-            @click="exportJSON"
-          >
-            {{ $t("export") }}
-          </button>
-        </span>
+        <button
+          v-tooltip="$t('download_file')"
+          class="icon"
+          @click="exportJSON"
+        >
+          <i class="material-icons">drive_file_move</i>
+          <span>
+            {{ $t("export_as_json") }}
+          </span>
+        </button>
       </div>
     </div>
   </SmartModal>
@@ -128,7 +114,6 @@ export default {
   data() {
     return {
       fb,
-      showJsonCode: false,
     }
   },
   subscriptions() {

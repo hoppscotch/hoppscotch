@@ -72,7 +72,7 @@
           class="icon"
           @click="openDialogChooseFileToReplaceWith"
         >
-          <i class="material-icons">create_new_folder</i>
+          <i class="material-icons">folder_special</i>
           <span>{{ $t("replace_json") }}</span>
           <input
             ref="inputChooseFileToReplaceWith"
@@ -87,7 +87,7 @@
           class="icon"
           @click="openDialogChooseFileToImportFrom"
         >
-          <i class="material-icons">folder_special</i>
+          <i class="material-icons">create_new_folder</i>
           <span>{{ $t("import_json") }}</span>
           <input
             ref="inputChooseFileToImportFrom"
@@ -99,25 +99,22 @@
         </button>
         <button
           v-if="collectionsType.type == 'team-collections'"
-          v-tooltip="$t('replace_current')"
+          v-tooltip="$t('preserve_current')"
           class="icon"
           @click="mode = 'import_from_my_collections'"
         >
-          <i class="material-icons">folder_special</i>
-          <span>{{ "Import from My Collections" }}</span>
+          <i class="material-icons">folder_shared</i>
+          <span>{{ $t("import_from_my_collections") }}</span>
         </button>
         <button
-          v-tooltip="$t('show_code')"
+          v-tooltip="$t('download_file')"
           class="icon"
-          @click="
-            () => {
-              mode = 'export_as_json'
-              getJSONCollection()
-            }
-          "
+          @click="exportJSON"
         >
-          <i class="material-icons">folder_special</i>
-          <span>{{ "Export As JSON" }}</span>
+          <i class="material-icons">drive_file_move</i>
+          <span>
+            {{ $t("export_as_json") }}
+          </span>
         </button>
       </div>
       <div v-if="mode == 'import_from_my_collections'">
@@ -149,26 +146,19 @@
             </option>
           </select>
         </span>
-        <button
-          class="m-2 icon primary"
-          :disabled="mySelectedCollectionID == undefined"
-          @click="importFromMyCollections"
-        >
-          {{ $t("import") }}
-        </button>
-      </div>
-      <div v-if="mode == 'export_as_json'">
-        <textarea v-model="collectionJson" rows="8" readonly></textarea>
-        <div class="row-wrapper">
-          <span class="m-2">
-            <button
-              v-tooltip="$t('download_file')"
-              class="icon primary"
-              @click="exportJSON"
-            >
-              {{ $t("export") }}
-            </button>
-          </span>
+        <div slot="footer">
+          <div class="row-wrapper">
+            <span></span>
+            <span>
+              <button
+                class="m-2 icon primary"
+                :disabled="mySelectedCollectionID == undefined"
+                @click="importFromMyCollections"
+              >
+                {{ $t("import") }}
+              </button>
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -399,6 +389,7 @@ export default {
       return this.collectionJson
     },
     exportJSON() {
+      this.getJSONCollection()
       let text = this.collectionJson
       text = text.replace(/\n/g, "\r\n")
       const blob = new Blob([text], {

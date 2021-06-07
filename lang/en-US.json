@@ -330,5 +330,7 @@
   "disable_exit": "Only owner cannot exit the team",
   "folder_renamed": "Folder renamed successfully",
   "role_updated": "User role(s) updated successfully",
-  "user_removed": "User removed successfully"
+  "user_removed": "User removed successfully",
+  "import_from_my_collections": "Import from My Collections",
+  "export_as_json": "Export as JSON"
 }

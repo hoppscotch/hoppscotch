@@ -14,6 +14,7 @@ import {
   setGraphqlCollections,
   setRESTCollections,
 } from "./collections"
+import { replaceEnvironments, environments$ } from "./environments"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -42,6 +43,14 @@ function checkAndMigrateOldSettings() {
     window.localStorage.setItem("collectionsGraphql", JSON.stringify(gqlColls))
 
     delete vuexData.postwoman.collectionsGraphql
+    window.localStorage.setItem("vuex", JSON.stringify(vuexData))
+  }
+
+  if (vuexData.postwoman && vuexData.postwoman.environments) {
+    const envs = vuexData.postwoman.environments
+    window.localStorage.setItem("environments", JSON.stringify(envs))
+
+    delete vuexData.postwoman.environments
     window.localStorage.setItem("vuex", JSON.stringify(vuexData))
   }
 }
@@ -102,10 +111,23 @@ function setupCollectionsPersistence() {
   })
 }
 
+function setupEnvironmentsPersistence() {
+  const environmentsData = JSON.parse(
+    window.localStorage.getItem("environments") || "[]"
+  )
+
+  replaceEnvironments(environmentsData)
+
+  environments$.subscribe((envs) => {
+    window.localStorage.setItem("environments", JSON.stringify(envs))
+  })
+}
+
 export function setupLocalPersistence() {
   checkAndMigrateOldSettings()
 
   setupSettingsPersistence()
   setupHistoryPersistence()
   setupCollectionsPersistence()
+  setupEnvironmentsPersistence()
 }

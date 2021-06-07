@@ -75,8 +75,11 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+import {
+  environments$,
+  setCurrentEnvironment,
+  selectedEnvIndex$,
+} from "~/newstore/environments"
 
 export default {
   data() {
@@ -87,52 +90,17 @@ export default {
       editingEnvironment: undefined,
       editingEnvironmentIndex: undefined,
       selectedEnvironmentIndex: -1,
-      defaultEnvironment: {
-        name: "My Environment Variables",
-        variables: [],
-      },
     }
   },
   subscriptions() {
     return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
+      environments: environments$,
+      selectedEnvironmentIndex: selectedEnvIndex$,
     }
-  },
-  computed: {
-    environments() {
-      return fb.currentUser !== null
-        ? fb.currentEnvironments
-        : this.$store.state.postwoman.environments
-    },
   },
   watch: {
     selectedEnvironmentIndex(val) {
-      if (val === -1)
-        this.$emit("use-environment", {
-          environment: this.defaultEnvironment,
-          environments: this.environments,
-        })
-      else
-        this.$emit("use-environment", {
-          environment: this.environments[val],
-          environments: this.environments,
-        })
-    },
-    environments: {
-      handler({ length }) {
-        if (length === 0) {
-          this.selectedEnvironmentIndex = -1
-          this.$emit("use-environment", {
-            environment: this.defaultEnvironment,
-            environments: this.environments,
-          })
-        } else if (this.environments[this.selectedEnvironmentIndex])
-          this.$emit("use-environment", {
-            environment: this.environments[this.selectedEnvironmentIndex],
-            environments: this.environments,
-          })
-        else this.selectedEnvironmentIndex = -1
-      },
+      setCurrentEnvironment(val)
     },
   },
   mounted() {
@@ -166,18 +134,10 @@ export default {
       this.$data.editingEnvironment = environment
       this.$data.editingEnvironmentIndex = environmentIndex
       this.displayModalEdit(true)
-      this.syncEnvironments()
     },
     resetSelectedData() {
       this.$data.editingEnvironment = undefined
       this.$data.editingEnvironmentIndex = undefined
-    },
-    syncEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
     },
   },
 }

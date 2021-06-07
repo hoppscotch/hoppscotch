@@ -40,11 +40,11 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import Vue from "vue"
+import { deleteEnvironment } from "~/newstore/environments"
 
-export default {
+export default Vue.extend({
   props: {
     environment: { type: Object, default: () => {} },
     environmentIndex: { type: Number, default: null },
@@ -54,26 +54,13 @@ export default {
       confirmRemove: false,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
-    }
-  },
   methods: {
-    syncEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
-    },
     removeEnvironment() {
-      this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
-      this.$toast.error(this.$t("deleted"), {
+      deleteEnvironment(this.environmentIndex)
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
-      this.syncEnvironments()
     },
   },
-}
+})
 </script>

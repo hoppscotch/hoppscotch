@@ -36,48 +36,26 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import Vue from "vue"
+import { createEnvironment } from "~/newstore/environments"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
   },
   data() {
     return {
-      name: null,
-    }
-  },
-  subscriptions() {
-    return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
+      name: null as string | null,
     }
   },
   methods: {
-    syncEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
-    },
     addNewEnvironment() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_environment_name"))
+      if (!this.name) {
+        this.$toast.info(this.$t("invalid_environment_name").toString())
         return
       }
-      const newEnvironment = [
-        {
-          name: this.$data.name,
-          variables: [],
-        },
-      ]
-      this.$store.commit("postwoman/importAddEnvironments", {
-        environments: newEnvironment,
-        confirmation: "Environment added",
-      })
-      this.syncEnvironments()
+      createEnvironment(this.name)
       this.hideModal()
     },
     hideModal() {
@@ -85,5 +63,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

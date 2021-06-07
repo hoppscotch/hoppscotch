@@ -16,6 +16,7 @@ import {
   graphqlCollectionStore,
   setGraphqlCollections,
 } from "~/newstore/collections"
+import { environments$, replaceEnvironments } from "~/newstore/environments"
 
 // Initialize Firebase, copied from cloud console
 const firebaseConfig = {
@@ -45,7 +46,6 @@ export class FirebaseInstance {
     this.idToken = null
     this.currentFeeds = []
     this.currentSettings = []
-    this.currentEnvironments = []
 
     this.currentUser$ = new ReplaySubject(1)
     this.idToken$ = new ReplaySubject(1)
@@ -55,6 +55,7 @@ export class FirebaseInstance {
     let loadedGraphqlHistory = false
     let loadedRESTCollections = false
     let loadedGraphqlCollections = false
+    let loadedEnvironments = false
 
     graphqlCollectionStore.subject$.subscribe(({ state }) => {
       if (
@@ -113,7 +114,7 @@ export class FirebaseInstance {
     })
 
     settingsStore.dispatches$.subscribe((dispatch) => {
-      if (this.currentSettings && loadedSettings) {
+      if (this.currentUser && loadedSettings) {
         if (dispatch.dispatcher === "bulkApplySettings") {
           Object.keys(dispatch.payload).forEach((key) => {
             this.writeSettings(key, dispatch.payload[key])
@@ -124,6 +125,12 @@ export class FirebaseInstance {
             settingsStore.value[dispatch.payload.settingKey]
           )
         }
+      }
+    })
+
+    environments$.subscribe((envs) => {
+      if (this.currentUser && loadedEnvironments) {
+        this.writeEnvironments(envs)
       }
     })
 
@@ -292,9 +299,9 @@ export class FirebaseInstance {
               environment.id = doc.id
               environments.push(environment)
             })
-            if (environments.length > 0) {
-              this.currentEnvironments = environments[0].environment
-            }
+            loadedEnvironments = false
+            replaceEnvironments(environments[0].environment)
+            loadedEnvironments = true
           })
       } else {
         this.currentUser = null

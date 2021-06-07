@@ -567,7 +567,7 @@
             </SmartTab>
 
             <SmartTab :id="'env'" :label="$t('environments')">
-              <Environments @use-environment="useSelectedEnvironment($event)" />
+              <Environments />
             </SmartTab>
 
             <SmartTab :id="'notes'" :label="$t('notes')">
@@ -1217,29 +1217,6 @@ export default {
     },
   },
   methods: {
-    useSelectedEnvironment(args) {
-      let environment = args.environment
-      let environments = args.environments
-      let preRequestScriptString = ""
-      for (let variable of environment.variables) {
-        preRequestScriptString += `pw.env.set('${variable.key}', '${variable.value}');\n`
-      }
-      for (let env of environments) {
-        if (env.name === environment.name) {
-          continue
-        }
-
-        if (env.name === "Globals" || env.name === "globals") {
-          preRequestScriptString += this.useSelectedEnvironment({
-            environment: env,
-            environments,
-          })
-        }
-      }
-      this.preRequestScript = preRequestScriptString
-      this.showPreRequestScript = true
-      return preRequestScriptString
-    },
     checkCollections() {
       const checkCollectionAvailability =
         this.$store.state.postwoman.collections &&

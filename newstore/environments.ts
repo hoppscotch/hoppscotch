@@ -43,6 +43,14 @@ const dispatchers = defineDispatchers({
       currentEnvironmentIndex: newIndex,
     }
   },
+  appendEnvironments(
+    { environments }: EnvironmentStore,
+    { envs }: { envs: Environment[] }
+  ) {
+    return {
+      environments: [...environments, ...envs],
+    }
+  },
   replaceEnvironments(
     _: EnvironmentStore,
     { environments }: { environments: Environment[] }
@@ -231,6 +239,15 @@ export function replaceEnvironments(newEnvironments: any[]) {
     dispatcher: "replaceEnvironments",
     payload: {
       environments: newEnvironments,
+    },
+  })
+}
+
+export function appendEnvironments(envs: Environment[]) {
+  environmentsStore.dispatch({
+    dispatcher: "appendEnvironments",
+    payload: {
+      envs,
     },
   })
 }

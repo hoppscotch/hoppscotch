@@ -91,7 +91,7 @@
     "stylelint": "^13.12.0",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-standard": "^22.0.0",
-    "ts-jest": "^27.0.2",
+    "ts-jest": "^27.0.3",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
   }

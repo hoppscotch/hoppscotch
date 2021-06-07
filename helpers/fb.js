@@ -299,9 +299,8 @@ export class FirebaseInstance {
               environment.id = doc.id
               environments.push(environment)
             })
-
             loadedEnvironments = false
-            replaceEnvironments(environments)
+            replaceEnvironments(environments[0].environment)
             loadedEnvironments = true
           })
       } else {

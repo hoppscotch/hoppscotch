@@ -44,7 +44,7 @@ export default {
   @apply ease-in-out;
   @apply duration-150;
 
-  background-color: rgba(0, 0, 0, 0.32);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .modal-wrapper {

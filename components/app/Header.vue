@@ -212,34 +212,34 @@ export default {
       })
     }
 
-    // let showAd = localStorage.getItem("showAd") === "no"
-    // if (!showAd) {
-    //   setTimeout(() => {
-    //     this.$toast.clear()
-    //     this.$toast.show(
-    //       "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
-    //       {
-    //         icon: "",
-    //         duration: 0,
-    //         theme: "toasted-ad",
-    //         action: [
-    //           {
-    //             text: "Sponsor",
-    //             icon: "chevron_right",
-    //             onClick: (_, toastObject) => {
-    //               localStorage.setItem("showAd", "no")
-    //               toastObject.goAway(0)
-    //               window.open("https://github.com/sponsors/hoppscotch")
-    //             },
-    //           },
-    //         ],
-    //         onComplete() {
-    //           localStorage.setItem("showAd", "no")
-    //         },
-    //       }
-    //     )
-    //   }, 8000)
-    // }
+    const showAd = localStorage.getItem("showAd") === "no"
+    if (!showAd) {
+      setTimeout(() => {
+        this.$toast.clear()
+        this.$toast.show(
+          "<span><a href='https://fundoss.org/collective/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+          {
+            icon: "",
+            duration: 0,
+            theme: "toasted-ad",
+            action: [
+              {
+                text: "Donate",
+                icon: "chevron_right",
+                onClick: (_, toastObject) => {
+                  localStorage.setItem("showAd", "no")
+                  toastObject.goAway(0)
+                  window.open("https://fundoss.org/collective/hoppscotch")
+                },
+              },
+            ],
+            onComplete() {
+              localStorage.setItem("showAd", "no")
+            },
+          }
+        )
+      }, 6000)
+    }
 
     // let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
     // if (!showExtensionsToast) {

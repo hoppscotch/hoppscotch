@@ -6,8 +6,9 @@
     </div>
     <div v-else>
       <p class="info">{{ $t("login_first") }}</p>
-      <FirebaseLogin />
+      <FirebaseLogin @show-email="showEmail = true" />
     </div>
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </AppSection>
 </template>
 
@@ -18,6 +19,7 @@ export default {
   data() {
     return {
       fb,
+      showEmail: false,
     }
   },
 }

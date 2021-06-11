@@ -44,7 +44,7 @@ export default {
   @apply ease-in-out;
   @apply duration-150;
 
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(0, 0, 0, 0.32);
 }
 
 .modal-wrapper {
@@ -66,6 +66,8 @@ export default {
   @apply bg-bgColor;
   @apply rounded-lg;
   @apply shadow-2xl;
+  @apply border;
+  @apply border-ttColor;
 
   max-height: calc(100vh - 128px);
   max-width: 640px;

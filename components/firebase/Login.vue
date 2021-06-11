@@ -30,6 +30,12 @@
         <span>GitHub</span>
       </button>
     </div>
+    <div>
+      <button v-close-popover class="icon" @click="$emit('show-email')">
+        <i class="material-icons">mail</i>
+        <span>{{ $t("email") }}</span>
+      </button>
+    </div>
   </div>
 </template>
 

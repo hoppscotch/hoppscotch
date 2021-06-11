@@ -99,7 +99,8 @@ export default {
         .signInWithEmail(this.form.email, actionCodeSettings)
         .then(() => {
           this.$toast.success("Check your inbox", {
-            icon: "person",
+            icon: "email",
+            duration: 0,
           })
           window.localStorage.setItem("emailForSignIn", this.form.email)
         })
@@ -114,6 +115,7 @@ export default {
         })
     },
     hideModal() {
+      this.$toast.clear()
       this.$emit("hide-modal")
     },
   },

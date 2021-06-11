@@ -12,7 +12,7 @@
       <div v-else>
         <label>{{ $t("login_with") }}</label>
         <p>
-          <FirebaseLogin />
+          <FirebaseLogin @show-email="showEmail = true" />
         </p>
       </div>
     </div>
@@ -50,6 +50,7 @@
         </li>
       </ul>
     </div>
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </AppSection>
 </template>
 
@@ -67,6 +68,7 @@ export default {
       me: {},
       myTeams: [],
       fb,
+      showEmail: false,
     }
   },
   apollo: {

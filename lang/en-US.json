@@ -332,5 +332,6 @@
   "role_updated": "User role(s) updated successfully",
   "user_removed": "User removed successfully",
   "import_from_my_collections": "Import from My Collections",
-  "export_as_json": "Export as JSON"
+  "export_as_json": "Export as JSON",
+  "send_magic_link": "Send a magic link to sign in"
 }

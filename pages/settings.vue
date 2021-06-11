@@ -68,7 +68,7 @@
         <div v-else>
           <label>{{ $t("login_with") }}</label>
           <p>
-            <FirebaseLogin />
+            <FirebaseLogin @show-email="showEmail = true" />
           </p>
         </div>
       </div>
@@ -207,6 +207,7 @@
         </div>
       </div>
     </AppSection>
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </div>
 </template>
 
@@ -244,6 +245,8 @@ export default Vue.extend({
 
       EXTENSIONS_ENABLED: true,
       PROXY_ENABLED: true,
+
+      showEmail: false,
     }
   },
   subscriptions() {

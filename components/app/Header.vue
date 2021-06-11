@@ -73,7 +73,7 @@
             <i class="material-icons">login</i>
           </button>
           <template slot="popover">
-            <FirebaseLogin />
+            <FirebaseLogin @show-email="showEmail = true" />
           </template>
         </v-popover>
         <v-popover v-else>
@@ -160,6 +160,7 @@
     />
     <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </header>
 </template>
 
@@ -178,6 +179,7 @@ export default {
       showExtensions: false,
       showShortcuts: false,
       showSupport: false,
+      showEmail: false,
       navigatorShare: navigator.share,
       fb,
     }

@@ -77,8 +77,8 @@
           </ul>
           <ul>
             <li>
-              <label for="name" class="text-sm">{{ $t("token_req_name") }}</label>
-              <input id="name" name="name" type="text" v-model="name" class="text-sm" />
+              <label for="request-name" class="text-sm">{{ $t("token_req_name") }}</label>
+              <input id="request-name" name="request-name" type="text" v-model="name" class="text-sm" />
             </li>
           </ul>
           <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">

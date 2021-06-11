@@ -327,6 +327,20 @@ export class FirebaseInstance {
     return await this.app.auth().fetchSignInMethodsForEmail(email)
   }
 
+  async signInWithEmail(email, actionCodeSettings) {
+    return await this.app
+      .auth()
+      .sendSignInLinkToEmail(email, actionCodeSettings)
+  }
+
+  async isSignInWithEmailLink(url) {
+    return await this.app.auth().isSignInWithEmailLink(url)
+  }
+
+  async signInWithEmailLink(email, url) {
+    return await this.app.auth().signInWithEmailLink(email, url)
+  }
+
   async signOutUser() {
     if (!this.currentUser) throw new Error("No user has logged in")
 

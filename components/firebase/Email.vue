@@ -73,6 +73,10 @@ export default {
     }
   },
   mounted() {
+    this.$subscribeTo(fb.currentUser$, (user) => {
+      if (user) this.hideModal()
+    })
+
     this._keyListener = function (e) {
       if (e.key === "Escape") {
         e.preventDefault()

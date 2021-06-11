@@ -333,5 +333,9 @@
   "user_removed": "User removed successfully",
   "import_from_my_collections": "Import from My Collections",
   "export_as_json": "Export as JSON",
-  "send_magic_link": "Send a magic link to sign in"
+  "send_magic_link": "Send a magic link to sign in",
+  "check_your_inbox": "Check your inbox.",
+  "you_can_dismiss_this_modal": "You can dismiss this ",
+  "we_sent_magic_link": "We sent you a magic link!",
+  "we_sent_magic_link_description": "We sent an email to {email}. It contains a magic link that’ll log you in."
 }

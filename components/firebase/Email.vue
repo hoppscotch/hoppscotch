@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div slot="body" class="flex flex-col">
+    <div v-if="mode === 'sign-in'" slot="body" class="flex flex-col">
       <label for="email"> E-mail </label>
       <input
         id="email"
@@ -25,7 +25,21 @@
         @keyup.enter="signInWithEmail"
       />
     </div>
-    <div slot="footer">
+    <div v-else slot="body" class="flex flex-col items-center">
+      <div class="flex justify-center max-w-md p-4 items-center flex-col">
+        <i class="material-icons text-acColor" style="font-size: 64px">
+          verified
+        </i>
+        <h3 class="font-bold my-2 text-center text-lg">
+          {{ $t("we_sent_magic_link") }}
+        </h3>
+        <p class="text-center">
+          {{ $t("we_sent_magic_link_description", { email: form.email }) }}
+        </p>
+        <p class="info">{{ $t("check_your_inbox") }}</p>
+      </div>
+    </div>
+    <div v-if="mode === 'sign-in'" slot="footer">
       <div class="row-wrapper">
         <span></span>
         <span>
@@ -70,6 +84,7 @@ export default {
       signingInWithEmail: false,
       emailRegex:
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+      mode: "sign-in",
     }
   },
   mounted() {
@@ -98,10 +113,7 @@ export default {
       await fb
         .signInWithEmail(this.form.email, actionCodeSettings)
         .then(() => {
-          this.$toast.success("Check your inbox", {
-            icon: "email",
-            duration: 0,
-          })
+          this.mode = "email"
           window.localStorage.setItem("emailForSignIn", this.form.email)
         })
         .catch((error) => {
@@ -115,6 +127,7 @@ export default {
         })
     },
     hideModal() {
+      this.mode = "sign-in"
       this.$toast.clear()
       this.$emit("hide-modal")
     },

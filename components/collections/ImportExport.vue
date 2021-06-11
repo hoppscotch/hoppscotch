@@ -195,13 +195,14 @@ export default {
   },
   methods: {
     async createCollectionGist() {
+      this.getJSONCollection()
       await this.$axios
         .$post(
           "https://api.github.com/gists",
           {
             files: {
               "hoppscotch-collections.json": {
-                content: this.getJSONCollection(),
+                content: this.collectionJson,
               },
             },
           },

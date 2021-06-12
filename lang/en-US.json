@@ -337,5 +337,7 @@
   "check_your_inbox": "Check your inbox.",
   "you_can_dismiss_this_modal": "You can dismiss this ",
   "we_sent_magic_link": "We sent you a magic link!",
-  "we_sent_magic_link_description": "We sent an email to {email}. It contains a magic link that’ll log you in."
+  "we_sent_magic_link_description": "We sent an email to {email}. It contains a magic link that’ll log you in.",
+  "hide_sidebar": "Hide sidebar",
+  "show_sidebar": "Show sidebar"
 }

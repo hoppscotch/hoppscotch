@@ -5,7 +5,7 @@
         <AppSidenav />
         <main>
           <AppHeader />
-          <nuxt />
+          <nuxt class="container" />
           <AppFooter />
         </main>
       </div>

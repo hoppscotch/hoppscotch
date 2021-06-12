@@ -160,7 +160,7 @@ $responsiveWidth: 768px;
   @apply z-10;
   @apply h-screen;
   @apply p-2;
-  @apply bg-bgDarkColor;
+  @apply bg-primaryDark;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
@@ -187,16 +187,19 @@ nav.primary-nav {
     @apply flex-shrink-0;
     @apply p-4;
     @apply rounded-full;
-    @apply bg-bgLightColor;
-    @apply text-fgLightColor;
+    @apply bg-primaryLight;
+    @apply text-secondaryLight;
     @apply fill-current;
     @apply outline-none;
     @apply transition;
     @apply ease-in-out;
     @apply duration-150;
 
+    border-radius: 50%;
+    transition-property: all !important;
+
     &:hover {
-      @apply text-fgColor;
+      @apply text-secondary;
       @apply fill-current;
 
       svg {
@@ -205,8 +208,8 @@ nav.primary-nav {
     }
 
     &.nuxt-link-exact-active {
-      @apply bg-acColor;
-      @apply text-actColor;
+      @apply bg-accent;
+      @apply text-primary;
       @apply fill-current;
 
       border-radius: 16px;
@@ -231,7 +234,7 @@ nav.secondary-nav {
   @apply justify-center;
   @apply border-t-2;
   @apply border-dashed;
-  @apply border-brdColor;
+  @apply border-divider;
   @apply pt-2;
   @apply space-y-2;
 
@@ -242,8 +245,8 @@ nav.secondary-nav {
     @apply flex-shrink-0;
     @apply p-4;
     @apply rounded-full;
-    @apply bg-bgDarkColor;
-    @apply text-fgLightColor;
+    @apply bg-primaryDark;
+    @apply text-secondaryLight;
     @apply fill-current;
     @apply outline-none;
     @apply transition;
@@ -251,12 +254,12 @@ nav.secondary-nav {
     @apply duration-150;
 
     &:hover {
-      @apply text-fgColor;
+      @apply text-secondary;
       @apply fill-current;
     }
 
     &.current {
-      @apply text-acColor;
+      @apply text-accent;
       @apply fill-current;
     }
   }
@@ -270,7 +273,7 @@ nav.secondary-nav {
     @apply h-auto;
     @apply p-0;
     @apply w-full;
-    @apply bg-bgColor;
+    @apply bg-primary;
     @apply shadow-2xl;
   }
 
@@ -278,7 +281,7 @@ nav.secondary-nav {
     @apply flex-row;
     @apply flex-nowrap;
     @apply overflow-auto;
-    @apply bg-bgDarkColor;
+    @apply bg-primaryDark;
     @apply space-y-0;
 
     padding-bottom: env(safe-area-inset-bottom);
@@ -290,7 +293,7 @@ nav.secondary-nav {
 
       &.nuxt-link-exact-active {
         @apply bg-transparent;
-        @apply text-acColor;
+        @apply text-accent;
         @apply fill-current;
 
         svg {

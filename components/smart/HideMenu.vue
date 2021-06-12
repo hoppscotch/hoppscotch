@@ -9,9 +9,9 @@
       justify-center
       px-2
       py-1
-      bg-brdColor
-      text-fgLightColor
-      hover:text-fgColor
+      bg-divider
+      text-secondaryLight
+      hover:text-secondary
       my-4
       z-10
       rounded-l

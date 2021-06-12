@@ -81,8 +81,8 @@
           border-b border-dashed
           divide-y
           md:divide-x
-          border-brdColor
-          divide-dashed divide-brdColor
+          border-divider
+          divide-dashed divide-divider
           md:divide-y-0
         "
       >
@@ -197,7 +197,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         },
       ]
 
@@ -216,7 +216,7 @@ export default {
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
-              color: "var(--ac-color)",
+              color: "var(--accent-color)",
               ts: new Date().toLocaleTimeString(),
             },
           ]

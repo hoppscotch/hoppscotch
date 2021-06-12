@@ -6,116 +6,110 @@
 
 @mixin darkTheme {
   // Background color
-  --bg-color: rgba(32, 33, 36, 1);
+  --primary-color: rgba(32, 33, 36, 1);
   // Light Background color
-  --bg-light-color: rgba(255, 255, 255, 0.04);
+  --primary-light-color: rgba(255, 255, 255, 0.04);
   // Dark Background color
-  --bg-dark-color: rgba(0, 0, 0, 0.2);
+  --primary-dark-color: rgba(0, 0, 0, 0.2);
   // Text color
-  --fg-color: rgba(255, 255, 255, 0.9);
+  --secondary-color: rgba(255, 255, 255, 0.9);
   // Light Text color
-  --fg-light-color: rgba(255, 255, 255, 0.5);
+  --secondary-light-color: rgba(255, 255, 255, 0.5);
   // Border color
-  --brd-color: rgba(255, 255, 255, 0.05);
+  --divider-color: rgba(255, 255, 255, 0.05);
   // Error color
-  --err-color: rgba(255, 255, 255, 0.05);
+  --error-color: rgba(255, 255, 255, 0.05);
   // Tooltip color
-  --tt-color: rgba(48, 48, 48, 1);
+  --tooltip-color: rgba(48, 48, 48, 1);
   // Editor theme
   --editor-theme: "twilight";
-  // Active text color
-  --act-color: rgba(32, 33, 36, 1);
 }
 
 @mixin lightTheme {
   // Background color
-  --bg-color: rgba(255, 255, 255, 1);
+  --primary-color: rgba(255, 255, 255, 1);
   // Light Background color
-  --bg-light-color: rgba(0, 0, 0, 0.05);
+  --primary-light-color: rgba(0, 0, 0, 0.05);
   // Dark Background color
-  --bg-dark-color: rgba(0, 0, 0, 0.02);
+  --primary-dark-color: rgba(0, 0, 0, 0.02);
   // Text color
-  --fg-color: rgba(0, 0, 0, 0.9);
+  --secondary-color: rgba(0, 0, 0, 0.9);
   // Light Text color
-  --fg-light-color: rgba(0, 0, 0, 0.6);
+  --secondary-light-color: rgba(0, 0, 0, 0.6);
   // Border color
-  --brd-color: rgba(0, 0, 0, 0.1);
+  --divider-color: rgba(0, 0, 0, 0.1);
   // Error color
-  --err-color: rgba(0, 0, 0, 0.1);
+  --error-color: rgba(0, 0, 0, 0.1);
   // Tooltip color
-  --tt-color: rgba(255, 255, 255, 1);
+  --tooltip-color: rgba(255, 255, 255, 1);
   // Editor theme
   --editor-theme: "iplastic";
-  // Active text color
-  --act-color: rgba(255, 255, 255, 1);
 }
 
 @mixin blackTheme {
   // Background color
-  --bg-color: rgba(0, 0, 0, 1);
+  --primary-color: rgba(0, 0, 0, 1);
   // Light Background color
-  --bg-light-color: rgba(255, 255, 255, 0.02);
+  --primary-light-color: rgba(255, 255, 255, 0.02);
   // Dark Background color
-  --bg-dark-color: rgba(255, 255, 255, 0.07);
+  --primary-dark-color: rgba(255, 255, 255, 0.07);
   // Text color
-  --fg-color: rgba(255, 255, 255, 0.9);
+  --secondary-color: rgba(255, 255, 255, 0.9);
   // Light Text color
-  --fg-light-color: rgba(255, 255, 255, 0.5);
+  --secondary-light-color: rgba(255, 255, 255, 0.5);
   // Border color
-  --brd-color: rgba(255, 255, 255, 0.11);
+  --divider-color: rgba(255, 255, 255, 0.11);
   // Error color
-  --err-color: rgba(255, 255, 255, 0.05);
+  --error-color: rgba(255, 255, 255, 0.05);
   // Tooltip color
-  --tt-color: rgba(32, 32, 32, 1);
+  --tooltip-color: rgba(32, 32, 32, 1);
   // Editor theme
   --editor-theme: "vibrant_ink";
-  // Active text color
-  --act-color: rgba(0, 0, 0, 1);
 }
 
 @mixin blueTheme {
-  // Acent color
-  --ac-color: theme("colors.blue.400");
+  // Accent color
+  --accent-color: theme("colors.blue.400");
 }
 
 @mixin greenTheme {
-  // Acent color
-  --ac-color: theme("colors.green.400");
+  // Accent color
+  --accent-color: theme("colors.green.400");
 }
 
 @mixin tealTheme {
-  // Acent color
-  --ac-color: theme("colors.teal.400");
+  // Accent color
+  --accent-color: theme("colors.teal.400");
 }
 
 @mixin indigoTheme {
-  // Acent color
-  --ac-color: theme("colors.indigo.400");
+  // Accent color
+  --accent-color: theme("colors.indigo.400");
 }
 
 @mixin purpleTheme {
-  // Acent color
-  --ac-color: theme("colors.purple.400");
+  // Accent color
+  --accent-color: theme("colors.purple.400");
 }
 
 @mixin orangeTheme {
-  // Acent color
-  --ac-color: theme("colors.orange.400");
+  // Accent color
+  --accent-color: theme("colors.orange.400");
 }
 
 @mixin pinkTheme {
-  // Acent color
-  --ac-color: theme("colors.pink.400");
+  // Accent color
+  --accent-color: theme("colors.pink.400");
 }
 
 @mixin redTheme {
-  // Acent color
-  --ac-color: theme("colors.red.400");
+  // Accent color
+  --accent-color: theme("colors.red.400");
 }
 
 @mixin yellowTheme {
-  // Acent color
-  --ac-color: theme("colors.yellow.400");
+  // Accent color
+  --accent-color: theme("colors.yellow.400");
 }
 
 :root {

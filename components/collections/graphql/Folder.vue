@@ -3,7 +3,7 @@
     <div
       :class="[
         'row-wrapper transition duration-150 ease-in-out',
-        { 'bg-bgDarkColor': dragging },
+        { 'bg-primaryDark': dragging },
       ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
@@ -67,7 +67,7 @@
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="subFolder.name"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsGraphqlFolder
             :picked="picked"
@@ -89,7 +89,7 @@
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
-          class="flex ml-8 border-l border-brdColor"
+          class="flex ml-8 border-l border-divider"
         >
           <CollectionsGraphqlRequest
             :picked="picked"
@@ -114,7 +114,7 @@
           folder.requests.length === 0
         "
       >
-        <li class="flex ml-8 border-l border-brdColor">
+        <li class="flex ml-8 border-l border-divider">
           <p class="info">
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}

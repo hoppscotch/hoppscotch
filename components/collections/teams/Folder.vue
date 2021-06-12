@@ -75,7 +75,7 @@
         <li
           v-for="(subFolder, subFolderIndex) in folder.children"
           :key="subFolder.name"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsTeamsFolder
             :folder="subFolder"
@@ -100,7 +100,7 @@
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
-          class="flex ml-8 border-l border-brdColor"
+          class="flex ml-8 border-l border-divider"
         >
           <CollectionsTeamsRequest
             :request="request.request"
@@ -124,7 +124,7 @@
           (folder.requests == undefined || folder.requests.length === 0)
         "
       >
-        <li class="flex ml-8 border-l border-brdColor">
+        <li class="flex ml-8 border-l border-divider">
           <p class="info">
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}

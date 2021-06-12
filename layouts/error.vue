@@ -2,7 +2,7 @@
   <div class="page page-error">
     <h1 class="mb-4 font-mono text-4xl">{{ statusCode }}</h1>
     <h3 class="mb-4 font-mono text-xs">{{ message }}</h3>
-    <p class="mt-4 border-t border-ttColor">
+    <p class="mt-4 border-t border-tooltip">
       <nuxt-link to="/">
         <button class="icon">
           <i class="material-icons">home</i>

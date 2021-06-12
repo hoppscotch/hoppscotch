@@ -11,7 +11,7 @@
         @keyup.enter="formPost"
       />
     </div>
-    <div class="border-b show-on-large-screen border-brdColor">
+    <div class="border-b show-on-large-screen border-divider">
       <input
         v-model="label"
         :aria-label="$t('label')"

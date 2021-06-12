@@ -105,7 +105,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.server }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         },
       ]
       if (typeof EventSource !== "undefined") {
@@ -117,7 +117,7 @@ export default {
               {
                 payload: this.$t("connected_to", { name: this.server }),
                 source: "info",
-                color: "var(--ac-color)",
+                color: "var(--accent-color)",
                 ts: new Date().toLocaleTimeString(),
               },
             ]

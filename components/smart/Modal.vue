@@ -63,11 +63,11 @@ export default {
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
-  @apply bg-bgColor;
+  @apply bg-primary;
   @apply rounded-lg;
   @apply shadow-2xl;
   @apply border;
-  @apply border-ttColor;
+  @apply border-tooltip;
 
   max-height: calc(100vh - 128px);
   max-width: 640px;
@@ -121,12 +121,12 @@ export default {
 
   &.top {
     top: 68px;
-    background: linear-gradient(to bottom, var(--bg-color), transparent);
+    background: linear-gradient(to bottom, var(--primary-color), transparent);
   }
 
   &.bottom {
     bottom: 16px;
-    background: linear-gradient(to top, var(--bg-color), transparent);
+    background: linear-gradient(to top, var(--primary-color), transparent);
   }
 }
 </style>

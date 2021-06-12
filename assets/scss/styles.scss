@@ -13,8 +13,8 @@ $responsiveWidth: 768px;
 }
 
 ::selection {
-  @apply bg-acColor;
-  @apply text-actColor;
+  @apply bg-accent;
+  @apply text-primary;
 }
 
 ::-webkit-scrollbar {
@@ -22,20 +22,20 @@ $responsiveWidth: 768px;
   @apply w-2;
 
   &:hover {
-    @apply bg-bgDarkColor;
+    @apply bg-primaryDark;
   }
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-fgLightColor;
+  @apply bg-secondaryLight;
 
   &:hover {
-    @apply bg-fgColor;
+    @apply bg-secondary;
   }
 }
 
 ::placeholder {
-  @apply text-fgLightColor;
+  @apply text-secondaryLight;
   @apply opacity-25;
 }
 
@@ -44,8 +44,8 @@ html {
 }
 
 body {
-  @apply bg-bgColor;
-  @apply text-fgColor;
+  @apply bg-primary;
+  @apply text-secondary;
   @apply text-base;
   @apply font-medium;
   @apply select-none;
@@ -89,7 +89,7 @@ a {
   @apply outline-none;
 
   &.link {
-    @apply text-acColor;
+    @apply text-accent;
   }
 }
 
@@ -169,7 +169,7 @@ p {
 hr {
   @apply border-b;
   @apply border-dashed;
-  @apply border-brdColor;
+  @apply border-divider;
   @apply my-4;
 }
 
@@ -187,8 +187,8 @@ hr {
     @apply transition;
     @apply ease-in-out;
     @apply duration-150;
-    @apply bg-ttColor;
-    @apply text-fgColor;
+    @apply bg-tooltip;
+    @apply text-secondary;
   }
 
   .tooltip-arrow {
@@ -197,7 +197,7 @@ hr {
     @apply border-solid;
     @apply absolute;
     @apply m-2;
-    @apply border-ttColor;
+    @apply border-tooltip;
     @apply z-30;
     @apply transition;
     @apply ease-in-out;
@@ -274,8 +274,8 @@ hr {
     }
 
     .popover-inner {
-      @apply bg-ttColor;
-      @apply text-fgColor;
+      @apply bg-tooltip;
+      @apply text-secondary;
       @apply text-base;
       @apply p-2;
       @apply rounded-lg;
@@ -301,7 +301,7 @@ hr {
     }
 
     .popover-arrow {
-      @apply border-ttColor;
+      @apply border-tooltip;
     }
   }
 
@@ -324,7 +324,7 @@ hr {
 
 .info:not(.toasted) {
   @apply m-4;
-  @apply text-fgLightColor;
+  @apply text-secondaryLight;
 
   .material-icons {
     @apply align-middle;
@@ -337,8 +337,8 @@ button {
   @apply items-center;
   @apply justify-center;
   @apply p-4;
-  @apply bg-acColor;
-  @apply text-actColor;
+  @apply bg-accent;
+  @apply text-primary;
   @apply font-bold;
   @apply transition;
   @apply ease-in-out;
@@ -357,16 +357,16 @@ button {
   &:not([disabled]):hover,
   &:not([disabled]):active,
   &:not([disabled]):focus {
-    @apply text-actColor;
+    @apply text-primary;
     @apply fill-current;
     @apply outline-none;
 
-    box-shadow: inset 0 0 0 2px var(--fg-color);
+    box-shadow: inset 0 0 0 2px var(--secondary-color);
   }
 
   &.icon {
     @apply bg-transparent;
-    @apply text-fgLightColor;
+    @apply text-secondaryLight;
     @apply fill-current;
     @apply outline-none;
     @apply border-none;
@@ -375,21 +375,21 @@ button {
     &:not([disabled]):hover,
     &:not([disabled]):active,
     &:not([disabled]):focus {
-      @apply text-fgColor;
+      @apply text-secondary;
       @apply fill-current;
       @apply shadow-none;
     }
   }
 
   &.primary {
-    @apply text-acColor;
+    @apply text-accent;
     @apply px-6;
 
     &:not([disabled]):hover,
     &:not([disabled]):active,
     &:not([disabled]):focus {
-      @apply bg-acColor;
-      @apply text-actColor;
+      @apply bg-accent;
+      @apply text-primary;
     }
   }
 }
@@ -422,7 +422,7 @@ section:target {
 
 @keyframes highlight {
   50% {
-    box-shadow: 0 0 0 2px var(--ac-color);
+    box-shadow: 0 0 0 2px var(--accent-color);
   }
 }
 
@@ -451,8 +451,8 @@ pre,
 code {
   @apply flex;
   @apply p-4;
-  @apply bg-bgDarkColor;
-  @apply text-fgColor;
+  @apply bg-primaryDark;
+  @apply text-secondary;
   @apply font-mono;
   @apply font-normal;
   @apply transition;
@@ -466,7 +466,7 @@ code {
   &:not([readonly]):not(.ace_editor):hover,
   &:not([readonly]):not(.ace_editor):active,
   &:not([readonly]):not(.ace_editor):focus {
-    box-shadow: inset 0 0 0 2px var(--fg-light-color);
+    box-shadow: inset 0 0 0 2px var(--secondary-light-color);
   }
 }
 
@@ -479,7 +479,7 @@ code {
   &:hover,
   &:active,
   &:focus {
-    box-shadow: inset 0 0 0 2px var(--fg-light-color);
+    box-shadow: inset 0 0 0 2px var(--secondary-light-color);
   }
 }
 
@@ -518,7 +518,7 @@ pre {
     @apply absolute;
     @apply pointer-events-none;
     @apply font-icon;
-    @apply text-fgLightColor;
+    @apply text-secondaryLight;
 
     content: "\e313";
     top: 16px;
@@ -538,7 +538,7 @@ select {
 }
 
 option {
-  @apply bg-bgColor;
+  @apply bg-primary;
 }
 
 input[type="checkbox"] {
@@ -551,7 +551,7 @@ input[type="checkbox"] {
 
     &::before {
       @apply border;
-      @apply border-fgColor;
+      @apply border-secondary;
       @apply rounded-lg;
       @apply inline-flex;
       @apply items-center;
@@ -569,29 +569,29 @@ input[type="checkbox"] {
   }
 
   &:checked + label::before {
-    @apply bg-acColor;
-    @apply border-acColor;
-    @apply text-actColor;
+    @apply bg-accent;
+    @apply border-accent;
+    @apply text-primary;
   }
 }
 
 .error:not(input),
 .disabled:not(input),
 [disabled] {
-  @apply bg-errColor;
-  @apply text-fgLightColor;
+  @apply bg-error;
+  @apply text-secondaryLight;
   @apply fill-current;
   @apply cursor-not-allowed;
 
   &.icon {
-    @apply text-errColor;
+    @apply text-error;
     @apply fill-current;
   }
 }
 
 label {
   @apply p-4;
-  @apply text-fgLightColor;
+  @apply text-secondaryLight;
   @apply text-sm;
   @apply transition;
   @apply ease-in-out;
@@ -653,7 +653,7 @@ ol li {
 }
 
 .missing-data-response {
-  @apply text-fgLightColor;
+  @apply text-secondaryLight;
 }
 
 #response-details-wrapper {
@@ -707,8 +707,8 @@ section {
 }
 
 .toasted.info {
-  background-color: var(--ac-color) !important;
-  color: var(--act-color) !important;
+  background-color: var(--accent-color) !important;
+  color: var(--primary-color) !important;
   font-weight: 700 !important;
 }
 

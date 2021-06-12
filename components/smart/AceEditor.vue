@@ -270,11 +270,11 @@ export default {
     @apply items-center;
     @apply flex-grow-0;
     @apply flex-shrink-0;
-    @apply text-fgLightColor;
+    @apply text-secondaryLight;
     @apply text-sm;
 
     &:hover {
-      @apply text-fgColor;
+      @apply text-secondary;
       @apply cursor-pointer;
     }
 
@@ -289,11 +289,11 @@ export default {
       @apply absolute;
       @apply z-50;
       @apply top-9;
-      @apply bg-bgColor;
+      @apply bg-primary;
       @apply max-h-60;
       @apply overflow-auto;
       @apply shadow-lg;
-      @apply text-fgLightColor;
+      @apply text-secondaryLight;
       @apply overscroll-none;
 
       border-radius: 0 0 8px 8px;
@@ -304,8 +304,8 @@ export default {
       @apply py-1;
 
       &:hover {
-        @apply text-fgColor;
-        @apply bg-bgLightColor;
+        @apply text-secondary;
+        @apply bg-primaryLight;
       }
     }
   }

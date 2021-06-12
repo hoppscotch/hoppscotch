@@ -3,7 +3,7 @@
     <div
       :class="[
         'row-wrapper transition duration-150 ease-in-out',
-        { 'bg-bgDarkColor': dragging },
+        { 'bg-primaryDark': dragging },
       ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
@@ -93,7 +93,7 @@
         <li
           v-for="(folder, index) in collection.folders"
           :key="index"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsMyFolder
             :folder="folder"
@@ -117,7 +117,7 @@
         <li
           v-for="(request, index) in collection.requests"
           :key="index"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsMyRequest
             :request="request"
@@ -144,7 +144,7 @@
             (collection.requests == undefined ||
               collection.requests.length === 0)
           "
-          class="flex ml-8 border-l border-brdColor"
+          class="flex ml-8 border-l border-divider"
         >
           <p class="info">
             <i class="material-icons">not_interested</i>

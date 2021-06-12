@@ -83,7 +83,7 @@ export default {
         @apply justify-center;
         @apply py-2;
         @apply px-4;
-        @apply text-fgLightColor;
+        @apply text-secondaryLight;
         @apply text-sm;
         @apply rounded-lg;
         @apply cursor-pointer;
@@ -96,17 +96,17 @@ export default {
         }
 
         &:hover {
-          @apply text-fgColor;
+          @apply text-secondary;
         }
       }
 
       &:focus a {
-        @apply text-fgColor;
+        @apply text-secondary;
       }
 
       &.is-active a {
-        @apply bg-brdColor;
-        @apply text-fgColor;
+        @apply bg-divider;
+        @apply text-secondary;
       }
     }
   }

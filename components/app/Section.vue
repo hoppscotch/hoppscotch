@@ -55,7 +55,7 @@ export default Vue.extend({
 fieldset {
   @apply my-4;
   @apply rounded-lg;
-  @apply bg-bgDarkColor;
+  @apply bg-primaryDark;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
@@ -63,7 +63,7 @@ fieldset {
 
   legend {
     @apply px-4;
-    @apply text-fgColor;
+    @apply text-secondary;
     @apply font-bold;
     @apply cursor-pointer;
     @apply transition;

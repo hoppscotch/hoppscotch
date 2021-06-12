@@ -29,7 +29,7 @@ export default {
   @apply flex-1;
   @apply p-4;
   @apply border-l;
-  @apply border-brdColor;
+  @apply border-divider;
   @apply mt-4;
 
   .material-icons {

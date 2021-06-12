@@ -101,16 +101,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-ul {
-  display: flex;
-  flex-direction: column;
-}
-
-ul li {
-  display: flex;
-  padding-left: 16px;
-  border-left: 1px solid var(--brd-color);
-}
-</style>

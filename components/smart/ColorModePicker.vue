@@ -30,12 +30,12 @@
           rounded-full
           cursor-pointer
           border-collapseer-2
-          text-fgLightColor
-          hover:text-fgColor
+          text-secondaryLight
+          hover:text-secondary
         "
         :class="[
-          { 'bg-actColor': color === $colorMode.preference },
-          { 'text-acColor hover:text-acColor': color === $colorMode.value },
+          { 'bg-primary': color === $colorMode.preference },
+          { 'text-accent hover:text-accent': color === $colorMode.value },
         ]"
         @click="$colorMode.preference = color"
       >

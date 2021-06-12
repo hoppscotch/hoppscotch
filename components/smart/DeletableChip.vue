@@ -15,15 +15,15 @@
   @apply rounded-lg;
   @apply m-1;
   @apply pl-4;
-  @apply bg-bgDarkColor;
-  @apply text-fgColor;
+  @apply bg-primaryDark;
+  @apply text-secondary;
   @apply font-mono;
   @apply font-normal;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
   @apply border;
-  @apply border-brdColor;
+  @apply border-divider;
 }
 
 .close-button {

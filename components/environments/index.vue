@@ -40,7 +40,7 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-    <div class="border-b row-wrapper border-brdColor">
+    <div class="border-b row-wrapper border-divider">
       <div>
         <button class="icon" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>

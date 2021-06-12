@@ -27,7 +27,7 @@
     </div>
     <div v-else slot="body" class="flex flex-col items-center">
       <div class="flex justify-center max-w-md p-4 items-center flex-col">
-        <i class="material-icons text-acColor" style="font-size: 64px">
+        <i class="material-icons text-accent" style="font-size: 64px">
           verified
         </i>
         <h3 class="font-bold my-2 text-center text-lg">

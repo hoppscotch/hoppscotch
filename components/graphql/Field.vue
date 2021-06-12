@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 m-2 border-b border-dashed border-brdColor">
+  <div class="p-2 m-2 border-b border-dashed border-divider">
     <div class="field-title" :class="{ 'field-highlighted': isHighlighted }">
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
@@ -19,7 +19,10 @@
         :jump-type-callback="jumpTypeCallback"
       />
     </div>
-    <div v-if="gqlField.description" class="mt-2 text-fgLightColor field-desc">
+    <div
+      v-if="gqlField.description"
+      class="mt-2 text-secondaryLight field-desc"
+    >
       {{ gqlField.description }}
     </div>
     <div
@@ -41,7 +44,7 @@
     </div>
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2 text-xs">ARGUMENTS:</h5>
-      <div class="px-4 border-l-2 border-acColor">
+      <div class="px-4 border-l-2 border-accent">
         <div v-for="(field, index) in fieldArgs" :key="index">
           {{ field.name }}:
           <GraphqlTypeLink
@@ -50,7 +53,7 @@
           />
           <div
             v-if="field.description"
-            class="mt-2 text-fgLightColor field-desc"
+            class="mt-2 text-secondaryLight field-desc"
           >
             {{ field.description }}
           </div>
@@ -82,6 +85,6 @@ export default {
 <style scoped lang="scss">
 .field-highlighted {
   @apply border-b-2;
-  @apply border-acColor;
+  @apply border-accent;
 }
 </style>

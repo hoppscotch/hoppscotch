@@ -29,7 +29,7 @@
           cursor-pointer
           hover:shadow-none
         "
-        :class="[`text-${color}-400`, { 'bg-actColor': color === active }]"
+        :class="[`text-${color}-400`, { 'bg-primary': color === active }]"
         @click="setActiveColor(color)"
       >
         <i class="material-icons">lens</i>

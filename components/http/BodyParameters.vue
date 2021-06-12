@@ -23,8 +23,8 @@
         border-b border-dashed
         divide-y
         md:divide-x
-        border-brdColor
-        divide-dashed divide-brdColor
+        border-divider
+        divide-dashed divide-divider
         md:divide-y-0
       "
       :class="{ 'border-t': index == 0 }"
@@ -238,7 +238,7 @@ export default {
   @apply flex-1;
   @apply whitespace-nowrap;
   @apply overflow-auto;
-  @apply bg-bgDarkColor;
+  @apply bg-primaryDark;
 
   .file-chips-wrapper {
     @apply flex;

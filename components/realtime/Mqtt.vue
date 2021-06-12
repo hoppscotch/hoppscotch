@@ -57,7 +57,7 @@
             v-model="msg"
             type="text"
             spellcheck="false"
-            class="border-dashed md:border-l border-brdColor"
+            class="border-dashed md:border-l border-divider"
           />
         </li>
         <div>
@@ -172,7 +172,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
           ts: new Date().toLocaleTimeString(),
         },
       ]
@@ -204,7 +204,7 @@ export default {
       this.log.push({
         payload: this.$t("connected_to", { name: this.url }),
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
       this.$toast.success(this.$t("connected"), {
@@ -215,7 +215,7 @@ export default {
       this.log.push({
         payload: `Message: ${payloadString} arrived on topic: ${destinationName}`,
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
     },
@@ -257,7 +257,7 @@ export default {
           payload: `Published message: ${this.msg} to topic: ${this.pub_topic}`,
           ts: new Date().toLocaleTimeString(),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         })
       } catch (e) {
         this.log.push({
@@ -302,7 +302,7 @@ export default {
           (this.subscriptionState ? "subscribed" : "unsubscribed") +
           ` to topic: ${this.sub_topic}`,
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
     },

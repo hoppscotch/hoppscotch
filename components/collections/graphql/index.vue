@@ -49,7 +49,7 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-    <div class="border-b row-wrapper border-brdColor">
+    <div class="border-b row-wrapper border-divider">
       <button
         v-if="showCollActions"
         class="icon"

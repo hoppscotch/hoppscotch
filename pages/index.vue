@@ -42,7 +42,7 @@
               <input
                 v-if="!EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
-                class="border-dashed md:border-l border-brdColor"
+                class="border-dashed md:border-l border-divider"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"

@@ -30,7 +30,7 @@
             font-mono
             text-sm
             rounded-md
-            bg-bgDarkColor
+            bg-primaryDark
             hide-on-small-screen
           "
         >
@@ -309,7 +309,7 @@ $responsiveWidth: 768px;
   @apply duration-150;
 
   &:hover {
-    @apply text-acColor;
+    @apply text-accent;
   }
 }
 

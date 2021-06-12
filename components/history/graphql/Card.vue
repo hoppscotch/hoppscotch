@@ -82,7 +82,7 @@
           type="text"
           readonly
           :value="`${line}`"
-          class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
+          class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
         />
       </li>
     </div>
@@ -95,7 +95,7 @@
             type="text"
             readonly
             :value="entry.time"
-            class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
+            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
           />
         </li>
         <li>
@@ -105,7 +105,7 @@
             readonly
             :value="`Duration: ${entry.duration}ms`"
             :placeholder="$t('no_duration')"
-            class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
+            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
           />
         </li>
         <!-- <li>
@@ -115,7 +115,7 @@
             readonly
             :value="entry.preRequestScript"
             :placeholder="$t('no_prerequest_script')"
-            class="pt-0 mt-0 text-sm bg-transparent text-fgLightColor"
+            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
           />
         </li> -->
       </div>

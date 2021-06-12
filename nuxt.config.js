@@ -7,8 +7,8 @@ export const options = {
   description:
     "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "var(--ac-color)",
-    background: "var(--bg-color)",
+    color: "var(--accent-color)",
+    background: "var(--primary-color)",
   },
   app: {
     background: "#202124",

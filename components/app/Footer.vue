@@ -87,11 +87,11 @@ export default {
   @apply flex-shrink-0;
   @apply my-2;
   @apply mx-4;
-  @apply text-fgLightColor;
+  @apply text-secondaryLight;
   @apply text-sm;
 
   &:hover {
-    @apply text-fgColor;
+    @apply text-secondary;
   }
 }
 </style>

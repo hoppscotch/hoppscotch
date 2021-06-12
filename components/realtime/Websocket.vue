@@ -139,7 +139,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         },
       ]
       try {
@@ -150,7 +150,7 @@ export default {
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
-              color: "var(--ac-color)",
+              color: "var(--accent-color)",
               ts: new Date().toLocaleTimeString(),
             },
           ]

@@ -10,7 +10,7 @@
       />
     </div>
     <div
-      class="divide-y virtual-list divide-dashed divide-brdColor"
+      class="divide-y virtual-list divide-dashed divide-divider"
       :class="{ filled: filteredHistory.length }"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
@@ -42,7 +42,7 @@
     <p v-if="history.length === 0" class="info">
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
-    <div v-if="history.length !== 0" class="rounded-b-lg bg-bgDarkColor">
+    <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryDark">
       <div v-if="!isClearingHistory" class="row-wrapper">
         <button
           data-testid="clear_history"

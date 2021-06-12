@@ -52,7 +52,7 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
-    <div class="border-b row-wrapper border-brdColor">
+    <div class="border-b row-wrapper border-divider">
       <button
         v-if="
           collectionsType.type == 'team-collections' &&

@@ -117,7 +117,7 @@ export default {
   @apply flex-1;
   @apply p-4;
   @apply border;
-  @apply border-brdColor;
+  @apply border-divider;
   @apply rounded-lg;
   @apply mt-4;
 
@@ -136,10 +136,10 @@ export default {
   @apply justify-center;
   @apply flex-1;
   @apply p-4;
-  @apply text-fgLightColor;
+  @apply text-secondaryLight;
   @apply border-b;
   @apply border-dashed;
-  @apply border-brdColor;
+  @apply border-divider;
   @apply m-0;
 
   &:last-child {

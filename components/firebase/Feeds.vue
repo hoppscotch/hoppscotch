@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="fb.currentFeeds.length !== 0"
-    class="divide-y virtual-list divide-dashed divide-brdColor"
+    class="divide-y virtual-list divide-dashed divide-divider"
   >
     <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="flex-col">
       <div data-test="list-item" class="show-on-large-screen">

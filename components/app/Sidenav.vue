@@ -157,7 +157,6 @@ export default {
 $responsiveWidth: 768px;
 
 .nav-first {
-  @apply z-10;
   @apply h-screen;
   @apply p-2;
   @apply bg-primaryDark;
@@ -268,6 +267,7 @@ nav.secondary-nav {
 @media (max-width: $responsiveWidth) {
   .nav-first {
     @apply fixed;
+    @apply z-10;
     @apply top-auto;
     @apply bottom-0;
     @apply h-auto;

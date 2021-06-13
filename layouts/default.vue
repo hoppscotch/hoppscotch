@@ -27,8 +27,6 @@ export default {
     document.documentElement.setAttribute("data-accent", color)
   },
   async mounted() {
-    document.body.classList.add("afterLoad")
-
     performMigrations()
 
     console.log(

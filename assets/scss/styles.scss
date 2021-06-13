@@ -49,18 +49,12 @@ body {
   @apply text-base;
   @apply font-medium;
   @apply select-none;
-  @apply transition;
+  @apply transition-colors;
   @apply ease-in-out;
   @apply duration-150;
 
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
-}
-
-body.afterLoad {
-  @apply transition-colors;
-  @apply ease-in-out;
-  @apply duration-150;
 }
 
 body.sticky-footer footer {

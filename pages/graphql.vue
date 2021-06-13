@@ -60,12 +60,9 @@
               v-for="(header, index) in headers"
               :key="`${header.value}_${index}`"
               class="
-                border-b border-dashed
-                divide-y
-                md:divide-x
-                border-divider
-                divide-dashed divide-divider
-                md:divide-y-0
+                divide-y divide-dashed divide-divider
+                border-b border-dashed border-divider
+                md:divide-x md:divide-y-0
               "
               :class="{ 'border-t': index == 0 }"
             >
@@ -343,7 +340,7 @@
         </AppSection>
       </div>
 
-      <aside class="sticky-inner inner-right lg:max-w-md">
+      <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
         <SmartTabs>
           <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
             <AppSection ref="docs" :label="$t('docs')" no-legend>
@@ -466,6 +463,11 @@
               </SmartTab> -->
         </SmartTabs>
       </aside>
+
+      <SmartHideMenu
+        :active="activeSidebar"
+        @toggle="activeSidebar = !activeSidebar"
+      />
     </div>
     <CollectionsSaveRequest
       mode="graphql"

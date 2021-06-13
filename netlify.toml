@@ -15,12 +15,6 @@
   force = true
 
 [[redirects]]
-  from = "/externship_telegram"
-  to = "https://t.me/hoppscotch_externship"
-  status = 301
-  force = true
-
-[[redirects]]
   from = "/beta"
   to = "https://forms.gle/XPYDMp8m6JHNWcYp9"
   status = 301

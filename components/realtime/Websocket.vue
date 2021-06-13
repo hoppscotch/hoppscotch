@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div>
     <AppSection ref="request" :label="$t('request')" no-legend>
       <ul>
         <li>

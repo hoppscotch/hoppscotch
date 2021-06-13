@@ -1,4 +1,4 @@
-$responsiveWidth: 768px;
+$responsiveWidth: 767px;
 
 *,
 *::before,
@@ -52,6 +52,7 @@ body {
   @apply transition-colors;
   @apply ease-in-out;
   @apply duration-150;
+  @apply overflow-x-hidden;
 
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;

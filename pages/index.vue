@@ -615,31 +615,36 @@
         />
       </div>
 
-      <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
-        <section>
-          <SmartTabs>
-            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <History
-                :page="'rest'"
-                @useHistory="handleUseHistory"
-                ref="historyComponent"
-              />
-            </SmartTab>
+      <TranslateSlideLeft>
+        <aside
+          v-if="activeSidebar"
+          class="sticky-inner inner-right lg:max-w-md"
+        >
+          <section>
+            <SmartTabs>
+              <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+                <History
+                  :page="'rest'"
+                  @useHistory="handleUseHistory"
+                  ref="historyComponent"
+                />
+              </SmartTab>
 
-            <SmartTab :id="'collections'" :label="$t('collections')">
-              <Collections />
-            </SmartTab>
+              <SmartTab :id="'collections'" :label="$t('collections')">
+                <Collections />
+              </SmartTab>
 
-            <SmartTab :id="'env'" :label="$t('environments')">
-              <Environments />
-            </SmartTab>
+              <SmartTab :id="'env'" :label="$t('environments')">
+                <Environments />
+              </SmartTab>
 
-            <SmartTab :id="'notes'" :label="$t('notes')">
-              <HttpNotes />
-            </SmartTab>
-          </SmartTabs>
-        </section>
-      </aside>
+              <SmartTab :id="'notes'" :label="$t('notes')">
+                <HttpNotes />
+              </SmartTab>
+            </SmartTabs>
+          </section>
+        </aside>
+      </TranslateSlideLeft>
 
       <SmartHideMenu
         :active="activeSidebar"

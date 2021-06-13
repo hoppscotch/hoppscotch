@@ -300,8 +300,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-$responsiveWidth: 768px;
-
 .logo {
   @apply text-xl;
   @apply transition-colors;

@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="collections" :label="$t('collections')" no-legend>
+  <AppSection ref="collections" :label="$t('collections')">
     <div class="show-on-large-screen">
       <input
         v-if="!saveRequest"
@@ -57,8 +57,7 @@
         v-if="
           collectionsType.type == 'team-collections' &&
           (collectionsType.selectedTeam == undefined ||
-            collectionsType.selectedTeam.myRole == 'VIEWER') &&
-          !saveRequest
+            collectionsType.selectedTeam.myRole == 'VIEWER')
         "
         class="icon"
         disabled
@@ -69,11 +68,7 @@
           <span>{{ $t("new") }}</span>
         </div>
       </button>
-      <button
-        v-else-if="!saveRequest"
-        class="icon"
-        @click="displayModalAdd(true)"
-      >
+      <button v-else class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>

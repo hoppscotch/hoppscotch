@@ -3,7 +3,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection :label="$t('request')" ref="request" no-legend>
+        <AppSection :label="$t('request')" ref="request">
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -253,11 +253,7 @@
             </SmartTab>
 
             <SmartTab :id="'authentication'" :label="$t('authentication')">
-              <AppSection
-                :label="$t('authentication')"
-                ref="authentication"
-                no-legend
-              >
+              <AppSection :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -358,7 +354,6 @@
 
               <AppSection
                 v-if="showTokenRequest"
-                class="red"
                 label="Access Token Request"
                 ref="accessTokenRequest"
               >
@@ -485,10 +480,8 @@
             >
               <AppSection
                 v-if="showPreRequestScript"
-                class="orange"
                 :label="$t('pre_request_script')"
                 ref="preRequest"
-                no-legend
               >
                 <ul>
                   <li>
@@ -527,10 +520,8 @@
             <SmartTab :id="'tests'" :label="$t('tests')">
               <AppSection
                 v-if="testsEnabled"
-                class="orange"
                 :label="$t('tests')"
                 ref="postRequestTests"
-                no-legend
               >
                 <ul>
                   <li>
@@ -615,31 +606,36 @@
         />
       </div>
 
-      <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
-        <section>
-          <SmartTabs>
-            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <History
-                :page="'rest'"
-                @useHistory="handleUseHistory"
-                ref="historyComponent"
-              />
-            </SmartTab>
+      <TranslateSlideLeft>
+        <aside
+          v-if="activeSidebar"
+          class="sticky-inner inner-right lg:max-w-md"
+        >
+          <section>
+            <SmartTabs>
+              <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+                <History
+                  :page="'rest'"
+                  @useHistory="handleUseHistory"
+                  ref="historyComponent"
+                />
+              </SmartTab>
 
-            <SmartTab :id="'collections'" :label="$t('collections')">
-              <Collections />
-            </SmartTab>
+              <SmartTab :id="'collections'" :label="$t('collections')">
+                <Collections />
+              </SmartTab>
 
-            <SmartTab :id="'env'" :label="$t('environments')">
-              <Environments />
-            </SmartTab>
+              <SmartTab :id="'env'" :label="$t('environments')">
+                <Environments />
+              </SmartTab>
 
-            <SmartTab :id="'notes'" :label="$t('notes')">
-              <HttpNotes />
-            </SmartTab>
-          </SmartTabs>
-        </section>
-      </aside>
+              <SmartTab :id="'notes'" :label="$t('notes')">
+                <HttpNotes />
+              </SmartTab>
+            </SmartTabs>
+          </section>
+        </aside>
+      </TranslateSlideLeft>
 
       <SmartHideMenu
         :active="activeSidebar"

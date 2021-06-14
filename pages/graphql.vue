@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection ref="endpoint" :label="$t('endpoint')" no-legend>
+        <AppSection ref="endpoint" :label="$t('endpoint')">
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -37,7 +37,7 @@
           </ul>
         </AppSection>
 
-        <AppSection ref="headers" :label="$t('headers')" no-legend>
+        <AppSection ref="headers" :label="$t('headers')">
           <div class="flex flex-col">
             <label>{{ $t("headers") }}</label>
             <ul v-if="headers.length !== 0">
@@ -60,12 +60,9 @@
               v-for="(header, index) in headers"
               :key="`${header.value}_${index}`"
               class="
-                border-b border-dashed
-                divide-y
-                md:divide-x
-                border-divider
-                divide-dashed divide-divider
-                md:divide-y-0
+                divide-y divide-dashed divide-divider
+                border-b border-dashed border-divider
+                md:divide-x md:divide-y-0
               "
               :class="{ 'border-t': index == 0 }"
             >
@@ -153,7 +150,7 @@
           </div>
         </AppSection>
 
-        <AppSection ref="schema" :label="$t('schema')" no-legend>
+        <AppSection ref="schema" :label="$t('schema')">
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
@@ -215,7 +212,7 @@
           />
         </AppSection>
 
-        <AppSection ref="query" :label="$t('query')" no-legend>
+        <AppSection ref="query" :label="$t('query')">
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
@@ -269,7 +266,7 @@
           />
         </AppSection>
 
-        <AppSection ref="variables" :label="$t('variables')" no-legend>
+        <AppSection ref="variables" :label="$t('variables')">
           <div class="flex flex-col">
             <label>{{ $t("variables") }}</label>
             <SmartAceEditor
@@ -288,7 +285,7 @@
           </div>
         </AppSection>
 
-        <AppSection ref="response" :label="$t('response')" no-legend>
+        <AppSection ref="response" :label="$t('response')">
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
@@ -343,129 +340,139 @@
         </AppSection>
       </div>
 
-      <aside class="sticky-inner inner-right lg:max-w-md">
-        <SmartTabs>
-          <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
-            <AppSection ref="docs" :label="$t('docs')" no-legend>
-              <section class="flex-col">
-                <input
-                  v-model="graphqlFieldsFilterText"
-                  type="text"
-                  :placeholder="$t('search')"
-                  class="rounded-t-lg"
-                />
-                <SmartTabs ref="gqlTabs" styles="m-4">
-                  <div class="gqlTabs">
-                    <SmartTab
-                      v-if="queryFields.length > 0"
-                      :id="'queries'"
-                      :label="$t('queries')"
-                      :selected="true"
-                    >
-                      <div
-                        v-for="field in filteredQueryFields"
-                        :key="field.name"
+      <TranslateSlideLeft>
+        <aside
+          v-if="activeSidebar"
+          class="sticky-inner inner-right lg:max-w-md"
+        >
+          <SmartTabs>
+            <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
+              <AppSection ref="docs" :label="$t('docs')">
+                <section class="flex-col">
+                  <input
+                    v-model="graphqlFieldsFilterText"
+                    type="text"
+                    :placeholder="$t('search')"
+                    class="rounded-t-lg"
+                  />
+                  <SmartTabs ref="gqlTabs" styles="m-4">
+                    <div class="gqlTabs">
+                      <SmartTab
+                        v-if="queryFields.length > 0"
+                        :id="'queries'"
+                        :label="$t('queries')"
+                        :selected="true"
                       >
-                        <GraphqlField
-                          :gql-field="field"
-                          :jump-type-callback="handleJumpToType"
-                        />
-                      </div>
-                    </SmartTab>
+                        <div
+                          v-for="field in filteredQueryFields"
+                          :key="field.name"
+                        >
+                          <GraphqlField
+                            :gql-field="field"
+                            :jump-type-callback="handleJumpToType"
+                          />
+                        </div>
+                      </SmartTab>
 
-                    <SmartTab
-                      v-if="mutationFields.length > 0"
-                      :id="'mutations'"
-                      :label="$t('mutations')"
-                    >
-                      <div
-                        v-for="field in filteredMutationFields"
-                        :key="field.name"
+                      <SmartTab
+                        v-if="mutationFields.length > 0"
+                        :id="'mutations'"
+                        :label="$t('mutations')"
                       >
-                        <GraphqlField
-                          :gql-field="field"
-                          :jump-type-callback="handleJumpToType"
-                        />
-                      </div>
-                    </SmartTab>
+                        <div
+                          v-for="field in filteredMutationFields"
+                          :key="field.name"
+                        >
+                          <GraphqlField
+                            :gql-field="field"
+                            :jump-type-callback="handleJumpToType"
+                          />
+                        </div>
+                      </SmartTab>
 
-                    <SmartTab
-                      v-if="subscriptionFields.length > 0"
-                      :id="'subscriptions'"
-                      :label="$t('subscriptions')"
-                    >
-                      <div
-                        v-for="field in filteredSubscriptionFields"
-                        :key="field.name"
+                      <SmartTab
+                        v-if="subscriptionFields.length > 0"
+                        :id="'subscriptions'"
+                        :label="$t('subscriptions')"
                       >
-                        <GraphqlField
-                          :gql-field="field"
-                          :jump-type-callback="handleJumpToType"
-                        />
-                      </div>
-                    </SmartTab>
+                        <div
+                          v-for="field in filteredSubscriptionFields"
+                          :key="field.name"
+                        >
+                          <GraphqlField
+                            :gql-field="field"
+                            :jump-type-callback="handleJumpToType"
+                          />
+                        </div>
+                      </SmartTab>
 
-                    <SmartTab
-                      v-if="graphqlTypes.length > 0"
-                      :id="'types'"
-                      ref="typesTab"
-                      :label="$t('types')"
-                    >
-                      <div
-                        v-for="type in filteredGraphqlTypes"
-                        :key="type.name"
+                      <SmartTab
+                        v-if="graphqlTypes.length > 0"
+                        :id="'types'"
+                        ref="typesTab"
+                        :label="$t('types')"
                       >
-                        <GraphqlType
-                          :gql-type="type"
-                          :gql-types="graphqlTypes"
-                          :is-highlighted="
-                            isGqlTypeHighlighted({ gqlType: type })
-                          "
-                          :highlighted-fields="
-                            getGqlTypeHighlightedFields({ gqlType: type })
-                          "
-                          :jump-type-callback="handleJumpToType"
-                        />
-                      </div>
-                    </SmartTab>
-                  </div>
-                </SmartTabs>
-              </section>
-              <p
-                v-if="
-                  queryFields.length === 0 &&
-                  mutationFields.length === 0 &&
-                  subscriptionFields.length === 0 &&
-                  graphqlTypes.length === 0
-                "
-                class="info"
-              >
-                {{ $t("send_request_first") }}
-              </p>
-            </AppSection>
-          </SmartTab>
+                        <div
+                          v-for="type in filteredGraphqlTypes"
+                          :key="type.name"
+                        >
+                          <GraphqlType
+                            :gql-type="type"
+                            :gql-types="graphqlTypes"
+                            :is-highlighted="
+                              isGqlTypeHighlighted({ gqlType: type })
+                            "
+                            :highlighted-fields="
+                              getGqlTypeHighlightedFields({ gqlType: type })
+                            "
+                            :jump-type-callback="handleJumpToType"
+                          />
+                        </div>
+                      </SmartTab>
+                    </div>
+                  </SmartTabs>
+                </section>
+                <p
+                  v-if="
+                    queryFields.length === 0 &&
+                    mutationFields.length === 0 &&
+                    subscriptionFields.length === 0 &&
+                    graphqlTypes.length === 0
+                  "
+                  class="info"
+                >
+                  {{ $t("send_request_first") }}
+                </p>
+              </AppSection>
+            </SmartTab>
 
-          <SmartTab :id="'history'" :label="$t('history')">
-            <History
-              ref="graphqlHistoryComponent"
-              :page="'graphql'"
-              @useHistory="handleUseHistory"
-            />
-          </SmartTab>
+            <SmartTab :id="'history'" :label="$t('history')">
+              <History
+                ref="graphqlHistoryComponent"
+                :page="'graphql'"
+                @useHistory="handleUseHistory"
+              />
+            </SmartTab>
 
-          <SmartTab :id="'collections'" :label="$t('collections')">
-            <CollectionsGraphql />
-          </SmartTab>
+            <SmartTab :id="'collections'" :label="$t('collections')">
+              <CollectionsGraphql />
+            </SmartTab>
 
-          <!-- <SmartTab :id="'env'" :label="$t('environments')">
+            <!-- <SmartTab :id="'env'" :label="$t('environments')">
                 <Environments @use-environment="useSelectedEnvironment($event)" />
               </SmartTab>
 
               <SmartTab :id="'notes'" :label="$t('notes')">
                 <HttpNotes />
               </SmartTab> -->
-        </SmartTabs>
-      </aside>
+          </SmartTabs>
+        </aside>
+      </TranslateSlideLeft>
+
+      <SmartHideMenu
+        :active="activeSidebar"
+        @toggle="activeSidebar = !activeSidebar"
+      />
     </div>
     <CollectionsSaveRequest
       mode="graphql"

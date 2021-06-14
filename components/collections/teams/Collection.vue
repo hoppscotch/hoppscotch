@@ -33,7 +33,7 @@
         >
           <i class="material-icons">check_box</i>
         </button>
-        <v-popover v-if="!saveRequest">
+        <v-popover>
           <button
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
             v-tooltip.left="$t('more')"

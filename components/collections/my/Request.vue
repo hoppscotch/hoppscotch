@@ -27,7 +27,7 @@
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover v-if="!saveRequest">
+      <v-popover>
         <button v-tooltip="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>

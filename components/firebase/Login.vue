@@ -45,7 +45,7 @@ import {
   signInUserWithGoogle,
   getSignInMethodsForEmail,
   signInWithEmailAndPassword,
-  signInWithGithub,
+  signInUserWithGithub,
   setProviderInfo,
 } from "~/helpers/fb/auth"
 

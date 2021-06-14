@@ -255,26 +255,9 @@ export default {
     },
   },
   mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showModalAdd =
-          this.showModalEdit =
-          this.showModalImportExport =
-          this.showModalAddFolder =
-          this.showModalEditFolder =
-          this.showModalEditRequest =
-            false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-
     this.$subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
       this.teamCollectionsNew = cloneDeep(colls)
     })
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     updateTeamCollections() {

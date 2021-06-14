@@ -1,27 +1,72 @@
 <template>
-  <transition name="modal" appear>
-    <div class="modal-backdrop">
-      <div class="modal-wrapper">
-        <div class="modal-container">
-          <div class="modal-header">
-            <slot name="header"></slot>
-          </div>
-          <div class="modal-body">
-            <slot name="body"></slot>
-            <!-- <div class="top fade"></div>
+  <Portal>
+    <transition name="modal" appear>
+      <div @click="onBackdropClick" class="modal-backdrop">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+            <div class="modal-header">
+              <slot name="header"></slot>
+            </div>
+            <div class="modal-body">
+              <slot name="body"></slot>
+              <!-- <div class="top fade"></div>
             <div class="bottom fade"></div> -->
-          </div>
-          <div v-if="hasFooterSlot" class="modal-footer">
-            <slot name="footer"></slot>
+            </div>
+            <div v-if="hasFooterSlot" class="modal-footer">
+              <slot name="footer"></slot>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </Portal>
 </template>
 
 <script>
+import { Portal } from "@linusborg/vue-simple-portal"
+
+const stack = (() => {
+  const stack = []
+  return {
+    push: stack.push.bind(stack),
+    pop: stack.pop.bind(stack),
+    peek: () => (stack.length === 0 ? undefined : stack[stack.length - 1]),
+  }
+})()
+
 export default {
+  components: {
+    Portal,
+  },
+  data() {
+    return {
+      stackId: Math.random(),
+    }
+  },
+  methods: {
+    onBackdropClick({ target }) {
+      if (!target?.closest(".modal-container")) {
+        this.close()
+      }
+    },
+    onKeyDown(e) {
+      if (e.key === "Escape" && this.stackId === stack.peek()) {
+        e.preventDefault()
+        this.close()
+      }
+    },
+    close() {
+      this.$emit("close")
+    },
+  },
+  mounted() {
+    stack.push(this.stackId)
+    document.addEventListener("keydown", this.onKeyDown)
+  },
+  beforeDestroy() {
+    stack.pop()
+    document.removeEventListener("keydown", this.onKeyDown)
+  },
   computed: {
     hasFooterSlot() {
       return !!this.$slots.footer

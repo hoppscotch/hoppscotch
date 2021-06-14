@@ -185,14 +185,6 @@ export default {
     }
   },
   async mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showExtensions = this.showShortcuts = this.showSupport = false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()
@@ -276,9 +268,6 @@ export default {
     //     }
     //   }, 5000)
     // }
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     nativeShare() {

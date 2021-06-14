@@ -2169,15 +2169,6 @@ export default {
         e.preventDefault()
         this.$refs.clearAll.click()
       }
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showCurlImportModal =
-          this.showTokenListModal =
-          this.showTokenRequestList =
-          this.showSaveRequestModal =
-          this.showCodegenModal =
-            false
-      }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
         this.method = "GET"
       }

@@ -1,6 +1,6 @@
 <template>
   <AppSection ref="sync" :label="$t('notes')" no-legend>
-    <div v-if="fb.currentUser">
+    <div v-if="currentUser">
       <FirebaseInputform />
       <FirebaseFeeds />
     </div>
@@ -13,12 +13,16 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 export default {
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
+    }
+  },
   data() {
     return {
-      fb,
       showEmail: false,
     }
   },

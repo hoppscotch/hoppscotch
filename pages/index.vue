@@ -775,12 +775,7 @@ import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
 import { tokenRequest, oauthRedirect } from "~/helpers/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
-import { fb } from "~/helpers/fb"
-import {
-  hasPathParams,
-  addPathParamsToVariables,
-  getQueryParams,
-} from "~/helpers/requestParams"
+import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpers/requestParams"
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
 import {
@@ -820,7 +815,6 @@ export default {
       showSaveRequestModal: false,
       editRequest: {},
       activeSidebar: true,
-      fb,
       customMethod: false,
       files: [],
       filenames: "",

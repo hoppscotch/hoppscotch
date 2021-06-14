@@ -8,7 +8,7 @@
   >
     <div class="flex flex-col">
       <label>{{ $t("teams") }}</label>
-      <div v-if="fb.currentUser"></div>
+      <div v-if="currentUser"></div>
       <div v-else>
         <label>{{ $t("login_with") }}</label>
         <p>
@@ -56,7 +56,7 @@
 
 <script>
 import gql from "graphql-tag"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 export default {
   data() {
@@ -67,8 +67,12 @@ export default {
       editingteamID: "",
       me: {},
       myTeams: [],
-      fb,
       showEmail: false,
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   apollo: {

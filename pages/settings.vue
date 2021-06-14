@@ -1,29 +1,29 @@
 <template>
   <div class="page">
-    <div v-if="currentUser && currentUser.eaInvited">
+    <div v-if="currentBackendUser && currentBackendUser.eaInvited">
       <Teams />
     </div>
 
     <AppSection ref="account" :label="$t('account')" no-legend>
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
-        <div v-if="fb.currentUser">
+        <div v-if="currentUser">
           <button class="icon">
             <img
-              v-if="fb.currentUser.photoURL"
-              :src="fb.currentUser.photoURL"
+              v-if="currentUser.photoURL"
+              :src="currentUser.photoURL"
               class="w-6 h-6 rounded-full material-icons"
             />
             <i v-else class="material-icons">account_circle</i>
             <span>
-              {{ fb.currentUser.displayName || $t("nothing_found") }}
+              {{ currentUser.displayName || $t("nothing_found") }}
             </span>
           </button>
           <br />
           <button class="icon">
             <i class="material-icons">email</i>
             <span>
-              {{ fb.currentUser.email || $t("nothing_found") }}
+              {{ currentUser.email || $t("nothing_found") }}
             </span>
           </button>
           <br />
@@ -58,7 +58,7 @@
             </SmartToggle>
           </p>
 
-          <p v-if="fb.currentSettings.length !== 3">
+          <p v-if="isSyncDisabled">
             <button @click="initSettings">
               <i class="material-icons">sync</i>
               <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
@@ -214,7 +214,6 @@
 <script lang="ts">
 import Vue from "vue"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
-import { fb } from "~/helpers/fb"
 import {
   getSettingSubject,
   applySetting,
@@ -223,6 +222,7 @@ import {
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 type SettingsType = typeof defaultSettings
 
@@ -234,7 +234,6 @@ export default Vue.extend({
         : null,
 
       doneButton: '<i class="material-icons">done</i>',
-      fb,
 
       SYNC_COLLECTIONS: true,
       SYNC_ENVIRONMENTS: true,
@@ -247,6 +246,9 @@ export default Vue.extend({
       PROXY_ENABLED: true,
 
       showEmail: false,
+
+      currentBackendUser: null,
+      currentUser: null,
     }
   },
   subscriptions() {
@@ -268,7 +270,8 @@ export default Vue.extend({
       SYNC_HISTORY: getSettingSubject("syncHistory"),
 
       // Teams feature flag
-      currentUser: currentUserInfo$,
+      currentBackendUser: currentUserInfo$,
+      currentUser: currentUser$,
     }
   },
   head() {
@@ -283,6 +286,9 @@ export default Vue.extend({
         key: this.PROXY_KEY,
       }
     },
+    isSyncDisabled(): boolean {
+      return this.SYNC_COLLECTIONS && this.SYNC_ENVIRONMENTS && this.SYNC_HISTORY
+    }
   },
   watch: {
     proxySettings: {
@@ -311,13 +317,6 @@ export default Vue.extend({
       value: SettingsType[K]
     ) {
       this.applySetting(name, value)
-
-      if (name === "syncCollections" && value) {
-        this.syncCollections()
-      }
-      if (name === "syncEnvironments" && value) {
-        this.syncEnvironments()
-      }
     },
     initSettings() {
       applySetting("syncHistory", true)
@@ -335,30 +334,6 @@ export default Vue.extend({
         () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
       )
-    },
-    // TODO: Use the new collection store
-    syncCollections(): void {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        if (this.$store.state.postwoman.collections)
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-        if (this.$store.state.postwoman.collectionsGraphql)
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-      }
-    },
-    syncEnvironments(): void {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
     },
   },
 })

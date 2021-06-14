@@ -1,9 +1,9 @@
 <template>
   <div
-    v-if="fb.currentFeeds.length !== 0"
+    v-if="currentFeeds && currentFeeds.length !== 0"
     class="divide-y virtual-list divide-dashed divide-divider"
   >
-    <ul v-for="feed in fb.currentFeeds" :key="feed.id" class="flex-col">
+    <ul v-for="feed in currentFeeds" :key="feed.id" class="flex-col">
       <div data-test="list-item" class="show-on-large-screen">
         <li class="info">
           <label data-test="list-label" class="break-all">
@@ -29,17 +29,17 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
+import { deleteFeed, currentFeeds$ } from "~/helpers/fb/feeds"
 
 export default {
-  data() {
+  subscriptions() {
     return {
-      fb,
+      currentFeeds: currentFeeds$,
     }
   },
   methods: {
     async deleteFeed({ id }) {
-      await fb.deleteFeed(id)
+      await deleteFeed(id)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })

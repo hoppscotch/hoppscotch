@@ -64,18 +64,18 @@
             <div v-else class="row-wrapper">
               <div
                 v-tooltip.bottom="{
-                  content: !fb.currentUser
+                  content: !currentUser
                     ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : fb.currentUser.provider !== 'github.com'
+                    : currentUser.provider !== 'github.com'
                     ? $t('login_with_github_to') + $t('create_secret_gist')
                     : null,
                 }"
               >
                 <button
                   :disabled="
-                    !fb.currentUser
+                    !currentUser
                       ? true
-                      : fb.currentUser.provider !== 'github.com'
+                      : currentUser.provider !== 'github.com'
                       ? true
                       : false
                   "
@@ -113,7 +113,7 @@
 
 <script>
 import Mustache from "mustache"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 import DocsTemplate from "~/assets/md/docs.md"
 import folderContents from "~/assets/md/folderContents.md"
 import folderBody from "~/assets/md/folderBody.md"
@@ -121,11 +121,15 @@ import folderBody from "~/assets/md/folderBody.md"
 export default {
   data() {
     return {
-      fb,
       collectionJSON: "[]",
       items: [],
       docsMarkdown: "",
       selected: [],
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   head() {
@@ -147,7 +151,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `token ${fb.currentUser.accessToken}`,
+              Authorization: `token ${this.currentUser.accessToken}`,
               Accept: "application/vnd.github.v3+json",
             },
           }

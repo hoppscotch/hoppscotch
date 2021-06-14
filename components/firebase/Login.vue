@@ -40,14 +40,16 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
+import { applySetting } from "~/newstore/settings"
+import {
+  signInUserWithGoogle,
+  getSignInMethodsForEmail,
+  signInWithEmailAndPassword,
+  signInWithGithub,
+  setProviderInfo,
+} from "~/helpers/fb/auth"
 
 export default {
-  data() {
-    return {
-      fb,
-    }
-  },
   methods: {
     showLoginSuccess() {
       this.$toast.info(this.$t("login_success"), {
@@ -56,7 +58,7 @@ export default {
     },
     async signInWithGoogle() {
       try {
-        const { additionalUserInfo } = await fb.signInUserWithGoogle()
+        const { additionalUserInfo } = await signInUserWithGoogle()
 
         if (additionalUserInfo.isNewUser) {
           this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
@@ -66,9 +68,9 @@ export default {
             action: {
               text: this.$t("yes"),
               onClick: (_, toastObject) => {
-                fb.writeSettings("syncHistory", true)
-                fb.writeSettings("syncCollections", true)
-                fb.writeSettings("syncEnvironments", true)
+                applySetting("syncHistory", true)
+                applySetting("syncCollections", true)
+                applySetting("syncEnvironments", true)
                 this.$router.push({ path: "/settings" })
                 toastObject.remove()
               },
@@ -88,7 +90,7 @@ export default {
           // The provider account's email address.
           const email = err.email
           // Get sign-in methods for this email.
-          const methods = await fb.getSignInMethodsForEmail(email)
+          const methods = await getSignInMethodsForEmail(email)
 
           // Step 3.
           // If the user has several sign-in methods,
@@ -98,7 +100,7 @@ export default {
             // In real scenario, you should handle this asynchronously.
             const password = promptUserForPassword() // TODO: implement promptUserForPassword.
 
-            const user = await fb.signInWithEmailAndPassword(email, password)
+            const user = await signInWithEmailAndPassword(email, password)
             await user.linkWithCredential(pendingCred)
 
             this.showLoginSuccess()
@@ -113,7 +115,7 @@ export default {
             action: {
               text: this.$t("yes"),
               onClick: async (_, toastObject) => {
-                const { user } = await fb.signInWithGithub()
+                const { user } = await signInWithGithub()
                 await user.linkAndRetrieveDataWithCredential(pendingCred)
 
                 this.showLoginSuccess()
@@ -127,10 +129,9 @@ export default {
     },
     async signInWithGithub() {
       try {
-        const { credential, additionalUserInfo } =
-          await fb.signInUserWithGithub()
+        const { credential, additionalUserInfo } = await signInUserWithGithub()
 
-        fb.setProviderInfo(credential.providerId, credential.accessToken)
+        setProviderInfo(credential.providerId, credential.accessToken)
 
         if (additionalUserInfo.isNewUser) {
           this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
@@ -140,9 +141,9 @@ export default {
             action: {
               text: this.$t("yes"),
               onClick: (_, toastObject) => {
-                fb.writeSettings("syncHistory", true)
-                fb.writeSettings("syncCollections", true)
-                fb.writeSettings("syncEnvironments", true)
+                applySetting("syncHistory", true)
+                applySetting("syncCollections", true)
+                applySetting("syncEnvironments", true)
                 this.$router.push({ path: "/settings" })
                 toastObject.remove()
               },
@@ -162,7 +163,7 @@ export default {
           // The provider account's email address.
           const email = err.email
           // Get sign-in methods for this email.
-          const methods = await fb.getSignInMethodsForEmail(email)
+          const methods = await getSignInMethodsForEmail(email)
 
           // Step 3.
           // If the user has several sign-in methods,
@@ -172,7 +173,7 @@ export default {
             // In real scenario, you should handle this asynchronously.
             const password = promptUserForPassword() // TODO: implement promptUserForPassword.
 
-            const user = await fb.signInWithEmailAndPassword(email, password)
+            const user = await signInWithEmailAndPassword(email, password)
             await user.linkWithCredential(pendingCred)
 
             this.showLoginSuccess()
@@ -187,7 +188,8 @@ export default {
             action: {
               text: this.$t("yes"),
               onClick: async (_, toastObject) => {
-                const { user } = await fb.signInUserWithGoogle()
+                const { user } = await signInUserWithGoogle()
+                // TODO: handle deprecation
                 await user.linkAndRetrieveDataWithCredential(pendingCred)
 
                 this.showLoginSuccess()

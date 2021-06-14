@@ -1,6 +1,6 @@
 import { BehaviorSubject } from "rxjs"
 import gql from "graphql-tag"
-import { fb } from "../fb"
+import { authIdToken$ } from "../fb/auth"
 import { apolloClient } from "../apollo"
 
 /*
@@ -11,7 +11,7 @@ import { apolloClient } from "../apollo"
 /**
  * Defines the information provided about a user
  */
-interface UserInfo {
+export interface UserInfo {
   /**
    * UID of the user
    */
@@ -42,10 +42,8 @@ export const currentUserInfo$ = new BehaviorSubject<UserInfo | null>(null)
 /**
  * Initializes the currenUserInfo$ view and sets up its update mechanism
  */
-export async function initUserInfo() {
-  if (fb.idToken) await updateUserInfo()
-
-  fb.idToken$.subscribe((token) => {
+export function initUserInfo() {
+  authIdToken$.subscribe((token) => {
     if (token) {
       updateUserInfo()
     } else {

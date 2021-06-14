@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
+import { currentUser$, signInWithEmail } from "~/helpers/fb/auth"
 
 export default {
   props: {
@@ -77,7 +77,6 @@ export default {
   },
   data() {
     return {
-      fb,
       form: {
         email: "",
       },
@@ -88,7 +87,7 @@ export default {
     }
   },
   mounted() {
-    this.$subscribeTo(fb.currentUser$, (user) => {
+    this.$subscribeTo(currentUser$, (user) => {
       if (user) this.hideModal()
     })
 
@@ -110,8 +109,7 @@ export default {
         url: `${process.env.BASE_URL}/enter`,
         handleCodeInApp: true,
       }
-      await fb
-        .signInWithEmail(this.form.email, actionCodeSettings)
+      await signInWithEmail(this.form.email, actionCodeSettings)
         .then(() => {
           this.mode = "email"
           window.localStorage.setItem("emailForSignIn", this.form.email)

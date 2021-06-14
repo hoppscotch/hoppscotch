@@ -33,25 +33,27 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { writeFeed } from "~/helpers/fb/feeds"
 
-export default {
+export default Vue.extend({
   data() {
     return {
-      message: null,
-      label: null,
+      message: null as string | null,
+      label: null as string | null,
     }
   },
   methods: {
     formPost() {
+      // TODO: Check this ?
       if (!(this.message || this.label)) {
         return
       }
-      fb.writeFeeds(this.message, this.label)
+      writeFeed(this.label as string, this.message as string)
       this.message = null
       this.label = null
     },
   },
-}
+})
 </script>

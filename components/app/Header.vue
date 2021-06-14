@@ -68,7 +68,7 @@
             </svg>
           </button>
         </a>
-        <v-popover v-if="fb.currentUser === null">
+        <v-popover v-if="currentUser === null">
           <button v-tooltip="$t('login_with')" class="icon">
             <i class="material-icons">login</i>
           </button>
@@ -79,17 +79,17 @@
         <v-popover v-else>
           <button
             v-tooltip="
-              (fb.currentUser.displayName ||
+              (currentUser.displayName ||
                 '<label><i>Name not found</i></label>') +
               '<br>' +
-              (fb.currentUser.email || '<label><i>Email not found</i></label>')
+              (currentUser.email || '<label><i>Email not found</i></label>')
             "
             class="icon"
             aria-label="Account"
           >
             <img
-              v-if="fb.currentUser.photoURL"
-              :src="fb.currentUser.photoURL"
+              v-if="currentUser.photoURL"
+              :src="currentUser.photoURL"
               class="w-6 h-6 rounded-full material-icons"
               alt="Profile image"
             />
@@ -166,7 +166,7 @@
 
 <script>
 import intializePwa from "~/helpers/pwa"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 // import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 
 export default {
@@ -181,7 +181,11 @@ export default {
       showSupport: false,
       showEmail: false,
       navigatorShare: navigator.share,
-      fb,
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   async mounted() {

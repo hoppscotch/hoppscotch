@@ -4,7 +4,7 @@
       <Teams />
     </div>
 
-    <AppSection ref="account" :label="$t('account')" no-legend>
+    <AppSection ref="account" :label="$t('account')">
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="fb.currentUser">
@@ -74,7 +74,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="theme" :label="$t('theme')" no-legend>
+    <AppSection ref="theme" :label="$t('theme')">
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
         <SmartColorModePicker />
@@ -91,7 +91,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="extensions" :label="$t('extensions')" no-legend>
+    <AppSection ref="extensions" :label="$t('extensions')">
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
@@ -113,7 +113,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="proxy" :label="$t('proxy')" no-legend>
+    <AppSection ref="proxy" :label="$t('proxy')">
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
@@ -184,7 +184,7 @@
       -->
     </AppSection>
 
-    <AppSection ref="experiments" :label="$t('experiments')" no-legend>
+    <AppSection ref="experiments" :label="$t('experiments')">
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">

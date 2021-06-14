@@ -232,6 +232,7 @@ export default {
       this.hideModal()
     },
     hideModal() {
+      this.picked = null
       this.$emit("hide-modal")
     },
   },

@@ -1,11 +1,5 @@
 <template>
-  <AppSection
-    ref="teams"
-    class="green"
-    icon="history"
-    :label="$t('teams')"
-    no-legend
-  >
+  <AppSection ref="teams" :label="$t('teams')">
     <div class="flex flex-col">
       <label>{{ $t("teams") }}</label>
       <div v-if="fb.currentUser"></div>

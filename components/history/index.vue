@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="history" icon="history" :label="$t('history')" no-legend>
+  <AppSection ref="history" :label="$t('history')">
     <div class="show-on-large-screen">
       <input
         v-model="filterText"

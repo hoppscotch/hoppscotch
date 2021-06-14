@@ -1,12 +1,8 @@
 <template>
-  <AppSection
-    ref="collections"
-    class="yellow"
-    :label="$t('collections')"
-    no-legend
-  >
+  <AppSection ref="collections" :label="$t('collections')">
     <div class="show-on-large-screen">
       <input
+        v-if="showCollActions"
         v-model="filterText"
         aria-label="Search"
         type="search"
@@ -50,11 +46,7 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-divider">
-      <button
-        v-if="showCollActions"
-        class="icon"
-        @click="displayModalAdd(true)"
-      >
+      <button class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>

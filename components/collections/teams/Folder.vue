@@ -18,7 +18,7 @@
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover v-if="!saveRequest">
+      <v-popover>
         <button
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tooltip.left="$t('more')"

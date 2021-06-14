@@ -36,7 +36,7 @@
         >
           <i class="material-icons">topic</i>
         </button>
-        <v-popover v-if="!savingMode">
+        <v-popover>
           <button v-tooltip.left="$t('more')" class="tooltip-target icon">
             <i class="material-icons">more_vert</i>
           </button>

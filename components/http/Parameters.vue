@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="parameters" label="Parameters" no-legend>
+  <AppSection ref="parameters" label="Parameters">
     <ul v-if="params.length !== 0">
       <li>
         <div class="row-wrapper">

@@ -8,6 +8,7 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { initializeFirebase } from "~/helpers/fb"
 import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
 
 export default Vue.extend({
@@ -16,6 +17,9 @@ export default Vue.extend({
       signingInWithEmail: false,
       error: null,
     }
+  },
+  beforeMount() {
+    initializeFirebase()
   },
   async mounted() {
     if (isSignInWithEmailLink(window.location.href)) {

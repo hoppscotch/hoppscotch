@@ -86,6 +86,8 @@ async function toggleStar(entry: any, col: HistoryFBCollections) {
   if (currentUser$.value == null)
     throw new Error("User not logged in to toggle star")
 
+  console.log(entry)
+
   try {
     await firebase
       .firestore()
@@ -93,7 +95,7 @@ async function toggleStar(entry: any, col: HistoryFBCollections) {
       .doc(currentUser$.value.uid)
       .collection(col)
       .doc(entry.id)
-      .update({ state: !entry.star })
+      .update({ star: !entry.star })
   } catch (e) {
     console.error("error toggling star", entry, e)
     throw e

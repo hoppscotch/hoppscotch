@@ -1,6 +1,6 @@
 <template>
-  <transition name="modal" appear>
-    <div class="modal-backdrop">
+  <transition name="modal" appear @leave="onTransitionLeaveStart">
+    <div ref="modal" class="modal-backdrop" @click="onBackdropClick">
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
@@ -21,10 +21,72 @@
 </template>
 
 <script>
+const PORTAL_DOM_ID = "hoppscotch-modal-portal"
+
+const stack = (() => {
+  const stack = []
+  return {
+    push: stack.push.bind(stack),
+    pop: stack.pop.bind(stack),
+    peek: () => (stack.length === 0 ? undefined : stack[stack.length - 1]),
+  }
+})()
+
 export default {
+  data() {
+    return {
+      stackId: Math.random(),
+      // when transition doesn't fire on unmount, we should manually remove the modal from DOM
+      // (for example, when the parent component of this modal gets destroyed)
+      shouldCleanupDomOnUnmount: true,
+    }
+  },
   computed: {
     hasFooterSlot() {
       return !!this.$slots.footer
+    },
+  },
+  mounted() {
+    const $portal = this.$getPortal()
+    $portal.appendChild(this.$refs.modal)
+    stack.push(this.stackId)
+    document.addEventListener("keydown", this.onKeyDown)
+  },
+  beforeDestroy() {
+    const $modal = this.$refs.modal
+    if (this.shouldCleanupDomOnUnmount && $modal) {
+      this.$getPortal().removeChild($modal)
+    }
+    stack.pop()
+    document.removeEventListener("keydown", this.onKeyDown)
+  },
+  methods: {
+    close() {
+      this.$emit("close")
+    },
+    onBackdropClick({ target }) {
+      if (!target?.closest(".modal-container")) {
+        this.close()
+      }
+    },
+    onKeyDown(e) {
+      if (e.key === "Escape" && this.stackId === stack.peek()) {
+        e.preventDefault()
+        this.close()
+      }
+    },
+    onTransitionLeaveStart() {
+      this.shouldCleanupDomOnUnmount = false
+    },
+    $getPortal() {
+      let $el = document.querySelector("#" + PORTAL_DOM_ID)
+      if ($el) {
+        return $el
+      }
+      $el = document.createElement("DIV")
+      $el.id = PORTAL_DOM_ID
+      document.body.appendChild($el)
+      return $el
     },
   },
 }

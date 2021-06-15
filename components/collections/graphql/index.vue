@@ -224,7 +224,9 @@ export default {
         folderName,
         request,
         requestIndex,
+        folderPath,
       } = payload
+      this.$data.editingFolderPath = folderPath
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex
       this.$data.editingFolderName = folderName

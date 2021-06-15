@@ -197,6 +197,10 @@ export default Vue.extend({
       this.showChildren = !this.showChildren
     },
     removeCollection() {
+      // Cancel pick if picked collection is deleted
+      if (this.picked && this.picked.pickedType === "gql-my-collection" && this.picked.collectionIndex === this.collectionIndex) {
+        this.$emit("select", { picked: null })
+      }
       removeGraphqlCollection(this.collectionIndex)
 
       this.$toast.error(this.$t("deleted").toString(), {

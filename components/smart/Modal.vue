@@ -1,6 +1,6 @@
 <template>
-  <transition @leave="onTransitionLeaveStart" name="modal" appear>
-    <div ref="modal" @click="onBackdropClick" class="modal-backdrop">
+  <transition name="modal" appear @leave="onTransitionLeaveStart">
+    <div ref="modal" class="modal-backdrop" @click="onBackdropClick">
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
@@ -41,6 +41,25 @@ export default {
       shouldCleanupDomOnUnmount: true,
     }
   },
+  computed: {
+    hasFooterSlot() {
+      return !!this.$slots.footer
+    },
+  },
+  mounted() {
+    const $portal = this.$getPortal()
+    $portal.appendChild(this.$refs.modal)
+    stack.push(this.stackId)
+    document.addEventListener("keydown", this.onKeyDown)
+  },
+  beforeDestroy() {
+    const $modal = this.$refs.modal
+    if (this.shouldCleanupDomOnUnmount && $modal) {
+      this.$getPortal().removeChild($modal)
+    }
+    stack.pop()
+    document.removeEventListener("keydown", this.onKeyDown)
+  },
   methods: {
     close() {
       this.$emit("close")
@@ -69,25 +88,6 @@ export default {
       document.body.appendChild($el)
       return $el
     },
-  },
-  computed: {
-    hasFooterSlot() {
-      return !!this.$slots.footer
-    },
-  },
-  mounted() {
-    const $portal = this.$getPortal()
-    $portal.appendChild(this.$refs.modal)
-    stack.push(this.stackId)
-    document.addEventListener("keydown", this.onKeyDown)
-  },
-  beforeDestroy() {
-    const $modal = this.$refs.modal
-    if (this.shouldCleanupDomOnUnmount && $modal) {
-      this.$getPortal().removeChild($modal)
-    }
-    stack.pop()
-    document.removeEventListener("keydown", this.onKeyDown)
   },
 }
 </script>

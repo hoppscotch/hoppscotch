@@ -10,7 +10,6 @@
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
-            class="md:rounded-bl-lg"
             :placeholder="$t('url')"
             @keyup.enter="urlValid ? toggleConnection() : null"
           />
@@ -22,7 +21,6 @@
               id="connect"
               :disabled="!urlValid"
               name="connect"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
@@ -34,6 +32,54 @@
             </button>
           </li>
         </div>
+      </ul>
+      <ul>
+        <li>
+          <div class="row-wrapper">
+            <label>{{ $t("protocols") }}</label>
+          </div>
+        </li>
+      </ul>
+      <ul
+        v-for="(input, index) of protocols"
+        :key="`input-${index}`"
+        :class="{ 'border-t': index == 0 }"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-divider
+          divide-dashed divide-divider
+          md:divide-y-0
+        "
+      >
+        <li>
+          <input
+            v-model="protocols[index]"
+            :placeholder="$t('protocol_count', { count: index + 1 })"
+            name="message"
+            type="text"
+          />
+        </li>
+        <div>
+          <li>
+            <button
+              v-tooltip.bottom="$t('delete')"
+              class="icon"
+              @click="deleteProtocol({ index })"
+            >
+              <i class="material-icons">delete</i>
+            </button>
+          </li>
+        </div>
+      </ul>
+      <ul>
+        <li>
+          <button class="icon" @click="addProtocol">
+            <i class="material-icons">add</i>
+            <span>{{ $t("add_new") }}</span>
+          </button>
+        </li>
       </ul>
     </AppSection>
 
@@ -95,6 +141,7 @@ export default {
         input: "",
       },
       currentIndex: -1, // index of the message log array to put in input box
+      protocols: [],
     }
   },
   computed: {
@@ -138,7 +185,7 @@ export default {
         },
       ]
       try {
-        this.socket = new WebSocket(this.url)
+        this.socket = new WebSocket(this.url, this.protocols)
         this.socket.onopen = () => {
           this.connectionState = true
           this.communication.log = [
@@ -249,6 +296,12 @@ export default {
           }
           break
       }
+    },
+    addProtocol() {
+      this.protocols.push("")
+    },
+    deleteProtocol({ index }) {
+      this.$delete(this.protocols, index)
     },
   },
 }

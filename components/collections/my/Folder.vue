@@ -193,6 +193,11 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeFolder() {
+      // TODO: Bubble it up ?
+      // Cancel pick if picked folder was deleted
+      if (this.picked && this.picked.pickedType === "my-folder" && this.picked.folderPath === this.folderPath) {
+        this.$emit("select", { picked: null })
+      }
       removeRESTFolder(this.folderPath)
 
       this.$toast.error(this.$t("deleted"), {
@@ -206,6 +211,16 @@ export default {
       moveRESTRequest(folderPath, requestIndex, this.folderPath)
     },
     removeRequest({ requestIndex }) {
+      // TODO: Bubble it up to root ?
+      // Cancel pick if the picked item is being deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === requestIndex
+      ) {
+        this.$emit("select", { picked: null })
+      }
       removeRESTRequest(this.folderPath, requestIndex)
     },
   },

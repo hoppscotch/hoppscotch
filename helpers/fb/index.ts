@@ -2,7 +2,6 @@ import firebase from "firebase"
 import { initAuth } from "./auth"
 import { initCollections } from "./collections"
 import { initEnvironments } from "./environments"
-import { initFeeds } from "./feeds"
 import { initHistory } from "./history"
 import { initSettings } from "./settings"
 
@@ -25,5 +24,4 @@ export function initializeFirebase() {
   initCollections()
   initHistory()
   initEnvironments()
-  initFeeds()
 }

@@ -71,7 +71,6 @@ export default {
                 applySetting("syncHistory", true)
                 applySetting("syncCollections", true)
                 applySetting("syncEnvironments", true)
-                this.$router.push({ path: "/settings" })
                 toastObject.remove()
               },
             },
@@ -144,7 +143,6 @@ export default {
                 applySetting("syncHistory", true)
                 applySetting("syncCollections", true)
                 applySetting("syncEnvironments", true)
-                this.$router.push({ path: "/settings" })
                 toastObject.remove()
               },
             },

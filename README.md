@@ -361,7 +361,6 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 - History
 - Collections
 - Environments
-- Notes
 
 ✅ **Post-Request Tests β:** Write tests associated with a request that are executed after the request response.
 
@@ -377,10 +376,6 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 ---
 
 </details>
-
-📝 **Notes** : Instantly jot down notes, tasks or whatever you feel like as they come to your mind.
-
-_Notes are only available for signed-in users_
 
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 

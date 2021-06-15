@@ -457,14 +457,6 @@
             <SmartTab :id="'collections'" :label="$t('collections')">
               <CollectionsGraphql />
             </SmartTab>
-
-            <!-- <SmartTab :id="'env'" :label="$t('environments')">
-                <Environments @use-environment="useSelectedEnvironment($event)" />
-              </SmartTab>
-
-              <SmartTab :id="'notes'" :label="$t('notes')">
-                <HttpNotes />
-              </SmartTab> -->
           </SmartTabs>
         </aside>
       </TranslateSlideLeft>

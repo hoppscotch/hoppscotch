@@ -57,13 +57,6 @@
               {{ SYNC_HISTORY ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </p>
-
-          <p v-if="isSyncDisabled">
-            <button @click="initSettings">
-              <i class="material-icons">sync</i>
-              <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
-            </button>
-          </p>
         </div>
         <div v-else>
           <label>{{ $t("login_with") }}</label>
@@ -286,9 +279,6 @@ export default Vue.extend({
         key: this.PROXY_KEY,
       }
     },
-    isSyncDisabled(): boolean {
-      return this.SYNC_COLLECTIONS && this.SYNC_ENVIRONMENTS && this.SYNC_HISTORY
-    }
   },
   watch: {
     proxySettings: {
@@ -317,11 +307,6 @@ export default Vue.extend({
       value: SettingsType[K]
     ) {
       this.applySetting(name, value)
-    },
-    initSettings() {
-      applySetting("syncHistory", true)
-      applySetting("syncCollections", true)
-      applySetting("syncEnvironments", true)
     },
     resetProxy({ target }: { target: HTMLElement }) {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)

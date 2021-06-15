@@ -1,6 +1,13 @@
 <template>
   <transition name="modal" appear @leave="onTransitionLeaveStart">
-    <div ref="modal" class="modal-backdrop" @click="onBackdropClick">
+    <div
+      ref="modal"
+      class="modal-backdrop"
+      @touchstart="onBackdropMouseDown"
+      @touchend="onBackdropMouseUp"
+      @mouseup="onBackdropMouseUp"
+      @mousedown="onBackdropMouseDown"
+    >
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
@@ -36,6 +43,7 @@ export default {
   data() {
     return {
       stackId: Math.random(),
+      shouldCloseOnBackdropClick: true,
       // when transition doesn't fire on unmount, we should manually remove the modal from DOM
       // (for example, when the parent component of this modal gets destroyed)
       shouldCleanupDomOnUnmount: true,
@@ -64,10 +72,21 @@ export default {
     close() {
       this.$emit("close")
     },
-    onBackdropClick({ target }) {
-      if (!target?.closest(".modal-container")) {
+    onBackdropMouseDown({ target }) {
+      this.shouldCloseOnBackdropClick =
+        !this.checkIfTargetInsideModalContent(target)
+    },
+    onBackdropMouseUp({ target }) {
+      if (
+        this.shouldCloseOnBackdropClick &&
+        !this.checkIfTargetInsideModalContent(target)
+      ) {
         this.close()
       }
+      this.shouldCloseOnBackdropClick = true
+    },
+    checkIfTargetInsideModalContent($target) {
+      return $target?.closest(".modal-container")
     },
     onKeyDown(e) {
       if (e.key === "Escape" && this.stackId === stack.peek()) {

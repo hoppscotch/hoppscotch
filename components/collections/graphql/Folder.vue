@@ -182,7 +182,11 @@ export default Vue.extend({
     },
     removeFolder() {
       // Cancel pick if the picked folder is deleted
-      if (this.picked && this.picked.pickedType === "gql-my-folder" && this.picked.folderPath === this.folderPath) {
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-folder" &&
+        this.picked.folderPath === this.folderPath
+      ) {
         this.$emit("select", { picked: null })
       }
 

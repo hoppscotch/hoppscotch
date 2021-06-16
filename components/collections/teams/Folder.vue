@@ -190,7 +190,11 @@ export default {
     removeFolder() {
       if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
         // Cancel pick if picked collection folder was deleted
-        if (this.picked && this.picked.pickedType === "teams-folder" && this.picked.folderID === this.folder.id) {
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-folder" &&
+          this.picked.folderID === this.folder.id
+        ) {
           this.$emit("select", { picked: null })
         }
 

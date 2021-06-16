@@ -532,7 +532,11 @@ export default {
     removeCollection({ collectionsType, collectionIndex, collectionID }) {
       if (collectionsType.type === "my-collections") {
         // Cancel pick if picked collection is deleted
-        if (this.picked && this.picked.pickedType === "my-collection" && this.picked.collectionIndex === collectionIndex) {
+        if (
+          this.picked &&
+          this.picked.pickedType === "my-collection" &&
+          this.picked.collectionIndex === collectionIndex
+        ) {
           this.$emit("select", { picked: null })
         }
 
@@ -543,7 +547,11 @@ export default {
         })
       } else if (collectionsType.type === "team-collections") {
         // Cancel pick if picked collection is deleted
-        if (this.picked && this.picked.pickedType === "teams-collection" && this.picked.collectionID === collectionID) {
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-collection" &&
+          this.picked.collectionID === collectionID
+        ) {
           this.$emit("select", { picked: null })
         }
 

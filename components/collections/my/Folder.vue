@@ -195,7 +195,11 @@ export default {
     removeFolder() {
       // TODO: Bubble it up ?
       // Cancel pick if picked folder was deleted
-      if (this.picked && this.picked.pickedType === "my-folder" && this.picked.folderPath === this.folderPath) {
+      if (
+        this.picked &&
+        this.picked.pickedType === "my-folder" &&
+        this.picked.folderPath === this.folderPath
+      ) {
         this.$emit("select", { picked: null })
       }
       removeRESTFolder(this.folderPath)

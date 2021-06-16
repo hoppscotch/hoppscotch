@@ -123,7 +123,12 @@ export default Vue.extend({
     },
     removeRequest() {
       // Cancel pick if the picked request is deleted
-      if (this.picked && this.picked.pickedType === "gql-my-request" && this.picked.folderPath === this.folderPath && this.picked.requestIndex === this.requestIndex) {
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+      ) {
         this.$emit("select", { picked: null })
       }
 

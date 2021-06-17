@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { initializeFirebase } from "~/helpers/fb"
+
 export default {
   props: {
     error: {
@@ -37,7 +39,9 @@ export default {
       },
     }
   },
-
+  beforeMount() {
+    initializeFirebase()
+  },
   computed: {
     statusCode() {
       return (this.error && this.error.statusCode) || 500

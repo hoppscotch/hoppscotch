@@ -70,6 +70,11 @@ const dispatchers = defineDispatchers({
 
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
 
+/**
+ * An observable value to make avail all the state information at once
+ */
+export const settings$ = settingsStore.subject$.asObservable()
+
 export function getSettingSubject<K extends keyof SettingsType>(
   settingKey: K
 ): Observable<SettingsType[K]> {

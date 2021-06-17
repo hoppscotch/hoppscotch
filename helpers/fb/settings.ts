@@ -1,10 +1,6 @@
 import firebase from "firebase"
 import { currentUser$ } from "./auth"
-import {
-  applySettingFB,
-  settingsStore,
-  SettingsType,
-} from "~/newstore/settings"
+import { applySetting, settingsStore, SettingsType } from "~/newstore/settings"
 
 /**
  * Used locally to prevent infinite loop when settings sync update
@@ -51,7 +47,7 @@ export function initSettings() {
         Object.keys(dispatch.payload).forEach((key) => {
           writeSettings(key, dispatch.payload[key])
         })
-      } else if (dispatch.dispatcher !== "applySettingFB") {
+      } else {
         writeSettings(
           dispatch.payload.settingKey,
           settingsStore.value[dispatch.payload.settingKey as keyof SettingsType]
@@ -86,7 +82,7 @@ export function initSettings() {
           loadedSettings = false
           settings.forEach((e) => {
             if (e && e.name && e.value != null) {
-              applySettingFB(e.name, e.value)
+              applySetting(e.name, e.value)
             }
           })
           loadedSettings = true

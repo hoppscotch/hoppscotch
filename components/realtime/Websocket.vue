@@ -41,8 +41,8 @@
         </li>
       </ul>
       <ul
-        v-for="(input, index) of protocols"
-        :key="`input-${index}`"
+        v-for="(protocol, index) of protocols"
+        :key="`protocol-${index}`"
         :class="{ 'border-t': index == 0 }"
         class="
           border-b border-dashed
@@ -55,12 +55,41 @@
       >
         <li>
           <input
-            v-model="protocols[index]"
+            v-model="protocol.value"
             :placeholder="$t('protocol_count', { count: index + 1 })"
             name="message"
             type="text"
           />
         </li>
+        <div>
+          <li>
+            <button
+              v-tooltip.bottom="{
+                content: protocol.hasOwnProperty('active')
+                  ? protocol.active
+                    ? $t('turn_off')
+                    : $t('turn_on')
+                  : $t('turn_off'),
+              }"
+              class="icon"
+              @click="
+                protocol.active = protocol.hasOwnProperty('active')
+                  ? !protocol.active
+                  : false
+              "
+            >
+              <i class="material-icons">
+                {{
+                  protocol.hasOwnProperty("active")
+                    ? protocol.active
+                      ? "check_box"
+                      : "check_box_outline_blank"
+                    : "check_box"
+                }}
+              </i>
+            </button>
+          </li>
+        </div>
         <div>
           <li>
             <button
@@ -142,6 +171,7 @@ export default {
       },
       currentIndex: -1, // index of the message log array to put in input box
       protocols: [],
+      activeProtocols: [],
     }
   },
   computed: {
@@ -152,6 +182,18 @@ export default {
   watch: {
     url() {
       this.debouncer()
+    },
+    protocols: {
+      handler(newVal) {
+        this.activeProtocols = newVal
+          .filter((item) =>
+            Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          )
+          .map(({ value }) => value)
+      },
+      deep: true,
     },
   },
   mounted() {
@@ -185,7 +227,7 @@ export default {
         },
       ]
       try {
-        this.socket = new WebSocket(this.url, this.protocols)
+        this.socket = new WebSocket(this.url, this.activeProtocols)
         this.socket.onopen = () => {
           this.connectionState = true
           this.communication.log = [
@@ -298,10 +340,22 @@ export default {
       }
     },
     addProtocol() {
-      this.protocols.push("")
+      this.protocols.push({ value: "", active: true })
     },
     deleteProtocol({ index }) {
+      const oldProtocols = this.protocols.slice()
       this.$delete(this.protocols, index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+        action: {
+          text: this.$t("undo"),
+          duration: 4000,
+          onClick: (_, toastObject) => {
+            this.protocols = oldProtocols
+            toastObject.remove()
+          },
+        },
+      })
     },
   },
 }

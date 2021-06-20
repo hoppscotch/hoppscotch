@@ -361,7 +361,6 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 - History
 - Collections
 - Environments
-- Notes
 
 ✅ **Post-Request Tests β:** Write tests associated with a request that are executed after the request response.
 
@@ -377,10 +376,6 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 ---
 
 </details>
-
-📝 **Notes** : Instantly jot down notes, tasks or whatever you feel like as they come to your mind.
-
-_Notes are only available for signed-in users_
 
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 
@@ -475,14 +470,7 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 **Official container** &nbsp; [![hoppscotch/hoppscotch](https://img.shields.io/docker/pulls/hoppscotch/hoppscotch?style=social)](https://hub.docker.com/r/hoppscotch/hoppscotch)
 
 ```bash
-#pull
-docker pull hoppscotch/hoppscotch
-
-#build
-docker build -t hoppscotch/hoppscotch:latest .
-
-#run
-docker run -p 3000:3000 hoppscotch/hoppscotch:latest
+docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
 **Legacy container** &nbsp; [![liyasthomas/postwoman](https://img.shields.io/docker/pulls/liyasthomas/postwoman?style=social)](https://hub.docker.com/r/liyasthomas/postwoman)
@@ -493,13 +481,6 @@ docker run -p 3000:3000 hoppscotch/hoppscotch:latest
 ---
 
 ```bash
-#pull
-docker pull liyasthomas/postwoman
-
-#build
-docker build -t liyasthomas/postwoman:latest .
-
-#run
 docker run -p 3000:3000 liyasthomas/postwoman:latest
 ```
 

@@ -19,3 +19,9 @@
   to = "https://forms.gle/XPYDMp8m6JHNWcYp9"
   status = 301
   force = true
+
+[[redirects]]
+  from = "/careers"
+  to = "https://www.notion.so/hoppscotch/3b9d5d5239a043bfb91701faabf5b8f0"
+  status = 301
+  force = true

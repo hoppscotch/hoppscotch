@@ -6,25 +6,34 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { initializeFirebase } from "~/helpers/fb"
+import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
 
-export default {
+export default Vue.extend({
   data() {
     return {
       signingInWithEmail: false,
       error: null,
     }
   },
+  beforeMount() {
+    initializeFirebase()
+  },
   async mounted() {
-    if (fb.isSignInWithEmailLink(window.location.href)) {
+    if (isSignInWithEmailLink(window.location.href)) {
       this.signingInWithEmail = true
+
       let email = window.localStorage.getItem("emailForSignIn")
+
       if (!email) {
-        email = window.prompt("Please provide your email for confirmation")
+        email = window.prompt(
+          "Please provide your email for confirmation"
+        ) as string
       }
-      await fb
-        .signInWithEmailLink(email, window.location.href)
+
+      await signInWithEmailLink(email, window.location.href)
         .then(() => {
           window.localStorage.removeItem("emailForSignIn")
           this.$router.push({ path: "/" })
@@ -38,5 +47,5 @@ export default {
         })
     }
   },
-}
+})
 </script>

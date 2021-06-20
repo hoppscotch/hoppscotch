@@ -68,7 +68,7 @@
             </svg>
           </button>
         </a>
-        <v-popover v-if="fb.currentUser === null">
+        <v-popover v-if="currentUser === null">
           <button v-tooltip="$t('login_with')" class="icon">
             <i class="material-icons">login</i>
           </button>
@@ -79,17 +79,17 @@
         <v-popover v-else>
           <button
             v-tooltip="
-              (fb.currentUser.displayName ||
+              (currentUser.displayName ||
                 '<label><i>Name not found</i></label>') +
               '<br>' +
-              (fb.currentUser.email || '<label><i>Email not found</i></label>')
+              (currentUser.email || '<label><i>Email not found</i></label>')
             "
             class="icon"
             aria-label="Account"
           >
             <img
-              v-if="fb.currentUser.photoURL"
-              :src="fb.currentUser.photoURL"
+              v-if="currentUser.photoURL"
+              :src="currentUser.photoURL"
               class="w-6 h-6 rounded-full material-icons"
               alt="Profile image"
             />
@@ -166,7 +166,7 @@
 
 <script>
 import intializePwa from "~/helpers/pwa"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 // import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 
 export default {
@@ -181,18 +181,14 @@ export default {
       showSupport: false,
       showEmail: false,
       navigatorShare: navigator.share,
-      fb,
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   async mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showExtensions = this.showShortcuts = this.showSupport = false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()
@@ -214,34 +210,34 @@ export default {
       })
     }
 
-    const showAd = localStorage.getItem("showAd") === "no"
-    if (!showAd) {
-      setTimeout(() => {
-        this.$toast.clear()
-        this.$toast.show(
-          "<span><a href='https://fundoss.org/collective/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
-          {
-            icon: "",
-            duration: 0,
-            theme: "toasted-ad",
-            action: [
-              {
-                text: "Donate",
-                icon: "chevron_right",
-                onClick: (_, toastObject) => {
-                  localStorage.setItem("showAd", "no")
-                  toastObject.goAway(0)
-                  window.open("https://fundoss.org/collective/hoppscotch")
-                },
-              },
-            ],
-            onComplete() {
-              localStorage.setItem("showAd", "no")
-            },
-          }
-        )
-      }, 6000)
-    }
+    // const showAd = localStorage.getItem("showAd") === "no"
+    // if (!showAd) {
+    //   setTimeout(() => {
+    //     this.$toast.clear()
+    //     this.$toast.show(
+    //       "<span><a href='https://fundoss.org/collective/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+    //       {
+    //         icon: "",
+    //         duration: 0,
+    //         theme: "toasted-ad",
+    //         action: [
+    //           {
+    //             text: "Donate",
+    //             icon: "chevron_right",
+    //             onClick: (_, toastObject) => {
+    //               localStorage.setItem("showAd", "no")
+    //               toastObject.goAway(0)
+    //               window.open("https://fundoss.org/collective/hoppscotch")
+    //             },
+    //           },
+    //         ],
+    //         onComplete() {
+    //           localStorage.setItem("showAd", "no")
+    //         },
+    //       }
+    //     )
+    //   }, 6000)
+    // }
 
     // let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
     // if (!showExtensionsToast) {
@@ -276,9 +272,6 @@ export default {
     //     }
     //   }, 5000)
     // }
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     nativeShare() {

@@ -9,7 +9,8 @@
           readonly
           :value="entry.url"
           :placeholder="$t('empty_req_name')"
-          class="bg-transparent"
+          class="cursor-pointer text-sm bg-transparent"
+          @click="$emit('use-entry')"
         />
       </li>
       <button

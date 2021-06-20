@@ -7,12 +7,12 @@ import {
 import { WebSocketLink } from "@apollo/client/link/ws"
 import { setContext } from "@apollo/client/link/context"
 import { getMainDefinition } from "@apollo/client/utilities"
-import { fb } from "./fb"
+import { authIdToken$ } from "./fb/auth"
 
 let authToken: String | null = null
 
 export function registerApolloAuthUpdate() {
-  fb.idToken$.subscribe((token: String | null) => {
+  authIdToken$.subscribe((token) => {
     authToken = token
   })
 }

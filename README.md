@@ -482,7 +482,7 @@ docker pull hoppscotch/hoppscotch
 docker build -t hoppscotch/hoppscotch:latest .
 
 #run
-docker run -p 3000:3000 hoppscotch/hoppscotch:latest
+docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
 **Legacy container** &nbsp; [![liyasthomas/postwoman](https://img.shields.io/docker/pulls/liyasthomas/postwoman?style=social)](https://hub.docker.com/r/liyasthomas/postwoman)

@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="collections" :label="$t('collections')" no-legend>
+  <AppSection ref="collections" :label="$t('collections')">
     <div class="show-on-large-screen">
       <input
         v-if="!saveRequest"
@@ -57,8 +57,7 @@
         v-if="
           collectionsType.type == 'team-collections' &&
           (collectionsType.selectedTeam == undefined ||
-            collectionsType.selectedTeam.myRole == 'VIEWER') &&
-          !saveRequest
+            collectionsType.selectedTeam.myRole == 'VIEWER')
         "
         class="icon"
         disabled
@@ -69,11 +68,7 @@
           <span>{{ $t("new") }}</span>
         </div>
       </button>
-      <button
-        v-else-if="!saveRequest"
-        class="icon"
-        @click="displayModalAdd(true)"
-      >
+      <button v-else class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
@@ -261,26 +256,9 @@ export default {
     },
   },
   mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showModalAdd =
-          this.showModalEdit =
-          this.showModalImportExport =
-          this.showModalAddFolder =
-          this.showModalEditFolder =
-          this.showModalEditRequest =
-            false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-
     this.$subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
       this.teamCollectionsNew = cloneDeep(colls)
     })
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     updateTeamCollections() {
@@ -554,12 +532,30 @@ export default {
     },
     removeCollection({ collectionsType, collectionIndex, collectionID }) {
       if (collectionsType.type === "my-collections") {
+        // Cancel pick if picked collection is deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "my-collection" &&
+          this.picked.collectionIndex === collectionIndex
+        ) {
+          this.$emit("select", { picked: null })
+        }
+
         removeRESTCollection(collectionIndex)
 
         this.$toast.error(this.$t("deleted"), {
           icon: "delete",
         })
       } else if (collectionsType.type === "team-collections") {
+        // Cancel pick if picked collection is deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-collection" &&
+          this.picked.collectionID === collectionID
+        ) {
+          this.$emit("select", { picked: null })
+        }
+
         if (collectionsType.selectedTeam.myRole !== "VIEWER") {
           this.$apollo
             .mutate({
@@ -592,12 +588,30 @@ export default {
     },
     removeRequest({ requestIndex, folderPath }) {
       if (this.collectionsType.type === "my-collections") {
+        // Cancel pick if the picked item is being deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "my-request" &&
+          this.picked.folderPath === folderPath &&
+          this.picked.requestIndex === requestIndex
+        ) {
+          this.$emit("select", { picked: null })
+        }
         removeRESTRequest(folderPath, requestIndex)
 
         this.$toast.error(this.$t("deleted"), {
           icon: "delete",
         })
       } else if (this.collectionsType.type === "team-collections") {
+        // Cancel pick if the picked item is being deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-request" &&
+          this.picked.requestID === requestIndex
+        ) {
+          this.$emit("select", { picked: null })
+        }
+
         teamUtils
           .deleteRequest(this.$apollo, requestIndex)
           .then(() => {

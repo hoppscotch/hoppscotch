@@ -3,7 +3,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection :label="$t('request')" ref="request" no-legend>
+        <AppSection :label="$t('request')" ref="request">
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -253,11 +253,7 @@
             </SmartTab>
 
             <SmartTab :id="'authentication'" :label="$t('authentication')">
-              <AppSection
-                :label="$t('authentication')"
-                ref="authentication"
-                no-legend
-              >
+              <AppSection :label="$t('authentication')" ref="authentication">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -358,7 +354,6 @@
 
               <AppSection
                 v-if="showTokenRequest"
-                class="red"
                 label="Access Token Request"
                 ref="accessTokenRequest"
               >
@@ -485,10 +480,8 @@
             >
               <AppSection
                 v-if="showPreRequestScript"
-                class="orange"
                 :label="$t('pre_request_script')"
                 ref="preRequest"
-                no-legend
               >
                 <ul>
                   <li>
@@ -527,10 +520,8 @@
             <SmartTab :id="'tests'" :label="$t('tests')">
               <AppSection
                 v-if="testsEnabled"
-                class="orange"
                 :label="$t('tests')"
                 ref="postRequestTests"
-                no-legend
               >
                 <ul>
                   <li>
@@ -2171,15 +2162,6 @@ export default {
       if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         this.$refs.clearAll.click()
-      }
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showCurlImportModal =
-          this.showTokenListModal =
-          this.showTokenRequestList =
-          this.showSaveRequestModal =
-          this.showCodegenModal =
-            false
       }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
         this.method = "GET"

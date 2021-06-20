@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppSection ref="request" :label="$t('request')" no-legend>
+    <AppSection ref="request" :label="$t('request')">
       <ul>
         <li>
           <label for="server">{{ $t("server") }}</label>
@@ -36,12 +36,7 @@
       </ul>
     </AppSection>
 
-    <AppSection
-      id="response"
-      ref="response"
-      :label="$t('communication')"
-      no-legend
-    >
+    <AppSection id="response" ref="response" :label="$t('communication')">
       <ul>
         <li>
           <RealtimeLog :title="$t('events')" :log="events.log" />

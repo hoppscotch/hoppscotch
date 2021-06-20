@@ -26,7 +26,7 @@ export default Vue.extend({
     },
     noLegend: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   computed: {

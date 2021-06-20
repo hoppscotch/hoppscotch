@@ -18,7 +18,7 @@
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover v-if="!saveRequest">
+      <v-popover>
         <button
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tooltip.left="$t('more')"
@@ -189,6 +189,15 @@ export default {
     },
     removeFolder() {
       if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
+        // Cancel pick if picked collection folder was deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-folder" &&
+          this.picked.folderID === this.folder.id
+        ) {
+          this.$emit("select", { picked: null })
+        }
+
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {

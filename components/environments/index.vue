@@ -1,10 +1,5 @@
 <template>
-  <AppSection
-    ref="environments"
-    icon="history"
-    :label="$t('environments')"
-    no-legend
-  >
+  <AppSection ref="environments" :label="$t('environments')">
     <div class="show-on-large-screen">
       <span class="select-wrapper">
         <select
@@ -102,21 +97,6 @@ export default {
     selectedEnvironmentIndex(val) {
       setCurrentEnvironment(val)
     },
-  },
-  mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showModalImportExport =
-          this.showModalAdd =
-          this.showModalEdit =
-            false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     displayModalAdd(shouldDisplay) {

@@ -17,7 +17,7 @@
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover v-if="!saveRequest">
+      <v-popover>
         <button
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tooltip="$t('more')"

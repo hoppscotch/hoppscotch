@@ -90,17 +90,6 @@ export default {
     this.$subscribeTo(currentUser$, (user) => {
       if (user) this.hideModal()
     })
-
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.hideModal()
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
     async signInWithEmail() {

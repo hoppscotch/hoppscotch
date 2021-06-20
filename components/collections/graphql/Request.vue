@@ -25,7 +25,7 @@
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover v-if="!savingMode">
+      <v-popover>
         <button v-tooltip="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
@@ -122,6 +122,16 @@ export default Vue.extend({
       dataTransfer.setData("requestIndex", this.requestIndex)
     },
     removeRequest() {
+      // Cancel pick if the picked request is deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+      ) {
+        this.$emit("select", { picked: null })
+      }
+
       removeGraphqlRequest(this.folderPath, this.requestIndex)
       this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",

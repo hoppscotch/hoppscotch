@@ -36,7 +36,7 @@
         >
           <i class="material-icons">topic</i>
         </button>
-        <v-popover v-if="!savingMode">
+        <v-popover>
           <button v-tooltip.left="$t('more')" class="tooltip-target icon">
             <i class="material-icons">more_vert</i>
           </button>
@@ -197,6 +197,14 @@ export default Vue.extend({
       this.showChildren = !this.showChildren
     },
     removeCollection() {
+      // Cancel pick if picked collection is deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-collection" &&
+        this.picked.collectionIndex === this.collectionIndex
+      ) {
+        this.$emit("select", { picked: null })
+      }
       removeGraphqlCollection(this.collectionIndex)
 
       this.$toast.error(this.$t("deleted").toString(), {

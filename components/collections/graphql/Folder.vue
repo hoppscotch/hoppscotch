@@ -28,7 +28,7 @@
           <span>{{ folder.name }}</span>
         </button>
       </div>
-      <v-popover v-if="!savingMode">
+      <v-popover>
         <button v-tooltip.left="$t('more')" class="tooltip-target icon">
           <i class="material-icons">more_vert</i>
         </button>
@@ -181,6 +181,15 @@ export default Vue.extend({
       this.showChildren = !this.showChildren
     },
     removeFolder() {
+      // Cancel pick if the picked folder is deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-folder" &&
+        this.picked.folderPath === this.folderPath
+      ) {
+        this.$emit("select", { picked: null })
+      }
+
       removeGraphqlFolder(this.folderPath)
       this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",

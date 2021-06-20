@@ -1,12 +1,8 @@
 <template>
-  <AppSection
-    ref="collections"
-    class="yellow"
-    :label="$t('collections')"
-    no-legend
-  >
+  <AppSection ref="collections" :label="$t('collections')">
     <div class="show-on-large-screen">
       <input
+        v-if="showCollActions"
         v-model="filterText"
         aria-label="Search"
         type="search"
@@ -50,11 +46,7 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-divider">
-      <button
-        v-if="showCollActions"
-        class="icon"
-        @click="displayModalAdd(true)"
-      >
+      <button class="icon" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
@@ -178,24 +170,6 @@ export default {
       return filteredCollections
     },
   },
-  mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showModalAdd =
-          this.showModalEdit =
-          this.showModalImportExport =
-          this.showModalAddFolder =
-          this.showModalEditFolder =
-          this.showModalEditRequest =
-            false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
   methods: {
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay
@@ -250,7 +224,9 @@ export default {
         folderName,
         request,
         requestIndex,
+        folderPath,
       } = payload
+      this.$data.editingFolderPath = folderPath
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex
       this.$data.editingFolderName = folderName

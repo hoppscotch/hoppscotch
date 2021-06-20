@@ -336,5 +336,7 @@
   "we_sent_magic_link": "We sent you a magic link!",
   "we_sent_magic_link_description": "We sent an email to {email}. It contains a magic link that’ll log you in.",
   "hide_sidebar": "Hide sidebar",
-  "show_sidebar": "Show sidebar"
+  "show_sidebar": "Show sidebar",
+  "protocols": "Protocols",
+  "protocol_count": "protocol {count}"
 }

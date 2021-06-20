@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppSection ref="request" :label="$t('request')" no-legend>
+    <AppSection ref="request" :label="$t('request')">
       <ul>
         <li>
           <label for="websocket-url">{{ $t("url") }}</label>
@@ -10,7 +10,6 @@
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
-            class="md:rounded-bl-lg"
             :placeholder="$t('url')"
             @keyup.enter="urlValid ? toggleConnection() : null"
           />
@@ -22,7 +21,6 @@
               id="connect"
               :disabled="!urlValid"
               name="connect"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
@@ -35,14 +33,86 @@
           </li>
         </div>
       </ul>
+      <ul>
+        <li>
+          <div class="row-wrapper">
+            <label>{{ $t("protocols") }}</label>
+          </div>
+        </li>
+      </ul>
+      <ul
+        v-for="(protocol, index) of protocols"
+        :key="`protocol-${index}`"
+        :class="{ 'border-t': index == 0 }"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-divider
+          divide-dashed divide-divider
+          md:divide-y-0
+        "
+      >
+        <li>
+          <input
+            v-model="protocol.value"
+            :placeholder="$t('protocol_count', { count: index + 1 })"
+            name="message"
+            type="text"
+          />
+        </li>
+        <div>
+          <li>
+            <button
+              v-tooltip.bottom="{
+                content: protocol.hasOwnProperty('active')
+                  ? protocol.active
+                    ? $t('turn_off')
+                    : $t('turn_on')
+                  : $t('turn_off'),
+              }"
+              class="icon"
+              @click="
+                protocol.active = protocol.hasOwnProperty('active')
+                  ? !protocol.active
+                  : false
+              "
+            >
+              <i class="material-icons">
+                {{
+                  protocol.hasOwnProperty("active")
+                    ? protocol.active
+                      ? "check_box"
+                      : "check_box_outline_blank"
+                    : "check_box"
+                }}
+              </i>
+            </button>
+          </li>
+        </div>
+        <div>
+          <li>
+            <button
+              v-tooltip.bottom="$t('delete')"
+              class="icon"
+              @click="deleteProtocol({ index })"
+            >
+              <i class="material-icons">delete</i>
+            </button>
+          </li>
+        </div>
+      </ul>
+      <ul>
+        <li>
+          <button class="icon" @click="addProtocol">
+            <i class="material-icons">add</i>
+            <span>{{ $t("add_new") }}</span>
+          </button>
+        </li>
+      </ul>
     </AppSection>
 
-    <AppSection
-      id="response"
-      ref="response"
-      :label="$t('communication')"
-      no-legend
-    >
+    <AppSection id="response" ref="response" :label="$t('communication')">
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="communication.log" />
@@ -100,6 +170,8 @@ export default {
         input: "",
       },
       currentIndex: -1, // index of the message log array to put in input box
+      protocols: [],
+      activeProtocols: [],
     }
   },
   computed: {
@@ -110,6 +182,18 @@ export default {
   watch: {
     url() {
       this.debouncer()
+    },
+    protocols: {
+      handler(newVal) {
+        this.activeProtocols = newVal
+          .filter((item) =>
+            Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          )
+          .map(({ value }) => value)
+      },
+      deep: true,
     },
   },
   mounted() {
@@ -143,7 +227,7 @@ export default {
         },
       ]
       try {
-        this.socket = new WebSocket(this.url)
+        this.socket = new WebSocket(this.url, this.activeProtocols)
         this.socket.onopen = () => {
           this.connectionState = true
           this.communication.log = [
@@ -254,6 +338,24 @@ export default {
           }
           break
       }
+    },
+    addProtocol() {
+      this.protocols.push({ value: "", active: true })
+    },
+    deleteProtocol({ index }) {
+      const oldProtocols = this.protocols.slice()
+      this.$delete(this.protocols, index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+        action: {
+          text: this.$t("undo"),
+          duration: 4000,
+          onClick: (_, toastObject) => {
+            this.protocols = oldProtocols
+            toastObject.remove()
+          },
+        },
+      })
     },
   },
 }

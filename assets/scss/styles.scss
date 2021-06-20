@@ -727,11 +727,13 @@ section {
 }
 
 .inner-right {
+  --width: 33%;
+  --ml: 1rem;
   @apply flex;
   @apply order-2;
-  @apply ml-4;
 
-  width: 33%;
+  margin-left: var(--ml);
+  width: var(--width);
 }
 
 @media (max-width: $responsiveWidth) {
@@ -770,7 +772,7 @@ section {
   }
 
   .inner-right {
-    @apply ml-0;
+    --ml: 0;
   }
 
   .toasted-container {

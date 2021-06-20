@@ -2,9 +2,10 @@
   <div>
     <div class="show-on-large-screen">
       <span
-        class="p-2 m-2 truncate"
+        class="p-2 m-2 truncate inline-flex cursor-pointer items-center text-sm"
         :class="entryStatus.className"
         :style="{ '--status-code': entry.status }"
+        @click="$emit('use-entry')"
       >
         {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
       </span>
@@ -15,7 +16,8 @@
           readonly
           :value="entry.name"
           :placeholder="$t('empty_req_name')"
-          class="bg-transparent"
+          class="cursor-pointer text-sm bg-transparent"
+          @click="$emit('use-entry')"
         />
       </li>
       <span>

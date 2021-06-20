@@ -135,7 +135,7 @@
 <script>
 import gql from "graphql-tag"
 import cloneDeep from "lodash/cloneDeep"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import * as teamUtils from "~/helpers/teams/utils"
 import {
@@ -184,11 +184,12 @@ export default {
   subscriptions() {
     return {
       collections: restCollections$,
+      currentUser: currentUser$,
     }
   },
   computed: {
     showTeamCollections() {
-      if (fb.currentUser == null) {
+      if (this.currentUser == null) {
         return false
       }
       return true

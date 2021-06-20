@@ -18,6 +18,7 @@ import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
+import { initializeFirebase } from "~/helpers/fb"
 
 export default {
   beforeMount() {
@@ -62,6 +63,7 @@ export default {
 
     setupLocalPersistence()
 
+    initializeFirebase()
     initUserInfo()
   },
   beforeDestroy() {

@@ -34,9 +34,9 @@
               </div>
               <div
                 v-tooltip.bottom="{
-                  content: !fb.currentUser
+                  content: !currentUser
                     ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : fb.currentUser.provider !== 'github.com'
+                    : currentUser.provider !== 'github.com'
                     ? $t('login_with_github_to') + $t('create_secret_gist')
                     : null,
                 }"
@@ -44,9 +44,9 @@
                 <button
                   v-close-popover
                   :disabled="
-                    !fb.currentUser
+                    !currentUser
                       ? true
-                      : fb.currentUser.provider !== 'github.com'
+                      : currentUser.provider !== 'github.com'
                       ? true
                       : false
                   "
@@ -166,7 +166,7 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
 import {
   restCollections$,
@@ -185,12 +185,12 @@ export default {
       mode: "import_export",
       mySelectedCollectionID: undefined,
       collectionJson: "",
-      fb,
     }
   },
   subscriptions() {
     return {
       myCollections: restCollections$,
+      currentUser: currentUser$,
     }
   },
   methods: {
@@ -208,7 +208,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `token ${fb.currentUser.accessToken}`,
+              Authorization: `token ${this.currentUser.accessToken}`,
               Accept: "application/vnd.github.v3+json",
             },
           }

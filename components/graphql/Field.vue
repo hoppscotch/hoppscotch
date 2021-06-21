@@ -21,7 +21,7 @@
     </div>
     <div
       v-if="gqlField.description"
-      class="mt-2 text-secondaryLight field-desc"
+      class="py-2 text-sm text-secondaryLight field-desc"
     >
       {{ gqlField.description }}
     </div>
@@ -53,7 +53,7 @@
           />
           <div
             v-if="field.description"
-            class="mt-2 text-secondaryLight field-desc"
+            class="py-2 text-sm text-secondaryLight field-desc"
           >
             {{ field.description }}
           </div>

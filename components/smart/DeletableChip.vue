@@ -18,7 +18,6 @@
   @apply bg-primaryDark;
   @apply text-secondary;
   @apply font-mono;
-  @apply font-normal;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;

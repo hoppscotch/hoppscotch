@@ -150,7 +150,7 @@
           </div>
         </AppSection>
 
-        <AppSection label="schema">
+        <AppSection ref="schema" label="schema">
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
@@ -193,7 +193,7 @@
             :options="{
               maxLines: responseBodyMaxLines,
               minLines: 16,
-              fontSize: '16px',
+              fontSize: '15px',
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
@@ -257,7 +257,7 @@
             :options="{
               maxLines: responseBodyMaxLines,
               minLines: 10,
-              fontSize: '16px',
+              fontSize: '15px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
               useWorker: false,
@@ -275,7 +275,7 @@
               :options="{
                 maxLines: 10,
                 minLines: 5,
-                fontSize: '16px',
+                fontSize: '15px',
                 autoScrollEditorIntoView: true,
                 showPrintMargin: false,
                 useWorker: false,
@@ -285,7 +285,7 @@
           </div>
         </AppSection>
 
-        <AppSection label="response">
+        <AppSection ref="response" label="response">
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
@@ -319,7 +319,7 @@
               :options="{
                 maxLines: responseBodyMaxLines,
                 minLines: 10,
-                fontSize: '16px',
+                fontSize: '15px',
                 autoScrollEditorIntoView: true,
                 readOnly: true,
                 showPrintMargin: false,

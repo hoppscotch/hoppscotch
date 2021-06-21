@@ -214,7 +214,6 @@ export default {
       @apply px-4;
       @apply text-sm;
       @apply font-mono;
-      @apply font-normal;
 
       &:last-child {
         border-radius: 0 0 8px 8px;

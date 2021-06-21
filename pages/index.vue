@@ -3,7 +3,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection label="request">
+        <AppSection ref="request" label="request">
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -496,7 +496,7 @@
                       :options="{
                         maxLines: '16',
                         minLines: '8',
-                        fontSize: '16px',
+                        fontSize: '15px',
                         autoScrollEditorIntoView: true,
                         showPrintMargin: false,
                         useWorker: false,
@@ -532,7 +532,7 @@
                       :options="{
                         maxLines: '16',
                         minLines: '8',
-                        fontSize: '16px',
+                        fontSize: '15px',
                         autoScrollEditorIntoView: true,
                         showPrintMargin: false,
                         useWorker: false,

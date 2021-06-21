@@ -4,11 +4,9 @@
       class="font-bold type-title"
       :class="{ 'type-highlighted': isHighlighted }"
     >
-      <span v-if="isInput" class="font-normal text-accent">input </span>
-      <span v-else-if="isInterface" class="font-normal text-accent"
-        >interface
-      </span>
-      <span v-else-if="isEnum" class="font-normal text-accent">enum </span>
+      <span v-if="isInput" class="text-accent">input </span>
+      <span v-else-if="isInterface" class="text-accent">interface </span>
+      <span v-else-if="isEnum" class="text-accent">enum </span>
       {{ gqlType.name }}
     </div>
     <div v-if="gqlType.description" class="mt-2 text-secondaryLight type-desc">

@@ -60,7 +60,7 @@
         :options="{
           maxLines: '10',
           minLines: '10',
-          fontSize: '16px',
+          fontSize: '15px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,

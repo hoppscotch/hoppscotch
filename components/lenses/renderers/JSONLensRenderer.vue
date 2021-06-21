@@ -46,7 +46,7 @@
         :options="{
           maxLines: responseBodyMaxLines,
           minLines: '16',
-          fontSize: '16px',
+          fontSize: '15px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,

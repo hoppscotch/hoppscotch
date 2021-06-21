@@ -52,7 +52,6 @@ export default {
   &,
   span {
     @apply font-mono;
-    @apply font-normal;
     @apply select-text;
   }
 

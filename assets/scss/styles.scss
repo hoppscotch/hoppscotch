@@ -449,7 +449,6 @@ code {
   @apply bg-primaryDark;
   @apply text-secondary;
   @apply font-mono;
-  @apply font-normal;
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
@@ -484,7 +483,6 @@ pre {
 
 pre.ace_editor {
   @apply font-mono;
-  @apply font-normal;
   @apply z-0;
   @apply resize-none;
 }
@@ -798,7 +796,6 @@ section {
 
     text-transform: none !important;
     padding: 12px 16px !important;
-    font-size: 16px !important;
     margin: 0 !important;
     margin-left: 8px !important;
   }

@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection ref="import" :label="$t('import')">
+        <AppSection label="import">
           <div class="flex flex-col">
             <label>{{ $t("collection") }}</label>
             <p class="info">
@@ -55,7 +55,7 @@
           </div>
         </AppSection>
 
-        <AppSection ref="documentation" :label="$t('documentation')">
+        <AppSection label="documentation">
           <div class="flex flex-col">
             <label>{{ $t("documentation") }}</label>
             <p v-if="items.length === 0" class="info">

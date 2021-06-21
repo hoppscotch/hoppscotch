@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="headers" label="Headers">
+  <AppSection label="headers">
     <ul v-if="headers.length !== 0">
       <li>
         <div class="row-wrapper">

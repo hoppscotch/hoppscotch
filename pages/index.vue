@@ -3,7 +3,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection :label="$t('request')" ref="request">
+        <AppSection label="request">
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -253,7 +253,7 @@
             </SmartTab>
 
             <SmartTab :id="'authentication'" :label="$t('authentication')">
-              <AppSection :label="$t('authentication')" ref="authentication">
+              <AppSection label="authentication">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -352,11 +352,7 @@
                 </div>
               </AppSection>
 
-              <AppSection
-                v-if="showTokenRequest"
-                label="Access Token Request"
-                ref="accessTokenRequest"
-              >
+              <AppSection v-if="showTokenRequest" label="accessTokenRequest">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -478,11 +474,7 @@
               :id="'pre_request_script'"
               :label="$t('pre_request_script')"
             >
-              <AppSection
-                v-if="showPreRequestScript"
-                :label="$t('pre_request_script')"
-                ref="preRequest"
-              >
+              <AppSection v-if="showPreRequestScript" label="preRequest">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -518,11 +510,7 @@
             </SmartTab>
 
             <SmartTab :id="'tests'" :label="$t('tests')">
-              <AppSection
-                v-if="testsEnabled"
-                :label="$t('tests')"
-                ref="postRequestTests"
-              >
+              <AppSection v-if="testsEnabled" label="postRequestTests">
                 <ul>
                   <li>
                     <div class="row-wrapper">

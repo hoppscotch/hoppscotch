@@ -9,7 +9,7 @@
         <nuxt-link
           v-tooltip.right="$t('home')"
           :to="localePath('index')"
-          :class="linkActive('/')"
+          :class="linkActive('index')"
           :aria-label="$t('home')"
         >
           <AppLogo alt class="material-icons" style="height: 24px" />
@@ -17,14 +17,14 @@
         <nuxt-link
           v-tooltip.right="$t('realtime')"
           :to="localePath('realtime')"
-          :class="linkActive('/realtime')"
+          :class="linkActive('realtime')"
         >
           <i class="material-icons">language</i>
         </nuxt-link>
         <nuxt-link
           v-tooltip.right="$t('graphql')"
           :to="localePath('graphql')"
-          :class="linkActive('/graphql')"
+          :class="linkActive('graphql')"
           :aria-label="$t('graphql')"
         >
           <svg
@@ -51,7 +51,7 @@
         <nuxt-link
           v-tooltip.right="$t('documentation')"
           :to="localePath('doc')"
-          :class="linkActive('/doc')"
+          :class="linkActive('doc')"
           :aria-label="$t('documentation')"
         >
           <i class="material-icons">topic</i>
@@ -59,65 +59,24 @@
         <nuxt-link
           v-tooltip.right="$t('settings')"
           :to="localePath('settings')"
-          :class="linkActive('/settings')"
+          :class="linkActive('settings')"
           :aria-label="$t('settings')"
         >
           <i class="material-icons">settings</i>
         </nuxt-link>
       </nav>
-      <nav v-if="$route.path == '/'" class="secondary-nav">
-        <a v-tooltip.right="$t('request')" href="#request">
-          <i class="material-icons">cloud_upload</i>
-        </a>
-        <a v-tooltip.right="$t('options')" href="#options">
-          <i class="material-icons">toc</i>
-        </a>
-        <a v-tooltip.right="$t('response')" href="#response">
-          <i class="material-icons">cloud_download</i>
-        </a>
-      </nav>
-      <nav v-else-if="$route.path.includes('/realtime')" class="secondary-nav">
-        <a v-tooltip.right="$t('request')" href="#request">
-          <i class="material-icons">cloud_upload</i>
-        </a>
-        <a v-tooltip.right="$t('communication')" href="#response">
-          <i class="material-icons">cloud_download</i>
-        </a>
-      </nav>
-      <nav v-else-if="$route.path.includes('/graphql')" class="secondary-nav">
-        <a v-tooltip.right="$t('endpoint')" href="#endpoint">
-          <i class="material-icons">cloud</i>
-        </a>
-        <a v-tooltip.right="$t('schema')" href="#schema">
-          <i class="material-icons">assignment_returned</i>
-        </a>
-        <a v-tooltip.right="$t('query')" href="#query">
-          <i class="material-icons">cloud_upload</i>
-        </a>
-        <a v-tooltip.right="$t('response')" href="#response">
-          <i class="material-icons">cloud_download</i>
-        </a>
-      </nav>
-      <nav v-else-if="$route.path.includes('/doc')" class="secondary-nav">
-        <a v-tooltip.right="$t('import')" href="#import">
-          <i class="material-icons">folder</i>
-        </a>
-        <a v-tooltip.right="$t('documentation')" href="#documentation">
-          <i class="material-icons">insert_drive_file</i>
-        </a>
-      </nav>
-      <nav v-else-if="$route.path.includes('/settings')" class="secondary-nav">
-        <a v-tooltip.right="$t('account')" href="#account">
-          <i class="material-icons">person</i>
-        </a>
-        <a v-tooltip.right="$t('theme')" href="#theme">
-          <i class="material-icons">brush</i>
-        </a>
-        <a v-tooltip.right="$t('extensions')" href="#extensions">
-          <i class="material-icons">extension</i>
-        </a>
-        <a v-tooltip.right="$t('proxy')" href="#proxy">
-          <i class="material-icons">public</i>
+      <nav
+        v-for="(link, index) in currentNavigation"
+        :key="`link-${index}`"
+        class="secondary-nav"
+      >
+        <a
+          v-for="(item, itemIndex) in link.secondary"
+          :key="`item-${itemIndex}`"
+          v-tooltip.right="$t(item.tooltip)"
+          :href="item.target"
+        >
+          <i class="material-icons">{{ item.icon }}</i>
         </a>
       </nav>
     </aside>
@@ -126,6 +85,79 @@
 
 <script>
 export default {
+  data() {
+    return {
+      navigation: [
+        {
+          primary: "index",
+          secondary: [
+            { tooltip: "request", target: "#request", icon: "cloud_upload" },
+            { tooltip: "options", target: "#options", icon: "toc" },
+            {
+              tooltip: "response",
+              target: "#response",
+              icon: "cloud_download",
+            },
+          ],
+        },
+        {
+          primary: "realtime",
+          secondary: [
+            { tooltip: "request", target: "#request", icon: "cloud_upload" },
+            {
+              tooltip: "communication",
+              target: "#response",
+              icon: "cloud_download",
+            },
+          ],
+        },
+        {
+          primary: "graphql",
+          secondary: [
+            { tooltip: "endpoint", target: "#endpoint", icon: "cloud" },
+            {
+              tooltip: "schema",
+              target: "#schema",
+              icon: "assignment_returned",
+            },
+            { tooltip: "query", target: "#query", icon: "cloud_upload" },
+            {
+              tooltip: "response",
+              target: "#response",
+              icon: "cloud_download",
+            },
+          ],
+        },
+        {
+          primary: "doc",
+          secondary: [
+            { tooltip: "import", target: "#import", icon: "folder" },
+            {
+              tooltip: "documentation",
+              target: "#documentation",
+              icon: "insert_drive_file",
+            },
+          ],
+        },
+        {
+          primary: "settings",
+          secondary: [
+            { tooltip: "account", target: "#account", icon: "person" },
+            { tooltip: "theme", target: "#theme", icon: "brush" },
+            { tooltip: "extensions", target: "#extensions", icon: "extension" },
+            { tooltip: "proxy", target: "#proxy", icon: "public" },
+          ],
+        },
+      ],
+    }
+  },
+  computed: {
+    currentNavigation() {
+      return this.navigation.filter((item) =>
+        this.$route.name.includes(item.primary)
+      )
+    },
+  },
   mounted() {
     window.addEventListener("scroll", () => {
       const mainNavLinks = document.querySelectorAll("nav.secondary-nav a")
@@ -147,8 +179,8 @@ export default {
   methods: {
     linkActive(path) {
       return {
-        "nuxt-link-exact-active": this.$route.path === path,
-        "nuxt-link-active": this.$route.path === path,
+        "nuxt-link-exact-active": this.$route.name.includes(path),
+        "nuxt-link-active": this.$route.name.includes(path),
       }
     },
   },

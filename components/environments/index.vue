@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="environments" :label="$t('environments')">
+  <AppSection label="environments">
     <div class="show-on-large-screen">
       <span class="select-wrapper">
         <select

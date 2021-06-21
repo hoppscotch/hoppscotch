@@ -1,5 +1,5 @@
 <template>
-  <AppSection id="response" ref="response" :label="$t('response')">
+  <AppSection label="response">
     <HttpResponseMeta :response="response" :active="active" />
     <div v-if="response.body && response.body !== $t('loading')">
       <LensesResponseBodyRenderer :response="response" />

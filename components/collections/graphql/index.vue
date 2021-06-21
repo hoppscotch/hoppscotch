@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="collections" :label="$t('collections')">
+  <AppSection label="collections">
     <div class="show-on-large-screen">
       <input
         v-if="showCollActions"

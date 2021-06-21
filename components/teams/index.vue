@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="teams" :label="$t('teams')">
+  <AppSection label="teams">
     <div class="flex flex-col">
       <label>{{ $t("teams") }}</label>
       <div v-if="currentUser"></div>

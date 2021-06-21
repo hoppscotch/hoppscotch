@@ -4,7 +4,7 @@
       <Teams />
     </div>
 
-    <AppSection ref="account" :label="$t('account')">
+    <AppSection label="account">
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="currentUser">
@@ -67,7 +67,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="theme" :label="$t('theme')">
+    <AppSection label="theme">
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
         <SmartColorModePicker />
@@ -84,7 +84,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="extensions" :label="$t('extensions')">
+    <AppSection label="extensions">
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
@@ -106,7 +106,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="proxy" :label="$t('proxy')">
+    <AppSection label="proxy">
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
@@ -177,7 +177,7 @@
       -->
     </AppSection>
 
-    <AppSection ref="experiments" :label="$t('experiments')">
+    <AppSection label="experiments">
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">

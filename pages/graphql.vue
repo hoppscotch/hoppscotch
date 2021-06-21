@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection ref="endpoint" :label="$t('endpoint')">
+        <AppSection label="endpoint">
           <ul>
             <li>
               <label for="url">{{ $t("url") }}</label>
@@ -37,7 +37,7 @@
           </ul>
         </AppSection>
 
-        <AppSection ref="headers" :label="$t('headers')">
+        <AppSection label="headers">
           <div class="flex flex-col">
             <label>{{ $t("headers") }}</label>
             <ul v-if="headers.length !== 0">
@@ -150,7 +150,7 @@
           </div>
         </AppSection>
 
-        <AppSection ref="schema" :label="$t('schema')">
+        <AppSection label="schema">
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
@@ -212,7 +212,7 @@
           />
         </AppSection>
 
-        <AppSection ref="query" :label="$t('query')">
+        <AppSection label="query">
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
@@ -266,7 +266,7 @@
           />
         </AppSection>
 
-        <AppSection ref="variables" :label="$t('variables')">
+        <AppSection label="variables">
           <div class="flex flex-col">
             <label>{{ $t("variables") }}</label>
             <SmartAceEditor
@@ -285,7 +285,7 @@
           </div>
         </AppSection>
 
-        <AppSection ref="response" :label="$t('response')">
+        <AppSection label="response">
           <div class="flex flex-col">
             <label>{{ $t("response") }}</label>
             <div class="row-wrapper">
@@ -347,7 +347,7 @@
         >
           <SmartTabs>
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
-              <AppSection ref="docs" :label="$t('docs')">
+              <AppSection label="docs">
                 <section class="flex-col">
                   <input
                     v-model="graphqlFieldsFilterText"

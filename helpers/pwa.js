@@ -1,21 +1,23 @@
+import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
+
 export default () => {
   //* ** Determine whether or not the PWA has been installed. ***//
 
   // Step 1: Check local storage
-  let pwaInstalled = localStorage.getItem("pwaInstalled") === "yes"
+  let pwaInstalled = getLocalConfig("pwaInstalled") === "yes"
 
   // Step 2: Check if the display-mode is standalone. (Only permitted for PWAs.)
   if (
     !pwaInstalled &&
     window.matchMedia("(display-mode: standalone)").matches
   ) {
-    localStorage.setItem("pwaInstalled", "yes")
+    setLocalConfig("pwaInstalled", "yes")
     pwaInstalled = true
   }
 
   // Step 3: Check if the navigator is in standalone mode. (Again, only permitted for PWAs.)
   if (!pwaInstalled && window.navigator.standalone === true) {
-    localStorage.setItem("pwaInstalled", "yes")
+    setLocalConfig("pwaInstalled", "yes")
     pwaInstalled = true
   }
 
@@ -32,7 +34,7 @@ export default () => {
 
   // When the app is installed, remove install prompts.
   window.addEventListener("appinstalled", () => {
-    localStorage.setItem("pwaInstalled", "yes")
+    setLocalConfig("pwaInstalled", "yes")
     pwaInstalled = true
     document.getElementById("installPWA").style.display = "none"
   })

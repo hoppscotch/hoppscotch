@@ -70,6 +70,7 @@
 
 <script>
 import { currentUser$, signInWithEmail } from "~/helpers/fb/auth"
+import { setLocalConfig } from "~/newstore/localpersistence"
 
 export default {
   props: {
@@ -101,7 +102,7 @@ export default {
       await signInWithEmail(this.form.email, actionCodeSettings)
         .then(() => {
           this.mode = "email"
-          window.localStorage.setItem("emailForSignIn", this.form.email)
+          setLocalConfig("emailForSignIn", this.form.email)
         })
         .catch((error) => {
           this.$toast.error(error.message, {

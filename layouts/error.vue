@@ -39,9 +39,6 @@ export default {
       },
     }
   },
-  beforeMount() {
-    initializeFirebase()
-  },
   computed: {
     statusCode() {
       return (this.error && this.error.statusCode) || 500
@@ -49,6 +46,9 @@ export default {
     message() {
       return this.error.message || this.$t("something_went_wrong")
     },
+  },
+  beforeMount() {
+    initializeFirebase()
   },
 
   methods: {

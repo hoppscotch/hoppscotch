@@ -167,6 +167,7 @@
 <script>
 import intializePwa from "~/helpers/pwa"
 import { currentUser$ } from "~/helpers/fb/auth"
+import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 // import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 
 export default {
@@ -192,7 +193,7 @@ export default {
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()
-    const cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes"
+    const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
     if (!cookiesAllowed) {
       this.$toast.show(this.$t("we_use_cookies"), {
         icon: "info",
@@ -202,7 +203,7 @@ export default {
           {
             text: this.$t("dismiss"),
             onClick: (_, toastObject) => {
-              localStorage.setItem("cookiesAllowed", "yes")
+              setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)
             },
           },

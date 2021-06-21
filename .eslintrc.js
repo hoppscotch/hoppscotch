@@ -49,14 +49,14 @@ module.exports = {
         name: "localStorage",
         message:
           "Do not use 'localStorage' directly. Please use localpersistence.ts functions or stores",
-      }
+      },
     ],
     // window.localStorage block
     "no-restricted-syntax": [
       "error",
       {
         selector: "CallExpression[callee.object.property.name='localStorage']",
-        message: 
+        message:
           "Do not use 'localStorage' directly. Please use localpersistence.ts functions or stores",
       },
     ],

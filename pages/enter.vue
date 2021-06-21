@@ -10,6 +10,7 @@
 import Vue from "vue"
 import { initializeFirebase } from "~/helpers/fb"
 import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
+import { getLocalConfig, removeLocalConfig } from "~/newstore/localpersistence"
 
 export default Vue.extend({
   data() {
@@ -25,7 +26,7 @@ export default Vue.extend({
     if (isSignInWithEmailLink(window.location.href)) {
       this.signingInWithEmail = true
 
-      let email = window.localStorage.getItem("emailForSignIn")
+      let email = getLocalConfig("emailForSignIn")
 
       if (!email) {
         email = window.prompt(
@@ -35,7 +36,7 @@ export default Vue.extend({
 
       await signInWithEmailLink(email, window.location.href)
         .then(() => {
-          window.localStorage.removeItem("emailForSignIn")
+          removeLocalConfig("emailForSignIn")
           this.$router.push({ path: "/" })
         })
         .catch((error) => {

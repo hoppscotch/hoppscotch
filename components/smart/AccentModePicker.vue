@@ -39,10 +39,12 @@
 </template>
 
 <script>
+import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
+
 export default {
   data() {
     return {
-      active: localStorage.getItem("THEME_COLOR") || "green",
+      active: getLocalConfig("THEME_COLOR") || "green",
       accentColors: [
         "blue",
         "green",
@@ -58,7 +60,7 @@ export default {
   },
   watch: {
     active(color) {
-      localStorage.setItem("THEME_COLOR", color)
+      setLocalConfig("THEME_COLOR", color)
     },
   },
 

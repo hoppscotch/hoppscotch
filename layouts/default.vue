@@ -14,7 +14,10 @@
 </template>
 
 <script>
-import { setupLocalPersistence } from "~/newstore/localpersistence"
+import {
+  setupLocalPersistence,
+  getLocalConfig,
+} from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
@@ -24,7 +27,7 @@ export default {
   beforeMount() {
     registerApolloAuthUpdate()
 
-    const color = localStorage.getItem("THEME_COLOR") || "green"
+    const color = getLocalConfig("THEME_COLOR") || "green"
     document.documentElement.setAttribute("data-accent", color)
   },
   async mounted() {

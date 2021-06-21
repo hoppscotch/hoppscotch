@@ -93,7 +93,7 @@ export const CsRestsharpCodegen = {
 
     // analyse result
     requestString.push(
-      `if (!response.IsSuccessful)\n{\n    Console.WriteLine("An error occured " + response.ErrorMessage);\n}\n\n`
+      `if (!response.IsSuccessful)\n{\n    Console.WriteLine("An error occurred " + response.ErrorMessage);\n}\n\n`
     )
 
     requestString.push(`var result = response.Content;\n`)

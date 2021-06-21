@@ -65,13 +65,13 @@ export const GoNativeCodegen = {
     genHeaders = genHeaders.join("").slice(0, -1)
     requestString.push(`${genHeaders}\n`)
     requestString.push(
-      `if err != nil {\n  log.Fatalf("An Error Occured %v", err)\n}\n\n`
+      `if err != nil {\n  log.Fatalf("An error occurred %v", err)\n}\n\n`
     )
 
     // request boilerplate
     requestString.push(`client := &http.Client{}\n`)
     requestString.push(
-      `resp, err := client.Do(req)\nif err != nil {\n  log.Fatalf("An Error Occured %v", err)\n}\n\n`
+      `resp, err := client.Do(req)\nif err != nil {\n  log.Fatalf("An error occurred %v", err)\n}\n\n`
     )
     requestString.push(`defer resp.Body.Close()\n`)
     requestString.push(

@@ -7,7 +7,7 @@
           v-if="response.body"
           ref="downloadResponse"
           v-tooltip="$t('download_file')"
-          class="icon"
+          class="icon button"
           @click="downloadResponse"
         >
           <i class="material-icons">save_alt</i>

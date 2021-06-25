@@ -9,7 +9,7 @@
             v-model="url"
             type="url"
             spellcheck="false"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
           />
         </li>
@@ -19,7 +19,7 @@
             <button
               id="connect"
               :disabled="!validUrl"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
             >
               {{ connectionState ? $t("disconnect") : $t("connect") }}
@@ -46,6 +46,7 @@
           <input
             id="pub_topic"
             v-model="pub_topic"
+            class="input"
             type="text"
             spellcheck="false"
           />
@@ -57,7 +58,7 @@
             v-model="msg"
             type="text"
             spellcheck="false"
-            class="border-dashed md:border-l border-divider"
+            class="input border-dashed md:border-l border-divider"
           />
         </li>
         <div>
@@ -65,6 +66,7 @@
             <label for="publish" class="hide-on-small-screen">&nbsp;</label>
             <button
               id="publish"
+              class="button"
               name="get"
               :disabled="!canpublish"
               @click="publish"
@@ -85,7 +87,7 @@
             v-model="sub_topic"
             type="text"
             spellcheck="false"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
           />
         </li>
         <div>
@@ -95,7 +97,7 @@
               id="subscribe"
               name="get"
               :disabled="!cansubscribe"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleSubscription"
             >
               {{

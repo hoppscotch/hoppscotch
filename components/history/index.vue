@@ -6,7 +6,7 @@
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="rounded-t-lg"
+        class="input rounded-t-lg"
       />
     </div>
     <div
@@ -46,7 +46,7 @@
       <div v-if="!isClearingHistory" class="row-wrapper">
         <button
           data-testid="clear_history"
-          class="icon"
+          class="icon button"
           :disabled="history.length === 0"
           @click="enableHistoryClearing"
         >
@@ -55,7 +55,7 @@
         </button>
         <button
           v-tooltip="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
-          class="icon"
+          class="icon button"
           @click="toggleCollapse()"
         >
           <i class="material-icons">
@@ -71,7 +71,7 @@
           <button
             v-tooltip="$t('yes')"
             data-testid="confirm_clear_history"
-            class="icon"
+            class="icon button"
             @click="clearHistory"
           >
             <i class="material-icons">done</i>
@@ -79,7 +79,7 @@
           <button
             v-tooltip="$t('no')"
             data-testid="reject_clear_history"
-            class="icon"
+            class="icon button"
             @click="disableHistoryClearing"
           >
             <i class="material-icons">close</i>

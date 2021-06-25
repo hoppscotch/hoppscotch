@@ -1,6 +1,6 @@
 <template>
   <div class="request">
-    <h4>
+    <h4 class="heading">
       <i class="material-icons">insert_drive_file</i>
       {{ request.name || $t("none") }}
     </h4>
@@ -45,7 +45,7 @@
         <code>{{ request.bearerToken || $t("none") }}</code>
       </span>
     </p>
-    <h4 v-if="request.headers">{{ $t("headers") }}</h4>
+    <h4 v-if="request.headers" class="heading">{{ $t("headers") }}</h4>
     <span v-if="request.headers">
       <p v-for="header in request.headers" :key="header.key" class="doc-desc">
         <span>
@@ -54,7 +54,7 @@
         </span>
       </p>
     </span>
-    <h4 v-if="request.params">{{ $t("parameters") }}</h4>
+    <h4 v-if="request.params" class="heading">{{ $t("parameters") }}</h4>
     <span v-if="request.params">
       <p
         v-for="parameter in request.params"
@@ -67,7 +67,7 @@
         </span>
       </p>
     </span>
-    <h4 v-if="request.bodyParams">{{ $t("payload") }}</h4>
+    <h4 v-if="request.bodyParams" class="heading">{{ $t("payload") }}</h4>
     <span v-if="request.bodyParams">
       <p
         v-for="payload in request.bodyParams"

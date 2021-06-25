@@ -49,18 +49,18 @@
       </span>
       <span class="flex font-mono" style="align-items: start">
         <a href="mailto:support@hoppscotch.io" target="_blank" rel="noopener">
-          <button v-tooltip="$t('contact_us')" class="icon">
+          <button v-tooltip="$t('contact_us')" class="icon button">
             <i class="material-icons">email</i>
           </button>
         </a>
         <v-popover>
-          <button v-tooltip="$t('choose_language')" class="icon">
+          <button v-tooltip="$t('choose_language')" class="icon button">
             <i class="material-icons">translate</i>
           </button>
           <template slot="popover">
             <div v-for="locale in availableLocales" :key="locale.code">
               <nuxt-link :to="switchLocalePath(locale.code)">
-                <button v-close-popover class="icon">
+                <button v-close-popover class="icon button">
                   {{ locale.name }}
                 </button>
               </nuxt-link>

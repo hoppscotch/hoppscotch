@@ -7,7 +7,7 @@
           <div>
             <button
               v-tooltip.bottom="$t('clear')"
-              class="icon"
+              class="icon button"
               @click="clearContent('headers', $event)"
             >
               <i class="material-icons">clear_all</i>
@@ -47,6 +47,7 @@
       </li>
       <li>
         <input
+          class="input"
           :placeholder="$t('value_count', { count: index + 1 })"
           :name="'value' + index"
           :value="header.value"
@@ -69,7 +70,7 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
-            class="icon"
+            class="icon button"
             @click="
               $store.commit('setActiveHeader', {
                 index,
@@ -93,7 +94,7 @@
         <li>
           <button
             v-tooltip.bottom="$t('delete')"
-            class="icon"
+            class="icon button"
             @click="removeRequestHeader(index)"
           >
             <i class="material-icons">delete</i>
@@ -103,7 +104,7 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestHeader">
+        <button class="icon button" @click="addRequestHeader">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>

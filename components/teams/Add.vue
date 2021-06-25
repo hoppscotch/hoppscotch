@@ -4,9 +4,9 @@
       <ul>
         <li>
           <div class="row-wrapper">
-            <h3 class="title">{{ $t("new_team") }}</h3>
+            <h3 class="heading">{{ $t("new_team") }}</h3>
             <div>
-              <button class="icon" @click="hideModal">
+              <button class="icon button" @click="hideModal">
                 <i class="material-icons">close</i>
               </button>
             </div>
@@ -19,6 +19,7 @@
         <li>
           <input
             v-model="name"
+            class="input"
             type="text"
             :placeholder="$t('my_new_team')"
             @keyup.enter="addNewTeam"
@@ -30,10 +31,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addNewTeam">
+          <button class="icon button primary" @click="addNewTeam">
             {{ $t("save") }}
           </button>
         </span>

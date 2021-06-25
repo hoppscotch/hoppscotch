@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("import_curl") }}</h3>
+        <h3 class="heading">{{ $t("import_curl") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -13,6 +13,7 @@
     <div slot="body" class="flex flex-col">
       <textarea
         id="import-curl"
+        class="textarea"
         autofocus
         rows="8"
         :placeholder="$t('enter_curl')"
@@ -22,10 +23,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="handleImport">
+          <button class="icon button primary" @click="handleImport">
             {{ $t("import") }}
           </button>
         </span>

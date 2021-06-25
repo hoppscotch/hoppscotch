@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("login_with") }} {{ $t("email") }}</h3>
+        <h3 class="heading">{{ $t("login_with") }} {{ $t("email") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -15,6 +15,7 @@
       <input
         id="email"
         v-model="form.email"
+        class="input"
         type="email"
         name="email"
         placeholder="you@mail.com"
@@ -43,12 +44,12 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button v-if="signingInWithEmail" class="icon" type="button">
+          <button v-if="signingInWithEmail" class="icon button" type="button">
             {{ $t("loading") }}
           </button>
           <button
             v-else
-            class="rounded-md"
+            class="rounded-md button"
             :disabled="
               form.email.length !== 0
                 ? emailRegex.test(form.email)

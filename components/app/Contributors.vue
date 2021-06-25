@@ -9,12 +9,12 @@
     <div class="px-2 row-wrapper">
       <span>
         <a
-          v-tooltip.right="$t('recurring')"
+          v-tooltip.right="$t('one_time_recurring')"
           href="https://github.com/sponsors/hoppscotch"
           target="_blank"
           rel="noopener"
         >
-          <button class="icon">
+          <button class="icon button">
             <i class="material-icons">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +41,7 @@
           target="_blank"
           rel="noopener"
         >
-          <button class="icon">
+          <button class="icon button">
             <i class="material-icons">donut_large</i>
             <span>{{ $t("open_collective") }}</span>
           </button>
@@ -56,7 +56,7 @@
           target="_blank"
           rel="noopener"
         >
-          <button class="icon">
+          <button class="icon button">
             <i class="material-icons">local_parking</i>
             <span>{{ $t("patreon") }}</span>
           </button>
@@ -71,7 +71,7 @@
           target="_blank"
           rel="noopener"
         >
-          <button class="icon">
+          <button class="icon button">
             <i class="material-icons">payment</i>
             <span>{{ $t("paypal") }}</span>
           </button>
@@ -80,7 +80,7 @@
     </div>
     <hr />
     <div class="p-2">
-      <h3 class="title">Financial Contributors</h3>
+      <h3 class="heading">Financial Contributors</h3>
       <div class="contributors">
         <a
           href="https://oss.capital/?ref=hoppscotch"

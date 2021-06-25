@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_environment") }}</h3>
+        <h3 class="heading">{{ $t("edit_environment") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -15,6 +15,7 @@
       <input
         id="selectLabel"
         v-model="name"
+        class="input"
         type="text"
         :placeholder="editingEnvironment.name"
         @keyup.enter="saveEnvironment"
@@ -24,7 +25,7 @@
         <div>
           <button
             v-tooltip.bottom="$t('clear')"
-            class="icon"
+            class="icon button"
             @click="clearContent($event)"
           >
             <i class="material-icons">clear_all</i>
@@ -47,6 +48,7 @@
         <li>
           <input
             v-model="variable.key"
+            class="input"
             :placeholder="$t('variable_count', { count: index + 1 })"
             :name="'param' + index"
           />
@@ -54,6 +56,7 @@
         <li>
           <input
             v-model="variable.value"
+            class="input"
             :placeholder="$t('value_count', { count: index + 1 })"
             :name="'value' + index"
           />
@@ -63,7 +66,7 @@
             <button
               id="variable"
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeEnvironmentVariable(index)"
             >
               <i class="material-icons">delete</i>
@@ -73,7 +76,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addEnvironmentVariable">
+          <button class="icon button" @click="addEnvironmentVariable">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
@@ -84,10 +87,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveEnvironment">
+          <button class="icon button primary" @click="saveEnvironment">
             {{ $t("save") }}
           </button>
         </span>

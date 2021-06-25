@@ -7,6 +7,7 @@
           <input
             id="websocket-url"
             v-model="url"
+            class="input"
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
@@ -20,6 +21,7 @@
             <button
               id="connect"
               :disabled="!urlValid"
+              class="button"
               name="connect"
               @click="toggleConnection"
             >
@@ -56,6 +58,7 @@
         <li>
           <input
             v-model="protocol.value"
+            class="input"
             :placeholder="$t('protocol_count', { count: index + 1 })"
             name="message"
             type="text"
@@ -71,7 +74,7 @@
                     : $t('turn_on')
                   : $t('turn_off'),
               }"
-              class="icon"
+              class="icon button"
               @click="
                 protocol.active = protocol.hasOwnProperty('active')
                   ? !protocol.active
@@ -94,7 +97,7 @@
           <li>
             <button
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="deleteProtocol({ index })"
             >
               <i class="material-icons">delete</i>
@@ -104,7 +107,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addProtocol">
+          <button class="icon button" @click="addProtocol">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
@@ -127,7 +130,7 @@
             name="message"
             type="text"
             :readonly="!connectionState"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             @keyup.enter="connectionState ? sendMessage() : null"
             @keyup.up="connectionState ? walkHistory('up') : null"
             @keyup.down="connectionState ? walkHistory('down') : null"
@@ -140,7 +143,7 @@
               id="send"
               name="send"
               :disabled="!connectionState"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="sendMessage"
             >
               {{ $t("send") }}

@@ -4,7 +4,7 @@
       <input
         :value="`${key} → ${value}`"
         :name="key"
-        class="bg-transparent"
+        class="input bg-transparent"
         readonly
       />
     </p>

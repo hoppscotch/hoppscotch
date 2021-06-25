@@ -14,7 +14,7 @@
       <div>
         <button
           v-tooltip="!doc ? $t('use_request') : ''"
-          class="icon"
+          class="icon button"
           @click="!doc ? selectRequest() : {}"
         >
           <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
@@ -26,14 +26,14 @@
         </button>
       </div>
       <v-popover>
-        <button v-tooltip="$t('more')" class="tooltip-target icon">
+        <button v-tooltip="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="
                 $emit('edit-request', {
                   request,
@@ -47,7 +47,11 @@
             </button>
           </div>
           <div>
-            <button v-close-popover class="icon" @click="confirmRemove = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>

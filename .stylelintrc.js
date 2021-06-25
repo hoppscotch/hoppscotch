@@ -8,7 +8,6 @@ module.exports = {
       {
         ignoreAtRules: [
           "extends",
-          "tailwind",
           "apply",
           "variants",
           "responsive",

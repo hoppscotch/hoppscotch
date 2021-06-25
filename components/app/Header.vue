@@ -3,7 +3,7 @@
     <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="logo">Hoppscotch</h1>
+          <h1 class="heading logo">Hoppscotch</h1>
         </nuxt-link>
         <iframe
           src="https://ghbtns.com/github-btn.html?user=hoppscotch&repo=hoppscotch&type=star&count=true"
@@ -22,7 +22,6 @@
           target="_blank"
           rel="noopener"
           class="
-            inline-flex
             items-center
             px-4
             py-2
@@ -44,7 +43,7 @@
         <button
           id="installPWA"
           v-tooltip="$t('install_pwa')"
-          class="icon"
+          class="icon button"
           @click.prevent="showInstallPrompt()"
         >
           <i class="material-icons">offline_bolt</i>
@@ -55,7 +54,7 @@
           aria-label="GitHub"
           rel="noopener"
         >
-          <button v-tooltip="'GitHub'" class="icon" aria-label="GitHub">
+          <button v-tooltip="'GitHub'" class="icon button" aria-label="GitHub">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -69,7 +68,7 @@
           </button>
         </a>
         <v-popover v-if="currentUser === null">
-          <button v-tooltip="$t('login_with')" class="icon">
+          <button v-tooltip="$t('login_with')" class="icon button">
             <i class="material-icons">login</i>
           </button>
           <template slot="popover">
@@ -84,7 +83,7 @@
               '<br>' +
               (currentUser.email || '<label><i>Email not found</i></label>')
             "
-            class="icon"
+            class="icon button"
             aria-label="Account"
           >
             <img
@@ -98,7 +97,7 @@
           <template slot="popover">
             <div>
               <nuxt-link v-close-popover :to="localePath('settings')">
-                <button class="icon">
+                <button class="icon button">
                   <i class="material-icons">settings</i>
                   <span>
                     {{ $t("settings") }}
@@ -112,25 +111,37 @@
           </template>
         </v-popover>
         <v-popover>
-          <button v-tooltip="$t('more')" class="icon">
+          <button v-tooltip="$t('more')" class="icon button">
             <i class="material-icons">drag_indicator</i>
           </button>
           <template slot="popover">
-            <button v-close-popover class="icon" @click="showExtensions = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="showExtensions = true"
+            >
               <i class="material-icons">extension</i>
               <span>{{ $t("extensions") }}</span>
             </button>
-            <button v-close-popover class="icon" @click="showShortcuts = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="showShortcuts = true"
+            >
               <i class="material-icons">keyboard</i>
               <span>{{ $t("shortcuts") }}</span>
             </button>
-            <button v-close-popover class="icon" @click="showSupport = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="showSupport = true"
+            >
               <i class="material-icons">favorite</i>
               <span>{{ $t("support_us") }}</span>
             </button>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io');"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -144,7 +155,7 @@
               v-if="navigatorShare"
               v-close-popover
               v-tooltip="$t('more')"
-              class="icon"
+              class="icon button"
               @click="nativeShare"
             >
               <i class="material-icons">share</i>

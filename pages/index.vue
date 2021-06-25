@@ -11,7 +11,7 @@
                 <v-popover>
                   <input
                     id="method"
-                    class="drop-down-input"
+                    class="input drop-down-input"
                     v-model="method"
                     :readonly="!customMethod"
                     autofocus
@@ -22,7 +22,7 @@
                       :key="`method-${index}`"
                     >
                       <button
-                        class="icon"
+                        class="icon button"
                         @click="
                           customMethod =
                             methodMenuItem == 'CUSTOM' ? true : false
@@ -42,7 +42,7 @@
               <input
                 v-if="!EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
-                class="border-dashed md:border-l border-divider"
+                class="input border-dashed md:border-l border-divider"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
@@ -61,6 +61,7 @@
                 :disabled="!isValidURL"
                 @click="sendRequest"
                 id="send"
+                class="button"
                 ref="sendButton"
               >
                 {{ $t("send") }}
@@ -68,7 +69,13 @@
                   <i class="material-icons">send</i>
                 </span>
               </button>
-              <button v-else @click="cancelRequest" id="send" ref="sendButton">
+              <button
+                v-else
+                @click="cancelRequest"
+                id="send"
+                class="button"
+                ref="sendButton"
+              >
                 {{ $t("cancel") }}
                 <span>
                   <i class="material-icons">clear</i>
@@ -78,15 +85,15 @@
           </ul>
           <ul>
             <li>
-              <label for="request-name" class="text-sm">{{
-                $t("token_req_name")
-              }}</label>
+              <label for="request-name" class="text-sm">
+                {{ $t("token_req_name") }}
+              </label>
               <input
                 id="request-name"
                 name="request-name"
                 type="text"
                 v-model="name"
-                class="text-sm"
+                class="input text-sm"
               />
             </li>
           </ul>
@@ -103,7 +110,7 @@
                   <v-popover>
                     <input
                       id="contentType"
-                      class="drop-down-input"
+                      class="input drop-down-input"
                       v-model="contentType"
                       readonly
                     />
@@ -115,7 +122,7 @@
                         :key="`content-type-${index}`"
                       >
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="contentType = contentTypeMenuItem"
                           v-close-popover
                         >
@@ -169,14 +176,14 @@
           <div class="row-wrapper">
             <span>
               <button
-                class="icon"
+                class="icon button"
                 @click="showCurlImportModal = !showCurlImportModal"
                 v-tooltip.bottom="$t('import_curl')"
               >
                 <i class="material-icons">import_export</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('show_code')"
@@ -186,7 +193,7 @@
             </span>
             <span>
               <button
-                class="icon"
+                class="icon button"
                 @click="copyRequest"
                 ref="copyRequest"
                 :disabled="!isValidURL"
@@ -196,7 +203,7 @@
                 <i v-else class="material-icons">content_copy</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="saveRequest"
                 ref="saveRequest"
                 :disabled="!isValidURL"
@@ -205,7 +212,7 @@
                 <i class="material-icons">create_new_folder</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="clearContent('', $event)"
                 v-tooltip.bottom="$t('clear_all')"
                 ref="clearAll"
@@ -260,7 +267,7 @@
                       <label for="auth">{{ $t("authentication") }}</label>
                       <div>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="clearContent('auth', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
@@ -269,7 +276,7 @@
                       </div>
                     </div>
                     <span class="select-wrapper">
-                      <select id="auth" v-model="auth">
+                      <select class="select" id="auth" v-model="auth">
                         <option>None</option>
                         <option>Basic Auth</option>
                         <option>Bearer Token</option>
@@ -281,6 +288,7 @@
                 <ul v-if="auth === 'Basic Auth'">
                   <li>
                     <input
+                      class="input"
                       placeholder="User"
                       name="http_basic_user"
                       v-model="httpUser"
@@ -288,6 +296,7 @@
                   </li>
                   <li>
                     <input
+                      class="input"
                       placeholder="Password"
                       name="http_basic_passwd"
                       :type="passwordFieldType"
@@ -297,7 +306,7 @@
                   <div>
                     <li>
                       <button
-                        class="icon"
+                        class="icon button"
                         ref="switchVisibility"
                         @click="switchVisibility"
                       >
@@ -319,13 +328,14 @@
                   <li>
                     <div class="row-wrapper">
                       <input
+                        class="input"
                         placeholder="Token"
                         name="bearer_token"
                         v-model="bearerToken"
                       />
                       <button
                         v-if="auth === 'OAuth 2.0'"
-                        class="icon"
+                        class="icon button"
                         @click="showTokenListModal = !showTokenListModal"
                         v-tooltip.bottom="$t('use_token')"
                       >
@@ -333,7 +343,7 @@
                       </button>
                       <button
                         v-if="auth === 'OAuth 2.0'"
-                        class="icon"
+                        class="icon button"
                         @click="showTokenRequest = !showTokenRequest"
                         v-tooltip.bottom="$t('get_token')"
                       >
@@ -359,21 +369,21 @@
                       <label for="token-name">{{ $t("token_name") }}</label>
                       <div>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="showTokenRequestList = true"
                           v-tooltip.bottom="$t('manage_token_req')"
                         >
                           <i class="material-icons">library_add</i>
                         </button>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="clearContent('access_token', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
                           <i class="material-icons">clear_all</i>
                         </button>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
@@ -382,6 +392,7 @@
                       </div>
                     </div>
                     <input
+                      class="input"
                       id="token-name"
                       :placeholder="$t('optional')"
                       name="token_name"
@@ -396,6 +407,7 @@
                       {{ $t("oidc_discovery_url") }}
                     </label>
                     <input
+                      class="input"
                       :disabled="
                         this.authUrl !== '' || this.accessTokenUrl !== ''
                       "
@@ -411,6 +423,7 @@
                   <li>
                     <label for="auth-url">{{ $t("auth_url") }}</label>
                     <input
+                      class="input"
                       :disabled="this.oidcDiscoveryUrl !== ''"
                       id="auth-url"
                       name="auth_url"
@@ -426,6 +439,7 @@
                       {{ $t("access_token_url") }}
                     </label>
                     <input
+                      class="input"
                       :disabled="this.oidcDiscoveryUrl !== ''"
                       id="access-token-url"
                       name="access_token_url"
@@ -439,6 +453,7 @@
                   <li>
                     <label for="client-id">{{ $t("client_id") }}</label>
                     <input
+                      class="input"
                       id="client-id"
                       name="client_id"
                       type="text"
@@ -451,6 +466,7 @@
                   <li>
                     <label for="scope">{{ $t("scope") }}</label>
                     <input
+                      class="input"
                       id="scope"
                       name="scope"
                       type="text"
@@ -461,7 +477,10 @@
                 </ul>
                 <ul>
                   <li>
-                    <button class="icon" @click="handleAccessTokenRequest">
+                    <button
+                      class="icon button"
+                      @click="handleAccessTokenRequest"
+                    >
                       <i class="material-icons">vpn_key</i>
                       <span>{{ $t("request_token") }}</span>
                     </button>
@@ -485,7 +504,7 @@
                           target="_blank"
                           rel="noopener"
                         >
-                          <button class="icon" v-tooltip="$t('wiki')">
+                          <button class="icon button" v-tooltip="$t('wiki')">
                             <i class="material-icons">help_outline</i>
                           </button>
                         </a>
@@ -521,7 +540,7 @@
                           target="_blank"
                           rel="noopener"
                         >
-                          <button class="icon" v-tooltip="$t('wiki')">
+                          <button class="icon button" v-tooltip="$t('wiki')">
                             <i class="material-icons">help_outline</i>
                           </button>
                         </a>
@@ -545,7 +564,7 @@
                         <label>Test Reports</label>
                         <div>
                           <button
-                            class="icon"
+                            class="icon button"
                             @click="clearContent('tests', $event)"
                             v-tooltip.bottom="$t('clear')"
                           >
@@ -559,7 +578,7 @@
                       >
                         <div v-if="testReport.startBlock" class="info">
                           <hr />
-                          <h4>{{ testReport.startBlock }}</h4>
+                          <h4 class="heading">{{ testReport.startBlock }}</h4>
                         </div>
                         <p
                           v-else-if="testReport.result"
@@ -663,9 +682,9 @@
     >
       <div slot="header">
         <div class="row-wrapper">
-          <h3 class="title">{{ $t("manage_token_req") }}</h3>
+          <h3 class="heading">{{ $t("manage_token_req") }}</h3>
           <div>
-            <button class="icon" @click="showTokenRequestList = false">
+            <button class="icon button" @click="showTokenRequestList = false">
               <i class="material-icons">close</i>
             </button>
           </div>
@@ -677,7 +696,7 @@
           <div>
             <button
               :disabled="this.tokenReqs.length === 0"
-              class="icon"
+              class="icon button"
               @click="showTokenRequestList = false"
               v-tooltip.bottom="$t('use_token_req')"
             >
@@ -685,7 +704,7 @@
             </button>
             <button
               :disabled="this.tokenReqs.length === 0"
-              class="icon"
+              class="icon button"
               @click="removeOAuthTokenReq"
               v-tooltip.bottom="$t('delete')"
             >
@@ -698,6 +717,7 @@
             <span class="select-wrapper">
               <select
                 id="token-req-list"
+                class="select"
                 v-model="tokenReqSelect"
                 :disabled="this.tokenReqs.length === 0"
                 @change="tokenReqChange($event)"
@@ -714,12 +734,13 @@
           </li>
         </ul>
         <label for="token-req-name">{{ $t("token_req_name") }}</label>
-        <input v-model="tokenReqName" />
+        <input class="input" v-model="tokenReqName" />
         <label for="token-req-details">
           {{ $t("token_req_details") }}
         </label>
         <textarea
           id="token-req-details"
+          class="textarea"
           readonly
           rows="7"
           v-model="tokenReqDetails"
@@ -729,7 +750,7 @@
         <div class="row-wrapper">
           <span></span>
           <span>
-            <button class="icon primary" @click="addOAuthTokenReq">
+            <button class="icon button primary" @click="addOAuthTokenReq">
               {{ $t("save_token_req") }}
             </button>
           </span>

@@ -3,6 +3,7 @@
     <input
       ref="acInput"
       v-model="text"
+      class="input"
       type="text"
       :placeholder="placeholder"
       :spellcheck="spellcheck"

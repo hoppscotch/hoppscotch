@@ -29,7 +29,6 @@
           bg-transparent
           rounded-full
           cursor-pointer
-          border-collapseer-2
           text-secondaryLight
           hover:text-secondary
         "

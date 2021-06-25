@@ -13,7 +13,7 @@
       @dragend="dragging = false"
     >
       <div>
-        <button class="icon" @click="toggleShowChildren">
+        <button class="icon button" @click="toggleShowChildren">
           <i v-show="!showChildren && !isFiltered" class="material-icons"
             >arrow_right</i
           >
@@ -29,14 +29,14 @@
         </button>
       </div>
       <v-popover>
-        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('add-folder', { folder, path: folderPath })"
             >
               <i class="material-icons">create_new_folder</i>
@@ -46,7 +46,7 @@
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('edit-folder', { folder, folderPath })"
             >
               <i class="material-icons">edit</i>
@@ -54,7 +54,11 @@
             </button>
           </div>
           <div>
-            <button v-close-popover class="icon" @click="confirmRemove = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>

@@ -2,20 +2,20 @@
   <div>
     <div class="row-wrapper">
       <div>
-        <button class="icon" @click="$emit('edit-environment')">
+        <button class="icon button" @click="$emit('edit-environment')">
           <i class="material-icons">layers</i>
           <span>{{ environment.name }}</span>
         </button>
       </div>
       <v-popover>
-        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('edit-environment')"
             >
               <i class="material-icons">create</i>
@@ -23,7 +23,11 @@
             </button>
           </div>
           <div>
-            <button v-close-popover class="icon" @click="confirmRemove = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>

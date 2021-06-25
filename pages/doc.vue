@@ -12,7 +12,7 @@
               <label for="collectionUpload">
                 <button
                   v-tooltip="'JSON'"
-                  class="icon"
+                  class="icon button"
                   @click="$refs.collectionUpload.click()"
                 >
                   <i class="material-icons">folder</i>
@@ -21,6 +21,7 @@
               </label>
               <input
                 ref="collectionUpload"
+                class="input"
                 name="collectionUpload"
                 type="file"
                 @change="uploadCollection"
@@ -28,7 +29,7 @@
               <div>
                 <button
                   v-tooltip.bottom="$t('clear')"
-                  class="icon"
+                  class="icon button"
                   @click="collectionJSON = '[]'"
                 >
                   <i class="material-icons">clear_all</i>
@@ -48,7 +49,7 @@
                 useWorker: false,
               }"
             />
-            <button class="icon" @click="getDoc">
+            <button class="icon button" @click="getDoc">
               <i class="material-icons">topic</i>
               <span>{{ $t("generate_docs") }}</span>
             </button>
@@ -79,7 +80,7 @@
                       ? true
                       : false
                   "
-                  class="icon"
+                  class="icon button"
                   @click="createDocsGist"
                 >
                   <i class="material-icons">assignment</i>

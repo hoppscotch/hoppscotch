@@ -11,7 +11,7 @@
                 v-model="url"
                 type="url"
                 spellcheck="false"
-                class="md:rounded-bl-lg"
+                class="input md:rounded-bl-lg"
                 :placeholder="$t('url')"
                 @keyup.enter="onPollSchemaClick()"
               />
@@ -22,7 +22,11 @@
                 <button
                   id="get"
                   name="get"
-                  class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+                  class="
+                    button
+                    rounded-b-lg
+                    md:rounded-bl-none md:rounded-br-lg
+                  "
                   @click="onPollSchemaClick"
                 >
                   {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
@@ -47,7 +51,7 @@
                   <div>
                     <button
                       v-tooltip.bottom="$t('clear')"
-                      class="icon"
+                      class="icon button"
                       @click="headers = []"
                     >
                       <i class="material-icons">clear_all</i>
@@ -83,6 +87,7 @@
               </li>
               <li>
                 <input
+                  class="input"
                   :placeholder="$t('value_count', { count: index + 1 })"
                   :name="`value ${index}`"
                   :value="header.value"
@@ -105,7 +110,7 @@
                           : $t('turn_on')
                         : $t('turn_off'),
                     }"
-                    class="icon"
+                    class="icon button"
                     @click="
                       $store.commit('setActiveGQLHeader', {
                         index,
@@ -131,7 +136,7 @@
                 <li>
                   <button
                     v-tooltip.bottom="$t('delete')"
-                    class="icon"
+                    class="icon button"
                     @click="removeRequestHeader(index)"
                   >
                     <i class="material-icons">delete</i>
@@ -141,7 +146,7 @@
             </ul>
             <ul>
               <li>
-                <button class="icon" @click="addRequestHeader">
+                <button class="icon button" @click="addRequestHeader">
                   <i class="material-icons">add</i>
                   <span>{{ $t("add_new") }}</span>
                 </button>
@@ -161,7 +166,7 @@
                     ? $t('expand_response')
                     : $t('collapse_response'),
                 }"
-                class="icon"
+                class="icon button"
                 @click="ToggleExpandResponse"
               >
                 <i class="material-icons">
@@ -171,7 +176,7 @@
               <button
                 ref="downloadSchema"
                 v-tooltip="$t('download_file')"
-                class="icon"
+                class="icon button"
                 @click="downloadSchema"
               >
                 <i class="material-icons">save_alt</i>
@@ -179,7 +184,7 @@
               <button
                 ref="copySchemaCode"
                 v-tooltip="$t('copy_schema')"
-                class="icon"
+                class="icon button"
                 @click="copySchema"
               >
                 <i class="material-icons">content_copy</i>
@@ -204,7 +209,7 @@
           <input
             v-else
             ref="status"
-            class="rounded-b-lg missing-data-response"
+            class="input rounded-b-lg missing-data-response"
             :value="$t('waiting_receive_schema')"
             name="status"
             readonly
@@ -220,6 +225,7 @@
                 v-tooltip.bottom="
                   `${$t('run_query')} (${getSpecialKey()}-Enter)`
                 "
+                class="button"
                 @click="runQuery()"
               >
                 <i class="material-icons">play_arrow</i>
@@ -227,14 +233,14 @@
               <button
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
-                class="icon"
+                class="icon button"
                 @click="copyQuery"
               >
                 <i class="material-icons">content_copy</i>
               </button>
               <button
                 v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
-                class="icon"
+                class="icon button"
                 @click="doPrettifyQuery"
               >
                 <i class="material-icons">photo_filter</i>
@@ -242,7 +248,7 @@
               <button
                 ref="saveRequest"
                 v-tooltip.bottom="$t('save_to_collections')"
-                class="icon"
+                class="icon button"
                 @click="saveRequest"
               >
                 <i class="material-icons">create_new_folder</i>
@@ -295,7 +301,7 @@
                   v-if="response"
                   ref="downloadResponse"
                   v-tooltip="$t('download_file')"
-                  class="icon"
+                  class="icon button"
                   @click="downloadResponse"
                 >
                   <i class="material-icons">save_alt</i>
@@ -304,7 +310,7 @@
                   v-if="response"
                   ref="copyResponseButton"
                   v-tooltip="$t('copy_response')"
-                  class="icon"
+                  class="icon button"
                   @click="copyResponse"
                 >
                   <i class="material-icons">content_copy</i>
@@ -330,7 +336,7 @@
             <input
               v-else
               ref="status"
-              class="rounded-b-lg missing-data-response"
+              class="input rounded-b-lg missing-data-response"
               :value="$t('waiting_receive_response')"
               name="status"
               readonly
@@ -353,7 +359,7 @@
                     v-model="graphqlFieldsFilterText"
                     type="text"
                     :placeholder="$t('search')"
-                    class="rounded-t-lg"
+                    class="input rounded-t-lg"
                   />
                   <SmartTabs ref="gqlTabs" styles="m-4">
                     <div class="gqlTabs">

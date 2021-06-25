@@ -7,7 +7,7 @@
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="rounded-t-lg"
+        class="input rounded-t-lg"
       />
     </div>
     <CollectionsChooseType
@@ -59,7 +59,7 @@
           (collectionsType.selectedTeam == undefined ||
             collectionsType.selectedTeam.myRole == 'VIEWER')
         "
-        class="icon"
+        class="icon button"
         disabled
         @click="displayModalAdd(true)"
       >
@@ -68,7 +68,7 @@
           <span>{{ $t("new") }}</span>
         </div>
       </button>
-      <button v-else class="icon" @click="displayModalAdd(true)">
+      <button v-else class="icon button" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
@@ -78,7 +78,7 @@
           collectionsType.type == 'team-collections' &&
           collectionsType.selectedTeam == undefined
         "
-        class="icon"
+        class="icon button"
         @click="displayModalImportExport(true)"
       >
         {{ $t("import_export") }}

@@ -10,7 +10,7 @@
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
             @keyup.enter="urlValid ? toggleConnection() : null"
           />
@@ -18,7 +18,12 @@
         <div>
           <li>
             <label for="socketio-path">{{ $t("path") }}</label>
-            <input id="socketio-path" v-model="path" spellcheck="false" />
+            <input
+              id="socketio-path"
+              v-model="path"
+              class="input"
+              spellcheck="false"
+            />
           </li>
         </div>
         <div>
@@ -28,7 +33,7 @@
               id="connect"
               :disabled="!urlValid"
               name="connect"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
@@ -55,6 +60,7 @@
           <input
             id="event_name"
             v-model="communication.eventName"
+            class="input"
             name="event_name"
             type="text"
             :readonly="!connectionState"
@@ -84,6 +90,7 @@
         <li>
           <input
             v-model="communication.inputs[index]"
+            class="input"
             name="message"
             type="text"
             :readonly="!connectionState"
@@ -94,7 +101,7 @@
           <li>
             <button
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeCommunicationInput({ index })"
             >
               <i class="material-icons">delete</i>
@@ -105,6 +112,7 @@
           <li>
             <button
               id="send"
+              class="button"
               name="send"
               :disabled="!connectionState"
               @click="sendMessage"
@@ -119,7 +127,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addCommunicationInput">
+          <button class="icon button" @click="addCommunicationInput">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>

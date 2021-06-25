@@ -12,7 +12,7 @@
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
-      <button class="icon" @click="toggleShowChildren">
+      <button class="icon button" @click="toggleShowChildren">
         <i v-show="!showChildren && !isFiltered" class="material-icons"
           >arrow_right</i
         >
@@ -31,20 +31,23 @@
         <button
           v-if="doc"
           v-tooltip.left="$t('import')"
-          class="icon"
+          class="icon button"
           @click="$emit('select-collection')"
         >
           <i class="material-icons">topic</i>
         </button>
         <v-popover>
-          <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+          <button
+            v-tooltip.left="$t('more')"
+            class="tooltip-target icon button"
+          >
             <i class="material-icons">more_vert</i>
           </button>
           <template slot="popover">
             <div>
               <button
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="
                   $emit('add-folder', {
                     path: `${collectionIndex}`,
@@ -58,7 +61,7 @@
             <div>
               <button
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="$emit('edit-collection')"
               >
                 <i class="material-icons">create</i>
@@ -68,7 +71,7 @@
             <div>
               <button
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="confirmRemove = true"
               >
                 <i class="material-icons">delete</i>

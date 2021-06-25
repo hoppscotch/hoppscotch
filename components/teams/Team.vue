@@ -3,7 +3,7 @@
     <div>
       <button
         v-tooltip.right="team.myRole === 'OWNER' ? $t('edit') : ''"
-        class="icon"
+        class="icon button"
         @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
       >
         <i class="material-icons">group</i>
@@ -11,18 +11,22 @@
       </button>
     </div>
     <v-popover>
-      <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+      <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
         <i class="material-icons">more_vert</i>
       </button>
       <template slot="popover">
         <div v-if="team.myRole === 'OWNER'">
-          <button v-close-popover class="icon" @click="$emit('edit-team')">
+          <button
+            v-close-popover
+            class="icon button"
+            @click="$emit('edit-team')"
+          >
             <i class="material-icons">create</i>
             <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div v-if="team.myRole === 'OWNER'">
-          <button v-close-popover class="icon" @click="deleteTeam">
+          <button v-close-popover class="icon button" @click="deleteTeam">
             <i class="material-icons">delete</i>
             <span>{{ $t("delete") }}</span>
           </button>
@@ -30,7 +34,7 @@
         <div>
           <button
             v-close-popover
-            class="icon"
+            class="icon button"
             :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
             @click="exitTeam"
           >

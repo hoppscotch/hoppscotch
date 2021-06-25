@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <button v-close-popover class="icon" @click="signInWithGoogle">
+      <button v-close-popover class="icon button" @click="signInWithGoogle">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -16,7 +16,7 @@
       </button>
     </div>
     <div>
-      <button v-close-popover class="icon" @click="signInWithGithub">
+      <button v-close-popover class="icon button" @click="signInWithGithub">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -31,7 +31,7 @@
       </button>
     </div>
     <div>
-      <button v-close-popover class="icon" @click="$emit('show-email')">
+      <button v-close-popover class="icon button" @click="$emit('show-email')">
         <i class="material-icons">mail</i>
         <span>{{ $t("email") }}</span>
       </button>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="transition duration-150 ease-in-out row-wrapper">
-      <button class="icon" @click="toggleShowChildren">
+      <button class="icon button" @click="toggleShowChildren">
         <i v-show="!showChildren && !isFiltered" class="material-icons"
           >arrow_right</i
         >
@@ -20,7 +20,7 @@
         <button
           v-if="doc && !selected"
           v-tooltip.left="$t('import')"
-          class="icon"
+          class="icon button"
           @click="$emit('select-collection')"
         >
           <i class="material-icons">check_box_outline_blank</i>
@@ -28,7 +28,7 @@
         <button
           v-if="doc && selected"
           v-tooltip.left="$t('delete')"
-          class="icon"
+          class="icon button"
           @click="$emit('unselect-collection')"
         >
           <i class="material-icons">check_box</i>
@@ -37,7 +37,7 @@
           <button
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
             v-tooltip.left="$t('more')"
-            class="tooltip-target icon"
+            class="tooltip-target icon button"
           >
             <i class="material-icons">more_vert</i>
           </button>
@@ -46,7 +46,7 @@
               <button
                 v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="
                   $emit('add-folder', {
                     folder: collection,
@@ -62,7 +62,7 @@
               <button
                 v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="$emit('edit-collection')"
               >
                 <i class="material-icons">create</i>
@@ -73,7 +73,7 @@
               <button
                 v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="confirmRemove = true"
               >
                 <i class="material-icons">delete</i>

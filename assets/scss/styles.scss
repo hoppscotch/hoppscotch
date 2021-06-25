@@ -1,5 +1,3 @@
-$responsiveWidth: 767px;
-
 *,
 *::before,
 *::after {
@@ -46,7 +44,6 @@ html {
 body {
   @apply bg-primary;
   @apply text-secondary;
-  @apply text-base;
   @apply font-medium;
   @apply select-none;
   @apply transition-colors;
@@ -140,17 +137,14 @@ main {
   @apply px-4;
 }
 
-h1,
-h2,
-h3,
-h4 {
+.heading {
   @apply flex;
   @apply items-center;
   @apply m-0;
   @apply font-bold;
 }
 
-h3.title {
+h3.heading {
   @apply m-2;
 }
 
@@ -327,7 +321,7 @@ hr {
   }
 }
 
-button {
+.button {
   @apply inline-flex;
   @apply items-center;
   @apply justify-center;
@@ -339,7 +333,6 @@ button {
   @apply ease-in-out;
   @apply duration-150;
   @apply fill-current;
-  @apply cursor-pointer;
   @apply outline-none;
   @apply border-none;
 
@@ -438,12 +431,12 @@ input[type="radio"],
 
 .drop-down-input,
 .url-field,
+.input,
+.select,
+.textarea,
 kbd,
-select,
-input,
-textarea,
-pre,
-code {
+code,
+pre {
   @apply flex;
   @apply p-4;
   @apply bg-primaryDark;
@@ -734,7 +727,7 @@ section {
   width: var(--width);
 }
 
-@media (max-width: $responsiveWidth) {
+@media (max-width: 767px) {
   .content,
   .columns {
     @apply flex-col;

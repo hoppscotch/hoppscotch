@@ -2,17 +2,22 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("import_export") }} {{ $t("collections") }}</h3>
+        <h3 class="heading">
+          {{ $t("import_export") }} {{ $t("collections") }}
+        </h3>
         <div>
           <v-popover>
-            <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+            <button
+              v-tooltip.left="$t('more')"
+              class="tooltip-target icon button"
+            >
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
               <div>
                 <button
                   v-close-popover
-                  class="icon"
+                  class="icon button"
                   @click="readCollectionGist"
                 >
                   <i class="material-icons">assignment_returned</i>
@@ -37,7 +42,7 @@
                       ? true
                       : false
                   "
-                  class="icon"
+                  class="icon button"
                   @click="createCollectionGist"
                 >
                   <i class="material-icons">assignment_turned_in</i>
@@ -46,7 +51,7 @@
               </div>
             </template>
           </v-popover>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -56,13 +61,14 @@
       <div class="flex flex-col items-start p-2">
         <button
           v-tooltip="$t('replace_current')"
-          class="icon"
+          class="icon button"
           @click="openDialogChooseFileToReplaceWith"
         >
           <i class="material-icons">folder_special</i>
           <span>{{ $t("replace_json") }}</span>
           <input
             ref="inputChooseFileToReplaceWith"
+            class="input"
             type="file"
             style="display: none"
             accept="application/json"
@@ -71,13 +77,14 @@
         </button>
         <button
           v-tooltip="$t('preserve_current')"
-          class="icon"
+          class="icon button"
           @click="openDialogChooseFileToImportFrom"
         >
           <i class="material-icons">create_new_folder</i>
           <span>{{ $t("import_json") }}</span>
           <input
             ref="inputChooseFileToImportFrom"
+            class="input"
             type="file"
             style="display: none"
             accept="application/json"
@@ -86,7 +93,7 @@
         </button>
         <button
           v-tooltip="$t('download_file')"
-          class="icon"
+          class="icon button"
           @click="exportJSON"
         >
           <i class="material-icons">drive_file_move</i>

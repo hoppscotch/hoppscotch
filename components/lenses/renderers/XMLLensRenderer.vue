@@ -11,7 +11,7 @@
               ? $t('expand_response')
               : $t('collapse_response'),
           }"
-          class="icon"
+          class="icon button"
           @click="ToggleExpandResponse"
         >
           <i class="material-icons">
@@ -22,7 +22,7 @@
           v-if="response.body"
           ref="downloadResponse"
           v-tooltip="$t('download_file')"
-          class="icon"
+          class="icon button"
           @click="downloadResponse"
         >
           <i class="material-icons">save_alt</i>
@@ -31,7 +31,7 @@
           v-if="response.body"
           ref="copyResponse"
           v-tooltip="$t('copy_response')"
-          class="icon"
+          class="icon button"
           @click="copyResponse"
         >
           <i class="material-icons">content_copy</i>

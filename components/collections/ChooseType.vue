@@ -22,7 +22,7 @@
                 <select
                   id="team"
                   type="text"
-                  class="team"
+                  class="team select"
                   autofocus
                   @change="updateSelectedTeam(myTeams[$event.target.value])"
                 >

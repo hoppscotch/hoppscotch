@@ -188,8 +188,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-$responsiveWidth: 767px;
-
 .nav-first {
   @apply h-screen;
   @apply p-2;
@@ -298,7 +296,7 @@ nav.secondary-nav {
   }
 }
 
-@media (max-width: $responsiveWidth) {
+@media (max-width: 767px) {
   .nav-first {
     @apply fixed;
     @apply z-10;

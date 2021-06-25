@@ -21,7 +21,7 @@
     />
     <div class="row-wrapper">
       <div>
-        <button class="icon" @click="displayModalAdd(true)">
+        <button class="icon button" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
           <span>{{ $t("new") }}</span>
         </button>

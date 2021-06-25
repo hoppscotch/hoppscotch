@@ -9,7 +9,7 @@
             v-model="server"
             type="url"
             :class="{ error: !serverValid }"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
           />
@@ -21,7 +21,7 @@
               id="start"
               :disabled="!serverValid"
               name="start"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleSSEConnection"
             >
               {{ !connectionSSEState ? $t("start") : $t("stop") }}

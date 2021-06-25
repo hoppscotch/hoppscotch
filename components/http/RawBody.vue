@@ -9,7 +9,7 @@
               v-if="rawInput && contentType.endsWith('json')"
               ref="prettifyRequest"
               v-tooltip="$t('prettify_body')"
-              class="icon"
+              class="icon button"
               @click="prettifyRequestBody"
             >
               <i class="material-icons">photo_filter</i>
@@ -17,7 +17,7 @@
             <label for="payload" class="p-0">
               <button
                 v-tooltip="$t('import_json')"
-                class="icon"
+                class="icon button"
                 @click="$refs.payload.click()"
               >
                 <i class="material-icons">post_add</i>
@@ -25,13 +25,14 @@
             </label>
             <input
               ref="payload"
+              class="input"
               name="payload"
               type="file"
               @change="uploadPayload"
             />
             <button
               v-tooltip.bottom="$t('clear')"
-              class="icon"
+              class="icon button"
               @click="clearContent('rawParams', $event)"
             >
               <i class="material-icons">clear_all</i>

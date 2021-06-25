@@ -2,7 +2,7 @@
   <div>
     <div class="transition duration-150 ease-in-out row-wrapper">
       <div>
-        <button class="icon" @click="toggleShowChildren">
+        <button class="icon button" @click="toggleShowChildren">
           <i v-show="!showChildren && !isFiltered" class="material-icons"
             >arrow_right</i
           >
@@ -22,7 +22,7 @@
         <button
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tooltip.left="$t('more')"
-          class="tooltip-target icon"
+          class="tooltip-target icon button"
         >
           <i class="material-icons">more_vert</i>
         </button>
@@ -31,7 +31,7 @@
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('add-folder', { folder, path: folderPath })"
             >
               <i class="material-icons">create_new_folder</i>
@@ -42,7 +42,7 @@
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="
                 $emit('edit-folder', {
                   folder,
@@ -60,7 +60,7 @@
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="confirmRemove = true"
             >
               <i class="material-icons">delete</i>

@@ -9,7 +9,7 @@
           readonly
           :value="entry.url"
           :placeholder="$t('empty_req_name')"
-          class="cursor-pointer text-sm bg-transparent"
+          class="input cursor-pointer text-sm bg-transparent"
           @click="$emit('use-entry')"
         />
       </li>
@@ -18,7 +18,7 @@
           content: !entry.star ? $t('add_star') : $t('remove_star'),
         }"
         data-testid="star_button"
-        class="icon"
+        class="icon button"
         :class="{ stared: entry.star }"
         @click="$emit('toggle-star')"
       >
@@ -31,7 +31,7 @@
           content: expand ? $t('hide_more') : $t('show_more'),
         }"
         data-testid="query_expand"
-        class="icon"
+        class="icon button"
         @click="expand = !expand"
       >
         <i class="material-icons">
@@ -42,7 +42,7 @@
         <button
           v-tooltip="$t('options')"
           data-testid="options"
-          class="tooltip-target icon"
+          class="tooltip-target icon button"
         >
           <i class="material-icons">more_vert</i>
         </button>
@@ -51,7 +51,7 @@
             <button
               v-close-popover
               data-testid="restore_history_entry"
-              class="icon"
+              class="icon button"
               :aria-label="$t('restore')"
               @click="$emit('use-entry')"
             >
@@ -63,7 +63,7 @@
             <button
               v-close-popover
               data-testid="delete_history_entry"
-              class="icon"
+              class="icon button"
               :aria-label="$t('delete')"
               @click="$emit('delete-entry')"
             >
@@ -83,7 +83,7 @@
           type="text"
           readonly
           :value="`${line}`"
-          class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+          class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
         />
       </li>
     </div>
@@ -96,7 +96,7 @@
             type="text"
             readonly
             :value="entry.time"
-            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
           />
         </li>
         <li>
@@ -106,11 +106,11 @@
             readonly
             :value="`Duration: ${entry.duration}ms`"
             :placeholder="$t('no_duration')"
-            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
           />
         </li>
         <!-- <li>
-          <input
+          <input class="input"
             :aria-label="$t('prerequest_script')"
             type="text"
             readonly

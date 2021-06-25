@@ -4,9 +4,9 @@
       <ul>
         <li>
           <div class="row-wrapper">
-            <h3 class="title">{{ $t("edit_team") }}</h3>
+            <h3 class="heading">{{ $t("edit_team") }}</h3>
             <div>
-              <button class="icon" @click="hideModal">
+              <button class="icon button" @click="hideModal">
                 <i class="material-icons">close</i>
               </button>
             </div>
@@ -19,6 +19,7 @@
         <li>
           <input
             v-model="name"
+            class="input"
             type="text"
             :placeholder="editingTeam.name"
             @keyup.enter="saveTeam"
@@ -48,6 +49,7 @@
       >
         <li>
           <input
+            class="input"
             :placeholder="$t('email')"
             :name="'param' + index"
             :value="member.user.email"
@@ -58,6 +60,7 @@
           <span class="select-wrapper">
             <v-popover>
               <input
+                class="input"
                 :placeholder="$t('permissions')"
                 :name="'value' + index"
                 :value="
@@ -71,7 +74,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="updateRole(index, 'OWNER')"
                   >
                     OWNER
@@ -80,7 +83,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="updateRole(index, 'EDITOR')"
                   >
                     EDITOR
@@ -89,7 +92,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="updateRole(index, 'VIEWER')"
                   >
                     VIEWER
@@ -104,7 +107,7 @@
             <button
               id="member"
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeExistingTeamMember(member.user.uid)"
             >
               <i class="material-icons">delete</i>
@@ -127,6 +130,7 @@
         <li>
           <input
             v-model="member.key"
+            class="input"
             :placeholder="$t('email')"
             :name="'param' + index"
             autofocus
@@ -136,6 +140,7 @@
           <span class="select-wrapper">
             <v-popover>
               <input
+                class="input"
                 :placeholder="$t('permissions')"
                 :name="'value' + index"
                 :value="
@@ -149,7 +154,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="member.value = 'OWNER'"
                   >
                     OWNER
@@ -158,7 +163,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="member.value = 'EDITOR'"
                   >
                     EDITOR
@@ -167,7 +172,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="member.value = 'VIEWER'"
                   >
                     VIEWER
@@ -182,7 +187,7 @@
             <button
               id="member"
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeTeamMember(index)"
             >
               <i class="material-icons">delete</i>
@@ -192,7 +197,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addTeamMember">
+          <button class="icon button" @click="addTeamMember">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
@@ -203,10 +208,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveTeam">
+          <button class="icon button primary" @click="saveTeam">
             {{ $t("save") }}
           </button>
         </span>

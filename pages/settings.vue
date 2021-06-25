@@ -8,7 +8,7 @@
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="currentUser">
-          <button class="icon">
+          <button class="icon button">
             <img
               v-if="currentUser.photoURL"
               :src="currentUser.photoURL"
@@ -20,7 +20,7 @@
             </span>
           </button>
           <br />
-          <button class="icon">
+          <button class="icon button">
             <i class="material-icons">email</i>
             <span>
               {{ currentUser.email || $t("nothing_found") }}
@@ -124,7 +124,7 @@
             target="_blank"
             rel="noopener"
           >
-            <button v-tooltip="$t('wiki')" class="icon">
+            <button v-tooltip="$t('wiki')" class="icon button">
               <i class="material-icons">help_outline</i>
             </button>
           </a>
@@ -133,7 +133,7 @@
           <label for="url">{{ $t("url") }}</label>
           <button
             v-tooltip.bottom="$t('reset_default')"
-            class="icon"
+            class="icon button"
             @click="resetProxy"
           >
             <i class="material-icons">clear_all</i>
@@ -142,6 +142,7 @@
         <input
           id="url"
           v-model="PROXY_URL"
+          class="input"
           type="url"
           :disabled="!PROXY_ENABLED"
           :placeholder="$t('url')"
@@ -167,11 +168,11 @@
 			<ul>
 				<li>
 					<label for="url">URL</label>
-					<input id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
+					<input class="input" id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
 				</li>
 				<li>
 					<label for="key">Key</label>
-					<input id="key" type="password" v-model="settings.PROXY_KEY" :disabled="!settings.PROXY_ENABLED" @change="applySetting('PROXY_KEY', $event)">
+					<input class="input" id="key" type="password" v-model="settings.PROXY_KEY" :disabled="!settings.PROXY_ENABLED" @change="applySetting('PROXY_KEY', $event)">
 				</li>
 			</ul>
       -->

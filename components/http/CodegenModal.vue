@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("generate_code") }}</h3>
+        <h3 class="heading">{{ $t("generate_code") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -22,7 +22,7 @@
             id="requestType"
             v-model="requestType"
             :placeholder="$t('choose_language')"
-            class="cursor-pointer"
+            class="input cursor-pointer"
             readonly
             autofocus
           />
@@ -30,7 +30,7 @@
             <div v-for="gen in codegens" :key="gen.id">
               <button
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="requestType = gen.id"
               >
                 {{ gen.name }}
@@ -45,7 +45,7 @@
           <button
             ref="copyRequestCode"
             v-tooltip="$t('copy_code')"
-            class="icon"
+            class="icon button"
             @click="copyRequestCode"
           >
             <i class="material-icons">content_copy</i>

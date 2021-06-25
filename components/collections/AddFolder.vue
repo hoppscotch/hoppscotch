@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="$emit('hide-modal')">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("new_folder") }}</h3>
+        <h3 class="heading">{{ $t("new_folder") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -15,6 +15,7 @@
       <input
         id="selectLabel"
         v-model="name"
+        class="input"
         type="text"
         :placeholder="$t('my_new_folder')"
         @keyup.enter="addFolder"
@@ -24,10 +25,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addFolder">
+          <button class="icon button primary" @click="addFolder">
             {{ $t("save") }}
           </button>
         </span>

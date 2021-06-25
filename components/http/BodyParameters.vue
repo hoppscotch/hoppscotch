@@ -7,7 +7,7 @@
           <div>
             <button
               v-tooltip.bottom="$t('clear')"
-              class="icon"
+              class="icon button"
               @click="clearContent('bodyParams', $event)"
             >
               <i class="material-icons">clear_all</i>
@@ -31,6 +31,7 @@
     >
       <li>
         <input
+          class="input"
           :placeholder="`key ${index + 1}`"
           :name="`bparam ${index}`"
           :value="param.key"
@@ -42,6 +43,7 @@
       <li>
         <input
           v-if="!requestBodyParamIsFile(index)"
+          class="input"
           :placeholder="`value ${index + 1}`"
           :value="param.value"
           @change="
@@ -73,7 +75,7 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
-            class="icon"
+            class="icon button"
             @click="toggleActive(index, param)"
           >
             <i class="material-icons">
@@ -92,7 +94,7 @@
         <li>
           <label for="attachment" class="p-0">
             <button
-              class="w-full icon"
+              class="w-full button icon"
               @click="$refs.attachment[index].click()"
             >
               <i class="material-icons">attach_file</i>
@@ -100,6 +102,7 @@
           </label>
           <input
             ref="attachment"
+            class="input"
             name="attachment"
             type="file"
             multiple
@@ -111,7 +114,7 @@
         <li>
           <button
             v-tooltip.bottom="$t('delete')"
-            class="icon"
+            class="icon button"
             @click="removeRequestBodyParam(index)"
           >
             <i class="material-icons">delete</i>
@@ -121,7 +124,11 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" name="addrequest" @click="addRequestBodyParam">
+        <button
+          class="icon button"
+          name="addrequest"
+          @click="addRequestBodyParam"
+        >
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>

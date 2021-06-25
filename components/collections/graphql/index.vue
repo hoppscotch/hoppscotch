@@ -7,7 +7,7 @@
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="rounded-t-lg"
+        class="input rounded-t-lg"
       />
     </div>
     <CollectionsGraphqlAdd
@@ -46,13 +46,13 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-divider">
-      <button class="icon" @click="displayModalAdd(true)">
+      <button class="icon button" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
       <button
         v-if="showCollActions"
-        class="icon"
+        class="icon button"
         @click="displayModalImportExport(true)"
       >
         {{ $t("import_export") }}

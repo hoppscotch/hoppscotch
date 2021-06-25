@@ -1,6 +1,6 @@
 <template>
   <div class="folder">
-    <h3>
+    <h3 class="heading">
       <i class="material-icons">folder_open</i>
       {{ folder.name || $t("none") }}
     </h3>

@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("confirm") }}</h3>
+        <h3 class="heading">{{ $t("confirm") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -17,10 +17,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ no }}
           </button>
-          <button class="icon primary" @click="resolve">
+          <button class="icon button primary" @click="resolve">
             {{ yes }}
           </button>
         </span>

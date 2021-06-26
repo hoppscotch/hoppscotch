@@ -60,12 +60,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Center the error page in the viewport.
 .page-error {
-  @apply flex;
+  @apply flex flex-col;
   @apply items-center;
   @apply justify-center;
-  @apply flex-col;
   @apply text-center;
 }
 

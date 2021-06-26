@@ -1,7 +1,7 @@
 *,
 *::before,
 *::after {
-  backface-visibility: hidden;
+  @apply backface-hidden;
 }
 
 :root {
@@ -89,8 +89,7 @@ header,
 footer {
   & > div {
     @apply flex;
-    @apply py-2;
-    @apply px-2;
+    @apply py-2 px-2;
     @apply w-full;
     @apply items-center;
     @apply justify-between;
@@ -99,9 +98,7 @@ footer {
 
 .wrapper {
   @apply min-h-screen;
-  @apply flex;
-  @apply flex-col;
-  @apply flex-nowrap;
+  @apply flex flex-col flex-nowrap;
 }
 
 .wrapper .page {
@@ -112,26 +109,21 @@ footer {
 .content,
 .columns,
 .footer {
-  @apply flex;
-  @apply flex-1;
+  @apply flex flex-1;
 }
 
 .nav-first,
 .sticky-inner {
-  @apply flex;
+  @apply flex flex-col;
+  @apply items-start items-stretch;
   @apply order-1;
-  @apply flex-col;
   @apply sticky;
   @apply top-0;
-  @apply items-start;
-  @apply items-stretch;
   @apply h-full;
 }
 
 main {
-  @apply flex;
-  @apply flex-col;
-  @apply flex-1;
+  @apply flex flex-col flex-1;
   @apply order-2;
   @apply relative;
   @apply px-4;
@@ -156,9 +148,7 @@ p {
 }
 
 hr {
-  @apply border-b;
-  @apply border-dashed;
-  @apply border-divider;
+  @apply border-b border-dashed border-divider;
   @apply my-4;
 }
 
@@ -170,23 +160,21 @@ hr {
     @apply rounded-lg;
     @apply px-4;
     @apply py-2;
-    @apply text-xs;
+    @apply text-xs text-secondary;
     @apply font-medium;
     @apply shadow-lg;
     @apply transition;
     @apply ease-in-out;
     @apply duration-150;
     @apply bg-tooltip;
-    @apply text-secondary;
   }
 
   .tooltip-arrow {
     @apply h-0;
     @apply w-0;
-    @apply border-solid;
+    @apply border-solid border-tooltip;
     @apply absolute;
     @apply m-2;
-    @apply border-tooltip;
     @apply z-30;
     @apply transition;
     @apply ease-in-out;
@@ -197,8 +185,7 @@ hr {
     @apply mb-0;
 
     .tooltip-arrow {
-      @apply mt-0;
-      @apply mb-0;
+      @apply mt-0 mb-0;
 
       border-width: 5px 5px 0 5px;
       border-left-color: transparent !important;
@@ -213,8 +200,7 @@ hr {
     @apply mt-0;
 
     .tooltip-arrow {
-      @apply mt-0;
-      @apply mb-0;
+      @apply mt-0 mb-0;
 
       border-width: 0 5px 5px 5px;
       border-left-color: transparent !important;
@@ -229,8 +215,7 @@ hr {
     @apply ml-0;
 
     .tooltip-arrow {
-      @apply ml-0;
-      @apply mr-0;
+      @apply ml-0 mr-0;
 
       border-width: 5px 5px 5px 0;
       border-left-color: transparent !important;
@@ -245,8 +230,7 @@ hr {
     @apply mr-0;
 
     .tooltip-arrow {
-      @apply ml-0;
-      @apply mr-0;
+      @apply ml-0 mr-0;
 
       border-width: 5px 0 5px 5px;
       border-top-color: transparent !important;
@@ -425,8 +409,7 @@ input[type="radio"],
 }
 
 .show-on-large-screen {
-  @apply flex;
-  @apply flex-1;
+  @apply flex flex-1;
 }
 
 .drop-down-input,
@@ -592,9 +575,7 @@ ol {
 ul li,
 ol li {
   @apply inline-flex;
-  @apply flex-col;
-  @apply flex-nowrap;
-  @apply flex-1;
+  @apply flex-col flex-nowrap flex-1;
   @apply justify-center;
 
   &.shrink {
@@ -603,11 +584,9 @@ ol li {
 }
 
 .row-wrapper {
-  @apply flex;
+  @apply flex flex-1 flex-row;
   @apply items-center;
   @apply justify-between;
-  @apply flex-1;
-  @apply flex-row;
 
   span,
   div {
@@ -707,9 +686,7 @@ section {
 }
 
 .page-columns {
-  @apply flex;
-  @apply flex-1;
-  @apply flex-col;
+  @apply flex flex-1 flex-col;
 }
 
 .inner-left {
@@ -740,8 +717,7 @@ section {
 
   ul,
   ol {
-    @apply flex-col;
-    @apply flex-nowrap;
+    @apply flex-col flex-nowrap;
   }
 
   ul li,
@@ -773,9 +749,8 @@ section {
 
 .toasted-ad {
   @apply bg-gray-50;
-  @apply text-gray-900;
+  @apply text-gray-900 text-sm;
   @apply font-bold;
-  @apply text-sm;
   @apply rounded-lg;
   @apply shadow-lg;
 

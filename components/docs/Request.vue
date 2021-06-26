@@ -111,15 +111,12 @@ export default {
 
 <style scoped lang="scss">
 .request {
-  @apply flex;
-  @apply flex-col;
+  @apply flex flex-col flex-1;
   @apply justify-center;
-  @apply flex-1;
   @apply p-4;
-  @apply border;
-  @apply border-divider;
-  @apply rounded-lg;
   @apply mt-4;
+  @apply border border-divider;
+  @apply rounded-lg;
 
   h4 {
     @apply mt-4;
@@ -131,16 +128,12 @@ export default {
 }
 
 .doc-desc {
-  @apply flex;
-  @apply flex-col;
+  @apply flex flex-col flex-1;
   @apply justify-center;
-  @apply flex-1;
   @apply p-4;
-  @apply text-secondaryLight;
-  @apply border-b;
-  @apply border-dashed;
-  @apply border-divider;
   @apply m-0;
+  @apply text-secondaryLight;
+  @apply border-b border-dashed border-divider;
 
   &:last-child {
     @apply border-b-0;

@@ -21,8 +21,7 @@
   @apply transition;
   @apply ease-in-out;
   @apply duration-150;
-  @apply border;
-  @apply border-divider;
+  @apply border border-divider;
 }
 
 .close-button {

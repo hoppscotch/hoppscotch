@@ -394,17 +394,19 @@ export default {
   @apply font-bold;
   @apply text-accent;
 }
+
 .url-field-container {
   @apply inline-grid;
 }
+
 .url-field {
-  @apply border-dashed;
-  @apply border-divider;
+  @apply border-dashed border-divider;
   @apply whitespace-nowrap;
   @apply overflow-x-auto;
   @apply resize-none;
   @apply md:border-l;
 }
+
 .url-field::-webkit-scrollbar {
   @apply hidden;
 }

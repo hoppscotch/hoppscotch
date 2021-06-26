@@ -199,9 +199,7 @@ export default {
 }
 
 nav.primary-nav {
-  @apply flex;
-  @apply flex-col;
-  @apply flex-nowrap;
+  @apply flex flex-col flex-nowrap;
   @apply items-center;
   @apply justify-center;
   @apply space-y-2;
@@ -258,14 +256,10 @@ nav.primary-nav::-webkit-scrollbar,
 }
 
 nav.secondary-nav {
-  @apply flex;
-  @apply flex-col;
-  @apply flex-nowrap;
+  @apply flex flex-col flex-nowrap;
   @apply items-center;
   @apply justify-center;
-  @apply border-t-2;
-  @apply border-dashed;
-  @apply border-divider;
+  @apply border-t-2 border-dashed border-divider;
   @apply pt-2;
   @apply space-y-2;
 
@@ -310,8 +304,7 @@ nav.secondary-nav {
   }
 
   nav.primary-nav {
-    @apply flex-row;
-    @apply flex-nowrap;
+    @apply flex-row flex-nowrap;
     @apply overflow-auto;
     @apply bg-primaryDark;
     @apply space-y-0;

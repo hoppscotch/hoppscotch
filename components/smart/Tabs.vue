@@ -56,10 +56,7 @@ export default {
 
 <style scoped lang="scss">
 .tabs-wrapper {
-  @apply flex;
-  @apply flex-col;
-  @apply flex-nowrap;
-  @apply flex-1;
+  @apply flex flex-col flex-nowrap flex-1;
 
   .tabs {
     @apply flex;
@@ -81,10 +78,8 @@ export default {
         @apply flex;
         @apply items-center;
         @apply justify-center;
-        @apply py-2;
-        @apply px-4;
-        @apply text-secondaryLight;
-        @apply text-sm;
+        @apply py-2 px-4;
+        @apply text-secondaryLight text-sm;
         @apply rounded-lg;
         @apply cursor-pointer;
         @apply transition-colors;
@@ -115,8 +110,7 @@ export default {
 @media (max-width: 768px) {
   ul,
   ol {
-    @apply flex-row;
-    @apply flex-nowrap;
+    @apply flex-row flex-nowrap;
   }
 }
 </style>

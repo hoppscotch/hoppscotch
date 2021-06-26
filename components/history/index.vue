@@ -176,18 +176,22 @@ export default {
 <style scoped lang="scss">
 .virtual-list {
   max-height: calc(100vh - 270px);
+
   [readonly] {
-    cursor: default;
+    @apply cursor-default;
   }
 }
+
 ul,
 ol {
-  flex-direction: column;
+  @apply flex-col;
 }
+
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;
   }
+
   .labels {
     display: none;
   }

@@ -57,8 +57,7 @@ export default {
 
   span {
     @apply block;
-    @apply break-words;
-    @apply break-all;
+    @apply break-words break-all;
   }
 }
 </style>

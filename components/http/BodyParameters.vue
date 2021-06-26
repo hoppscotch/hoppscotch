@@ -241,8 +241,7 @@ export default {
 
 <style scoped lang="scss">
 .file-chips-container {
-  @apply flex;
-  @apply flex-1;
+  @apply flex flex-1;
   @apply whitespace-nowrap;
   @apply overflow-auto;
   @apply bg-primaryDark;

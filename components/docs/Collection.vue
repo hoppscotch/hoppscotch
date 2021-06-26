@@ -30,10 +30,8 @@ export default {
 
 <style lang="scss" scoped>
 .collection {
-  @apply flex;
-  @apply flex-col;
+  @apply flex flex-col flex-1;
   @apply justify-center;
-  @apply flex-1;
   @apply p-4;
 
   .material-icons {

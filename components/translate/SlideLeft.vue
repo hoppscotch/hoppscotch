@@ -22,12 +22,14 @@ export default {
     opacity: 0;
     margin-left: 0;
   }
+
   &-enter-to,
   &-leave {
     width: var(--width, 33%);
     margin-left: var(--ml, 0);
     opacity: 1;
   }
+
   &-enter-active,
   &-leave-active {
     overflow-x: hidden;

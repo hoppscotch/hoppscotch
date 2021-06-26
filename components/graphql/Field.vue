@@ -84,7 +84,6 @@ export default {
 
 <style scoped lang="scss">
 .field-highlighted {
-  @apply border-b-2;
-  @apply border-accent;
+  @apply border-b-2 border-accent;
 }
 </style>

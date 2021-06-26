@@ -211,8 +211,7 @@ export default {
     li {
       @apply w-full;
       @apply block;
-      @apply py-2;
-      @apply px-4;
+      @apply py-2 px-4;
       @apply text-sm;
       @apply font-mono;
 

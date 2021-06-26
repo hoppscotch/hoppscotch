@@ -164,12 +164,10 @@
 
 <style scoped lang="scss">
 .contributors {
-  @apply flex;
+  @apply flex flex-wrap;
   @apply items-center;
-  @apply flex-wrap;
   @apply overflow-auto;
   @apply m-2;
-  @apply space-x-2;
-  @apply space-y-2;
+  @apply space-x-2 space-y-2;
 }
 </style>

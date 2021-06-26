@@ -134,7 +134,6 @@ export default {
 }
 
 ul {
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col;
 }
 </style>

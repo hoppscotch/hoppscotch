@@ -1175,10 +1175,12 @@ export default {
 
 <style scoped lang="scss">
 .gqlTabs {
-  max-height: calc(100vh - 192px);
-  position: relative;
+  @apply relative;
   @apply overflow-auto;
+
+  max-height: calc(100vh - 192px);
 }
+
 .gqlRunQuery {
   @apply mb-8;
 }

@@ -85,13 +85,8 @@ export default {
 <style scoped lang="scss">
 .footer-link {
   @apply flex-shrink-0;
-  @apply my-2;
-  @apply mx-4;
-  @apply text-secondaryLight;
-  @apply text-sm;
-
-  &:hover {
-    @apply text-secondary;
-  }
+  @apply my-2 mx-4;
+  @apply text-secondaryLight text-sm;
+  @apply hover:text-secondary;
 }
 </style>

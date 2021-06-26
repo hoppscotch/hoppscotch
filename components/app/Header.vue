@@ -310,10 +310,7 @@ export default {
   @apply transition-colors;
   @apply ease-in-out;
   @apply duration-150;
-
-  &:hover {
-    @apply text-accent;
-  }
+  @apply hover:text-accent;
 }
 
 @keyframes slideIn {

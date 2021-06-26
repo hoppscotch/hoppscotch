@@ -94,9 +94,8 @@ kbd {
   @apply inline-flex;
   @apply resize-none;
   @apply m-2;
+  @apply py-2 px-4;
   @apply rounded-lg;
-  @apply py-2;
-  @apply px-4;
   @apply text-sm;
 }
 </style>

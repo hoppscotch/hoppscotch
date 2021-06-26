@@ -129,17 +129,14 @@ export default {
 }
 
 .modal-wrapper {
-  @apply flex;
+  @apply flex flex-1;
   @apply items-center;
   @apply justify-center;
-  @apply flex-1;
 }
 
 .modal-container {
   @apply relative;
-  @apply flex;
-  @apply flex-1;
-  @apply flex-col;
+  @apply flex flex-1 flex-col;
   @apply m-2;
   @apply transition;
   @apply ease-in-out;
@@ -147,8 +144,7 @@ export default {
   @apply bg-primary;
   @apply rounded-lg;
   @apply shadow-2xl;
-  @apply border-4;
-  @apply border-tooltip;
+  @apply border-4 border-tooltip;
 
   max-height: calc(100vh - 128px);
   max-width: 640px;

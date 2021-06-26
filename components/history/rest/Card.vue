@@ -160,12 +160,14 @@ export default {
 .stared {
   color: #f8e81c !important;
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.2s;
 }
+
 .fade-enter,
 .fade-leave-to {
-  opacity: 0;
+  @apply opacity-0;
 }
 </style>

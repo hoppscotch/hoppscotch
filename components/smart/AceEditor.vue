@@ -257,8 +257,7 @@ export default {
 }
 
 .outline {
-  @apply flex;
-  @apply flex-nowrap;
+  @apply flex flex-nowrap;
   @apply w-full;
   @apply overflow-auto;
   @apply font-mono;
@@ -268,10 +267,8 @@ export default {
   .block {
     @apply inline-flex;
     @apply items-center;
-    @apply flex-grow-0;
-    @apply flex-shrink-0;
-    @apply text-secondaryLight;
-    @apply text-sm;
+    @apply flex-grow-0 flex-shrink-0;
+    @apply text-secondaryLight text-sm;
 
     &:hover {
       @apply text-secondary;
@@ -300,8 +297,7 @@ export default {
     }
 
     .sib {
-      @apply px-4;
-      @apply py-1;
+      @apply px-4 py-1;
 
       &:hover {
         @apply text-secondary;

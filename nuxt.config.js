@@ -1,11 +1,14 @@
+require("dotenv").config()
+
 // Common options
 export const options = {
   name: "Hoppscotch",
   shortDescription: "Open source API development ecosystem",
-  description: "Helps you create requests faster, saving precious time on development.",
+  description:
+    "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "var(--ac-color)",
-    background: "var(--bg-color)",
+    color: "var(--accent-color)",
+    background: "var(--primary-color)",
   },
   app: {
     background: "#202124",
@@ -93,6 +96,7 @@ export default {
     "~/plugins/vuex-persist",
     "~/plugins/v-tooltip",
     "~/plugins/vue-rx",
+    "~/plugins/vue-apollo",
     { src: "~/plugins/web-worker", ssr: false },
   ],
 
@@ -103,18 +107,24 @@ export default {
   buildModules: [
     // https://github.com/nuxt-community/pwa-module
     "@nuxtjs/pwa",
+    // https://github.com/nuxt-community/eslint-module
+    "@nuxtjs/eslint-module",
+    // https://github.com/nuxt-community/stylelint-module
+    "@nuxtjs/stylelint-module",
     // https://github.com/nuxt-community/analytics-module
     "@nuxtjs/google-analytics",
     // https://github.com/nuxt-community/gtm-module
     "@nuxtjs/gtm",
-    // https://github.com/nuxt-community/nuxt-tailwindcss
-    "@nuxtjs/tailwindcss",
+    // https://github.com/windicss/windicss
+    "nuxt-windicss",
     // https://github.com/nuxt-community/color-mode-module
     "@nuxtjs/color-mode",
     // https: //github.com/nuxt-community/google-fonts-module
     "@nuxtjs/google-fonts",
     // https://github.com/nuxt/typescript
     "@nuxt/typescript-build",
+    // https://github.com/nuxt-community/dotenv-module
+    "@nuxtjs/dotenv",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -150,6 +160,13 @@ export default {
       start_url: "/?source=pwa",
       background_color: options.app.background,
     },
+  },
+
+  // ESLint module configuration (https://github.com/nuxt-community/eslint-module)
+  eslint: {
+    // fix: true,
+    emitWarning: true,
+    quiet: true,
   },
 
   // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)
@@ -199,12 +216,6 @@ export default {
       Poppins: [400, 500, 600, 700, 800],
       "Roboto+Mono": true,
     },
-  },
-
-  // TailwindCSS module configuration (https://github.com/nuxt-community/tailwindcss-module)
-  tailwindcss: {
-    jit: true,
-    viewer: false,
   },
 
   // i18n module configuration (https://github.com/nuxt-community/i18n-module)
@@ -289,6 +300,12 @@ export default {
         file: "ko-KR.json",
       },
       {
+        code: "in",
+        name: "हिंदी",
+        iso: "in-IN",
+        file: "in-IN.json",
+      },
+      {
         code: "bn",
         name: "Bengali",
         iso: "bn-BD",
@@ -311,6 +328,12 @@ export default {
         name: "Dutch",
         iso: "nl-BE",
         file: "nl-BE.json",
+      },
+      {
+        code: "nb",
+        name: "Norwegian (Bokmål)",
+        iso: "nb-NO",
+        file: "nb-NO.json",
       },
     ],
     defaultLocale: "en",
@@ -358,7 +381,7 @@ export default {
         config.module.rules.push({
           test: /\.js$/,
           include: /(node_modules)/,
-          exclude: /(node_modules)\/(ace\-builds)|(@firebase)/,
+          exclude: /(node_modules)\/(ace-builds)|(@firebase)/,
           loader: "babel-loader",
           options: {
             plugins: [
@@ -380,15 +403,10 @@ export default {
     fallback: true,
   },
 
-  // Public runtime configuration (https://nuxtjs.org/guide/runtime-config)
-  publicRuntimeConfig: {
-    GA_ID: process.env.GA_ID || "UA-61422507-4",
-    GTM_ID: process.env.GTM_ID || "GTM-NMKVBMV",
-    BASE_URL: process.env.BASE_URL || "https://hoppscotch.io",
-  },
-
-  // Private runtime configuration (https://nuxtjs.org/guide/runtime-config)
-  privateRuntimeConfig: {
+  // dotenv configuration (https://github.com/nuxt-community/dotenv-module)
+  env: {
+    GA_ID: process.env.GA_ID,
+    GTM_ID: process.env.GTM_ID,
     API_KEY: process.env.API_KEY,
     AUTH_DOMAIN: process.env.AUTH_DOMAIN,
     DATABASE_URL: process.env.DATABASE_URL,
@@ -397,5 +415,6 @@ export default {
     MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
+    BASE_URL: process.env.BASE_URL,
   },
 }

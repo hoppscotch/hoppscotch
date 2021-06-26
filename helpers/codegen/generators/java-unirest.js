@@ -1,6 +1,7 @@
 export const JavaUnirestCodegen = {
   id: "java-unirest",
   name: "Java Unirest",
+  language: "java",
   generator: ({
     url,
     pathName,
@@ -36,7 +37,9 @@ export const JavaUnirestCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(
-        `.header("authorization", "Basic ${window.btoa(unescape(encodeURIComponent(basic)))}") \n`
+        `.header("authorization", "Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}") \n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       requestString.push(`.header("authorization", "Bearer ${bearerToken}") \n`)

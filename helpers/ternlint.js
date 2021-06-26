@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import infer from "tern/lib/infer"
 import tern from "tern/lib/tern"
 
@@ -69,7 +71,8 @@ function makeVisitors(server, query, file, messages) {
         var expr = tern.findQueryExpr(file, query)
         var type = infer.expressionType(expr)
         var objExpr = type.getType()
-        if (objExpr && objExpr.originNode) return getNodeValue(objExpr.originNode)
+        if (objExpr && objExpr.originNode)
+          return getNodeValue(objExpr.originNode)
         return null
       }
       return node.value
@@ -146,7 +149,8 @@ function makeVisitors(server, query, file, messages) {
     if (!expectedType || !actualType) return true
     var currentProto = actualType.proto
     while (currentProto) {
-      if (expectedType.proto && expectedType.proto.name === currentProto.name) return true
+      if (expectedType.proto && expectedType.proto.name === currentProto.name)
+        return true
       currentProto = currentProto.proto
     }
     return false
@@ -283,7 +287,10 @@ function makeVisitors(server, query, file, messages) {
                 }
               }
             } else {
-              var actualArg = infer.expressionType({ node: actualNode, state: state })
+              var actualArg = infer.expressionType({
+                node: actualNode,
+                state: state,
+              })
               // if actual type is an Object literal and expected type is an object, we ignore
               // the comparison type since object literal properties validation is done inside "ObjectExpression".
               if (!(expectedArg.getObjType() && isObjectLiteral(actualArg))) {
@@ -328,7 +335,11 @@ function makeVisitors(server, query, file, messages) {
     function isUsedVariable(varNode, varState, file, srv) {
       var name = varNode.name
 
-      for (var scope = varState; scope && !(name in scope.props); scope = scope.prev) {}
+      for (
+        var scope = varState;
+        scope && !(name in scope.props);
+        scope = scope.prev
+      ) {}
       if (!scope) return false
 
       var hasRef = false
@@ -350,7 +361,8 @@ function makeVisitors(server, query, file, messages) {
           infer.findRefs(file.ast, file.scope, name, scope, searchRef(file))
           for (var i = 0; i < srv.files.length && !hasRef; ++i) {
             var cur = srv.files[i]
-            if (cur != file) infer.findRefs(cur.ast, cur.scope, name, scope, searchRef(cur))
+            if (cur != file)
+              infer.findRefs(cur.ast, cur.scope, name, scope, searchRef(cur))
           }
         }
       } catch (e) {}
@@ -374,14 +386,18 @@ function makeVisitors(server, query, file, messages) {
                 unusedRule.severity
               )
             // type mismatch?
-            if (mismatchRule) validateAssignement(varNode, decl.init, mismatchRule, state)
+            if (mismatchRule)
+              validateAssignement(varNode, decl.init, mismatchRule, state)
           }
         }
         break
       case "FunctionDeclaration":
         if (unusedRule) {
           var varNode = node.id
-          if (varNode.name != "✖" && !isUsedVariable(varNode, state, file, server))
+          if (
+            varNode.name != "✖" &&
+            !isUsedVariable(varNode, state, file, server)
+          )
             addMessage(
               varNode,
               "Unused function '" + getNodeName(varNode) + "'",
@@ -410,7 +426,10 @@ function makeVisitors(server, query, file, messages) {
       var rule = getRule("MixedReturnTypes")
       if (!rule) return
       if (state.fnType && state.fnType.retval) {
-        var actualType = infer.expressionType({ node: node.argument, state: state }),
+        var actualType = infer.expressionType({
+            node: node.argument,
+            state: state,
+          }),
           expectedType = state.fnType.retval
         if (!compareType(expectedType, actualType)) {
           addMessage(
@@ -458,14 +477,21 @@ function makeVisitors(server, query, file, messages) {
           // this may contain properties that are not really defined.
           parentType.types.forEach(function (potentialType) {
             // Obj#hasProp checks the prototype as well
-            if (typeof potentialType.hasProp == "function" && potentialType.hasProp(prop, true)) {
+            if (
+              typeof potentialType.hasProp == "function" &&
+              potentialType.hasProp(prop, true)
+            ) {
               propertyDefined = true
             }
           })
         }
 
         if (!propertyDefined) {
-          addMessage(node, "Unknown property '" + getNodeName(node) + "'", rule.severity)
+          addMessage(
+            node,
+            "Unknown property '" + getNodeName(node) + "'",
+            rule.severity
+          )
         }
       }
     },
@@ -482,7 +508,11 @@ function makeVisitors(server, query, file, messages) {
       } else if (type.isEmpty()) {
         // The type of the identifier cannot be determined,
         // and the origin is unknown.
-        addMessage(node, "Unknown identifier '" + getNodeName(node) + "'", rule.severity)
+        addMessage(
+          node,
+          "Unknown identifier '" + getNodeName(node) + "'",
+          rule.severity
+        )
       } else {
         // Even though the origin node is unknown, the type is known.
         // This is typically the case for built-in identifiers (e.g. window or document).
@@ -502,7 +532,10 @@ function makeVisitors(server, query, file, messages) {
       var rule = getRule("ObjectLiteral")
       if (!rule) return
       var actualType = node.objType
-      var ctxType = infer.typeFromContext(file.ast, { node: node, state: state }),
+      var ctxType = infer.typeFromContext(file.ast, {
+          node: node,
+          state: state,
+        }),
         expectedType = null
       if (ctxType instanceof infer.Obj) {
         expectedType = ctxType.getObjType()
@@ -522,7 +555,10 @@ function makeVisitors(server, query, file, messages) {
       var rule = getRule("Array")
       if (!rule) return
       //var actualType = infer.expressionType({node: node, state: state});
-      var ctxType = infer.typeFromContext(file.ast, { node: node, state: state }),
+      var ctxType = infer.typeFromContext(file.ast, {
+          node: node,
+          state: state,
+        }),
         expectedType = getArrType(ctxType)
       if (expectedType /*&& expectedType != actualType*/) {
         // expected type is known. Ex: config object of RequireJS
@@ -540,7 +576,11 @@ function makeVisitors(server, query, file, messages) {
       // Validate ES6 modules "from"
       var modType = me.getModType(source)
       if (!modType) {
-        addMessage(source, "Invalid modules from '" + source.value + "'", rule.severity)
+        addMessage(
+          source,
+          "Invalid modules from '" + source.value + "'",
+          rule.severity
+        )
         return
       }
       // Validate ES6 modules "specifiers"
@@ -636,7 +676,8 @@ export function validateFiles(server, query) {
         state = file.scope
       var visitors = makeVisitors(server, query, file, messagesFile)
       walk.simple(ast, visitors, infer.searchVisitor, state)
-      if (groupByFiles) messages.push({ file: file.name, messages: messagesFile })
+      if (groupByFiles)
+        messages.push({ file: file.name, messages: messagesFile })
     }
     return { messages: messages }
   } catch (err) {
@@ -655,8 +696,14 @@ var getLint = (tern.getLint = function (name) {
 function getRules(options) {
   var rules = {}
   for (var ruleName in defaultRules) {
-    if (options && options.rules && options.rules[ruleName] && options.rules[ruleName].severity) {
-      if (options.rules[ruleName].severity != "none") rules[ruleName] = options.rules[ruleName]
+    if (
+      options &&
+      options.rules &&
+      options.rules[ruleName] &&
+      options.rules[ruleName].severity
+    ) {
+      if (options.rules[ruleName].severity != "none")
+        rules[ruleName] = options.rules[ruleName]
     } else {
       rules[ruleName] = defaultRules[ruleName]
     }
@@ -667,6 +714,9 @@ function getRules(options) {
 function getRule(ruleName) {
   const cx = infer.cx()
   const server = cx.parent
-  const rules = server && server._lint && server._lint.rules ? server._lint.rules : defaultRules
+  const rules =
+    server && server._lint && server._lint.rules
+      ? server._lint.rules
+      : defaultRules
   return rules[ruleName]
 }

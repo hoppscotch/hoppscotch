@@ -21,7 +21,11 @@ describe("getSuitableLenses", () => {
   })
 
   const contentTypes = {
-    JSON: ["application/json", "application/ld+json", "application/hal+json; charset=utf8"],
+    JSON: [
+      "application/json",
+      "application/ld+json",
+      "application/hal+json; charset=utf8",
+    ],
     Image: [
       "image/gif",
       "image/jpeg; foo=bar",
@@ -32,11 +36,15 @@ describe("getSuitableLenses", () => {
       "image/vnd.microsoft.icon",
     ],
     HTML: ["text/html", "application/xhtml+xml", "text/html; charset=utf-8"],
-    XML: ["text/xml", "application/xml", "application/xhtml+xml; charset=utf-8"],
+    XML: [
+      "text/xml",
+      "application/xml",
+      "application/xhtml+xml; charset=utf-8",
+    ],
   }
 
   lenses
-    .filter(({ lensName }) => lensName != rawLens.lensName)
+    .filter(({ lensName }) => lensName !== rawLens.lensName)
     .forEach((el) => {
       test(`returns ${el.lensName} lens for its content-types`, () => {
         contentTypes[el.lensName].forEach((contentType) => {

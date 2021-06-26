@@ -15,8 +15,8 @@ export default () => ({
     bodyParams: [],
     rawParams: "",
     rawInput: false,
-    requestType: "",
-    contentType: "",
+    requestType: "curl",
+    contentType: "application/json",
   },
   gql: {
     url: "https://rickandmortyapi.com/graphql",

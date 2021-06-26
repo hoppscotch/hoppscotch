@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const PhpCurlCodegen = {
   id: "php-curl",
   name: "PHP cURL",
+  language: "php",
   generator: ({
     url,
     pathName,
@@ -19,7 +20,7 @@ export const PhpCurlCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
+    const genHeaders = []
 
     requestString.push(`<?php\n`)
     requestString.push(`$curl = curl_init();\n`)
@@ -36,7 +37,9 @@ export const PhpCurlCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `    "Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}",\n`
+        `    "Authorization: Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}",\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization: Bearer ${bearerToken}",\n`)
@@ -78,7 +81,9 @@ export const PhpCurlCodegen = {
     }
     if (genHeaders.length > 0 || headers.length > 0) {
       requestString.push(
-        `  CURLOPT_HTTPHEADER => array(\n${genHeaders.join("").slice(0, -2)}\n  )\n`
+        `  CURLOPT_HTTPHEADER => array(\n${genHeaders
+          .join("")
+          .slice(0, -2)}\n  )\n`
       )
     }
 

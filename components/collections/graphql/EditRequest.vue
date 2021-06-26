@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_request") }}</h3>
+        <h3 class="heading">{{ $t("edit_request") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -13,21 +13,22 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="requestUpdateData.name"
-        @keyup.enter="saveRequest"
+        class="input"
+        type="text"
         :placeholder="request.name"
+        @keyup.enter="saveRequest"
       />
     </div>
     <div slot="footer">
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveRequest">
+          <button class="icon button primary" @click="saveRequest">
             {{ $t("save") }}
           </button>
         </span>
@@ -36,57 +37,39 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { editGraphqlRequest } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folderIndex: Number,
-    folderName: String,
-    request: Object,
-    requestIndex: Number,
+    folderPath: { type: String, default: null },
+    request: { type: Object, default: () => {} },
+    requestIndex: { type: Number, default: null },
   },
   data() {
     return {
       requestUpdateData: {
-        name: undefined,
+        name: null as any | null,
       },
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     saveRequest() {
       const requestUpdated = {
         ...this.$props.request,
         name: this.$data.requestUpdateData.name || this.$props.request.name,
       }
 
-      this.$store.commit("postwoman/editRequest", {
-        requestCollectionIndex: this.$props.collectionIndex,
-        requestFolderName: this.$props.folderName,
-        requestFolderIndex: this.$props.folderIndex,
-        requestNew: requestUpdated,
-        requestIndex: this.$props.requestIndex,
-        flag: "graphql",
-      })
+      editGraphqlRequest(this.folderPath, this.requestIndex, requestUpdated)
 
       this.hideModal()
-      this.syncCollections()
     },
     hideModal() {
+      this.requestUpdateData = { name: null }
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

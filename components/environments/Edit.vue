@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_environment") }}</h3>
+        <h3 class="heading">{{ $t("edit_environment") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -13,62 +13,61 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        class="input"
+        type="text"
         :placeholder="editingEnvironment.name"
         @keyup.enter="saveEnvironment"
       />
       <div class="row-wrapper">
         <label for="variableList">{{ $t("env_variable_list") }}</label>
         <div>
-          <button class="icon" @click="clearContent($event)" v-tooltip.bottom="$t('clear')">
+          <button
+            v-tooltip.bottom="$t('clear')"
+            class="icon button"
+            @click="clearContent($event)"
+          >
             <i class="material-icons">clear_all</i>
           </button>
         </div>
       </div>
       <ul
-        v-for="(variable, index) in this.editingEnvCopy.variables"
+        v-for="(variable, index) in vars"
         :key="index"
-        class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-divider
+          divide-dashed divide-divider
+          md:divide-y-0
+        "
         :class="{ 'border-t': index == 0 }"
       >
         <li>
           <input
+            v-model="variable.key"
+            class="input"
             :placeholder="$t('variable_count', { count: index + 1 })"
             :name="'param' + index"
-            :value="variable.key"
-            @change="
-              $store.commit('postwoman/setVariableKey', {
-                index,
-                value: $event.target.value,
-              })
-            "
-            autofocus
           />
         </li>
         <li>
           <input
+            v-model="variable.value"
+            class="input"
             :placeholder="$t('value_count', { count: index + 1 })"
             :name="'value' + index"
-            :value="
-              typeof variable.value === 'string' ? variable.value : JSON.stringify(variable.value)
-            "
-            @change="
-              $store.commit('postwoman/setVariableValue', {
-                index,
-                value: $event.target.value,
-              })
-            "
           />
         </li>
         <div>
           <li>
             <button
-              class="icon"
-              @click="removeEnvironmentVariable(index)"
-              v-tooltip.bottom="$t('delete')"
               id="variable"
+              v-tooltip.bottom="$t('delete')"
+              class="icon button"
+              @click="removeEnvironmentVariable(index)"
             >
               <i class="material-icons">delete</i>
             </button>
@@ -77,7 +76,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addEnvironmentVariable">
+          <button class="icon button" @click="addEnvironmentVariable">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
@@ -88,10 +87,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveEnvironment">
+          <button class="icon button primary" @click="saveEnvironment">
             {{ $t("save") }}
           </button>
         </span>
@@ -100,104 +99,78 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import Vue, { PropType } from "vue"
+import clone from "lodash/clone"
+import type { Environment } from "~/newstore/environments"
+import { updateEnvironment } from "~/newstore/environments"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    editingEnvironment: Object,
-    editingEnvironmentIndex: Number,
+    editingEnvironment: {
+      type: Object as PropType<Environment | null>,
+      default: null,
+    },
+    editingEnvironmentIndex: { type: Number, default: null },
   },
   data() {
     return {
-      name: undefined,
+      name: null as string | null,
+      vars: [] as { key: string; value: string }[],
       doneButton: '<i class="material-icons">done</i>',
     }
   },
-  subscriptions() {
-    return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments")
-    }
-  },
   watch: {
-    editingEnvironment(update) {
-      this.name =
-        this.$props.editingEnvironment && this.$props.editingEnvironment.name
-          ? this.$props.editingEnvironment.name
-          : undefined
-      this.$store.commit("postwoman/setEditingEnvironment", this.$props.editingEnvironment)
+    editingEnvironment() {
+      this.name = this.editingEnvironment?.name ?? null
+      this.vars = clone(this.editingEnvironment?.variables ?? [])
     },
-  },
-  computed: {
-    editingEnvCopy() {
-      return this.$store.state.postwoman.editingEnvironment
-    },
-    variableString() {
-      const result = this.editingEnvCopy.variables
-      return result === "" ? "" : JSON.stringify(result)
+    show() {
+      this.name = this.editingEnvironment?.name ?? null
+      this.vars = clone(this.editingEnvironment?.variables ?? [])
     },
   },
   methods: {
-    syncEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(JSON.parse(JSON.stringify(this.$store.state.postwoman.environments)))
-      }
-    },
-    clearContent({ target }) {
-      this.$store.commit("postwoman/removeVariables", [])
+    clearContent({ target }: { target: HTMLElement }) {
+      this.vars = []
+
       target.innerHTML = this.doneButton
-      this.$toast.info(this.$t("cleared"), {
+      this.$toast.info(this.$t("cleared").toString(), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(
+        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      )
     },
     addEnvironmentVariable() {
-      let value = { key: "", value: "" }
-      this.$store.commit("postwoman/addVariable", value)
-      this.syncEnvironments()
-    },
-    removeEnvironmentVariable(index) {
-      let variableIndex = index
-      const oldVariables = this.editingEnvCopy.variables.slice()
-      const newVariables = this.editingEnvCopy.variables.filter(
-        (variable, index) => variableIndex !== index
-      )
-
-      this.$store.commit("postwoman/removeVariable", newVariables)
-      this.$toast.error(this.$t("deleted"), {
-        icon: "delete",
-        action: {
-          text: this.$t("undo"),
-          onClick: (e, toastObject) => {
-            this.$store.commit("postwoman/removeVariable", oldVariables)
-            toastObject.remove()
-          },
-        },
+      this.vars.push({
+        key: "",
+        value: "",
       })
-      this.syncEnvironments()
+    },
+    removeEnvironmentVariable(index: number) {
+      this.vars.splice(index, 1)
     },
     saveEnvironment() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_environment_name"))
+      if (!this.name) {
+        this.$toast.info(this.$t("invalid_environment_name").toString())
         return
       }
-      const environmentUpdated = {
-        ...this.editingEnvCopy,
-        name: this.$data.name,
+
+      const environmentUpdated: Environment = {
+        name: this.name,
+        variables: this.vars,
       }
-      this.$store.commit("postwoman/saveEnvironment", {
-        environment: environmentUpdated,
-        environmentIndex: this.$props.editingEnvironmentIndex,
-      })
-      this.$emit("hide-modal")
-      this.syncEnvironments()
+
+      updateEnvironment(this.editingEnvironmentIndex, environmentUpdated)
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
-      this.$data.name = undefined
     },
   },
-}
+})
 </script>

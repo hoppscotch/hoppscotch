@@ -1,11 +1,10 @@
 import tern from "tern"
 
+import { registerTernLinter } from "./ternlint"
 import ECMA_DEF from "~/helpers/terndoc/ecma.json"
 import PW_PRE_DEF from "~/helpers/terndoc/pw-pre.json"
 import PW_TEST_DEF from "~/helpers/terndoc/pw-test.json"
 import PW_EXTRAS_DEF from "~/helpers/terndoc/pw-extras.json"
-
-import { registerTernLinter } from "./ternlint"
 
 const server = new tern.Server({
   defs: [ECMA_DEF, PW_EXTRAS_DEF],

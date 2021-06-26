@@ -1,10 +1,10 @@
 <template>
-  <SmartModal v-if="show" @close="show = false">
+  <SmartModal v-if="show" @close="$emit('hide-modal')">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_folder") }}</h3>
+        <h3 class="heading">{{ $t("edit_folder") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -13,9 +13,10 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        class="input"
+        type="text"
         :placeholder="folder.name"
         @keyup.enter="editFolder"
       />
@@ -24,10 +25,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="editFolder">
+          <button class="icon button primary" @click="editFolder">
             {{ $t("save") }}
           </button>
         </span>
@@ -36,46 +37,30 @@
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { editGraphqlFolder } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    collectionIndex: Number,
-    folder: Object,
-    folderIndex: Number,
+    folder: { type: Object, default: () => {} },
+    folderPath: { type: String, default: null },
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     editFolder() {
-      this.$store.commit("postwoman/editFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folder: { ...this.$props.folder, name: this.$data.name },
-        folderIndex: this.$props.folderIndex,
-        folderName: this.$props.folder.name,
-        flag: "graphql",
-      })
+      editGraphqlFolder(this.folderPath, { ...this.folder, name: this.name })
       this.hideModal()
-      this.syncCollections()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

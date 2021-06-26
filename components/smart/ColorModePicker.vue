@@ -3,7 +3,10 @@
     <label>
       <ColorScheme placeholder="..." tag="span">
         {{ $t("background") }}:
-        {{ $colorMode.preference.charAt(0).toUpperCase() + $colorMode.preference.slice(1) }}
+        {{
+          $colorMode.preference.charAt(0).toUpperCase() +
+          $colorMode.preference.slice(1)
+        }}
         <span v-if="$colorMode.preference === 'system'">
           ({{ $colorMode.value }} mode detected)
         </span>
@@ -14,10 +17,24 @@
         v-for="(color, index) of colors"
         :key="`color-${index}`"
         v-tooltip="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
-        class="inline-flex items-center justify-center p-3 m-2 transition duration-150 ease-in-out bg-transparent rounded-full cursor-pointer border-collapseer-2 text-fgLightColor hover:text-fgColor hover:shadow-none"
+        class="
+          inline-flex
+          items-center
+          justify-center
+          p-3
+          m-2
+          transition
+          duration-150
+          ease-in-out
+          bg-transparent
+          rounded-full
+          cursor-pointer
+          text-secondaryLight
+          hover:text-secondary
+        "
         :class="[
-          { 'bg-actColor': color === $colorMode.preference },
-          { 'text-acColor hover:text-acColor': color === $colorMode.value },
+          { 'bg-primary': color === $colorMode.preference },
+          { 'text-accent hover:text-accent': color === $colorMode.value },
         ]"
         @click="$colorMode.preference = color"
       >

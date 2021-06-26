@@ -1,14 +1,14 @@
 <template>
-  <AppSection label="Headers" ref="headers" no-legend>
+  <AppSection label="headers">
     <ul v-if="headers.length !== 0">
       <li>
         <div class="row-wrapper">
           <label for="headerList">{{ $t("header_list") }}</label>
           <div>
             <button
-              class="icon"
-              @click="clearContent('headers', $event)"
               v-tooltip.bottom="$t('clear')"
+              class="icon button"
+              @click="clearContent('headers', $event)"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -19,7 +19,14 @@
     <ul
       v-for="(header, index) in headers"
       :key="`${header.value}_${index}`"
-      class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+      class="
+        border-b border-dashed
+        divide-y
+        md:divide-x
+        border-divider
+        divide-dashed divide-divider
+        md:divide-y-0
+      "
       :class="{ 'border-t': index == 0 }"
     >
       <li>
@@ -28,6 +35,7 @@
           :source="commonHeaders"
           :spellcheck="false"
           :value="header.key"
+          autofocus
           @input="
             $store.commit('setKeyHeader', {
               index,
@@ -35,11 +43,11 @@
             })
           "
           @keyup.prevent="setRouteQueryState"
-          autofocus
         />
       </li>
       <li>
         <input
+          class="input"
           :placeholder="$t('value_count', { count: index + 1 })"
           :name="'value' + index"
           :value="header.value"
@@ -55,13 +63,6 @@
       <div>
         <li>
           <button
-            class="icon"
-            @click="
-              $store.commit('setActiveHeader', {
-                index,
-                value: header.hasOwnProperty('active') ? !header.active : false,
-              })
-            "
             v-tooltip.bottom="{
               content: header.hasOwnProperty('active')
                 ? header.active
@@ -69,6 +70,13 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            class="icon button"
+            @click="
+              $store.commit('setActiveHeader', {
+                index,
+                value: header.hasOwnProperty('active') ? !header.active : false,
+              })
+            "
           >
             <i class="material-icons">
               {{
@@ -84,7 +92,11 @@
       </div>
       <div>
         <li>
-          <button class="icon" @click="removeRequestHeader(index)" v-tooltip.bottom="$t('delete')">
+          <button
+            v-tooltip.bottom="$t('delete')"
+            class="icon button"
+            @click="removeRequestHeader(index)"
+          >
             <i class="material-icons">delete</i>
           </button>
         </li>
@@ -92,7 +104,7 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestHeader">
+        <button class="icon button" @click="addRequestHeader">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>

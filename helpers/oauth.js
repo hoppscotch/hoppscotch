@@ -1,3 +1,9 @@
+import {
+  getLocalConfig,
+  setLocalConfig,
+  removeLocalConfig,
+} from "~/newstore/localpersistence"
+
 const redirectUri = `${window.location.origin}/`
 
 // GENERAL HELPER FUNCTIONS
@@ -43,7 +49,10 @@ const parseQueryString = (searchQuery) => {
     return {}
   }
   const segments = searchQuery.split("&").map((s) => s.split("="))
-  const queryString = segments.reduce((obj, el) => ({ ...obj, [el[0]]: el[1] }), {})
+  const queryString = segments.reduce(
+    (obj, el) => ({ ...obj, [el[0]]: el[1] }),
+    {}
+  )
   return queryString
 }
 
@@ -145,25 +154,26 @@ const tokenRequest = async ({
 }) => {
   // Check oauth configuration
   if (oidcDiscoveryUrl !== "") {
-    const { authorization_endpoint, token_endpoint } = await getTokenConfiguration(oidcDiscoveryUrl)
-    authUrl = authorization_endpoint
-    accessTokenUrl = token_endpoint
+    const { authorizationEndpoint, tokenEndpoint } =
+      await getTokenConfiguration(oidcDiscoveryUrl)
+    authUrl = authorizationEndpoint
+    accessTokenUrl = tokenEndpoint
   }
 
   // Store oauth information
-  localStorage.setItem("token_endpoint", accessTokenUrl)
-  localStorage.setItem("client_id", clientId)
+  setLocalConfig("tokenEndpoint", accessTokenUrl)
+  setLocalConfig("client_id", clientId)
 
   // Create and store a random state value
   const state = generateRandomString()
-  localStorage.setItem("pkce_state", state)
+  setLocalConfig("pkce_state", state)
 
-  // Create and store a new PKCE code_verifier (the plaintext random secret)
-  const code_verifier = generateRandomString()
-  localStorage.setItem("pkce_code_verifier", code_verifier)
+  // Create and store a new PKCE codeVerifier (the plaintext random secret)
+  const codeVerifier = generateRandomString()
+  setLocalConfig("pkce_codeVerifier", codeVerifier)
 
   // Hash and base64-urlencode the secret to use as the challenge
-  const code_challenge = await pkceChallengeFromVerifier(code_verifier)
+  const codeChallenge = await pkceChallengeFromVerifier(codeVerifier)
 
   // Build the authorization URL
   const buildUrl = () =>
@@ -171,9 +181,11 @@ const tokenRequest = async ({
       clientId
     )}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(
       scope
-    )}&redirect_uri=${encodeURIComponent(redirectUri)}&code_challenge=${encodeURIComponent(
-      code_challenge
-    )}&code_challenge_method=S256`
+    )}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&codeChallenge=${encodeURIComponent(
+      codeChallenge
+    )}&codeChallenge_method=S256`
 
   // Redirect to the authorization server
   window.location = buildUrl()
@@ -188,9 +200,9 @@ const tokenRequest = async ({
  * @returns {Object}
  */
 
-const oauthRedirect = async () => {
+const oauthRedirect = () => {
   let tokenResponse = ""
-  let q = parseQueryString(window.location.search.substring(1))
+  const q = parseQueryString(window.location.search.substring(1))
   // Check if the server returned an error string
   if (q.error) {
     alert(`Error returned from authorization server: ${q.error}`)
@@ -198,27 +210,27 @@ const oauthRedirect = async () => {
   // If the server returned an authorization code, attempt to exchange it for an access token
   if (q.code) {
     // Verify state matches what we set at the beginning
-    if (localStorage.getItem("pkce_state") != q.state) {
+    if (getLocalConfig("pkce_state") !== q.state) {
       alert("Invalid state")
     } else {
       try {
         // Exchange the authorization code for an access token
-        tokenResponse = await sendPostRequest(localStorage.getItem("token_endpoint"), {
+        tokenResponse = sendPostRequest(getLocalConfig("tokenEndpoint"), {
           grant_type: "authorization_code",
           code: q.code,
-          client_id: localStorage.getItem("client_id"),
+          client_id: getLocalConfig("client_id"),
           redirect_uri: redirectUri,
-          code_verifier: localStorage.getItem("pkce_code_verifier"),
+          codeVerifier: getLocalConfig("pkce_codeVerifier"),
         })
       } catch (err) {
         console.log(`${error.error}\n\n${error.error_description}`)
       }
     }
     // Clean these up since we don't need them anymore
-    localStorage.removeItem("pkce_state")
-    localStorage.removeItem("pkce_code_verifier")
-    localStorage.removeItem("token_endpoint")
-    localStorage.removeItem("client_id")
+    removeLocalConfig("pkce_state")
+    removeLocalConfig("pkce_codeVerifier")
+    removeLocalConfig("tokenEndpoint")
+    removeLocalConfig("client_id")
     return tokenResponse
   }
   return tokenResponse

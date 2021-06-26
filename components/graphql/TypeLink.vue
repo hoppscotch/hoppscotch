@@ -1,7 +1,7 @@
 <template>
   <span
     :class="{ 'cursor-pointer': !isScalar }"
-    class="font-mono font-normal text-acColor"
+    class="font-mono text-sm text-accent"
     @click="jumpToType"
   >
     {{ typeString }}
@@ -13,8 +13,10 @@ import { GraphQLScalarType } from "graphql"
 
 export default {
   props: {
+    // eslint-disable-next-line vue/require-default-prop
     gqlType: null,
     // (typeName: string) => void
+    // eslint-disable-next-line vue/require-default-prop
     jumpTypeCallback: Function,
   },
 

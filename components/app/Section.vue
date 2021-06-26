@@ -6,43 +6,19 @@
         {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
       </i>
     </legend>
-    <div class="collapsible" :class="{ hidden: isCollapsed(label.toLowerCase()) }">
-      <slot />
+    <div
+      class="collapsible"
+      :class="{ hidden: isCollapsed(label.toLowerCase()) }"
+    >
+      <slot></slot>
     </div>
   </fieldset>
 </template>
-
-<style scoped lang="scss">
-fieldset {
-  @apply my-4;
-  @apply rounded-lg;
-  @apply bg-bgDarkColor;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-150;
-  @apply w-full;
-
-  legend {
-    @apply px-4;
-    @apply text-fgColor;
-    @apply font-bold;
-    @apply cursor-pointer;
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-150;
-  }
-}
-</style>
 
 <script lang="ts">
 import Vue from "vue"
 
 export default Vue.extend({
-  computed: {
-    sectionString(): string {
-      return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
-    },
-  },
   props: {
     label: {
       type: String,
@@ -50,7 +26,12 @@ export default Vue.extend({
     },
     noLegend: {
       type: Boolean,
-      default: false,
+      default: true,
+    },
+  },
+  computed: {
+    sectionString(): string {
+      return `${this.$route.path.replace(/\/+$/, "")}/${this.label}`
     },
   },
 
@@ -60,8 +41,34 @@ export default Vue.extend({
       this.$store.commit("setCollapsedSection", this.sectionString)
     },
     isCollapsed(_label: string) {
-      return this.$store.state.theme.collapsedSections.includes(this.sectionString) || false
+      return (
+        this.$store.state.theme.collapsedSections.includes(
+          this.sectionString
+        ) || false
+      )
     },
   },
 })
 </script>
+
+<style scoped lang="scss">
+fieldset {
+  @apply my-4;
+  @apply rounded-lg;
+  @apply bg-primaryDark;
+  @apply transition;
+  @apply ease-in-out;
+  @apply duration-150;
+  @apply w-full;
+
+  legend {
+    @apply px-4;
+    @apply text-secondary;
+    @apply font-bold;
+    @apply cursor-pointer;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-150;
+  }
+}
+</style>

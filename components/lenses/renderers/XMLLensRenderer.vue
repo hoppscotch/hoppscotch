@@ -4,33 +4,35 @@
       <label for="body">{{ $t("response_body") }}</label>
       <div>
         <button
-          class="icon"
-          @click="ToggleExpandResponse"
-          ref="ToggleExpandResponse"
           v-if="response.body"
+          ref="ToggleExpandResponse"
           v-tooltip="{
-            content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
+            content: !expandResponse
+              ? $t('expand_response')
+              : $t('collapse_response'),
           }"
+          class="icon button"
+          @click="ToggleExpandResponse"
         >
           <i class="material-icons">
             {{ !expandResponse ? "unfold_more" : "unfold_less" }}
           </i>
         </button>
         <button
-          class="icon"
-          @click="downloadResponse"
-          ref="downloadResponse"
           v-if="response.body"
+          ref="downloadResponse"
           v-tooltip="$t('download_file')"
+          class="icon button"
+          @click="downloadResponse"
         >
           <i class="material-icons">save_alt</i>
         </button>
         <button
-          class="icon"
-          @click="copyResponse"
-          ref="copyResponse"
           v-if="response.body"
+          ref="copyResponse"
           v-tooltip="$t('copy_response')"
+          class="icon button"
+          @click="copyResponse"
         >
           <i class="material-icons">content_copy</i>
         </button>
@@ -43,7 +45,7 @@
         :options="{
           maxLines: responseBodyMaxLines,
           minLines: '16',
-          fontSize: '16px',
+          fontSize: '15px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,
@@ -61,7 +63,7 @@ import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 export default {
   mixins: [TextContentRendererMixin],
   props: {
-    response: {},
+    response: { type: Object, default: () => {} },
   },
   data() {
     return {
@@ -74,13 +76,16 @@ export default {
   },
   computed: {
     responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
+      return (this.response.headers["content-type"] || "")
+        .split(";")[0]
+        .toLowerCase()
     },
   },
   methods: {
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines === Infinity ? 16 : Infinity
     },
     downloadResponse() {
       const dataToWrite = this.responseBodyText
@@ -114,7 +119,10 @@ export default {
       aux.select()
       document.execCommand("copy")
       document.body.removeChild(aux)
-      setTimeout(() => (this.$refs.copyResponse.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyResponse.innerHTML = this.copyButton),
+        1000
+      )
     },
   },
 }

@@ -36,6 +36,7 @@ const axiosWithProxy = async (req) => {
   } catch (e) {
     // Check if the throw is due to a cancellation
     if (axios.isCancel(e)) {
+      // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
       throw e
@@ -54,6 +55,7 @@ const axiosWithoutProxy = async (req, _store) => {
     return res
   } catch (e) {
     if (axios.isCancel(e)) {
+      // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
       throw e

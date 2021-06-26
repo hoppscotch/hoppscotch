@@ -1,8 +1,8 @@
-{{nesting_level}} {{name}}
+{{nestingLevel}} {{name}}
 
 {{#requests}}
 
-{{nesting_level}} Request: {{name}}
+{{nestingLevel}} Request: {{name}}
 
 **Method**: {{method}}
 
@@ -49,7 +49,7 @@
 {{/isParams}}
 
 {{#isAuth}}
-**Authentication Type**: {{{auth}}}  
+**Authentication Type**: {{{auth}}}
 {{/isAuth}}
 
 {{#bearerToken}}
@@ -57,7 +57,7 @@
 {{/bearerToken}}
 
 {{#isAuthBasic}}
-Username: `{{{httpUser}}}`  
+Username: `{{{httpUser}}}`
 Password: `{{{httpPassword}}}`
 {{/isAuthBasic}}
 

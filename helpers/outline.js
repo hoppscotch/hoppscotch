@@ -15,21 +15,21 @@ export default () => {
   }
 
   const linkParents = (node) => {
-    if (node.kind == "Object") {
+    if (node.kind === "Object") {
       if (node.members) {
         node.members.forEach((m) => {
           m.parent = node
           linkParents(m)
         })
       }
-    } else if (node.kind == "Array") {
+    } else if (node.kind === "Array") {
       if (node.values) {
         node.values.forEach((v) => {
           v.parent = node
           linkParents(v)
         })
       }
-    } else if (node.kind == "Member") {
+    } else if (node.kind === "Member") {
       if (node.value) {
         node.value.parent = node
         linkParents(node.value)
@@ -41,20 +41,20 @@ export default () => {
     let output = {}
     path = []
     let current = jsonAST
-    if (current.kind == "Object") {
+    if (current.kind === "Object") {
       path.push({ label: "{}", obj: "root" })
-    } else if (current.kind == "Array") {
+    } else if (current.kind === "Array") {
       path.push({ label: "[]", obj: "root" })
     }
     let over = false
 
     try {
       while (!over) {
-        if (current.kind == "Object") {
+        if (current.kind === "Object") {
           let i = 0
           let found = false
           while (i < current.members.length) {
-            let m = current.members[i]
+            const m = current.members[i]
             if (m.start <= index && m.end >= index) {
               path.push({ label: m.key.value, obj: m })
               current = current.members[i]
@@ -64,12 +64,12 @@ export default () => {
             i++
           }
           if (!found) over = true
-        } else if (current.kind == "Array") {
+        } else if (current.kind === "Array") {
           if (current.values) {
             let i = 0
             let found = false
             while (i < current.values.length) {
-              let m = current.values[i]
+              const m = current.values[i]
               if (m.start <= index && m.end >= index) {
                 path.push({ label: `[${i.toString()}]`, obj: m })
                 current = current.values[i]
@@ -80,17 +80,17 @@ export default () => {
             }
             if (!found) over = true
           } else over = true
-        } else if (current.kind == "Member") {
+        } else if (current.kind === "Member") {
           if (current.value) {
             if (current.value.start <= index && current.value.end >= index) {
               current = current.value
             } else over = true
           } else over = true
         } else if (
-          current.kind == "String" ||
-          current.kind == "Number" ||
-          current.kind == "Boolean" ||
-          current.kind == "Null"
+          current.kind === "String" ||
+          current.kind === "Number" ||
+          current.kind === "Boolean" ||
+          current.kind === "Null"
         ) {
           if (current.start <= index && current.end >= index) {
             path.push({ label: `${current.value}`, obj: current })
@@ -106,15 +106,13 @@ export default () => {
   }
 
   const getSiblings = (index) => {
-    let parent = path[index].obj.parent
+    const parent = path[index].obj.parent
     if (!parent) return []
-    else {
-      if (parent.kind == "Object") {
-        return parent.members
-      } else if (parent.kind == "Array") {
-        return parent.values
-      } else return []
-    }
+    else if (parent.kind === "Object") {
+      return parent.members
+    } else if (parent.kind === "Array") {
+      return parent.values
+    } else return []
   }
 
   return {

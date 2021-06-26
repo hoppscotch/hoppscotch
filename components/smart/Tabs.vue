@@ -4,8 +4,8 @@
       <ul>
         <li
           v-for="(tab, index) in tabs"
-          :class="{ 'is-active': tab.isActive }"
           :key="index"
+          :class="{ 'is-active': tab.isActive }"
           :tabindex="0"
           @keyup.enter="selectTab(tab)"
         >
@@ -24,12 +24,39 @@
   </section>
 </template>
 
+<script>
+export default {
+  props: {
+    styles: {
+      type: String,
+      default: "",
+    },
+  },
+
+  data() {
+    return {
+      tabs: [],
+    }
+  },
+
+  created() {
+    this.tabs = this.$children
+  },
+
+  methods: {
+    selectTab({ id }) {
+      this.tabs.forEach((tab) => {
+        tab.isActive = tab.id === id
+      })
+      this.$emit("tab-changed", id)
+    },
+  },
+}
+</script>
+
 <style scoped lang="scss">
 .tabs-wrapper {
-  @apply flex;
-  @apply flex-col;
-  @apply flex-nowrap;
-  @apply flex-1;
+  @apply flex flex-col flex-nowrap flex-1;
 
   .tabs {
     @apply flex;
@@ -51,10 +78,8 @@
         @apply flex;
         @apply items-center;
         @apply justify-center;
-        @apply py-2;
-        @apply px-4;
-        @apply text-fgLightColor;
-        @apply text-sm;
+        @apply py-2 px-4;
+        @apply text-secondaryLight text-sm;
         @apply rounded-lg;
         @apply cursor-pointer;
         @apply transition-colors;
@@ -66,17 +91,17 @@
         }
 
         &:hover {
-          @apply text-fgColor;
+          @apply text-secondary;
         }
       }
 
       &:focus a {
-        @apply text-fgColor;
+        @apply text-secondary;
       }
 
       &.is-active a {
-        @apply bg-brdColor;
-        @apply text-fgColor;
+        @apply bg-divider;
+        @apply text-secondary;
       }
     }
   }
@@ -85,39 +110,7 @@
 @media (max-width: 768px) {
   ul,
   ol {
-    @apply flex-row;
-    @apply flex-nowrap;
+    @apply flex-row flex-nowrap;
   }
 }
 </style>
-
-<script>
-import Section from "../app/Section.vue"
-export default {
-  components: { Section },
-  props: {
-    styles: {
-      type: String,
-      default: "",
-    },
-  },
-
-  data() {
-    return {
-      tabs: [],
-    }
-  },
-
-  created() {
-    this.tabs = this.$children
-  },
-
-  methods: {
-    selectTab({ id }) {
-      this.tabs.forEach((tab) => {
-        tab.isActive = tab.id == id
-      })
-    },
-  },
-}
-</script>

@@ -1,5 +1,5 @@
-import RestCard from "../rest/Card"
 import { mount } from "@vue/test-utils"
+import RestCard from "../rest/Card"
 
 const factory = (props) => {
   return mount(RestCard, {
@@ -26,7 +26,7 @@ const factory = (props) => {
 const url = "https://dummydata.com/get"
 const entry = {
   type: "rest",
-  url: url,
+  url,
   method: "GET",
   status: 200,
   star: false,
@@ -37,7 +37,7 @@ describe("RestCard", () => {
     expect(wrapper).toBeTruthy()
   })
 
-  test("toggle-star emitted on clicking on star button", async () => {
+  test("toggle-star emitted on clicking on star button", () => {
     const wrapper = factory({ entry })
 
     wrapper.find("button[data-testid='star_button']").trigger("click")
@@ -46,13 +46,17 @@ describe("RestCard", () => {
 
   test("use-entry emit on clicking the restore button", async () => {
     const wrapper = factory({ entry })
-    await wrapper.find("button[data-testid='restore_history_entry']").trigger("click")
+    await wrapper
+      .find("button[data-testid='restore_history_entry']")
+      .trigger("click")
     expect(wrapper.emitted("use-entry")).toBeTruthy()
   })
 
   test("delete-entry emit on clicking the delete button", async () => {
     const wrapper = factory({ entry })
-    await wrapper.find("button[data-testid=delete_history_entry]").trigger("click")
+    await wrapper
+      .find("button[data-testid=delete_history_entry]")
+      .trigger("click")
     expect(wrapper.emitted("delete-entry")).toBeTruthy()
   })
 })

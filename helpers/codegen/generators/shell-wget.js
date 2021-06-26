@@ -1,6 +1,7 @@
 export const ShellWgetCodegen = {
   id: "shell-wget",
   name: "Shell wget",
+  language: "sh",
   generator: ({
     url,
     pathName,
@@ -22,7 +23,9 @@ export const ShellWgetCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(
-        `  --header='Authorization: Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+        `  --header='Authorization: Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}'`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       requestString.push(`  --header='Authorization: Bearer ${bearerToken}'`)
@@ -34,7 +37,9 @@ export const ShellWgetCodegen = {
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       const requestBody = rawInput ? rawParams : rawRequestBody
-      requestString.push(`  --header='Content-Type: ${contentType}; charset=utf-8'`)
+      requestString.push(
+        `  --header='Content-Type: ${contentType}; charset=utf-8'`
+      )
       requestString.push(`  --body-data='${requestBody}'`)
     }
     return requestString.join(" \\\n")

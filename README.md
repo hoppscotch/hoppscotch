@@ -10,7 +10,7 @@
   </p>
   <p>
 
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Travis Build Status](https://img.shields.io/travis/com/hoppscotch/hoppscotch/main?logo=Travis)](https://travis-ci.com/hoppscotch/hoppscotch) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) ![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
 
   </p>
   <p>
@@ -361,7 +361,6 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 - History
 - Collections
 - Environments
-- Notes
 
 ✅ **Post-Request Tests β:** Write tests associated with a request that are executed after the request response.
 
@@ -377,10 +376,6 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 ---
 
 </details>
-
-📝 **Notes** : Instantly jot down notes, tasks or whatever you feel like as they come to your mind.
-
-_Notes are only available for signed-in users_
 
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 
@@ -410,6 +405,21 @@ _Notes are only available for signed-in users_
 
 </details>
 
+👨‍👩‍👧‍👦 **Teams β:** Helps you collaborate across your team to design, develop, and test APIs faster.
+
+<details>
+  <summary><i>Features</i></summary>
+
+---
+
+- Unlimited team collections and shared requests
+- Unlimited team members
+- User roles
+
+---
+
+</details>
+
 **To find out more, please check out [Hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
 
 ## **Demo**
@@ -426,7 +436,7 @@ _Notes are only available for signed-in users_
 ## **Built with**
 
 - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
-- [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS), [SCSS](https://sass-lang.com), [Tailwind CSS](https://tailwindcss.com)
+- [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS), [SCSS](https://sass-lang.com), [Windi CSS](https://windicss.org)
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org)
 - [Vue](https://vuejs.org)
@@ -460,14 +470,7 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 **Official container** &nbsp; [![hoppscotch/hoppscotch](https://img.shields.io/docker/pulls/hoppscotch/hoppscotch?style=social)](https://hub.docker.com/r/hoppscotch/hoppscotch)
 
 ```bash
-#pull
-docker pull hoppscotch/hoppscotch
-
-#build
-docker build -t hoppscotch/hoppscotch:latest .
-
-#run
-docker run -p 3000:3000 hoppscotch/hoppscotch:latest
+docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
 **Legacy container** &nbsp; [![liyasthomas/postwoman](https://img.shields.io/docker/pulls/liyasthomas/postwoman?style=social)](https://hub.docker.com/r/liyasthomas/postwoman)
@@ -478,13 +481,6 @@ docker run -p 3000:3000 hoppscotch/hoppscotch:latest
 ---
 
 ```bash
-#pull
-docker pull liyasthomas/postwoman
-
-#build
-docker build -t liyasthomas/postwoman:latest .
-
-#run
 docker run -p 3000:3000 liyasthomas/postwoman:latest
 ```
 
@@ -507,7 +503,7 @@ Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDU
 
 ## **Continuous Integration**
 
-We use [Travis CI](https://travis-ci.com) for continuous integration. Check out our [Travis CI Status](https://travis-ci.com/hoppscotch/hoppscotch).
+We use [GitHub Actions](https://github.com/features/actions) for continuous integration. Check out our [Build Workflows](https://github.com/hoppscotch/hoppscotch/actions).
 
 ## **Changelog**
 
@@ -549,6 +545,30 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 #### GitHub Sponsors
 
 <p align="center">
+<a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
+<img
+  width="100"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Simplescraper.png"
+	alt="Simplescraper"
+/>
+</a>
+</p>
+
+<p align="center">
+<a href="https://github.com/anmolm96" target="_blank" rel="noopener">
+<img
+  width="64"
+	src="https://github.com/anmolm96.png?size=64"
+	alt="Anmol Maini"
+/>
+</a>
+<a href="https://github.com/juzhiyuan" target="_blank" rel="noopener">
+<img
+  width="64"
+	src="https://github.com/juzhiyuan.png?size=64"
+	alt="琚致远"
+/>
+</a>
 <a href="https://github.com/eldadfux" target="_blank" rel="noopener">
 <img
   width="64"
@@ -598,13 +618,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	alt="Erica Brescia"
 />
 </a>
-<a href="https://tom.preston-werner.com" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/mojombo.png?size=64"
-	alt="Tom Preston-Werner"
-/>
-</a>
 <a href="https://github.com/mlynch" target="_blank" rel="noopener">
 <img
   width="64"
@@ -638,6 +651,13 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 #### Open Collective
 
 <p align="center">
+<a href="https://pipedream.com/?ref=hoppscotch" target="_blank" rel="noopener">
+<img
+  width="100"
+	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/pipedream.png"
+	alt="pipedream"
+/>
+</a>
 <a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">
 <img
   width="100"
@@ -645,11 +665,6 @@ Become a financial contributor and help us sustain our community [[Support](#sup
 	alt="Paw"
 />
 </a>
-</p>
-
-<p align="center">
-<a href="https://opencollective.com/hoppscotch/organization/0/website"><img src="https://opencollective.com/hoppscotch/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/hoppscotch/organization/1/website"><img src="https://opencollective.com/hoppscotch/organization/1/avatar.svg"></a>
 </p>
 
 ### Code Contributors

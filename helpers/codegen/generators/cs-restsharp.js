@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const CsRestsharpCodegen = {
   id: "cs-restsharp",
   name: "C# RestSharp",
+  language: "csharp",
   generator: ({
     url,
     pathName,
@@ -56,12 +57,16 @@ export const CsRestsharpCodegen = {
         `client.Authenticator = new HttpBasicAuthenticator("${httpUser}", "${httpPassword}");\n`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(`request.AddHeader("Authorization", "Bearer ${bearerToken}");\n`)
+      requestString.push(
+        `request.AddHeader("Authorization", "Bearer ${bearerToken}");\n`
+      )
     }
 
     // content type
     if (contentType) {
-      requestString.push(`request.AddHeader("Content-Type", "${contentType}");\n`)
+      requestString.push(
+        `request.AddHeader("Content-Type", "${contentType}");\n`
+      )
     }
 
     // custom headers
@@ -88,7 +93,7 @@ export const CsRestsharpCodegen = {
 
     // analyse result
     requestString.push(
-      `if (!response.IsSuccessful)\n{\n    Console.WriteLine("An error occured " + response.ErrorMessage);\n}\n\n`
+      `if (!response.IsSuccessful)\n{\n    Console.WriteLine("An error occurred " + response.ErrorMessage);\n}\n\n`
     )
 
     requestString.push(`var result = response.Content;\n`)

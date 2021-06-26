@@ -1,7 +1,10 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper transition duration-150 ease-in-out', { 'bg-bgDarkColor': dragging }]"
+      :class="[
+        'row-wrapper transition duration-150 ease-in-out',
+        { 'bg-primaryDark': dragging },
+      ]"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
@@ -10,38 +13,45 @@
     >
       <div>
         <button
-          class="icon"
-          @click="!doc ? selectRequest() : {}"
           v-tooltip="!doc ? $t('use_request') : ''"
+          class="icon button"
+          @click="!doc ? selectRequest() : {}"
         >
+          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+            >check_circle</i
+          >
+
+          <i v-else class="material-icons">description</i>
           <span>{{ request.name }}</span>
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+        <button v-tooltip="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
           <div>
             <button
-              class="icon"
+              v-close-popover
+              class="icon button"
               @click="
                 $emit('edit-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
                   request,
                   requestIndex,
+                  folderPath,
                 })
               "
-              v-close-popover
             >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
-            <button class="icon" @click="confirmRemove = true" v-close-popover>
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -58,16 +68,19 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { removeGraphqlRequest } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
-    request: Object,
-    collectionIndex: Number,
-    folderIndex: Number,
-    folderName: String,
-    requestIndex: Number,
+    // Whether the object is selected (show the tick mark)
+    picked: { type: Object, default: null },
+    // Whether the request is being saved (activate 'select' event)
+    savingMode: { type: Boolean, default: false },
+    request: { type: Object, default: () => {} },
+    folderPath: { type: String, default: null },
+    requestIndex: { type: Number, default: null },
     doc: Boolean,
   },
   data() {
@@ -76,40 +89,59 @@ export default {
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected(): boolean {
+      return (
+        this.picked &&
+        this.picked.pickedType === "gql-my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+      )
+    },
+  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-            "collectionsGraphql"
-          )
-        }
-      }
+    pick() {
+      this.$emit("select", {
+        picked: {
+          pickedType: "gql-my-request",
+          folderPath: this.folderPath,
+          requestIndex: this.requestIndex,
+        },
+      })
     },
     selectRequest() {
-      this.$store.commit("postwoman/selectGraphqlRequest", { request: this.request })
+      if (this.savingMode) {
+        this.pick()
+        return
+      }
+
+      this.$store.commit("postwoman/selectGraphqlRequest", {
+        request: this.request,
+      })
     },
-    dragStart({ dataTransfer }) {
+    dragStart({ dataTransfer }: any) {
       this.dragging = !this.dragging
-      dataTransfer.setData("oldCollectionIndex", this.$props.collectionIndex)
-      dataTransfer.setData("oldFolderIndex", this.$props.folderIndex)
-      dataTransfer.setData("oldFolderName", this.$props.folderName)
-      dataTransfer.setData("requestIndex", this.$props.requestIndex)
+
+      dataTransfer.setData("folderPath", this.folderPath)
+      dataTransfer.setData("requestIndex", this.requestIndex)
     },
     removeRequest() {
-      this.$store.commit("postwoman/removeRequest", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folderName,
-        requestIndex: this.$props.requestIndex,
-        flag: "graphql",
-      })
-      this.$toast.error(this.$t("deleted"), {
+      // Cancel pick if the picked request is deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === this.requestIndex
+      ) {
+        this.$emit("select", { picked: null })
+      }
+
+      removeGraphqlRequest(this.folderPath, this.requestIndex)
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
       this.confirmRemove = false
-      this.syncCollections()
     },
   },
-}
+})
 </script>

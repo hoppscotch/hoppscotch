@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_collection") }}</h3>
+        <h3 class="heading">{{ $t("edit_collection") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -13,10 +13,11 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
-        :placeholder="editingCollection.name"
+        class="input"
+        type="text"
+        :placeholder="placeholderCollName"
         @keyup.enter="saveCollection"
       />
     </div>
@@ -24,10 +25,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="saveCollection">
+          <button class="icon button primary" @click="saveCollection">
             {{ $t("save") }}
           </button>
         </span>
@@ -37,52 +38,23 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
-
 export default {
   props: {
     show: Boolean,
-    editingCollection: Object,
-    editingCollectionIndex: Number,
+    placeholderCollName: { type: String, default: null },
   },
   data() {
     return {
-      name: undefined,
-    }
-  },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
+      name: null,
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     saveCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
-        return
-      }
-      const collectionUpdated = {
-        ...this.$props.editingCollection,
-        name: this.$data.name,
-      }
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex,
-        flag: "rest",
-      })
-      this.$emit("hide-modal")
-      this.syncCollections()
+      this.$emit("submit", this.name)
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

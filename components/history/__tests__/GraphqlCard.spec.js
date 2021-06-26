@@ -1,5 +1,5 @@
-import GraphqlCard from "../graphql/Card"
 import { mount } from "@vue/test-utils"
+import GraphqlCard from "../graphql/Card"
 
 const factory = (props) => {
   return mount(GraphqlCard, {
@@ -35,20 +35,20 @@ describe("GraphqlCard", () => {
     const wrapper = factory({
       entry: {
         type: "graphql",
-        url: url,
-        query: query,
+        url,
+        query,
         star: false,
       },
     })
     expect(wrapper).toBeTruthy()
   })
 
-  test("toggle-star emitted on clicking on star button", async () => {
+  test("toggle-star emitted on clicking on star button", () => {
     const wrapper = factory({
       entry: {
         type: "graphql",
-        url: url,
-        query: query,
+        url,
+        query,
         star: true,
       },
     })
@@ -61,8 +61,8 @@ describe("GraphqlCard", () => {
     const wrapper = factory({
       entry: {
         type: "graphql",
-        url: url,
-        query: query,
+        url,
+        query,
         star: true,
       },
     })
@@ -85,12 +85,14 @@ describe("GraphqlCard", () => {
     const wrapper = factory({
       entry: {
         type: "graphql",
-        url: url,
-        query: query,
+        url,
+        query,
         star: true,
       },
     })
-    await wrapper.find("button[data-testid='restore_history_entry']").trigger("click")
+    await wrapper
+      .find("button[data-testid='restore_history_entry']")
+      .trigger("click")
     expect(wrapper.emitted("use-entry")).toBeTruthy()
   })
 
@@ -98,12 +100,14 @@ describe("GraphqlCard", () => {
     const wrapper = factory({
       entry: {
         type: "graphql",
-        url: url,
-        query: query,
+        url,
+        query,
         star: true,
       },
     })
-    await wrapper.find("button[data-testid=delete_history_entry]").trigger("click")
+    await wrapper
+      .find("button[data-testid=delete_history_entry]")
+      .trigger("click")
     expect(wrapper.emitted("delete-entry")).toBeTruthy()
   })
 })

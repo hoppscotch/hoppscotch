@@ -7,9 +7,9 @@ jest.mock("~/newstore/settings", () => {
     __esModule: true,
     settingsStore: {
       value: {
-        PROXY_ENABLED: false
-      }
-    }
+        PROXY_ENABLED: false,
+      },
+    },
   }
 })
 
@@ -18,7 +18,6 @@ axios.mockResolvedValue({})
 
 describe("axiosStrategy", () => {
   describe("No-Proxy Requests", () => {
-
     test("sends request to the actual sender if proxy disabled", async () => {
       await axiosStrategy({ url: "test" })
 
@@ -43,14 +42,14 @@ describe("axiosStrategy", () => {
       await expect(axiosStrategy({})).resolves.toBeDefined()
     })
 
-    test("rejects cancel errors with text 'cancellation'", async () => {
+    test("rejects cancel errors with text 'cancellation'", () => {
       axios.isCancel.mockReturnValueOnce(true)
       axios.mockRejectedValue("err")
 
       expect(axiosStrategy({})).rejects.toBe("cancellation")
     })
 
-    test("rejects non-cancellation errors as-is", async () => {
+    test("rejects non-cancellation errors as-is", () => {
       axios.isCancel.mockReturnValueOnce(false)
       axios.mockRejectedValue("err")
 

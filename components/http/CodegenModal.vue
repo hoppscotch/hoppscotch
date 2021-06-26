@@ -2,31 +2,37 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("generate_code") }}</h3>
+        <h3 class="heading">{{ $t("generate_code") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <label for="requestType">{{ $t("request_type") }}</label>
+      <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
         <v-popover>
-          <pre v-if="requestType">{{ codegens.find((x) => x.id === requestType).name }}</pre>
+          <pre v-if="requestType">{{
+            codegens.find((x) => x.id === requestType).name
+          }}</pre>
           <input
             v-else
             id="requestType"
             v-model="requestType"
             :placeholder="$t('choose_language')"
-            class="cursor-pointer"
+            class="input cursor-pointer"
             readonly
             autofocus
           />
           <template slot="popover">
             <div v-for="gen in codegens" :key="gen.id">
-              <button class="icon" @click="requestType = gen.id" v-close-popover>
+              <button
+                v-close-popover
+                class="icon button"
+                @click="requestType = gen.id"
+              >
                 {{ gen.name }}
               </button>
             </div>
@@ -37,24 +43,31 @@
         <label for="generatedCode">{{ $t("generated_code") }}</label>
         <div>
           <button
-            class="icon"
-            @click="copyRequestCode"
             ref="copyRequestCode"
             v-tooltip="$t('copy_code')"
+            class="icon button"
+            @click="copyRequestCode"
           >
             <i class="material-icons">content_copy</i>
           </button>
         </div>
       </div>
-      <textarea
-        id="generatedCode"
+      <SmartAceEditor
+        v-if="requestType"
         ref="generatedCode"
-        name="generatedCode"
-        rows="8"
-        v-model="requestCode"
-        readonly
-        class="rounded-b-lg"
-      ></textarea>
+        :value="requestCode"
+        :lang="codegens.find((x) => x.id === requestType).language"
+        :options="{
+          maxLines: '10',
+          minLines: '10',
+          fontSize: '15px',
+          autoScrollEditorIntoView: true,
+          readOnly: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
+        styles="rounded-b-lg"
+      />
     </div>
   </SmartModal>
 </template>
@@ -65,8 +78,8 @@ import { codegens } from "~/helpers/codegen/codegen"
 export default {
   props: {
     show: Boolean,
-    requestCode: String,
-    requestTypeProp: { type: String, default: "" },
+    requestCode: { type: String, default: null },
+    requestTypeProp: { type: String, default: "curl" },
   },
   data() {
     return {
@@ -97,9 +110,13 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      this.$refs.generatedCode.select()
+      this.$refs.generatedCode.editor.selectAll()
+      this.$refs.generatedCode.editor.focus()
       document.execCommand("copy")
-      setTimeout(() => (this.$refs.copyRequestCode.innerHTML = this.copyButton), 1000)
+      setTimeout(
+        () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
+        1000
+      )
     },
   },
 }

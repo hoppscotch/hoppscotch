@@ -1,12 +1,16 @@
 <template>
   <footer class="footer">
-    <div class="row-wrapper">
-      <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
-        <a class="footer-link" href="https://www.netlify.com" target="_blank" rel="noopener">
+    <div class="flex justify-between items-center flex-1">
+      <span class="flex font-mono" style="align-items: start">
+        <a
+          class="footer-link hidden md:inline-flex"
+          href="https://www.netlify.com"
+          target="_blank"
+          rel="noopener"
+        >
           Powered by Netlify
         </a>
-        <span class="footer-link"> Sponsored by </span>
-        <span>
+        <span class="hidden md:inline-flex">
           <a
             class="footer-link"
             href="https://oss.capital/?ref=hoppscotch"
@@ -15,9 +19,6 @@
           >
             OSS Capital
           </a>
-        </span>
-        <span class="footer-link"> & </span>
-        <span>
           <a
             class="footer-link"
             href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=website&utm_campaign=hoppscotch-sponsorship"
@@ -25,6 +26,14 @@
             rel="noopener"
           >
             Paw
+          </a>
+          <a
+            class="footer-link"
+            href="https://simplescraper.io/?utm_source=hs"
+            target="_blank"
+            rel="noopener"
+          >
+            Simplescraper
           </a>
         </span>
         <iframe
@@ -38,20 +47,20 @@
           loading="lazy"
         ></iframe>
       </span>
-      <span class="flex flex-col font-mono md:flex-row" style="align-items: start">
+      <span class="flex font-mono" style="align-items: start">
         <a href="mailto:support@hoppscotch.io" target="_blank" rel="noopener">
-          <button class="icon" v-tooltip="$t('contact_us')">
+          <button v-tooltip="$t('contact_us')" class="icon button">
             <i class="material-icons">email</i>
           </button>
         </a>
         <v-popover>
-          <button class="icon" v-tooltip="$t('choose_language')">
+          <button v-tooltip="$t('choose_language')" class="icon button">
             <i class="material-icons">translate</i>
           </button>
           <template slot="popover">
             <div v-for="locale in availableLocales" :key="locale.code">
               <nuxt-link :to="switchLocalePath(locale.code)">
-                <button class="icon" v-close-popover>
+                <button v-close-popover class="icon button">
                   {{ locale.name }}
                 </button>
               </nuxt-link>
@@ -63,20 +72,6 @@
   </footer>
 </template>
 
-<style scoped lang="scss">
-.footer-link {
-  @apply inline-flex;
-  @apply flex-shrink-0;
-  @apply my-2;
-  @apply mx-4;
-  @apply text-fgLightColor;
-
-  &:hover {
-    @apply text-fgColor;
-  }
-}
-</style>
-
 <script>
 export default {
   computed: {
@@ -86,3 +81,12 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+.footer-link {
+  @apply flex-shrink-0;
+  @apply my-2 mx-4;
+  @apply text-secondaryLight text-sm;
+  @apply hover:text-secondary;
+}
+</style>

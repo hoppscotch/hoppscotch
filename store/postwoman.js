@@ -42,20 +42,6 @@ export const SETTINGS_KEYS = [
 
 export const state = () => ({
   settings: {},
-  collections: [
-    {
-      name: "My Collection",
-      folders: [],
-      requests: [],
-    },
-  ],
-  collectionsGraphql: [
-    {
-      name: "My GraphQL Collection",
-      folders: [],
-      requests: [],
-    },
-  ],
   environments: [
     {
       name: "My Environment Variables",
@@ -70,8 +56,14 @@ export const state = () => ({
 
 export const mutations = {
   applySetting({ settings }, setting) {
-    if (setting === null || !(setting instanceof Array) || setting.length !== 2) {
-      throw new Error("You must provide a setting (array in the form [key, value])")
+    if (
+      setting === null ||
+      !(setting instanceof Array) ||
+      setting.length !== 2
+    ) {
+      throw new Error(
+        "You must provide a setting (array in the form [key, value])"
+      )
     }
 
     const [key, value] = setting
@@ -127,7 +119,7 @@ export const mutations = {
     state.environments = [...state.environments, ...environments]
 
     let index = 0
-    for (let environment of state.environments) {
+    for (const environment of state.environments) {
       environment.environmentIndex = index
       index += 1
     }
@@ -159,20 +151,22 @@ export const mutations = {
   },
 
   replaceCollections(state, item) {
-    let collections = item.data
+    const collections = item.data
     const flag = item.flag
-    if (flag == "rest") state.collections = collections
+    if (flag === "rest") state.collections = collections
     else state.collectionsGraphql = collections
   },
 
   importCollections(state, item) {
-    let collections = item.data
+    const collections = item.data
     const flag = item.flag
-    if (flag == "rest") state.collections = [...state.collections, ...collections]
-    else state.collectionsGraphql = [...state.collectionsGraphql, ...collections]
+    if (flag === "rest")
+      state.collections = [...state.collections, ...collections]
+    else
+      state.collectionsGraphql = [...state.collectionsGraphql, ...collections]
 
     let index = 0
-    for (let collection of collections) {
+    for (const collection of collections) {
       collection.collectionIndex = index
       index += 1
     }
@@ -182,7 +176,7 @@ export const mutations = {
     const name = collection.name
     const flag = collection.flag
     let duplicateCollection = null
-    if (flag == "rest") {
+    if (flag === "rest") {
       duplicateCollection = collections.some(
         (item) => item.name.toLowerCase() === name.toLowerCase()
       )
@@ -195,7 +189,7 @@ export const mutations = {
       this.$toast.info("Duplicate collection")
       return
     }
-    if (flag == "rest") {
+    if (flag === "rest") {
       collections.push({
         name: "",
         folders: [],
@@ -214,7 +208,7 @@ export const mutations = {
 
   removeCollection({ collections, collectionsGraphql }, payload) {
     const { collectionIndex, flag } = payload
-    if (flag == "rest") collections.splice(collectionIndex, 1)
+    if (flag === "rest") collections.splice(collectionIndex, 1)
     else collectionsGraphql.splice(collectionIndex, 1)
   },
 
@@ -222,7 +216,7 @@ export const mutations = {
     const { collection, collectionIndex, flag } = payload
     const { name } = collection
     let duplicateCollection = null
-    if (flag == "rest") {
+    if (flag === "rest") {
       duplicateCollection = collections.some(
         (item) => item.name.toLowerCase() === name.toLowerCase()
       )
@@ -235,14 +229,14 @@ export const mutations = {
       this.$toast.info("Duplicate collection")
       return
     }
-    if (flag == "rest") collections[collectionIndex] = collection
+    if (flag === "rest") collections[collectionIndex] = collection
     else collectionsGraphql[collectionIndex] = collection
   },
 
   addFolder({ collections, collectionsGraphql }, payload) {
     const { name, path, flag } = payload
     const newFolder = {
-      name: name,
+      name,
       requests: [],
       folders: [],
     }
@@ -251,7 +245,7 @@ export const mutations = {
     const indexPaths = path.split("/").map((x) => parseInt(x))
 
     let target = null
-    if (flag == "rest") target = collections[indexPaths.shift()]
+    if (flag === "rest") target = collections[indexPaths.shift()]
     else target = collectionsGraphql[indexPaths.shift()]
 
     while (indexPaths.length > 0) target = target.folders[indexPaths.shift()]
@@ -262,10 +256,10 @@ export const mutations = {
   editFolder({ collections, collectionsGraphql }, payload) {
     const { collectionIndex, folder, folderIndex, folderName, flag } = payload
     let collection = null
-    if (flag == "rest") collection = collections[collectionIndex]
+    if (flag === "rest") collection = collections[collectionIndex]
     else collection = collectionsGraphql[collectionIndex]
 
-    let parentFolder = findFolder(folderName, collection, true)
+    const parentFolder = findFolder(folderName, collection, true)
     if (parentFolder && parentFolder.folders) {
       Vue.set(parentFolder.folders, folderIndex, folder)
     }
@@ -274,10 +268,10 @@ export const mutations = {
   removeFolder({ collections, collectionsGraphql }, payload) {
     const { collectionIndex, folderIndex, folderName, flag } = payload
     let collection = null
-    if (flag == "rest") collection = collections[collectionIndex]
+    if (flag === "rest") collection = collections[collectionIndex]
     else collection = collectionsGraphql[collectionIndex]
 
-    let parentFolder = findFolder(folderName, collection, true)
+    const parentFolder = findFolder(folderName, collection, true)
     if (parentFolder && parentFolder.folders) {
       parentFolder.folders.splice(folderIndex, 1)
     }
@@ -293,7 +287,7 @@ export const mutations = {
       flag,
     } = payload
     let collection = null
-    if (flag == "rest") collection = collections[requestCollectionIndex]
+    if (flag === "rest") collection = collections[requestCollectionIndex]
     else collection = collectionsGraphql[requestCollectionIndex]
 
     if (requestFolderIndex === -1) {
@@ -301,14 +295,15 @@ export const mutations = {
       return
     }
 
-    let folder = findFolder(requestFolderName, collection, false)
+    const folder = findFolder(requestFolderName, collection, false)
     Vue.set(folder.requests, requestIndex, requestNew)
   },
 
   saveRequestAs({ collections, collectionsGraphql }, payload) {
-    let { request, collectionIndex, folderName, requestIndex, flag } = payload
+    let { request } = payload
+    const { collectionIndex, folderName, requestIndex, flag } = payload
 
-    if (flag == "rest") {
+    if (flag === "rest") {
       // Filter out all file inputs
       request = {
         ...request,
@@ -325,26 +320,30 @@ export const mutations = {
     if (specifiedCollection && specifiedFolder && specifiedRequest) {
       const folder = findFolder(
         folderName,
-        flag == "rest" ? collections[collectionIndex] : collectionsGraphql[collectionIndex]
+        flag === "rest"
+          ? collections[collectionIndex]
+          : collectionsGraphql[collectionIndex]
       )
       Vue.set(folder.requests, requestIndex, request)
     } else if (specifiedCollection && specifiedFolder && !specifiedRequest) {
       const folder = findFolder(
         folderName,
-        flag == "rest" ? collections[collectionIndex] : collectionsGraphql[collectionIndex]
+        flag === "rest"
+          ? collections[collectionIndex]
+          : collectionsGraphql[collectionIndex]
       )
       const requests = folder.requests
       const lastRequestIndex = requests.length - 1
       Vue.set(requests, lastRequestIndex + 1, request)
     } else if (specifiedCollection && !specifiedFolder && specifiedRequest) {
       const requests =
-        flag == "rest"
+        flag === "rest"
           ? collections[collectionIndex].requests
           : collectionsGraphql[collectionIndex].requests
       Vue.set(requests, requestIndex, request)
     } else if (specifiedCollection && !specifiedFolder && !specifiedRequest) {
       const requests =
-        flag == "rest"
+        flag === "rest"
           ? collections[collectionIndex].requests
           : collectionsGraphql[collectionIndex].requests
       const lastRequestIndex = requests.length - 1
@@ -355,14 +354,14 @@ export const mutations = {
   removeRequest({ collections, collectionsGraphql }, payload) {
     const { collectionIndex, folderName, requestIndex, flag } = payload
     let collection = null
-    if (flag == "rest") collection = collections[collectionIndex]
+    if (flag === "rest") collection = collections[collectionIndex]
     else collection = collectionsGraphql[collectionIndex]
 
     if (collection.name === folderName) {
       collection.requests.splice(requestIndex, 1)
       return
     }
-    let folder = findFolder(folderName, collection, false)
+    const folder = findFolder(folderName, collection, false)
 
     if (folder) {
       folder.requests.splice(requestIndex, 1)
@@ -389,10 +388,10 @@ export const mutations = {
     } = payload
     const isCollection = newFolderIndex === -1
     let oldCollection = null
-    if (flag == "rest") oldCollection = collections[oldCollectionIndex]
+    if (flag === "rest") oldCollection = collections[oldCollectionIndex]
     else oldCollection = collectionsGraphql[oldCollectionIndex]
     let newCollection = null
-    if (flag == "rest") newCollection = collections[newCollectionIndex]
+    if (flag === "rest") newCollection = collections[newCollectionIndex]
     else newCollection = collectionsGraphql[newCollectionIndex]
     const request = findRequest(oldFolderName, oldCollection, requestIndex)
 
@@ -405,7 +404,6 @@ export const mutations = {
       const folder = findFolder(newFolderName, newCollection, false)
       if (folder) {
         folder.requests.push(request)
-        return
       }
     }
   },
@@ -424,7 +422,7 @@ function findRequest(folderName, currentFolder, requestIndex) {
   let selectedFolder, result
 
   if (folderName === currentFolder.name) {
-    let request = currentFolder.requests[requestIndex]
+    const request = currentFolder.requests[requestIndex]
     currentFolder.requests.splice(requestIndex, 1)
     return request
   } else {
@@ -452,7 +450,12 @@ function findFolder(folderName, currentFolder, returnParent, parentFolder) {
     for (let i = 0; i < currentFolder.folders.length; i++) {
       selectedFolder = currentFolder.folders[i]
 
-      result = findFolder(folderName, selectedFolder, returnParent, currentFolder)
+      result = findFolder(
+        folderName,
+        selectedFolder,
+        returnParent,
+        currentFolder
+      )
 
       if (result !== false) {
         return result

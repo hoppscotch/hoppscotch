@@ -1,14 +1,14 @@
 <template>
-  <AppSection label="Parameters" ref="parameters" no-legend>
+  <AppSection label="parameters">
     <ul v-if="params.length !== 0">
       <li>
         <div class="row-wrapper">
           <label for="paramList">{{ $t("parameter_list") }}</label>
           <div>
             <button
-              class="icon"
-              @click="clearContent('parameters', $event)"
               v-tooltip.bottom="$t('clear')"
+              class="icon button"
+              @click="clearContent('parameters', $event)"
             >
               <i class="material-icons">clear_all</i>
             </button>
@@ -19,25 +19,34 @@
     <ul
       v-for="(param, index) in params"
       :key="index"
-      class="border-b border-dashed divide-y md:divide-x border-brdColor divide-dashed divide-brdColor md:divide-y-0"
+      class="
+        border-b border-dashed
+        divide-y
+        md:divide-x
+        border-divider
+        divide-dashed divide-divider
+        md:divide-y-0
+      "
       :class="{ 'border-t': index == 0 }"
     >
       <li>
         <input
+          class="input"
           :placeholder="$t('parameter_count', { count: index + 1 })"
           :name="'param' + index"
           :value="param.key"
+          autofocus
           @change="
             $store.commit('setKeyParams', {
               index,
               value: $event.target.value,
             })
           "
-          autofocus
         />
       </li>
       <li>
         <input
+          class="input"
           :placeholder="$t('value_count', { count: index + 1 })"
           :name="'value' + index"
           :value="param.value"
@@ -52,6 +61,7 @@
       <li>
         <span class="select-wrapper">
           <select
+            class="select"
             :name="'type' + index"
             @change="
               $store.commit('setTypeParams', {
@@ -72,13 +82,6 @@
       <div>
         <li>
           <button
-            class="icon"
-            @click="
-              $store.commit('setActiveParams', {
-                index,
-                value: param.hasOwnProperty('active') ? !param.active : false,
-              })
-            "
             v-tooltip.bottom="{
               content: param.hasOwnProperty('active')
                 ? param.active
@@ -86,6 +89,13 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            class="icon button"
+            @click="
+              $store.commit('setActiveParams', {
+                index,
+                value: param.hasOwnProperty('active') ? !param.active : false,
+              })
+            "
           >
             <i class="material-icons">
               {{
@@ -101,7 +111,11 @@
       </div>
       <div>
         <li>
-          <button class="icon" @click="removeRequestParam(index)" v-tooltip.bottom="$t('delete')">
+          <button
+            v-tooltip.bottom="$t('delete')"
+            class="icon button"
+            @click="removeRequestParam(index)"
+          >
             <i class="material-icons">delete</i>
           </button>
         </li>
@@ -109,7 +123,7 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestParam">
+        <button class="icon button" @click="addRequestParam">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>

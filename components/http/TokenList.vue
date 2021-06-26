@@ -2,9 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("manage_token") }}</h3>
+        <h3 class="heading">{{ $t("manage_token") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -15,9 +15,9 @@
         <label>{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">
           <button
-            class="icon"
-            @click="clearContent('tokens', $event)"
             v-tooltip.bottom="$t('clear')"
+            class="icon button"
+            @click="clearContent('tokens', $event)"
           >
             <i class="material-icons">clear_all</i>
           </button>
@@ -26,6 +26,7 @@
       <ul v-for="(token, index) in tokens" :key="index">
         <li>
           <input
+            class="input"
             :placeholder="`name ${index + 1}`"
             :value="token.name"
             @change="
@@ -37,20 +38,24 @@
           />
         </li>
         <li>
-          <input :value="token.value" readonly />
+          <input class="input" :value="token.value" readonly />
         </li>
         <div class="row-wrapper">
           <li>
             <button
-              class="icon"
-              @click="useOAuthToken(token.value)"
               v-tooltip.bottom="$t('use_token')"
+              class="icon button"
+              @click="useOAuthToken(token.value)"
             >
               <i class="material-icons">input</i>
             </button>
           </li>
           <li>
-            <button class="icon" @click="removeOAuthToken(index)" v-tooltip.bottom="$t('delete')">
+            <button
+              v-tooltip.bottom="$t('delete')"
+              class="icon button"
+              @click="removeOAuthToken(index)"
+            >
               <i class="material-icons">delete</i>
             </button>
           </li>

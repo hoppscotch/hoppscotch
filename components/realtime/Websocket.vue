@@ -1,29 +1,29 @@
 <template>
-  <div class="page">
-    <AppSection :label="$t('request')" ref="request" no-legend>
+  <div>
+    <AppSection label="request">
       <ul>
         <li>
           <label for="websocket-url">{{ $t("url") }}</label>
           <input
             id="websocket-url"
+            v-model="url"
+            class="input"
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
-            v-model="url"
-            @keyup.enter="urlValid ? toggleConnection() : null"
-            class="md:rounded-bl-lg"
             :placeholder="$t('url')"
+            @keyup.enter="urlValid ? toggleConnection() : null"
           />
         </li>
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <button
-              :disabled="!urlValid"
               id="connect"
+              :disabled="!urlValid"
+              class="button"
               name="connect"
               @click="toggleConnection"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
               <span>
@@ -35,9 +35,87 @@
           </li>
         </div>
       </ul>
+      <ul>
+        <li>
+          <div class="row-wrapper">
+            <label>{{ $t("protocols") }}</label>
+          </div>
+        </li>
+      </ul>
+      <ul
+        v-for="(protocol, index) of protocols"
+        :key="`protocol-${index}`"
+        :class="{ 'border-t': index == 0 }"
+        class="
+          border-b border-dashed
+          divide-y
+          md:divide-x
+          border-divider
+          divide-dashed divide-divider
+          md:divide-y-0
+        "
+      >
+        <li>
+          <input
+            v-model="protocol.value"
+            class="input"
+            :placeholder="$t('protocol_count', { count: index + 1 })"
+            name="message"
+            type="text"
+          />
+        </li>
+        <div>
+          <li>
+            <button
+              v-tooltip.bottom="{
+                content: protocol.hasOwnProperty('active')
+                  ? protocol.active
+                    ? $t('turn_off')
+                    : $t('turn_on')
+                  : $t('turn_off'),
+              }"
+              class="icon button"
+              @click="
+                protocol.active = protocol.hasOwnProperty('active')
+                  ? !protocol.active
+                  : false
+              "
+            >
+              <i class="material-icons">
+                {{
+                  protocol.hasOwnProperty("active")
+                    ? protocol.active
+                      ? "check_box"
+                      : "check_box_outline_blank"
+                    : "check_box"
+                }}
+              </i>
+            </button>
+          </li>
+        </div>
+        <div>
+          <li>
+            <button
+              v-tooltip.bottom="$t('delete')"
+              class="icon button"
+              @click="deleteProtocol({ index })"
+            >
+              <i class="material-icons">delete</i>
+            </button>
+          </li>
+        </div>
+      </ul>
+      <ul>
+        <li>
+          <button class="icon button" @click="addProtocol">
+            <i class="material-icons">add</i>
+            <span>{{ $t("add_new") }}</span>
+          </button>
+        </li>
+      </ul>
     </AppSection>
 
-    <AppSection :label="$t('communication')" id="response" ref="response" no-legend>
+    <AppSection label="response">
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="communication.log" />
@@ -48,14 +126,14 @@
           <label for="websocket-message">{{ $t("message") }}</label>
           <input
             id="websocket-message"
+            v-model="communication.input"
             name="message"
             type="text"
-            v-model="communication.input"
             :readonly="!connectionState"
+            class="input md:rounded-bl-lg"
             @keyup.enter="connectionState ? sendMessage() : null"
             @keyup.up="connectionState ? walkHistory('up') : null"
             @keyup.down="connectionState ? walkHistory('down') : null"
-            class="md:rounded-bl-lg"
           />
         </li>
         <div>
@@ -65,8 +143,8 @@
               id="send"
               name="send"
               :disabled="!connectionState"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="sendMessage"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
             >
               {{ $t("send") }}
               <span>
@@ -94,8 +172,32 @@ export default {
         log: null,
         input: "",
       },
-      currentIndex: -1, //index of the message log array to put in input box
+      currentIndex: -1, // index of the message log array to put in input box
+      protocols: [],
+      activeProtocols: [],
     }
+  },
+  computed: {
+    urlValid() {
+      return this.isUrlValid
+    },
+  },
+  watch: {
+    url() {
+      this.debouncer()
+    },
+    protocols: {
+      handler(newVal) {
+        this.activeProtocols = newVal
+          .filter((item) =>
+            Object.prototype.hasOwnProperty.call(item, "active")
+              ? item.active === true
+              : true
+          )
+          .map(({ value }) => value)
+      },
+      deep: true,
+    },
   },
   mounted() {
     if (process.browser) {
@@ -105,16 +207,6 @@ export default {
   },
   destroyed() {
     this.worker.terminate()
-  },
-  computed: {
-    urlValid() {
-      return this.isUrlValid
-    },
-  },
-  watch: {
-    url(val) {
-      this.debouncer()
-    },
   },
   methods: {
     debouncer: debounce(function () {
@@ -134,18 +226,18 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         },
       ]
       try {
-        this.socket = new WebSocket(this.url)
-        this.socket.onopen = (event) => {
+        this.socket = new WebSocket(this.url, this.activeProtocols)
+        this.socket.onopen = () => {
           this.connectionState = true
           this.communication.log = [
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
-              color: "var(--ac-color)",
+              color: "var(--accent-color)",
               ts: new Date().toLocaleTimeString(),
             },
           ]
@@ -153,10 +245,10 @@ export default {
             icon: "sync",
           })
         }
-        this.socket.onerror = (event) => {
+        this.socket.onerror = () => {
           this.handleError()
         }
-        this.socket.onclose = (event) => {
+        this.socket.onclose = () => {
           this.connectionState = false
           this.communication.log.push({
             payload: this.$t("disconnected_from", { name: this.url }),
@@ -215,20 +307,24 @@ export default {
       this.communication.input = ""
     },
     walkHistory(direction) {
-      const clientMessages = this.communication.log.filter(({ source }) => source === "client")
+      const clientMessages = this.communication.log.filter(
+        ({ source }) => source === "client"
+      )
       const length = clientMessages.length
       switch (direction) {
         case "up":
           if (length > 0 && this.currentIndex !== 0) {
-            //does nothing if message log is empty or the currentIndex is 0 when up arrow is pressed
+            // does nothing if message log is empty or the currentIndex is 0 when up arrow is pressed
             if (this.currentIndex === -1) {
               this.currentIndex = length - 1
-              this.communication.input = clientMessages[this.currentIndex].payload
+              this.communication.input =
+                clientMessages[this.currentIndex].payload
             } else if (this.currentIndex === 0) {
               this.communication.input = clientMessages[0].payload
             } else if (this.currentIndex > 0) {
               this.currentIndex = this.currentIndex - 1
-              this.communication.input = clientMessages[this.currentIndex].payload
+              this.communication.input =
+                clientMessages[this.currentIndex].payload
             }
           }
           break
@@ -239,11 +335,30 @@ export default {
               this.communication.input = ""
             } else if (this.currentIndex < length - 1) {
               this.currentIndex = this.currentIndex + 1
-              this.communication.input = clientMessages[this.currentIndex].payload
+              this.communication.input =
+                clientMessages[this.currentIndex].payload
             }
           }
           break
       }
+    },
+    addProtocol() {
+      this.protocols.push({ value: "", active: true })
+    },
+    deleteProtocol({ index }) {
+      const oldProtocols = this.protocols.slice()
+      this.$delete(this.protocols, index)
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+        action: {
+          text: this.$t("undo"),
+          duration: 4000,
+          onClick: (_, toastObject) => {
+            this.protocols = oldProtocols
+            toastObject.remove()
+          },
+        },
+      })
     },
   },
 }

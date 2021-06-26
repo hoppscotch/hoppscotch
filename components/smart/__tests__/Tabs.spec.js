@@ -1,7 +1,6 @@
+import { mount } from "@vue/test-utils"
 import tabs from "../Tabs"
 import tab from "../Tab"
-
-import { mount } from "@vue/test-utils"
 
 const factory = () =>
   mount(tabs, {
@@ -13,7 +12,7 @@ const factory = () =>
       ],
     },
     stubs: {
-      "Tab": tab,
+      Tab: tab,
     },
   })
 

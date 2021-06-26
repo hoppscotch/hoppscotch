@@ -1,5 +1,6 @@
 const [wsRegexIP, wsRegexHostname] = generateREForProtocol("^(wss?:\\/\\/)?")
-const [sseRegexIP, sseRegexHostname] = generateREForProtocol("^(https?:\\/\\/)?")
+const [sseRegexIP, sseRegexHostname] =
+  generateREForProtocol("^(https?:\\/\\/)?")
 const [socketioRegexIP, socketioRegexHostname] = generateREForProtocol(
   "^((wss?:\\/\\/)|(https?:\\/\\/))?"
 )

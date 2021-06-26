@@ -1,15 +1,15 @@
 <template>
   <div>
-    <AppSection :label="$t('request')" no-legend>
+    <AppSection label="request">
       <ul>
         <li>
           <label for="mqtt-url">{{ $t("url") }}</label>
           <input
             id="mqtt-url"
-            type="url"
             v-model="url"
+            type="url"
             spellcheck="false"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
           />
         </li>
@@ -19,12 +19,14 @@
             <button
               id="connect"
               :disabled="!validUrl"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
             >
-              {{ this.connectionState ? $t("disconnect") : $t("connect") }}
+              {{ connectionState ? $t("disconnect") : $t("connect") }}
               <span>
-                <i class="material-icons">{{ !connectionState ? "sync" : "sync_disabled" }}</i>
+                <i class="material-icons">{{
+                  !connectionState ? "sync" : "sync_disabled"
+                }}</i>
               </span>
             </button>
           </li>
@@ -32,31 +34,43 @@
       </ul>
     </AppSection>
 
-    <AppSection :label="$t('communication')" no-legend>
+    <AppSection label="response">
       <ul>
         <li>
-          <RealtimeLog :title="$t('log')" :log="this.log" />
+          <RealtimeLog :title="$t('log')" :log="log" />
         </li>
       </ul>
       <ul>
         <li>
           <label for="pub_topic">{{ $t("mqtt_topic") }}</label>
-          <input id="pub_topic" type="text" v-model="pub_topic" spellcheck="false" />
+          <input
+            id="pub_topic"
+            v-model="pub_topic"
+            class="input"
+            type="text"
+            spellcheck="false"
+          />
         </li>
         <li>
           <label for="mqtt-message">{{ $t("message") }}</label>
           <input
             id="mqtt-message"
-            type="text"
             v-model="msg"
+            type="text"
             spellcheck="false"
-            class="border-dashed md:border-l border-brdColor"
+            class="input border-dashed md:border-l border-divider"
           />
         </li>
         <div>
           <li>
             <label for="publish" class="hide-on-small-screen">&nbsp;</label>
-            <button id="publish" name="get" :disabled="!canpublish" @click="publish">
+            <button
+              id="publish"
+              class="button"
+              name="get"
+              :disabled="!canpublish"
+              @click="publish"
+            >
               {{ $t("mqtt_publish") }}
               <span>
                 <i class="material-icons">send</i>
@@ -70,10 +84,10 @@
           <label for="sub_topic">{{ $t("mqtt_topic") }}</label>
           <input
             id="sub_topic"
-            type="text"
             v-model="sub_topic"
+            type="text"
             spellcheck="false"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
           />
         </li>
         <div>
@@ -83,12 +97,18 @@
               id="subscribe"
               name="get"
               :disabled="!cansubscribe"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleSubscription"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
             >
-              {{ subscriptionState ? $t("mqtt_unsubscribe") : $t("mqtt_subscribe") }}
+              {{
+                subscriptionState
+                  ? $t("mqtt_unsubscribe")
+                  : $t("mqtt_subscribe")
+              }}
               <span>
-                <i class="material-icons">{{ subscriptionState ? "sync_disabled" : "sync" }}</i>
+                <i class="material-icons">{{
+                  subscriptionState ? "sync_disabled" : "sync"
+                }}</i>
               </span>
             </button>
           </li>
@@ -117,6 +137,22 @@ export default {
       subscriptionState: false,
     }
   },
+  computed: {
+    validUrl() {
+      return this.isUrlValid
+    },
+    canpublish() {
+      return this.pub_topic !== "" && this.msg !== "" && this.connectionState
+    },
+    cansubscribe() {
+      return this.sub_topic !== "" && this.connectionState
+    },
+  },
+  watch: {
+    url() {
+      this.debouncer()
+    },
+  },
   mounted() {
     if (process.browser) {
       this.worker = this.$worker.createRejexWorker()
@@ -125,22 +161,6 @@ export default {
   },
   destroyed() {
     this.worker.terminate()
-  },
-  watch: {
-    url(val) {
-      this.debouncer()
-    },
-  },
-  computed: {
-    validUrl() {
-      return this.isUrlValid
-    },
-    canpublish() {
-      return this.pub_topic != "" && this.msg != "" && this.connectionState
-    },
-    cansubscribe() {
-      return this.sub_topic != "" && this.connectionState
-    },
   },
   methods: {
     debouncer: debounce(function () {
@@ -154,14 +174,14 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
           ts: new Date().toLocaleTimeString(),
         },
       ]
-      let parseUrl = new URL(this.url)
+      const parseUrl = new URL(this.url)
       this.client = new Paho.Client(
         parseUrl.hostname,
-        parseUrl.port != "" ? Number(parseUrl.port) : 8081,
+        parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
         "postwoman"
       )
       this.client.connect({
@@ -186,7 +206,7 @@ export default {
       this.log.push({
         payload: this.$t("connected_to", { name: this.url }),
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
       this.$toast.success(this.$t("connected"), {
@@ -197,7 +217,7 @@ export default {
       this.log.push({
         payload: `Message: ${payloadString} arrived on topic: ${destinationName}`,
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
     },
@@ -239,7 +259,7 @@ export default {
           payload: `Published message: ${this.msg} to topic: ${this.pub_topic}`,
           ts: new Date().toLocaleTimeString(),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         })
       } catch (e) {
         this.log.push({
@@ -267,7 +287,9 @@ export default {
         })
       } catch (e) {
         this.log.push({
-          payload: this.$t("error_occurred") + `while subscribing to topic:  ${this.sub_topic}`,
+          payload:
+            this.$t("error_occurred") +
+            `while subscribing to topic:  ${this.sub_topic}`,
           source: "info",
           color: "#ff5555",
           ts: new Date().toLocaleTimeString(),
@@ -282,7 +304,7 @@ export default {
           (this.subscriptionState ? "subscribed" : "unsubscribed") +
           ` to topic: ${this.sub_topic}`,
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
     },

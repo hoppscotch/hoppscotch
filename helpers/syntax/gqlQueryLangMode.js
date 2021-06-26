@@ -6,7 +6,9 @@ export function defineGQLLanguageMode(ace) {
     (aceRequire, exports) => {
       const oop = aceRequire("ace/lib/oop")
 
-      const TextHighlightRules = aceRequire("ace/mode/text_highlight_rules").TextHighlightRules
+      const TextHighlightRules = aceRequire(
+        "ace/mode/text_highlight_rules"
+      ).TextHighlightRules
 
       const GQLQueryTextHighlightRules = function () {
         const keywords =
@@ -35,7 +37,7 @@ export function defineGQLLanguageMode(ace) {
             },
             {
               token: "paren.lparen",
-              regex: /[\[({]/,
+              regex: /[[({]/,
               next: "start",
             },
             {
@@ -74,7 +76,7 @@ export function defineGQLLanguageMode(ace) {
             },
             {
               token: "constant.numeric",
-              regex: /\d+\.?\d*[eE]?[\+\-]?\d*/,
+              regex: /\d+\.?\d*[eE]?[+-]?\d*/,
             },
             {
               token: "variable",
@@ -98,8 +100,9 @@ export function defineGQLLanguageMode(ace) {
     (aceRequire, exports) => {
       const oop = aceRequire("ace/lib/oop")
       const TextMode = aceRequire("ace/mode/text").Mode
-      const GQLQueryTextHighlightRules = aceRequire("ace/mode/gql-query-highlight")
-        .GQLQueryTextHighlightRules
+      const GQLQueryTextHighlightRules = aceRequire(
+        "ace/mode/gql-query-highlight"
+      ).GQLQueryTextHighlightRules
       const FoldMode = aceRequire("ace/mode/folding/cstyle").FoldMode
 
       const Mode = function () {

@@ -15,7 +15,7 @@ interface PWExtensionResponse {
 }
 
 interface PWExtensionHook {
-  getVersion: () => { major: number, minor: number }
+  getVersion: () => { major: number; minor: number }
   sendRequest: (req: PWExtensionRequestInfo) => Promise<PWExtensionResponse>
   cancelRunningRequest: () => void
 }

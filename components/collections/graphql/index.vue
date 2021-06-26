@@ -1,15 +1,19 @@
 <template>
-  <AppSection class="yellow" :label="$t('collections')" ref="collections" no-legend>
+  <AppSection label="collections">
     <div class="show-on-large-screen">
       <input
+        v-if="showCollActions"
+        v-model="filterText"
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        v-model="filterText"
-        class="rounded-t-lg"
+        class="input rounded-t-lg"
       />
     </div>
-    <CollectionsGraphqlAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <CollectionsGraphqlAdd
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+    />
     <CollectionsGraphqlEdit
       :show="showModalEdit"
       :editing-collection="editingCollection"
@@ -18,7 +22,6 @@
     />
     <CollectionsGraphqlAddFolder
       :show="showModalAddFolder"
-      :folder="editingFolder"
       :folder-path="editingFolderPath"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
@@ -28,13 +31,12 @@
       :collection-index="editingCollectionIndex"
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
+      :folder-path="editingFolderPath"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsGraphqlEditRequest
       :show="showModalEditRequest"
-      :collection-index="editingCollectionIndex"
-      :folder-index="editingFolderIndex"
-      :folder-name="editingFolderName"
+      :folder-path="editingFolderPath"
       :request="editingRequest"
       :request-index="editingRequestIndex"
       @hide-modal="displayModalEditRequest(false)"
@@ -43,54 +45,66 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-    <div class="border-b row-wrapper border-brdColor">
-      <button class="icon" @click="displayModalAdd(true)">
+    <div class="border-b row-wrapper border-divider">
+      <button class="icon button" @click="displayModalAdd(true)">
         <i class="material-icons">add</i>
         <span>{{ $t("new") }}</span>
       </button>
-      <button class="icon" @click="displayModalImportExport(true)">
+      <button
+        v-if="showCollActions"
+        class="icon button"
+        @click="displayModalImportExport(true)"
+      >
         {{ $t("import_export") }}
       </button>
     </div>
     <p v-if="collections.length === 0" class="info">
-      <i class="material-icons">help_outline</i> {{ $t("create_new_collection") }}
+      <i class="material-icons">help_outline</i>
+      {{ $t("create_new_collection") }}
     </p>
     <div class="virtual-list">
       <ul class="flex-col">
-        <li v-for="(collection, index) in filteredCollections" :key="collection.name">
+        <li
+          v-for="(collection, index) in filteredCollections"
+          :key="collection.name"
+        >
           <CollectionsGraphqlCollection
+            :picked="picked"
             :name="collection.name"
             :collection-index="index"
             :collection="collection"
             :doc="doc"
-            :isFiltered="filterText.length > 0"
+            :is-filtered="filterText.length > 0"
+            :saving-mode="savingMode"
             @edit-collection="editCollection(collection, index)"
             @add-folder="addFolder($event)"
             @edit-folder="editFolder($event)"
             @edit-request="editRequest($event)"
             @select-collection="$emit('use-collection', collection)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
     </div>
     <p v-if="filterText && filteredCollections.length === 0" class="info">
-      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{ filterText }}"
+      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{
+        filterText
+      }}"
     </p>
   </AppSection>
 </template>
 
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-</style>
-
 <script>
-import { fb } from "~/helpers/fb"
+import { graphqlCollections$, addGraphqlFolder } from "~/newstore/collections"
 
 export default {
   props: {
-    doc: Boolean,
+    // Whether to activate the ability to pick items (activates 'select' events)
+    savingMode: { type: Boolean, default: false },
+    doc: { type: Boolean, default: false },
+    picked: { type: Object, default: null },
+    // Whether to show the 'New' and 'Import/Export' actions
+    showCollActions: { type: Boolean, default: true },
   },
   data() {
     return {
@@ -111,32 +125,30 @@ export default {
       filterText: "",
     }
   },
+  subscriptions() {
+    return {
+      collections: graphqlCollections$,
+    }
+  },
   computed: {
-    collections() {
-      return fb.currentUser !== null
-        ? fb.currentGraphqlCollections
-        : this.$store.state.postwoman.collectionsGraphql
-    },
     filteredCollections() {
-      const collections =
-        fb.currentUser !== null
-          ? fb.currentGraphqlCollections
-          : this.$store.state.postwoman.collectionsGraphql
+      const collections = this.collections
 
       if (!this.filterText) return collections
 
       const filterText = this.filterText.toLowerCase()
       const filteredCollections = []
 
-      for (let collection of collections) {
+      for (const collection of collections) {
         const filteredRequests = []
         const filteredFolders = []
-        for (let request of collection.requests) {
-          if (request.name.toLowerCase().includes(filterText)) filteredRequests.push(request)
+        for (const request of collection.requests) {
+          if (request.name.toLowerCase().includes(filterText))
+            filteredRequests.push(request)
         }
-        for (let folder of collection.folders) {
+        for (const folder of collection.folders) {
           const filteredFolderRequests = []
-          for (let request of folder.requests) {
+          for (const request of folder.requests) {
             if (request.name.toLowerCase().includes(filterText))
               filteredFolderRequests.push(request)
           }
@@ -157,15 +169,6 @@ export default {
 
       return filteredCollections
     },
-  },
-  async mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showModalAdd = this.showModalEdit = this.showModalImportExport = this.showModalAddFolder = this.showModalEditFolder = this.showModalEditRequest = false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
   },
   methods: {
     displayModalAdd(shouldDisplay) {
@@ -198,42 +201,38 @@ export default {
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
       this.displayModalEdit(true)
-      this.syncCollections()
     },
     onAddFolder({ name, path }) {
-      const flag = "graphql"
-      this.$store.commit("postwoman/addFolder", {
-        name,
-        path,
-        flag,
-      })
-
+      addGraphqlFolder(name, path)
       this.displayModalAddFolder(false)
-      this.syncCollections()
     },
     addFolder(payload) {
-      const { folder, path } = payload
-      this.$data.editingFolder = folder
+      const { path } = payload
       this.$data.editingFolderPath = path
       this.displayModalAddFolder(true)
     },
     editFolder(payload) {
-      const { collectionIndex, folder, folderIndex } = payload
-      this.$data.editingCollectionIndex = collectionIndex
-      this.$data.editingFolder = folder
-      this.$data.editingFolderIndex = folderIndex
+      const { folder, folderPath } = payload
+      this.editingFolder = folder
+      this.editingFolderPath = folderPath
       this.displayModalEditFolder(true)
-      this.syncCollections()
     },
     editRequest(payload) {
-      const { collectionIndex, folderIndex, folderName, request, requestIndex } = payload
+      const {
+        collectionIndex,
+        folderIndex,
+        folderName,
+        request,
+        requestIndex,
+        folderPath,
+      } = payload
+      this.$data.editingFolderPath = folderPath
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolderIndex = folderIndex
       this.$data.editingFolderName = folderName
       this.$data.editingRequest = request
       this.$data.editingRequestIndex = requestIndex
       this.displayModalEditRequest(true)
-      this.syncCollections()
     },
     resetSelectedData() {
       this.$data.editingCollection = undefined
@@ -243,19 +242,12 @@ export default {
       this.$data.editingRequest = undefined
       this.$data.editingRequestIndex = undefined
     },
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collectionsGraphql)),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
 }
 </script>
+
+<style scoped lang="scss">
+.virtual-list {
+  max-height: calc(100vh - 270px);
+}
+</style>

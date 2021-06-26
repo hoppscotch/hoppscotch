@@ -1,8 +1,9 @@
 <template>
+  <!-- eslint-disable -->
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection :label="$t('request')" ref="request" no-legend>
+        <AppSection ref="request" label="request">
           <ul>
             <li class="shrink">
               <label for="method">{{ $t("method") }}</label>
@@ -10,7 +11,7 @@
                 <v-popover>
                   <input
                     id="method"
-                    class="method"
+                    class="input drop-down-input"
                     v-model="method"
                     :readonly="!customMethod"
                     autofocus
@@ -21,9 +22,10 @@
                       :key="`method-${index}`"
                     >
                       <button
-                        class="icon"
+                        class="icon button"
                         @click="
-                          customMethod = methodMenuItem == 'CUSTOM' ? true : false
+                          customMethod =
+                            methodMenuItem == 'CUSTOM' ? true : false
                           method = methodMenuItem
                         "
                         v-close-popover
@@ -40,7 +42,7 @@
               <input
                 v-if="!EXPERIMENTAL_URL_BAR_ENABLED"
                 :class="{ error: !isValidURL }"
-                class="border-dashed md:border-l border-brdColor"
+                class="input border-dashed md:border-l border-divider"
                 @keyup.enter="isValidURL ? sendRequest() : null"
                 id="url"
                 name="url"
@@ -59,6 +61,7 @@
                 :disabled="!isValidURL"
                 @click="sendRequest"
                 id="send"
+                class="button"
                 ref="sendButton"
               >
                 {{ $t("send") }}
@@ -66,7 +69,13 @@
                   <i class="material-icons">send</i>
                 </span>
               </button>
-              <button v-else @click="cancelRequest" id="send" ref="sendButton">
+              <button
+                v-else
+                @click="cancelRequest"
+                id="send"
+                class="button"
+                ref="sendButton"
+              >
                 {{ $t("cancel") }}
                 <span>
                   <i class="material-icons">clear</i>
@@ -76,20 +85,59 @@
           </ul>
           <ul>
             <li>
-              <label for="name" class="text-sm">{{ $t("token_req_name") }}</label>
-              <input id="name" name="name" type="text" v-model="name" class="text-sm" />
+              <label for="request-name" class="text-sm">
+                {{ $t("token_req_name") }}
+              </label>
+              <input
+                id="request-name"
+                name="request-name"
+                type="text"
+                v-model="name"
+                class="input text-sm"
+              />
             </li>
           </ul>
-          <div label="Request Body" v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)">
+          <div
+            label="Request Body"
+            v-if="['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)"
+          >
             <ul>
               <li>
-                <label for="contentType" class="text-sm">{{ $t("content_type") }}</label>
-                <SmartAutoComplete
+                <label for="contentType" class="text-sm">{{
+                  $t("content_type")
+                }}</label>
+                <span class="select-wrapper">
+                  <v-popover>
+                    <input
+                      id="contentType"
+                      class="input drop-down-input"
+                      v-model="contentType"
+                      readonly
+                    />
+                    <template slot="popover">
+                      <div
+                        v-for="(
+                          contentTypeMenuItem, index
+                        ) in validContentTypes"
+                        :key="`content-type-${index}`"
+                      >
+                        <button
+                          class="icon button"
+                          @click="contentType = contentTypeMenuItem"
+                          v-close-popover
+                        >
+                          {{ contentTypeMenuItem }}
+                        </button>
+                      </div>
+                    </template>
+                  </v-popover>
+                </span>
+                <!-- <SmartAutoComplete
                   :source="validContentTypes"
                   :spellcheck="false"
                   v-model="contentType"
                   styles="text-sm"
-                />
+                /> -->
               </li>
             </ul>
             <ul>
@@ -128,21 +176,21 @@
           <div class="row-wrapper">
             <span>
               <button
-                class="icon"
+                class="icon button"
                 @click="showCurlImportModal = !showCurlImportModal"
                 v-tooltip.bottom="$t('import_curl')"
               >
                 <i class="material-icons">import_export</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="showOpenAPIImportModal = !showOpenAPIImportModal"
                 v-tooltip.bottom="'import OpenAPI'"
               >
                 <i class="material-icons">folder_special</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="showCodegenModal = !showCodegenModal"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="$t('show_code')"
@@ -152,7 +200,7 @@
             </span>
             <span>
               <button
-                class="icon"
+                class="icon button"
                 @click="copyRequest"
                 ref="copyRequest"
                 :disabled="!isValidURL"
@@ -162,7 +210,7 @@
                 <i v-else class="material-icons">content_copy</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="saveRequest"
                 ref="saveRequest"
                 :disabled="!isValidURL"
@@ -171,7 +219,7 @@
                 <i class="material-icons">create_new_folder</i>
               </button>
               <button
-                class="icon"
+                class="icon button"
                 @click="clearContent('', $event)"
                 v-tooltip.bottom="$t('clear_all')"
                 ref="clearAll"
@@ -187,7 +235,8 @@
             <SmartTab
               :id="'params'"
               :label="
-                $t('parameters') + `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
+                $t('parameters') +
+                `${params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''}`
               "
               :selected="true"
             >
@@ -202,7 +251,10 @@
             <SmartTab
               :id="'headers'"
               :label="
-                $t('headers') + `${headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''}`
+                $t('headers') +
+                `${
+                  headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''
+                }`
               "
             >
               <HttpHeaders
@@ -215,14 +267,14 @@
             </SmartTab>
 
             <SmartTab :id="'authentication'" :label="$t('authentication')">
-              <AppSection :label="$t('authentication')" ref="authentication" no-legend>
+              <AppSection label="authentication">
                 <ul>
                   <li>
                     <div class="row-wrapper">
                       <label for="auth">{{ $t("authentication") }}</label>
                       <div>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="clearContent('auth', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
@@ -231,7 +283,7 @@
                       </div>
                     </div>
                     <span class="select-wrapper">
-                      <select id="auth" v-model="auth">
+                      <select class="select" id="auth" v-model="auth">
                         <option>None</option>
                         <option>Basic Auth</option>
                         <option>Bearer Token</option>
@@ -242,10 +294,16 @@
                 </ul>
                 <ul v-if="auth === 'Basic Auth'">
                   <li>
-                    <input placeholder="User" name="http_basic_user" v-model="httpUser" />
+                    <input
+                      class="input"
+                      placeholder="User"
+                      name="http_basic_user"
+                      v-model="httpUser"
+                    />
                   </li>
                   <li>
                     <input
+                      class="input"
                       placeholder="Password"
                       name="http_basic_passwd"
                       :type="passwordFieldType"
@@ -254,9 +312,19 @@
                   </li>
                   <div>
                     <li>
-                      <button class="icon" ref="switchVisibility" @click="switchVisibility">
-                        <i class="material-icons" v-if="passwordFieldType === 'text'">visibility</i>
-                        <i class="material-icons" v-if="passwordFieldType !== 'text'"
+                      <button
+                        class="icon button"
+                        ref="switchVisibility"
+                        @click="switchVisibility"
+                      >
+                        <i
+                          class="material-icons"
+                          v-if="passwordFieldType === 'text'"
+                          >visibility</i
+                        >
+                        <i
+                          class="material-icons"
+                          v-if="passwordFieldType !== 'text'"
                           >visibility_off</i
                         >
                       </button>
@@ -266,10 +334,15 @@
                 <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
                   <li>
                     <div class="row-wrapper">
-                      <input placeholder="Token" name="bearer_token" v-model="bearerToken" />
+                      <input
+                        class="input"
+                        placeholder="Token"
+                        name="bearer_token"
+                        v-model="bearerToken"
+                      />
                       <button
                         v-if="auth === 'OAuth 2.0'"
-                        class="icon"
+                        class="icon button"
                         @click="showTokenListModal = !showTokenListModal"
                         v-tooltip.bottom="$t('use_token')"
                       >
@@ -277,7 +350,7 @@
                       </button>
                       <button
                         v-if="auth === 'OAuth 2.0'"
-                        class="icon"
+                        class="icon button"
                         @click="showTokenRequest = !showTokenRequest"
                         v-tooltip.bottom="$t('get_token')"
                       >
@@ -287,39 +360,37 @@
                   </li>
                 </ul>
                 <div class="row-wrapper">
-                  <SmartToggle :on="!URL_EXCLUDES.auth" @change="setExclude('auth', !$event)">
+                  <SmartToggle
+                    :on="!URL_EXCLUDES.auth"
+                    @change="setExclude('auth', !$event)"
+                  >
                     {{ $t("include_in_url") }}
                   </SmartToggle>
                 </div>
               </AppSection>
 
-              <AppSection
-                v-if="showTokenRequest"
-                class="red"
-                label="Access Token Request"
-                ref="accessTokenRequest"
-              >
+              <AppSection v-if="showTokenRequest" label="accessTokenRequest">
                 <ul>
                   <li>
                     <div class="row-wrapper">
                       <label for="token-name">{{ $t("token_name") }}</label>
                       <div>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="showTokenRequestList = true"
                           v-tooltip.bottom="$t('manage_token_req')"
                         >
                           <i class="material-icons">library_add</i>
                         </button>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="clearContent('access_token', $event)"
                           v-tooltip.bottom="$t('clear')"
                         >
                           <i class="material-icons">clear_all</i>
                         </button>
                         <button
-                          class="icon"
+                          class="icon button"
                           @click="showTokenRequest = false"
                           v-tooltip.bottom="$t('close')"
                         >
@@ -328,6 +399,7 @@
                       </div>
                     </div>
                     <input
+                      class="input"
                       id="token-name"
                       :placeholder="$t('optional')"
                       name="token_name"
@@ -342,7 +414,10 @@
                       {{ $t("oidc_discovery_url") }}
                     </label>
                     <input
-                      :disabled="this.authUrl !== '' || this.accessTokenUrl !== ''"
+                      class="input"
+                      :disabled="
+                        this.authUrl !== '' || this.accessTokenUrl !== ''
+                      "
                       id="oidc-discovery-url"
                       name="oidc_discovery_url"
                       type="url"
@@ -355,6 +430,7 @@
                   <li>
                     <label for="auth-url">{{ $t("auth_url") }}</label>
                     <input
+                      class="input"
                       :disabled="this.oidcDiscoveryUrl !== ''"
                       id="auth-url"
                       name="auth_url"
@@ -370,6 +446,7 @@
                       {{ $t("access_token_url") }}
                     </label>
                     <input
+                      class="input"
                       :disabled="this.oidcDiscoveryUrl !== ''"
                       id="access-token-url"
                       name="access_token_url"
@@ -383,6 +460,7 @@
                   <li>
                     <label for="client-id">{{ $t("client_id") }}</label>
                     <input
+                      class="input"
                       id="client-id"
                       name="client_id"
                       type="text"
@@ -395,6 +473,7 @@
                   <li>
                     <label for="scope">{{ $t("scope") }}</label>
                     <input
+                      class="input"
                       id="scope"
                       name="scope"
                       type="text"
@@ -405,7 +484,10 @@
                 </ul>
                 <ul>
                   <li>
-                    <button class="icon" @click="handleAccessTokenRequest">
+                    <button
+                      class="icon button"
+                      @click="handleAccessTokenRequest"
+                    >
                       <i class="material-icons">vpn_key</i>
                       <span>{{ $t("request_token") }}</span>
                     </button>
@@ -414,14 +496,11 @@
               </AppSection>
             </SmartTab>
 
-            <SmartTab :id="'pre_request_script'" :label="$t('pre_request_script')">
-              <AppSection
-                v-if="showPreRequestScript"
-                class="orange"
-                :label="$t('pre_request_script')"
-                ref="preRequest"
-                no-legend
-              >
+            <SmartTab
+              :id="'pre_request_script'"
+              :label="$t('pre_request_script')"
+            >
+              <AppSection v-if="showPreRequestScript" label="preRequest">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -432,7 +511,7 @@
                           target="_blank"
                           rel="noopener"
                         >
-                          <button class="icon" v-tooltip="$t('wiki')">
+                          <button class="icon button" v-tooltip="$t('wiki')">
                             <i class="material-icons">help_outline</i>
                           </button>
                         </a>
@@ -443,7 +522,7 @@
                       :options="{
                         maxLines: '16',
                         minLines: '8',
-                        fontSize: '16px',
+                        fontSize: '15px',
                         autoScrollEditorIntoView: true,
                         showPrintMargin: false,
                         useWorker: false,
@@ -457,13 +536,7 @@
             </SmartTab>
 
             <SmartTab :id="'tests'" :label="$t('tests')">
-              <AppSection
-                v-if="testsEnabled"
-                class="orange"
-                :label="$t('tests')"
-                ref="postRequestTests"
-                no-legend
-              >
+              <AppSection v-if="testsEnabled" label="postRequestTests">
                 <ul>
                   <li>
                     <div class="row-wrapper">
@@ -474,7 +547,7 @@
                           target="_blank"
                           rel="noopener"
                         >
-                          <button class="icon" v-tooltip="$t('wiki')">
+                          <button class="icon button" v-tooltip="$t('wiki')">
                             <i class="material-icons">help_outline</i>
                           </button>
                         </a>
@@ -485,7 +558,7 @@
                       :options="{
                         maxLines: '16',
                         minLines: '8',
-                        fontSize: '16px',
+                        fontSize: '15px',
                         autoScrollEditorIntoView: true,
                         showPrintMargin: false,
                         useWorker: false,
@@ -498,7 +571,7 @@
                         <label>Test Reports</label>
                         <div>
                           <button
-                            class="icon"
+                            class="icon button"
                             @click="clearContent('tests', $event)"
                             v-tooltip.bottom="$t('clear')"
                           >
@@ -506,19 +579,27 @@
                           </button>
                         </div>
                       </div>
-                      <div v-for="(testReport, index) in testReports" :key="index">
+                      <div
+                        v-for="(testReport, index) in testReports"
+                        :key="index"
+                      >
                         <div v-if="testReport.startBlock" class="info">
                           <hr />
-                          <h4>{{ testReport.startBlock }}</h4>
+                          <h4 class="heading">{{ testReport.startBlock }}</h4>
                         </div>
-                        <p v-else-if="testReport.result" class="row-wrapper info">
+                        <p
+                          v-else-if="testReport.result"
+                          class="row-wrapper info"
+                        >
                           <span :class="testReport.styles.class">
                             <i class="material-icons">
                               {{ testReport.styles.icon }}
                             </i>
                             <span>&nbsp; {{ testReport.result }}</span>
                             <span v-if="testReport.message">
-                              <label>&nbsp; • &nbsp; {{ testReport.message }}</label>
+                              <label
+                                >&nbsp; • &nbsp; {{ testReport.message }}</label
+                              >
                             </span>
                           </span>
                         </p>
@@ -532,37 +613,52 @@
           </SmartTabs>
         </section>
 
-        <HttpResponse :response="response" :active="runningRequest" ref="response" />
+        <HttpResponse
+          :response="response"
+          :active="runningRequest"
+          ref="response"
+        />
       </div>
 
-      <aside v-if="activeSidebar" class="sticky-inner inner-right lg:max-w-md">
-        <section>
-          <SmartTabs>
-            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <History :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
-            </SmartTab>
+      <TranslateSlideLeft>
+        <aside
+          v-if="activeSidebar"
+          class="sticky-inner inner-right lg:max-w-md"
+        >
+          <section>
+            <SmartTabs>
+              <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+                <History
+                  :page="'rest'"
+                  @useHistory="handleUseHistory"
+                  ref="historyComponent"
+                />
+              </SmartTab>
 
-            <SmartTab :id="'openapi'" :label="'OpenAPI'">
-              <Openapi :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
-            </SmartTab>
+              <SmartTab :id="'openapi'" :label="'OpenAPI'">
+                <Openapi :page="'rest'" @useHistory="handleUseHistory" ref="historyComponent" />
+              </SmartTab>
 
-            <SmartTab :id="'collections'" :label="$t('collections')">
-              <Collections />
-            </SmartTab>
+              <SmartTab :id="'collections'" :label="$t('collections')">
+                <Collections />
+              </SmartTab>
 
-            <SmartTab :id="'env'" :label="$t('environments')">
-              <Environments @use-environment="useSelectedEnvironment($event)" />
-            </SmartTab>
+              <SmartTab :id="'env'" :label="$t('environments')">
+                <Environments />
+              </SmartTab>
+            </SmartTabs>
+          </section>
+        </aside>
+      </TranslateSlideLeft>
 
-            <SmartTab :id="'notes'" :label="$t('notes')">
-              <HttpNotes />
-            </SmartTab>
-          </SmartTabs>
-        </section>
-      </aside>
+      <SmartHideMenu
+        :active="activeSidebar"
+        @toggle="activeSidebar = !activeSidebar"
+      />
     </div>
 
     <CollectionsSaveRequest
+      mode="rest"
       :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
       :editing-request="editRequest"
@@ -597,12 +693,15 @@
       @hide-modal="showTokenListModal = false"
     />
 
-    <SmartModal v-if="showTokenRequestList" @close="showTokenRequestList = false">
+    <SmartModal
+      v-if="showTokenRequestList"
+      @close="showTokenRequestList = false"
+    >
       <div slot="header">
         <div class="row-wrapper">
-          <h3 class="title">{{ $t("manage_token_req") }}</h3>
+          <h3 class="heading">{{ $t("manage_token_req") }}</h3>
           <div>
-            <button class="icon" @click="showTokenRequestList = false">
+            <button class="icon button" @click="showTokenRequestList = false">
               <i class="material-icons">close</i>
             </button>
           </div>
@@ -614,7 +713,7 @@
           <div>
             <button
               :disabled="this.tokenReqs.length === 0"
-              class="icon"
+              class="icon button"
               @click="showTokenRequestList = false"
               v-tooltip.bottom="$t('use_token_req')"
             >
@@ -622,7 +721,7 @@
             </button>
             <button
               :disabled="this.tokenReqs.length === 0"
-              class="icon"
+              class="icon button"
               @click="removeOAuthTokenReq"
               v-tooltip.bottom="$t('delete')"
             >
@@ -635,11 +734,16 @@
             <span class="select-wrapper">
               <select
                 id="token-req-list"
+                class="select"
                 v-model="tokenReqSelect"
                 :disabled="this.tokenReqs.length === 0"
                 @change="tokenReqChange($event)"
               >
-                <option v-for="(req, index) in tokenReqs" :key="index" :value="req.name">
+                <option
+                  v-for="(req, index) in tokenReqs"
+                  :key="index"
+                  :value="req.name"
+                >
                   {{ req.name }}
                 </option>
               </select>
@@ -647,17 +751,23 @@
           </li>
         </ul>
         <label for="token-req-name">{{ $t("token_req_name") }}</label>
-        <input v-model="tokenReqName" />
+        <input class="input" v-model="tokenReqName" />
         <label for="token-req-details">
           {{ $t("token_req_details") }}
         </label>
-        <textarea id="token-req-details" readonly rows="7" v-model="tokenReqDetails"></textarea>
+        <textarea
+          id="token-req-details"
+          class="textarea"
+          readonly
+          rows="7"
+          v-model="tokenReqDetails"
+        ></textarea>
       </div>
       <div slot="footer">
         <div class="row-wrapper">
           <span></span>
           <span>
-            <button class="icon primary" @click="addOAuthTokenReq">
+            <button class="icon button primary" @click="addOAuthTokenReq">
               {{ $t("save_token_req") }}
             </button>
           </span>
@@ -668,6 +778,8 @@
 </template>
 
 <script>
+/* eslint-disable */
+
 import url from "url"
 import querystring from "querystring"
 import parseCurlCommand from "~/helpers/curlparser"
@@ -676,13 +788,20 @@ import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
 import { tokenRequest, oauthRedirect } from "~/helpers/oauth"
 import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
-import { fb } from "~/helpers/fb"
-import { hasPathParams, addPathParamsToVariables, getQueryParams } from "~/helpers/requestParams"
+import {
+  hasPathParams,
+  addPathParamsToVariables,
+  getQueryParams,
+} from "~/helpers/requestParams"
 import { parseUrlAndPath } from "~/helpers/utils/uri"
 import { httpValid } from "~/helpers/utils/valid"
-import { knownContentTypes, isJSONContentType } from "~/helpers/utils/contenttypes"
+import {
+  knownContentTypes,
+  isJSONContentType,
+} from "~/helpers/utils/contenttypes"
 import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import { getSettingSubject, applySetting } from "~/newstore/settings"
+import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
 
 export default {
@@ -714,7 +833,6 @@ export default {
       showSaveRequestModal: false,
       editRequest: {},
       activeSidebar: true,
-      fb,
       customMethod: false,
       files: [],
       filenames: "",
@@ -740,7 +858,9 @@ export default {
       SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
       PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
       URL_EXCLUDES: getSettingSubject("URL_EXCLUDES"),
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject("EXPERIMENTAL_URL_BAR_ENABLED"),
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
 
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
@@ -770,7 +890,10 @@ export default {
         }
         return ""
       }
-      if (!this.rawParams || this.rawParams === getDefaultParams(oldContentType)) {
+      if (
+        !this.rawParams ||
+        this.rawParams === getDefaultParams(oldContentType)
+      ) {
         this.rawParams = getDefaultParams(contentType)
       }
       this.setRouteQueryState()
@@ -830,9 +953,11 @@ export default {
       this.showSaveRequestModal = true
     },
     method() {
-      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(this.method)
-        ? "application/json"
-        : ""
+      this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(
+        this.method
+      )
+        ? this.contentType
+        : "application/json"
     },
     preRequestScript(val, oldVal) {
       this.uri = this.uri
@@ -852,14 +977,24 @@ export default {
     },
     uri: {
       get() {
-        return this.$store.state.request.uri ? this.$store.state.request.uri : this.url + this.path
+        return this.$store.state.request.uri
+          ? this.$store.state.request.uri
+          : this.url + this.path
       },
       set(value) {
         this.$store.commit("setState", { value, attribute: "uri" })
         let url = value
-        if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
-          let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-          environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+        if (
+          (this.preRequestScript && this.showPreRequestScript) ||
+          hasPathParams(this.params)
+        ) {
+          let environmentVariables = getEnvironmentVariablesFromScript(
+            this.preRequestScript
+          )
+          environmentVariables = addPathParamsToVariables(
+            this.params,
+            environmentVariables
+          )
           url = parseTemplateString(value, environmentVariables)
         }
         let result = parseUrlAndPath(url)
@@ -1131,7 +1266,9 @@ export default {
         try {
           const obj = JSON.parse(
             `{${bodyParams
-              .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+              .filter((item) =>
+                item.hasOwnProperty("active") ? item.active == true : true
+              )
               .filter(({ key }) => !!key)
               .map(({ key, value }) => `"${key}": "${value}"`)
               .join()}}`
@@ -1150,23 +1287,36 @@ export default {
         }
       } else {
         return bodyParams
-          .filter((item) => (item.hasOwnProperty("active") ? item.active == true : true))
+          .filter((item) =>
+            item.hasOwnProperty("active") ? item.active == true : true
+          )
           .filter(({ key }) => !!key)
-          .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+          .map(
+            ({ key, value }) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          )
           .join("&")
       }
     },
     queryString() {
       const result = getQueryParams(this.params)
-        .map(({ key, value }) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .map(
+          ({ key, value }) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+        )
         .join("&")
       return result === "" ? "" : `?${result}`
     },
     requestCode() {
       let headers = []
       if (this.preRequestScript || hasPathParams(this.params)) {
-        let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+        let environmentVariables = getEnvironmentVariablesFromScript(
+          this.preRequestScript
+        )
+        environmentVariables = addPathParamsToVariables(
+          this.params,
+          environmentVariables
+        )
         for (let k of this.headers.filter((item) =>
           item.hasOwnProperty("active") ? item.active == true : true
         )) {
@@ -1204,29 +1354,6 @@ export default {
     },
   },
   methods: {
-    useSelectedEnvironment(args) {
-      let environment = args.environment
-      let environments = args.environments
-      let preRequestScriptString = ""
-      for (let variable of environment.variables) {
-        preRequestScriptString += `pw.env.set('${variable.key}', '${variable.value}');\n`
-      }
-      for (let env of environments) {
-        if (env.name === environment.name) {
-          continue
-        }
-
-        if (env.name === "Globals" || env.name === "globals") {
-          preRequestScriptString += this.useSelectedEnvironment({
-            environment: env,
-            environments,
-          })
-        }
-      }
-      this.preRequestScript = preRequestScriptString
-      this.showPreRequestScript = true
-      return preRequestScriptString
-    },
     checkCollections() {
       const checkCollectionAvailability =
         this.$store.state.postwoman.collections &&
@@ -1272,16 +1399,29 @@ export default {
       }
 
       if (preRequestScript || hasPathParams(this.params)) {
-        let environmentVariables = getEnvironmentVariablesFromScript(preRequestScript)
-        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
-        requestOptions.url = parseTemplateString(requestOptions.url, environmentVariables)
+        let environmentVariables =
+          getEnvironmentVariablesFromScript(preRequestScript)
+        environmentVariables = addPathParamsToVariables(
+          this.params,
+          environmentVariables
+        )
+        requestOptions.url = parseTemplateString(
+          requestOptions.url,
+          environmentVariables
+        )
         if (!(requestOptions.data instanceof FormData)) {
           // TODO: Parse env variables for form data too
-          requestOptions.data = parseTemplateString(requestOptions.data, environmentVariables)
+          requestOptions.data = parseTemplateString(
+            requestOptions.data,
+            environmentVariables
+          )
         }
         for (let k in requestOptions.headers) {
           const kParsed = parseTemplateString(k, environmentVariables)
-          const valParsed = parseTemplateString(requestOptions.headers[k], environmentVariables)
+          const valParsed = parseTemplateString(
+            requestOptions.headers[k],
+            environmentVariables
+          )
           delete requestOptions.headers[k]
           requestOptions.headers[kParsed] = valParsed
         }
@@ -1417,17 +1557,22 @@ export default {
             usesPostScripts: this.testsEnabled,
           }
 
-          if ((this.preRequestScript && this.showPreRequestScript) || hasPathParams(this.params)) {
-            let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-            environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+          if (
+            (this.preRequestScript && this.showPreRequestScript) ||
+            hasPathParams(this.params)
+          ) {
+            let environmentVariables = getEnvironmentVariablesFromScript(
+              this.preRequestScript
+            )
+            environmentVariables = addPathParamsToVariables(
+              this.params,
+              environmentVariables
+            )
             entry.path = parseTemplateString(entry.path, environmentVariables)
             entry.url = parseTemplateString(entry.url, environmentVariables)
           }
 
-          this.$refs.historyComponent.addEntry(entry)
-          if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-            fb.writeHistory(entry)
-          }
+          addRESTHistoryEntry(entry)
         })()
       } catch (error) {
         this.runningRequest = false
@@ -1476,16 +1621,18 @@ export default {
               (this.preRequestScript && this.showPreRequestScript) ||
               hasPathParams(this.params)
             ) {
-              let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-              environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+              let environmentVariables = getEnvironmentVariablesFromScript(
+                this.preRequestScript
+              )
+              environmentVariables = addPathParamsToVariables(
+                this.params,
+                environmentVariables
+              )
               entry.path = parseTemplateString(entry.path, environmentVariables)
               entry.url = parseTemplateString(entry.url, environmentVariables)
             }
 
-            this.$refs.historyComponent.addEntry(entry)
-            if (fb.currentUser !== null && this.SYNC_HISTORY) {
-              fb.writeHistory(entry)
-            }
+            addRESTHistoryEntry(entry)
             return
           } else {
             this.response.status = error.message
@@ -1522,7 +1669,9 @@ export default {
       ) {
         try {
           syntheticResponse.body = JSON.parse(
-            new TextDecoder("utf-8").decode(new Uint8Array(syntheticResponse.body))
+            new TextDecoder("utf-8").decode(
+              new Uint8Array(syntheticResponse.body)
+            )
           )
         } catch (_e) {}
       }
@@ -1547,8 +1696,13 @@ export default {
     pathInputHandler() {
       if (this.uri.includes("?")) {
         const queryString = this.getQueryStringFromPath()
-        let environmentVariables = getEnvironmentVariablesFromScript(this.preRequestScript)
-        environmentVariables = addPathParamsToVariables(this.params, environmentVariables)
+        let environmentVariables = getEnvironmentVariablesFromScript(
+          this.preRequestScript
+        )
+        environmentVariables = addPathParamsToVariables(
+          this.params,
+          environmentVariables
+        )
         const params = this.queryStringToArray(queryString)
         let parsedParams = []
         for (let k of params.filter((item) =>
@@ -1586,7 +1740,12 @@ export default {
       })
     },
     addRequestParam() {
-      this.$store.commit("addParams", { key: "", value: "", type: "query", active: true })
+      this.$store.commit("addParams", {
+        key: "",
+        value: "",
+        type: "query",
+        active: true,
+      })
       return false
     },
     removeRequestParam(index) {
@@ -1646,7 +1805,10 @@ export default {
         this.$toast.info(this.$t("copied_to_clipboard"), {
           icon: "done",
         })
-        setTimeout(() => (this.$refs.copyRequest.innerHTML = this.copyButton), 1000)
+        setTimeout(
+          () => (this.$refs.copyRequest.innerHTML = this.copyButton),
+          1000
+        )
       }
     },
     setRouteQueryState() {
@@ -1655,7 +1817,9 @@ export default {
         const haveItems = [...this[key]].length
         if (haveItems && this[key]["value"] !== "") {
           // Exclude files fro  query params
-          const filesRemoved = this[key].filter((item) => !(item?.value?.[0] instanceof File))
+          const filesRemoved = this[key].filter(
+            (item) => !(item?.value?.[0] instanceof File)
+          )
           return `${key}=${JSON.stringify(filesRemoved)}&`
         }
         return ""
@@ -1673,7 +1837,9 @@ export default {
         .filter((item) => item !== null)
         .map((item) => flat(item))
       const deeps = ["headers", "params"].map((item) => deep(item))
-      const bodyParams = this.rawInput ? [flat("rawParams")] : [deep("bodyParams")]
+      const bodyParams = this.rawInput
+        ? [flat("rawParams")]
+        : [deep("bodyParams")]
       history.replaceState(
         window.location.href,
         "",
@@ -1683,7 +1849,8 @@ export default {
       )
     },
     setRouteQueries(queries) {
-      if (typeof queries !== "object") throw new Error("Route query parameters must be a Object")
+      if (typeof queries !== "object")
+        throw new Error("Route query parameters must be a Object")
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
           this[key] = JSON.parse(decodeURI(encodeURI(queries[key])))
@@ -1718,7 +1885,9 @@ export default {
       const { value: text } = document.getElementById("import-curl")
       try {
         const parsedCurl = parseCurlCommand(text)
-        const { origin, pathname } = new URL(parsedCurl.url.replace(/"/g, "").replace(/'/g, ""))
+        const { origin, pathname } = new URL(
+          parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
+        )
         this.url = origin
         this.path = pathname
         this.uri = this.url + this.path
@@ -1755,7 +1924,8 @@ export default {
       }
     },
     switchVisibility() {
-      this.passwordFieldType = this.passwordFieldType === "password" ? "text" : "password"
+      this.passwordFieldType =
+        this.passwordFieldType === "password" ? "text" : "password"
     },
     clearContent(name, { target }) {
       switch (name) {
@@ -1825,15 +1995,12 @@ export default {
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(() => (target.innerHTML = '<i class="material-icons">clear_all</i>'), 1000)
+      setTimeout(
+        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
+        1000
+      )
     },
     saveRequest() {
-      if (!this.checkCollections()) {
-        this.$toast.error(this.$t("create_collection"), {
-          icon: "error",
-        })
-        return
-      }
       let urlAndPath = parseUrlAndPath(this.uri)
       this.editRequest = {
         url: decodeURI(urlAndPath.url),
@@ -1851,12 +2018,17 @@ export default {
         rawInput: this.rawInput,
         contentType: this.contentType,
         requestType: this.requestType,
-        preRequestScript: this.showPreRequestScript == true ? this.preRequestScript : null,
+        preRequestScript:
+          this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
         name: this.requestName,
       }
       if (this.selectedRequest.url) {
-        this.editRequest = Object.assign({}, this.selectedRequest, this.editRequest)
+        this.editRequest = Object.assign(
+          {},
+          this.selectedRequest,
+          this.editRequest
+        )
       }
       this.showSaveRequestModal = true
     },
@@ -1884,7 +2056,10 @@ export default {
       this.rawParams = rawParams
     },
     async handleAccessTokenRequest() {
-      if (this.oidcDiscoveryUrl === "" && (this.authUrl === "" || this.accessTokenUrl === "")) {
+      if (
+        this.oidcDiscoveryUrl === "" &&
+        (this.authUrl === "" || this.accessTokenUrl === "")
+      ) {
         this.$toast.error(this.$t("complete_config_urls"), {
           icon: "error",
         })
@@ -1959,7 +2134,9 @@ export default {
     },
     removeOAuthTokenReq(index) {
       const oldTokenReqs = this.tokenReqs.slice()
-      const targetReqIndex = this.tokenReqs.findIndex(({ name }) => name === this.tokenReqName)
+      const targetReqIndex = this.tokenReqs.findIndex(
+        ({ name }) => name === this.tokenReqName
+      )
       if (targetReqIndex < 0) return
       this.$store.commit("removeOAuthTokenReq", targetReqIndex)
       this.$toast.error(this.$t("deleted"), {
@@ -1974,8 +2151,11 @@ export default {
       })
     },
     tokenReqChange({ target }) {
-      const { details, name } = this.tokenReqs.find(({ name }) => name === target.value)
-      const { oidcDiscoveryUrl, authUrl, accessTokenUrl, clientId, scope } = details
+      const { details, name } = this.tokenReqs.find(
+        ({ name }) => name === target.value
+      )
+      const { oidcDiscoveryUrl, authUrl, accessTokenUrl, clientId, scope } =
+        details
       this.tokenReqName = name
       this.oidcDiscoveryUrl = oidcDiscoveryUrl
       this.authUrl = authUrl
@@ -2010,10 +2190,6 @@ export default {
         e.preventDefault()
         this.$refs.clearAll.click()
       }
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showCurlImportModal = this.showTokenListModal = this.showTokenRequestList = this.showSaveRequestModal = this.showCodegenModal = false
-      }
       if ((e.key === "g" || e.key === "G") && e.altKey) {
         this.method = "GET"
       }
@@ -2030,16 +2206,27 @@ export default {
         this.method = "DELETE"
       }
       if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
-        this.method = this.methodMenuItems[--this.currentMethodIndex % this.methodMenuItems.length]
-      } else if (e.key == "ArrowDown" && e.altKey && this.currentMethodIndex < 9) {
-        this.method = this.methodMenuItems[++this.currentMethodIndex % this.methodMenuItems.length]
+        this.method =
+          this.methodMenuItems[
+            --this.currentMethodIndex % this.methodMenuItems.length
+          ]
+      } else if (
+        e.key == "ArrowDown" &&
+        e.altKey &&
+        this.currentMethodIndex < 9
+      ) {
+        this.method =
+          this.methodMenuItems[
+            ++this.currentMethodIndex % this.methodMenuItems.length
+          ]
       }
     }
     document.addEventListener("keydown", this._keyListener.bind(this))
     await this.oauthRedirectReq()
   },
   created() {
-    if (Object.keys(this.$route.query).length) this.setRouteQueries(this.$route.query)
+    if (Object.keys(this.$route.query).length)
+      this.setRouteQueries(this.$route.query)
     this.$watch(
       (vm) => [
         vm.name,

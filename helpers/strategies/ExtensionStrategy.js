@@ -5,13 +5,18 @@ export const hasExtensionInstalled = () =>
   typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined"
 
 export const hasChromeExtensionInstalled = () =>
-  hasExtensionInstalled() && /Chrome/i.test(navigator.userAgent) && /Google/i.test(navigator.vendor)
+  hasExtensionInstalled() &&
+  /Chrome/i.test(navigator.userAgent) &&
+  /Google/i.test(navigator.vendor)
 
 export const hasFirefoxExtensionInstalled = () =>
   hasExtensionInstalled() && /Firefox/i.test(navigator.userAgent)
 
 export const cancelRunningExtensionRequest = () => {
-  if (hasExtensionInstalled() && window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest) {
+  if (
+    hasExtensionInstalled() &&
+    window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest
+  ) {
     window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest()
   }
 }

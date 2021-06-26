@@ -1,83 +1,36 @@
 <template>
   <div class="autocomplete-wrapper">
     <input
+      ref="acInput"
+      v-model="text"
+      class="input"
       type="text"
       :placeholder="placeholder"
-      v-model="text"
-      @input="updateSuggestions"
-      @keyup="updateSuggestions"
-      @click="updateSuggestions"
-      @keydown="handleKeystroke"
-      ref="acInput"
       :spellcheck="spellcheck"
       :autocapitalize="autocapitalize"
       :autocorrect="spellcheck"
       :class="styles"
+      @input="updateSuggestions"
+      @keyup="updateSuggestions"
+      @click="updateSuggestions"
+      @keydown="handleKeystroke"
     />
     <ul
-      class="suggestions"
       v-if="suggestions.length > 0 && suggestionsVisible"
+      class="suggestions"
       :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }"
     >
       <li
         v-for="(suggestion, index) in suggestions"
-        @click.prevent="forceSuggestion(suggestion)"
-        :class="{ active: currentSuggestionIndex === index }"
         :key="index"
+        :class="{ active: currentSuggestionIndex === index }"
+        @click.prevent="forceSuggestion(suggestion)"
       >
         {{ suggestion }}
       </li>
     </ul>
   </div>
 </template>
-
-<style scoped lang="scss">
-.autocomplete-wrapper {
-  @apply relative;
-
-  input:focus + ul.suggestions,
-  ul.suggestions:hover {
-    @apply block;
-  }
-
-  ul.suggestions {
-    @apply hidden;
-    @apply bg-actColor;
-    @apply absolute;
-    @apply mx-2;
-    @apply left-0;
-    @apply z-50;
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-150;
-    @apply shadow-lg;
-
-    top: calc(100% - 8px);
-    border-radius: 0 0 8px 8px;
-
-    li {
-      @apply w-full;
-      @apply block;
-      @apply py-2;
-      @apply px-4;
-      @apply text-sm;
-      @apply font-mono;
-      @apply font-normal;
-
-      &:last-child {
-        border-radius: 0 0 8px 8px;
-      }
-
-      &:hover,
-      &.active {
-        @apply bg-acColor;
-        @apply text-actColor;
-        @apply cursor-pointer;
-      }
-    }
-  }
-}
-</style>
 
 <script>
 export default {
@@ -117,12 +70,6 @@ export default {
     },
   },
 
-  watch: {
-    text() {
-      this.$emit("input", this.text)
-    },
-  },
-
   data() {
     return {
       text: this.value,
@@ -131,6 +78,45 @@ export default {
       currentSuggestionIndex: -1,
       suggestionsVisible: false,
     }
+  },
+
+  computed: {
+    /**
+     * Gets the suggestions list to be displayed under the input box.
+     *
+     * @returns {default.props.source|{type, required}}
+     */
+    suggestions() {
+      const input = this.text.substring(0, this.selectionStart)
+
+      return (
+        this.source
+          .filter(
+            (entry) =>
+              entry.toLowerCase().startsWith(input.toLowerCase()) &&
+              input.toLowerCase() !== entry.toLowerCase()
+          )
+          // Cut off the part that's already been typed.
+          .map((entry) => entry.substring(this.selectionStart))
+          // We only want the top 6 suggestions.
+          .slice(0, 6)
+      )
+    },
+  },
+
+  watch: {
+    text() {
+      this.$emit("input", this.text)
+    },
+    value(newValue) {
+      this.text = newValue
+    },
+  },
+
+  mounted() {
+    this.updateSuggestions({
+      target: this.$refs.acInput,
+    })
   },
 
   methods: {
@@ -151,7 +137,7 @@ export default {
     },
 
     forceSuggestion(text) {
-      let input = this.text.substring(0, this.selectionStart)
+      const input = this.text.substring(0, this.selectionStart)
       this.text = input + text
 
       this.selectionStart = this.text.length
@@ -164,7 +150,9 @@ export default {
         case "ArrowUp":
           event.preventDefault()
           this.currentSuggestionIndex =
-            this.currentSuggestionIndex - 1 >= 0 ? this.currentSuggestionIndex - 1 : 0
+            this.currentSuggestionIndex - 1 >= 0
+              ? this.currentSuggestionIndex - 1
+              : 0
           break
 
         case "ArrowDown":
@@ -175,51 +163,69 @@ export default {
               : this.suggestions.length - 1
           break
 
-        case "Tab":
-          let activeSuggestion = this.suggestions[
-            this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
-          ]
+        case "Tab": {
+          const activeSuggestion =
+            this.suggestions[
+              this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
+            ]
 
           if (!activeSuggestion) {
             return
           }
 
           event.preventDefault()
-          let input = this.text.substring(0, this.selectionStart)
+          const input = this.text.substring(0, this.selectionStart)
           this.text = input + activeSuggestion
           break
+        }
       }
     },
   },
-
-  computed: {
-    /**
-     * Gets the suggestions list to be displayed under the input box.
-     *
-     * @returns {default.props.source|{type, required}}
-     */
-    suggestions() {
-      let input = this.text.substring(0, this.selectionStart)
-
-      return (
-        this.source
-          .filter(
-            (entry) =>
-              entry.toLowerCase().startsWith(input.toLowerCase()) &&
-              input.toLowerCase() !== entry.toLowerCase()
-          )
-          // Cut off the part that's already been typed.
-          .map((entry) => entry.substring(this.selectionStart))
-          // We only want the top 6 suggestions.
-          .slice(0, 6)
-      )
-    },
-  },
-
-  mounted() {
-    this.updateSuggestions({
-      target: this.$refs.acInput,
-    })
-  },
 }
 </script>
+
+<style scoped lang="scss">
+.autocomplete-wrapper {
+  @apply relative;
+
+  input:focus + ul.suggestions,
+  ul.suggestions:hover {
+    @apply block;
+  }
+
+  ul.suggestions {
+    @apply hidden;
+    @apply bg-primary;
+    @apply absolute;
+    @apply mx-2;
+    @apply left-0;
+    @apply z-50;
+    @apply transition;
+    @apply ease-in-out;
+    @apply duration-150;
+    @apply shadow-lg;
+
+    top: calc(100% - 8px);
+    border-radius: 0 0 8px 8px;
+
+    li {
+      @apply w-full;
+      @apply block;
+      @apply py-2 px-4;
+      @apply text-sm;
+      @apply font-mono;
+
+      &:last-child {
+        border-radius: 0 0 8px 8px;
+      }
+
+      &:hover,
+      &.active {
+        @apply bg-accent;
+        @apply text-primary;
+        @apply cursor-pointer;
+      }
+    }
+  }
+}
+</style>

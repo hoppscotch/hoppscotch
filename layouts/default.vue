@@ -5,7 +5,7 @@
         <AppSidenav />
         <main>
           <AppHeader />
-          <nuxt />
+          <nuxt class="container" />
           <AppFooter />
         </main>
       </div>
@@ -14,19 +14,23 @@
 </template>
 
 <script>
-import { setupLocalPersistence } from "~/newstore/localpersistence"
+import {
+  setupLocalPersistence,
+  getLocalConfig,
+} from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
+import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
+import { registerApolloAuthUpdate } from "~/helpers/apollo"
+import { initializeFirebase } from "~/helpers/fb"
 
 export default {
   beforeMount() {
-    let color = localStorage.getItem("THEME_COLOR") || "green"
+    registerApolloAuthUpdate()
+
+    const color = getLocalConfig("THEME_COLOR") || "green"
     document.documentElement.setAttribute("data-accent", color)
   },
   async mounted() {
-    if (process.client) {
-      document.body.classList.add("afterLoad")
-    }
-
     performMigrations()
 
     console.log(
@@ -37,6 +41,7 @@ export default {
       "%cContribute: https://github.com/hoppscotch/hoppscotch",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
+
     const workbox = await window.$workbox
     if (workbox) {
       workbox.addEventListener("installed", (event) => {
@@ -48,9 +53,9 @@ export default {
             action: [
               {
                 text: this.$t("reload"),
-                onClick: (e, toastObject) => {
+                onClick: (_, toastObject) => {
                   toastObject.goAway(0)
-                  this.$router.push("/", () => window.location.reload())
+                  window.location.reload()
                 },
               },
             ],
@@ -60,6 +65,9 @@ export default {
     }
 
     setupLocalPersistence()
+
+    initializeFirebase()
+    initUserInfo()
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

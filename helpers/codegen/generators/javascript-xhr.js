@@ -3,6 +3,7 @@ import { isJSONContentType } from "~/helpers/utils/contenttypes"
 export const JavascriptXhrCodegen = {
   id: "js-xhr",
   name: "JavaScript XHR",
+  language: "javascript",
   generator: ({
     auth,
     httpUser,
@@ -27,11 +28,14 @@ export const JavascriptXhrCodegen = {
       `xhr.open('${method}', '${url}${pathName}${queryString}', true, ${user}, ${password})`
     )
     if (auth === "Bearer Token" || auth === "OAuth 2.0") {
-      requestString.push(`xhr.setRequestHeader('Authorization', 'Bearer ${bearerToken}')`)
+      requestString.push(
+        `xhr.setRequestHeader('Authorization', 'Bearer ${bearerToken}')`
+      )
     }
     if (headers) {
       headers.forEach(({ key, value }) => {
-        if (key) requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
+        if (key)
+          requestString.push(`xhr.setRequestHeader('${key}', '${value}')`)
       })
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
@@ -41,7 +45,9 @@ export const JavascriptXhrCodegen = {
       } else if (contentType.includes("x-www-form-urlencoded")) {
         requestBody = `"${requestBody}"`
       }
-      requestString.push(`xhr.setRequestHeader('Content-Type', '${contentType}; charset=utf-8')`)
+      requestString.push(
+        `xhr.setRequestHeader('Content-Type', '${contentType}; charset=utf-8')`
+      )
       requestString.push(`xhr.send(${requestBody})`)
     } else {
       requestString.push("xhr.send()")

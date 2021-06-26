@@ -1,10 +1,10 @@
 <template>
-  <SmartModal v-if="show" @close="show = false">
+  <SmartModal v-if="show" @close="$emit('hide-modal')">
     <div slot="header">
       <div class="row-wrapper">
-        <h3 class="title">{{ $t("new_folder") }}</h3>
+        <h3 class="heading">{{ $t("new_folder") }}</h3>
         <div>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             <i class="material-icons">close</i>
           </button>
         </div>
@@ -13,9 +13,10 @@
     <div slot="body" class="flex flex-col">
       <label for="selectLabel">{{ $t("label") }}</label>
       <input
-        type="text"
         id="selectLabel"
         v-model="name"
+        class="input"
+        type="text"
         :placeholder="$t('my_new_folder')"
         @keyup.enter="addFolder"
       />
@@ -24,10 +25,10 @@
       <div class="row-wrapper">
         <span></span>
         <span>
-          <button class="icon" @click="hideModal">
+          <button class="icon button" @click="hideModal">
             {{ $t("cancel") }}
           </button>
-          <button class="icon primary" @click="addFolder">
+          <button class="icon button primary" @click="addFolder">
             {{ $t("save") }}
           </button>
         </span>
@@ -40,13 +41,13 @@
 export default {
   props: {
     show: Boolean,
-    folder: Object,
-    folderPath: String,
-    collectionIndex: Number,
+    folder: { type: Object, default: () => {} },
+    folderPath: { type: String, default: null },
+    collectionIndex: { type: Number, default: null },
   },
   data() {
     return {
-      name: undefined,
+      name: null,
     }
   },
   methods: {
@@ -56,8 +57,10 @@ export default {
         folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
+      this.hideModal()
     },
     hideModal() {
+      this.name = null
       this.$emit("hide-modal")
     },
   },

@@ -25,6 +25,8 @@ import { ShellWgetCodegen } from "./generators/shell-wget"
  *
  * id: string
  * name: string
+ * language: string // a string identifier used in ace editor for syntax highlighting
+ *                  // see node_modules/ace-builds/src-noconflict/mode-** files for valid value
  * generator: (ctx) => string
  *
  */

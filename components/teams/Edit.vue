@@ -400,10 +400,10 @@ export default {
             })
       }
       this.hideModal()
-      this.newMembers = []
     },
     hideModal() {
       this.rename = null
+      this.newMembers = []
       this.$emit("hide-modal")
     },
   },

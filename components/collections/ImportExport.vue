@@ -71,7 +71,7 @@
       </div>
     </div>
     <div slot="body" class="flex flex-col">
-      <div v-if="mode == 'import_export'" class="flex flex-col items-start p-2">
+      <div v-if="mode == 'import_export'" class="flex flex-col p-2 items-start">
         <button
           v-tooltip="$t('replace_current')"
           class="icon button"
@@ -159,7 +159,7 @@
             <span></span>
             <span>
               <button
-                class="m-2 icon primary"
+                class="m-2 icon button primary"
                 :disabled="mySelectedCollectionID == undefined"
                 @click="importFromMyCollections"
               >

@@ -356,6 +356,7 @@ export default {
       if (isDev) {
         config.mode = "development"
       }
+
       config.node = {
         fs: "empty",
       }
@@ -366,6 +367,7 @@ export default {
           use: { loader: "worker-loader" },
           exclude: /(node_modules)/,
         })
+
         config.module.rules.push({
           test: /\.md$/i,
           use: { loader: "raw-loader" },

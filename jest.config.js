@@ -2,11 +2,12 @@ module.exports = {
   moduleFileExtensions: ["ts", "js", "json", "vue"],
   watchman: false,
   moduleNameMapper: {
-    ".+\\.(svg)\\?inline$": "<rootDir>/__mocks__/svgMock.js",
+    "^@/(.*)$": "<rootDir>/$1",
     "^~/(.*)$": "<rootDir>/$1",
-    "^~~/(.*)$": "<rootDir>/$1",
+    "^vue$": "vue/dist/vue.common.js",
   },
   transform: {
+    "^.+\\.ts$": "ts-jest",
     "^.+\\.js$": "babel-jest",
     ".*\\.(vue)$": "vue-jest",
   },

@@ -42,12 +42,6 @@ export const SETTINGS_KEYS = [
 
 export const state = () => ({
   settings: {},
-  environments: [
-    {
-      name: "My Environment Variables",
-      variables: [],
-    },
-  ],
   editingEnvironment: {},
   selectedRequest: {},
   selectedGraphqlRequest: {},

@@ -315,6 +315,7 @@
   "use_team": "Use Team",
   "add_one_member": "(add at least one member)",
   "permissions": "Permissions",
+  "invalid_member_permission": "Please provide a valid permission to the team member",
   "email": "E-mail",
   "create_new_team": "Create new team",
   "new_team_created": "New team created",

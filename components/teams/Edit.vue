@@ -312,13 +312,26 @@ export default {
         })
         return
       }
+      let invalidEmail = false
       this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
           this.$toast.error(this.$t("invalid_emailID_format"), {
             icon: "error",
           })
+          invalidEmail = true
         }
       })
+      if (invalidEmail) return
+      let invalidPermission = false
+      this.$data.newMembers.forEach((element) => {
+        if (!element.value) {
+          this.$toast.error(this.$t("invalid_member_permission"), {
+            icon: "error",
+          })
+          invalidPermission = true
+        }
+      })
+      if (invalidPermission) return
       this.$data.newMembers.forEach((element) => {
         // Call to the graphql mutation
         teamUtils
@@ -333,17 +346,15 @@ export default {
             this.$toast.success(this.$t("team_saved"), {
               icon: "done",
             })
-            this.hideModal()
           })
           .catch((error) => {
             // Error
-            this.$toast.error(this.$t("error_occurred"), {
+            this.$toast.error(error, {
               icon: "done",
             })
             console.error(error)
           })
       })
-      let messageShown = true
       this.members.forEach((element) => {
         teamUtils
           .updateTeamMemberRole(
@@ -354,22 +365,15 @@ export default {
           )
           .then(() => {
             // Result
-            if (messageShown) {
-              this.$toast.success(this.$t("role_updated"), {
-                icon: "done",
-              })
-              messageShown = false
-            }
-            this.hideModal()
+            this.$toast.success(this.$t("role_updated"), {
+              icon: "done",
+            })
           })
           .catch((error) => {
             // Error
-            if (messageShown) {
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
-              })
-              messageShown = false
-            }
+            this.$toast.error(error, {
+              icon: "done",
+            })
             console.error(error)
           })
       })
@@ -389,7 +393,6 @@ export default {
               this.$toast.success(this.$t("team_saved"), {
                 icon: "done",
               })
-              this.hideModal()
             })
             .catch((error) => {
               // Error

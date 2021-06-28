@@ -21,15 +21,6 @@
   </p>
 </div>
 
-<p align="center">
-  <b>Sponsored by</b>
-  <br>
-  <br>
-  <a href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello" title="Appwrite" target="_blank">
-    <img height="60px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/appwrite-banner.svg" title="Appwrite">
-  </a>
-</p>
-
 <div align="center">
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_dark.png" alt="Screenshot" width="100%"></a>
 </div>
@@ -47,10 +38,6 @@
 
 [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=Telegram)](https://hoppscotch.io/telegram) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord)
 
-#### **Support**
-
-[![Sponsor on GitHub](https://img.shields.io/badge/sponsor-GitHub-181717?logo=github)](https://github.com/sponsors/hoppscotch) [![Contribute on Open Collective](https://img.shields.io/badge/contribute-Open%20Collective-7FADF2?logo=open-collective)](https://opencollective.com/hoppscotch) [![Join on Patreon](https://img.shields.io/badge/join-Patreon-F96854?logo=patreon)](https://www.patreon.com/liyasthomas) [![Donate on PayPal](https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal)](https://www.paypal.me/liyascthomas)
-
 <details>
   <summary><i>Table of contents</i></summary>
 
@@ -61,21 +48,12 @@
 - [Usage](#usage)
 - [Built with](#built-with)
 - [Developing](#developing)
-  - [Browser based development environment](#browser-based-development-environment)
-  - [Local development environment](#local-development-environment)
-  - [Docker compose](#docker-compose)
 - [Docker](#docker)
 - [Releasing](#releasing)
 - [Contributing](#contributing)
 - [Continuous Integration](#continuous-integration)
 - [Changelog](#changelog)
 - [Authors](#authors)
-  - [Lead Developers](#lead-developers)
-  - [Collaborators](#collaborators-)
-  - [Financial Contributors](#financial-contributors)
-    - [GitHub Sponsors](#github-sponsors)
-    - [Open Collective](#open-collective)
-  - [Code Contributors](#code-contributors)
 - [License](#license)
 
 ---
@@ -448,18 +426,18 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 
 _Sample keys only works with the [production build](https://hoppscotch.io)._
 
-#### Browser based development environment
+### Browser based development environment
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
 
-#### Local development environment
+### Local development environment
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install dependencies by running `npm install` within the directory that you cloned (probably `hoppscotch`).
 3. Start the development server with `npm run dev`.
 4. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
-#### Docker compose
+### Docker compose
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Run `docker-compose up`
@@ -510,164 +488,6 @@ We use [GitHub Actions](https://github.com/features/actions) for continuous inte
 See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 ## **Authors**
-
-### Lead Developers
-
-- **[Liyas Thomas](https://github.com/liyasthomas)** - _Author_
-- **[Andrew Bastin](https://github.com/andrewbastin)** - _Lead developer_
-- **[Caneco](https://twitter.com/caneco)** - _Logo and banner designer_
-
-### Collaborators <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://liyasthomas.web.app"><img src="https://avatars1.githubusercontent.com/u/10395817?v=4" width="100px;" alt=""/><br /><sub><b>Liyas Thomas</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=liyasthomas" title="Code">💻</a> <a href="#design-liyasthomas" title="Design">🎨</a></td>
-    <td align="center"><a href="https://github.com/AndrewBastin"><img src="https://avatars2.githubusercontent.com/u/9131943?v=4" width="100px;" alt=""/><br /><sub><b>Andrew Bastin</b></sub></a><br /><a href="https://github.com/liyasthomas/hoppscotch/commits?author=AndrewBastin" title="Code">💻</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-enable -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-See the list of [contributors](https://github.com/hoppscotch/hoppscotch/graphs/contributors) who participated in this project.
-
-### Financial Contributors
-
-Become a financial contributor and help us sustain our community [[Support](#support)].
-
-#### GitHub Sponsors
-
-<p align="center">
-<a href="https://simplescraper.io/?utm_source=hs" target="_blank" rel="noopener">
-<img
-  width="100"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Simplescraper.png"
-	alt="Simplescraper"
-/>
-</a>
-</p>
-
-<p align="center">
-<a href="https://github.com/anmolm96" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/anmolm96.png?size=64"
-	alt="Anmol Maini"
-/>
-</a>
-<a href="https://github.com/juzhiyuan" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/juzhiyuan.png?size=64"
-	alt="琚致远"
-/>
-</a>
-<a href="https://github.com/eldadfux" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/eldadfux.png?size=64"
-	alt="Eldad A. Fux"
-/>
-</a>
-<a href="https://github.com/aishwarydhare" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/aishwarydhare.png?size=64"
-	alt="Aishwary Dhare"
-/>
-</a>
-<a href="https://github.com/rithish" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/rithish.png?size=64"
-	alt="Rithish"
-/>
-</a>
-<a href="https://github.com/ankumar" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/ankumar.png?size=64"
-	alt="Anil Kumar"
-/>
-</a>
-<a href="https://github.com/gpeal" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/gpeal.png?size=64"
-	alt="Gabriel Peal"
-/>
-</a>
-<a href="https://github.com/donokuda" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/donokuda.png?size=64"
-	alt="Don Okuda"
-/>
-</a>
-<a href="https://github.com/ebrescia" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/ebrescia.png?size=64"
-	alt="Erica Brescia"
-/>
-</a>
-<a href="https://github.com/mlynch" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/mlynch.png?size=64"
-	alt="Max Lynch"
-/>
-</a>
-<a href="https://github.com/brianshaler" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/brianshaler.png?size=64"
-	alt="Brian Shaler"
-/>
-</a>
-<a href="https://github.com/mxstbr" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/mxstbr.png?size=64"
-	alt="Max Stoiber"
-/>
-</a>
-<a href="https://github.com/jjcaine" target="_blank" rel="noopener">
-<img
-  width="64"
-	src="https://github.com/jjcaine.png?size=64"
-	alt="John Caine"
-/>
-</a>
-</p>
-
-#### Open Collective
-
-<p align="center">
-<a href="https://pipedream.com/?ref=hoppscotch" target="_blank" rel="noopener">
-<img
-  width="100"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/pipedream.png"
-	alt="pipedream"
-/>
-</a>
-<a href="https://paw.cloud/?utm_source=hoppscotch&utm_medium=github&utm_campaign=hoppscotch-sponsorship" target="_blank" rel="noopener">
-<img
-  width="100"
-	src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/Paw-Logo-for-Hoppscotch.png"
-	alt="Paw"
-/>
-</a>
-</p>
-
-### Code Contributors
 
 This project exists thanks to all the people who contribute [[Contribute](CONTRIBUTING.md)].
 

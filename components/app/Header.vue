@@ -17,29 +17,6 @@
         ></iframe>
       </span>
       <span>
-        <a
-          href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
-          target="_blank"
-          rel="noopener"
-          class="
-            items-center
-            px-4
-            py-2
-            mx-4
-            font-mono
-            text-sm
-            rounded-md
-            bg-primaryDark
-            hide-on-small-screen
-          "
-        >
-          Appwrite - Open-Source Backend as a Service
-          <img
-            class="w-8 ml-2"
-            src="~assets/images/appwrite-icon.svg"
-            alt="Appwrite"
-          />
-        </a>
         <button
           id="installPWA"
           v-tooltip="$t('install_pwa')"
@@ -134,14 +111,6 @@
             <button
               v-close-popover
               class="icon button"
-              @click="showSupport = true"
-            >
-              <i class="material-icons">favorite</i>
-              <span>{{ $t("support_us") }}</span>
-            </button>
-            <button
-              v-close-popover
-              class="icon button"
               onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io');"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -170,7 +139,6 @@
       @hide-modal="showExtensions = false"
     />
     <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
-    <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
     <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </header>
 </template>
@@ -190,7 +158,6 @@ export default {
       showInstallPrompt: null,
       showExtensions: false,
       showShortcuts: false,
-      showSupport: false,
       showEmail: false,
       navigatorShare: navigator.share,
     }

@@ -57,7 +57,6 @@
 </template>
 
 <script>
-import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
 import {
   saveRESTRequestAs,
@@ -89,52 +88,6 @@ export default {
       },
       picked: null,
     }
-  },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
-  computed: {
-    folders() {
-      const collections = this.$store.state.postwoman.collections
-      const collectionIndex = this.$data.requestData.collectionIndex
-      const userSelectedAnyCollection = collectionIndex !== undefined
-      if (!userSelectedAnyCollection) return []
-
-      const noCollectionAvailable = collections[collectionIndex] !== undefined
-      if (!noCollectionAvailable) return []
-
-      return getFolderNames(collections[collectionIndex].folders, [])
-    },
-    requests() {
-      const collections = this.$store.state.postwoman.collections
-      const collectionIndex = this.$data.requestData.collectionIndex
-      const folderName = this.$data.requestData.folderName
-
-      const userSelectedAnyCollection = collectionIndex !== undefined
-      if (!userSelectedAnyCollection) {
-        return []
-      }
-
-      const userSelectedAnyFolder =
-        folderName !== undefined && folderName !== ""
-
-      if (userSelectedAnyFolder) {
-        const collection = collections[collectionIndex]
-        const folder = findFolder(folderName, collection)
-        return folder.requests
-      } else {
-        const collection = collections[collectionIndex]
-        const noCollectionAvailable = collection !== undefined
-
-        if (!noCollectionAvailable) {
-          return []
-        }
-
-        return collection.requests
-      }
-    },
   },
   watch: {
     "requestData.collectionIndex": function resetFolderAndRequestIndex() {
@@ -237,37 +190,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
-
-function getFolderNames(folders, namesList, folderName = "") {
-  if (folders.length) {
-    folders.forEach((folder) => {
-      namesList.push(folderName + folder.name)
-      if (folder.folders && folder.folders.length) {
-        getFolderNames(folder.folders, namesList, folder.name + "/")
-      }
-    })
-  }
-  return namesList
-}
-
-function findFolder(folderName, currentFolder) {
-  let selectedFolder
-  let result
-
-  if (folderName === currentFolder.name) {
-    return currentFolder
-  }
-
-  for (let i = 0; i < currentFolder.folders.length; i++) {
-    selectedFolder = currentFolder.folders[i]
-
-    result = findFolder(folderName, selectedFolder)
-
-    if (result !== false) {
-      return result
-    }
-  }
-  return false
 }
 </script>

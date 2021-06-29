@@ -28,7 +28,7 @@
             class="icon button"
             @click="clearContent($event)"
           >
-            <i class="material-icons">clear_all</i>
+            <i class="material-icons">{{ clearIcon }}</i>
           </button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default Vue.extend({
     return {
       name: null as string | null,
       vars: [] as { key: string; value: string }[],
-      doneButton: '<i class="material-icons">done</i>',
+      clearIcon: "clear_all",
     }
   },
   watch: {
@@ -132,17 +132,13 @@ export default Vue.extend({
     },
   },
   methods: {
-    clearContent({ target }: { target: HTMLElement }) {
+    clearContent() {
       this.vars = []
-
-      target.innerHTML = this.doneButton
+      this.clearIcon = "done"
       this.$toast.info(this.$t("cleared").toString(), {
         icon: "clear_all",
       })
-      setTimeout(
-        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
-        1000
-      )
+      setTimeout(() => (this.clearIcon = "clear_all"), 1000)
     },
     addEnvironmentVariable() {
       this.vars.push({

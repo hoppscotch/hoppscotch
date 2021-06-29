@@ -136,7 +136,7 @@
             class="icon button"
             @click="resetProxy"
           >
-            <i class="material-icons">clear_all</i>
+            <i class="material-icons">{{ clearIcon }}</i>
           </button>
         </div>
         <input
@@ -227,7 +227,7 @@ export default Vue.extend({
         ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
         : null,
 
-      doneButton: '<i class="material-icons">done</i>',
+      clearIcon: "clear_all",
 
       SYNC_COLLECTIONS: true,
       SYNC_ENVIRONMENTS: true,
@@ -309,17 +309,13 @@ export default Vue.extend({
     ) {
       this.applySetting(name, value)
     },
-    resetProxy({ target }: { target: HTMLElement }) {
+    resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
-
-      target.innerHTML = this.doneButton
+      this.clearIcon = "done"
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(
-        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
-        1000
-      )
+      setTimeout(() => (this.clearIcon = "clear_all"), 1000)
     },
   },
 })

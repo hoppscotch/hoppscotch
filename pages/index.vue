@@ -843,9 +843,6 @@ export default {
       EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
         "EXPERIMENTAL_URL_BAR_ENABLED"
       ),
-
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-      SYNC_HISTORY: getSettingSubject("syncHistory"),
     }
   },
   watch: {
@@ -929,10 +926,6 @@ export default {
         this.testScript = newValue.testScript
       }
       this.name = newValue.name
-    },
-    editingRequest(newValue) {
-      this.editRequest = newValue
-      this.showSaveRequestModal = true
     },
     method() {
       this.contentType = ["POST", "PUT", "PATCH", "DELETE"].includes(
@@ -1223,12 +1216,6 @@ export default {
         })
       },
     },
-    selectedRequest() {
-      return this.$store.state.postwoman.selectedRequest
-    },
-    editingRequest() {
-      return this.$store.state.postwoman.editingRequest
-    },
     requestName() {
       return this.name
     },
@@ -1336,12 +1323,6 @@ export default {
     },
   },
   methods: {
-    checkCollections() {
-      const checkCollectionAvailability =
-        this.$store.state.postwoman.collections &&
-        this.$store.state.postwoman.collections.length > 0
-      return checkCollectionAvailability
-    },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth",
@@ -2004,13 +1985,6 @@ export default {
           this.showPreRequestScript == true ? this.preRequestScript : null,
         testScript: this.testsEnabled == true ? this.testScript : null,
         name: this.requestName,
-      }
-      if (this.selectedRequest.url) {
-        this.editRequest = Object.assign(
-          {},
-          this.selectedRequest,
-          this.editRequest
-        )
       }
       this.showSaveRequestModal = true
     },

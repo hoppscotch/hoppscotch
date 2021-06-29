@@ -25,7 +25,7 @@
           class="icon button"
           @click="downloadResponse"
         >
-          <i class="material-icons">save_alt</i>
+          <i class="material-icons">{{ downloadIcon }}</i>
         </button>
         <button
           v-if="response.body"
@@ -34,7 +34,7 @@
           class="icon button"
           @click="copyResponse"
         >
-          <i class="material-icons">content_copy</i>
+          <i class="material-icons">{{ copyIcon }}</i>
         </button>
       </div>
     </div>
@@ -71,9 +71,8 @@ export default {
     return {
       expandResponse: false,
       responseBodyMaxLines: 16,
-      doneButton: '<i class="material-icons">done</i>',
-      downloadButton: '<i class="material-icons">save_alt</i>',
-      copyButton: '<i class="material-icons">content_copy</i>',
+      downloadIcon: "save_alt",
+      copyIcon: "content_copy",
     }
   },
   computed: {
@@ -115,21 +114,17 @@ export default {
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
+      this.downloadIcon = "done"
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
+        this.downloadIcon = "save_alt"
       }, 1000)
     },
     copyResponse() {
-      this.$refs.copyResponse.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
       const aux = document.createElement("textarea")
       const copy = this.responseBodyText
       aux.innerText = copy
@@ -137,10 +132,11 @@ export default {
       aux.select()
       document.execCommand("copy")
       document.body.removeChild(aux)
-      setTimeout(
-        () => (this.$refs.copyResponse.innerHTML = this.copyButton),
-        1000
-      )
+      this.copyIcon = "done"
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
+      })
+      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
 }

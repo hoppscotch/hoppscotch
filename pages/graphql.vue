@@ -179,7 +179,7 @@
                 class="icon button"
                 @click="downloadSchema"
               >
-                <i class="material-icons">save_alt</i>
+                <i class="material-icons">{{ downloadSchemaIcon }}</i>
               </button>
               <button
                 ref="copySchemaCode"
@@ -187,7 +187,7 @@
                 class="icon button"
                 @click="copySchema"
               >
-                <i class="material-icons">content_copy</i>
+                <i class="material-icons">{{ copySchemaIcon }}</i>
               </button>
             </div>
           </div>
@@ -236,14 +236,14 @@
                 class="icon button"
                 @click="copyQuery"
               >
-                <i class="material-icons">content_copy</i>
+                <i class="material-icons">{{ copyQueryIcon }}</i>
               </button>
               <button
                 v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
                 class="icon button"
                 @click="doPrettifyQuery"
               >
-                <i class="material-icons">photo_filter</i>
+                <i class="material-icons">{{ prettifyIcon }}</i>
               </button>
               <button
                 ref="saveRequest"
@@ -304,7 +304,7 @@
                   class="icon button"
                   @click="downloadResponse"
                 >
-                  <i class="material-icons">save_alt</i>
+                  <i class="material-icons">{{ downloadResponseIcon }}</i>
                 </button>
                 <button
                   v-if="response"
@@ -313,7 +313,7 @@
                   class="icon button"
                   @click="copyResponse"
                 >
-                  <i class="material-icons">content_copy</i>
+                  <i class="material-icons">{{ copyResponseIcon }}</i>
                 </button>
               </div>
             </div>
@@ -503,9 +503,12 @@ export default {
       mutationFields: [],
       subscriptionFields: [],
       graphqlTypes: [],
-      copyButton: '<i class="material-icons">content_copy</i>',
-      downloadButton: '<i class="material-icons">save_alt</i>',
-      doneButton: '<i class="material-icons">done</i>',
+      downloadResponseIcon: "save_alt",
+      downloadSchemaIcon: "save_alt",
+      copyQueryIcon: "content_copy",
+      copySchemaIcon: "content_copy",
+      copyResponseIcon: "content_copy",
+      prettifyIcon: "photo_filter",
       expandResponse: false,
       responseBodyMaxLines: 16,
       graphqlFieldsFilterText: undefined,
@@ -711,6 +714,8 @@ export default {
     getSpecialKey: getPlatformSpecialKey,
     doPrettifyQuery() {
       this.$refs.queryEditor.prettifyQuery()
+      this.prettifyIcon = "done"
+      setTimeout(() => (this.prettifyIcon = "photo_filter"), 1000)
     },
     async handleJumpToType(type) {
       this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
@@ -731,41 +736,23 @@ export default {
       return t
     },
     copySchema() {
-      this.$refs.copySchemaCode.innerHTML = this.doneButton
-      const aux = document.createElement("textarea")
-      aux.innerText = this.schema
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      setTimeout(
-        () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
-        1000
-      )
+      this.copyToClipboard(this.schema)
+      this.copySchemaIcon = "done"
+      setTimeout(() => (this.copySchemaIcon = "content_copy"), 1000)
     },
     copyQuery() {
-      this.$refs.copyQueryButton.innerHTML = this.doneButton
-      const aux = document.createElement("textarea")
-      aux.innerText = this.gqlQueryString
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
-      setTimeout(
-        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
-        1000
-      )
+      this.copyToClipboard(this.gqlQueryString)
+      this.copyQueryIcon = "done"
+      setTimeout(() => (this.copyQueryIcon = "content_copy"), 1000)
     },
     copyResponse() {
-      this.$refs.copyResponseButton.innerHTML = this.doneButton
+      this.copyToClipboard(this.response)
+      this.copyResponseIcon = "done"
+      setTimeout(() => (this.copyResponseIcon = "content_copy"), 1000)
+    },
+    copyToClipboard(content) {
       const aux = document.createElement("textarea")
-      aux.innerText = this.response
+      aux.innerText = content
       document.body.appendChild(aux)
       aux.select()
       document.execCommand("copy")
@@ -773,10 +760,6 @@ export default {
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })
-      setTimeout(
-        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
-        1000
-      )
     },
     async runQuery() {
       const startTime = Date.now()
@@ -1093,14 +1076,14 @@ export default {
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
+      this.downloadResponseIcon = "done"
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
+        this.downloadResponseIcon = "save_alt"
       }, 1000)
     },
     downloadSchema() {
@@ -1112,14 +1095,14 @@ export default {
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.$refs.downloadSchema.innerHTML = this.doneButton
+      this.downloadSchemaIcon = "done"
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        this.$refs.downloadSchema.innerHTML = this.downloadButton
+        this.downloadSchemaIcon = "save_alt"
       }, 1000)
     },
     addRequestHeader() {

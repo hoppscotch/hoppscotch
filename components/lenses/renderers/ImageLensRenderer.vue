@@ -10,7 +10,7 @@
           class="icon button"
           @click="downloadResponse"
         >
-          <i class="material-icons">save_alt</i>
+          <i class="material-icons">{{ downloadIcon }}</i>
         </button>
       </div>
     </div>
@@ -28,8 +28,7 @@ export default {
   data() {
     return {
       imageSource: "",
-      doneButton: '<i class="material-icons">done</i>',
-      downloadButton: '<i class="material-icons">save_alt</i>',
+      downloadIcon: "save_alt",
     }
   },
   computed: {
@@ -81,14 +80,14 @@ export default {
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
+      this.downloadIcon = "done"
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
+        this.downloadIcon = "save_alt"
       }, 1000)
     },
   },

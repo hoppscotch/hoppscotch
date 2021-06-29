@@ -48,7 +48,7 @@
             class="icon button"
             @click="copyRequestCode"
           >
-            <i class="material-icons">content_copy</i>
+            <i class="material-icons">{{ copyIcon }}</i>
           </button>
         </div>
       </div>
@@ -84,8 +84,7 @@ export default {
   data() {
     return {
       codegens,
-      copyButton: '<i class="material-icons">content_copy</i>',
-      doneButton: '<i class="material-icons">done</i>',
+      copyIcon: "content_copy",
     }
   },
   computed: {
@@ -106,17 +105,14 @@ export default {
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
       this.$refs.generatedCode.editor.selectAll()
       this.$refs.generatedCode.editor.focus()
       document.execCommand("copy")
-      setTimeout(
-        () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
-        1000
-      )
+      this.copyIcon = "done"
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
+      })
+      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
 }

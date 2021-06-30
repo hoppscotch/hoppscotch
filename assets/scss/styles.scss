@@ -726,7 +726,7 @@ section {
   }
 
   .hide-on-small-screen {
-    @apply hidden;
+    @apply !hidden;
   }
 
   .sticky-inner {

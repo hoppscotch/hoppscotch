@@ -5,16 +5,7 @@
         <nuxt-link :to="localePath('index')">
           <h1 class="heading logo">Hoppscotch</h1>
         </nuxt-link>
-        <iframe
-          src="https://ghbtns.com/github-btn.html?user=hoppscotch&repo=hoppscotch&type=star&count=true"
-          frameborder="0"
-          scrolling="0"
-          width="150"
-          height="20"
-          title="GitHub"
-          class="ml-8 hide-on-small-screen"
-          loading="lazy"
-        ></iframe>
+        <AppGitHubStarButton class="ml-8 hide-on-small-screen" />
       </span>
       <span>
         <button

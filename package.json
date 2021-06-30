@@ -50,6 +50,7 @@
     "v-tooltip": "^2.1.3",
     "vue-apollo": "^3.0.7",
     "vue-cli-plugin-apollo": "^0.22.2",
+    "vue-github-button": "^1.3.0",
     "vue-rx": "^6.2.0",
     "vuejs-auto-complete": "^0.9.0",
     "vuex-persist": "^3.1.3",

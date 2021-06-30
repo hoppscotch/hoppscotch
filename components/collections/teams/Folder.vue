@@ -26,7 +26,7 @@
         >
           <i class="material-icons">more_vert</i>
         </button>
-        <template slot="popover">
+        <template #popover>
           <div>
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"

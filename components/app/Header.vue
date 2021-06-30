@@ -71,7 +71,7 @@
           <button v-tooltip="$t('login_with')" class="icon button">
             <i class="material-icons">login</i>
           </button>
-          <template slot="popover">
+          <template #popover>
             <FirebaseLogin @show-email="showEmail = true" />
           </template>
         </v-popover>
@@ -94,7 +94,7 @@
             />
             <i v-else class="material-icons">account_circle</i>
           </button>
-          <template slot="popover">
+          <template #popover>
             <div>
               <nuxt-link v-close-popover :to="localePath('settings')">
                 <button class="icon button">
@@ -114,7 +114,7 @@
           <button v-tooltip="$t('more')" class="icon button">
             <i class="material-icons">drag_indicator</i>
           </button>
-          <template slot="popover">
+          <template #popover>
             <button
               v-close-popover
               class="icon button"

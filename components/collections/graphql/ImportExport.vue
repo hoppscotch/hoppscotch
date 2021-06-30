@@ -1,63 +1,59 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="heading">
-          {{ $t("import_export") }} {{ $t("collections") }}
-        </h3>
-        <div>
-          <v-popover>
-            <button
-              v-tooltip.left="$t('more')"
-              class="tooltip-target icon button"
-            >
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  v-close-popover
-                  class="icon button"
-                  @click="readCollectionGist"
-                >
-                  <i class="material-icons">assignment_returned</i>
-                  <span>{{ $t("import_from_gist") }}</span>
-                </button>
-              </div>
-              <div
-                v-tooltip.bottom="{
-                  content: !currentUser
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : currentUser.provider !== 'github.com'
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : null,
-                }"
-              >
-                <button
-                  v-close-popover
-                  :disabled="
-                    !currentUser
-                      ? true
-                      : currentUser.provider !== 'github.com'
-                      ? true
-                      : false
-                  "
-                  class="icon button"
-                  @click="createCollectionGist"
-                >
-                  <i class="material-icons">assignment_turned_in</i>
-                  <span>{{ $t("create_secret_gist") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
-          <button class="icon button" @click="hideModal">
-            <i class="material-icons">close</i>
+    <template #header>
+      <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
+      <div>
+        <v-popover>
+          <button
+            v-tooltip.left="$t('more')"
+            class="tooltip-target icon button"
+          >
+            <i class="material-icons">more_vert</i>
           </button>
-        </div>
+          <template #popover>
+            <div>
+              <button
+                v-close-popover
+                class="icon button"
+                @click="readCollectionGist"
+              >
+                <i class="material-icons">assignment_returned</i>
+                <span>{{ $t("import_from_gist") }}</span>
+              </button>
+            </div>
+            <div
+              v-tooltip.bottom="{
+                content: !currentUser
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : currentUser.provider !== 'github.com'
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : null,
+              }"
+            >
+              <button
+                v-close-popover
+                :disabled="
+                  !currentUser
+                    ? true
+                    : currentUser.provider !== 'github.com'
+                    ? true
+                    : false
+                "
+                class="icon button"
+                @click="createCollectionGist"
+              >
+                <i class="material-icons">assignment_turned_in</i>
+                <span>{{ $t("create_secret_gist") }}</span>
+              </button>
+            </div>
+          </template>
+        </v-popover>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <div class="flex flex-col items-start p-2">
         <button
           v-tooltip="$t('replace_current')"
@@ -102,7 +98,7 @@
           </span>
         </button>
       </div>
-    </div>
+    </template>
   </SmartModal>
 </template>
 

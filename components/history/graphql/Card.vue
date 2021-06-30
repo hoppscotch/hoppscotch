@@ -46,7 +46,7 @@
         >
           <i class="material-icons">more_vert</i>
         </button>
-        <template slot="popover">
+        <template #popover>
           <div>
             <button
               v-close-popover

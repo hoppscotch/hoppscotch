@@ -16,7 +16,7 @@
                     :readonly="!customMethod"
                     autofocus
                   />
-                  <template slot="popover">
+                  <template #popover>
                     <div
                       v-for="(methodMenuItem, index) in methodMenuItems"
                       :key="`method-${index}`"
@@ -114,7 +114,7 @@
                       v-model="contentType"
                       readonly
                     />
-                    <template slot="popover">
+                    <template #popover>
                       <div
                         v-for="(
                           contentTypeMenuItem, index
@@ -680,17 +680,15 @@
       v-if="showTokenRequestList"
       @close="showTokenRequestList = false"
     >
-      <div slot="header">
-        <div class="row-wrapper">
-          <h3 class="heading">{{ $t("manage_token_req") }}</h3>
-          <div>
-            <button class="icon button" @click="showTokenRequestList = false">
-              <i class="material-icons">close</i>
-            </button>
-          </div>
+      <template #header>
+        <h3 class="heading">{{ $t("manage_token_req") }}</h3>
+        <div>
+          <button class="icon button" @click="showTokenRequestList = false">
+            <i class="material-icons">close</i>
+          </button>
         </div>
-      </div>
-      <div slot="body" class="flex flex-col">
+      </template>
+      <template #body>
         <div class="row-wrapper">
           <label for="token-req-list">{{ $t("token_req_list") }}</label>
           <div>
@@ -745,17 +743,15 @@
           rows="7"
           v-model="tokenReqDetails"
         ></textarea>
-      </div>
-      <div slot="footer">
-        <div class="row-wrapper">
-          <span></span>
-          <span>
-            <button class="icon button primary" @click="addOAuthTokenReq">
-              {{ $t("save_token_req") }}
-            </button>
-          </span>
-        </div>
-      </div>
+      </template>
+      <template #footer>
+        <span></span>
+        <span>
+          <button class="icon button primary" @click="addOAuthTokenReq">
+            {{ $t("save_token_req") }}
+          </button>
+        </span>
+      </template>
     </SmartModal>
   </div>
 </template>
@@ -898,7 +894,7 @@ export default {
       },
       deep: true,
     },
-    selectedRequest(newValue, oldValue) {
+    selectedRequest(newValue) {
       // @TODO: Convert all variables to single request variable
       if (!newValue) return
       this.uri = newValue.url + newValue.path
@@ -1215,6 +1211,9 @@ export default {
           attribute: "passwordFieldType",
         })
       },
+    },
+    selectedRequest() {
+      return this.$store.state.postwoman.selectedRequest
     },
     requestName() {
       return this.name

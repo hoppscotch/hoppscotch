@@ -1,76 +1,74 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="heading">
-          {{ $t("import_export") }} {{ $t("collections") }}
-        </h3>
-        <div>
+    <template #header>
+      <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
+      <div>
+        <button
+          v-if="mode == 'import_from_my_collections'"
+          v-tooltip.left="'Back'"
+          class="tooltip-target icon button"
+          @click="
+            mode = 'import_export'
+            mySelectedCollectionID = undefined
+          "
+        >
+          <i class="material-icons">arrow_back</i>
+        </button>
+        <v-popover
+          v-if="
+            mode == 'import_export' && collectionsType.type == 'my-collections'
+          "
+        >
           <button
-            v-if="mode != 'import_export'"
-            v-tooltip.left="'Back'"
+            v-tooltip.left="$t('more')"
             class="tooltip-target icon button"
-            @click="mode = 'import_export'"
           >
-            <i class="material-icons">arrow_back</i>
+            <i class="material-icons">more_vert</i>
           </button>
-          <v-popover
-            v-if="
-              mode == 'import_export' &&
-              collectionsType.type == 'my-collections'
-            "
-          >
-            <button
-              v-tooltip.left="$t('more')"
-              class="tooltip-target icon button"
-            >
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  v-close-popover
-                  class="icon button"
-                  @click="readCollectionGist"
-                >
-                  <i class="material-icons">assignment_returned</i>
-                  <span>{{ $t("import_from_gist") }}</span>
-                </button>
-              </div>
-              <div
-                v-tooltip.bottom="{
-                  content: !currentUser
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : currentUser.provider !== 'github.com'
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : null,
-                }"
+          <template #popover>
+            <div>
+              <button
+                v-close-popover
+                class="icon button"
+                @click="readCollectionGist"
               >
-                <button
-                  v-close-popover
-                  :disabled="
-                    !currentUser
-                      ? true
-                      : currentUser.provider !== 'github.com'
-                      ? true
-                      : false
-                  "
-                  class="icon button"
-                  @click="createCollectionGist"
-                >
-                  <i class="material-icons">assignment_turned_in</i>
-                  <span>{{ $t("create_secret_gist") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
-          <button class="icon button" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+                <i class="material-icons">assignment_returned</i>
+                <span>{{ $t("import_from_gist") }}</span>
+              </button>
+            </div>
+            <div
+              v-tooltip.bottom="{
+                content: !currentUser
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : currentUser.provider !== 'github.com'
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : null,
+              }"
+            >
+              <button
+                v-close-popover
+                :disabled="
+                  !currentUser
+                    ? true
+                    : currentUser.provider !== 'github.com'
+                    ? true
+                    : false
+                "
+                class="icon button"
+                @click="createCollectionGist"
+              >
+                <i class="material-icons">assignment_turned_in</i>
+                <span>{{ $t("create_secret_gist") }}</span>
+              </button>
+            </div>
+          </template>
+        </v-popover>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <div v-if="mode == 'import_export'" class="flex flex-col p-2 items-start">
         <button
           v-tooltip="$t('replace_current')"
@@ -154,22 +152,23 @@
             </option>
           </select>
         </span>
-        <div slot="footer">
-          <div class="row-wrapper">
-            <span></span>
-            <span>
-              <button
-                class="m-2 icon button primary"
-                :disabled="mySelectedCollectionID == undefined"
-                @click="importFromMyCollections"
-              >
-                {{ $t("import") }}
-              </button>
-            </span>
-          </div>
-        </div>
       </div>
-    </div>
+    </template>
+    <template #footer>
+      <div v-if="mode == 'import_from_my_collections'">
+        <span></span>
+        <span>
+          <button
+            class="m-2 icon button"
+            :disabled="mySelectedCollectionID == undefined"
+            @click="importFromMyCollections"
+          >
+            <i class="material-icons">create_new_folder</i>
+            <span>{{ $t("import") }}</span>
+          </button>
+        </span>
+      </div>
+    </template>
   </SmartModal>
 </template>
 

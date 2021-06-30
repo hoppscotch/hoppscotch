@@ -11,15 +11,21 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header">
-            <slot name="header"></slot>
+            <div class="row-wrapper">
+              <slot name="header"></slot>
+            </div>
           </div>
           <div class="modal-body">
-            <slot name="body"></slot>
-            <!-- <div class="top fade"></div>
+            <div class="flex flex-col">
+              <slot name="body"></slot>
+              <!-- <div class="top fade"></div>
             <div class="bottom fade"></div> -->
+            </div>
           </div>
           <div v-if="hasFooterSlot" class="modal-footer">
-            <slot name="footer"></slot>
+            <div class="row-wrapper">
+              <slot name="footer"></slot>
+            </div>
           </div>
         </div>
       </div>

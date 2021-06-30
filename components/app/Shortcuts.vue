@@ -1,16 +1,14 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="heading">{{ $t("shortcuts") }}</h3>
-        <div>
-          <button class="icon button" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("shortcuts") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <div class="p-2">
         <div>
           <kbd>{{ getSpecialKey() }}</kbd>
@@ -68,8 +66,7 @@
           <label>{{ $t("select_delete_method") }}</label>
         </div>
       </div>
-    </div>
-    <div slot="footer"></div>
+    </template>
   </SmartModal>
 </template>
 

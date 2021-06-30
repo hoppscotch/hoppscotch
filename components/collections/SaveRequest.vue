@@ -1,16 +1,14 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="heading">{{ $t("save_request_as") }}</h3>
-        <div>
-          <button class="icon button" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("save_request_as") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <label for="selectLabel">{{ $t("token_req_name") }}</label>
       <input
         id="selectLabel"
@@ -39,20 +37,18 @@
         @update-collection="collectionsType.type = $event"
         @update-coll-type="onUpdateCollType"
       />
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon button" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon button primary" @click="saveRequestAs">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="saveRequestAs">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 

@@ -14,7 +14,7 @@
       <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
         <i class="material-icons">more_vert</i>
       </button>
-      <template slot="popover">
+      <template #popover>
         <div v-if="team.myRole === 'OWNER'">
           <button
             v-close-popover

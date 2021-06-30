@@ -25,6 +25,7 @@
     <CollectionsEdit
       :show="showModalEdit"
       :editing-coll-name="editingCollection ? editingCollection.name : ''"
+      :placeholder-coll-name="editingCollection ? editingCollection.name : ''"
       @hide-modal="displayModalEdit(false)"
       @submit="updateEditingCollection"
     />

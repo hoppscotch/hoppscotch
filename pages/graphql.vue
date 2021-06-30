@@ -530,6 +530,9 @@ export default {
     }
   },
   computed: {
+    selectedRequest() {
+      return this.$store.state.postwoman.selectedGraphqlRequest
+    },
     filteredQueryFields() {
       return this.getFilteredGraphqlFields({
         filterText: this.graphqlFieldsFilterText,
@@ -604,6 +607,15 @@ export default {
           attribute: "variablesJSONString",
         })
       },
+    },
+  },
+  watch: {
+    selectedRequest(newValue) {
+      if (!newValue) return
+      this.url = newValue.url
+      this.gqlQueryString = newValue.query
+      this.headers = newValue.headers
+      this.variableString = newValue.variables
     },
   },
   mounted() {

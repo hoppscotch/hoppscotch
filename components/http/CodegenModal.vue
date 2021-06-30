@@ -1,16 +1,14 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="heading">{{ $t("generate_code") }}</h3>
-        <div>
-          <button class="icon button" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("generate_code") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
         <v-popover>
@@ -26,7 +24,7 @@
             readonly
             autofocus
           />
-          <template slot="popover">
+          <template #popover>
             <div v-for="gen in codegens" :key="gen.id">
               <button
                 v-close-popover
@@ -68,7 +66,7 @@
         }"
         styles="rounded-b-lg"
       />
-    </div>
+    </template>
   </SmartModal>
 </template>
 

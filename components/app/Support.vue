@@ -1,19 +1,16 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="heading">{{ $t("support_us") }}</h3>
-        <div>
-          <button class="icon button" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("support_us") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <AppContributors />
-    </div>
-    <div slot="footer"></div>
+    </template>
   </SmartModal>
 </template>
 

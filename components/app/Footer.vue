@@ -57,7 +57,7 @@
           <button v-tooltip="$t('choose_language')" class="icon button">
             <i class="material-icons">translate</i>
           </button>
-          <template slot="popover">
+          <template #popover>
             <div v-for="locale in availableLocales" :key="locale.code">
               <nuxt-link :to="switchLocalePath(locale.code)">
                 <button v-close-popover class="icon button">

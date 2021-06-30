@@ -1,20 +1,19 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
+    <template #header>
+      <h3 class="heading">{{ $t("edit_team") }}</h3>
+      <button class="icon button" @click="hideModal">
+        <i class="material-icons">close</i>
+      </button>
+    </template>
+    <template #body>
       <ul>
         <li>
           <div class="row-wrapper">
-            <h3 class="heading">{{ $t("edit_team") }}</h3>
-            <div>
-              <button class="icon button" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
+            <label>{{ $t("label") }}</label>
           </div>
         </li>
       </ul>
-    </div>
-    <div slot="body">
       <ul>
         <li>
           <input
@@ -70,7 +69,7 @@
                 "
                 readonly
               />
-              <template slot="popover">
+              <template #popover>
                 <div>
                   <button
                     v-close-popover
@@ -150,7 +149,7 @@
                 "
                 readonly
               />
-              <template slot="popover">
+              <template #popover>
                 <div>
                   <button
                     v-close-popover
@@ -203,20 +202,18 @@
           </button>
         </li>
       </ul>
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon button" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon button primary" @click="saveTeam">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="saveTeam">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 

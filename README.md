@@ -1,45 +1,55 @@
 <div align="center">
-  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/logo.png" alt="hoppscotch.io logo" height="128"></a>
-  <br>
-  <br>
+  <a href="https://hoppscotch.io">
+    <img
+      src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/logo.png"
+      alt="Hoppscotch Logo"
+      height="64"
+    />
+  </a>
+  <br />
   <p>
-    <b>Hoppscotch - Open source API development ecosystem</b>
+    <h3>
+      <b>
+        Hoppscotch
+      </b>
+    </h3>
   </p>
   <p>
-     <i>Helps you create requests faster, saving precious time on development - <a href="https://eepurl.com/g6n_P5">Subscribe</a></i>
+    <b>
+      Open source API development ecosystem
+    </b>
   </p>
   <p>
 
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) ![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg)](https://github.com/hoppscotch/hoppscotch/actions) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://twitter.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
 
   </p>
   <p>
-    <sub>Built with ❤︎ by
-      <a href="https://github.com/liyasthomas">liyasthomas</a> and
-      <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">contributors</a>
+    <sub>
+      Built with ❤︎ by
+      <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
+        contributors
+      </a>
     </sub>
   </p>
+  <br />
+  <p>
+    <a href="https://hoppscotch.io">
+      <img
+        src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_dark.png"
+        alt="Screenshot"
+        width="100%"
+      />
+    </a>
+  </p>
 </div>
-
-<div align="center">
-  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_dark.png" alt="Screenshot" width="100%"></a>
-</div>
-
-<p align="center">
-  <b>Powered by</b>
-  <br>
-  <br>
-  <a href="https://oss.capital/?ref=hoppscotch" title="OSS Capital" target="_blank">
-    <img height="100px" src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/assets/images/ossc-banner.svg" title="OSS Capital">
-  </a>
-</p>
 
 #### **Contact**
 
-[![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=Telegram)](https://hoppscotch.io/telegram) [![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord)
+[![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=Telegram)](https://hoppscotch.io/telegram)
 
-<details>
-  <summary><i>Table of contents</i></summary>
+<details open>
+  <summary><b>Table of contents</b></summary>
 
 ---
 
@@ -451,21 +461,6 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
-**Legacy container** &nbsp; [![liyasthomas/postwoman](https://img.shields.io/docker/pulls/liyasthomas/postwoman?style=social)](https://hub.docker.com/r/liyasthomas/postwoman)
-
-<details>
-  <summary><i>Legacy container</i></summary>
-
----
-
-```bash
-docker run -p 3000:3000 liyasthomas/postwoman:latest
-```
-
----
-
-</details>
-
 ## **Releasing**
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
@@ -491,7 +486,13 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 This project exists thanks to all the people who contribute [[Contribute](CONTRIBUTING.md)].
 
-<a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors"><img src="https://opencollective.com/hoppscotch/contributors.svg?width=890&button=false" /></a>
+<div align="center">
+  <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
+    <img src="https://opencollective.com/hoppscotch/contributors.svg?width=840&button=false"
+      alt="Contributors"
+      width="100%" />
+  </a>
+</div>
 
 ## **License**
 

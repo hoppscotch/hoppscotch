@@ -164,8 +164,7 @@ export default {
 
   // ESLint module configuration (https://github.com/nuxt-community/eslint-module)
   eslint: {
-    // fix: true,
-    emitWarning: true,
+    fix: true,
     quiet: true,
   },
 

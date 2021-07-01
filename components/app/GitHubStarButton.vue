@@ -13,6 +13,7 @@
       :data-show-count="true"
       data-text="Star"
       aria-label="Star Hoppscotch on GitHub"
+      data-size="large"
     />
   </TranslateFade>
 </template>

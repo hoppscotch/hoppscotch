@@ -1,19 +1,54 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="columns">
-        <AppSidenav />
-        <main>
-          <AppHeader />
-          <nuxt class="container" />
-          <AppFooter />
-        </main>
-      </div>
-    </div>
+  <div class="flex h-screen w-screen">
+    <Splitpanes horizontal class="hoppscotch-theme">
+      <Pane class="flex-1">
+        <Splitpanes vertical class="hoppscotch-theme">
+          <Pane
+            v-if="!hideNavigationPane"
+            style="width: auto"
+            class="overflow-y-auto bg-primaryDark flex items-stretch"
+          >
+            <AppSidenav />
+          </Pane>
+          <Pane class="flex-1">
+            <Splitpanes
+              horizontal
+              :push-other-panes="false"
+              class="hoppscotch-theme"
+            >
+              <Pane v-if="!hideHeaderPane" style="height: auto">
+                <AppHeader />
+              </Pane>
+              <Pane class="flex-1">
+                <Splitpanes vertical class="hoppscotch-theme">
+                  <Pane class="overflow-y-auto">
+                    <nuxt class="container" />
+                  </Pane>
+                </Splitpanes>
+              </Pane>
+            </Splitpanes>
+          </Pane>
+        </Splitpanes>
+      </Pane>
+      <Pane style="height: auto" class="bg-primaryDark">
+        <button
+          class="button icon"
+          @click="hideNavigationPane = !hideNavigationPane"
+        >
+          <i class="material-icons">menu_open</i>
+        </button>
+        <button class="button icon" @click="hideHeaderPane = !hideHeaderPane">
+          <i class="material-icons">menu_open</i>
+        </button>
+      </Pane>
+    </Splitpanes>
   </div>
 </template>
 
 <script>
+import { Splitpanes, Pane } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
+
 import {
   setupLocalPersistence,
   getLocalConfig,
@@ -24,6 +59,13 @@ import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
 
 export default {
+  components: { Splitpanes, Pane },
+  data() {
+    return {
+      hideNavigationPane: false,
+      hideHeaderPane: false,
+    }
+  },
   beforeMount() {
     registerApolloAuthUpdate()
 
@@ -74,3 +116,16 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.splitpanes--vertical > .splitpanes__splitter {
+  display: none;
+  width: 0;
+  background: linear-gradient(90deg, #ccc, #111);
+}
+.splitpanes--horizontal > .splitpanes__splitter {
+  display: none;
+  height: 0;
+  background: linear-gradient(0deg, #ccc, #111);
+}
+</style>

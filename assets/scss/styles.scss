@@ -85,7 +85,6 @@ a {
   }
 }
 
-header,
 footer {
   & > div {
     @apply flex;
@@ -105,14 +104,12 @@ footer {
   min-height: calc(100vh - 153px);
 }
 
-.header,
 .content,
 .columns,
 .footer {
   @apply flex flex-1;
 }
 
-.nav-first,
 .sticky-inner {
   @apply flex flex-col;
   @apply items-start items-stretch;

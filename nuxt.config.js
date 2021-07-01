@@ -209,11 +209,10 @@ export default {
 
   // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
   googleFonts: {
-    download: true,
     display: "swap",
     families: {
       "Material+Icons": true,
-      Poppins: [400, 500, 600, 700, 800],
+      Montserrat: [400, 500, 600, 700, 800],
       "Roboto+Mono": true,
     },
   },
@@ -350,6 +349,7 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    transpile: ["three"],
     // You can extend webpack config here
     extend(config, { isDev, isClient }) {
       // Sets webpack's mode to development if `isDev` is true.
@@ -371,6 +371,12 @@ export default {
         config.module.rules.push({
           test: /\.md$/i,
           use: { loader: "raw-loader" },
+          exclude: /(node_modules)/,
+        })
+
+        config.module.rules.push({
+          test: /\.geojson$/i,
+          use: { loader: "json-loader" },
           exclude: /(node_modules)/,
         })
 
@@ -418,5 +424,10 @@ export default {
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
     BASE_URL: process.env.BASE_URL,
+  },
+
+  // Router configuration (https://nuxtjs.org/api/configuration-router)
+  router: {
+    linkExactActiveClass: "text-accent bg-primaryDark",
   },
 }

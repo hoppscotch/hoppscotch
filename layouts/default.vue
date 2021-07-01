@@ -117,12 +117,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.splitpanes--vertical > .splitpanes__splitter {
-  display: none;
-}
-.splitpanes--horizontal > .splitpanes__splitter {
-  display: none;
-}
-</style>

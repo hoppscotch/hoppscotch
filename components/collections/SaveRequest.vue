@@ -9,15 +9,15 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabel">{{ $t("token_req_name") }}</label>
+      <label for="selectLabelSaveReq">{{ $t("token_req_name") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelSaveReq"
         v-model="requestData.name"
         class="input"
         type="text"
         @keyup.enter="saveRequestAs"
       />
-      <label for="selectLabel">Select location</label>
+      <label>Select location</label>
       <!-- <input class="input" readonly :value="path" /> -->
 
       <CollectionsGraphql

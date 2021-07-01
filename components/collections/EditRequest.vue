@@ -9,9 +9,9 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabel">{{ $t("label") }}</label>
+      <label for="selectLabelEditReq">{{ $t("label") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelEditReq"
         v-model="requestUpdateData.name"
         class="input"
         type="text"

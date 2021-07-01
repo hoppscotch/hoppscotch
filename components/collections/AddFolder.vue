@@ -9,9 +9,9 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabel">{{ $t("label") }}</label>
+      <label for="selectLabelAddFolder">{{ $t("label") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelAddFolder"
         v-model="name"
         class="input"
         type="text"

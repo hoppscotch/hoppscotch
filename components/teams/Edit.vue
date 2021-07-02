@@ -57,55 +57,50 @@
         </li>
         <li>
           <span class="select-wrapper">
-            <v-popover>
-              <input
-                class="input"
-                :placeholder="$t('permissions')"
-                :name="'value' + index"
-                :value="
-                  typeof member.role === 'string'
-                    ? member.role
-                    : JSON.stringify(member.role)
-                "
-                readonly
-              />
-              <template #popover>
-                <div>
-                  <button
-                    v-close-popover
-                    class="icon button"
-                    @click="updateRole(index, 'OWNER')"
-                  >
-                    OWNER
-                  </button>
-                </div>
-                <div>
-                  <button
-                    v-close-popover
-                    class="icon button"
-                    @click="updateRole(index, 'EDITOR')"
-                  >
-                    EDITOR
-                  </button>
-                </div>
-                <div>
-                  <button
-                    v-close-popover
-                    class="icon button"
-                    @click="updateRole(index, 'VIEWER')"
-                  >
-                    VIEWER
-                  </button>
-                </div>
+            <tippy trigger="click" theme="popover" arrow>
+              <template #trigger>
+                <input
+                  class="input"
+                  :placeholder="$t('permissions')"
+                  :name="'value' + index"
+                  :value="
+                    typeof member.role === 'string'
+                      ? member.role
+                      : JSON.stringify(member.role)
+                  "
+                  readonly
+                />
               </template>
-            </v-popover>
+              <div>
+                <button class="icon button" @click="updateRole(index, 'OWNER')">
+                  OWNER
+                </button>
+              </div>
+              <div>
+                <button
+                  class="icon button"
+                  @click="updateRole(index, 'EDITOR')"
+                >
+                  EDITOR
+                </button>
+              </div>
+              <div>
+                <button
+                  class="icon button"
+                  @click="updateRole(index, 'VIEWER')"
+                >
+                  VIEWER
+                </button>
+              </div>
+            </tippy>
           </span>
         </li>
         <div>
           <li>
             <button
               id="member"
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
               class="icon button"
               @click="removeExistingTeamMember(member.user.uid)"
             >
@@ -137,55 +132,44 @@
         </li>
         <li>
           <span class="select-wrapper">
-            <v-popover>
-              <input
-                class="input"
-                :placeholder="$t('permissions')"
-                :name="'value' + index"
-                :value="
-                  typeof member.value === 'string'
-                    ? member.value
-                    : JSON.stringify(member.value)
-                "
-                readonly
-              />
-              <template #popover>
-                <div>
-                  <button
-                    v-close-popover
-                    class="icon button"
-                    @click="member.value = 'OWNER'"
-                  >
-                    OWNER
-                  </button>
-                </div>
-                <div>
-                  <button
-                    v-close-popover
-                    class="icon button"
-                    @click="member.value = 'EDITOR'"
-                  >
-                    EDITOR
-                  </button>
-                </div>
-                <div>
-                  <button
-                    v-close-popover
-                    class="icon button"
-                    @click="member.value = 'VIEWER'"
-                  >
-                    VIEWER
-                  </button>
-                </div>
+            <tippy trigger="click" theme="popover" arrow>
+              <template #trigger>
+                <input
+                  class="input"
+                  :placeholder="$t('permissions')"
+                  :name="'value' + index"
+                  :value="
+                    typeof member.value === 'string'
+                      ? member.value
+                      : JSON.stringify(member.value)
+                  "
+                  readonly
+                />
               </template>
-            </v-popover>
+              <div>
+                <button class="icon button" @click="member.value = 'OWNER'">
+                  OWNER
+                </button>
+              </div>
+              <div>
+                <button class="icon button" @click="member.value = 'EDITOR'">
+                  EDITOR
+                </button>
+              </div>
+              <div>
+                <button class="icon button" @click="member.value = 'VIEWER'">
+                  VIEWER
+                </button>
+              </div>
+            </tippy>
           </span>
         </li>
         <div>
           <li>
             <button
               id="member"
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
               class="icon button"
               @click="removeTeamMember(index)"
             >

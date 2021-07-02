@@ -6,9 +6,9 @@
           leading-none
           tracking-tighter
           font-semibold
-          text-accent text-5xl
-          md:text-6xl
-          lg:text-8xl
+          text-accent text-4xl
+          md:text-5xl
+          lg:text-6xl
         "
       >
         Open Source
@@ -16,7 +16,7 @@
       <h3
         class="
           text-3xl
-          my-8
+          my-4
           font-mono
           text-secondaryDark
           md:text-4xl
@@ -32,7 +32,13 @@
         in the world.
       </p>
       <div class="my-8 flex items-center">
-        <button class="button rounded text-xl">Get Started</button>
+        <ButtonPrimary
+          label="Dashboard"
+          icon="chevron_right"
+          class="my-4"
+          large
+          reverse
+        />
       </div>
     </div>
     <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">

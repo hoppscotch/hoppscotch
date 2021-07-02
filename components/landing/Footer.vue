@@ -1,18 +1,11 @@
 <template>
-  <footer class="flex flex-col px-8 py-16">
+  <footer class="flex flex-col p-4">
     <nav class="grid grid-cols-2 gap-4 md:grid-cols-4">
       <div class="flex flex-col space-y-2">
-        <SmartLink
-          :to="
-            !$store.state.authUser
-              ? localePath('/')
-              : localePath(`/${$store.state.login}`)
-          "
-          class="my-2"
-        >
+        <span>
           <AppLogo class="h-8" />
-        </SmartLink>
-        <span> Kooli </span>
+        </span>
+        <span class="font-bold"> Hoppscotch </span>
         <SmartChangeLanguage />
         <ul class="space-y-2">
           <li>

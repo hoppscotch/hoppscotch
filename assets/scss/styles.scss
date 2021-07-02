@@ -46,9 +46,6 @@ body {
   @apply text-secondary;
   @apply font-medium;
   @apply select-none;
-  @apply transition-colors;
-  @apply ease-in-out;
-  @apply duration-150;
   @apply overflow-x-hidden;
 
   -webkit-tap-highlight-color: transparent;
@@ -63,8 +60,7 @@ body.sticky-footer footer {
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  @apply transition-opacity;
-  @apply duration-150;
+  @apply transition;
 }
 
 .page-enter,
@@ -139,9 +135,6 @@ h3.heading {
 
 p {
   @apply text-sm;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-150;
 }
 
 hr {
@@ -168,168 +161,28 @@ hr {
   }
 
   &[x-placement^="top"] .tippy-tooltip .tippy-arrow {
-    border-top-color: var(--color-primary-light);
+    border-top-color: var(--primary-light-color);
   }
 
   &[x-placement^="bottom"] .tippy-tooltip .tippy-arrow {
-    border-bottom-color: var(--color-primary-light);
+    border-bottom-color: var(--primary-light-color);
   }
 
   &[x-placement^="left"] .tippy-tooltip .tippy-arrow {
-    border-left-color: var(--color-primary-light);
+    border-left-color: var(--primary-light-color);
   }
 
   &[x-placement^="right"] .tippy-tooltip .tippy-arrow {
-    border-right-color: var(--color-primary-light);
+    border-right-color: var(--primary-light-color);
   }
 }
 
-[arrow] > div {
+.tippy-content > div {
   @apply flex;
-  @apply w-full;
-}
-
-.tooltip {
-  @apply z-50;
-  @apply outline-none;
-
-  .tooltip-inner {
-    @apply rounded-lg;
-    @apply px-4;
-    @apply py-2;
-    @apply text-xs text-secondary;
-    @apply font-medium;
-    @apply shadow-lg;
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-150;
-    @apply bg-tooltip;
-  }
-
-  .tooltip-arrow {
-    @apply h-0;
-    @apply w-0;
-    @apply border-solid border-tooltip;
-    @apply absolute;
-    @apply m-2;
-    @apply z-30;
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-150;
-  }
-
-  &[x-placement^="top"] {
-    @apply mb-0;
-
-    .tooltip-arrow {
-      @apply mt-0 mb-0;
-
-      border-width: 5px 5px 0 5px;
-      border-left-color: transparent !important;
-      border-right-color: transparent !important;
-      border-bottom-color: transparent !important;
-      bottom: -5px;
-      left: calc(50% - 5px);
-    }
-  }
-
-  &[x-placement^="bottom"] {
-    @apply mt-0;
-
-    .tooltip-arrow {
-      @apply mt-0 mb-0;
-
-      border-width: 0 5px 5px 5px;
-      border-left-color: transparent !important;
-      border-right-color: transparent !important;
-      border-top-color: transparent !important;
-      top: -5px;
-      left: calc(50% - 5px);
-    }
-  }
-
-  &[x-placement^="right"] {
-    @apply ml-0;
-
-    .tooltip-arrow {
-      @apply ml-0 mr-0;
-
-      border-width: 5px 5px 5px 0;
-      border-left-color: transparent !important;
-      border-top-color: transparent !important;
-      border-bottom-color: transparent !important;
-      left: -5px;
-      top: calc(50% - 5px);
-    }
-  }
-
-  &[x-placement^="left"] {
-    @apply mr-0;
-
-    .tooltip-arrow {
-      @apply ml-0 mr-0;
-
-      border-width: 5px 0 5px 5px;
-      border-top-color: transparent !important;
-      border-right-color: transparent !important;
-      border-bottom-color: transparent !important;
-      right: -5px;
-      top: calc(50% - 5px);
-    }
-  }
-
-  &.popover {
-    .wrapper {
-      min-height: auto;
-    }
-
-    .popover-inner {
-      @apply bg-tooltip;
-      @apply text-secondary;
-      @apply text-base;
-      @apply p-2;
-      @apply rounded-lg;
-      @apply overflow-auto;
-      @apply shadow-lg;
-
-      max-height: 256px;
-      min-width: 128px;
-
-      button {
-        @apply flex-1;
-        @apply m-0;
-        @apply p-2;
-        @apply justify-start;
-        @apply text-left;
-      }
-
-      div {
-        @apply flex;
-        @apply items-stretch;
-        @apply flex-col;
-      }
-    }
-
-    .popover-arrow {
-      @apply border-tooltip;
-    }
-  }
-
-  &[aria-hidden="true"] {
-    @apply invisible;
-    @apply opacity-0;
-    @apply transition-opacity;
-    @apply ease-in-out;
-    @apply duration-150;
-  }
-
-  &[aria-hidden="false"] {
-    @apply visible;
-    @apply opacity-100;
-    @apply transition-opacity;
-    @apply ease-in-out;
-    @apply duration-150;
-  }
+  @apply flex-col;
+  @apply max-h-64;
+  @apply overflow-y-auto;
+  @apply items-stretch;
 }
 
 .info:not(.toasted) {
@@ -350,9 +203,6 @@ hr {
   @apply bg-accent;
   @apply text-primary;
   @apply font-bold;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-150;
   @apply fill-current;
   @apply outline-none;
   @apply border-none;
@@ -462,9 +312,6 @@ pre {
   @apply bg-primaryDark;
   @apply text-secondary;
   @apply font-mono;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-150;
   @apply select-text;
   @apply resize-y;
   @apply outline-none;
@@ -563,9 +410,6 @@ input[type="checkbox"] {
       @apply items-center;
       @apply justify-center;
       @apply text-transparent;
-      @apply transition;
-      @apply ease-in-out;
-      @apply duration-150;
 
       content: "\2714";
       height: 16px;
@@ -599,25 +443,6 @@ label {
   @apply p-4;
   @apply text-secondaryLight;
   @apply text-sm;
-  @apply transition;
-  @apply ease-in-out;
-  @apply duration-150;
-}
-
-ul,
-ol {
-  @apply flex;
-}
-
-ul li,
-ol li {
-  @apply inline-flex;
-  @apply flex-col flex-nowrap flex-1;
-  @apply justify-center;
-
-  &.shrink {
-    @apply flex-grow-0;
-  }
 }
 
 .row-wrapper {
@@ -685,9 +510,6 @@ ol li {
   &.show {
     @apply flex;
     @apply fixed;
-    @apply transition;
-    @apply ease-in-out;
-    @apply duration-150;
     @apply shadow-lg;
     @apply rounded-lg;
 

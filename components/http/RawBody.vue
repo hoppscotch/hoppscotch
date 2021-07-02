@@ -8,7 +8,8 @@
             <button
               v-if="rawInput && contentType.endsWith('json')"
               ref="prettifyRequest"
-              v-tooltip="$t('prettify_body')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('prettify_body')"
               class="icon button"
               @click="prettifyRequestBody"
             >
@@ -16,7 +17,8 @@
             </button>
             <label for="payload" class="p-0">
               <button
-                v-tooltip="$t('import_json')"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('import_json')"
                 class="icon button"
                 @click="$refs.payload.click()"
               >
@@ -31,7 +33,8 @@
               @change="uploadPayload"
             />
             <button
-              v-tooltip.bottom="$t('clear')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('clear')"
               class="icon button"
               @click="clearContent('rawParams', $event)"
             >

@@ -41,11 +41,11 @@
   // Dark Text color
   --secondary-dark-color: theme("colors.gray.700");
   // Border color
-  --divider-color: rgba(0, 0, 0, 0.1);
+  --divider-color: theme("colors.gray.200");
   // Error color
-  --error-color: rgba(0, 0, 0, 0.1);
+  --error-color: theme("colors.gray.700");
   // Tooltip color
-  --tooltip-color: rgba(255, 255, 255, 1);
+  --tooltip-color: theme("colors.gray.50");
   // Editor theme
   --editor-theme: "iplastic";
 }
@@ -214,15 +214,15 @@
   @include greenTheme;
 }
 
-:root.light {
+:root.light-mode {
   @include lightTheme;
 }
 
-:root.dark {
+:root.dark-mode {
   @include darkTheme;
 }
 
-:root.black {
+:root.black-mode {
   @include blackTheme;
 }
 

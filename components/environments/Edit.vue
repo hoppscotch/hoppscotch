@@ -22,7 +22,8 @@
         <label for="variableList">{{ $t("env_variable_list") }}</label>
         <div>
           <button
-            v-tooltip.bottom="$t('clear')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('clear')"
             class="icon button"
             @click="clearContent($event)"
           >
@@ -63,7 +64,8 @@
           <li>
             <button
               id="variable"
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
               class="icon button"
               @click="removeEnvironmentVariable(index)"
             >

@@ -14,7 +14,8 @@
         />
       </li>
       <button
-        v-tooltip="{
+        v-tippy="{ theme: 'tooltip' }"
+        title="{
           content: !entry.star ? $t('add_star') : $t('remove_star'),
         }"
         data-testid="star_button"
@@ -27,7 +28,8 @@
         </i>
       </button>
       <button
-        v-tooltip="{
+        v-tippy="{ theme: 'tooltip' }"
+        title="{
           content: expand ? $t('hide_more') : $t('show_more'),
         }"
         data-testid="query_expand"
@@ -38,41 +40,40 @@
           {{ expand ? "unfold_less" : "unfold_more" }}
         </i>
       </button>
-      <v-popover>
-        <button
-          v-tooltip="$t('options')"
-          data-testid="options"
-          class="tooltip-target icon button"
-        >
-          <i class="material-icons">more_vert</i>
-        </button>
-        <template #popover>
-          <div>
-            <button
-              v-close-popover
-              data-testid="restore_history_entry"
-              class="icon button"
-              :aria-label="$t('restore')"
-              @click="$emit('use-entry')"
-            >
-              <i class="material-icons">restore</i>
-              <span>{{ $t("restore") }}</span>
-            </button>
-          </div>
-          <div>
-            <button
-              v-close-popover
-              data-testid="delete_history_entry"
-              class="icon button"
-              :aria-label="$t('delete')"
-              @click="$emit('delete-entry')"
-            >
-              <i class="material-icons">delete</i>
-              <span>{{ $t("delete") }}</span>
-            </button>
-          </div>
+      <tippy trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <button
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('options')"
+            data-testid="options"
+            class="tooltip-target icon button"
+          >
+            <i class="material-icons">more_vert</i>
+          </button>
         </template>
-      </v-popover>
+        <div>
+          <button
+            data-testid="restore_history_entry"
+            class="icon button"
+            :aria-label="$t('restore')"
+            @click="$emit('use-entry')"
+          >
+            <i class="material-icons">restore</i>
+            <span>{{ $t("restore") }}</span>
+          </button>
+        </div>
+        <div>
+          <button
+            data-testid="delete_history_entry"
+            class="icon button"
+            :aria-label="$t('delete')"
+            @click="$emit('delete-entry')"
+          >
+            <i class="material-icons">delete</i>
+            <span>{{ $t("delete") }}</span>
+          </button>
+        </div>
+      </tippy>
     </div>
     <div class="show-on-large-screen">
       <li data-testid="'query'">
@@ -91,7 +92,8 @@
       <div v-if="showMore" class="show-on-large-screen">
         <li>
           <input
-            v-tooltip="entry.date"
+            v-tippy="{ theme: 'tooltip' }"
+            title="entry.date"
             :aria-label="$t('time')"
             type="text"
             readonly

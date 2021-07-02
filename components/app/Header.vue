@@ -9,7 +9,8 @@
     <div class="flex">
       <button
         id="installPWA"
-        v-tooltip="$t('install_pwa')"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="$t('install_pwa')"
         class="icon button"
         @click.prevent="showInstallPrompt()"
       >
@@ -21,7 +22,12 @@
         aria-label="GitHub"
         rel="noopener"
       >
-        <button v-tooltip="'GitHub'" class="icon button" aria-label="GitHub">
+        <button
+          v-tippy="{ theme: 'tooltip' }"
+          title="GitHub"
+          class="icon button"
+          aria-label="GitHub"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -34,94 +40,95 @@
           </svg>
         </button>
       </a>
-      <v-popover v-if="currentUser === null">
-        <button v-tooltip="$t('login_with')" class="icon button">
-          <i class="material-icons">login</i>
-        </button>
-        <template #popover>
-          <FirebaseLogin @show-email="showEmail = true" />
+
+      <tippy v-if="currentUser === null" trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <button
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('login_with')"
+            class="icon button"
+          >
+            <i class="material-icons">login</i>
+          </button>
         </template>
-      </v-popover>
-      <v-popover v-else>
-        <button
-          v-tooltip="
+        <FirebaseLogin @show-email="showEmail = true" />
+      </tippy>
+      <tippy v-else trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <button
+            v-tippy="{ theme: 'tooltip' }"
+            title="
             (currentUser.displayName ||
               '<label><i>Name not found</i></label>') +
             '<br>' +
             (currentUser.email || '<label><i>Email not found</i></label>')
           "
+            class="icon button"
+            aria-label="Account"
+          >
+            <img
+              v-if="currentUser.photoURL"
+              :src="currentUser.photoURL"
+              class="w-6 h-6 rounded-full material-icons"
+              alt="Profile image"
+            />
+            <i v-else class="material-icons">account_circle</i>
+          </button>
+        </template>
+        <div>
+          <nuxt-link :to="localePath('settings')">
+            <button class="icon button">
+              <i class="material-icons">settings</i>
+              <span>
+                {{ $t("settings") }}
+              </span>
+            </button>
+          </nuxt-link>
+        </div>
+        <div>
+          <FirebaseLogout />
+        </div>
+      </tippy>
+      <tippy trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <button
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('more')"
+            class="icon button"
+          >
+            <i class="material-icons">drag_indicator</i>
+          </button>
+        </template>
+        <button class="icon button" @click="showExtensions = true">
+          <i class="material-icons">extension</i>
+          <span>{{ $t("extensions") }}</span>
+        </button>
+        <button class="icon button" @click="showShortcuts = true">
+          <i class="material-icons">keyboard</i>
+          <span>{{ $t("shortcuts") }}</span>
+        </button>
+        <button
           class="icon button"
-          aria-label="Account"
+          onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io');"
         >
-          <img
-            v-if="currentUser.photoURL"
-            :src="currentUser.photoURL"
-            class="w-6 h-6 rounded-full material-icons"
-            alt="Profile image"
-          />
-          <i v-else class="material-icons">account_circle</i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <path
+              d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-3.594-1.555c-3.179 0-5.515 2.966-4.797 6.045A13.978 13.978 0 011.671 3.149a4.93 4.93 0 001.523 6.574 4.903 4.903 0 01-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.084 4.928 4.928 0 004.6 3.419A9.9 9.9 0 010 19.54a13.94 13.94 0 007.548 2.212c9.142 0 14.307-7.721 13.995-14.646A10.025 10.025 0 0024 4.557z"
+            />
+          </svg>
+          <span>Tweet</span>
         </button>
-        <template #popover>
-          <div>
-            <nuxt-link v-close-popover :to="localePath('settings')">
-              <button class="icon button">
-                <i class="material-icons">settings</i>
-                <span>
-                  {{ $t("settings") }}
-                </span>
-              </button>
-            </nuxt-link>
-          </div>
-          <div>
-            <FirebaseLogout />
-          </div>
-        </template>
-      </v-popover>
-      <v-popover>
-        <button v-tooltip="$t('more')" class="icon button">
-          <i class="material-icons">drag_indicator</i>
+        <button
+          v-if="navigatorShare"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('more')"
+          class="icon button"
+          @click="nativeShare"
+        >
+          <i class="material-icons">share</i>
+          <span>Share</span>
         </button>
-        <template #popover>
-          <button
-            v-close-popover
-            class="icon button"
-            @click="showExtensions = true"
-          >
-            <i class="material-icons">extension</i>
-            <span>{{ $t("extensions") }}</span>
-          </button>
-          <button
-            v-close-popover
-            class="icon button"
-            @click="showShortcuts = true"
-          >
-            <i class="material-icons">keyboard</i>
-            <span>{{ $t("shortcuts") }}</span>
-          </button>
-          <button
-            v-close-popover
-            class="icon button"
-            onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io');"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-              <path
-                d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-3.594-1.555c-3.179 0-5.515 2.966-4.797 6.045A13.978 13.978 0 011.671 3.149a4.93 4.93 0 001.523 6.574 4.903 4.903 0 01-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.084 4.928 4.928 0 004.6 3.419A9.9 9.9 0 010 19.54a13.94 13.94 0 007.548 2.212c9.142 0 14.307-7.721 13.995-14.646A10.025 10.025 0 0024 4.557z"
-              />
-            </svg>
-            <span>Tweet</span>
-          </button>
-          <button
-            v-if="navigatorShare"
-            v-close-popover
-            v-tooltip="$t('more')"
-            class="icon button"
-            @click="nativeShare"
-          >
-            <i class="material-icons">share</i>
-            <span>Share</span>
-          </button>
-        </template>
-      </v-popover>
+      </tippy>
     </div>
     <AppExtensions
       :show="showExtensions"

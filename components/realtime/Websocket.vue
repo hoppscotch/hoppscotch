@@ -67,7 +67,8 @@
         <div>
           <li>
             <button
-              v-tooltip.bottom="{
+              v-tippy="{ theme: 'tooltip' }"
+              title="{
                 content: protocol.hasOwnProperty('active')
                   ? protocol.active
                     ? $t('turn_off')
@@ -96,7 +97,8 @@
         <div>
           <li>
             <button
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
               class="icon button"
               @click="deleteProtocol({ index })"
             >

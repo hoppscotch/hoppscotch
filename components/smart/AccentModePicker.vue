@@ -14,7 +14,8 @@
       <span
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
-        v-tooltip="capitalized(color)"
+        v-tippy="{ theme: 'tooltip' }"
+        title="capitalized(color)"
         class="
           inline-flex
           items-center

@@ -3,7 +3,8 @@
     <div class="transition duration-150 ease-in-out row-wrapper">
       <div>
         <button
-          v-tooltip="!doc ? $t('use_request') : ''"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="!doc ? $t('use_request') : ''"
           class="icon button"
           @click="!doc ? selectRequest() : {}"
         >
@@ -17,45 +18,41 @@
           <span>{{ request.name }}</span>
         </button>
       </div>
-      <v-popover>
-        <button
-          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-          v-tooltip="$t('more')"
-          class="tooltip-target icon button"
-        >
-          <i class="material-icons">more_vert</i>
-        </button>
-        <template #popover>
-          <div>
-            <button
-              v-close-popover
-              class="icon button"
-              @click="
-                $emit('edit-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                })
-              "
-            >
-              <i class="material-icons">edit</i>
-              <span>{{ $t("edit") }}</span>
-            </button>
-          </div>
-          <div>
-            <button
-              v-close-popover
-              class="icon button"
-              @click="confirmRemove = true"
-            >
-              <i class="material-icons">delete</i>
-              <span>{{ $t("delete") }}</span>
-            </button>
-          </div>
+      <tippy trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <button
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('more')"
+            class="tooltip-target icon button"
+          >
+            <i class="material-icons">more_vert</i>
+          </button>
         </template>
-      </v-popover>
+        <div>
+          <button
+            class="icon button"
+            @click="
+              $emit('edit-request', {
+                collectionIndex,
+                folderIndex,
+                folderName,
+                request,
+                requestIndex,
+              })
+            "
+          >
+            <i class="material-icons">edit</i>
+            <span>{{ $t("edit") }}</span>
+          </button>
+        </div>
+        <div>
+          <button class="icon button" @click="confirmRemove = true">
+            <i class="material-icons">delete</i>
+            <span>{{ $t("delete") }}</span>
+          </button>
+        </div>
+      </tippy>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"

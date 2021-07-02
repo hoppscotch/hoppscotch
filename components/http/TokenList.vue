@@ -13,7 +13,8 @@
         <label>{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">
           <button
-            v-tooltip.bottom="$t('clear')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('clear')"
             class="icon button"
             @click="clearContent('tokens', $event)"
           >
@@ -41,7 +42,8 @@
         <div class="row-wrapper">
           <li>
             <button
-              v-tooltip.bottom="$t('use_token')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('use_token')"
               class="icon button"
               @click="useOAuthToken(token.value)"
             >
@@ -50,7 +52,8 @@
           </li>
           <li>
             <button
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
               class="icon button"
               @click="removeOAuthToken(index)"
             >

@@ -6,7 +6,8 @@
           <label for="reqParamList">{{ $t("request_body") }}</label>
           <div>
             <button
-              v-tooltip.bottom="$t('clear')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('clear')"
               class="icon button"
               @click="clearContent('bodyParams', $event)"
             >
@@ -68,7 +69,8 @@
       <div>
         <li>
           <button
-            v-tooltip.bottom="{
+            v-tippy="{ theme: 'tooltip' }"
+            title="{
               content: param.hasOwnProperty('active')
                 ? param.active
                   ? $t('turn_off')
@@ -113,7 +115,8 @@
       <div>
         <li>
           <button
-            v-tooltip.bottom="$t('delete')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('delete')"
             class="icon button"
             @click="removeRequestBodyParam(index)"
           >

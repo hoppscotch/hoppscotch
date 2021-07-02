@@ -54,7 +54,8 @@
           <span>{{ $t("clear_all") }}</span>
         </button>
         <button
-          v-tooltip="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
+          v-tippy="{ theme: 'tooltip' }"
+          title="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
           class="icon button"
           @click="toggleCollapse()"
         >
@@ -69,7 +70,8 @@
         </p>
         <div>
           <button
-            v-tooltip="$t('yes')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('yes')"
             data-testid="confirm_clear_history"
             class="icon button"
             @click="clearHistory"
@@ -77,7 +79,8 @@
             <i class="material-icons">done</i>
           </button>
           <button
-            v-tooltip="$t('no')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('no')"
             data-testid="reject_clear_history"
             class="icon button"
             @click="disableHistoryClearing"

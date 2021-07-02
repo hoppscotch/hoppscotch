@@ -149,6 +149,46 @@ hr {
   @apply my-4;
 }
 
+.tippy-popper {
+  .tooltip-theme {
+    @apply bg-secondary;
+    @apply text-primaryLight;
+    @apply text-xs;
+    @apply font-semibold;
+    @apply px-2;
+    @apply px-4;
+    @apply shadow;
+  }
+
+  .popover-theme {
+    @apply bg-primaryLight;
+    @apply text-secondary;
+    @apply p-2;
+    @apply shadow-md;
+  }
+
+  &[x-placement^="top"] .tippy-tooltip .tippy-arrow {
+    border-top-color: var(--color-primary-light);
+  }
+
+  &[x-placement^="bottom"] .tippy-tooltip .tippy-arrow {
+    border-bottom-color: var(--color-primary-light);
+  }
+
+  &[x-placement^="left"] .tippy-tooltip .tippy-arrow {
+    border-left-color: var(--color-primary-light);
+  }
+
+  &[x-placement^="right"] .tippy-tooltip .tippy-arrow {
+    border-right-color: var(--color-primary-light);
+  }
+}
+
+[arrow] > div {
+  @apply flex;
+  @apply w-full;
+}
+
 .tooltip {
   @apply z-50;
   @apply outline-none;

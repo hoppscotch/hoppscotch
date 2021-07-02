@@ -29,11 +29,11 @@
 
 @mixin lightTheme {
   // Background color
-  --primary-color: rgba(255, 255, 255, 1);
+  --primary-color: theme("colors.white");
   // Light Background color
-  --primary-light-color: theme("colors.gray.200");
+  --primary-light-color: theme("colors.gray.50");
   // Dark Background color
-  --primary-dark-color: rgba(0, 0, 0, 0.02);
+  --primary-dark-color: theme("colors.gray.100");
   // Text color
   --secondary-color: theme("colors.gray.600");
   // Light Text color

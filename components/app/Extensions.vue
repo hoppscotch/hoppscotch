@@ -32,7 +32,8 @@
             <span>Firefox</span>
             <span
               v-if="hasFirefoxExtInstalled"
-              v-tooltip="$t('installed')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('installed')"
               class="icon button"
             >
               <i class="material-icons">done</i>
@@ -60,7 +61,8 @@
             <span>Chrome</span>
             <span
               v-if="hasChromeExtInstalled"
-              v-tooltip="$t('installed')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('installed')"
               class="icon button"
             >
               <i class="material-icons">done</i>

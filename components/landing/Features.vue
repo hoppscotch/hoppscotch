@@ -4,38 +4,14 @@
       <p class="my-4 font-semibold tracking-widest text-center text-accent">
         FEATURES
       </p>
-      <h3
-        class="
-          max-w-xl
-          mt-4
-          mb-8
-          text-4xl
-          font-bold
-          leading-tight
-          tracking-tight
-          text-center
-          transition
-          text-secondaryDark
-        "
-      >
-        A technology-first approach to payments and finance
-      </h3>
     </div>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="(feature, index) in features"
         :key="`feature-${index}`"
-        class="
-          inline-flex
-          flex-col
-          p-8
-          transition
-          border
-          rounded-lg
-          border-divider
-        "
+        class="inline-flex flex-col p-8"
       >
-        <i class="text-3xl material-icons text-accent">{{ feature.icon }}</i>
+        <i class="text-4xl material-icons text-accent">{{ feature.icon }}</i>
         <div class="flex-grow">
           <h2
             class="

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col p-4 mx-4 bg-primaryLight my-16 rounded">
+  <div class="flex flex-col p-4 mx-4 bg-primaryLight rounded">
     <div class="flex flex-col items-center">
       <p class="my-4 font-semibold tracking-widest text-center">
         EMPOWERING DEVELOPERS FROM

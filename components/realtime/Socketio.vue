@@ -100,7 +100,8 @@
         <div v-if="index + 1 !== communication.inputs.length">
           <li>
             <button
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
               class="icon button"
               @click="removeCommunicationInput({ index })"
             >

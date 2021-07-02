@@ -18,57 +18,55 @@
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover>
-        <button
-          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-          v-tooltip.left="$t('more')"
-          class="tooltip-target icon button"
-        >
-          <i class="material-icons">more_vert</i>
-        </button>
-        <template #popover>
-          <div>
-            <button
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              v-close-popover
-              class="icon button"
-              @click="$emit('add-folder', { folder, path: folderPath })"
-            >
-              <i class="material-icons">create_new_folder</i>
-              <span>{{ $t("new_folder") }}</span>
-            </button>
-          </div>
-          <div>
-            <button
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              v-close-popover
-              class="icon button"
-              @click="
-                $emit('edit-folder', {
-                  folder,
-                  folderIndex,
-                  collectionIndex,
-                  folderPath: '',
-                })
-              "
-            >
-              <i class="material-icons">edit</i>
-              <span>{{ $t("edit") }}</span>
-            </button>
-          </div>
-          <div>
-            <button
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              v-close-popover
-              class="icon button"
-              @click="confirmRemove = true"
-            >
-              <i class="material-icons">delete</i>
-              <span>{{ $t("delete") }}</span>
-            </button>
-          </div>
+      <tippy trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <button
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('more')"
+            class="tooltip-target icon button"
+          >
+            <i class="material-icons">more_vert</i>
+          </button>
         </template>
-      </v-popover>
+        <div>
+          <button
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            class="icon button"
+            @click="$emit('add-folder', { folder, path: folderPath })"
+          >
+            <i class="material-icons">create_new_folder</i>
+            <span>{{ $t("new_folder") }}</span>
+          </button>
+        </div>
+        <div>
+          <button
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            class="icon button"
+            @click="
+              $emit('edit-folder', {
+                folder,
+                folderIndex,
+                collectionIndex,
+                folderPath: '',
+              })
+            "
+          >
+            <i class="material-icons">edit</i>
+            <span>{{ $t("edit") }}</span>
+          </button>
+        </div>
+        <div>
+          <button
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            class="icon button"
+            @click="confirmRemove = true"
+          >
+            <i class="material-icons">delete</i>
+            <span>{{ $t("delete") }}</span>
+          </button>
+        </div>
+      </tippy>
     </div>
     <div v-show="showChildren || isFiltered">
       <ul class="flex-col">

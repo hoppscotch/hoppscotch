@@ -50,7 +50,8 @@
                   <label for="headerList">{{ $t("header_list") }}</label>
                   <div>
                     <button
-                      v-tooltip.bottom="$t('clear')"
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="$t('clear')"
                       class="icon button"
                       @click="headers = []"
                     >
@@ -103,7 +104,8 @@
               <div>
                 <li>
                   <button
-                    v-tooltip.bottom="{
+                    v-tippy="{ theme: 'tooltip' }"
+                    title="{
                       content: header.hasOwnProperty('active')
                         ? header.active
                           ? $t('turn_off')
@@ -135,7 +137,8 @@
               <div>
                 <li>
                   <button
-                    v-tooltip.bottom="$t('delete')"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('delete')"
                     class="icon button"
                     @click="removeRequestHeader(index)"
                   >
@@ -161,7 +164,8 @@
             <div v-if="schema">
               <button
                 ref="ToggleExpandResponse"
-                v-tooltip="{
+                v-tippy="{ theme: 'tooltip' }"
+                title="{
                   content: !expandResponse
                     ? $t('expand_response')
                     : $t('collapse_response'),
@@ -175,7 +179,8 @@
               </button>
               <button
                 ref="downloadSchema"
-                v-tooltip="$t('download_file')"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('download_file')"
                 class="icon button"
                 @click="downloadSchema"
               >
@@ -183,7 +188,8 @@
               </button>
               <button
                 ref="copySchemaCode"
-                v-tooltip="$t('copy_schema')"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('copy_schema')"
                 class="icon button"
                 @click="copySchema"
               >
@@ -222,7 +228,8 @@
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
-                v-tooltip.bottom="
+                v-tippy="{ theme: 'tooltip' }"
+                title="
                   `${$t('run_query')} (${getSpecialKey()}-Enter)`
                 "
                 class="button"
@@ -232,14 +239,16 @@
               </button>
               <button
                 ref="copyQueryButton"
-                v-tooltip="$t('copy_query')"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('copy_query')"
                 class="icon button"
                 @click="copyQuery"
               >
                 <i class="material-icons">{{ copyQueryIcon }}</i>
               </button>
               <button
-                v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
                 class="icon button"
                 @click="doPrettifyQuery"
               >
@@ -247,7 +256,8 @@
               </button>
               <button
                 ref="saveRequest"
-                v-tooltip.bottom="$t('save_to_collections')"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('save_to_collections')"
                 class="icon button"
                 @click="saveRequest"
               >
@@ -300,7 +310,8 @@
                 <button
                   v-if="response"
                   ref="downloadResponse"
-                  v-tooltip="$t('download_file')"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('download_file')"
                   class="icon button"
                   @click="downloadResponse"
                 >
@@ -309,7 +320,8 @@
                 <button
                   v-if="response"
                   ref="copyResponseButton"
-                  v-tooltip="$t('copy_response')"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('copy_response')"
                   class="icon button"
                   @click="copyResponse"
                 >

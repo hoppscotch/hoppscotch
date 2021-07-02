@@ -9,10 +9,7 @@
       :animate-fill="false"
     >
       <template #trigger>
-        <button
-          v-tippy="{ animateFill: false, theme: 'tooltip' }"
-          :title="$t('choose_language')"
-        >
+        <button v-tippy="{ theme: 'tooltip' }" :title="$t('choose_language')">
           <span class="mr-2 text-lg">
             {{
               $i18n.locales.find(({ code }) => code == $i18n.locale).country

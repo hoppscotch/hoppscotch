@@ -95,7 +95,6 @@ export default {
   plugins: [
     "~/plugins/v-tippy",
     "~/plugins/vuex-persist",
-    "~/plugins/v-tooltip",
     "~/plugins/vue-rx",
     "~/plugins/vue-apollo",
     { src: "~/plugins/web-worker", ssr: false },
@@ -200,13 +199,6 @@ export default {
     Disallow: "",
     Allow: "/",
     Sitemap: `${process.env.BASE_URL}/sitemap.xml`,
-  },
-
-  // Color Mode module configuration (https://github.com/nuxt-community/color-mode-module)
-  colorMode: {
-    classSuffix: "",
-    preference: "dark",
-    fallback: "dark",
   },
 
   // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
@@ -449,6 +441,6 @@ export default {
 
   // Router configuration (https://nuxtjs.org/api/configuration-router)
   router: {
-    linkExactActiveClass: "text-accent bg-primaryDark",
+    linkExactActiveClass: "text-accent",
   },
 }

@@ -124,7 +124,11 @@
             target="_blank"
             rel="noopener"
           >
-            <button v-tooltip="$t('wiki')" class="icon button">
+            <button
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('wiki')"
+              class="icon button"
+            >
               <i class="material-icons">help_outline</i>
             </button>
           </a>
@@ -132,7 +136,8 @@
         <div class="row-wrapper">
           <label for="url">{{ $t("url") }}</label>
           <button
-            v-tooltip.bottom="$t('reset_default')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('reset_default')"
             class="icon button"
             @click="resetProxy"
           >

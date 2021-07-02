@@ -6,7 +6,8 @@
         <button
           v-if="response.body"
           ref="ToggleExpandResponse"
-          v-tooltip="{
+          v-tippy="{ theme: 'tooltip' }"
+          title="{
             content: !expandResponse
               ? $t('expand_response')
               : $t('collapse_response'),
@@ -21,7 +22,8 @@
         <button
           v-if="response.body && canDownloadResponse"
           ref="downloadResponse"
-          v-tooltip="$t('download_file')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('download_file')"
           class="icon button"
           @click="downloadResponse"
         >
@@ -30,7 +32,8 @@
         <button
           v-if="response.body"
           ref="copyResponse"
-          v-tooltip="$t('copy_response')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('copy_response')"
           class="icon button"
           @click="copyResponse"
         >

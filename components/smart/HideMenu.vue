@@ -1,6 +1,7 @@
 <template>
   <div
-    v-tooltip="$t(active ? 'hide_sidebar' : 'show_sidebar')"
+    v-tippy="{ theme: 'tooltip' }"
+    :title="$t(active ? 'hide_sidebar' : 'show_sidebar')"
     class="
       absolute
       hidden

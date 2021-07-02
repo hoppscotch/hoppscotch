@@ -30,56 +30,49 @@
       <div>
         <button
           v-if="doc"
-          v-tooltip.left="$t('import')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('import')"
           class="icon button"
           @click="$emit('select-collection')"
         >
           <i class="material-icons">topic</i>
         </button>
-        <v-popover>
-          <button
-            v-tooltip.left="$t('more')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
-          <template #popover>
-            <div>
-              <button
-                v-close-popover
-                class="icon button"
-                @click="
-                  $emit('add-folder', {
-                    path: `${collectionIndex}`,
-                  })
-                "
-              >
-                <i class="material-icons">create_new_folder</i>
-                <span>{{ $t("new_folder") }}</span>
-              </button>
-            </div>
-            <div>
-              <button
-                v-close-popover
-                class="icon button"
-                @click="$emit('edit-collection')"
-              >
-                <i class="material-icons">create</i>
-                <span>{{ $t("edit") }}</span>
-              </button>
-            </div>
-            <div>
-              <button
-                v-close-popover
-                class="icon button"
-                @click="confirmRemove = true"
-              >
-                <i class="material-icons">delete</i>
-                <span>{{ $t("delete") }}</span>
-              </button>
-            </div>
+        <tippy trigger="click" theme="popover" arrow>
+          <template #trigger>
+            <button
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('more')"
+              class="tooltip-target icon button"
+            >
+              <i class="material-icons">more_vert</i>
+            </button>
           </template>
-        </v-popover>
+          <div>
+            <button
+              class="icon button"
+              @click="
+                $emit('add-folder', {
+                  path: `${collectionIndex}`,
+                })
+              "
+            >
+              <i class="material-icons">create_new_folder</i>
+              <span>{{ $t("new_folder") }}</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon button" @click="$emit('edit-collection')">
+              <i class="material-icons">create</i>
+              <span>{{ $t("edit") }}</span>
+            </button>
+          </div>
+          <div>
+            <button class="icon button" @click="confirmRemove = true">
+              <i class="material-icons">delete</i>
+              <span>{{ $t("delete") }}</span>
+            </button>
+          </div>
+        </tippy>
       </div>
     </div>
     <div v-show="showChildren || isFiltered">

@@ -6,7 +6,7 @@
           <Pane
             v-if="!hideNavigationPane"
             style="width: auto"
-            class="overflow-y-auto bg-primaryDark flex items-stretch"
+            class="overflow-y-auto bg-primaryLight flex items-stretch"
           >
             <AppSidenav />
           </Pane>
@@ -30,7 +30,7 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto" class="bg-primaryDark">
+      <Pane style="height: auto" class="bg-primaryLight">
         <button
           class="button icon"
           @click="hideNavigationPane = !hideNavigationPane"
@@ -120,12 +120,8 @@ export default {
 <style lang="scss" scoped>
 .splitpanes--vertical > .splitpanes__splitter {
   display: none;
-  width: 0;
-  background: linear-gradient(90deg, #ccc, #111);
 }
 .splitpanes--horizontal > .splitpanes__splitter {
   display: none;
-  height: 0;
-  background: linear-gradient(0deg, #ccc, #111);
 }
 </style>

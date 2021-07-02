@@ -30,7 +30,7 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto" class="bg-primaryLight">
+      <Pane style="height: auto" class="bg-primaryDark">
         <button
           class="button icon"
           @click="hideNavigationPane = !hideNavigationPane"

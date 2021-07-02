@@ -5,7 +5,8 @@
       <div>
         <button
           v-if="mode == 'import_from_my_collections'"
-          v-tooltip.left="'Back'"
+          v-tippy="{ theme: 'tooltip' }"
+          title="Back"
           class="tooltip-target icon button"
           @click="
             mode = 'import_export'
@@ -14,55 +15,56 @@
         >
           <i class="material-icons">arrow_back</i>
         </button>
-        <v-popover
+
+        <tippy
           v-if="
             mode == 'import_export' && collectionsType.type == 'my-collections'
           "
+          trigger="click"
+          theme="popover"
+          arrow
         >
-          <button
-            v-tooltip.left="$t('more')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
-          <template #popover>
-            <div>
-              <button
-                v-close-popover
-                class="icon button"
-                @click="readCollectionGist"
-              >
-                <i class="material-icons">assignment_returned</i>
-                <span>{{ $t("import_from_gist") }}</span>
-              </button>
-            </div>
-            <div
-              v-tooltip.bottom="{
+          <template #trigger>
+            <button
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('more')"
+              class="tooltip-target icon button"
+            >
+              <i class="material-icons">more_vert</i>
+            </button>
+          </template>
+          <div>
+            <button class="icon button" @click="readCollectionGist">
+              <i class="material-icons">assignment_returned</i>
+              <span>{{ $t("import_from_gist") }}</span>
+            </button>
+          </div>
+          <div
+            v-tippy="{ theme: 'tooltip' }"
+            title="{
                 content: !currentUser
                   ? $t('login_with_github_to') + $t('create_secret_gist')
                   : currentUser.provider !== 'github.com'
                   ? $t('login_with_github_to') + $t('create_secret_gist')
                   : null,
               }"
+          >
+            <button
+              :disabled="
+                !currentUser
+                  ? true
+                  : currentUser.provider !== 'github.com'
+                  ? true
+                  : false
+              "
+              class="icon button"
+              @click="createCollectionGist"
             >
-              <button
-                v-close-popover
-                :disabled="
-                  !currentUser
-                    ? true
-                    : currentUser.provider !== 'github.com'
-                    ? true
-                    : false
-                "
-                class="icon button"
-                @click="createCollectionGist"
-              >
-                <i class="material-icons">assignment_turned_in</i>
-                <span>{{ $t("create_secret_gist") }}</span>
-              </button>
-            </div>
-          </template>
-        </v-popover>
+              <i class="material-icons">assignment_turned_in</i>
+              <span>{{ $t("create_secret_gist") }}</span>
+            </button>
+          </div>
+        </tippy>
         <button class="icon button" @click="hideModal">
           <i class="material-icons">close</i>
         </button>
@@ -71,7 +73,8 @@
     <template #body>
       <div v-if="mode == 'import_export'" class="flex flex-col p-2 items-start">
         <button
-          v-tooltip="$t('replace_current')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('replace_current')"
           class="icon button"
           @click="openDialogChooseFileToReplaceWith"
         >
@@ -87,7 +90,8 @@
           />
         </button>
         <button
-          v-tooltip="$t('preserve_current')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('preserve_current')"
           class="icon button"
           @click="openDialogChooseFileToImportFrom"
         >
@@ -104,7 +108,8 @@
         </button>
         <button
           v-if="collectionsType.type == 'team-collections'"
-          v-tooltip="$t('preserve_current')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('preserve_current')"
           class="icon button"
           @click="mode = 'import_from_my_collections'"
         >
@@ -112,7 +117,8 @@
           <span>{{ $t("import_from_my_collections") }}</span>
         </button>
         <button
-          v-tooltip="$t('download_file')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('download_file')"
           class="icon button"
           @click="exportJSON"
         >

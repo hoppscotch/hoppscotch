@@ -11,38 +11,35 @@
     <template #body>
       <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
-        <v-popover>
-          <pre v-if="requestType">{{
-            codegens.find((x) => x.id === requestType).name
-          }}</pre>
-          <input
-            v-else
-            id="requestType"
-            v-model="requestType"
-            :placeholder="$t('choose_language')"
-            class="input cursor-pointer"
-            readonly
-            autofocus
-          />
-          <template #popover>
-            <div v-for="gen in codegens" :key="gen.id">
-              <button
-                v-close-popover
-                class="icon button"
-                @click="requestType = gen.id"
-              >
-                {{ gen.name }}
-              </button>
-            </div>
+        <tippy trigger="click" theme="popover" arrow>
+          <template #trigger>
+            <pre v-if="requestType">{{
+              codegens.find((x) => x.id === requestType).name
+            }}</pre>
+            <input
+              v-else
+              id="requestType"
+              v-model="requestType"
+              :placeholder="$t('choose_language')"
+              class="input cursor-pointer"
+              readonly
+              autofocus
+            />
           </template>
-        </v-popover>
+          <div v-for="gen in codegens" :key="gen.id">
+            <button class="icon button" @click="requestType = gen.id">
+              {{ gen.name }}
+            </button>
+          </div>
+        </tippy>
       </span>
       <div class="row-wrapper">
         <label for="generatedCode">{{ $t("generated_code") }}</label>
         <div>
           <button
             ref="copyRequestCode"
-            v-tooltip="$t('copy_code')"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('copy_code')"
             class="icon button"
             @click="copyRequestCode"
           >

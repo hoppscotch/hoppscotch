@@ -5,51 +5,48 @@
         {{ $t("import_export") }} {{ $t("environments") }}
       </h3>
       <div>
-        <v-popover>
-          <button
-            v-tooltip.left="$t('more')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
-          <template #popover>
-            <div>
-              <button
-                v-close-popover
-                class="icon button"
-                @click="readEnvironmentGist"
-              >
-                <i class="material-icons">assignment_returned</i>
-                <span>{{ $t("import_from_gist") }}</span>
-              </button>
-            </div>
-            <div
-              v-tooltip.bottom="{
+        <tippy trigger="click" theme="popover" arrow>
+          <template #trigger>
+            <button
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('more')"
+              class="tooltip-target icon button"
+            >
+              <i class="material-icons">more_vert</i>
+            </button>
+          </template>
+          <div>
+            <button class="icon button" @click="readEnvironmentGist">
+              <i class="material-icons">assignment_returned</i>
+              <span>{{ $t("import_from_gist") }}</span>
+            </button>
+          </div>
+          <div
+            v-tippy="{ theme: 'tooltip' }"
+            title="{
                 content: !currentUser
                   ? $t('login_with_github_to') + $t('create_secret_gist')
                   : currentUser.provider !== 'github.com'
                   ? $t('login_with_github_to') + $t('create_secret_gist')
                   : null,
               }"
+          >
+            <button
+              :disabled="
+                !currentUser
+                  ? true
+                  : currentUser.provider !== 'github.com'
+                  ? true
+                  : false
+              "
+              class="icon button"
+              @click="createEnvironmentGist"
             >
-              <button
-                v-close-popover
-                :disabled="
-                  !currentUser
-                    ? true
-                    : currentUser.provider !== 'github.com'
-                    ? true
-                    : false
-                "
-                class="icon button"
-                @click="createEnvironmentGist"
-              >
-                <i class="material-icons">assignment_turned_in</i>
-                <span>{{ $t("create_secret_gist") }}</span>
-              </button>
-            </div>
-          </template>
-        </v-popover>
+              <i class="material-icons">assignment_turned_in</i>
+              <span>{{ $t("create_secret_gist") }}</span>
+            </button>
+          </div>
+        </tippy>
         <button class="icon button" @click="hideModal">
           <i class="material-icons">close</i>
         </button>
@@ -58,7 +55,8 @@
     <template #body>
       <div class="flex flex-col items-start p-2">
         <button
-          v-tooltip="$t('replace_current')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('replace_current')"
           class="icon button"
           @click="openDialogChooseFileToReplaceWith"
         >
@@ -74,7 +72,8 @@
           />
         </button>
         <button
-          v-tooltip="$t('preserve_current')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('preserve_current')"
           class="icon button"
           @click="openDialogChooseFileToImportFrom"
         >
@@ -90,7 +89,8 @@
           />
         </button>
         <button
-          v-tooltip="$t('download_file')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('download_file')"
           class="icon button"
           @click="exportJSON"
         >

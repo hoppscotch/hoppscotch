@@ -12,22 +12,46 @@ export default {
   data() {
     return {
       globe: null,
-      cube: null,
       renderer: null,
       scene: null,
       camera: null,
-      tbControls: null,
-      arcsData: [...Array(40).keys()].map(() => ({
+      arcsData: [...Array(20).keys()].map(() => ({
         startLat: (Math.random() - 0.5) * 180,
         startLng: (Math.random() - 0.5) * 360,
         endLat: (Math.random() - 0.5) * 180,
         endLng: (Math.random() - 0.5) * 360,
-        color: ["#00acee", "#aceeff", "#00ffac", "#aaef3e"][
-          Math.round(Math.random() * 3)
+        color: [
+          ["#00acee", "#aceeff", "#00ffac", "#aaef3e"][
+            Math.round(Math.random() * 3)
+          ],
+          ["#00acee", "#aceeff", "#00ffac", "#aaef3e"][
+            Math.round(Math.random() * 3)
+          ],
         ],
       })),
     }
   },
+
+  // computed: {
+  //   labelsData() {
+  //     const labelsData = []
+  //     this.arcsData.forEach(
+  //       ({ startLat, startLng, endLat, endLng, color }, linkIdx) =>
+  //         [
+  //           [startLat, startLng],
+  //           [endLat, endLng],
+  //         ].forEach(([lat, lng], edgeIdx) =>
+  //           labelsData.push({
+  //             lat,
+  //             lng,
+  //             color: color[edgeIdx],
+  //             text: `${linkIdx} ${edgeIdx ? "tgt" : "src"}`,
+  //           })
+  //         )
+  //     )
+  //     return labelsData
+  //   },
+  // },
 
   mounted() {
     this.init()
@@ -52,17 +76,27 @@ export default {
       this.globe = new ThreeGlobe()
         .globeImageUrl(texture)
         .atmosphereColor("#aaaaaa")
+        // arcs layer
         .arcsData(this.arcsData)
         .arcColor("color")
         .arcDashLength(1)
-        .arcDashGap(5)
+        .arcDashGap(() => Math.random())
         .arcStroke(1)
         .arcDashInitialGap(() => Math.random() * 5)
         .arcDashAnimateTime(2000)
+        // hex layer
         .hexPolygonsData(geojson.features)
         .hexPolygonResolution(3)
         .hexPolygonMargin(0.5)
         .hexPolygonColor(() => `#aaaaaa`)
+      // labels layer
+      // .labelsData(this.labelsData)
+      // .labelLat("lat")
+      // .labelLng("lng")
+      // .labelText("text")
+      // .labelColor("color")
+      // .labelSize(1.5)
+      // .labelDotRadius(0.5)
 
       this.renderer = new THREE.WebGLRenderer({
         alpha: true,

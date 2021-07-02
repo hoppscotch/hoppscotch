@@ -11,7 +11,8 @@
             <div class="row-wrapper">
               <label for="collectionUpload">
                 <button
-                  v-tooltip="'JSON'"
+                  v-tippy="{ theme: 'tooltip' }"
+                  title="JSON"
                   class="icon button"
                   @click="$refs.collectionUpload.click()"
                 >
@@ -28,7 +29,8 @@
               />
               <div>
                 <button
-                  v-tooltip.bottom="$t('clear')"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('clear')"
                   class="icon button"
                   @click="collectionJSON = '[]'"
                 >
@@ -64,7 +66,8 @@
             </p>
             <div v-else class="row-wrapper">
               <div
-                v-tooltip.bottom="{
+                v-tippy="{ theme: 'tooltip' }"
+                title="{
                   content: !currentUser
                     ? $t('login_with_github_to') + $t('create_secret_gist')
                     : currentUser.provider !== 'github.com'

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <label>
-      <ColorScheme placeholder="..." tag="span">
+      <!-- <ColorScheme placeholder="..." tag="span">
         {{ $t("background") }}:
         {{
           $colorMode.preference.charAt(0).toUpperCase() +
@@ -10,13 +10,14 @@
         <span v-if="$colorMode.preference === 'system'">
           ({{ $colorMode.value }} mode detected)
         </span>
-      </ColorScheme>
+      </ColorScheme> -->
     </label>
     <div>
       <span
         v-for="(color, index) of colors"
         :key="`color-${index}`"
-        v-tooltip="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
         class="
           inline-flex
           items-center

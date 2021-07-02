@@ -40,6 +40,7 @@
         <button class="button icon" @click="hideHeaderPane = !hideHeaderPane">
           <i class="material-icons">menu_open</i>
         </button>
+        <AppFooter />
       </Pane>
     </Splitpanes>
   </div>

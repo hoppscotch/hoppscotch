@@ -65,7 +65,10 @@
         @click="displayModalAdd(true)"
       >
         <i class="material-icons">add</i>
-        <div v-tooltip.left="$t('disable_new_collection')">
+        <div
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('disable_new_collection')"
+        >
           <span>{{ $t("new") }}</span>
         </div>
       </button>

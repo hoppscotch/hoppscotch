@@ -6,7 +6,8 @@
         <button
           v-if="response.body"
           ref="downloadResponse"
-          v-tooltip="$t('download_file')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('download_file')"
           class="icon button"
           @click="downloadResponse"
         >

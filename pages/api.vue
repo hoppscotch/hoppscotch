@@ -10,33 +10,32 @@
                 <li class="shrink">
                   <label for="method">{{ $t("method") }}</label>
                   <span class="select-wrapper">
-                    <v-popover>
-                      <input
-                        id="method"
-                        class="input drop-down-input"
-                        v-model="method"
-                        :readonly="!customMethod"
-                        autofocus
-                      />
-                      <template #popover>
-                        <div
-                          v-for="(methodMenuItem, index) in methodMenuItems"
-                          :key="`method-${index}`"
-                        >
-                          <button
-                            class="icon button"
-                            @click="
-                              customMethod =
-                                methodMenuItem == 'CUSTOM' ? true : false
-                              method = methodMenuItem
-                            "
-                            v-close-popover
-                          >
-                            {{ methodMenuItem }}
-                          </button>
-                        </div>
+                    <tippy trigger="click" theme="popover" arrow>
+                      <template #trigger>
+                        <input
+                          id="method"
+                          class="input drop-down-input"
+                          v-model="method"
+                          :readonly="!customMethod"
+                          autofocus
+                        />
                       </template>
-                    </v-popover>
+                      <div
+                        v-for="(methodMenuItem, index) in methodMenuItems"
+                        :key="`method-${index}`"
+                      >
+                        <button
+                          class="icon button"
+                          @click="
+                            customMethod =
+                              methodMenuItem == 'CUSTOM' ? true : false
+                            method = methodMenuItem
+                          "
+                        >
+                          {{ methodMenuItem }}
+                        </button>
+                      </div>
+                    </tippy>
                   </span>
                 </li>
                 <li>
@@ -109,30 +108,29 @@
                       $t("content_type")
                     }}</label>
                     <span class="select-wrapper">
-                      <v-popover>
-                        <input
-                          id="contentType"
-                          class="input drop-down-input"
-                          v-model="contentType"
-                          readonly
-                        />
-                        <template #popover>
-                          <div
-                            v-for="(
-                              contentTypeMenuItem, index
-                            ) in validContentTypes"
-                            :key="`content-type-${index}`"
-                          >
-                            <button
-                              class="icon button"
-                              @click="contentType = contentTypeMenuItem"
-                              v-close-popover
-                            >
-                              {{ contentTypeMenuItem }}
-                            </button>
-                          </div>
+                      <tippy trigger="click" theme="popover" arrow>
+                        <template #trigger>
+                          <input
+                            id="contentType"
+                            class="input drop-down-input"
+                            v-model="contentType"
+                            readonly
+                          />
                         </template>
-                      </v-popover>
+                        <div
+                          v-for="(
+                            contentTypeMenuItem, index
+                          ) in validContentTypes"
+                          :key="`content-type-${index}`"
+                        >
+                          <button
+                            class="icon button"
+                            @click="contentType = contentTypeMenuItem"
+                          >
+                            {{ contentTypeMenuItem }}
+                          </button>
+                        </div>
+                      </tippy>
                     </span>
                     <!-- <SmartAutoComplete
                   :source="validContentTypes"
@@ -182,7 +180,8 @@
                   <button
                     class="icon button"
                     @click="showCurlImportModal = !showCurlImportModal"
-                    v-tooltip.bottom="$t('import_curl')"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('import_curl')"
                   >
                     <i class="material-icons">import_export</i>
                   </button>
@@ -190,7 +189,8 @@
                     class="icon button"
                     @click="showCodegenModal = !showCodegenModal"
                     :disabled="!isValidURL"
-                    v-tooltip.bottom="$t('show_code')"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('show_code')"
                   >
                     <i class="material-icons">code</i>
                   </button>
@@ -201,7 +201,8 @@
                     @click="copyRequest"
                     ref="copyRequest"
                     :disabled="!isValidURL"
-                    v-tooltip.bottom="$t('copy_request_link')"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('copy_request_link')"
                   >
                     <i v-if="navigatorShare" class="material-icons">share</i>
                     <i v-else class="material-icons">content_copy</i>
@@ -211,14 +212,16 @@
                     @click="saveRequest"
                     ref="saveRequest"
                     :disabled="!isValidURL"
-                    v-tooltip.bottom="$t('save_to_collections')"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('save_to_collections')"
                   >
                     <i class="material-icons">create_new_folder</i>
                   </button>
                   <button
                     class="icon button"
                     @click="clearContent('', $event)"
-                    v-tooltip.bottom="$t('clear_all')"
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('clear_all')"
                     ref="clearAll"
                   >
                     <i class="material-icons">clear_all</i>
@@ -276,7 +279,8 @@
                             <button
                               class="icon button"
                               @click="clearContent('auth', $event)"
-                              v-tooltip.bottom="$t('clear')"
+                              v-tippy="{ theme: 'tooltip' }"
+                              :title="$t('clear')"
                             >
                               <i class="material-icons">clear_all</i>
                             </button>
@@ -344,7 +348,8 @@
                             v-if="auth === 'OAuth 2.0'"
                             class="icon button"
                             @click="showTokenListModal = !showTokenListModal"
-                            v-tooltip.bottom="$t('use_token')"
+                            v-tippy="{ theme: 'tooltip' }"
+                            :title="$t('use_token')"
                           >
                             <i class="material-icons">open_in_new</i>
                           </button>
@@ -352,7 +357,8 @@
                             v-if="auth === 'OAuth 2.0'"
                             class="icon button"
                             @click="showTokenRequest = !showTokenRequest"
-                            v-tooltip.bottom="$t('get_token')"
+                            v-tippy="{ theme: 'tooltip' }"
+                            :title="$t('get_token')"
                           >
                             <i class="material-icons">vpn_key</i>
                           </button>
@@ -381,21 +387,24 @@
                             <button
                               class="icon button"
                               @click="showTokenRequestList = true"
-                              v-tooltip.bottom="$t('manage_token_req')"
+                              v-tippy="{ theme: 'tooltip' }"
+                              :title="$t('manage_token_req')"
                             >
                               <i class="material-icons">library_add</i>
                             </button>
                             <button
                               class="icon button"
                               @click="clearContent('access_token', $event)"
-                              v-tooltip.bottom="$t('clear')"
+                              v-tippy="{ theme: 'tooltip' }"
+                              :title="$t('clear')"
                             >
                               <i class="material-icons">clear_all</i>
                             </button>
                             <button
                               class="icon button"
                               @click="showTokenRequest = false"
-                              v-tooltip.bottom="$t('close')"
+                              v-tippy="{ theme: 'tooltip' }"
+                              :title="$t('close')"
                             >
                               <i class="material-icons">close</i>
                             </button>
@@ -516,7 +525,8 @@
                             >
                               <button
                                 class="icon button"
-                                v-tooltip="$t('wiki')"
+                                v-tippy="{ theme: 'tooltip' }"
+                                :title="$t('wiki')"
                               >
                                 <i class="material-icons">help_outline</i>
                               </button>
@@ -555,7 +565,8 @@
                             >
                               <button
                                 class="icon button"
-                                v-tooltip="$t('wiki')"
+                                v-tippy="{ theme: 'tooltip' }"
+                                :title="$t('wiki')"
                               >
                                 <i class="material-icons">help_outline</i>
                               </button>
@@ -582,7 +593,8 @@
                               <button
                                 class="icon button"
                                 @click="clearContent('tests', $event)"
-                                v-tooltip.bottom="$t('clear')"
+                                v-tippy="{ theme: 'tooltip' }"
+                                :title="$t('clear')"
                               >
                                 <i class="material-icons">clear_all</i>
                               </button>
@@ -723,7 +735,8 @@
               :disabled="this.tokenReqs.length === 0"
               class="icon button"
               @click="showTokenRequestList = false"
-              v-tooltip.bottom="$t('use_token_req')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('use_token_req')"
             >
               <i class="material-icons">input</i>
             </button>
@@ -731,7 +744,8 @@
               :disabled="this.tokenReqs.length === 0"
               class="icon button"
               @click="removeOAuthTokenReq"
-              v-tooltip.bottom="$t('delete')"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
             >
               <i class="material-icons">delete</i>
             </button>

@@ -1,9 +1,10 @@
 <template>
   <header class="flex container items-center justify-between p-2 flex-1">
-    <div class="flex items-center relative ml-4">
+    <div class="flex items-center relative ml-2">
       <nuxt-link :to="localePath('index')">
         <h1 class="heading logo">Hoppscotch</h1>
       </nuxt-link>
+      <AppGitHubStarButton class="ml-8" />
     </div>
     <div class="flex">
       <button

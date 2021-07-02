@@ -1,5 +1,5 @@
 <template>
-  <div id="globe" class="w-full"></div>
+  <div ref="globe"></div>
 </template>
 
 <script>
@@ -32,12 +32,23 @@ export default {
   mounted() {
     this.init()
     this.animate()
+    window.addEventListener(
+      "resize",
+      () => {
+        this.camera.aspect =
+          this.$refs.globe.clientWidth / this.$refs.globe.clientHeight
+        this.camera.updateProjectionMatrix()
+        this.renderer.setSize(
+          this.$refs.globe.clientWidth,
+          this.$refs.globe.clientHeight
+        )
+      },
+      false
+    )
   },
 
   methods: {
     init() {
-      const container = document.getElementById("globe")
-
       this.globe = new ThreeGlobe()
         .globeImageUrl(texture)
         .atmosphereColor("#aaaaaa")
@@ -56,9 +67,12 @@ export default {
       this.renderer = new THREE.WebGLRenderer({
         alpha: true,
       })
-      this.renderer.setSize(container.clientWidth, container.clientHeight)
+      this.renderer.setSize(
+        this.$refs.globe.clientWidth,
+        this.$refs.globe.clientHeight
+      )
 
-      container.appendChild(this.renderer.domElement)
+      this.$refs.globe.appendChild(this.renderer.domElement)
 
       this.scene = new THREE.Scene()
       this.scene.background = null
@@ -67,7 +81,8 @@ export default {
       this.scene.add(new THREE.DirectionalLight(0xffffff, 0.8))
 
       this.camera = new THREE.PerspectiveCamera()
-      this.camera.aspect = container.clientWidth / container.clientHeight
+      this.camera.aspect =
+        this.$refs.globe.clientWidth / this.$refs.globe.clientHeight
       this.camera.updateProjectionMatrix()
       this.camera.position.z = 300
     },

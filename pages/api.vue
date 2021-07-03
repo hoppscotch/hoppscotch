@@ -10,7 +10,7 @@
                 <li class="shrink">
                   <label for="method">{{ $t("method") }}</label>
                   <span class="select-wrapper">
-                    <tippy trigger="click" theme="popover" arrow>
+                    <tippy tabindex="-1" trigger="click" theme="popover" arrow>
                       <template #trigger>
                         <input
                           id="method"
@@ -24,16 +24,14 @@
                         v-for="(methodMenuItem, index) in methodMenuItems"
                         :key="`method-${index}`"
                       >
-                        <button
-                          class="icon button"
-                          @click="
+                        <ButtonSecondary
+                          @click.native="
                             customMethod =
                               methodMenuItem == 'CUSTOM' ? true : false
                             method = methodMenuItem
                           "
-                        >
-                          {{ methodMenuItem }}
-                        </button>
+                        />
+                        {{ methodMenuItem }}
                       </div>
                     </tippy>
                   </span>
@@ -57,31 +55,27 @@
                 </li>
                 <li class="shrink">
                   <label class="hide-on-small-screen" for="send">&nbsp;</label>
-                  <button
+                  <ButtonSecondary
                     v-if="!runningRequest"
                     :disabled="!isValidURL"
-                    @click="sendRequest"
+                    @click.native="sendRequest"
                     id="send"
                     class="button"
                     ref="sendButton"
-                  >
-                    {{ $t("send") }}
-                    <span>
-                      <i class="material-icons">send</i>
-                    </span>
-                  </button>
-                  <button
+                    icon="send"
+                    :label="$t('send')"
+                  />
+                  <ButtonSecondary
                     v-else
-                    @click="cancelRequest"
+                    @click.native="cancelRequest"
                     id="send"
                     class="button"
                     ref="sendButton"
-                  >
-                    {{ $t("cancel") }}
-                    <span>
-                      <i class="material-icons">clear</i>
-                    </span>
-                  </button>
+                  />
+                  {{ $t("cancel") }}
+                  <span>
+                    <i class="material-icons">clear</i>
+                  </span>
                 </li>
               </ul>
               <ul>
@@ -108,7 +102,12 @@
                       $t("content_type")
                     }}</label>
                     <span class="select-wrapper">
-                      <tippy trigger="click" theme="popover" arrow>
+                      <tippy
+                        tabindex="-1"
+                        trigger="click"
+                        theme="popover"
+                        arrow
+                      >
                         <template #trigger>
                           <input
                             id="contentType"
@@ -123,12 +122,10 @@
                           ) in validContentTypes"
                           :key="`content-type-${index}`"
                         >
-                          <button
-                            class="icon button"
-                            @click="contentType = contentTypeMenuItem"
-                          >
-                            {{ contentTypeMenuItem }}
-                          </button>
+                          <ButtonSecondary
+                            @click.native="contentType = contentTypeMenuItem"
+                          />
+                          {{ contentTypeMenuItem }}
                         </div>
                       </tippy>
                     </span>
@@ -177,55 +174,48 @@
               </div>
               <div class="row-wrapper">
                 <span>
-                  <button
-                    class="icon button"
-                    @click="showCurlImportModal = !showCurlImportModal"
+                  <ButtonSecondary
+                    @click.native="showCurlImportModal = !showCurlImportModal"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('import_curl')"
-                  >
-                    <i class="material-icons">import_export</i>
-                  </button>
-                  <button
-                    class="icon button"
-                    @click="showCodegenModal = !showCodegenModal"
+                  />
+                  <i class="material-icons">import_export</i>
+
+                  <ButtonSecondary
+                    @click.native="showCodegenModal = !showCodegenModal"
                     :disabled="!isValidURL"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('show_code')"
-                  >
-                    <i class="material-icons">code</i>
-                  </button>
+                  />
+                  <i class="material-icons">code</i>
                 </span>
                 <span>
-                  <button
-                    class="icon button"
-                    @click="copyRequest"
+                  <ButtonSecondary
+                    @click.native="copyRequest"
                     ref="copyRequest"
                     :disabled="!isValidURL"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('copy_request_link')"
-                  >
-                    <i v-if="navigatorShare" class="material-icons">share</i>
-                    <i v-else class="material-icons">content_copy</i>
-                  </button>
-                  <button
-                    class="icon button"
-                    @click="saveRequest"
+                  />
+                  <i v-if="navigatorShare" class="material-icons">share</i>
+                  <i v-else class="material-icons">content_copy</i>
+
+                  <ButtonSecondary
+                    @click.native="saveRequest"
                     ref="saveRequest"
                     :disabled="!isValidURL"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('save_to_collections')"
-                  >
-                    <i class="material-icons">create_new_folder</i>
-                  </button>
-                  <button
-                    class="icon button"
-                    @click="clearContent('', $event)"
+                  />
+                  <i class="material-icons">create_new_folder</i>
+
+                  <ButtonSecondary
+                    @click.native="clearContent('', $event)"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('clear_all')"
                     ref="clearAll"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
+                  />
+                  <i class="material-icons">clear_all</i>
                 </span>
               </div>
             </AppSection>
@@ -276,14 +266,12 @@
                         <div class="row-wrapper">
                           <label for="auth">{{ $t("authentication") }}</label>
                           <div>
-                            <button
-                              class="icon button"
-                              @click="clearContent('auth', $event)"
+                            <ButtonSecondary
+                              @click.native="clearContent('auth', $event)"
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('clear')"
-                            >
-                              <i class="material-icons">clear_all</i>
-                            </button>
+                            />
+                            <i class="material-icons">clear_all</i>
                           </div>
                         </div>
                         <span class="select-wrapper">
@@ -316,22 +304,20 @@
                       </li>
                       <div>
                         <li>
-                          <button
-                            class="icon button"
+                          <ButtonSecondary
                             ref="switchVisibility"
-                            @click="switchVisibility"
+                            @click.native="switchVisibility"
+                          />
+                          <i
+                            class="material-icons"
+                            v-if="passwordFieldType === 'text'"
+                            >visibility</i
                           >
-                            <i
-                              class="material-icons"
-                              v-if="passwordFieldType === 'text'"
-                              >visibility</i
-                            >
-                            <i
-                              class="material-icons"
-                              v-if="passwordFieldType !== 'text'"
-                              >visibility_off</i
-                            >
-                          </button>
+                          <i
+                            class="material-icons"
+                            v-if="passwordFieldType !== 'text'"
+                            >visibility_off</i
+                          >
                         </li>
                       </div>
                     </ul>
@@ -344,24 +330,23 @@
                             name="bearer_token"
                             v-model="bearerToken"
                           />
-                          <button
+                          <ButtonSecondary
                             v-if="auth === 'OAuth 2.0'"
-                            class="icon button"
-                            @click="showTokenListModal = !showTokenListModal"
+                            @click.native="
+                              showTokenListModal = !showTokenListModal
+                            "
                             v-tippy="{ theme: 'tooltip' }"
                             :title="$t('use_token')"
-                          >
-                            <i class="material-icons">open_in_new</i>
-                          </button>
-                          <button
+                          />
+                          <i class="material-icons">open_in_new</i>
+
+                          <ButtonSecondary
                             v-if="auth === 'OAuth 2.0'"
-                            class="icon button"
-                            @click="showTokenRequest = !showTokenRequest"
+                            @click.native="showTokenRequest = !showTokenRequest"
                             v-tippy="{ theme: 'tooltip' }"
                             :title="$t('get_token')"
-                          >
-                            <i class="material-icons">vpn_key</i>
-                          </button>
+                          />
+                          <i class="material-icons">vpn_key</i>
                         </div>
                       </li>
                     </ul>
@@ -384,30 +369,28 @@
                         <div class="row-wrapper">
                           <label for="token-name">{{ $t("token_name") }}</label>
                           <div>
-                            <button
-                              class="icon button"
-                              @click="showTokenRequestList = true"
+                            <ButtonSecondary
+                              @click.native="showTokenRequestList = true"
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('manage_token_req')"
-                            >
-                              <i class="material-icons">library_add</i>
-                            </button>
-                            <button
-                              class="icon button"
-                              @click="clearContent('access_token', $event)"
+                            />
+                            <i class="material-icons">library_add</i>
+
+                            <ButtonSecondary
+                              @click.native="
+                                clearContent('access_token', $event)
+                              "
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('clear')"
-                            >
-                              <i class="material-icons">clear_all</i>
-                            </button>
-                            <button
-                              class="icon button"
-                              @click="showTokenRequest = false"
+                            />
+                            <i class="material-icons">clear_all</i>
+
+                            <ButtonSecondary
+                              @click.native="showTokenRequest = false"
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('close')"
-                            >
-                              <i class="material-icons">close</i>
-                            </button>
+                            />
+                            <i class="material-icons">close</i>
                           </div>
                         </div>
                         <input
@@ -496,13 +479,11 @@
                     </ul>
                     <ul>
                       <li>
-                        <button
-                          class="icon button"
-                          @click="handleAccessTokenRequest"
-                        >
-                          <i class="material-icons">vpn_key</i>
-                          <span>{{ $t("request_token") }}</span>
-                        </button>
+                        <ButtonSecondary
+                          @click.native="handleAccessTokenRequest"
+                        />
+                        <i class="material-icons">vpn_key</i>
+                        <span>{{ $t("request_token") }}</span>
                       </li>
                     </ul>
                   </AppSection>
@@ -518,19 +499,13 @@
                         <div class="row-wrapper">
                           <label>{{ $t("javascript_code") }}</label>
                           <div>
-                            <a
-                              href="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
-                              target="_blank"
-                              rel="noopener"
-                            >
-                              <button
-                                class="icon button"
-                                v-tippy="{ theme: 'tooltip' }"
-                                :title="$t('wiki')"
-                              >
-                                <i class="material-icons">help_outline</i>
-                              </button>
-                            </a>
+                            <ButtonSecondary
+                              to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
+                              blank
+                              v-tippy="{ theme: 'tooltip' }"
+                              :title="$t('wiki')"
+                              icon="help_outline"
+                            />
                           </div>
                         </div>
                         <SmartJsEditor
@@ -558,19 +533,13 @@
                         <div class="row-wrapper">
                           <label>{{ $t("javascript_code") }}</label>
                           <div>
-                            <a
-                              href="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
-                              target="_blank"
-                              rel="noopener"
-                            >
-                              <button
-                                class="icon button"
-                                v-tippy="{ theme: 'tooltip' }"
-                                :title="$t('wiki')"
-                              >
-                                <i class="material-icons">help_outline</i>
-                              </button>
-                            </a>
+                            <ButtonSecondary
+                              to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
+                              blank
+                              v-tippy="{ theme: 'tooltip' }"
+                              :title="$t('wiki')"
+                              icon="help_outline"
+                            />
                           </div>
                         </div>
                         <SmartJsEditor
@@ -590,14 +559,12 @@
                           <div class="row-wrapper">
                             <label>Test Reports</label>
                             <div>
-                              <button
-                                class="icon button"
-                                @click="clearContent('tests', $event)"
+                              <ButtonSecondary
+                                @click.native="clearContent('tests', $event)"
                                 v-tippy="{ theme: 'tooltip' }"
                                 :title="$t('clear')"
-                              >
-                                <i class="material-icons">clear_all</i>
-                              </button>
+                              />
+                              <i class="material-icons">clear_all</i>
                             </div>
                           </div>
                           <div
@@ -722,33 +689,29 @@
       <template #header>
         <h3 class="heading">{{ $t("manage_token_req") }}</h3>
         <div>
-          <button class="icon button" @click="showTokenRequestList = false">
-            <i class="material-icons">close</i>
-          </button>
+          <ButtonSecondary @click.native="showTokenRequestList = false" />
+          <i class="material-icons">close</i>
         </div>
       </template>
       <template #body>
         <div class="row-wrapper">
           <label for="token-req-list">{{ $t("token_req_list") }}</label>
           <div>
-            <button
+            <ButtonSecondary
               :disabled="this.tokenReqs.length === 0"
-              class="icon button"
-              @click="showTokenRequestList = false"
+              @click.native="showTokenRequestList = false"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('use_token_req')"
-            >
-              <i class="material-icons">input</i>
-            </button>
-            <button
+            />
+            <i class="material-icons">input</i>
+
+            <ButtonSecondary
               :disabled="this.tokenReqs.length === 0"
-              class="icon button"
-              @click="removeOAuthTokenReq"
+              @click.native="removeOAuthTokenReq"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+            />
+            <i class="material-icons">delete</i>
           </div>
         </div>
         <ul>
@@ -788,9 +751,8 @@
       <template #footer>
         <span></span>
         <span>
-          <button class="icon button primary" @click="addOAuthTokenReq">
-            {{ $t("save_token_req") }}
-          </button>
+          <ButtonPrimary @click.native="addOAuthTokenReq" />
+          {{ $t("save_token_req") }}
         </span>
       </template>
     </SmartModal>

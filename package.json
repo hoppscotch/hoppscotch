@@ -76,6 +76,7 @@
     "@nuxtjs/google-fonts": "^1.3.0",
     "@nuxtjs/pwa": "^3.3.5",
     "@nuxtjs/stylelint-module": "^4.0.0",
+    "@nuxtjs/svg": "^0.1.12",
     "@testing-library/jest-dom": "^5.14.1",
     "@types/lodash": "^4.14.170",
     "@vue/test-utils": "^1.2.1",

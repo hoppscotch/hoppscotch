@@ -16,19 +16,18 @@
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="connect"
               :disabled="!validUrl"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              @click="toggleConnection"
-            >
-              {{ connectionState ? $t("disconnect") : $t("connect") }}
-              <span>
-                <i class="material-icons">{{
-                  !connectionState ? "sync" : "sync_disabled"
-                }}</i>
-              </span>
-            </button>
+              @click.native="toggleConnection"
+            />
+            {{ connectionState ? $t("disconnect") : $t("connect") }}
+            <span>
+              <i class="material-icons">{{
+                !connectionState ? "sync" : "sync_disabled"
+              }}</i>
+            </span>
           </li>
         </div>
       </ul>
@@ -64,18 +63,17 @@
         <div>
           <li>
             <label for="publish" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="publish"
               class="button"
               name="get"
               :disabled="!canpublish"
-              @click="publish"
-            >
-              {{ $t("mqtt_publish") }}
-              <span>
-                <i class="material-icons">send</i>
-              </span>
-            </button>
+              @click.native="publish"
+            />
+            {{ $t("mqtt_publish") }}
+            <span>
+              <i class="material-icons">send</i>
+            </span>
           </li>
         </div>
       </ul>
@@ -93,24 +91,21 @@
         <div>
           <li>
             <label for="subscribe" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="subscribe"
               name="get"
               :disabled="!cansubscribe"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              @click="toggleSubscription"
-            >
-              {{
-                subscriptionState
-                  ? $t("mqtt_unsubscribe")
-                  : $t("mqtt_subscribe")
-              }}
-              <span>
-                <i class="material-icons">{{
-                  subscriptionState ? "sync_disabled" : "sync"
-                }}</i>
-              </span>
-            </button>
+              @click.native="toggleSubscription"
+            />
+            {{
+              subscriptionState ? $t("mqtt_unsubscribe") : $t("mqtt_subscribe")
+            }}
+            <span>
+              <i class="material-icons">{{
+                subscriptionState ? "sync_disabled" : "sync"
+              }}</i>
+            </span>
           </li>
         </div>
       </ul>

@@ -5,14 +5,12 @@
         <div class="row-wrapper">
           <label for="paramList">{{ $t("parameter_list") }}</label>
           <div>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
-              class="icon button"
-              @click="clearContent('parameters', $event)"
-            >
-              <i class="material-icons">clear_all</i>
-            </button>
+              @click.native="clearContent('parameters', $event)"
+            />
+            <i class="material-icons">clear_all</i>
           </div>
         </div>
       </li>
@@ -82,7 +80,7 @@
       </li>
       <div>
         <li>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             title="{
               content: param.hasOwnProperty('active')
@@ -91,45 +89,40 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
-            class="icon button"
-            @click="
+            @click.native="
               $store.commit('setActiveParams', {
                 index,
                 value: param.hasOwnProperty('active') ? !param.active : false,
               })
             "
-          >
-            <i class="material-icons">
-              {{
-                param.hasOwnProperty("active")
-                  ? param.active
-                    ? "check_box"
-                    : "check_box_outline_blank"
-                  : "check_box"
-              }}
-            </i>
-          </button>
+          />
+          <i class="material-icons">
+            {{
+              param.hasOwnProperty("active")
+                ? param.active
+                  ? "check_box"
+                  : "check_box_outline_blank"
+                : "check_box"
+            }}
+          </i>
         </li>
       </div>
       <div>
         <li>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('delete')"
-            class="icon button"
-            @click="removeRequestParam(index)"
-          >
-            <i class="material-icons">delete</i>
-          </button>
+            @click.native="removeRequestParam(index)"
+          />
+          <i class="material-icons">delete</i>
         </li>
       </div>
     </ul>
     <ul>
       <li>
-        <button class="icon button" @click="addRequestParam">
-          <i class="material-icons">add</i>
-          <span>{{ $t("add_new") }}</span>
-        </button>
+        <ButtonSecondary @click.native="addRequestParam" />
+        <i class="material-icons">add</i>
+        <span>{{ $t("add_new") }}</span>
       </li>
     </ul>
   </AppSection>

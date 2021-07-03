@@ -2,9 +2,8 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("new_team") }}</h3>
-      <button class="icon button" @click="hideModal">
-        <i class="material-icons">close</i>
-      </button>
+      <ButtonSecondary @click.native="hideModal" />
+      <i class="material-icons">close</i>
     </template>
     <template #body>
       <ul>
@@ -27,12 +26,8 @@
     <template #footer>
       <span></span>
       <span>
-        <button class="icon button" @click="hideModal">
-          {{ $t("cancel") }}
-        </button>
-        <button class="icon button primary" @click="addNewTeam">
-          {{ $t("save") }}
-        </button>
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('save')" @click.native="addNewTeam" />
       </span>
     </template>
   </SmartModal>

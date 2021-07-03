@@ -3,21 +3,20 @@
     <template #header>
       <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
       <div>
-        <tippy trigger="click" theme="popover" arrow>
+        <tippy tabindex="-1" trigger="click" theme="popover" arrow>
           <template #trigger>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
-              class="tooltip-target icon button"
-            >
-              <i class="material-icons">more_vert</i>
-            </button>
+            />
+            <i class="material-icons">more_vert</i>
           </template>
           <div>
-            <button class="icon button" @click="readCollectionGist">
-              <i class="material-icons">assignment_returned</i>
-              <span>{{ $t("import_from_gist") }}</span>
-            </button>
+            <ButtonSecondary
+              icon="assignment_returned"
+              :label="$t('import_from_gist')"
+              @click.native="readCollectionGist"
+            />
           </div>
           <div
             v-tippy="{ theme: 'tooltip' }"
@@ -29,7 +28,7 @@
                   : null,
               }"
           >
-            <button
+            <ButtonSecondary
               :disabled="
                 !currentUser
                   ? true
@@ -37,66 +36,56 @@
                   ? true
                   : false
               "
-              class="icon button"
-              @click="createCollectionGist"
-            >
-              <i class="material-icons">assignment_turned_in</i>
-              <span>{{ $t("create_secret_gist") }}</span>
-            </button>
+              @click.native="createCollectionGist"
+            />
+            <i class="material-icons">assignment_turned_in</i>
+            <span>{{ $t("create_secret_gist") }}</span>
           </div>
         </tippy>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>
       <div class="flex flex-col items-start p-2">
-        <button
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('replace_current')"
-          class="icon button"
-          @click="openDialogChooseFileToReplaceWith"
-        >
-          <i class="material-icons">folder_special</i>
-          <span>{{ $t("replace_json") }}</span>
-          <input
-            ref="inputChooseFileToReplaceWith"
-            class="input"
-            type="file"
-            style="display: none"
-            accept="application/json"
-            @change="replaceWithJSON"
-          />
-        </button>
-        <button
+          @click.native="openDialogChooseFileToReplaceWith"
+        />
+        <i class="material-icons">folder_special</i>
+        <span>{{ $t("replace_json") }}</span>
+        <input
+          ref="inputChooseFileToReplaceWith"
+          class="input"
+          type="file"
+          style="display: none"
+          accept="application/json"
+          @change="replaceWithJSON"
+        />
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
-          class="icon button"
-          @click="openDialogChooseFileToImportFrom"
-        >
-          <i class="material-icons">create_new_folder</i>
-          <span>{{ $t("import_json") }}</span>
-          <input
-            ref="inputChooseFileToImportFrom"
-            class="input"
-            type="file"
-            style="display: none"
-            accept="application/json"
-            @change="importFromJSON"
-          />
-        </button>
-        <button
+          @click.native="openDialogChooseFileToImportFrom"
+        />
+        <i class="material-icons">create_new_folder</i>
+        <span>{{ $t("import_json") }}</span>
+        <input
+          ref="inputChooseFileToImportFrom"
+          class="input"
+          type="file"
+          style="display: none"
+          accept="application/json"
+          @change="importFromJSON"
+        />
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
-          class="icon button"
-          @click="exportJSON"
-        >
-          <i class="material-icons">drive_file_move</i>
-          <span>
-            {{ $t("export_as_json") }}
-          </span>
-        </button>
+          @click.native="exportJSON"
+        />
+        <i class="material-icons">drive_file_move</i>
+        <span>
+          {{ $t("export_as_json") }}
+        </span>
       </div>
     </template>
   </SmartModal>

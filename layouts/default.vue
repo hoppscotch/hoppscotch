@@ -31,16 +31,16 @@
         </Splitpanes>
       </Pane>
       <Pane style="height: auto" class="bg-primaryDark">
-        <button
+        <ButtonSecondary
           class="button icon"
-          @click="hideNavigationPane = !hideNavigationPane"
-        >
-          <i class="material-icons">menu_open</i>
-        </button>
-        <button class="button icon" @click="hideHeaderPane = !hideHeaderPane">
-          <i class="material-icons">menu_open</i>
-        </button>
-        <AppFooter />
+          @click.native="hideNavigationPane = !hideNavigationPane"
+        />
+        <i class="material-icons">menu_open</i>
+        <ButtonSecondary
+          class="button icon"
+          @click.native="hideHeaderPane = !hideHeaderPane"
+        />
+        <i class="material-icons">menu_open</i>
       </Pane>
     </Splitpanes>
   </div>

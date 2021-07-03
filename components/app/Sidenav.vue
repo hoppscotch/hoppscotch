@@ -84,7 +84,7 @@ nav.secondary-nav {
     @apply text-secondaryLight;
     @apply fill-current;
     @apply outline-none;
-    @apply transition;
+
     @apply ease-in-out;
     @apply duration-150;
 

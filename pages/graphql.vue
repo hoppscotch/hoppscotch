@@ -19,7 +19,7 @@
             <div>
               <li>
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
-                <button
+                <ButtonSecondary
                   id="get"
                   name="get"
                   class="
@@ -27,15 +27,14 @@
                     rounded-b-lg
                     md:rounded-bl-none md:rounded-br-lg
                   "
-                  @click="onPollSchemaClick"
+                  @click.native="onPollSchemaClick"
+                />
+                {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
+                <span
+                  ><i class="material-icons">{{
+                    !isPollingSchema ? "sync" : "sync_disabled"
+                  }}</i></span
                 >
-                  {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
-                  <span
-                    ><i class="material-icons">{{
-                      !isPollingSchema ? "sync" : "sync_disabled"
-                    }}</i></span
-                  >
-                </button>
               </li>
             </div>
           </ul>
@@ -49,14 +48,12 @@
                 <div class="row-wrapper">
                   <label for="headerList">{{ $t("header_list") }}</label>
                   <div>
-                    <button
+                    <ButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
                       :title="$t('clear')"
-                      class="icon button"
-                      @click="headers = []"
-                    >
-                      <i class="material-icons">clear_all</i>
-                    </button>
+                      @click.native="headers = []"
+                    />
+                    <i class="material-icons">clear_all</i>
                   </div>
                 </div>
               </li>
@@ -103,7 +100,7 @@
               </li>
               <div>
                 <li>
-                  <button
+                  <ButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     title="{
                       content: header.hasOwnProperty('active')
@@ -112,8 +109,7 @@
                           : $t('turn_on')
                         : $t('turn_off'),
                     }"
-                    class="icon button"
-                    @click="
+                    @click.native="
                       $store.commit('setActiveGQLHeader', {
                         index,
                         value: header.hasOwnProperty('active')
@@ -121,38 +117,34 @@
                           : false,
                       })
                     "
-                  >
-                    <i class="material-icons">
-                      {{
-                        header.hasOwnProperty("active")
-                          ? header.active
-                            ? "check_box"
-                            : "check_box_outline_blank"
-                          : "check_box"
-                      }}
-                    </i>
-                  </button>
+                  />
+                  <i class="material-icons">
+                    {{
+                      header.hasOwnProperty("active")
+                        ? header.active
+                          ? "check_box"
+                          : "check_box_outline_blank"
+                        : "check_box"
+                    }}
+                  </i>
                 </li>
               </div>
               <div>
                 <li>
-                  <button
+                  <ButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('delete')"
-                    class="icon button"
-                    @click="removeRequestHeader(index)"
-                  >
-                    <i class="material-icons">delete</i>
-                  </button>
+                    @click.native="removeRequestHeader(index)"
+                  />
+                  <i class="material-icons">delete</i>
                 </li>
               </div>
             </ul>
             <ul>
               <li>
-                <button class="icon button" @click="addRequestHeader">
-                  <i class="material-icons">add</i>
-                  <span>{{ $t("add_new") }}</span>
-                </button>
+                <ButtonSecondary @click.native="addRequestHeader" />
+                <i class="material-icons">add</i>
+                <span>{{ $t("add_new") }}</span>
               </li>
             </ul>
           </div>
@@ -162,7 +154,7 @@
           <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
-              <button
+              <ButtonSecondary
                 ref="ToggleExpandResponse"
                 v-tippy="{ theme: 'tooltip' }"
                 title="{
@@ -170,31 +162,27 @@
                     ? $t('expand_response')
                     : $t('collapse_response'),
                 }"
-                class="icon button"
-                @click="ToggleExpandResponse"
-              >
-                <i class="material-icons">
-                  {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-                </i>
-              </button>
-              <button
+                @click.native="ToggleExpandResponse"
+              />
+              <i class="material-icons">
+                {{ !expandResponse ? "unfold_more" : "unfold_less" }}
+              </i>
+
+              <ButtonSecondary
                 ref="downloadSchema"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('download_file')"
-                class="icon button"
-                @click="downloadSchema"
-              >
-                <i class="material-icons">{{ downloadSchemaIcon }}</i>
-              </button>
-              <button
+                @click.native="downloadSchema"
+              />
+              <i class="material-icons">{{ downloadSchemaIcon }}</i>
+
+              <ButtonSecondary
                 ref="copySchemaCode"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('copy_schema')"
-                class="icon button"
-                @click="copySchema"
-              >
-                <i class="material-icons">{{ copySchemaIcon }}</i>
-              </button>
+                @click.native="copySchema"
+              />
+              <i class="material-icons">{{ copySchemaIcon }}</i>
             </div>
           </div>
           <SmartAceEditor
@@ -227,42 +215,38 @@
           <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
-              <button
+              <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 title="
                   `${$t('run_query')} (${getSpecialKey()}-Enter)`
                 "
                 class="button"
-                @click="runQuery()"
-              >
-                <i class="material-icons">play_arrow</i>
-              </button>
-              <button
+                @click.native="runQuery()"
+              />
+              <i class="material-icons">play_arrow</i>
+
+              <ButtonSecondary
                 ref="copyQueryButton"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('copy_query')"
-                class="icon button"
-                @click="copyQuery"
-              >
-                <i class="material-icons">{{ copyQueryIcon }}</i>
-              </button>
-              <button
+                @click.native="copyQuery"
+              />
+              <i class="material-icons">{{ copyQueryIcon }}</i>
+
+              <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
-                class="icon button"
-                @click="doPrettifyQuery"
-              >
-                <i class="material-icons">{{ prettifyIcon }}</i>
-              </button>
-              <button
+                @click.native="doPrettifyQuery"
+              />
+              <i class="material-icons">{{ prettifyIcon }}</i>
+
+              <ButtonSecondary
                 ref="saveRequest"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('save_to_collections')"
-                class="icon button"
-                @click="saveRequest"
-              >
-                <i class="material-icons">create_new_folder</i>
-              </button>
+                @click.native="saveRequest"
+              />
+              <i class="material-icons">create_new_folder</i>
             </div>
           </div>
           <GraphqlQueryEditor
@@ -307,26 +291,23 @@
             <div class="row-wrapper">
               <label for="responseField">{{ $t("response_body") }}</label>
               <div>
-                <button
+                <ButtonSecondary
                   v-if="response"
                   ref="downloadResponse"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('download_file')"
-                  class="icon button"
-                  @click="downloadResponse"
-                >
-                  <i class="material-icons">{{ downloadResponseIcon }}</i>
-                </button>
-                <button
+                  @click.native="downloadResponse"
+                />
+                <i class="material-icons">{{ downloadResponseIcon }}</i>
+
+                <ButtonSecondary
                   v-if="response"
                   ref="copyResponseButton"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('copy_response')"
-                  class="icon button"
-                  @click="copyResponse"
-                >
-                  <i class="material-icons">{{ copyResponseIcon }}</i>
-                </button>
+                  @click.native="copyResponse"
+                />
+                <i class="material-icons">{{ copyResponseIcon }}</i>
               </div>
             </div>
             <SmartAceEditor

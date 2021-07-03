@@ -17,20 +17,19 @@
         <div>
           <li>
             <label for="start" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="start"
               :disabled="!serverValid"
               name="start"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              @click="toggleSSEConnection"
-            >
-              {{ !connectionSSEState ? $t("start") : $t("stop") }}
-              <span>
-                <i class="material-icons">
-                  {{ !connectionSSEState ? "sync" : "sync_disabled" }}
-                </i>
-              </span>
-            </button>
+              @click.native="toggleSSEConnection"
+            />
+            {{ !connectionSSEState ? $t("start") : $t("stop") }}
+            <span>
+              <i class="material-icons">
+                {{ !connectionSSEState ? "sync" : "sync_disabled" }}
+              </i>
+            </span>
           </li>
         </div>
       </ul>

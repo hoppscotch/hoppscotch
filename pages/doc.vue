@@ -10,15 +10,13 @@
             </p>
             <div class="row-wrapper">
               <label for="collectionUpload">
-                <button
+                <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   title="JSON"
-                  class="icon button"
-                  @click="$refs.collectionUpload.click()"
-                >
-                  <i class="material-icons">folder</i>
-                  <span>{{ $t("import_collections") }}</span>
-                </button>
+                  icon="folder"
+                  :label="$t('import_collections')"
+                  @click.native="$refs.collectionUpload.click()"
+                />
               </label>
               <input
                 ref="collectionUpload"
@@ -28,14 +26,12 @@
                 @change="uploadCollection"
               />
               <div>
-                <button
+                <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('clear')"
-                  class="icon button"
-                  @click="collectionJSON = '[]'"
-                >
-                  <i class="material-icons">clear_all</i>
-                </button>
+                  icon="clear_all"
+                  @click.native="collectionJSON = '[]'"
+                />
               </div>
             </div>
             <SmartAceEditor
@@ -51,10 +47,11 @@
                 useWorker: false,
               }"
             />
-            <button class="icon button" @click="getDoc">
-              <i class="material-icons">topic</i>
-              <span>{{ $t("generate_docs") }}</span>
-            </button>
+            <ButtonSecondary
+              icon="topic"
+              :label="$t('generate_docs')"
+              @click.native="getDoc"
+            />
           </div>
         </AppSection>
 
@@ -75,7 +72,7 @@
                     : null,
                 }"
               >
-                <button
+                <ButtonSecondary
                   :disabled="
                     !currentUser
                       ? true
@@ -83,12 +80,10 @@
                       ? true
                       : false
                   "
-                  class="icon button"
-                  @click="createDocsGist"
-                >
-                  <i class="material-icons">assignment</i>
-                  <span>{{ $t("create_secret_gist") }}</span>
-                </button>
+                  icon="assignment"
+                  label="$t('create_secret_gist')"
+                  @click.native="createDocsGist"
+                />
               </div>
             </div>
             <div>

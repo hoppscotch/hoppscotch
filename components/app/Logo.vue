@@ -1,22 +1,35 @@
 <template>
-  <svg viewBox="0 0 612.001 612.001">
+  <svg class="logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <linearGradient
+      id="a"
+      gradientTransform="matrix(1 0 0 -1 0 -24914)"
+      gradientUnits="userSpaceOnUse"
+      x1="0"
+      x2="512"
+      y1="-25170"
+      y2="-25170"
+    >
+      <stop offset="0" stop-color="#31d8ff" />
+      <stop offset="1" stop-color="#ff80ff" />
+    </linearGradient>
     <path
-      :fill="color"
-      data-old_color="#202124"
-      class="active-path"
-      data-original="#202124"
-      d="M64.601 236.822C64.601 394.256 192.786 612 306.001 612 412.582 612 547.4 394.256 547.4 236.822S439.322 0 306 0 64.601 79.388 64.601 236.822zm304.12 116.415c29.475-29.475 70.598-40.195 108.552-32.173 8.021 37.954-2.698 79.077-32.173 108.552-29.475 29.476-70.598 40.196-108.552 32.174-8.022-37.955 2.698-79.078 32.173-108.552zm-233.994-32.174c37.954-8.02 79.077 2.698 108.552 32.173 29.475 29.475 40.195 70.598 32.173 108.552-37.954 8.021-79.077-2.698-108.552-32.173-29.475-29.476-40.194-70.598-32.173-108.552z"
+      d="M512 256c0 141.387-114.613 256-256 256S0 397.387 0 256 114.613 0 256 0s256 114.613 256 256zm0 0"
+      fill="url(#a)"
     />
   </svg>
 </template>
 
-<script>
-export default {
-  props: {
-    color: {
-      type: String,
-      default: "",
-    },
-  },
+<style scoped lang="scss">
+.logo {
+  animation: 200ms appear;
 }
-</script>
+
+@keyframes appear {
+  0% {
+    @apply opacity-0;
+  }
+  100% {
+    @apply opacity-100;
+  }
+}
+</style>

@@ -1,3 +1,5 @@
 <template>
-  <div>My profile</div>
+  <div>
+    <FirebaseLogin />
+  </div>
 </template>

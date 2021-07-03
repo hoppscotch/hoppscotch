@@ -18,20 +18,19 @@
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="connect"
               :disabled="!urlValid"
               class="button"
               name="connect"
-              @click="toggleConnection"
-            >
-              {{ !connectionState ? $t("connect") : $t("disconnect") }}
-              <span>
-                <i class="material-icons">
-                  {{ !connectionState ? "sync" : "sync_disabled" }}
-                </i>
-              </span>
-            </button>
+              @click.native="toggleConnection"
+            />
+            {{ !connectionState ? $t("connect") : $t("disconnect") }}
+            <span>
+              <i class="material-icons">
+                {{ !connectionState ? "sync" : "sync_disabled" }}
+              </i>
+            </span>
           </li>
         </div>
       </ul>
@@ -66,7 +65,7 @@
         </li>
         <div>
           <li>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               title="{
                 content: protocol.hasOwnProperty('active')
@@ -75,44 +74,39 @@
                     : $t('turn_on')
                   : $t('turn_off'),
               }"
-              class="icon button"
-              @click="
+              @click.native="
                 protocol.active = protocol.hasOwnProperty('active')
                   ? !protocol.active
                   : false
               "
-            >
-              <i class="material-icons">
-                {{
-                  protocol.hasOwnProperty("active")
-                    ? protocol.active
-                      ? "check_box"
-                      : "check_box_outline_blank"
-                    : "check_box"
-                }}
-              </i>
-            </button>
+            />
+            <i class="material-icons">
+              {{
+                protocol.hasOwnProperty("active")
+                  ? protocol.active
+                    ? "check_box"
+                    : "check_box_outline_blank"
+                  : "check_box"
+              }}
+            </i>
           </li>
         </div>
         <div>
           <li>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              class="icon button"
-              @click="deleteProtocol({ index })"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+              @click.native="deleteProtocol({ index })"
+            />
+            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <button class="icon button" @click="addProtocol">
-            <i class="material-icons">add</i>
-            <span>{{ $t("add_new") }}</span>
-          </button>
+          <ButtonSecondary @click.native="addProtocol" />
+          <i class="material-icons">add</i>
+          <span>{{ $t("add_new") }}</span>
         </li>
       </ul>
     </AppSection>
@@ -141,18 +135,17 @@
         <div>
           <li>
             <label for="send" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="send"
               name="send"
               :disabled="!connectionState"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              @click="sendMessage"
-            >
-              {{ $t("send") }}
-              <span>
-                <i class="material-icons">send</i>
-              </span>
-            </button>
+              @click.native="sendMessage"
+            />
+            {{ $t("send") }}
+            <span>
+              <i class="material-icons">send</i>
+            </span>
           </li>
         </div>
       </ul>

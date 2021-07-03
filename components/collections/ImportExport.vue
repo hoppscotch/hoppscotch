@@ -3,41 +3,38 @@
     <template #header>
       <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
       <div>
-        <button
+        <ButtonSecondary
           v-if="mode == 'import_from_my_collections'"
           v-tippy="{ theme: 'tooltip' }"
           title="Back"
-          class="tooltip-target icon button"
-          @click="
+          icon="arrow_back"
+          @click.native="
             mode = 'import_export'
             mySelectedCollectionID = undefined
           "
-        >
-          <i class="material-icons">arrow_back</i>
-        </button>
-
+        />
         <tippy
           v-if="
             mode == 'import_export' && collectionsType.type == 'my-collections'
           "
+          tabindex="-1"
           trigger="click"
           theme="popover"
           arrow
         >
           <template #trigger>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
-              class="tooltip-target icon button"
-            >
-              <i class="material-icons">more_vert</i>
-            </button>
+              icon="more_vert"
+            />
           </template>
           <div>
-            <button class="icon button" @click="readCollectionGist">
-              <i class="material-icons">assignment_returned</i>
-              <span>{{ $t("import_from_gist") }}</span>
-            </button>
+            <ButtonSecondary
+              icon="assignment_returned"
+              :label="$t('import_from_gist')"
+              @click.native="readCollectionGist"
+            />
           </div>
           <div
             v-tippy="{ theme: 'tooltip' }"
@@ -49,7 +46,7 @@
                   : null,
               }"
           >
-            <button
+            <ButtonSecondary
               :disabled="
                 !currentUser
                   ? true
@@ -57,76 +54,62 @@
                   ? true
                   : false
               "
-              class="icon button"
-              @click="createCollectionGist"
-            >
-              <i class="material-icons">assignment_turned_in</i>
-              <span>{{ $t("create_secret_gist") }}</span>
-            </button>
+              icon="assignment_turned_in"
+              :label="$t('create_secret_gist')"
+              @click.native="createCollectionGist"
+            />
           </div>
         </tippy>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>
       <div v-if="mode == 'import_export'" class="flex flex-col p-2 items-start">
-        <button
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('replace_current')"
-          class="icon button"
-          @click="openDialogChooseFileToReplaceWith"
-        >
-          <i class="material-icons">folder_special</i>
-          <span>{{ $t("replace_json") }}</span>
-          <input
-            ref="inputChooseFileToReplaceWith"
-            class="input"
-            type="file"
-            style="display: none"
-            accept="application/json"
-            @change="replaceWithJSON"
-          />
-        </button>
-        <button
+          icon="folder_special"
+          :label="$t('replace_json')"
+          @click.native="openDialogChooseFileToReplaceWith"
+        />
+        <input
+          ref="inputChooseFileToReplaceWith"
+          class="input"
+          type="file"
+          style="display: none"
+          accept="application/json"
+          @change="replaceWithJSON"
+        />
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
-          class="icon button"
-          @click="openDialogChooseFileToImportFrom"
-        >
-          <i class="material-icons">create_new_folder</i>
-          <span>{{ $t("import_json") }}</span>
-          <input
-            ref="inputChooseFileToImportFrom"
-            class="input"
-            type="file"
-            style="display: none"
-            accept="application/json"
-            @change="importFromJSON"
-          />
-        </button>
-        <button
+          icon="create_new_folder"
+          :label="$t('import_json')"
+          @click.native="openDialogChooseFileToImportFrom"
+        />
+        <input
+          ref="inputChooseFileToImportFrom"
+          class="input"
+          type="file"
+          style="display: none"
+          accept="application/json"
+          @change="importFromJSON"
+        />
+        <ButtonSecondary
           v-if="collectionsType.type == 'team-collections'"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
-          class="icon button"
-          @click="mode = 'import_from_my_collections'"
-        >
-          <i class="material-icons">folder_shared</i>
-          <span>{{ $t("import_from_my_collections") }}</span>
-        </button>
-        <button
+          icon="folder_shared"
+          :label="$t('import_from_my_collections')"
+          @click.native="mode = 'import_from_my_collections'"
+        />
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
-          class="icon button"
-          @click="exportJSON"
-        >
-          <i class="material-icons">drive_file_move</i>
-          <span>
-            {{ $t("export_as_json") }}
-          </span>
-        </button>
+          icon="drive_file_move"
+          :label="$t('export_as_json')"
+          @click.native="exportJSON"
+        />
       </div>
       <div v-if="mode == 'import_from_my_collections'">
         <span class="select-wrapper">
@@ -164,14 +147,13 @@
       <div v-if="mode == 'import_from_my_collections'">
         <span></span>
         <span>
-          <button
-            class="m-2 icon button"
+          <ButtonSecondary
+            class="m-2"
             :disabled="mySelectedCollectionID == undefined"
-            @click="importFromMyCollections"
-          >
-            <i class="material-icons">create_new_folder</i>
-            <span>{{ $t("import") }}</span>
-          </button>
+            icon="create_new_folder"
+            :label="$t('import')"
+            @click.native="importFromMyCollections"
+          />
         </span>
       </div>
     </template>

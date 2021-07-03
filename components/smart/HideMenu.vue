@@ -19,7 +19,7 @@
       right-0
       cursor-pointer
     "
-    @click="$emit('toggle')"
+    @click.native="$emit('toggle')"
   >
     <i
       class="

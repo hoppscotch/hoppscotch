@@ -1,9 +1,10 @@
 <template>
   <div>
-    <button class="icon button" @click="logout">
-      <i class="material-icons">exit_to_app</i>
-      <span>{{ $t("logout") }}</span>
-    </button>
+    <ButtonSecondary
+      icon="exit_to_app"
+      :label="$t('logout')"
+      @click.native="logout"
+    />
   </div>
 </template>
 

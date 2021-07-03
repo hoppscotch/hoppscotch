@@ -1,38 +1,33 @@
 <template>
   <div>
-    <div class="transition duration-150 ease-in-out row-wrapper">
+    <div class="ease-in-out row-wrapper">
       <div>
-        <button
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="!doc ? $t('use_request') : ''"
-          class="icon button"
-          @click="!doc ? selectRequest() : {}"
+          @click.native="!doc ? selectRequest() : {}"
+        />
+        <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+          >check_circle</i
         >
-          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
-            >check_circle</i
-          >
 
-          <span v-else :class="getRequestLabelColor(request.method)">{{
-            request.method
-          }}</span>
-          <span>{{ request.name }}</span>
-        </button>
+        <span v-else :class="getRequestLabelColor(request.method)">{{
+          request.method
+        }}</span>
+        <span>{{ request.name }}</span>
       </div>
-      <tippy trigger="click" theme="popover" arrow>
+      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <button
+          <ButtonSecondary
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
+          />
+          <i class="material-icons">more_vert</i>
         </template>
         <div>
-          <button
-            class="icon button"
-            @click="
+          <ButtonSecondary
+            @click.native="
               $emit('edit-request', {
                 collectionIndex,
                 folderIndex,
@@ -41,16 +36,14 @@
                 requestIndex,
               })
             "
-          >
-            <i class="material-icons">edit</i>
-            <span>{{ $t("edit") }}</span>
-          </button>
+          />
+          <i class="material-icons">edit</i>
+          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <button class="icon button" @click="confirmRemove = true">
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
-          </button>
+          <ButtonSecondary @click.native="confirmRemove = true" />
+          <i class="material-icons">delete</i>
+          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>

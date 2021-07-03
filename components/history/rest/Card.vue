@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="show-on-large-screen">
+    <div class="flex">
       <span
         class="p-2 m-2 truncate inline-flex cursor-pointer items-center text-sm"
         :class="entryStatus.className"
         :style="{ '--status-code': entry.status }"
-        @click="$emit('use-entry')"
+        @click.native="$emit('use-entry')"
       >
         {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
       </span>
@@ -17,28 +17,26 @@
           :value="entry.name"
           :placeholder="$t('empty_req_name')"
           class="input cursor-pointer text-sm bg-transparent"
-          @click="$emit('use-entry')"
+          @click.native="$emit('use-entry')"
         />
       </li>
       <span>
-        <button
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           title="{
             content: !entry.star ? $t('add_star') : $t('remove_star'),
           }"
           data-testid="star_button"
-          class="icon button"
           :class="{ stared: entry.star }"
-          @click="$emit('toggle-star')"
-        >
-          <i class="material-icons">
-            {{ entry.star ? "star" : "star_border" }}
-          </i>
-        </button>
+          @click.native="$emit('toggle-star')"
+        />
+        <i class="material-icons">
+          {{ entry.star ? "star" : "star_border" }}
+        </i>
       </span>
       <!-- <li>
-            <button
-              class="icon button"
+            <ButtonSecondary
+
               v-tippy="{ theme: 'tooltip' }" title="{
                 content: !entry.usesScripts
                   ? 'No pre-request script'
@@ -48,43 +46,37 @@
               <i class="material-icons">
                 {{ !entry.usesScripts ? "http" : "code" }}
               </i>
-            </button>
+
           </li> -->
-      <tippy trigger="click" theme="popover" arrow>
+      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('options')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
+          />
+          <i class="material-icons">more_vert</i>
         </template>
         <div>
-          <button
+          <ButtonSecondary
             data-testid="restore_history_entry"
-            class="icon button"
             :aria-label="$t('edit')"
-            @click="$emit('use-entry')"
-          >
-            <i class="material-icons">restore</i>
-            <span>{{ $t("restore") }}</span>
-          </button>
+            @click.native="$emit('use-entry')"
+          />
+          <i class="material-icons">restore</i>
+          <span>{{ $t("restore") }}</span>
         </div>
         <div>
-          <button
+          <ButtonSecondary
             data-testid="delete_history_entry"
-            class="icon button"
             :aria-label="$t('delete')"
-            @click="$emit('delete-entry')"
-          >
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
-          </button>
+            @click.native="$emit('delete-entry')"
+          />
+          <i class="material-icons">delete</i>
+          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>
-    <div class="show-on-large-screen">
+    <div class="flex">
       <li>
         <input
           :aria-label="$t('url')"
@@ -97,7 +89,7 @@
       </li>
     </div>
     <transition name="fade">
-      <div v-if="showMore" class="show-on-large-screen">
+      <div v-if="showMore" class="flex">
         <li>
           <input
             v-tippy="{ theme: 'tooltip' }"

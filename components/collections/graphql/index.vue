@@ -1,6 +1,6 @@
 <template>
   <AppSection label="collections">
-    <div class="show-on-large-screen">
+    <div class="flex">
       <input
         v-if="showCollActions"
         v-model="filterText"
@@ -46,23 +46,21 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-divider">
-      <button class="icon button" @click="displayModalAdd(true)">
-        <i class="material-icons">add</i>
-        <span>{{ $t("new") }}</span>
-      </button>
-      <button
+      <ButtonSecondary @click.native="displayModalAdd(true)" />
+      <i class="material-icons">add</i>
+      <span>{{ $t("new") }}</span>
+
+      <ButtonSecondary
         v-if="showCollActions"
-        class="icon button"
-        @click="displayModalImportExport(true)"
-      >
-        {{ $t("import_export") }}
-      </button>
+        @click.native="displayModalImportExport(true)"
+      />
+      {{ $t("import_export") }}
     </div>
     <p v-if="collections.length === 0" class="info">
       <i class="material-icons">help_outline</i>
       {{ $t("create_new_collection") }}
     </p>
-    <div class="virtual-list">
+    <div class="overflow-auto">
       <ul class="flex-col">
         <li
           v-for="(collection, index) in filteredCollections"
@@ -245,9 +243,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-</style>

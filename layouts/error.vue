@@ -3,20 +3,12 @@
     <h1 class="mb-4 font-mono heading text-4xl">{{ statusCode }}</h1>
     <h3 class="mb-4 heading font-mono text-xs">{{ message }}</h3>
     <p class="mt-4 border-t border-tooltip">
-      <nuxt-link to="/">
-        <button class="icon button">
-          <i class="material-icons">home</i>
-          <span>
-            {{ $t("go_home") }}
-          </span>
-        </button>
-      </nuxt-link>
-      <button class="icon button" @click="reloadApplication">
-        <i class="material-icons">refresh</i>
-        <span>
-          {{ $t("reload") }}
-        </span>
-      </button>
+      <ButtonSecondary to="/" icon="home" :label="$t('go_home')" />
+      <ButtonSecondary
+        icon="refresh"
+        :label="$t('reload')"
+        @click.native="reloadApplication"
+      />
     </p>
   </div>
 </template>
@@ -32,13 +24,6 @@ export default {
     },
   },
 
-  head() {
-    return {
-      bodyAttrs: {
-        class: "sticky-footer",
-      },
-    }
-  },
   computed: {
     statusCode() {
       return (this.error && this.error.statusCode) || 500
@@ -47,6 +32,7 @@ export default {
       return this.error.message || this.$t("something_went_wrong")
     },
   },
+
   beforeMount() {
     initializeFirebase()
   },

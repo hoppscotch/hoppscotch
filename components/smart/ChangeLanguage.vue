@@ -2,6 +2,7 @@
   <span>
     <tippy
       ref="language"
+      tabindex="-1"
       trigger="click"
       theme="popover"
       arrow
@@ -9,15 +10,15 @@
       :animate-fill="false"
     >
       <template #trigger>
-        <button v-tippy="{ theme: 'tooltip' }" :title="$t('choose_language')">
-          <span class="mr-2 text-lg">
-            {{
-              $i18n.locales.find(({ code }) => code == $i18n.locale).country
-                | formatCountry
-            }}
-          </span>
-          {{ $i18n.locales.find(({ code }) => code == $i18n.locale).name }}
-        </button>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('choose_language')"
+          :label="$i18n.locales.find(({ code }) => code == $i18n.locale).name"
+        />
+        {{
+          $i18n.locales.find(({ code }) => code == $i18n.locale).country
+            | formatCountry
+        }}
       </template>
       <NuxtLink
         v-for="locale in $i18n.locales.filter(

@@ -1,85 +1,74 @@
 <template>
   <div>
-    <div class="transition duration-150 ease-in-out row-wrapper">
-      <button class="icon button" @click="toggleShowChildren">
-        <i v-show="!showChildren && !isFiltered" class="material-icons"
-          >arrow_right</i
-        >
-        <i v-show="showChildren || isFiltered" class="material-icons"
-          >arrow_drop_down</i
-        >
+    <div class="ease-in-out row-wrapper">
+      <ButtonSecondary @click.native="toggleShowChildren" />
+      <i v-show="!showChildren && !isFiltered" class="material-icons"
+        >arrow_right</i
+      >
+      <i v-show="showChildren || isFiltered" class="material-icons"
+        >arrow_drop_down</i
+      >
 
-        <i v-if="isSelected" class="text-green-400 material-icons"
-          >check_circle</i
-        >
+      <i v-if="isSelected" class="text-green-400 material-icons"
+        >check_circle</i
+      >
 
-        <i v-else class="material-icons">folder</i>
-        <span>{{ collection.title }}</span>
-      </button>
+      <i v-else class="material-icons">folder</i>
+      <span>{{ collection.title }}</span>
+
       <div>
-        <button
+        <ButtonSecondary
           v-if="doc && !selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('import')"
-          class="icon button"
-          @click="$emit('select-collection')"
-        >
-          <i class="material-icons">check_box_outline_blank</i>
-        </button>
-        <button
+          @click.native="$emit('select-collection')"
+        />
+        <i class="material-icons">check_box_outline_blank</i>
+        <ButtonSecondary
           v-if="doc && selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
-          class="icon button"
-          @click="$emit('unselect-collection')"
-        >
-          <i class="material-icons">check_box</i>
-        </button>
-        <tippy trigger="click" theme="popover" arrow>
+          @click.native="$emit('unselect-collection')"
+        />
+        <i class="material-icons">check_box</i>
+
+        <tippy tabindex="-1" trigger="click" theme="popover" arrow>
           <template #trigger>
-            <button
+            <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
-              class="tooltip-target icon button"
-            >
-              <i class="material-icons">more_vert</i>
-            </button>
+            />
+            <i class="material-icons">more_vert</i>
           </template>
           <div>
-            <button
+            <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              class="icon button"
-              @click="
+              @click.native="
                 $emit('add-folder', {
                   folder: collection,
                   path: `${collectionIndex}`,
                 })
               "
-            >
-              <i class="material-icons">create_new_folder</i>
-              <span>{{ $t("new_folder") }}</span>
-            </button>
+            />
+            <i class="material-icons">create_new_folder</i>
+            <span>{{ $t("new_folder") }}</span>
           </div>
           <div>
-            <button
+            <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              class="icon button"
-              @click="$emit('edit-collection')"
-            >
-              <i class="material-icons">create</i>
-              <span>{{ $t("edit") }}</span>
-            </button>
+              @click.native="$emit('edit-collection')"
+            />
+            <i class="material-icons">create</i>
+            <span>{{ $t("edit") }}</span>
           </div>
           <div>
-            <button
+            <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              class="icon button"
-              @click="confirmRemove = true"
-            >
-              <i class="material-icons">delete</i>
-              <span>{{ $t("delete") }}</span>
-            </button>
+              @click.native="confirmRemove = true"
+            />
+            <i class="material-icons">delete</i>
+            <span>{{ $t("delete") }}</span>
           </div>
         </tippy>
       </div>

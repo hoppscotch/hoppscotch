@@ -5,25 +5,22 @@
         <div class="row-wrapper">
           <label for="rawBody">{{ $t("raw_request_body") }}</label>
           <div>
-            <button
+            <ButtonSecondary
               v-if="rawInput && contentType.endsWith('json')"
               ref="prettifyRequest"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('prettify_body')"
-              class="icon button"
-              @click="prettifyRequestBody"
-            >
-              <i class="material-icons">{{ prettifyIcon }}</i>
-            </button>
+              @click.native="prettifyRequestBody"
+            />
+            <i class="material-icons">{{ prettifyIcon }}</i>
+
             <label for="payload" class="p-0">
-              <button
+              <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('import_json')"
-                class="icon button"
-                @click="$refs.payload.click()"
-              >
-                <i class="material-icons">post_add</i>
-              </button>
+                @click.native="$refs.payload.click()"
+              />
+              <i class="material-icons">post_add</i>
             </label>
             <input
               ref="payload"
@@ -32,14 +29,12 @@
               type="file"
               @change="uploadPayload"
             />
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
-              class="icon button"
-              @click="clearContent('rawParams', $event)"
-            >
-              <i class="material-icons">clear_all</i>
-            </button>
+              @click.native="clearContent('rawParams', $event)"
+            />
+            <i class="material-icons">clear_all</i>
           </div>
         </div>
         <div class="relative">

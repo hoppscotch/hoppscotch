@@ -3,9 +3,7 @@
     <template #header>
       <h3 class="heading">{{ $t("save_request_as") }}</h3>
       <div>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>
@@ -41,12 +39,8 @@
     <template #footer>
       <span></span>
       <span>
-        <button class="icon button" @click="hideModal">
-          {{ $t("cancel") }}
-        </button>
-        <button class="icon button primary" @click="saveRequestAs">
-          {{ $t("save") }}
-        </button>
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('save')" @click.native="saveRequestAs" />
       </span>
     </template>
   </SmartModal>

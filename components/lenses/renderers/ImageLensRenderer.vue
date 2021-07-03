@@ -3,16 +3,14 @@
     <div class="row-wrapper">
       <label for="body">{{ $t("response_body") }}</label>
       <div>
-        <button
+        <ButtonSecondary
           v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
-          class="icon button"
-          @click="downloadResponse"
-        >
-          <i class="material-icons">{{ downloadIcon }}</i>
-        </button>
+          @click.native="downloadResponse"
+        />
+        <i class="material-icons">{{ downloadIcon }}</i>
       </div>
     </div>
     <div id="response-details-wrapper">

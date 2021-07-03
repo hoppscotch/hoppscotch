@@ -5,14 +5,12 @@
         <div class="row-wrapper">
           <label for="reqParamList">{{ $t("request_body") }}</label>
           <div>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
-              class="icon button"
-              @click="clearContent('bodyParams', $event)"
-            >
-              <i class="material-icons">clear_all</i>
-            </button>
+              @click.native="clearContent('bodyParams', $event)"
+            />
+            <i class="material-icons">clear_all</i>
           </div>
         </div>
       </li>
@@ -68,7 +66,7 @@
       </li>
       <div>
         <li>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             title="{
               content: param.hasOwnProperty('active')
@@ -77,30 +75,27 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
-            class="icon button"
-            @click="toggleActive(index, param)"
-          >
-            <i class="material-icons">
-              {{
-                param.hasOwnProperty("active")
-                  ? param.active
-                    ? "check_box"
-                    : "check_box_outline_blank"
-                  : "check_box"
-              }}
-            </i>
-          </button>
+            @click.native="toggleActive(index, param)"
+          />
+          <i class="material-icons">
+            {{
+              param.hasOwnProperty("active")
+                ? param.active
+                  ? "check_box"
+                  : "check_box_outline_blank"
+                : "check_box"
+            }}
+          </i>
         </li>
       </div>
       <div v-if="contentType === 'multipart/form-data'">
         <li>
           <label for="attachment" class="p-0">
-            <button
+            <ButtonSecondary
               class="w-full button icon"
-              @click="$refs.attachment[index].click()"
-            >
-              <i class="material-icons">attach_file</i>
-            </button>
+              @click.native="$refs.attachment[index].click()"
+            />
+            <i class="material-icons">attach_file</i>
           </label>
           <input
             ref="attachment"
@@ -114,27 +109,23 @@
       </div>
       <div>
         <li>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('delete')"
-            class="icon button"
-            @click="removeRequestBodyParam(index)"
-          >
-            <i class="material-icons">delete</i>
-          </button>
+            @click.native="removeRequestBodyParam(index)"
+          />
+          <i class="material-icons">delete</i>
         </li>
       </div>
     </ul>
     <ul>
       <li>
-        <button
-          class="icon button"
+        <ButtonSecondary
           name="addrequest"
-          @click="addRequestBodyParam"
-        >
-          <i class="material-icons">add</i>
-          <span>{{ $t("add_new") }}</span>
-        </button>
+          @click.native="addRequestBodyParam"
+        />
+        <i class="material-icons">add</i>
+        <span>{{ $t("add_new") }}</span>
       </li>
     </ul>
   </div>

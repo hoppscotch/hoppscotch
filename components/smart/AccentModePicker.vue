@@ -11,30 +11,15 @@
       <!-- text-pink-400 -->
       <!-- text-red-400 -->
       <!-- text-yellow-400 -->
-      <span
+      <ButtonSecondary
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
         v-tippy="{ theme: 'tooltip' }"
-        title="capitalized(color)"
-        class="
-          inline-flex
-          items-center
-          justify-center
-          p-3
-          m-2
-          transition
-          duration-150
-          ease-in-out
-          bg-transparent
-          rounded-full
-          cursor-pointer
-          hover:shadow-none
-        "
+        :title="capitalized(color)"
         :class="[`text-${color}-400`, { 'bg-primary': color === active }]"
-        @click="setActiveColor(color)"
-      >
-        <i class="material-icons">lens</i>
-      </span>
+        icon="lens"
+        @click.native="setActiveColor(color)"
+      />
     </div>
   </div>
 </template>

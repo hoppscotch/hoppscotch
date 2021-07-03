@@ -1,57 +1,46 @@
 <template>
   <div class="row-wrapper">
     <div>
-      <button
+      <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         title="team.myRole === 'OWNER' ? $t('edit') : ''"
-        class="icon button"
-        @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
-      >
-        <i class="material-icons">group</i>
-        <span>{{ team.name }}</span>
-      </button>
+        @click.native="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
+      />
+      <i class="material-icons">group</i>
+      <span>{{ team.name }}</span>
     </div>
-    <tippy trigger="click" theme="popover" arrow>
+    <tippy tabindex="-1" trigger="click" theme="popover" arrow>
       <template #trigger>
-        <button
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('more')"
-          class="tooltip-target icon button"
-        >
-          <i class="material-icons">more_vert</i>
-        </button>
+        <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="$t('more')" />
+        <i class="material-icons">more_vert</i>
       </template>
       <div v-if="team.myRole === 'OWNER'">
-        <button class="icon button" @click="$emit('edit-team')">
-          <i class="material-icons">create</i>
-          <span>{{ $t("edit") }}</span>
-        </button>
+        <ButtonSecondary @click.native="$emit('edit-team')" />
+        <i class="material-icons">create</i>
+        <span>{{ $t("edit") }}</span>
       </div>
       <div v-if="team.myRole === 'OWNER'">
-        <button class="icon button" @click="deleteTeam">
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
-        </button>
+        <ButtonSecondary @click.native="deleteTeam" />
+        <i class="material-icons">delete</i>
+        <span>{{ $t("delete") }}</span>
       </div>
       <div>
-        <button
-          class="icon button"
+        <ButtonSecondary
           :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
-          @click="exitTeam"
-        >
-          <i class="material-icons">remove</i>
-          <div
-            v-tippy="{ theme: 'tooltip' }"
-            title="{
+          @click.native="exitTeam"
+        />
+        <i class="material-icons">remove</i>
+        <div
+          v-tippy="{ theme: 'tooltip' }"
+          title="{
                 content:
                   team.myRole === 'OWNER' && team.ownersCount == 1
                     ? $t('disable_exit')
                     : '',
               }"
-          >
-            <span>{{ $t("exit") }}</span>
-          </div>
-        </button>
+        >
+          <span>{{ $t("exit") }}</span>
+        </div>
       </div>
     </tippy>
   </div>

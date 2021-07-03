@@ -3,7 +3,7 @@
     <div class="row-wrapper">
       <label for="body">{{ $t("response_body") }}</label>
       <div>
-        <button
+        <ButtonSecondary
           v-if="response.body"
           ref="ToggleExpandResponse"
           v-tippy="{ theme: 'tooltip' }"
@@ -12,33 +12,27 @@
               ? $t('expand_response')
               : $t('collapse_response'),
           }"
-          class="icon button"
-          @click="ToggleExpandResponse"
-        >
-          <i class="material-icons">
-            {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-          </i>
-        </button>
-        <button
+          @click.native="ToggleExpandResponse"
+        />
+        <i class="material-icons">
+          {{ !expandResponse ? "unfold_more" : "unfold_less" }}
+        </i>
+        <ButtonSecondary
           v-if="response.body && canDownloadResponse"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
-          class="icon button"
-          @click="downloadResponse"
-        >
-          <i class="material-icons">{{ downloadIcon }}</i>
-        </button>
-        <button
+          @click.native="downloadResponse"
+        />
+        <i class="material-icons">{{ downloadIcon }}</i>
+        <ButtonSecondary
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('copy_response')"
-          class="icon button"
-          @click="copyResponse"
-        >
-          <i class="material-icons">{{ copyIcon }}</i>
-        </button>
+          @click.native="copyResponse"
+        />
+        <i class="material-icons">{{ copyIcon }}</i>
       </div>
     </div>
     <div id="response-details-wrapper">

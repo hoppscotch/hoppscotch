@@ -1,9 +1,11 @@
 <template>
   <span class="chip">
     <span><slot></slot></span>
-    <button class="p-2 icon" @click="$emit('chip-delete')">
-      <i class="material-icons close-button"> close </i>
-    </button>
+    <ButtonSecondary
+      class="p-2 close-button icon"
+      icon="close"
+      @click.native="$emit('chip-delete')"
+    />
   </span>
 </template>
 
@@ -18,7 +20,7 @@
   @apply bg-primaryDark;
   @apply text-secondary;
   @apply font-mono;
-  @apply transition;
+
   @apply ease-in-out;
   @apply duration-150;
   @apply border border-divider;

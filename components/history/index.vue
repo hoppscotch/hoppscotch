@@ -1,6 +1,6 @@
 <template>
   <AppSection label="history">
-    <div class="show-on-large-screen">
+    <div class="flex">
       <input
         v-model="filterText"
         aria-label="Search"
@@ -10,7 +10,7 @@
       />
     </div>
     <div
-      class="divide-y virtual-list divide-dashed divide-divider"
+      class="divide-y overflow-auto divide-dashed divide-divider"
       :class="{ filled: filteredHistory.length }"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
@@ -44,49 +44,42 @@
     </p>
     <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryDark">
       <div v-if="!isClearingHistory" class="row-wrapper">
-        <button
+        <ButtonSecondary
           data-testid="clear_history"
-          class="icon button"
           :disabled="history.length === 0"
-          @click="enableHistoryClearing"
-        >
-          <i class="material-icons">clear_all</i>
-          <span>{{ $t("clear_all") }}</span>
-        </button>
-        <button
+          @click.native="enableHistoryClearing"
+        />
+        <i class="material-icons">clear_all</i>
+        <span>{{ $t("clear_all") }}</span>
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           title="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
-          class="icon button"
-          @click="toggleCollapse()"
-        >
-          <i class="material-icons">
-            {{ !showMore ? "unfold_more" : "unfold_less" }}
-          </i>
-        </button>
+          @click.native="toggleCollapse()"
+        />
+        <i class="material-icons">
+          {{ !showMore ? "unfold_more" : "unfold_less" }}
+        </i>
       </div>
       <div v-else class="row-wrapper">
         <p class="info">
           <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
         </p>
         <div>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('yes')"
             data-testid="confirm_clear_history"
-            class="icon button"
-            @click="clearHistory"
-          >
-            <i class="material-icons">done</i>
-          </button>
-          <button
+            @click.native="clearHistory"
+          />
+          <i class="material-icons">done</i>
+
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('no')"
             data-testid="reject_clear_history"
-            class="icon button"
-            @click="disableHistoryClearing"
-          >
-            <i class="material-icons">close</i>
-          </button>
+            @click.native="disableHistoryClearing"
+          />
+          <i class="material-icons">close</i>
         </div>
       </div>
     </div>
@@ -175,28 +168,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-
-  [readonly] {
-    @apply cursor-default;
-  }
-}
-
-ul,
-ol {
-  @apply flex-col;
-}
-
-@media (max-width: 720px) {
-  .virtual-list.filled {
-    min-height: 320px;
-  }
-
-  .labels {
-    display: none;
-  }
-}
-</style>

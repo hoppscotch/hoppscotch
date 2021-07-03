@@ -3,9 +3,7 @@
     <template #header>
       <h3 class="heading">{{ $t("shortcuts") }}</h3>
       <div>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>

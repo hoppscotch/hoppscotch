@@ -21,10 +21,11 @@
     />
     <div class="row-wrapper">
       <div>
-        <button class="icon button" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
-          <span>{{ $t("new") }}</span>
-        </button>
+        <ButtonSecondary
+          icon="add"
+          :label="$t('new')"
+          @click.native="displayModalAdd(true)"
+        />
       </div>
     </div>
     <p v-if="$apollo.queries.myTeams.loading" class="info">
@@ -33,7 +34,7 @@
     <p v-if="myTeams.length === 0" class="info">
       <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
     </p>
-    <div v-else class="virtual-list">
+    <div v-else class="overflow-auto">
       <ul class="flex-col">
         <li v-for="(team, index) in myTeams" :key="`team-${index}`">
           <TeamsTeam
@@ -127,13 +128,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 241px);
-}
-
-ul {
-  @apply flex flex-col;
-}
-</style>

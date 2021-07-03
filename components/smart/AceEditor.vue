@@ -2,7 +2,7 @@
   <div class="show-if-initialized" :class="{ initialized }">
     <div v-if="lang == 'json'" class="outline">
       <div v-for="(p, index) in currPath" :key="index" class="block">
-        <div class="label" @click="onBlockClick(index)">
+        <div class="label" @click.native="onBlockClick(index)">
           {{ p }}
         </div>
         <i v-if="index + 1 !== currPath.length" class="material-icons"
@@ -18,7 +18,7 @@
             v-for="(sib, i) in currSib"
             :key="i"
             class="sib"
-            @click="goToSib(sib)"
+            @click.native="goToSib(sib)"
           >
             {{ sib.key ? sib.key.value : i }}
           </div>
@@ -277,7 +277,7 @@ export default {
 
     .label {
       @apply p-2;
-      @apply transition;
+
       @apply ease-in-out;
       @apply duration-150;
     }

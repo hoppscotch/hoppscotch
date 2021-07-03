@@ -3,23 +3,19 @@
     <template #header>
       <h3 class="heading">{{ $t("manage_token") }}</h3>
       <div>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>
       <div class="row-wrapper">
         <label>{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('clear')"
-            class="icon button"
-            @click="clearContent('tokens', $event)"
-          >
-            <i class="material-icons">clear_all</i>
-          </button>
+            icon="clear_all"
+            @click.native="clearContent('tokens', $event)"
+          />
         </div>
       </div>
       <ul v-for="(token, index) in tokens" :key="index">
@@ -41,24 +37,20 @@
         </li>
         <div class="row-wrapper">
           <li>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('use_token')"
-              class="icon button"
-              @click="useOAuthToken(token.value)"
-            >
-              <i class="material-icons">input</i>
-            </button>
+              icon="input"
+              @click.native="useOAuthToken(token.value)"
+            />
           </li>
           <li>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              class="icon button"
-              @click="removeOAuthToken(index)"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+              icon="delete"
+              @click.native="removeOAuthToken(index)"
+            />
           </li>
         </div>
       </ul>

@@ -255,6 +255,7 @@
   "extensions_info2": "Get Hoppscotch browser extension!",
   "installed": "Installed",
   "login_with": "Login with",
+  "login": "Login",
   "logged_out": "Logged out",
   "login_success": "Successfully logged in",
   "logout": "Logout",
@@ -331,7 +332,7 @@
   "user_removed": "User removed successfully",
   "import_from_my_collections": "Import from My Collections",
   "export_as_json": "Export as JSON",
-  "send_magic_link": "Send a magic link to sign in",
+  "send_magic_link": "Send a magic link",
   "check_your_inbox": "Check your inbox.",
   "you_can_dismiss_this_modal": "You can dismiss this ",
   "we_sent_magic_link": "We sent you a magic link!",
@@ -339,5 +340,6 @@
   "hide_sidebar": "Hide sidebar",
   "show_sidebar": "Show sidebar",
   "protocols": "Protocols",
-  "protocol_count": "protocol {count}"
+  "protocol_count": "protocol {count}",
+  "share": "Share"
 }

@@ -1,6 +1,6 @@
 <template>
   <AppSection label="collections">
-    <div class="show-on-large-screen">
+    <div class="flex">
       <input
         v-if="!saveRequest"
         v-model="filterText"
@@ -54,45 +54,40 @@
       @update-team-collections="updateTeamCollections"
     />
     <div class="border-b row-wrapper border-divider">
-      <button
+      <ButtonSecondary
         v-if="
           collectionsType.type == 'team-collections' &&
           (collectionsType.selectedTeam == undefined ||
             collectionsType.selectedTeam.myRole == 'VIEWER')
         "
-        class="icon button"
+        v-tippy="{ theme: 'tooltip' }"
         disabled
-        @click="displayModalAdd(true)"
-      >
-        <i class="material-icons">add</i>
-        <div
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('disable_new_collection')"
-        >
-          <span>{{ $t("new") }}</span>
-        </div>
-      </button>
-      <button v-else class="icon button" @click="displayModalAdd(true)">
-        <i class="material-icons">add</i>
-        <span>{{ $t("new") }}</span>
-      </button>
-      <button
+        icon="add"
+        :title="$t('disable_new_collection')"
+        :label="$t('new')"
+        @click.native="displayModalAdd(true)"
+      />
+      <ButtonSecondary
+        v-else
+        icon="add"
+        :label="$t('new')"
+        @click.native="displayModalAdd(true)"
+      />
+      <ButtonSecondary
         v-if="!saveRequest"
         :disabled="
           collectionsType.type == 'team-collections' &&
           collectionsType.selectedTeam == undefined
         "
-        class="icon button"
-        @click="displayModalImportExport(true)"
-      >
-        {{ $t("import_export") }}
-      </button>
+        :label="$t('import_export')"
+        @click.native="displayModalImportExport(true)"
+      />
     </div>
     <p v-if="collections.length === 0" class="info">
       <i class="material-icons">help_outline</i>
       {{ $t("create_new_collection") }}
     </p>
-    <div class="virtual-list">
+    <div class="overflow-auto">
       <ul class="flex-col">
         <li
           v-for="(collection, index) in filteredCollections"
@@ -636,9 +631,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-</style>

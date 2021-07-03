@@ -2,9 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("login_with") }} {{ $t("email") }}</h3>
-      <button class="icon button" @click="hideModal">
-        <i class="material-icons">close</i>
-      </button>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template v-if="mode === 'sign-in'" #body>
       <label for="email"> E-mail </label>
@@ -41,11 +39,8 @@
     <template v-if="mode === 'sign-in'" #footer>
       <span></span>
       <span>
-        <button v-if="signingInWithEmail" class="icon button" type="button">
-          {{ $t("loading") }}
-        </button>
-        <button
-          v-else
+        <ButtonSPrimary
+          :loading="signingInWithEmail"
           class="rounded-md button"
           :disabled="
             form.email.length !== 0
@@ -56,11 +51,9 @@
           "
           type="button"
           tabindex="-1"
-          @click="signInWithEmail"
-        >
-          {{ $t("send_magic_link") }}
-        </button>
-      </span>
+          :label="$t('send_magic_link')"
+          @click.native="signInWithEmail"
+      /></span>
     </template>
   </SmartModal>
 </template>

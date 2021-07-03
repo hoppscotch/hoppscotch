@@ -2,9 +2,8 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("edit_team") }}</h3>
-      <button class="icon button" @click="hideModal">
-        <i class="material-icons">close</i>
-      </button>
+      <ButtonSecondary @click.native="hideModal" />
+      <i class="material-icons">close</i>
     </template>
     <template #body>
       <ul>
@@ -57,7 +56,7 @@
         </li>
         <li>
           <span class="select-wrapper">
-            <tippy trigger="click" theme="popover" arrow>
+            <tippy tabindex="-1" trigger="click" theme="popover" arrow>
               <template #trigger>
                 <input
                   class="input"
@@ -72,40 +71,29 @@
                 />
               </template>
               <div>
-                <button class="icon button" @click="updateRole(index, 'OWNER')">
-                  OWNER
-                </button>
+                <ButtonSecondary @click.native="updateRole(index, 'OWNER')" />
+                OWNER
               </div>
               <div>
-                <button
-                  class="icon button"
-                  @click="updateRole(index, 'EDITOR')"
-                >
-                  EDITOR
-                </button>
+                <ButtonSecondary @click.native="updateRole(index, 'EDITOR')" />
+                EDITOR
               </div>
               <div>
-                <button
-                  class="icon button"
-                  @click="updateRole(index, 'VIEWER')"
-                >
-                  VIEWER
-                </button>
+                <ButtonSecondary @click.native="updateRole(index, 'VIEWER')" />
+                VIEWER
               </div>
             </tippy>
           </span>
         </li>
         <div>
           <li>
-            <button
+            <ButtonSecondary
               id="member"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              class="icon button"
-              @click="removeExistingTeamMember(member.user.uid)"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+              @click.native="removeExistingTeamMember(member.user.uid)"
+            />
+            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
@@ -132,7 +120,7 @@
         </li>
         <li>
           <span class="select-wrapper">
-            <tippy trigger="click" theme="popover" arrow>
+            <tippy tabindex="-1" trigger="click" theme="popover" arrow>
               <template #trigger>
                 <input
                   class="input"
@@ -147,55 +135,45 @@
                 />
               </template>
               <div>
-                <button class="icon button" @click="member.value = 'OWNER'">
-                  OWNER
-                </button>
+                <ButtonSecondary @click.native="member.value = 'OWNER'" />
+                OWNER
               </div>
               <div>
-                <button class="icon button" @click="member.value = 'EDITOR'">
-                  EDITOR
-                </button>
+                <ButtonSecondary @click.native="member.value = 'EDITOR'" />
+                EDITOR
               </div>
               <div>
-                <button class="icon button" @click="member.value = 'VIEWER'">
-                  VIEWER
-                </button>
+                <ButtonSecondary @click.native="member.value = 'VIEWER'" />
+                VIEWER
               </div>
             </tippy>
           </span>
         </li>
         <div>
           <li>
-            <button
+            <ButtonSecondary
               id="member"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              class="icon button"
-              @click="removeTeamMember(index)"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+              @click.native="removeTeamMember(index)"
+            />
+            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <button class="icon button" @click="addTeamMember">
-            <i class="material-icons">add</i>
-            <span>{{ $t("add_new") }}</span>
-          </button>
+          <ButtonSecondary @click.native="addTeamMember" />
+          <i class="material-icons">add</i>
+          <span>{{ $t("add_new") }}</span>
         </li>
       </ul>
     </template>
     <template #footer>
       <span></span>
       <span>
-        <button class="icon button" @click="hideModal">
-          {{ $t("cancel") }}
-        </button>
-        <button class="icon button primary" @click="saveTeam">
-          {{ $t("save") }}
-        </button>
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('save')" @click.native="saveTeam" />
       </span>
     </template>
   </SmartModal>

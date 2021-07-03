@@ -8,24 +8,24 @@
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
         <div v-if="currentUser">
-          <button class="icon button">
-            <img
-              v-if="currentUser.photoURL"
-              :src="currentUser.photoURL"
-              class="w-6 h-6 rounded-full material-icons"
-            />
-            <i v-else class="material-icons">account_circle</i>
-            <span>
-              {{ currentUser.displayName || $t("nothing_found") }}
-            </span>
-          </button>
+          <ButtonSecondary />
+          <img
+            v-if="currentUser.photoURL"
+            :src="currentUser.photoURL"
+            class="w-6 h-6 rounded-full material-icons"
+          />
+          <i v-else class="material-icons">account_circle</i>
+          <span>
+            {{ currentUser.displayName || $t("nothing_found") }}
+          </span>
+
           <br />
-          <button class="icon button">
-            <i class="material-icons">email</i>
-            <span>
-              {{ currentUser.email || $t("nothing_found") }}
-            </span>
-          </button>
+          <ButtonSecondary />
+          <i class="material-icons">email</i>
+          <span>
+            {{ currentUser.email || $t("nothing_found") }}
+          </span>
+
           <br />
           <FirebaseLogout />
           <p>
@@ -119,30 +119,22 @@
               {{ PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </span>
-          <a
-            href="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
-            target="_blank"
-            rel="noopener"
-          >
-            <button
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('wiki')"
-              class="icon button"
-            >
-              <i class="material-icons">help_outline</i>
-            </button>
-          </a>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            to="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
+            blank
+            :title="$t('wiki')"
+            icon="help_outline"
+          />
         </div>
         <div class="row-wrapper">
           <label for="url">{{ $t("url") }}</label>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('reset_default')"
-            class="icon button"
-            @click="resetProxy"
-          >
-            <i class="material-icons">{{ clearIcon }}</i>
-          </button>
+            icon="clearIcon"
+            @click.native="resetProxy"
+          />
         </div>
         <input
           id="url"
@@ -156,14 +148,14 @@
           {{ $t("official_proxy_hosting") }}
           <br />
           {{ $t("read_the") }}
-          <a
+          <SmartLink
             class="link"
-            href="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
-            target="_blank"
-            rel="noopener"
+            to="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
+            blank
           >
-            {{ $t("proxy_privacy_policy") }} </a
-          >.
+            {{ $t("proxy_privacy_policy") }}
+          </SmartLink>
+          .
         </p>
       </div>
       <!--
@@ -188,13 +180,14 @@
         <label>{{ $t("experiments") }}</label>
         <p class="info">
           {{ $t("experiments_notice") }}
-          <a
+          <SmartLink
             class="link"
-            href="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
-            target="_blank"
-            rel="noopener noreferrer"
-            >{{ $t("contact_us") }}</a
-          >.
+            to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
+            blank
+          >
+            {{ $t("contact_us") }}
+          </SmartLink>
+          .
         </p>
         <div class="row-wrapper">
           <SmartToggle

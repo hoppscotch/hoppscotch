@@ -1,40 +1,87 @@
 <template>
   <div>
-    <div>
-      <button class="icon button" @click="signInWithGoogle">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          class="material-icons"
-        >
-          <path
-            d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"
-          />
-        </svg>
-        <span>Google</span>
-      </button>
+    <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
+      <SmartItem
+        svg="google"
+        label="Continue with Google"
+        @click.native="signInWithGoogle"
+      />
+      <SmartItem
+        svg="github"
+        label="Continue with GitHub"
+        @click.native="signInWithGithub"
+      />
+      <SmartItem
+        icon="mail"
+        label="Continue with Email"
+        @click.native="mode = 'email'"
+      />
     </div>
-    <div>
-      <button class="icon button" @click="signInWithGithub">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          class="material-icons"
-        >
-          <path
-            d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"
-          />
-        </svg>
-        <span>GitHub</span>
-      </button>
+    <p v-if="mode === 'sign-in'" class="mx-4 mt-8 text-secondaryLight text-xs">
+      By signing in, you are agreeing to our
+      <SmartAnchor class="link" to="/index" label="Terms of Service" />
+      and
+      <SmartAnchor class="link" to="/index" label="Privacy Policy" />.
+    </p>
+    <div v-if="mode === 'email'" class="flex items-center px-4">
+      <label for="email"> Email </label>
+      <input
+        id="email"
+        v-model="form.email"
+        class="flex flex-1 ml-4 rounded px-4 py-2 outline-none"
+        type="email"
+        name="email"
+        placeholder="you@mail.com"
+        autocomplete="email"
+        required
+        spellcheck="false"
+        autofocus
+        @keyup.enter="signInWithEmail"
+      />
     </div>
-    <div>
-      <button class="icon button" @click="$emit('show-email')">
-        <i class="material-icons">mail</i>
-        <span>{{ $t("email") }}</span>
-      </button>
+    <div v-if="mode === 'email'">
+      <div class="flex flex-col">
+        <ButtonPrimary
+          :loading="signingInWithEmail"
+          class="mx-4 mt-4"
+          :disabled="
+            form.email.length !== 0
+              ? emailRegex.test(form.email)
+                ? false
+                : true
+              : true
+          "
+          type="button"
+          tabindex="-1"
+          :label="$t('send_magic_link')"
+          @click.native="signInWithEmail"
+        />
+      </div>
+      <p class="mx-4 mt-8 text-secondaryLight text-xs">
+        Back to
+        <SmartAnchor
+          class="link"
+          to="#"
+          label="all sign in options"
+          @click.native="mode = 'sign-in'"
+        />.
+      </p>
+    </div>
+    <div v-if="mode === 'email-sent'">
+      <div class="flex flex-col items-center">
+        <div class="flex justify-center max-w-md p-4 items-center flex-col">
+          <i class="material-icons text-accent" style="font-size: 64px">
+            verified
+          </i>
+          <h3 class="font-bold my-2 text-center text-xl">
+            {{ $t("we_sent_magic_link") }}
+          </h3>
+          <p class="text-center">
+            {{ $t("we_sent_magic_link_description", { email: form.email }) }}
+          </p>
+          <p class="mt-4 text-secondaryLight">{{ $t("check_your_inbox") }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -47,9 +94,28 @@ import {
   signInWithEmailAndPassword,
   signInUserWithGithub,
   setProviderInfo,
+  currentUser$,
+  signInWithEmail,
 } from "~/helpers/fb/auth"
+import { setLocalConfig } from "~/newstore/localpersistence"
 
 export default {
+  data() {
+    return {
+      form: {
+        email: "",
+      },
+      signingInWithEmail: false,
+      emailRegex:
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+      mode: "sign-in",
+    }
+  },
+  mounted() {
+    this.$subscribeTo(currentUser$, (user) => {
+      if (user) this.hideModal()
+    })
+  },
   methods: {
     showLoginSuccess() {
       this.$toast.info(this.$t("login_success"), {
@@ -198,6 +264,32 @@ export default {
           })
         }
       }
+    },
+    async signInWithEmail() {
+      this.signingInWithEmail = true
+      const actionCodeSettings = {
+        url: `${process.env.BASE_URL}/enter`,
+        handleCodeInApp: true,
+      }
+      await signInWithEmail(this.form.email, actionCodeSettings)
+        .then(() => {
+          this.mode = "email-sent"
+          setLocalConfig("emailForSignIn", this.form.email)
+        })
+        .catch((error) => {
+          this.$toast.error(error.message, {
+            icon: "error",
+          })
+          this.signingInWithEmail = false
+        })
+        .finally(() => {
+          this.signingInWithEmail = false
+        })
+    },
+    hideModal() {
+      this.mode = "sign-in"
+      this.$toast.clear()
+      this.$emit("hide-modal")
     },
   },
 }

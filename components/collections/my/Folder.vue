@@ -1,10 +1,7 @@
 <template>
   <div>
     <div
-      :class="[
-        'row-wrapper transition duration-150 ease-in-out',
-        { 'bg-primaryDark': dragging },
-      ]"
+      :class="['row-wrapper ease-in-out', { 'bg-primaryDark': dragging }]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -13,43 +10,34 @@
       @dragend="dragging = false"
     >
       <div>
-        <button class="icon button" @click="toggleShowChildren">
-          <i v-show="!showChildren && !isFiltered" class="material-icons"
-            >arrow_right</i
-          >
-          <i v-show="showChildren || isFiltered" class="material-icons"
-            >arrow_drop_down</i
-          >
-          <i v-if="isSelected" class="text-green-400 material-icons"
-            >check_circle</i
-          >
-          <i v-else class="material-icons">folder_open</i>
-          <span>{{ folder.name ? folder.name : folder.title }}</span>
-        </button>
+        <ButtonSecondary @click.native="toggleShowChildren" />
+        <i v-show="!showChildren && !isFiltered" class="material-icons"
+          >arrow_right</i
+        >
+        <i v-show="showChildren || isFiltered" class="material-icons"
+          >arrow_drop_down</i
+        >
+        <i v-if="isSelected" class="text-green-400 material-icons"
+          >check_circle</i
+        >
+        <i v-else class="material-icons">folder_open</i>
+        <span>{{ folder.name ? folder.name : folder.title }}</span>
       </div>
-      <tippy trigger="click" theme="popover" arrow>
+      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <button
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
+          <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="$t('more')" />
+          <i class="material-icons">more_vert</i>
         </template>
         <div>
-          <button
-            class="icon button"
-            @click="$emit('add-folder', { folder, path: folderPath })"
-          >
-            <i class="material-icons">create_new_folder</i>
-            <span>{{ $t("new_folder") }}</span>
-          </button>
+          <ButtonSecondary
+            @click.native="$emit('add-folder', { folder, path: folderPath })"
+          />
+          <i class="material-icons">create_new_folder</i>
+          <span>{{ $t("new_folder") }}</span>
         </div>
         <div>
-          <button
-            class="icon button"
-            @click="
+          <ButtonSecondary
+            @click.native="
               $emit('edit-folder', {
                 folder,
                 folderIndex,
@@ -57,16 +45,14 @@
                 folderPath,
               })
             "
-          >
-            <i class="material-icons">edit</i>
-            <span>{{ $t("edit") }}</span>
-          </button>
+          />
+          <i class="material-icons">edit</i>
+          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <button class="icon button" @click="confirmRemove = true">
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
-          </button>
+          <ButtonSecondary @click.native="confirmRemove = true" />
+          <i class="material-icons">delete</i>
+          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>

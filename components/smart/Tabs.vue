@@ -1,27 +1,29 @@
 <template>
-  <section class="tabs-wrapper">
+  <div class="tabs-wrapper">
     <div class="tabs" :class="styles">
-      <ul>
-        <li
-          v-for="(tab, index) in tabs"
-          :key="index"
-          :class="{ 'is-active': tab.isActive }"
-          :tabindex="0"
-          @keyup.enter="selectTab(tab)"
-        >
-          <a :href="tab.href" @click="selectTab(tab)">
+      <div class="flex w-0">
+        <div class="inline-flex">
+          <button
+            v-for="(tab, index) in tabs"
+            :key="index"
+            class="tab"
+            :class="{ 'is-active': tab.isActive }"
+            :tabindex="0"
+            @keyup.enter="selectTab(tab)"
+            @click="selectTab(tab)"
+          >
             <i v-if="tab.icon" class="material-icons">
               {{ tab.icon }}
             </i>
             <span v-if="tab.label">{{ tab.label }}</span>
-          </a>
-        </li>
-      </ul>
+          </button>
+        </div>
+      </div>
     </div>
     <div class="tabs-details">
       <slot></slot>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -56,7 +58,10 @@ export default {
 
 <style scoped lang="scss">
 .tabs-wrapper {
-  @apply flex flex-col flex-nowrap flex-1;
+  @apply flex;
+  @apply flex-col;
+  @apply flex-nowrap;
+  @apply flex-1;
 
   .tabs {
     @apply flex;
@@ -64,53 +69,35 @@ export default {
     @apply overflow-auto;
     @apply mt-4;
 
-    ul {
+    .tab {
       @apply flex;
-      @apply w-0;
-    }
+      @apply items-center;
+      @apply justify-center;
+      @apply p-3;
+      @apply text-secondaryLight;
+      @apply font-semibold;
+      @apply cursor-pointer;
+      @apply transition;
+      @apply border-b-2;
+      @apply border-transparent;
+      @apply rounded-t-lg;
 
-    li {
-      @apply inline-flex;
-      @apply outline-none;
-      @apply border-none;
-
-      a {
-        @apply flex;
-        @apply items-center;
-        @apply justify-center;
-        @apply py-2 px-4;
-        @apply text-secondaryLight text-sm;
-        @apply rounded-lg;
-        @apply cursor-pointer;
-        @apply transition-colors;
-        @apply ease-in-out;
-        @apply duration-150;
-
-        .material-icons {
-          @apply m-4;
-        }
-
-        &:hover {
-          @apply text-secondary;
-        }
+      .material-icons {
+        @apply mr-4;
       }
 
-      &:focus a {
-        @apply text-secondary;
+      &:hover {
+        @apply text-secondaryDark;
       }
-
-      &.is-active a {
-        @apply bg-divider;
-        @apply text-secondary;
+      &:focus {
+        @apply text-secondaryDark;
+        @apply outline-none;
+      }
+      &.is-active {
+        @apply text-accent;
+        @apply border-accent;
       }
     }
-  }
-}
-
-@media (max-width: 768px) {
-  ul,
-  ol {
-    @apply flex-row flex-nowrap;
   }
 }
 </style>

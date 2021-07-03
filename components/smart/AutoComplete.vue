@@ -12,7 +12,7 @@
       :class="styles"
       @input="updateSuggestions"
       @keyup="updateSuggestions"
-      @click="updateSuggestions"
+      @click.native="updateSuggestions"
       @keydown="handleKeystroke"
     />
     <ul
@@ -24,7 +24,7 @@
         v-for="(suggestion, index) in suggestions"
         :key="index"
         :class="{ active: currentSuggestionIndex === index }"
-        @click.prevent="forceSuggestion(suggestion)"
+        @click.native.prevent="forceSuggestion(suggestion)"
       >
         {{ suggestion }}
       </li>
@@ -200,7 +200,7 @@ export default {
     @apply mx-2;
     @apply left-0;
     @apply z-50;
-    @apply transition;
+
     @apply ease-in-out;
     @apply duration-150;
     @apply shadow-lg;

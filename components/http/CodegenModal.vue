@@ -3,15 +3,13 @@
     <template #header>
       <h3 class="heading">{{ $t("generate_code") }}</h3>
       <div>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>
       <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
-        <tippy trigger="click" theme="popover" arrow>
+        <tippy tabindex="-1" trigger="click" theme="popover" arrow>
           <template #trigger>
             <pre v-if="requestType">{{
               codegens.find((x) => x.id === requestType).name
@@ -27,24 +25,21 @@
             />
           </template>
           <div v-for="gen in codegens" :key="gen.id">
-            <button class="icon button" @click="requestType = gen.id">
-              {{ gen.name }}
-            </button>
+            <ButtonSecondary @click.native="requestType = gen.id" />
+            {{ gen.name }}
           </div>
         </tippy>
       </span>
       <div class="row-wrapper">
         <label for="generatedCode">{{ $t("generated_code") }}</label>
         <div>
-          <button
+          <ButtonSecondary
             ref="copyRequestCode"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('copy_code')"
-            class="icon button"
-            @click="copyRequestCode"
-          >
-            <i class="material-icons">{{ copyIcon }}</i>
-          </button>
+            @click.native="copyRequestCode"
+          />
+          <i class="material-icons">{{ copyIcon }}</i>
         </div>
       </div>
       <SmartAceEditor

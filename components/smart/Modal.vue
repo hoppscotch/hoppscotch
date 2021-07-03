@@ -8,24 +8,20 @@
       @mouseup="onBackdropMouseUp"
       @mousedown="onBackdropMouseDown"
     >
-      <div class="modal-wrapper">
-        <div class="modal-container">
-          <div class="modal-header">
-            <div class="row-wrapper">
-              <slot name="header"></slot>
-            </div>
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="row-wrapper">
+            <slot name="header"></slot>
           </div>
-          <div class="modal-body">
-            <div class="flex flex-col">
-              <slot name="body"></slot>
-              <!-- <div class="top fade"></div>
-            <div class="bottom fade"></div> -->
-            </div>
+        </div>
+        <div class="modal-body">
+          <div class="flex flex-col">
+            <slot name="body"></slot>
           </div>
-          <div v-if="hasFooterSlot" class="modal-footer">
-            <div class="row-wrapper">
-              <slot name="footer"></slot>
-            </div>
+        </div>
+        <div v-if="hasFooterSlot" class="modal-footer">
+          <div class="row-wrapper">
+            <slot name="footer"></slot>
           </div>
         </div>
       </div>
@@ -50,7 +46,7 @@ export default {
     return {
       stackId: Math.random(),
       shouldCloseOnBackdropClick: true,
-      // when transition doesn't fire on unmount, we should manually remove the modal from DOM
+      // when doesn't fire on unmount, we should manually remove the modal from DOM
       // (for example, when the parent component of this modal gets destroyed)
       shouldCleanupDomOnUnmount: true,
     }
@@ -127,33 +123,23 @@ export default {
   @apply flex;
   @apply items-center;
   @apply justify-center;
-  @apply transition;
   @apply ease-in-out;
   @apply duration-150;
-
-  background-color: rgba(0, 0, 0, 0.64);
-}
-
-.modal-wrapper {
-  @apply flex flex-1;
-  @apply items-center;
-  @apply justify-center;
+  @apply bg-primaryLight;
 }
 
 .modal-container {
   @apply relative;
   @apply flex flex-1 flex-col;
   @apply m-2;
-  @apply transition;
+  @apply p-4;
   @apply ease-in-out;
   @apply duration-150;
   @apply bg-primary;
   @apply rounded-lg;
-  @apply shadow-2xl;
-  @apply border-4 border-tooltip;
-
-  max-height: calc(100vh - 128px);
-  max-width: 640px;
+  @apply shadow-xl;
+  @apply max-w-md;
+  @apply max-h-xl;
 }
 
 .modal-header {
@@ -161,21 +147,13 @@ export default {
 }
 
 .modal-body {
+  @apply my-4;
   @apply overflow-auto;
 }
 
 .modal-footer {
   @apply p-2;
 }
-
-/*
-  * The following styles are auto-applied to elements with
-  * transition="modal" when their visibility is toggled
-  * by Vue.js.
-  *
-  * You can easily play with the modal transition by editing
-  * these styles.
-  */
 
 .modal-enter,
 .modal-leave-active {
@@ -186,30 +164,7 @@ export default {
 .modal-leave-active .modal-container {
   @apply transform;
   @apply scale-90;
-  @apply transition;
   @apply ease-in-out;
   @apply duration-150;
 }
-
-// .fade {
-//   @apply absolute;
-//   @apply block;
-//   @apply transition;
-//   @apply ease-in-out;
-//   @apply duration-150;
-
-//   left: 16px;
-//   right: 20px;
-//   height: 32px;
-
-//   &.top {
-//     top: 56px;
-//     background: linear-gradient(to bottom, var(--primary-color), transparent);
-//   }
-
-//   &.bottom {
-//     bottom: 16px;
-//     background: linear-gradient(to top, var(--primary-color), transparent);
-//   }
-// }
 </style>

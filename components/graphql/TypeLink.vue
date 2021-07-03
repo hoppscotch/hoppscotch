@@ -2,7 +2,7 @@
   <span
     :class="{ 'cursor-pointer': !isScalar }"
     class="font-mono text-sm text-accent"
-    @click="jumpToType"
+    @click.native="jumpToType"
   >
     {{ typeString }}
   </span>

@@ -3,9 +3,7 @@
     <template #header>
       <h3 class="heading">{{ $t("edit_environment") }}</h3>
       <div>
-        <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
-        </button>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
     </template>
     <template #body>
@@ -21,14 +19,12 @@
       <div class="row-wrapper">
         <label for="variableList">{{ $t("env_variable_list") }}</label>
         <div>
-          <button
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('clear')"
-            class="icon button"
-            @click="clearContent($event)"
-          >
-            <i class="material-icons">{{ clearIcon }}</i>
-          </button>
+            icon="clearIcon"
+            @click.native="clearContent($event)"
+          />
         </div>
       </div>
       <ul
@@ -62,36 +58,29 @@
         </li>
         <div>
           <li>
-            <button
+            <ButtonSecondary
               id="variable"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              class="icon button"
-              @click="removeEnvironmentVariable(index)"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+              @click.native="removeEnvironmentVariable(index)"
+            />
+            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <button class="icon button" @click="addEnvironmentVariable">
-            <i class="material-icons">add</i>
-            <span>{{ $t("add_new") }}</span>
-          </button>
+          <ButtonSecondary @click.native="addEnvironmentVariable" />
+          <i class="material-icons">add</i>
+          <span>{{ $t("add_new") }}</span>
         </li>
       </ul>
     </template>
     <template #footer>
       <span></span>
       <span>
-        <button class="icon button" @click="hideModal">
-          {{ $t("cancel") }}
-        </button>
-        <button class="icon button primary" @click="saveEnvironment">
-          {{ $t("save") }}
-        </button>
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('save')" @click.native="saveEnvironment" />
       </span>
     </template>
   </SmartModal>

@@ -29,20 +29,19 @@
         <div>
           <li>
             <label for="connect" class="hide-on-small-screen">&nbsp;</label>
-            <button
+            <ButtonSecondary
               id="connect"
               :disabled="!urlValid"
               name="connect"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              @click="toggleConnection"
-            >
-              {{ !connectionState ? $t("connect") : $t("disconnect") }}
-              <span>
-                <i class="material-icons">
-                  {{ !connectionState ? "sync" : "sync_disabled" }}
-                </i>
-              </span>
-            </button>
+              @click.native="toggleConnection"
+            />
+            {{ !connectionState ? $t("connect") : $t("disconnect") }}
+            <span>
+              <i class="material-icons">
+                {{ !connectionState ? "sync" : "sync_disabled" }}
+              </i>
+            </span>
           </li>
         </div>
       </ul>
@@ -99,39 +98,35 @@
         </li>
         <div v-if="index + 1 !== communication.inputs.length">
           <li>
-            <button
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              class="icon button"
-              @click="removeCommunicationInput({ index })"
-            >
-              <i class="material-icons">delete</i>
-            </button>
+              @click.native="removeCommunicationInput({ index })"
+            />
+            <i class="material-icons">delete</i>
           </li>
         </div>
         <div v-if="index + 1 === communication.inputs.length">
           <li>
-            <button
+            <ButtonSecondary
               id="send"
               class="button"
               name="send"
               :disabled="!connectionState"
-              @click="sendMessage"
-            >
-              {{ $t("send") }}
-              <span>
-                <i class="material-icons">send</i>
-              </span>
-            </button>
+              @click.native="sendMessage"
+            />
+            {{ $t("send") }}
+            <span>
+              <i class="material-icons">send</i>
+            </span>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <button class="icon button" @click="addCommunicationInput">
-            <i class="material-icons">add</i>
-            <span>{{ $t("add_new") }}</span>
-          </button>
+          <ButtonSecondary @click.native="addCommunicationInput" />
+          <i class="material-icons">add</i>
+          <span>{{ $t("add_new") }}</span>
         </li>
       </ul>
     </AppSection>

@@ -1,6 +1,6 @@
 <template>
   <AppSection label="environments">
-    <div class="show-on-large-screen">
+    <div class="flex">
       <span class="select-wrapper">
         <select
           v-model="selectedEnvironmentIndex"
@@ -37,22 +37,22 @@
     />
     <div class="border-b row-wrapper border-divider">
       <div>
-        <button class="icon button" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
-          <span>{{ $t("new") }}</span>
-        </button>
+        <ButtonSecondary
+          icon="add"
+          :label="$t('new')"
+          @click.native="displayModalAdd(true)"
+        />
       </div>
       <div>
-        <button class="icon button" @click="displayModalImportExport(true)">
-          {{ $t("import_export") }}
-        </button>
+        <ButtonSecondary @click.native="displayModalImportExport(true)" />
+        {{ $t("import_export") }}
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
       <i class="material-icons">help_outline</i>
       {{ $t("create_new_environment") }}
     </p>
-    <div class="virtual-list">
+    <div class="overflow-auto">
       <ul class="flex-col">
         <li
           v-for="(environment, index) in environments"
@@ -122,9 +122,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.virtual-list {
-  max-height: calc(100vh - 270px);
-}
-</style>

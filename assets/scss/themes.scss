@@ -19,6 +19,10 @@
   --secondary-dark-color: rgba(0, 0, 0, 0.5);
   // Border color
   --divider-color: rgba(255, 255, 255, 0.05);
+  // Light Border color
+  --divider-light-color: rgba(255, 255, 255, 0.05);
+  // Dark Border color
+  --divider-dark-color: rgba(255, 255, 255, 0.05);
   // Error color
   --error-color: rgba(255, 255, 255, 0.05);
   // Tooltip color
@@ -42,6 +46,10 @@
   --secondary-dark-color: theme("colors.gray.700");
   // Border color
   --divider-color: theme("colors.gray.200");
+  // Light Border color
+  --divider-light-color: theme("colors.gray.100");
+  // Dark Border color
+  --divider-dark-color: theme("colors.gray.300");
   // Error color
   --error-color: theme("colors.gray.700");
   // Tooltip color
@@ -65,6 +73,10 @@
   --secondary-dark-color: rgba(9, 9, 9, 0.5);
   // Border color
   --divider-color: rgba(255, 255, 255, 0.11);
+  // Light Border color
+  --divider-light-color: rgba(255, 255, 255, 0.11);
+  // Dark Border color
+  --divider-dark-color: rgba(255, 255, 255, 0.11);
   // Error color
   --error-color: rgba(255, 255, 255, 0.05);
   // Tooltip color

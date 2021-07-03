@@ -2,32 +2,24 @@
   <div>
     <div class="row-wrapper">
       <div>
-        <button class="icon button" @click="$emit('edit-environment')">
-          <i class="material-icons">layers</i>
-          <span>{{ environment.name }}</span>
-        </button>
+        <ButtonSecondary @click.native="$emit('edit-environment')" />
+        <i class="material-icons">layers</i>
+        <span>{{ environment.name }}</span>
       </div>
-      <tippy trigger="click" theme="popover" arrow>
+      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <button
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
-            class="tooltip-target icon button"
-          >
-            <i class="material-icons">more_vert</i>
-          </button>
+          <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="$t('more')" />
+          <i class="material-icons">more_vert</i>
         </template>
         <div>
-          <button class="icon button" @click="$emit('edit-environment')">
-            <i class="material-icons">create</i>
-            <span>{{ $t("edit") }}</span>
-          </button>
+          <ButtonSecondary @click.native="$emit('edit-environment')" />
+          <i class="material-icons">create</i>
+          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <button class="icon button" @click="confirmRemove = true">
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
-          </button>
+          <ButtonSecondary @click.native="confirmRemove = true" />
+          <i class="material-icons">delete</i>
+          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>

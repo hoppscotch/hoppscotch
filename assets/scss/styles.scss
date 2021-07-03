@@ -63,7 +63,7 @@ body {
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  @apply transition;
+  @apply transition-opacity;
 }
 
 .page-enter,

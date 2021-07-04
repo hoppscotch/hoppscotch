@@ -20,7 +20,6 @@
   @apply bg-primaryDark;
   @apply text-secondary;
   @apply font-mono;
-
   @apply border border-divider;
 }
 

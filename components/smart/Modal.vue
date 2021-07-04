@@ -124,7 +124,6 @@ export default {
   @apply items-center;
   @apply justify-center;
   @apply transition;
-
   @apply bg-primaryLight;
 }
 

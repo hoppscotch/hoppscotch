@@ -78,7 +78,6 @@ export default {
       this.globe = new ThreeGlobe()
         .globeImageUrl(texture)
         .atmosphereColor("#aaaaaa")
-
         // arcs layer
         .arcsData(this.arcsData)
         .arcColor("color")

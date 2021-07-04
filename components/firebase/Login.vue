@@ -1,49 +1,52 @@
 <template>
-  <div>
-    <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
-      <SmartItem
-        svg="google"
-        label="Continue with Google"
-        @click.native="signInWithGoogle"
-      />
-      <SmartItem
-        svg="github"
-        label="Continue with GitHub"
-        @click.native="signInWithGithub"
-      />
-      <SmartItem
-        icon="mail"
-        label="Continue with Email"
-        @click.native="mode = 'email'"
-      />
-    </div>
-    <p v-if="mode === 'sign-in'" class="mx-4 mt-8 text-secondaryLight text-xs">
-      By signing in, you are agreeing to our
-      <SmartAnchor class="link" to="/index" label="Terms of Service" />
-      and
-      <SmartAnchor class="link" to="/index" label="Privacy Policy" />.
-    </p>
-    <div v-if="mode === 'email'" class="flex items-center px-4">
-      <label for="email"> Email </label>
-      <input
-        id="email"
-        v-model="form.email"
-        class="flex flex-1 ml-4 rounded px-4 py-2 outline-none"
-        type="email"
-        name="email"
-        placeholder="you@mail.com"
-        autocomplete="email"
-        required
-        spellcheck="false"
-        autofocus
-        @keyup.enter="signInWithEmail"
-      />
-    </div>
-    <div v-if="mode === 'email'">
-      <div class="flex flex-col">
+  <SmartModal v-if="show" @close="hideModal">
+    <template #header>
+      <h3 class="heading">{{ $t("login_to_hoppscotch") }}</h3>
+      <div>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
+      </div>
+    </template>
+    <template #body>
+      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
+        <SmartItem
+          :loading="signingInWithGoogle"
+          svg="google"
+          label="Continue with Google"
+          @click.native="signInWithGoogle"
+        />
+        <SmartItem
+          :loading="signingInWithGitHub"
+          svg="github"
+          label="Continue with GitHub"
+          @click.native="signInWithGithub"
+        />
+        <SmartItem
+          icon="mail"
+          label="Continue with Email"
+          @click.native="mode = 'email'"
+        />
+      </div>
+      <div v-if="mode === 'email'" class="flex flex-col space-y-2">
+        <div class="flex items-center">
+          <label for="email" class="flex items-center px-4">
+            <i class="material-icons opacity-75">mail</i>
+          </label>
+          <input
+            id="email"
+            v-model="form.email"
+            class="flex flex-1 rounded px-4 py-2 outline-none"
+            type="email"
+            name="email"
+            placeholder="enter your email"
+            autocomplete="email"
+            required
+            spellcheck="false"
+            autofocus
+            @keyup.enter="signInWithEmail"
+          />
+        </div>
         <ButtonPrimary
           :loading="signingInWithEmail"
-          class="mx-4 mt-4"
           :disabled="
             form.email.length !== 0
               ? emailRegex.test(form.email)
@@ -57,33 +60,45 @@
           @click.native="signInWithEmail"
         />
       </div>
-      <p class="mx-4 mt-8 text-secondaryLight text-xs">
-        Back to
-        <SmartAnchor
-          class="link"
-          to="#"
-          label="all sign in options"
-          @click.native="mode = 'sign-in'"
-        />.
-      </p>
-    </div>
-    <div v-if="mode === 'email-sent'">
-      <div class="flex flex-col items-center">
-        <div class="flex justify-center max-w-md p-4 items-center flex-col">
-          <i class="material-icons text-accent" style="font-size: 64px">
-            verified
-          </i>
-          <h3 class="font-bold my-2 text-center text-xl">
+      <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
+        <div class="flex justify-center max-w-md items-center flex-col">
+          <i class="material-icons text-accent text-4xl"> verified </i>
+          <h3 class="font-bold my-2 text-center text-lg">
             {{ $t("we_sent_magic_link") }}
           </h3>
           <p class="text-center">
             {{ $t("we_sent_magic_link_description", { email: form.email }) }}
           </p>
-          <p class="mt-4 text-secondaryLight">{{ $t("check_your_inbox") }}</p>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+    <template #footer>
+      <p v-if="mode === 'sign-in'" class="text-secondaryLight text-xs">
+        By signing in, you are agreeing to our
+        <SmartAnchor class="link" to="/index" label="Terms of Service" />
+        and
+        <SmartAnchor class="link" to="/index" label="Privacy Policy" />.
+      </p>
+      <p v-if="mode === 'email'" class="text-secondaryLight text-xs">
+        <SmartAnchor
+          class="link"
+          label="← All sign in options"
+          @click.native="mode = 'sign-in'"
+        />
+      </p>
+      <p
+        v-if="mode === 'email-sent'"
+        class="flex flex-1 justify-between text-secondaryLight text-xs"
+      >
+        <SmartAnchor
+          class="link"
+          label="← Re-enter email"
+          @click.native="mode = 'email'"
+        />
+        <SmartAnchor class="link" label="Dismiss" @click.native="hideModal" />
+      </p>
+    </template>
+  </SmartModal>
 </template>
 
 <script>
@@ -100,11 +115,16 @@ import {
 import { setLocalConfig } from "~/newstore/localpersistence"
 
 export default {
+  props: {
+    show: Boolean,
+  },
   data() {
     return {
       form: {
         email: "",
       },
+      signingInWithGoogle: false,
+      signingInWithGitHub: false,
       signingInWithEmail: false,
       emailRegex:
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
@@ -123,6 +143,8 @@ export default {
       })
     },
     async signInWithGoogle() {
+      this.signingInWithGoogle = true
+
       try {
         const { additionalUserInfo } = await signInUserWithGoogle()
 
@@ -191,8 +213,12 @@ export default {
           })
         }
       }
+
+      this.signingInWithGoogle = false
     },
     async signInWithGithub() {
+      this.signingInWithGitHub = true
+
       try {
         const { credential, additionalUserInfo } = await signInUserWithGithub()
 
@@ -264,9 +290,12 @@ export default {
           })
         }
       }
+
+      this.signingInWithGitHub = false
     },
     async signInWithEmail() {
       this.signingInWithEmail = true
+
       const actionCodeSettings = {
         url: `${process.env.BASE_URL}/enter`,
         handleCodeInApp: true,

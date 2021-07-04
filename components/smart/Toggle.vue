@@ -45,7 +45,7 @@ $transition: all 0.2s ease-in-out;
   @apply align-middle;
   @apply rounded-full;
   @apply p-0;
-  @apply m-4;
+  @apply mr-4;
   @apply cursor-pointer;
   @apply flex-shrink-0;
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="ease-in-out row-wrapper">
+    <div>
       <ButtonSecondary @click.native="toggleShowChildren" />
       <i v-show="!showChildren && !isFiltered" class="material-icons"
         >arrow_right</i

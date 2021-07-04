@@ -6,7 +6,11 @@
       <div v-else>
         <label>{{ $t("login_with") }}</label>
         <p>
-          <FirebaseLogin @show-email="showEmail = true" />
+          <ButtonPrimary
+            v-if="currentUser"
+            label="Get Started"
+            @click.native="showLogin = true"
+          />
         </p>
       </div>
     </div>
@@ -45,7 +49,7 @@
         </li>
       </ul>
     </div>
-    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </AppSection>
 </template>
 
@@ -62,7 +66,7 @@ export default {
       editingteamID: "",
       me: {},
       myTeams: [],
-      showEmail: false,
+      showLogin: false,
     }
   },
   subscriptions() {

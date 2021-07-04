@@ -1,26 +1,23 @@
 <template>
-  <div class="flex flex-col">
-    <label>{{ $t("color") }}: {{ capitalized(active) }}</label>
-    <div>
-      <!-- text-blue-400 -->
-      <!-- text-green-400 -->
-      <!-- text-teal-400 -->
-      <!-- text-indigo-400 -->
-      <!-- text-purple-400 -->
-      <!-- text-orange-400 -->
-      <!-- text-pink-400 -->
-      <!-- text-red-400 -->
-      <!-- text-yellow-400 -->
-      <ButtonSecondary
-        v-for="(color, index) of accentColors"
-        :key="`color-${index}`"
-        v-tippy="{ theme: 'tooltip' }"
-        :title="capitalized(color)"
-        :class="[`text-${color}-400`, { 'bg-primary': color === active }]"
-        icon="lens"
-        @click.native="setActiveColor(color)"
-      />
-    </div>
+  <div class="flex">
+    <!-- text-blue-400 -->
+    <!-- text-green-400 -->
+    <!-- text-teal-400 -->
+    <!-- text-indigo-400 -->
+    <!-- text-purple-400 -->
+    <!-- text-orange-400 -->
+    <!-- text-pink-400 -->
+    <!-- text-red-400 -->
+    <!-- text-yellow-400 -->
+    <ButtonSecondary
+      v-for="(color, index) of accentColors"
+      :key="`color-${index}`"
+      v-tippy="{ theme: 'tooltip' }"
+      :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+      :class="[`text-${color}-400`, { 'bg-primary': color === active }]"
+      icon="lens"
+      @click.native="setActiveColor(color)"
+    />
   </div>
 </template>
 
@@ -49,14 +46,10 @@ export default {
       setLocalConfig("THEME_COLOR", color)
     },
   },
-
   methods: {
     setActiveColor(color) {
       document.documentElement.setAttribute("data-accent", color)
       this.active = color
-    },
-    capitalized(color) {
-      return `${color.charAt(0).toUpperCase()}${color.slice(1)}`
     },
   },
 }

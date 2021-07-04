@@ -7,28 +7,26 @@
       </div>
     </template>
     <template #body>
-      <p class="info">
-        {{ $t("extensions_info1") }}
-      </p>
-      <div class="px-2">
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+      <div class="flex flex-col px-2 space-y-2">
+        <SmartItem
           to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
           blank
-          :title="{ hasFirefoxExtInstalled: $t('installed') }"
           svg="firefox"
           label="Firefox"
+          :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
         />
-      </div>
-      <div class="px-2">
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+        <SmartItem
           to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
           blank
-          :title="{ hasChromeExtInstalled: $t('installed') }"
           svg="chrome"
           label="Chrome"
+          :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
         />
+      </div>
+    </template>
+    <template #footer>
+      <div class="px-2 text-secondaryLight text-xs">
+        {{ $t("extensions_info1") }}
       </div>
     </template>
   </SmartModal>

@@ -63,7 +63,7 @@ body {
 .page-leave-active,
 .layout-enter-active,
 .layout-leave-active {
-  @apply transition-opacity;
+  @apply transition;
 }
 
 .page-enter,
@@ -96,7 +96,6 @@ a {
   &.link {
     @apply items-center;
     @apply text-accent;
-
     @apply hover:text-accent;
     @apply focus:text-accent;
   }
@@ -153,20 +152,15 @@ button {
   @apply items-stretch;
 }
 
+hr {
+  @apply border-b;
+  @apply border-divider;
+}
+
 .heading {
   @apply font-bold;
   @apply text-secondaryDark;
   @apply text-lg;
-}
-
-.info:not(.toasted) {
-  @apply m-4;
-  @apply text-secondaryLight;
-
-  .material-icons {
-    @apply align-middle;
-    @apply mr-2;
-  }
 }
 
 input {

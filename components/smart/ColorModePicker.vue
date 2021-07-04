@@ -1,31 +1,17 @@
 <template>
-  <div class="flex flex-col">
-    <label>
-      <ColorScheme placeholder="..." tag="span">
-        {{ $t("background") }}:
-        {{
-          $colorMode.preference.charAt(0).toUpperCase() +
-          $colorMode.preference.slice(1)
-        }}
-        <span v-if="$colorMode.preference === 'system'">
-          ({{ $colorMode.value }} mode detected)
-        </span>
-      </ColorScheme>
-    </label>
-    <div>
-      <ButtonSecondary
-        v-for="(color, index) of colors"
-        :key="`color-${index}`"
-        v-tippy="{ theme: 'tooltip' }"
-        :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
-        :class="[
-          { 'bg-primary': color === $colorMode.preference },
-          { 'text-accent hover:text-accent': color === $colorMode.value },
-        ]"
-        :icon="getIcon(color)"
-        @click.native="$colorMode.preference = color"
-      />
-    </div>
+  <div class="flex">
+    <ButtonSecondary
+      v-for="(color, index) of colors"
+      :key="`color-${index}`"
+      v-tippy="{ theme: 'tooltip' }"
+      :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+      :class="[
+        { 'bg-primary': color === $colorMode.preference },
+        { 'text-accent hover:text-accent': color === $colorMode.value },
+      ]"
+      :icon="getIcon(color)"
+      @click.native="$colorMode.preference = color"
+    />
   </div>
 </template>
 

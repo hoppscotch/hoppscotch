@@ -16,24 +16,29 @@
     "
     :class="[
       { 'opacity-50 cursor-not-allowed': disabled },
+      { 'pointer-events-none': loading },
       { 'flex-1': label },
       { 'flex-row-reverse justify-end': reverse },
     ]"
     :disabled="disabled"
+    :tabindex="loading ? '-1' : '0'"
   >
-    <i
-      v-if="icon"
-      :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
-      class="material-icons"
-    >
-      {{ icon }}
-    </i>
-    <SmartIcon
-      v-if="svg"
-      :name="svg"
-      :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
-      class="svg-icons"
-    />
+    <span v-if="!loading" class="inline-flex items-center">
+      <i
+        v-if="icon"
+        :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
+        class="material-icons"
+      >
+        {{ icon }}
+      </i>
+      <SmartIcon
+        v-if="svg"
+        :name="svg"
+        :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
+        class="svg-icons"
+      />
+    </span>
+    <SmartSpinner v-else class="mr-4" />
     <div class="inline-flex items-start" :class="{ 'flex-col': description }">
       <div class="font-semibold">
         {{ label }}
@@ -42,6 +47,9 @@
         {{ description }}
       </p>
     </div>
+    <i v-if="infoIcon" class="ml-4 text-accent material-icons">
+      {{ infoIcon }}
+    </i>
   </SmartLink>
 </template>
 
@@ -80,13 +88,17 @@ export default {
       type: Boolean,
       default: false,
     },
-    infoIcon: {
-      type: String,
-      default: "",
+    loading: {
+      type: Boolean,
+      default: false,
     },
     reverse: {
       type: Boolean,
       default: false,
+    },
+    infoIcon: {
+      type: String,
+      default: "",
     },
   },
 }

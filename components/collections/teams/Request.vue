@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="ease-in-out row-wrapper">
+    <div>
       <div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"

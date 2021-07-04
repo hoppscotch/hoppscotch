@@ -443,6 +443,6 @@ export default {
 
   // Router configuration (https://nuxtjs.org/api/configuration-router)
   router: {
-    linkExactActiveClass: "text-accent",
+    linkExactActiveClass: "active",
   },
 }

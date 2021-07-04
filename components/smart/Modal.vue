@@ -123,8 +123,8 @@ export default {
   @apply flex;
   @apply items-center;
   @apply justify-center;
-  @apply ease-in-out;
-  @apply duration-150;
+  @apply transition;
+
   @apply bg-primaryLight;
 }
 
@@ -133,13 +133,11 @@ export default {
   @apply flex flex-1 flex-col;
   @apply m-2;
   @apply p-4;
-  @apply ease-in-out;
-  @apply duration-150;
+  @apply transition;
   @apply bg-primary;
   @apply rounded-lg;
   @apply shadow-xl;
   @apply max-w-md;
-  @apply max-h-xl;
 }
 
 .modal-header {
@@ -149,6 +147,7 @@ export default {
 .modal-body {
   @apply my-4;
   @apply overflow-auto;
+  @apply max-h-xl;
 }
 
 .modal-footer {
@@ -164,7 +163,6 @@ export default {
 .modal-leave-active .modal-container {
   @apply transform;
   @apply scale-90;
-  @apply ease-in-out;
-  @apply duration-150;
+  @apply transition;
 }
 </style>

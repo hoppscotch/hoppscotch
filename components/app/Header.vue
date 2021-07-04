@@ -12,10 +12,11 @@
         @click.native="showInstallPrompt()"
       />
       <span tabindex="-1">
-        <span v-if="currentUser === null">
-          <ButtonSecondary label="Sign in" @click.native="showLogin = true" />
-          <ButtonPrimary label="Sign up" @click.native="showLogin = true" />
-        </span>
+        <ButtonPrimary
+          v-if="currentUser === null"
+          label="Get Started"
+          @click.native="showLogin = true"
+        />
         <tippy v-else tabindex="-1" trigger="click" theme="popover" arrow>
           <template #trigger>
             <ProfilePicture
@@ -84,13 +85,12 @@
         </tippy>
       </span>
     </div>
-    <AppLogin :show="showLogin" @hide-modal="showLogin = false" />
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppExtensions
       :show="showExtensions"
       @hide-modal="showExtensions = false"
     />
     <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
-    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </header>
 </template>
 
@@ -110,7 +110,6 @@ export default {
       showLogin: false,
       showExtensions: false,
       showShortcuts: false,
-      showEmail: false,
       navigatorShare: navigator.share,
     }
   },
@@ -222,31 +221,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.logo {
-  @apply text-xl;
-  @apply transition-colors;
-  @apply ease-in-out;
-  @apply duration-150;
-  @apply hover:text-accent;
-}
-
-@keyframes slideIn {
-  0% {
-    @apply opacity-0;
-    @apply -left-4;
-  }
-
-  100% {
-    @apply opacity-100;
-    @apply left-0;
-  }
-}
-
-.slide-in {
-  @apply relative;
-
-  animation: slideIn 0.2s forwards ease-in-out;
-}
-</style>

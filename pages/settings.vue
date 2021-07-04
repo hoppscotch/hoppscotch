@@ -4,74 +4,148 @@
       <Teams />
     </div>
 
-    <AppSection label="account">
-      <div class="flex flex-col">
-        <label>{{ $t("account") }}</label>
-        <div v-if="currentUser">
-          <ButtonSecondary />
-          <img
-            v-if="currentUser.photoURL"
-            :src="currentUser.photoURL"
-            class="w-6 h-6 rounded-full material-icons"
-          />
-          <i v-else class="material-icons">account_circle</i>
-          <span>
-            {{ currentUser.displayName || $t("nothing_found") }}
-          </span>
-
-          <br />
-          <ButtonSecondary />
-          <i class="material-icons">email</i>
-          <span>
-            {{ currentUser.email || $t("nothing_found") }}
-          </span>
-
-          <br />
-          <FirebaseLogout />
-          <p>
-            <SmartToggle
-              :on="SYNC_COLLECTIONS"
-              @change="toggleSettings('syncCollections', !SYNC_COLLECTIONS)"
-            >
-              {{ $t("syncCollections") + " " + $t("sync") }}
-              {{ SYNC_COLLECTIONS ? $t("enabled") : $t("disabled") }}
-            </SmartToggle>
-          </p>
-
-          <p>
-            <SmartToggle
-              :on="SYNC_ENVIRONMENTS"
-              @change="toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)"
-            >
-              {{ $t("syncEnvironments") + " " + $t("sync") }}
-              {{ SYNC_ENVIRONMENTS ? $t("enabled") : $t("disabled") }}
-            </SmartToggle>
-          </p>
-
-          <p>
-            <SmartToggle
-              :on="SYNC_HISTORY"
-              @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
-            >
-              {{ $t("syncHistory") + " " + $t("sync") }}
-              {{ SYNC_HISTORY ? $t("enabled") : $t("disabled") }}
-            </SmartToggle>
+    <div class="space-y-8">
+      <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div class="md:col-span-1 p-8">
+          <h3 class="heading">
+            {{ $t("account") }}
+          </h3>
+          <p class="mt-1 text-xs text-secondaryLight">
+            Customize your account settings.
           </p>
         </div>
-        <div v-else>
-          <label>{{ $t("login_with") }}</label>
-          <p>
-            <FirebaseLogin @show-email="showEmail = true" />
-          </p>
+        <div class="md:col-span-2 border border-divider p-8 rounded-lg">
+          <div v-if="currentUser === null">
+            <ButtonPrimary label="Log in" @click.native="showLogin = true" />
+            <div class="mt-4 text-xs text-secondaryLight">
+              Log in to access.
+            </div>
+          </div>
+          <div v-else class="space-y-8">
+            <fieldset>
+              <legend class="font-bold text-secondaryDark">User</legend>
+              <div class="mt-4 space-y-4">
+                <div class="flex items-start">
+                  <div class="flex items-center">
+                    <img
+                      v-if="currentUser.photoURL"
+                      :src="currentUser.photoURL"
+                      class="w-5 h-5 rounded-full material-icons"
+                    />
+                    <i v-else class="material-icons">account_circle</i>
+                  </div>
+                  <div class="ml-4">
+                    <label>
+                      {{ currentUser.displayName || $t("nothing_found") }}
+                    </label>
+                    <p class="mt-1 text-xs text-secondaryLight">
+                      This is your display name.
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex items-center">
+                    <i class="material-icons">email</i>
+                  </div>
+                  <div class="ml-4">
+                    <label>
+                      {{ currentUser.email || $t("nothing_found") }}
+                    </label>
+                    <p class="mt-1 text-xs text-secondaryLight">
+                      Your primary email address.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend class="font-bold text-secondaryDark">Sync</legend>
+              <div class="mt-1 text-xs text-secondaryLight">
+                These settings are synced to cloud.
+              </div>
+              <div class="mt-4 space-y-4">
+                <div class="flex items-center">
+                  <SmartToggle
+                    :on="SYNC_COLLECTIONS"
+                    @change="
+                      toggleSettings('syncCollections', !SYNC_COLLECTIONS)
+                    "
+                  >
+                    {{ $t("syncCollections") }}
+                  </SmartToggle>
+                </div>
+                <div class="flex items-center">
+                  <SmartToggle
+                    :on="SYNC_ENVIRONMENTS"
+                    @change="
+                      toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)
+                    "
+                  >
+                    {{ $t("syncEnvironments") }}
+                  </SmartToggle>
+                </div>
+                <div class="flex items-center">
+                  <SmartToggle
+                    :on="SYNC_HISTORY"
+                    @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
+                  >
+                    {{ $t("syncHistory") }}
+                  </SmartToggle>
+                </div>
+              </div>
+            </fieldset>
+          </div>
         </div>
       </div>
-    </AppSection>
+
+      <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div class="md:col-span-1 p-8">
+          <h3 class="heading">
+            {{ $t("theme") }}
+          </h3>
+          <p class="mt-1 text-xs text-secondaryLight">
+            Customize your application theme.
+          </p>
+        </div>
+        <div
+          class="md:col-span-2 border border-divider p-8 rounded-lg space-y-8"
+        >
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
+              {{ $t("background") }}
+            </legend>
+            <div class="mt-1 text-xs text-secondaryLight">
+              <ColorScheme placeholder="..." tag="span">
+                {{
+                  $colorMode.preference.charAt(0).toUpperCase() +
+                  $colorMode.preference.slice(1)
+                }}
+                <span v-if="$colorMode.preference === 'system'">
+                  ({{ $colorMode.value }} mode detected)
+                </span>
+              </ColorScheme>
+            </div>
+            <div class="mt-4">
+              <SmartColorModePicker />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
+              {{ $t("color") }}
+            </legend>
+            <div class="mt-1 text-xs text-secondaryLight">
+              {{ active.charAt(0).toUpperCase() + active.slice(1) }}
+            </div>
+            <div class="mt-4">
+              <SmartAccentModePicker />
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
 
     <AppSection label="theme">
       <div class="flex flex-col">
-        <label>{{ $t("theme") }}</label>
-        <SmartColorModePicker />
-        <SmartAccentModePicker />
         <span>
           <SmartToggle
             :on="SCROLL_INTO_ENABLED"
@@ -199,7 +273,7 @@
         </div>
       </div>
     </AppSection>
-    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 
@@ -215,6 +289,7 @@ import {
 import type { KeysMatching } from "~/types/ts-utils"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import { currentUser$ } from "~/helpers/fb/auth"
+import { getLocalConfig } from "~/newstore/localpersistence"
 
 type SettingsType = typeof defaultSettings
 
@@ -237,10 +312,12 @@ export default Vue.extend({
       EXTENSIONS_ENABLED: true,
       PROXY_ENABLED: true,
 
-      showEmail: false,
-
       currentBackendUser: null,
       currentUser: null,
+
+      showLogin: false,
+
+      active: getLocalConfig("THEME_COLOR") || "green",
     }
   },
   subscriptions() {

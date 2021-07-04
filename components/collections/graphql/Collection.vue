@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      :class="['row-wrapper ease-in-out', { 'bg-primaryDark': dragging }]"
+      :class="[{ 'bg-primaryDark': dragging }]"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"

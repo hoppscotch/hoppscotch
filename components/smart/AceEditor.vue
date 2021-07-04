@@ -277,9 +277,6 @@ export default {
 
     .label {
       @apply p-2;
-
-      @apply ease-in-out;
-      @apply duration-150;
     }
 
     .siblings {

@@ -21,8 +21,6 @@
   @apply text-secondary;
   @apply font-mono;
 
-  @apply ease-in-out;
-  @apply duration-150;
   @apply border border-divider;
 }
 

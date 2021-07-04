@@ -51,6 +51,7 @@
     "tern": "^0.24.3",
     "three": "^0.130.0",
     "three-globe": "^2.18.5",
+    "three-trackballcontrols": "^0.9.0",
     "vue-apollo": "^3.0.7",
     "vue-cli-plugin-apollo": "^0.22.2",
     "vue-functional-data-merge": "^3.1.0",

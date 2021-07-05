@@ -26,7 +26,7 @@
                     <img
                       v-if="currentUser.photoURL"
                       :src="currentUser.photoURL"
-                      class="w-5 h-5 rounded-full material-icons"
+                      class="w-5 h-5 rounded-full"
                     />
                     <i v-else class="material-icons">account_circle</i>
                   </div>

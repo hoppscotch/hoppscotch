@@ -139,69 +139,6 @@ export default {
         ],
       })
     }
-
-    // const showAd = localStorage.getItem("showAd") === "no"
-    // if (!showAd) {
-    //   setTimeout(() => {
-    //     this.$toast.clear()
-    //     this.$toast.show(
-    //       "<span><a href='https://fundoss.org/collective/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
-    //       {
-    //         icon: "",
-    //         duration: 0,
-    //         theme: "toasted-ad",
-    //         action: [
-    //           {
-    //             text: "Donate",
-    //             icon: "chevron_right",
-    //             onClick: (_, toastObject) => {
-    //               localStorage.setItem("showAd", "no")
-    //               toastObject.goAway(0)
-    //               window.open("https://fundoss.org/collective/hoppscotch")
-    //             },
-    //           },
-    //         ],
-    //         onComplete() {
-    //           localStorage.setItem("showAd", "no")
-    //         },
-    //       }
-    //     )
-    //   }, 6000)
-    // }
-
-    // let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
-    // if (!showExtensionsToast) {
-    //   setTimeout(() => {
-    //     if (!hasExtensionInstalled()) {
-    //       this.$toast.show(this.$t("extensions_info2"), {
-    //         icon: "extension",
-    //         duration: 5000,
-    //         theme: "toasted-primary",
-    //         action: [
-    //           {
-    //             text: this.$t("yes"),
-    //             onClick: (_, toastObject) => {
-    //               this.showExtensions = true
-    //               localStorage.setItem("showExtensionsToast", "yes")
-    //               toastObject.goAway(0)
-    //             },
-    //           },
-    //           {
-    //             text: this.$t("no"),
-    //             onClick: (_, toastObject) => {
-    //               this.$store.commit("setMiscState", {
-    //                 value: false,
-    //                 attribute: "showExtensionsToast",
-    //               })
-    //               localStorage.setItem("showExtensionsToast", "no")
-    //               toastObject.goAway(0)
-    //             },
-    //           },
-    //         ],
-    //       })
-    //     }
-    //   }, 5000)
-    // }
   },
   methods: {
     nativeShare() {

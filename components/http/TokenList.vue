@@ -54,7 +54,7 @@
           </li>
         </div>
       </ul>
-      <p v-if="tokens.length === 0" class="info">
+      <p v-if="tokens.length === 0">
         {{ $t("empty") }}
       </p>
     </template>

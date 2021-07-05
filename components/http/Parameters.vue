@@ -8,9 +8,9 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
+              icon="clear_all"
               @click.native="clearContent('parameters', $event)"
             />
-            <i class="material-icons">clear_all</i>
           </div>
         </div>
       </li>
@@ -89,6 +89,13 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            :icon="
+              param.hasOwnProperty('active')
+                ? param.active
+                  ? 'check_box'
+                  : 'check_box_outline_blank'
+                : 'check_box'
+            "
             @click.native="
               $store.commit('setActiveParams', {
                 index,
@@ -96,15 +103,6 @@
               })
             "
           />
-          <i class="material-icons">
-            {{
-              param.hasOwnProperty("active")
-                ? param.active
-                  ? "check_box"
-                  : "check_box_outline_blank"
-                : "check_box"
-            }}
-          </i>
         </li>
       </div>
       <div>
@@ -112,17 +110,19 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('delete')"
+            icon="delete"
             @click.native="removeRequestParam(index)"
           />
-          <i class="material-icons">delete</i>
         </li>
       </div>
     </ul>
     <ul>
       <li>
-        <ButtonSecondary @click.native="addRequestParam" />
-        <i class="material-icons">add</i>
-        <span>{{ $t("add_new") }}</span>
+        <ButtonSecondary
+          icon="add"
+          :label="$t('add_new')"
+          @click.native="addRequestParam"
+        />
       </li>
     </ul>
   </AppSection>

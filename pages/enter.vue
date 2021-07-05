@@ -1,7 +1,7 @@
 <template>
   <div class="flex container flex-col min-h-screen">
-    <span v-if="signingInWithEmail" class="info">{{ $t("loading") }}</span>
-    <span v-else class="info">{{ $t("waiting_for_connection") }}</span>
+    <span v-if="signingInWithEmail">{{ $t("loading") }}</span>
+    <span v-else>{{ $t("waiting_for_connection") }}</span>
     <pre v-if="error">{{ error }}</pre>
   </div>
 </template>

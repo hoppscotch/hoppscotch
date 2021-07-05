@@ -15,19 +15,15 @@
         </li>
         <div>
           <li>
-            <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <ButtonSecondary
               id="connect"
               :disabled="!validUrl"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              :icon="!connectionState ? 'sync' : 'sync_disabled'"
+              :label="connectionState ? $t('disconnect') : $t('connect')"
+              reverse
               @click.native="toggleConnection"
             />
-            {{ connectionState ? $t("disconnect") : $t("connect") }}
-            <span>
-              <i class="material-icons">{{
-                !connectionState ? "sync" : "sync_disabled"
-              }}</i>
-            </span>
           </li>
         </div>
       </ul>
@@ -62,18 +58,15 @@
         </li>
         <div>
           <li>
-            <label for="publish" class="hide-on-small-screen">&nbsp;</label>
             <ButtonSecondary
               id="publish"
               class="button"
               name="get"
               :disabled="!canpublish"
+              icon="send"
+              :label="$t('mqtt_publish')"
               @click.native="publish"
             />
-            {{ $t("mqtt_publish") }}
-            <span>
-              <i class="material-icons">send</i>
-            </span>
           </li>
         </div>
       </ul>
@@ -90,22 +83,20 @@
         </li>
         <div>
           <li>
-            <label for="subscribe" class="hide-on-small-screen">&nbsp;</label>
             <ButtonSecondary
               id="subscribe"
               name="get"
               :disabled="!cansubscribe"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              :icon="subscriptionState ? 'sync_disabled' : 'sync'"
+              :label="
+                subscriptionState
+                  ? $t('mqtt_unsubscribe')
+                  : $t('mqtt_subscribe')
+              "
+              reverse
               @click.native="toggleSubscription"
             />
-            {{
-              subscriptionState ? $t("mqtt_unsubscribe") : $t("mqtt_subscribe")
-            }}
-            <span>
-              <i class="material-icons">{{
-                subscriptionState ? "sync_disabled" : "sync"
-              }}</i>
-            </span>
           </li>
         </div>
       </ul>

@@ -8,9 +8,9 @@
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
+          :icon="downloadIcon"
           @click.native="downloadResponse"
         />
-        <i class="material-icons">{{ downloadIcon }}</i>
       </div>
     </div>
     <div id="response-details-wrapper">

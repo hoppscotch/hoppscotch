@@ -10,7 +10,7 @@
           :value="entry.url"
           :placeholder="$t('empty_req_name')"
           class="input cursor-pointer text-sm bg-transparent"
-          @click.native="$emit('use-entry')"
+          @click="$emit('use-entry')"
         />
       </li>
       <ButtonSecondary
@@ -20,50 +20,44 @@
         }"
         data-testid="star_button"
         :class="{ stared: entry.star }"
+        :icon="entry.star ? 'star' : 'star_border'"
         @click.native="$emit('toggle-star')"
       />
-      <i class="material-icons">
-        {{ entry.star ? "star" : "star_border" }}
-      </i>
-
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         title="{
           content: expand ? $t('hide_more') : $t('show_more'),
         }"
         data-testid="query_expand"
+        :icon="expand ? 'unfold_less' : 'unfold_more'"
         @click.native="expand = !expand"
       />
-      <i class="material-icons">
-        {{ expand ? "unfold_less" : "unfold_more" }}
-      </i>
-
       <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('options')"
             data-testid="options"
+            icon="more_vert"
           />
-          <i class="material-icons">more_vert</i>
         </template>
         <div>
           <ButtonSecondary
             data-testid="restore_history_entry"
             :aria-label="$t('restore')"
+            icon="restore"
+            :label="$t('restore')"
             @click.native="$emit('use-entry')"
           />
-          <i class="material-icons">restore</i>
-          <span>{{ $t("restore") }}</span>
         </div>
         <div>
           <ButtonSecondary
             data-testid="delete_history_entry"
             :aria-label="$t('delete')"
+            icon="delete"
+            :label="$t('delete')"
             @click.native="$emit('delete-entry')"
           />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>

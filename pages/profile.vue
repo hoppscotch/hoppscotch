@@ -8,6 +8,8 @@
     <div v-if="currentBackendUser && currentBackendUser.eaInvited">
       <Teams />
     </div>
+    {{ hideRightPane }}
+    <div v-if="!hideRightPane">hide this thingy</div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
@@ -17,6 +19,7 @@ import { currentUser$ } from "~/helpers/fb/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 
 export default {
+  props: { hideRightPane: { type: Boolean, default: false } },
   data() {
     return {
       showLogin: false,

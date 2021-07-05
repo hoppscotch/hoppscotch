@@ -23,11 +23,16 @@
       </div>
       <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="$t('more')" />
-          <i class="material-icons">more_vert</i>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('more')"
+            icon="more_vert"
+          />
         </template>
         <div>
           <ButtonSecondary
+            icon="edit"
+            :label="$t('edit')"
             @click.native="
               $emit('edit-request', {
                 collectionIndex,
@@ -39,13 +44,13 @@
               })
             "
           />
-          <i class="material-icons">edit</i>
-          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <ButtonSecondary @click.native="confirmRemove = true" />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
+          <ButtonSecondary
+            icon="delete"
+            :label="$t('delete')"
+            @click.native="confirmRemove = true"
+          />
         </div>
       </tippy>
     </div>

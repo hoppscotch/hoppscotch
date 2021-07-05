@@ -139,7 +139,6 @@ export default {
         this.camera,
         this.renderer.domElement
       )
-      this.tbControls.rotateSpeed = 5
       this.tbControls.noZoom = true
       this.tbControls.noPan = true
     },

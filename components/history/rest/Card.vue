@@ -5,7 +5,7 @@
         class="p-2 m-2 truncate inline-flex cursor-pointer items-center text-sm"
         :class="entryStatus.className"
         :style="{ '--status-code': entry.status }"
-        @click.native="$emit('use-entry')"
+        @click="$emit('use-entry')"
       >
         {{ `${entry.method} \xA0 • \xA0 ${entry.status}` }}
       </span>
@@ -17,7 +17,7 @@
           :value="entry.name"
           :placeholder="$t('empty_req_name')"
           class="input cursor-pointer text-sm bg-transparent"
-          @click.native="$emit('use-entry')"
+          @click="$emit('use-entry')"
         />
       </li>
       <span>
@@ -28,11 +28,9 @@
           }"
           data-testid="star_button"
           :class="{ stared: entry.star }"
+          :icon="entry.star ? 'star' : 'star_border'"
           @click.native="$emit('toggle-star')"
         />
-        <i class="material-icons">
-          {{ entry.star ? "star" : "star_border" }}
-        </i>
       </span>
       <!-- <li>
             <ButtonSecondary
@@ -53,26 +51,26 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('options')"
+            icon="more_vert"
           />
-          <i class="material-icons">more_vert</i>
         </template>
         <div>
           <ButtonSecondary
             data-testid="restore_history_entry"
             :aria-label="$t('edit')"
+            icon="restore"
+            :label="$t('restore')"
             @click.native="$emit('use-entry')"
           />
-          <i class="material-icons">restore</i>
-          <span>{{ $t("restore") }}</span>
         </div>
         <div>
           <ButtonSecondary
             data-testid="delete_history_entry"
             :aria-label="$t('delete')"
+            icon="delete"
+            :label="$t('delete')"
             @click.native="$emit('delete-entry')"
           />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>

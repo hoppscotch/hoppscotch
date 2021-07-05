@@ -46,17 +46,18 @@
       @hide-modal="displayModalImportExport(false)"
     />
     <div class="border-b row-wrapper border-divider">
-      <ButtonSecondary @click.native="displayModalAdd(true)" />
-      <i class="material-icons">add</i>
-      <span>{{ $t("new") }}</span>
-
+      <ButtonSecondary
+        icon="new"
+        :label="$t('new')"
+        @click.native="displayModalAdd(true)"
+      />
       <ButtonSecondary
         v-if="showCollActions"
+        :label="$t('import_export')"
         @click.native="displayModalImportExport(true)"
       />
-      {{ $t("import_export") }}
     </div>
-    <p v-if="collections.length === 0" class="info">
+    <p v-if="collections.length === 0">
       <i class="material-icons">help_outline</i>
       {{ $t("create_new_collection") }}
     </p>
@@ -84,7 +85,7 @@
         </li>
       </ul>
     </div>
-    <p v-if="filterText && filteredCollections.length === 0" class="info">
+    <p v-if="filterText && filteredCollections.length === 0">
       <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{
         filterText
       }}"

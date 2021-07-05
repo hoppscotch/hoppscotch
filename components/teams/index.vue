@@ -32,10 +32,10 @@
         />
       </div>
     </div>
-    <p v-if="$apollo.queries.myTeams.loading" class="info">
+    <p v-if="$apollo.queries.myTeams.loading">
       {{ $t("loading") }}
     </p>
-    <p v-if="myTeams.length === 0" class="info">
+    <p v-if="myTeams.length === 0">
       <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
     </p>
     <div v-else class="overflow-auto">

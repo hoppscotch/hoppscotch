@@ -20,33 +20,37 @@
         <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
           >check_circle</i
         >
-
         <i v-else class="material-icons">folder_open</i>
         <span>{{ folder.name }}</span>
       </div>
       <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="$t('more')" />
-          <i class="material-icons">more_vert</i>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('more')"
+            icon="more_vert"
+          />
         </template>
         <div>
           <ButtonSecondary
+            icon="create_new_folder"
+            :label="$t('new_folder')"
             @click.native="$emit('add-folder', { folder, path: folderPath })"
           />
-          <i class="material-icons">create_new_folder</i>
-          <span>{{ $t("new_folder") }}</span>
         </div>
         <div>
           <ButtonSecondary
+            icon="edit"
+            :labeel="$t('edit')"
             @click.native="$emit('edit-folder', { folder, folderPath })"
           />
-          <i class="material-icons">edit</i>
-          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <ButtonSecondary @click.native="confirmRemove = true" />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
+          <ButtonSecondary
+            icon="delete"
+            :label="$t('delete')"
+            @click.native="confirmRemove = true"
+          />
         </div>
       </tippy>
     </div>
@@ -103,7 +107,7 @@
         "
       >
         <li class="flex ml-8 border-l border-divider">
-          <p class="info">
+          <p>
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}
           </p>

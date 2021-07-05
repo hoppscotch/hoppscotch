@@ -10,17 +10,16 @@
               ref="prettifyRequest"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('prettify_body')"
+              :icon="prettifyIcon"
               @click.native="prettifyRequestBody"
             />
-            <i class="material-icons">{{ prettifyIcon }}</i>
-
             <label for="payload" class="p-0">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('import_json')"
+                icon="post_add"
                 @click.native="$refs.payload.click()"
               />
-              <i class="material-icons">post_add</i>
             </label>
             <input
               ref="payload"
@@ -32,9 +31,9 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
+              icon="clear_all"
               @click.native="clearContent('rawParams', $event)"
             />
-            <i class="material-icons">clear_all</i>
           </div>
         </div>
         <div class="relative">

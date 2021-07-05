@@ -1,9 +1,5 @@
 <template>
   <div class="page">
-    <div v-if="currentBackendUser && currentBackendUser.eaInvited">
-      <Teams />
-    </div>
-
     <div class="space-y-8">
       <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="md:col-span-1 p-8">
@@ -140,139 +136,146 @@
               <SmartAccentModePicker />
             </div>
           </fieldset>
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
+              {{ $t("experiments") }}
+            </legend>
+            <div class="mt-1 text-xs text-secondaryLight">
+              {{ $t("experiments_notice") }}
+              <SmartLink
+                class="link"
+                to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
+                blank
+              >
+                {{ $t("contact_us") }} </SmartLink
+              >.
+            </div>
+            <div class="mt-4 space-y-4">
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="SCROLL_INTO_ENABLED"
+                  @change="toggleSetting('SCROLL_INTO_ENABLED')"
+                >
+                  {{ $t("scrollInto_use_toggle") }}
+                </SmartToggle>
+              </div>
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="EXPERIMENTAL_URL_BAR_ENABLED"
+                  @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
+                >
+                  {{ $t("use_experimental_url_bar") }}
+                </SmartToggle>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div class="md:col-span-1 p-8">
+          <h3 class="heading">
+            {{ $t("interceptor") }}
+          </h3>
+          <p class="mt-1 text-xs text-secondaryLight">
+            Middleware between application and APIs.
+          </p>
+        </div>
+        <div
+          class="md:col-span-2 border border-divider p-8 rounded-lg space-y-8"
+        >
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
+              {{ $t("extensions") }}
+            </legend>
+            <div class="mt-1 text-xs text-secondaryLight">
+              <span v-if="extensionVersion != null">
+                {{
+                  `${$t("extension_version")}: v${extensionVersion.major}.${
+                    extensionVersion.minor
+                  }`
+                }}
+              </span>
+              <span v-else>
+                {{ $t("extension_version") }}:
+                {{ $t("extension_ver_not_reported") }}
+              </span>
+            </div>
+            <div class="mt-4 space-y-4">
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="EXTENSIONS_ENABLED"
+                  @change="toggleSetting('EXTENSIONS_ENABLED')"
+                >
+                  {{ $t("extensions_use_toggle") }}
+                </SmartToggle>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
+              {{ $t("proxy") }}
+            </legend>
+            <div class="mt-1 text-xs text-secondaryLight">
+              {{ `${$t("official_proxy_hosting")} ${$t("read_the")}` }}
+              <SmartLink
+                class="link"
+                to="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
+                blank
+              >
+                {{ $t("proxy_privacy_policy") }} </SmartLink
+              >.
+            </div>
+            <div class="mt-4 space-y-4">
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="PROXY_ENABLED"
+                  @change="toggleSetting('PROXY_ENABLED')"
+                />
+                <label
+                  for="url"
+                  class="
+                    rounded-l
+                    ml-2
+                    border
+                    px-2
+                    py-1
+                    bg-primaryLight
+                    border-divider
+                  "
+                  >{{ $t("url") }}</label
+                >
+                <input
+                  id="url"
+                  v-model="PROXY_URL"
+                  class="
+                    flex-1
+                    block
+                    w-full
+                    rounded-r
+                    border
+                    px-2
+                    py-1
+                    mr-2
+                    border-divider
+                  "
+                  type="url"
+                  :disabled="!PROXY_ENABLED"
+                  :placeholder="$t('url')"
+                />
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('reset_default')"
+                  :icon="clearIcon"
+                  @click.native="resetProxy"
+                />
+              </div>
+            </div>
+          </fieldset>
         </div>
       </div>
     </div>
 
-    <AppSection label="theme">
-      <div class="flex flex-col">
-        <span>
-          <SmartToggle
-            :on="SCROLL_INTO_ENABLED"
-            @change="toggleSetting('SCROLL_INTO_ENABLED')"
-          >
-            {{ $t("scrollInto_use_toggle") }}
-            {{ SCROLL_INTO_ENABLED ? $t("enabled") : $t("disabled") }}
-          </SmartToggle>
-        </span>
-      </div>
-    </AppSection>
-
-    <AppSection label="extensions">
-      <div class="flex flex-col">
-        <label>{{ $t("extensions") }}</label>
-        <div class="row-wrapper">
-          <SmartToggle
-            :on="EXTENSIONS_ENABLED"
-            @change="toggleSetting('EXTENSIONS_ENABLED')"
-          >
-            {{ $t("extensions_use_toggle") }}
-          </SmartToggle>
-        </div>
-        <p v-if="extensionVersion != null" class="info">
-          {{ $t("extension_version") }}: v{{ extensionVersion.major }}.{{
-            extensionVersion.minor
-          }}
-        </p>
-        <p v-else class="info">
-          {{ $t("extension_version") }}: {{ $t("extension_ver_not_reported") }}
-        </p>
-      </div>
-    </AppSection>
-
-    <AppSection label="proxy">
-      <div class="flex flex-col">
-        <label>{{ $t("proxy") }}</label>
-        <div class="row-wrapper">
-          <span>
-            <SmartToggle
-              :on="PROXY_ENABLED"
-              @change="toggleSetting('PROXY_ENABLED')"
-            >
-              {{ $t("proxy") }}
-              {{ PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
-            </SmartToggle>
-          </span>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            to="https://github.com/hoppscotch/hoppscotch/wiki/Proxy"
-            blank
-            :title="$t('wiki')"
-            icon="help_outline"
-          />
-        </div>
-        <div class="row-wrapper">
-          <label for="url">{{ $t("url") }}</label>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('reset_default')"
-            icon="clearIcon"
-            @click.native="resetProxy"
-          />
-        </div>
-        <input
-          id="url"
-          v-model="PROXY_URL"
-          class="input"
-          type="url"
-          :disabled="!PROXY_ENABLED"
-          :placeholder="$t('url')"
-        />
-        <p class="info">
-          {{ $t("official_proxy_hosting") }}
-          <br />
-          {{ $t("read_the") }}
-          <SmartLink
-            class="link"
-            to="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
-            blank
-          >
-            {{ $t("proxy_privacy_policy") }}
-          </SmartLink>
-          .
-        </p>
-      </div>
-      <!--
-      PROXY SETTINGS URL AND KEY
-      --------------
-		  This feature is currently not finished.
-			<ul>
-				<li>
-					<label for="url">URL</label>
-					<input class="input" id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
-				</li>
-				<li>
-					<label for="key">Key</label>
-					<input class="input" id="key" type="password" v-model="settings.PROXY_KEY" :disabled="!settings.PROXY_ENABLED" @change="applySetting('PROXY_KEY', $event)">
-				</li>
-			</ul>
-      -->
-    </AppSection>
-
-    <AppSection label="experiments">
-      <div class="flex flex-col">
-        <label>{{ $t("experiments") }}</label>
-        <p class="info">
-          {{ $t("experiments_notice") }}
-          <SmartLink
-            class="link"
-            to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
-            blank
-          >
-            {{ $t("contact_us") }}
-          </SmartLink>
-          .
-        </p>
-        <div class="row-wrapper">
-          <SmartToggle
-            :on="EXPERIMENTAL_URL_BAR_ENABLED"
-            @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
-          >
-            {{ $t("use_experimental_url_bar") }}
-          </SmartToggle>
-        </div>
-      </div>
-    </AppSection>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
@@ -287,7 +290,6 @@ import {
   defaultSettings,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
-import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig } from "~/newstore/localpersistence"
 
@@ -312,7 +314,6 @@ export default Vue.extend({
       EXTENSIONS_ENABLED: true,
       PROXY_ENABLED: true,
 
-      currentBackendUser: null,
       currentUser: null,
 
       showLogin: false,
@@ -338,8 +339,6 @@ export default Vue.extend({
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
 
-      // Teams feature flag
-      currentBackendUser: currentUserInfo$,
       currentUser: currentUser$,
     }
   },

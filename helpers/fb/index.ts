@@ -1,4 +1,5 @@
 import firebase from "firebase"
+import { initAnalytics } from "./analytics"
 import { initAuth } from "./auth"
 import { initCollections } from "./collections"
 import { initEnvironments } from "./environments"
@@ -13,21 +14,27 @@ const firebaseConfig = {
   storageBucket: process.env.STORAGE_BUCKET,
   messagingSenderId: process.env.MESSAGING_SENDER_ID,
   appId: process.env.APP_ID,
-  measurementId: process.env.MEASUREMENT_ID,
+  measurementId: process.env.FB_MEASUREMENT_ID,
 }
 
 let initialized = false
 
 export function initializeFirebase() {
   if (!initialized) {
-    firebase.initializeApp(firebaseConfig)
+    try {
+      firebase.initializeApp(firebaseConfig)
 
-    initAuth()
-    initSettings()
-    initCollections()
-    initHistory()
-    initEnvironments()
+      initAuth()
+      initSettings()
+      initCollections()
+      initHistory()
+      initEnvironments()
+      initAnalytics()
 
-    initialized = true
+      initialized = true
+    } catch (e) {
+      // initializeApp throws exception if we reinitialize
+      initialized = true
+    }
   }
 }

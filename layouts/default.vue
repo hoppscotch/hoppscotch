@@ -16,13 +16,13 @@
               :push-other-panes="false"
               class="hoppscotch-theme"
             >
-              <Pane v-if="!hideHeaderPane" style="height: auto">
+              <Pane v-if="!zenMode" style="height: auto">
                 <AppHeader />
               </Pane>
               <Pane class="flex-1">
                 <Splitpanes vertical class="hoppscotch-theme">
                   <Pane class="overflow-y-auto">
-                    <nuxt class="container" />
+                    <nuxt class="container" :hide-right-pane="hideRightPane" />
                   </Pane>
                 </Splitpanes>
               </Pane>
@@ -31,16 +31,39 @@
         </Splitpanes>
       </Pane>
       <Pane style="height: auto" class="bg-primaryDark">
-        <ButtonSecondary
-          class="button icon"
-          @click.native="hideNavigationPane = !hideNavigationPane"
-        />
-        <i class="material-icons">menu_open</i>
-        <ButtonSecondary
-          class="button icon"
-          @click.native="hideHeaderPane = !hideHeaderPane"
-        />
-        <i class="material-icons">menu_open</i>
+        <div class="flex justify-between">
+          <div>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                hideNavigationPane ? $t('show_sidebar') : $t('hide_sidebar')
+              "
+              icon="menu_open"
+              :class="{ 'transform rotate-180': hideNavigationPane }"
+              @click.native="hideNavigationPane = !hideNavigationPane"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                zenMode
+                  ? `${$t('turn_off')} Zen mode`
+                  : `${$t('turn_on')} Zen mode`
+              "
+              :icon="zenMode ? 'fullscreen_exit' : 'fullscreen'"
+              :class="{
+                'text-accent focus:text-accent hover:text-accent': zenMode,
+              }"
+              @click.native="zenMode = !zenMode"
+            />
+          </div>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="hideRightPane ? $t('show_sidebar') : $t('hide_sidebar')"
+            icon="menu_open"
+            :class="['transform rotate-180', { ' rotate-0': hideRightPane }]"
+            @click.native="hideRightPane = !hideRightPane"
+          />
+        </div>
       </Pane>
     </Splitpanes>
   </div>
@@ -64,8 +87,14 @@ export default {
   data() {
     return {
       hideNavigationPane: false,
-      hideHeaderPane: false,
+      zenMode: false,
+      hideRightPane: false,
     }
+  },
+  watch: {
+    zenMode(zenMode) {
+      this.hideNavigationPane = this.hideRightPane = zenMode
+    },
   },
   beforeMount() {
     registerApolloAuthUpdate()

@@ -2,8 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("new_team") }}</h3>
-      <ButtonSecondary @click.native="hideModal" />
-      <i class="material-icons">close</i>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <ul>

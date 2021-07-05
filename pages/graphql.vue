@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="content">
-      <div class="page-columns inner-left">
+      <div class="">
         <AppSection label="endpoint">
           <ul>
             <li>
@@ -18,23 +18,13 @@
             </li>
             <div>
               <li>
-                <label for="get" class="hide-on-small-screen">&nbsp;</label>
                 <ButtonSecondary
                   id="get"
                   name="get"
-                  class="
-                    button
-                    rounded-b-lg
-                    md:rounded-bl-none md:rounded-br-lg
-                  "
+                  :icon="!isPollingSchema ? 'sync' : 'sync_disabled'"
+                  :label="!isPollingSchema ? $t('connect') : $t('disconnect')"
                   @click.native="onPollSchemaClick"
                 />
-                {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
-                <span
-                  ><i class="material-icons">{{
-                    !isPollingSchema ? "sync" : "sync_disabled"
-                  }}</i></span
-                >
               </li>
             </div>
           </ul>
@@ -51,9 +41,9 @@
                     <ButtonSecondary
                       v-tippy="{ theme: 'tooltip' }"
                       :title="$t('clear')"
+                      icon="clear_all"
                       @click.native="headers = []"
                     />
-                    <i class="material-icons">clear_all</i>
                   </div>
                 </div>
               </li>
@@ -134,17 +124,19 @@
                   <ButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('delete')"
+                    icon="delete"
                     @click.native="removeRequestHeader(index)"
                   />
-                  <i class="material-icons">delete</i>
                 </li>
               </div>
             </ul>
             <ul>
               <li>
-                <ButtonSecondary @click.native="addRequestHeader" />
-                <i class="material-icons">add</i>
-                <span>{{ $t("add_new") }}</span>
+                <ButtonSecondary
+                  icon="add"
+                  :label="$t('add_new')"
+                  @click.native="addRequestHeader"
+                />
               </li>
             </ul>
           </div>
@@ -162,27 +154,23 @@
                     ? $t('expand_response')
                     : $t('collapse_response'),
                 }"
+                :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
                 @click.native="ToggleExpandResponse"
               />
-              <i class="material-icons">
-                {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-              </i>
-
               <ButtonSecondary
                 ref="downloadSchema"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('download_file')"
+                :icon="downloadSchemaIcon"
                 @click.native="downloadSchema"
               />
-              <i class="material-icons">{{ downloadSchemaIcon }}</i>
-
               <ButtonSecondary
                 ref="copySchemaCode"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('copy_schema')"
+                :icon="copySchemaIcon"
                 @click.native="copySchema"
               />
-              <i class="material-icons">{{ copySchemaIcon }}</i>
             </div>
           </div>
           <SmartAceEditor
@@ -221,32 +209,29 @@
                   `${$t('run_query')} (${getSpecialKey()}-Enter)`
                 "
                 class="button"
+                icon="play_arrow"
                 @click.native="runQuery()"
               />
-              <i class="material-icons">play_arrow</i>
-
               <ButtonSecondary
                 ref="copyQueryButton"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('copy_query')"
+                :icon="copyQueryIcon"
                 @click.native="copyQuery"
               />
-              <i class="material-icons">{{ copyQueryIcon }}</i>
-
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
+                :icon="prettifyIcon"
                 @click.native="doPrettifyQuery"
               />
-              <i class="material-icons">{{ prettifyIcon }}</i>
-
               <ButtonSecondary
                 ref="saveRequest"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('save_to_collections')"
+                icon="create_new_folder"
                 @click.native="saveRequest"
               />
-              <i class="material-icons">create_new_folder</i>
             </div>
           </div>
           <GraphqlQueryEditor
@@ -296,18 +281,17 @@
                   ref="downloadResponse"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('download_file')"
+                  :icon="downloadResponseIcon"
                   @click.native="downloadResponse"
                 />
-                <i class="material-icons">{{ downloadResponseIcon }}</i>
-
                 <ButtonSecondary
                   v-if="response"
                   ref="copyResponseButton"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('copy_response')"
+                  :icon="copyResponseIcon"
                   @click.native="copyResponse"
                 />
-                <i class="material-icons">{{ copyResponseIcon }}</i>
               </div>
             </div>
             <SmartAceEditor
@@ -340,10 +324,7 @@
       </div>
 
       <TranslateSlideLeft>
-        <aside
-          v-if="activeSidebar"
-          class="sticky-inner inner-right lg:max-w-md"
-        >
+        <aside class="lg:max-w-md">
           <SmartTabs>
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
               <AppSection label="docs">
@@ -438,7 +419,6 @@
                     subscriptionFields.length === 0 &&
                     graphqlTypes.length === 0
                   "
-                  class="info"
                 >
                   {{ $t("send_request_first") }}
                 </p>
@@ -459,11 +439,6 @@
           </SmartTabs>
         </aside>
       </TranslateSlideLeft>
-
-      <SmartHideMenu
-        :active="activeSidebar"
-        @toggle="activeSidebar = !activeSidebar"
-      />
     </div>
     <CollectionsSaveRequest
       mode="graphql"
@@ -507,7 +482,6 @@ export default {
       graphqlFieldsFilterText: undefined,
       isPollingSchema: false,
       timeoutSubscription: null,
-      activeSidebar: true,
       editRequest: {},
       showSaveRequestModal: false,
     }

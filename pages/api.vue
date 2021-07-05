@@ -54,7 +54,6 @@
                   <SmartUrlField v-model="uri" v-else />
                 </li>
                 <li class="shrink">
-                  <label class="hide-on-small-screen" for="send">&nbsp;</label>
                   <ButtonSecondary
                     v-if="!runningRequest"
                     :disabled="!isValidURL"
@@ -71,11 +70,10 @@
                     id="send"
                     class="button"
                     ref="sendButton"
+                    icon="clear"
+                    :label="$t('cancel')"
+                    reverse
                   />
-                  {{ $t("cancel") }}
-                  <span>
-                    <i class="material-icons">clear</i>
-                  </span>
                 </li>
               </ul>
               <ul>
@@ -178,16 +176,15 @@
                     @click.native="showCurlImportModal = !showCurlImportModal"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('import_curl')"
+                    icon="import_export"
                   />
-                  <i class="material-icons">import_export</i>
-
                   <ButtonSecondary
                     @click.native="showCodegenModal = !showCodegenModal"
                     :disabled="!isValidURL"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('show_code')"
+                    icon="code"
                   />
-                  <i class="material-icons">code</i>
                 </span>
                 <span>
                   <ButtonSecondary
@@ -196,26 +193,23 @@
                     :disabled="!isValidURL"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('copy_request_link')"
+                    :icon="navigatorShare ? 'share' : 'content_copy'"
                   />
-                  <i v-if="navigatorShare" class="material-icons">share</i>
-                  <i v-else class="material-icons">content_copy</i>
-
                   <ButtonSecondary
                     @click.native="saveRequest"
                     ref="saveRequest"
                     :disabled="!isValidURL"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('save_to_collections')"
+                    icon="create_new_folder"
                   />
-                  <i class="material-icons">create_new_folder</i>
-
                   <ButtonSecondary
                     @click.native="clearContent('', $event)"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('clear_all')"
                     ref="clearAll"
+                    icon="clear_all"
                   />
-                  <i class="material-icons">clear_all</i>
                 </span>
               </div>
             </AppSection>
@@ -270,8 +264,8 @@
                               @click.native="clearContent('auth', $event)"
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('clear')"
+                              icon="clear_all"
                             />
-                            <i class="material-icons">clear_all</i>
                           </div>
                         </div>
                         <span class="select-wrapper">
@@ -307,17 +301,12 @@
                           <ButtonSecondary
                             ref="switchVisibility"
                             @click.native="switchVisibility"
+                            :icon="
+                              passwordFieldType === 'text'
+                                ? 'visibility'
+                                : 'visibility_off'
+                            "
                           />
-                          <i
-                            class="material-icons"
-                            v-if="passwordFieldType === 'text'"
-                            >visibility</i
-                          >
-                          <i
-                            class="material-icons"
-                            v-if="passwordFieldType !== 'text'"
-                            >visibility_off</i
-                          >
                         </li>
                       </div>
                     </ul>
@@ -337,16 +326,15 @@
                             "
                             v-tippy="{ theme: 'tooltip' }"
                             :title="$t('use_token')"
+                            icon="open_in_new"
                           />
-                          <i class="material-icons">open_in_new</i>
-
                           <ButtonSecondary
                             v-if="auth === 'OAuth 2.0'"
                             @click.native="showTokenRequest = !showTokenRequest"
                             v-tippy="{ theme: 'tooltip' }"
                             :title="$t('get_token')"
+                            icon="vpn_key"
                           />
-                          <i class="material-icons">vpn_key</i>
                         </div>
                       </li>
                     </ul>
@@ -373,24 +361,22 @@
                               @click.native="showTokenRequestList = true"
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('manage_token_req')"
+                              icon="library_add"
                             />
-                            <i class="material-icons">library_add</i>
-
                             <ButtonSecondary
                               @click.native="
                                 clearContent('access_token', $event)
                               "
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('clear')"
+                              icon="clear_all"
                             />
-                            <i class="material-icons">clear_all</i>
-
                             <ButtonSecondary
                               @click.native="showTokenRequest = false"
                               v-tippy="{ theme: 'tooltip' }"
                               :title="$t('close')"
+                              icon="close"
                             />
-                            <i class="material-icons">close</i>
                           </div>
                         </div>
                         <input
@@ -481,9 +467,9 @@
                       <li>
                         <ButtonSecondary
                           @click.native="handleAccessTokenRequest"
+                          icon="vpn_key"
+                          :label="$t('request_token')"
                         />
-                        <i class="material-icons">vpn_key</i>
-                        <span>{{ $t("request_token") }}</span>
                       </li>
                     </ul>
                   </AppSection>
@@ -563,15 +549,15 @@
                                 @click.native="clearContent('tests', $event)"
                                 v-tippy="{ theme: 'tooltip' }"
                                 :title="$t('clear')"
+                                icon="clear_all"
                               />
-                              <i class="material-icons">clear_all</i>
                             </div>
                           </div>
                           <div
                             v-for="(testReport, index) in testReports"
                             :key="index"
                           >
-                            <div v-if="testReport.startBlock" class="info">
+                            <div v-if="testReport.startBlock">
                               <hr />
                               <h4 class="heading">
                                 {{ testReport.startBlock }}
@@ -615,10 +601,7 @@
       </Pane>
       <Pane max-size="40" class="bg-pink-100">
         <TranslateSlideLeft>
-          <aside
-            v-if="activeSidebar"
-            class="sticky-inner inner-right lg:max-w-md"
-          >
+          <aside class="lg:max-w-md">
             <section>
               <SmartTabs>
                 <SmartTab
@@ -644,11 +627,6 @@
             </section>
           </aside>
         </TranslateSlideLeft>
-
-        <SmartHideMenu
-          :active="activeSidebar"
-          @toggle="activeSidebar = !activeSidebar"
-        />
       </Pane>
     </Splitpanes>
 
@@ -689,8 +667,10 @@
       <template #header>
         <h3 class="heading">{{ $t("manage_token_req") }}</h3>
         <div>
-          <ButtonSecondary @click.native="showTokenRequestList = false" />
-          <i class="material-icons">close</i>
+          <ButtonSecondary
+            @click.native="showTokenRequestList = false"
+            icon="close"
+          />
         </div>
       </template>
       <template #body>
@@ -702,16 +682,15 @@
               @click.native="showTokenRequestList = false"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('use_token_req')"
+              icon="input"
             />
-            <i class="material-icons">input</i>
-
             <ButtonSecondary
               :disabled="this.tokenReqs.length === 0"
               @click.native="removeOAuthTokenReq"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
+              icon="delete"
             />
-            <i class="material-icons">delete</i>
           </div>
         </div>
         <ul>
@@ -817,7 +796,6 @@ export default {
       showTokenRequestList: false,
       showSaveRequestModal: false,
       editRequest: {},
-      activeSidebar: true,
       customMethod: false,
       files: [],
       filenames: "",

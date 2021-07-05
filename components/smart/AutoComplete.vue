@@ -12,7 +12,7 @@
       :class="styles"
       @input="updateSuggestions"
       @keyup="updateSuggestions"
-      @click.native="updateSuggestions"
+      @click="updateSuggestions"
       @keydown="handleKeystroke"
     />
     <ul
@@ -24,7 +24,7 @@
         v-for="(suggestion, index) in suggestions"
         :key="index"
         :class="{ active: currentSuggestionIndex === index }"
-        @click.native.prevent="forceSuggestion(suggestion)"
+        @click.prevent="forceSuggestion(suggestion)"
       >
         {{ suggestion }}
       </li>

@@ -28,6 +28,8 @@
         </template>
         <div>
           <ButtonSecondary
+            icon="edit"
+            :label="$t('edit')"
             @click.native="
               $emit('edit-request', {
                 request,
@@ -36,13 +38,13 @@
               })
             "
           />
-          <i class="material-icons">edit</i>
-          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <ButtonSecondary @click.native="confirmRemove = true" />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
+          <ButtonSecondary
+            icon="delete"
+            :label="$t('delete')"
+            @click.native="confirmRemove = true"
+          />
         </div>
       </tippy>
     </div>

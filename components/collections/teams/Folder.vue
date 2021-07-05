@@ -2,20 +2,20 @@
   <div>
     <div>
       <div>
-        <ButtonSecondary @click.native="toggleShowChildren" />
+        <ButtonSecondary
+          :label="folder.name ? folder.name : folder.title"
+          @click.native="toggleShowChildren"
+        />
         <i v-show="!showChildren && !isFiltered" class="material-icons"
           >arrow_right</i
         >
         <i v-show="showChildren || isFiltered" class="material-icons"
           >arrow_drop_down</i
         >
-
         <i v-if="isSelected" class="text-green-400 material-icons"
           >check_circle</i
         >
-
         <i v-else class="material-icons">folder_open</i>
-        <span>{{ folder.name ? folder.name : folder.title }}</span>
       </div>
       <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
@@ -23,20 +23,22 @@
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
+            icon="more_vert"
           />
-          <i class="material-icons">more_vert</i>
         </template>
         <div>
           <ButtonSecondary
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            icon="create_new_folder"
+            :label="$t('new_folder')"
             @click.native="$emit('add-folder', { folder, path: folderPath })"
           />
-          <i class="material-icons">create_new_folder</i>
-          <span>{{ $t("new_folder") }}</span>
         </div>
         <div>
           <ButtonSecondary
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            icon="edit"
+            :label="$t('edit')"
             @click.native="
               $emit('edit-folder', {
                 folder,
@@ -46,16 +48,14 @@
               })
             "
           />
-          <i class="material-icons">edit</i>
-          <span>{{ $t("edit") }}</span>
         </div>
         <div>
           <ButtonSecondary
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            icon="delete"
+            :label="$t('delete')"
             @click.native="confirmRemove = true"
           />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
         </div>
       </tippy>
     </div>
@@ -114,7 +114,7 @@
         "
       >
         <li class="flex ml-8 border-l border-divider">
-          <p class="info">
+          <p>
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}
           </p>

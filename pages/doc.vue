@@ -1,11 +1,11 @@
 <template>
   <div class="page">
     <div class="content">
-      <div class="page-columns inner-left">
+      <div class="">
         <AppSection label="import">
           <div class="flex flex-col">
             <label>{{ $t("collection") }}</label>
-            <p class="info">
+            <p>
               {{ $t("generate_docs_message") }}
             </p>
             <div class="row-wrapper">
@@ -58,7 +58,7 @@
         <AppSection label="documentation">
           <div class="flex flex-col">
             <label>{{ $t("documentation") }}</label>
-            <p v-if="items.length === 0" class="info">
+            <p v-if="items.length === 0">
               {{ $t("generate_docs_first") }}
             </p>
             <div v-else class="row-wrapper">
@@ -98,7 +98,7 @@
         </AppSection>
       </div>
 
-      <aside class="sticky-inner inner-right lg:max-w-md">
+      <aside class="lg:max-w-md">
         <Collections
           :selected="selected"
           :doc="true"

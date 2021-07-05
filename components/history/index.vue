@@ -33,13 +33,10 @@
         />
       </ul>
     </div>
-    <p
-      :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }"
-      class="info"
-    >
+    <p :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
       {{ $t("nothing_found") }} "{{ filterText }}"
     </p>
-    <p v-if="history.length === 0" class="info">
+    <p v-if="history.length === 0">
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryDark">
@@ -47,21 +44,19 @@
         <ButtonSecondary
           data-testid="clear_history"
           :disabled="history.length === 0"
+          icon="clear_all"
+          :label="$t('clear_all')"
           @click.native="enableHistoryClearing"
         />
-        <i class="material-icons">clear_all</i>
-        <span>{{ $t("clear_all") }}</span>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           title="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
+          icon="!showMore ? 'unfold_more' : 'unfold_less'"
           @click.native="toggleCollapse()"
         />
-        <i class="material-icons">
-          {{ !showMore ? "unfold_more" : "unfold_less" }}
-        </i>
       </div>
       <div v-else class="row-wrapper">
-        <p class="info">
+        <p>
           <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
         </p>
         <div>
@@ -69,17 +64,16 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('yes')"
             data-testid="confirm_clear_history"
+            icon="done"
             @click.native="clearHistory"
           />
-          <i class="material-icons">done</i>
-
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('no')"
             data-testid="reject_clear_history"
+            icon="close"
             @click.native="disableHistoryClearing"
           />
-          <i class="material-icons">close</i>
         </div>
       </div>
     </div>

@@ -8,8 +8,8 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
+              icon="more_vert"
             />
-            <i class="material-icons">more_vert</i>
           </template>
           <div>
             <ButtonSecondary
@@ -36,10 +36,10 @@
                   ? true
                   : false
               "
+              icon="assignment_turned_in"
+              :label="$t('create_secret_gist')"
               @click.native="createCollectionGist"
             />
-            <i class="material-icons">assignment_turned_in</i>
-            <span>{{ $t("create_secret_gist") }}</span>
           </div>
         </tippy>
         <ButtonSecondary icon="close" @click.native="hideModal" />
@@ -50,10 +50,10 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('replace_current')"
+          icon="folder_special"
+          :label="$t('replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
-        <i class="material-icons">folder_special</i>
-        <span>{{ $t("replace_json") }}</span>
         <input
           ref="inputChooseFileToReplaceWith"
           class="input"
@@ -65,10 +65,10 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
+          icon="create_new_folder"
+          :label="$t('import_json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
-        <i class="material-icons">create_new_folder</i>
-        <span>{{ $t("import_json") }}</span>
         <input
           ref="inputChooseFileToImportFrom"
           class="input"
@@ -80,12 +80,10 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
+          icon="drive_file_move"
+          :label="$t('export_as_json')"
           @click.native="exportJSON"
         />
-        <i class="material-icons">drive_file_move</i>
-        <span>
-          {{ $t("export_as_json") }}
-        </span>
       </div>
     </template>
   </SmartModal>

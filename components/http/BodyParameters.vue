@@ -8,9 +8,9 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
+              icon="clear_all"
               @click.native="clearContent('bodyParams', $event)"
             />
-            <i class="material-icons">clear_all</i>
           </div>
         </div>
       </li>
@@ -75,27 +75,25 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
+            :icon="
+              param.hasOwnProperty('active')
+                ? param.active
+                  ? 'check_box'
+                  : 'check_box_outline_blank'
+                : 'check_box'
+            "
             @click.native="toggleActive(index, param)"
           />
-          <i class="material-icons">
-            {{
-              param.hasOwnProperty("active")
-                ? param.active
-                  ? "check_box"
-                  : "check_box_outline_blank"
-                : "check_box"
-            }}
-          </i>
         </li>
       </div>
       <div v-if="contentType === 'multipart/form-data'">
         <li>
           <label for="attachment" class="p-0">
             <ButtonSecondary
-              class="w-full button icon"
+              class="w-full"
+              icon="attach_file"
               @click.native="$refs.attachment[index].click()"
             />
-            <i class="material-icons">attach_file</i>
           </label>
           <input
             ref="attachment"
@@ -112,9 +110,9 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('delete')"
+            icon="delete"
             @click.native="removeRequestBodyParam(index)"
           />
-          <i class="material-icons">delete</i>
         </li>
       </div>
     </ul>
@@ -122,10 +120,10 @@
       <li>
         <ButtonSecondary
           name="addrequest"
+          icon="add"
+          :label="$t('add_new')"
           @click.native="addRequestBodyParam"
         />
-        <i class="material-icons">add</i>
-        <span>{{ $t("add_new") }}</span>
       </li>
     </ul>
   </div>

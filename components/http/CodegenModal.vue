@@ -37,9 +37,9 @@
             ref="copyRequestCode"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('copy_code')"
+            :icon="copyIcon"
             @click.native="copyRequestCode"
           />
-          <i class="material-icons">{{ copyIcon }}</i>
         </div>
       </div>
       <SmartAceEditor

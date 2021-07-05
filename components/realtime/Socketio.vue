@@ -28,20 +28,16 @@
         </div>
         <div>
           <li>
-            <label for="connect" class="hide-on-small-screen">&nbsp;</label>
             <ButtonSecondary
               id="connect"
               :disabled="!urlValid"
               name="connect"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              :icon="!connectionState ? 'sync' : 'sync_disabled'"
+              :label="!connectionState ? $t('connect') : $t('disconnect')"
+              reverse
               @click.native="toggleConnection"
             />
-            {{ !connectionState ? $t("connect") : $t("disconnect") }}
-            <span>
-              <i class="material-icons">
-                {{ !connectionState ? "sync" : "sync_disabled" }}
-              </i>
-            </span>
           </li>
         </div>
       </ul>
@@ -101,9 +97,9 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
+              icon="delete"
               @click.native="removeCommunicationInput({ index })"
             />
-            <i class="material-icons">delete</i>
           </li>
         </div>
         <div v-if="index + 1 === communication.inputs.length">
@@ -113,20 +109,20 @@
               class="button"
               name="send"
               :disabled="!connectionState"
+              icon="send"
+              :label="$t('send')"
               @click.native="sendMessage"
             />
-            {{ $t("send") }}
-            <span>
-              <i class="material-icons">send</i>
-            </span>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <ButtonSecondary @click.native="addCommunicationInput" />
-          <i class="material-icons">add</i>
-          <span>{{ $t("add_new") }}</span>
+          <ButtonSecondary
+            icon="add"
+            :label="$t('add_new')"
+            @click.native="addCommunicationInput"
+          />
         </li>
       </ul>
     </AppSection>

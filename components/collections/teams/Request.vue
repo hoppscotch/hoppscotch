@@ -5,16 +5,15 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="!doc ? $t('use_request') : ''"
+          :label="request.name"
           @click.native="!doc ? selectRequest() : {}"
         />
         <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
           >check_circle</i
         >
-
         <span v-else :class="getRequestLabelColor(request.method)">{{
           request.method
         }}</span>
-        <span>{{ request.name }}</span>
       </div>
       <tippy tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
@@ -22,11 +21,13 @@
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
+            icon="more_vert"
           />
-          <i class="material-icons">more_vert</i>
         </template>
         <div>
           <ButtonSecondary
+            icon="edit"
+            :label="$t('edit')"
             @click.native="
               $emit('edit-request', {
                 collectionIndex,
@@ -37,13 +38,13 @@
               })
             "
           />
-          <i class="material-icons">edit</i>
-          <span>{{ $t("edit") }}</span>
         </div>
         <div>
-          <ButtonSecondary @click.native="confirmRemove = true" />
-          <i class="material-icons">delete</i>
-          <span>{{ $t("delete") }}</span>
+          <ButtonSecondary
+            icon="delete"
+            :label="$t('delete')"
+            @click.native="confirmRemove = true"
+          />
         </div>
       </tippy>
     </div>

@@ -2,8 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("edit_team") }}</h3>
-      <ButtonSecondary @click.native="hideModal" />
-      <i class="material-icons">close</i>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <ul>
@@ -91,9 +90,9 @@
               id="member"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
+              icon="delete"
               @click.native="removeExistingTeamMember(member.user.uid)"
             />
-            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
@@ -155,17 +154,19 @@
               id="member"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
+              icon="delete"
               @click.native="removeTeamMember(index)"
             />
-            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <ButtonSecondary @click.native="addTeamMember" />
-          <i class="material-icons">add</i>
-          <span>{{ $t("add_new") }}</span>
+          <ButtonSecondary
+            icon="add"
+            :label="$t('add_new')"
+            @click.native="addTeamMember"
+          />
         </li>
       </ul>
     </template>
@@ -193,7 +194,6 @@ export default {
   data() {
     return {
       rename: null,
-      doneButton: '<i class="material-icons">done</i>',
       members: [],
       newMembers: [],
       membersAdapter: new TeamMemberAdapter(null),

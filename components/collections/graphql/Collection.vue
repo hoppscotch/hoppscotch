@@ -9,58 +9,60 @@
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
-      <ButtonSecondary @click.native="toggleShowChildren" />
+      <ButtonSecondary
+        :label="collection.name"
+        @click.native="toggleShowChildren"
+      />
       <i v-show="!showChildren && !isFiltered" class="material-icons"
         >arrow_right</i
       >
       <i v-show="showChildren || isFiltered" class="material-icons"
         >arrow_drop_down</i
       >
-
       <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
         >check_circle</i
       >
-
       <i v-else class="material-icons">folder</i>
-      <span>{{ collection.name }}</span>
-
       <div>
         <ButtonSecondary
           v-if="doc"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('import')"
+          icon="topic"
           @click.native="$emit('select-collection')"
         />
-        <i class="material-icons">topic</i>
-
         <tippy tabindex="-1" trigger="click" theme="popover" arrow>
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
+              icon="more_vert"
             />
-            <i class="material-icons">more_vert</i>
           </template>
           <div>
             <ButtonSecondary
+              icon="create_new_folder"
+              :label="$t('new_folder')"
               @click.native="
                 $emit('add-folder', {
                   path: `${collectionIndex}`,
                 })
               "
             />
-            <i class="material-icons">create_new_folder</i>
-            <span>{{ $t("new_folder") }}</span>
           </div>
           <div>
-            <ButtonSecondary @click.native="$emit('edit-collection')" />
-            <i class="material-icons">create</i>
-            <span>{{ $t("edit") }}</span>
+            <ButtonSecondary
+              icon="create"
+              label="$t('edit')"
+              @click.native="$emit('edit-collection')"
+            />
           </div>
           <div>
-            <ButtonSecondary @click.native="confirmRemove = true" />
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
+            <ButtonSecondary
+              icon="delete"
+              :label="$t('delete')"
+              @click.native="confirmRemove = true"
+            />
           </div>
         </tippy>
       </div>
@@ -116,7 +118,7 @@
           "
           class="flex ml-8 border-l border-divider"
         >
-          <p class="info">
+          <p>
             <i class="material-icons">not_interested</i>
             {{ $t("collection_empty") }}
           </p>

@@ -4,32 +4,39 @@
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         title="team.myRole === 'OWNER' ? $t('edit') : ''"
+        icon="group"
+        :label="team.name"
         @click.native="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
       />
-      <i class="material-icons">group</i>
-      <span>{{ team.name }}</span>
     </div>
     <tippy tabindex="-1" trigger="click" theme="popover" arrow>
       <template #trigger>
-        <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="$t('more')" />
-        <i class="material-icons">more_vert</i>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('more')"
+          icon="more_vert"
+        />
       </template>
       <div v-if="team.myRole === 'OWNER'">
-        <ButtonSecondary @click.native="$emit('edit-team')" />
-        <i class="material-icons">create</i>
-        <span>{{ $t("edit") }}</span>
+        <ButtonSecondary
+          icon="create"
+          :label="$t('edit')"
+          @click.native="$emit('edit-team')"
+        />
       </div>
       <div v-if="team.myRole === 'OWNER'">
-        <ButtonSecondary @click.native="deleteTeam" />
-        <i class="material-icons">delete</i>
-        <span>{{ $t("delete") }}</span>
+        <ButtonSecondary
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="deleteTeam"
+        />
       </div>
       <div>
         <ButtonSecondary
           :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
+          icon="remove"
           @click.native="exitTeam"
         />
-        <i class="material-icons">remove</i>
         <div
           v-tippy="{ theme: 'tooltip' }"
           title="{

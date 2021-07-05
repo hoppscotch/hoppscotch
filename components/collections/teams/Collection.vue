@@ -1,49 +1,49 @@
 <template>
   <div>
     <div>
-      <ButtonSecondary @click.native="toggleShowChildren" />
+      <ButtonSecondary
+        :label="collection.title"
+        @click.native="toggleShowChildren"
+      />
       <i v-show="!showChildren && !isFiltered" class="material-icons"
         >arrow_right</i
       >
       <i v-show="showChildren || isFiltered" class="material-icons"
         >arrow_drop_down</i
       >
-
       <i v-if="isSelected" class="text-green-400 material-icons"
         >check_circle</i
       >
-
       <i v-else class="material-icons">folder</i>
-      <span>{{ collection.title }}</span>
-
       <div>
         <ButtonSecondary
           v-if="doc && !selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('import')"
+          icon="check_box_outline_blank"
           @click.native="$emit('select-collection')"
         />
-        <i class="material-icons">check_box_outline_blank</i>
         <ButtonSecondary
           v-if="doc && selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
+          icon="check_box"
           @click.native="$emit('unselect-collection')"
         />
-        <i class="material-icons">check_box</i>
-
         <tippy tabindex="-1" trigger="click" theme="popover" arrow>
           <template #trigger>
             <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
+              icon="more_vert"
             />
-            <i class="material-icons">more_vert</i>
           </template>
           <div>
             <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              icon="create_new_folder"
+              :label="$t('new_folder')"
               @click.native="
                 $emit('add-folder', {
                   folder: collection,
@@ -51,24 +51,22 @@
                 })
               "
             />
-            <i class="material-icons">create_new_folder</i>
-            <span>{{ $t("new_folder") }}</span>
           </div>
           <div>
             <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              icon="create"
+              :label="$t('edit')"
               @click.native="$emit('edit-collection')"
             />
-            <i class="material-icons">create</i>
-            <span>{{ $t("edit") }}</span>
           </div>
           <div>
             <ButtonSecondary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              icon="delete"
+              :label="$t('delete')"
               @click.native="confirmRemove = true"
             />
-            <i class="material-icons">delete</i>
-            <span>{{ $t("delete") }}</span>
           </div>
         </tippy>
       </div>
@@ -131,7 +129,7 @@
           "
           class="flex ml-8 border-l border-divider"
         >
-          <p class="info">
+          <p>
             <i class="material-icons">not_interested</i>
             {{ $t("collection_empty") }}
           </p>

@@ -83,7 +83,7 @@
         @click.native="displayModalImportExport(true)"
       />
     </div>
-    <p v-if="collections.length === 0" class="info">
+    <p v-if="collections.length === 0">
       <i class="material-icons">help_outline</i>
       {{ $t("create_new_collection") }}
     </p>
@@ -123,10 +123,9 @@
         </li>
       </ul>
     </div>
-    <p v-if="filterText && filteredCollections.length === 0" class="info">
-      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{
-        filterText
-      }}"
+    <p v-if="filterText && filteredCollections.length === 0">
+      <i class="material-icons">not_interested</i>
+      {{ $t("nothing_found") }} "{{ filterText }}"
     </p>
   </AppSection>
 </template>

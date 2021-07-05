@@ -48,7 +48,7 @@
         {{ $t("import_export") }}
       </div>
     </div>
-    <p v-if="environments.length === 0" class="info">
+    <p v-if="environments.length === 0">
       <i class="material-icons">help_outline</i>
       {{ $t("create_new_environment") }}
     </p>

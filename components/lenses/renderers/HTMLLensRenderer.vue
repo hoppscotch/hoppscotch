@@ -12,38 +12,34 @@
               ? $t('expand_response')
               : $t('collapse_response'),
           }"
+          :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
           @click.native="ToggleExpandResponse"
         />
-        <i class="material-icons">
-          {{ !expandResponse ? "unfold_more" : "unfold_less" }}
-        </i>
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           title="{
             content: previewEnabled ? $t('hide_preview') : $t('preview_html'),
           }"
+          :icon="!previewEnabled ? 'visibility' : 'visibility_off'"
           @click.native.prevent="togglePreview"
         />
-        <i class="material-icons">
-          {{ !previewEnabled ? "visibility" : "visibility_off" }}
-        </i>
         <ButtonSecondary
           v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
+          :icon="downloadIcon"
           @click.native="downloadResponse"
         />
-        <i class="material-icons">{{ downloadIcon }}</i>
         <ButtonSecondary
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('copy_response')"
+          :icon="copyIcon"
           @click.native="copyResponse"
         />
-        <i class="material-icons">{{ copyIcon }}</i>
       </div>
     </div>
     <div id="response-details-wrapper">

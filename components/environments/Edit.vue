@@ -62,17 +62,19 @@
               id="variable"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
+              icon="delete"
               @click.native="removeEnvironmentVariable(index)"
             />
-            <i class="material-icons">delete</i>
           </li>
         </div>
       </ul>
       <ul>
         <li>
-          <ButtonSecondary @click.native="addEnvironmentVariable" />
-          <i class="material-icons">add</i>
-          <span>{{ $t("add_new") }}</span>
+          <ButtonSecondary
+            icon="add"
+            :label="$t('add_new')"
+            @click.native="addEnvironmentVariable"
+          />
         </li>
       </ul>
     </template>

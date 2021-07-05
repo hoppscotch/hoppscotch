@@ -82,13 +82,13 @@
         <li>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            title="{
-              content: param.hasOwnProperty('active')
+            :title="
+              param.hasOwnProperty('active')
                 ? param.active
                   ? $t('turn_off')
                   : $t('turn_on')
-                : $t('turn_off'),
-            }"
+                : $t('turn_off')
+            "
             :icon="
               param.hasOwnProperty('active')
                 ? param.active

@@ -9,46 +9,47 @@
         @click.native="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
       />
     </div>
-    <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+    <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
       <template #trigger>
-        <ButtonSecondary
+        <TabPrimary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('more')"
           icon="more_vert"
         />
       </template>
-      <div v-if="team.myRole === 'OWNER'">
-        <ButtonSecondary
-          icon="create"
-          :label="$t('edit')"
-          @click.native="$emit('edit-team')"
-        />
-      </div>
-      <div v-if="team.myRole === 'OWNER'">
-        <ButtonSecondary
-          icon="delete"
-          :label="$t('delete')"
-          @click.native="deleteTeam"
-        />
-      </div>
-      <div>
-        <ButtonSecondary
-          :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
-          icon="remove"
-          @click.native="exitTeam"
-        />
-        <div
-          v-tippy="{ theme: 'tooltip' }"
-          title="{
-                content:
-                  team.myRole === 'OWNER' && team.ownersCount == 1
-                    ? $t('disable_exit')
-                    : '',
-              }"
-        >
-          <span>{{ $t("exit") }}</span>
-        </div>
-      </div>
+      <SmartItem
+        v-if="team.myRole === 'OWNER'"
+        icon="create"
+        :label="$t('edit')"
+        @click.native="
+          $emit('edit-team')
+          $refs.options.tippy().hide()
+        "
+      />
+      <SmartItem
+        v-if="team.myRole === 'OWNER'"
+        icon="delete"
+        :label="$t('delete')"
+        @click.native="
+          deleteTeam
+          $refs.options.tippy().hide()
+        "
+      />
+      <SmartItem
+        v-tippy="{ theme: 'tooltip' }"
+        :title="
+          team.myRole === 'OWNER' && team.ownersCount == 1
+            ? $t('disable_exit')
+            : ''
+        "
+        :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
+        icon="remove"
+        :label="$t('exit')"
+        @click.native="
+          exitTeam
+          $refs.options.tippy().hide()
+        "
+      />
     </tippy>
   </div>
 </template>

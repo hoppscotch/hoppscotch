@@ -64,13 +64,13 @@
             <div v-else class="row-wrapper">
               <div
                 v-tippy="{ theme: 'tooltip' }"
-                title="{
-                  content: !currentUser
+                :title="
+                  !currentUser
                     ? $t('login_with_github_to') + $t('create_secret_gist')
                     : currentUser.provider !== 'github.com'
                     ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : null,
-                }"
+                    : null
+                "
               >
                 <ButtonSecondary
                   :disabled="

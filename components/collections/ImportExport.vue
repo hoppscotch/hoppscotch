@@ -17,48 +17,50 @@
           v-if="
             mode == 'import_export' && collectionsType.type == 'my-collections'
           "
+          ref="options"
           tabindex="-1"
           trigger="click"
           theme="popover"
           arrow
         >
           <template #trigger>
-            <ButtonSecondary
+            <TabPrimary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
               icon="more_vert"
             />
           </template>
-          <div>
-            <ButtonSecondary
-              icon="assignment_returned"
-              :label="$t('import_from_gist')"
-              @click.native="readCollectionGist"
-            />
-          </div>
-          <div
+          <SmartItem
+            icon="assignment_returned"
+            :label="$t('import_from_gist')"
+            @click.native="
+              readCollectionGist
+              $refs.options.tippy().hide()
+            "
+          />
+          <SmartItem
             v-tippy="{ theme: 'tooltip' }"
-            title="{
-                content: !currentUser
-                  ? $t('login_with_github_to') + $t('create_secret_gist')
-                  : currentUser.provider !== 'github.com'
-                  ? $t('login_with_github_to') + $t('create_secret_gist')
-                  : null,
-              }"
-          >
-            <ButtonSecondary
-              :disabled="
-                !currentUser
-                  ? true
-                  : currentUser.provider !== 'github.com'
-                  ? true
-                  : false
-              "
-              icon="assignment_turned_in"
-              :label="$t('create_secret_gist')"
-              @click.native="createCollectionGist"
-            />
-          </div>
+            :title="
+              !currentUser
+                ? $t('login_with_github_to') + $t('create_secret_gist')
+                : currentUser.provider !== 'github.com'
+                ? $t('login_with_github_to') + $t('create_secret_gist')
+                : null
+            "
+            :disabled="
+              !currentUser
+                ? true
+                : currentUser.provider !== 'github.com'
+                ? true
+                : false
+            "
+            icon="assignment_turned_in"
+            :label="$t('create_secret_gist')"
+            @click.native="
+              createCollectionGist
+              $refs.options.tippy().hide()
+            "
+          />
         </tippy>
         <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>

@@ -63,13 +63,13 @@
           <li>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              title="{
-                content: protocol.hasOwnProperty('active')
+              :title="
+                protocol.hasOwnProperty('active')
                   ? protocol.active
                     ? $t('turn_off')
                     : $t('turn_on')
-                  : $t('turn_off'),
-              }"
+                  : $t('turn_off')
+              "
               @click.native="
                 protocol.active = protocol.hasOwnProperty('active')
                   ? !protocol.active

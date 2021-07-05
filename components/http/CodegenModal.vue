@@ -9,7 +9,13 @@
     <template #body>
       <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
-        <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+        <tippy
+          ref="options"
+          tabindex="-1"
+          trigger="click"
+          theme="popover"
+          arrow
+        >
           <template #trigger>
             <pre v-if="requestType">{{
               codegens.find((x) => x.id === requestType).name
@@ -24,10 +30,15 @@
               autofocus
             />
           </template>
-          <div v-for="gen in codegens" :key="gen.id">
-            <ButtonSecondary @click.native="requestType = gen.id" />
-            {{ gen.name }}
-          </div>
+          <SmartItem
+            v-for="gen in codegens"
+            :key="gen.id"
+            :label="gen.name"
+            @click.native="
+              requestType = gen.id
+              $refs.options.tippy().hide()
+            "
+          />
         </tippy>
       </span>
       <div class="row-wrapper">

@@ -23,35 +23,38 @@
         <i v-else class="material-icons">folder_open</i>
         <span>{{ folder.name }}</span>
       </div>
-      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary
+          <TabPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
           />
         </template>
-        <div>
-          <ButtonSecondary
-            icon="create_new_folder"
-            :label="$t('new_folder')"
-            @click.native="$emit('add-folder', { folder, path: folderPath })"
-          />
-        </div>
-        <div>
-          <ButtonSecondary
-            icon="edit"
-            :labeel="$t('edit')"
-            @click.native="$emit('edit-folder', { folder, folderPath })"
-          />
-        </div>
-        <div>
-          <ButtonSecondary
-            icon="delete"
-            :label="$t('delete')"
-            @click.native="confirmRemove = true"
-          />
-        </div>
+        <SmartItem
+          icon="create_new_folder"
+          :label="$t('new_folder')"
+          @click.native="
+            $emit('add-folder', { folder, path: folderPath })
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          icon="edit"
+          :labeel="$t('edit')"
+          @click.native="
+            $emit('edit-folder', { folder, folderPath })
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="
+            confirmRemove = true
+            $refs.options.tippy().hide()
+          "
+        />
       </tippy>
     </div>
     <div v-show="showChildren || isFiltered">

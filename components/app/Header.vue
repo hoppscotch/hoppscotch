@@ -17,13 +17,20 @@
           label="Get Started"
           @click.native="showLogin = true"
         />
-        <tippy v-else tabindex="-1" trigger="click" theme="popover" arrow>
+        <tippy
+          v-else
+          ref="user"
+          tabindex="-1"
+          trigger="click"
+          theme="popover"
+          arrow
+        >
           <template #trigger>
             <ProfilePicture
               v-if="currentUser.photoURL"
               v-tippy="{ theme: 'tooltip' }"
               :url="currentUser.photoURL"
-              class="mr-4"
+              :alt="currentUser.displayName"
               :title="
                 (currentUser.displayName ||
                   '<label><i>Name not found</i></label>') +
@@ -38,8 +45,19 @@
               icon="account_circle"
             />
           </template>
-          <SmartItem to="/settings" icon="settings" :label="$t('settings')" />
-          <FirebaseLogout />
+          <SmartItem
+            to="/profile"
+            icon="person"
+            :label="$t('profile')"
+            @click.native="$refs.user.tippy().hide()"
+          />
+          <SmartItem
+            to="/settings"
+            icon="settings"
+            :label="$t('settings')"
+            @click.native="$refs.user.tippy().hide()"
+          />
+          <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
         </tippy>
       </span>
       <span tabindex="-1">

@@ -30,44 +30,51 @@
           icon="check_box"
           @click.native="$emit('unselect-collection')"
         />
-        <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+        <tippy
+          ref="options"
+          tabindex="-1"
+          trigger="click"
+          theme="popover"
+          arrow
+        >
           <template #trigger>
-            <ButtonSecondary
+            <TabPrimary
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
               icon="more_vert"
             />
           </template>
-          <div>
-            <ButtonSecondary
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="create_new_folder"
-              :label="$t('new_folder')"
-              @click.native="
-                $emit('add-folder', {
-                  folder: collection,
-                  path: `${collectionIndex}`,
-                })
-              "
-            />
-          </div>
-          <div>
-            <ButtonSecondary
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="create"
-              :label="$t('edit')"
-              @click.native="$emit('edit-collection')"
-            />
-          </div>
-          <div>
-            <ButtonSecondary
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="delete"
-              :label="$t('delete')"
-              @click.native="confirmRemove = true"
-            />
-          </div>
+          <SmartItem
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            icon="create_new_folder"
+            :label="$t('new_folder')"
+            @click.native="
+              $emit('add-folder', {
+                folder: collection,
+                path: `${collectionIndex}`,
+              })
+              $refs.options.tippy().hide()
+            "
+          />
+          <SmartItem
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            icon="create"
+            :label="$t('edit')"
+            @click.native="
+              $emit('edit-collection')
+              $refs.options.tippy().hide()
+            "
+          />
+          <SmartItem
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            icon="delete"
+            :label="$t('delete')"
+            @click.native="
+              confirmRemove = true
+              $refs.options.tippy().hide()
+            "
+          />
         </tippy>
       </div>
     </div>

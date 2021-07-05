@@ -342,5 +342,7 @@
   "protocols": "Protocols",
   "protocol_count": "protocol {count}",
   "share": "Share",
-  "interceptor": "Interceptor"
+  "interceptor": "Interceptor",
+  "profile": "Profile",
+  "are_you_sure_logout": "Are you sure you want to logout?"
 }

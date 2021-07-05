@@ -2,24 +2,48 @@
   <transition name="modal" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="modal-backdrop"
+      class="
+        fixed
+        inset-0
+        z-50
+        w-full
+        h-full
+        flex
+        items-center
+        justify-center
+        transition
+        bg-primaryLight
+      "
       @touchstart="onBackdropMouseDown"
       @touchend="onBackdropMouseUp"
       @mouseup="onBackdropMouseUp"
       @mousedown="onBackdropMouseDown"
     >
-      <div class="modal-container">
-        <div class="modal-header">
-          <div class="row-wrapper">
+      <div
+        class="
+          modal-container
+          relative
+          flex flex-1 flex-col
+          m-2
+          p-4
+          transition
+          bg-primary
+          rounded-lg
+          shadow-xl
+          max-w-md
+        "
+      >
+        <div class="pl-2">
+          <div class="flex items-center justify-between">
             <slot name="header"></slot>
           </div>
         </div>
-        <div class="modal-body">
+        <div class="my-4 overflow-auto max-h-xl">
           <div class="flex flex-col">
             <slot name="body"></slot>
           </div>
         </div>
-        <div v-if="hasFooterSlot" class="modal-footer">
+        <div v-if="hasFooterSlot" class="p-2">
           <div class="row-wrapper">
             <slot name="footer"></slot>
           </div>
@@ -114,45 +138,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.modal-backdrop {
-  @apply fixed;
-  @apply inset-0;
-  @apply z-50;
-  @apply w-full;
-  @apply h-full;
-  @apply flex;
-  @apply items-center;
-  @apply justify-center;
-  @apply transition;
-  @apply bg-primaryLight;
-}
-
-.modal-container {
-  @apply relative;
-  @apply flex flex-1 flex-col;
-  @apply m-2;
-  @apply p-4;
-  @apply transition;
-  @apply bg-primary;
-  @apply rounded-lg;
-  @apply shadow-xl;
-  @apply max-w-md;
-}
-
-.modal-header {
-  @apply pl-2;
-}
-
-.modal-body {
-  @apply my-4;
-  @apply overflow-auto;
-  @apply max-h-xl;
-}
-
-.modal-footer {
-  @apply p-2;
-}
-
 .modal-enter,
 .modal-leave-active {
   @apply opacity-0;

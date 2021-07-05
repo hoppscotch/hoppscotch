@@ -18,34 +18,34 @@
           @click.native="!doc ? selectRequest() : {}"
         />
       </div>
-      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary
+          <TabPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
           />
         </template>
-        <div>
-          <ButtonSecondary
-            icon="edit"
-            :label="$t('edit')"
-            @click.native="
-              $emit('edit-request', {
-                request,
-                requestIndex,
-                folderPath,
-              })
-            "
-          />
-        </div>
-        <div>
-          <ButtonSecondary
-            icon="delete"
-            :label="$t('delete')"
-            @click.native="confirmRemove = true"
-          />
-        </div>
+        <SmartItem
+          icon="edit"
+          :label="$t('edit')"
+          @click.native="
+            $emit('edit-request', {
+              request,
+              requestIndex,
+              folderPath,
+            })
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="
+            confirmRemove = true
+            $refs.options.tippy().hide()
+          "
+        />
       </tippy>
     </div>
     <SmartConfirmModal

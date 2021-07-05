@@ -8,28 +8,30 @@
           @click.native="$emit('edit-environment')"
         />
       </div>
-      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary
+          <TabPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
           />
         </template>
-        <div>
-          <ButtonSecondary
-            icon="create"
-            :label="$t('edit')"
-            @click.native="$emit('edit-environment')"
-          />
-        </div>
-        <div>
-          <ButtonSecondary
-            icon="delete"
-            :label="$t('delete')"
-            @click.native="confirmRemove = true"
-          />
-        </div>
+        <SmartItem
+          icon="create"
+          :label="$t('edit')"
+          @click.native="
+            $emit('edit-environment')
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="
+            confirmRemove = true
+            $refs.options.tippy().hide()
+          "
+        />
       </tippy>
     </div>
     <SmartConfirmModal

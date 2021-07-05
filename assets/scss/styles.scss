@@ -59,6 +59,8 @@ body {
   -webkit-touch-callout: none;
 }
 
+.fade-enter-active,
+.fade-leave-active,
 .page-enter-active,
 .page-leave-active,
 .layout-enter-active,
@@ -66,10 +68,11 @@ body {
   @apply transition-opacity;
 }
 
-.page-enter,
-.page-leave-active,
+.fade-enter,
+.fade-leave-to .page-enter,
+.page-leave-to,
 .layout-enter,
-.layout-leave-active {
+.layout-leave-to {
   @apply opacity-0;
 }
 

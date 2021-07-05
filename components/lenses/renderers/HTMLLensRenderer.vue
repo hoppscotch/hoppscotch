@@ -7,20 +7,16 @@
           v-if="response.body"
           ref="ToggleExpandResponse"
           v-tippy="{ theme: 'tooltip' }"
-          title="{
-            content: !expandResponse
-              ? $t('expand_response')
-              : $t('collapse_response'),
-          }"
+          :title="
+            !expandResponse ? $t('expand_response') : $t('collapse_response')
+          "
           :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
           @click.native="ToggleExpandResponse"
         />
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          title="{
-            content: previewEnabled ? $t('hide_preview') : $t('preview_html'),
-          }"
+          :title="previewEnabled ? $t('hide_preview') : $t('preview_html')"
           :icon="!previewEnabled ? 'visibility' : 'visibility_off'"
           @click.native.prevent="togglePreview"
         />

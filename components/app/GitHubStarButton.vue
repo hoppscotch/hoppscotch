@@ -1,5 +1,5 @@
 <template>
-  <TranslateFade appear>
+  <transition name="fade" appear>
     <GithubButton
       title="Star Hoppscotch"
       href="https://github.com/hoppscotch/hoppscotch"
@@ -15,7 +15,7 @@
       aria-label="Star Hoppscotch on GitHub"
       data-size="large"
     />
-  </TranslateFade>
+  </transition>
 </template>
 
 <script>

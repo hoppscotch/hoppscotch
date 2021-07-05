@@ -15,37 +15,37 @@
           request.method
         }}</span>
       </div>
-      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary
+          <TabPrimary
             v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
           />
         </template>
-        <div>
-          <ButtonSecondary
-            icon="edit"
-            :label="$t('edit')"
-            @click.native="
-              $emit('edit-request', {
-                collectionIndex,
-                folderIndex,
-                folderName,
-                request,
-                requestIndex,
-              })
-            "
-          />
-        </div>
-        <div>
-          <ButtonSecondary
-            icon="delete"
-            :label="$t('delete')"
-            @click.native="confirmRemove = true"
-          />
-        </div>
+        <SmartItem
+          icon="edit"
+          :label="$t('edit')"
+          @click.native="
+            $emit('edit-request', {
+              collectionIndex,
+              folderIndex,
+              folderName,
+              request,
+              requestIndex,
+            })
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="
+            confirmRemove = true
+            $refs.options.tippy().hide()
+          "
+        />
       </tippy>
     </div>
     <SmartConfirmModal

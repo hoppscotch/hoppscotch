@@ -7,11 +7,9 @@
           v-if="response.body"
           ref="ToggleExpandResponse"
           v-tippy="{ theme: 'tooltip' }"
-          title="{
-            content: !expandResponse
-              ? $t('expand_response')
-              : $t('collapse_response'),
-          }"
+          :title="
+            !expandResponse ? $t('expand_response') : $t('collapse_response')
+          "
           :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
           @click.native="ToggleExpandResponse"
         />

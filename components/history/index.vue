@@ -50,7 +50,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          title="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
+          :title="!showMore ? $t('show_more') : $t('hide_more')"
           icon="!showMore ? 'unfold_more' : 'unfold_less'"
           @click.native="toggleCollapse()"
         />

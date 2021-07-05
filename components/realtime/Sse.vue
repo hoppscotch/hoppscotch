@@ -21,8 +21,8 @@
               :disabled="!serverValid"
               name="start"
               class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              :icon="!connectionSSEState ? $t('start') : $t('stop')"
-              :label="!connectionSSEState ? 'sync' : 'sync_disabled'"
+              :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
+              :label="!connectionSSEState ? $t('start') : $t('stop')"
               reverse
               @click.native="toggleSSEConnection"
             />

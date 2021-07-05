@@ -9,7 +9,7 @@
       :animate-fill="false"
     >
       <template #trigger>
-        <SmartItem
+        <TabPrimary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('choose_language')"
           :label="`${
@@ -24,6 +24,7 @@
         :key="locale.code"
         :to="switchLocalePath(locale.code).toString()"
         :label="`${locale.country} ${locale.name}`"
+        @click.native="$refs.language.tippy().hide()"
       />
     </tippy>
   </span>

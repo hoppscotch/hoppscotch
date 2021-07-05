@@ -15,9 +15,7 @@
       </li>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        title="{
-          content: !entry.star ? $t('add_star') : $t('remove_star'),
-        }"
+        :title="!entry.star ? $t('add_star') : $t('remove_star')"
         data-testid="star_button"
         :class="{ stared: entry.star }"
         :icon="entry.star ? 'star' : 'star_border'"
@@ -25,40 +23,40 @@
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        title="{
-          content: expand ? $t('hide_more') : $t('show_more'),
-        }"
+        :title="expand ? $t('hide_more') : $t('show_more')"
         data-testid="query_expand"
         :icon="expand ? 'unfold_less' : 'unfold_more'"
         @click.native="expand = !expand"
       />
-      <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
         <template #trigger>
-          <ButtonSecondary
+          <TabPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('options')"
             data-testid="options"
             icon="more_vert"
           />
         </template>
-        <div>
-          <ButtonSecondary
-            data-testid="restore_history_entry"
-            :aria-label="$t('restore')"
-            icon="restore"
-            :label="$t('restore')"
-            @click.native="$emit('use-entry')"
-          />
-        </div>
-        <div>
-          <ButtonSecondary
-            data-testid="delete_history_entry"
-            :aria-label="$t('delete')"
-            icon="delete"
-            :label="$t('delete')"
-            @click.native="$emit('delete-entry')"
-          />
-        </div>
+        <SmartItem
+          data-testid="restore_history_entry"
+          :aria-label="$t('restore')"
+          icon="restore"
+          :label="$t('restore')"
+          @click.native="
+            $emit('use-entry')
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          data-testid="delete_history_entry"
+          :aria-label="$t('delete')"
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="
+            $emit('delete-entry')
+            $refs.options.tippy().hide()
+          "
+        />
       </tippy>
     </div>
     <div class="flex">
@@ -136,15 +134,5 @@ export default {
 <style scoped lang="scss">
 .stared {
   color: #f8e81c !important;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  @apply opacity-0;
 }
 </style>

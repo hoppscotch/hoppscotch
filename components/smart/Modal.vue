@@ -2,24 +2,48 @@
   <transition name="modal" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="modal-backdrop"
+      class="
+        fixed
+        inset-0
+        z-50
+        w-full
+        h-full
+        flex
+        items-center
+        justify-center
+        transition
+        bg-primaryLight
+      "
       @touchstart="onBackdropMouseDown"
       @touchend="onBackdropMouseUp"
       @mouseup="onBackdropMouseUp"
       @mousedown="onBackdropMouseDown"
     >
-      <div class="modal-container">
-        <div class="modal-header">
-          <div class="row-wrapper">
+      <div
+        class="
+          modal-container
+          relative
+          flex flex-1 flex-col
+          m-2
+          p-4
+          transition
+          bg-primary
+          rounded-lg
+          shadow-xl
+          max-w-md
+        "
+      >
+        <div class="pl-2">
+          <div class="flex items-center justify-between">
             <slot name="header"></slot>
           </div>
         </div>
-        <div class="modal-body">
+        <div class="my-4 overflow-auto max-h-xl">
           <div class="flex flex-col">
             <slot name="body"></slot>
           </div>
         </div>
-        <div v-if="hasFooterSlot" class="modal-footer">
+        <div v-if="hasFooterSlot" class="p-2">
           <div class="row-wrapper">
             <slot name="footer"></slot>
           </div>

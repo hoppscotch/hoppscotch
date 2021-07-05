@@ -10,7 +10,13 @@
                 <li class="shrink">
                   <label for="method">{{ $t("method") }}</label>
                   <span class="select-wrapper">
-                    <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+                    <tippy
+                      ref="options"
+                      tabindex="-1"
+                      trigger="click"
+                      theme="popover"
+                      arrow
+                    >
                       <template #trigger>
                         <input
                           id="method"
@@ -20,19 +26,17 @@
                           autofocus
                         />
                       </template>
-                      <div
+                      <SmartItem
                         v-for="(methodMenuItem, index) in methodMenuItems"
                         :key="`method-${index}`"
-                      >
-                        <ButtonSecondary
-                          @click.native="
-                            customMethod =
-                              methodMenuItem == 'CUSTOM' ? true : false
-                            method = methodMenuItem
-                          "
-                        />
-                        {{ methodMenuItem }}
-                      </div>
+                        @click.native="
+                          customMethod =
+                            methodMenuItem == 'CUSTOM' ? true : false
+                          method = methodMenuItem
+                          $refs.options.tippy().hide()
+                        "
+                        :label="methodMenuItem"
+                      />
                     </tippy>
                   </span>
                 </li>
@@ -101,6 +105,7 @@
                     }}</label>
                     <span class="select-wrapper">
                       <tippy
+                        ref="contentTypeOptions"
                         tabindex="-1"
                         trigger="click"
                         theme="popover"
@@ -114,17 +119,17 @@
                             readonly
                           />
                         </template>
-                        <div
+                        <SmartItem
                           v-for="(
                             contentTypeMenuItem, index
                           ) in validContentTypes"
                           :key="`content-type-${index}`"
-                        >
-                          <ButtonSecondary
-                            @click.native="contentType = contentTypeMenuItem"
-                          />
-                          {{ contentTypeMenuItem }}
-                        </div>
+                          @click.native="
+                            contentType = contentTypeMenuItem
+                            $refs.contentTypeOptions.tippy().hide()
+                          "
+                          :label="contentTypeMenuItem"
+                        />
                       </tippy>
                     </span>
                     <!-- <SmartAutoComplete
@@ -600,33 +605,27 @@
         </Splitpanes>
       </Pane>
       <Pane max-size="40" class="bg-pink-100">
-        <TranslateSlideLeft>
-          <aside class="lg:max-w-md">
-            <section>
-              <SmartTabs>
-                <SmartTab
-                  :id="'history'"
-                  :label="$t('history')"
-                  :selected="true"
-                >
-                  <History
-                    :page="'rest'"
-                    @useHistory="handleUseHistory"
-                    ref="historyComponent"
-                  />
-                </SmartTab>
+        <aside class="lg:max-w-md">
+          <section>
+            <SmartTabs>
+              <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+                <History
+                  :page="'rest'"
+                  @useHistory="handleUseHistory"
+                  ref="historyComponent"
+                />
+              </SmartTab>
 
-                <SmartTab :id="'collections'" :label="$t('collections')">
-                  <Collections />
-                </SmartTab>
+              <SmartTab :id="'collections'" :label="$t('collections')">
+                <Collections />
+              </SmartTab>
 
-                <SmartTab :id="'env'" :label="$t('environments')">
-                  <Environments />
-                </SmartTab>
-              </SmartTabs>
-            </section>
-          </aside>
-        </TranslateSlideLeft>
+              <SmartTab :id="'env'" :label="$t('environments')">
+                <Environments />
+              </SmartTab>
+            </SmartTabs>
+          </section>
+        </aside>
       </Pane>
     </Splitpanes>
 

@@ -1,9 +1,18 @@
 <template>
-  <div>
-    <ButtonSecondary
+  <div class="flex">
+    <SmartItem
       icon="exit_to_app"
       :label="$t('logout')"
-      @click.native="logout"
+      @click.native="
+        $emit('confirm-logout')
+        confirmLogout = true
+      "
+    />
+    <SmartConfirmModal
+      :show="confirmLogout"
+      :title="$t('are_you_sure_logout')"
+      @hide-modal="confirmLogout = false"
+      @resolve="logout"
     />
   </div>
 </template>
@@ -13,6 +22,11 @@ import Vue from "vue"
 import { signOutUser } from "~/helpers/fb/auth"
 
 export default Vue.extend({
+  data() {
+    return {
+      confirmLogout: false,
+    }
+  },
   methods: {
     async logout() {
       try {

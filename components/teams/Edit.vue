@@ -55,7 +55,13 @@
         </li>
         <li>
           <span class="select-wrapper">
-            <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+            <tippy
+              ref="options"
+              tabindex="-1"
+              trigger="click"
+              theme="popover"
+              arrow
+            >
               <template #trigger>
                 <input
                   class="input"
@@ -69,18 +75,27 @@
                   readonly
                 />
               </template>
-              <div>
-                <ButtonSecondary @click.native="updateRole(index, 'OWNER')" />
-                OWNER
-              </div>
-              <div>
-                <ButtonSecondary @click.native="updateRole(index, 'EDITOR')" />
-                EDITOR
-              </div>
-              <div>
-                <ButtonSecondary @click.native="updateRole(index, 'VIEWER')" />
-                VIEWER
-              </div>
+              <SmartItem
+                label="OWNER"
+                @click.native="
+                  updateRole(index, 'OWNER')
+                  $refs.options.tippy().hide()
+                "
+              />
+              <SmartItem
+                label="EDITOR"
+                @click.native="
+                  updateRole(index, 'EDITOR')
+                  $refs.options.tippy().hide()
+                "
+              />
+              <SmartItem
+                label="VIEWER"
+                @click.native="
+                  updateRole(index, 'VIEWER')
+                  $refs.options.tippy().hide()
+                "
+              />
             </tippy>
           </span>
         </li>
@@ -119,7 +134,13 @@
         </li>
         <li>
           <span class="select-wrapper">
-            <tippy tabindex="-1" trigger="click" theme="popover" arrow>
+            <tippy
+              ref="memberOptions"
+              tabindex="-1"
+              trigger="click"
+              theme="popover"
+              arrow
+            >
               <template #trigger>
                 <input
                   class="input"
@@ -133,18 +154,27 @@
                   readonly
                 />
               </template>
-              <div>
-                <ButtonSecondary @click.native="member.value = 'OWNER'" />
-                OWNER
-              </div>
-              <div>
-                <ButtonSecondary @click.native="member.value = 'EDITOR'" />
-                EDITOR
-              </div>
-              <div>
-                <ButtonSecondary @click.native="member.value = 'VIEWER'" />
-                VIEWER
-              </div>
+              <SmartItem
+                label="OWNER"
+                @click.native="
+                  member.value = 'OWNER'
+                  $refs.options.tippy().hide()
+                "
+              />
+              <SmartItem
+                label="EDITOR"
+                @click.native="
+                  member.value = 'EDITOR'
+                  $refs.options.tippy().hide()
+                "
+              />
+              <SmartItem
+                label="VIEWER"
+                @click.native="
+                  member.value = 'VIEWER'
+                  $refs.options.tippy().hide()
+                "
+              />
             </tippy>
           </span>
         </li>

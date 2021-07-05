@@ -1,10 +1,15 @@
 import firebase from "firebase"
-import { BehaviorSubject } from "rxjs"
+import { BehaviorSubject, Subject } from "rxjs"
 
 export type HoppUser = firebase.User & {
   provider?: string
   accessToken?: string
 }
+
+type AuthEvents =
+  | { event: "login"; user: HoppUser }
+  | { event: "logout" }
+  | { event: "authTokenUpdate"; user: HoppUser; newToken: string | null }
 
 /**
  * A BehaviorSubject emitting the currently logged in user (or null if not logged in)
@@ -16,12 +21,20 @@ export const currentUser$ = new BehaviorSubject<HoppUser | null>(null)
 export const authIdToken$ = new BehaviorSubject<string | null>(null)
 
 /**
+ * A subject that emits events related to authentication flows
+ */
+export const authEvents$ = new Subject<AuthEvents>()
+
+/**
  * Initializes the firebase authentication related subjects
  */
 export function initAuth() {
   let extraSnapshotStop: (() => void) | null = null
 
   firebase.auth().onAuthStateChanged((user) => {
+    /** Whether the user was logged in before */
+    const wasLoggedIn = currentUser$.value !== null
+
     if (!user && extraSnapshotStop) {
       extraSnapshotStop()
       extraSnapshotStop = null
@@ -61,14 +74,35 @@ export function initAuth() {
             userUpdate.provider = data.provider
             userUpdate.accessToken = data.accessToken
           }
+
+          currentUser$.next(userUpdate)
         })
     }
     currentUser$.next(user)
+
+    // User wasn't found before, but now is there (login happened)
+    if (!wasLoggedIn && user) {
+      authEvents$.next({
+        event: "login",
+        user: currentUser$.value!!,
+      })
+    } else if (wasLoggedIn && !user) {
+      // User was found before, but now is not there (logout happened)
+      authEvents$.next({
+        event: "logout",
+      })
+    }
   })
 
   firebase.auth().onIdTokenChanged(async (user) => {
     if (user) {
       authIdToken$.next(await user.getIdToken())
+
+      authEvents$.next({
+        event: "authTokenUpdate",
+        newToken: authIdToken$.value,
+        user: currentUser$.value!!, // Force not-null because user is defined
+      })
     } else {
       authIdToken$.next(null)
     }

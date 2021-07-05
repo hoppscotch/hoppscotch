@@ -341,5 +341,6 @@
   "show_sidebar": "Show sidebar",
   "protocols": "Protocols",
   "protocol_count": "protocol {count}",
-  "share": "Share"
+  "share": "Share",
+  "interceptor": "Interceptor"
 }

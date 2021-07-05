@@ -98,7 +98,6 @@ export default {
     "~/plugins/vue-rx",
     "~/plugins/vue-apollo",
     { src: "~/plugins/web-worker", ssr: false },
-    "~/plugins/formatCountry.js",
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)

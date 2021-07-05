@@ -14,7 +14,6 @@
           :title="$t('choose_language')"
           :label="`${
             $i18n.locales.find(({ code }) => code == $i18n.locale).country
-            | formatCountry
           } ${$i18n.locales.find(({ code }) => code == $i18n.locale).name}`"
         />
       </template>
@@ -24,7 +23,7 @@
         )"
         :key="locale.code"
         :to="switchLocalePath(locale.code).toString()"
-        :label="`${locale.country | formatCountry} ${locale.name}`"
+        :label="`${locale.country} ${locale.name}`"
       />
     </tippy>
   </span>

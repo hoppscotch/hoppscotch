@@ -3,11 +3,8 @@
     <label>
       <ColorScheme placeholder="..." tag="span">
         {{ $t("background") }}:
-        {{
-          $colorMode.preference.charAt(0).toUpperCase() +
-          $colorMode.preference.slice(1)
-        }}
-        <span v-if="$colorMode.preference === 'system'">
+        {{ activeColor.charAt(0).toUpperCase() + activeColor.slice(1) }}
+        <span v-if="activeColor === 'system'">
           ({{ $colorMode.value }} mode detected)
         </span>
       </ColorScheme>
@@ -33,10 +30,10 @@
           hover:text-secondary
         "
         :class="[
-          { 'bg-primary': color === $colorMode.preference },
-          { 'text-accent hover:text-accent': color === $colorMode.value },
+          { 'bg-primary': color === activeColor },
+          { 'text-accent hover:text-accent': color === activeColor },
         ]"
-        @click="$colorMode.preference = color"
+        @click="setBGMode(color)"
       >
         <i class="material-icons">{{ getIcon(color) }}</i>
       </span>
@@ -44,15 +41,31 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue"
+import {
+  applySetting,
+  getSettingSubject,
+  HoppBgColor,
+  HoppBgColors,
+} from "~/newstore/settings"
+
+export default Vue.extend({
   data() {
     return {
-      colors: ["system", "light", "dark", "black"],
+      colors: HoppBgColors,
+    }
+  },
+  subscriptions() {
+    return {
+      activeColor: getSettingSubject("BG_COLOR"),
     }
   },
   methods: {
-    getIcon(color) {
+    setBGMode(color: HoppBgColor) {
+      applySetting("BG_COLOR", color)
+    },
+    getIcon(color: HoppBgColor) {
       switch (color) {
         case "system":
           return "desktop_windows"
@@ -67,5 +80,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

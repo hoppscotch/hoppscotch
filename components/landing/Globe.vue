@@ -92,14 +92,6 @@ export default {
         .hexPolygonResolution(3)
         .hexPolygonMargin(0.5)
         .hexPolygonColor(() => `#aaaaaa`)
-        // labels layer
-        // .labelsData(this.labelsData)
-        // .labelLat("lat")
-        // .labelLng("lng")
-        // .labelText("text")
-        // .labelColor("color")
-        // .labelSize(1.5)
-        // .labelDotRadius(0.5)
 
         // labels layer
         .labelsData(this.labelsData)

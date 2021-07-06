@@ -145,11 +145,7 @@
                     <div class="flex flex-1">
                       <span>
                         <SmartToggle
-                          v-if="canListParameters"
                           :on="rawInput"
-                          @change="rawInput = $event"
-                        >
-                          {{ $t("raw_input") }}
                         </SmartToggle>
                       </span>
                     </div>
@@ -177,9 +173,6 @@
               </div>
               <div class="flex flex-1">
                 <span>
-                  <ButtonSecondary
-                    @click.native="showCurlImportModal = !showCurlImportModal"
-                    v-tippy="{ theme: 'tooltip' }"
                     :title="$t('import_curl')"
                     icon="import_export"
                   />

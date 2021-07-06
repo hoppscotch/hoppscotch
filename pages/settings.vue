@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div>
     <div class="space-y-8">
       <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="md:col-span-1 p-8">

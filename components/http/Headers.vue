@@ -2,7 +2,7 @@
   <AppSection label="headers">
     <ul v-if="headers.length !== 0">
       <li>
-        <div class="row-wrapper">
+        <div class="flex flex-1">
           <label for="headerList">{{ $t("header_list") }}</label>
           <div>
             <ButtonSecondary

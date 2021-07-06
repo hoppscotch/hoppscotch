@@ -7,7 +7,7 @@
     <template #body>
       <ul>
         <li>
-          <div class="row-wrapper">
+          <div class="flex flex-1">
             <label>{{ $t("label") }}</label>
           </div>
         </li>
@@ -25,7 +25,7 @@
       </ul>
       <ul>
         <li>
-          <div class="row-wrapper">
+          <div class="flex flex-1">
             <label for="memberList">{{ $t("team_member_list") }}</label>
             <div></div>
           </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="row-wrapper">
+  <div class="flex flex-1">
     <div>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"

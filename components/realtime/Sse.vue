@@ -1,51 +1,62 @@
 <template>
   <div>
-    <AppSection label="request">
-      <ul>
-        <li>
-          <label for="server">{{ $t("server") }}</label>
-          <input
-            id="server"
-            v-model="server"
-            type="url"
-            :class="{ error: !serverValid }"
-            class="input md:rounded-bl-lg"
-            :placeholder="$t('url')"
-            @keyup.enter="serverValid ? toggleSSEConnection() : null"
-          />
-        </li>
-        <div>
-          <li>
-            <ButtonSecondary
-              id="start"
-              :disabled="!serverValid"
-              name="start"
-              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
-              :label="!connectionSSEState ? $t('start') : $t('stop')"
-              reverse
-              @click.native="toggleSSEConnection"
-            />
-          </li>
-        </div>
-      </ul>
-    </AppSection>
-
-    <AppSection label="response">
-      <ul>
-        <li>
-          <RealtimeLog :title="$t('events')" :log="events.log" />
-          <div id="result"></div>
-        </li>
-      </ul>
-    </AppSection>
+    <Splitpanes horizontal :dbl-click-splitter="false">
+      <Pane class="overflow-auto">
+        <AppSection label="request">
+          <ul>
+            <li>
+              <label for="server">{{ $t("server") }}</label>
+              <input
+                id="server"
+                v-model="server"
+                type="url"
+                :class="{ error: !serverValid }"
+                class="input md:rounded-bl-lg"
+                :placeholder="$t('url')"
+                @keyup.enter="serverValid ? toggleSSEConnection() : null"
+              />
+            </li>
+            <div>
+              <li>
+                <ButtonSecondary
+                  id="start"
+                  :disabled="!serverValid"
+                  name="start"
+                  class="
+                    button
+                    rounded-b-lg
+                    md:rounded-bl-none md:rounded-br-lg
+                  "
+                  :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
+                  :label="!connectionSSEState ? $t('start') : $t('stop')"
+                  reverse
+                  @click.native="toggleSSEConnection"
+                />
+              </li>
+            </div>
+          </ul>
+        </AppSection>
+      </Pane>
+      <Pane class="overflow-auto">
+        <AppSection label="response">
+          <ul>
+            <li>
+              <RealtimeLog :title="$t('events')" :log="events.log" />
+              <div id="result"></div>
+            </li>
+          </ul>
+        </AppSection>
+      </Pane>
+    </Splitpanes>
   </div>
 </template>
 
 <script>
+import { Splitpanes, Pane } from "splitpanes"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
+  components: { Splitpanes, Pane },
   data() {
     return {
       connectionSSEState: false,

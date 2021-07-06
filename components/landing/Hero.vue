@@ -1,5 +1,5 @@
 <template>
-  <div class="flex p-4 relative overflow-hidden">
+  <div class="flex p-4 relative">
     <div class="relative my-16 z-10 max-w-3xl">
       <h2
         class="
@@ -45,7 +45,7 @@
       </div>
     </div>
     <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-      <LandingGlobe class="h-64 w-full sm:h-72 md:h-96 lg:w-full lg:h-full" />
+      <LandingGlobe class="h-64 w-full sm:h-72 md:h-96 lg:h-full" />
     </div>
   </div>
 </template>

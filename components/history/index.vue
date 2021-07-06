@@ -1,12 +1,12 @@
 <template>
-  <AppSection label="history">
+  <AppSection label="history" class="bg-green-200">
     <div class="flex">
       <input
         v-model="filterText"
         aria-label="Search"
         type="search"
+        class="px-4 py-2 text-xs flex flex-1"
         :placeholder="$t('search')"
-        class="input rounded-t-lg"
       />
     </div>
     <div
@@ -39,8 +39,11 @@
     <p v-if="history.length === 0">
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
-    <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryDark">
-      <div v-if="!isClearingHistory" class="row-wrapper">
+    <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryLight">
+      <div
+        v-if="!isClearingHistory"
+        class="flex items-center justify-between flex-1"
+      >
         <ButtonSecondary
           data-testid="clear_history"
           :disabled="history.length === 0"
@@ -51,14 +54,15 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="!showMore ? $t('show_more') : $t('hide_more')"
-          icon="!showMore ? 'unfold_more' : 'unfold_less'"
+          :icon="!showMore ? 'unfold_more' : 'unfold_less'"
           @click.native="toggleCollapse()"
         />
       </div>
-      <div v-else class="row-wrapper">
-        <p>
-          <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
-        </p>
+      <div v-else class="flex items-center justify-between flex-1">
+        <span class="flex items-center">
+          <i class="material-icons mx-2">help_outline</i>
+          {{ $t("are_you_sure") }}
+        </span>
         <div>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"

@@ -2,7 +2,7 @@
   <div>
     <ul>
       <li>
-        <div class="row-wrapper">
+        <div class="flex flex-1">
           <label for="reqParamList">{{ $t("request_body") }}</label>
           <div>
             <ButtonSecondary

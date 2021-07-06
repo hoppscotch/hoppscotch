@@ -1,36 +1,28 @@
 <template>
   <div class="flex h-screen w-screen">
-    <Splitpanes horizontal class="hoppscotch-theme">
-      <Pane class="flex-1">
-        <Splitpanes vertical class="hoppscotch-theme">
+    <Splitpanes horizontal :dbl-click-splitter="false">
+      <Pane class="flex flex-1 overflow-auto">
+        <Splitpanes vertical :dbl-click-splitter="false">
           <Pane
             v-if="!hideNavigationPane"
             style="width: auto"
-            class="overflow-y-auto bg-primaryLight flex items-stretch"
+            class="overflow-auto"
           >
             <AppSidenav />
           </Pane>
-          <Pane class="flex-1">
-            <Splitpanes
-              horizontal
-              :push-other-panes="false"
-              class="hoppscotch-theme"
-            >
-              <Pane v-if="!zenMode" style="height: auto">
+          <Pane class="flex flex-1 overflow-auto">
+            <Splitpanes horizontal :dbl-click-splitter="false">
+              <Pane v-if="!zenMode" style="height: auto" class="overflow-auto">
                 <AppHeader />
               </Pane>
-              <Pane class="flex-1">
-                <Splitpanes vertical class="hoppscotch-theme">
-                  <Pane class="overflow-y-auto">
-                    <nuxt class="container" :hide-right-pane="hideRightPane" />
-                  </Pane>
-                </Splitpanes>
+              <Pane class="flex flex-1 overflow-auto">
+                <nuxt class="container" :hide-right-pane="hideRightPane" />
               </Pane>
             </Splitpanes>
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto" class="bg-primaryDark">
+      <Pane style="height: auto" class="overflow-auto">
         <div class="flex justify-between">
           <div>
             <ButtonSecondary
@@ -56,13 +48,15 @@
               @click.native="zenMode = !zenMode"
             />
           </div>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="hideRightPane ? $t('show_sidebar') : $t('hide_sidebar')"
-            icon="menu_open"
-            :class="['transform rotate-180', { ' rotate-0': hideRightPane }]"
-            @click.native="hideRightPane = !hideRightPane"
-          />
+          <div>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="hideRightPane ? $t('show_sidebar') : $t('hide_sidebar')"
+              icon="menu_open"
+              :class="['transform rotate-180', { ' rotate-0': hideRightPane }]"
+              @click.native="hideRightPane = !hideRightPane"
+            />
+          </div>
         </div>
       </Pane>
     </Splitpanes>

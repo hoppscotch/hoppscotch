@@ -2,7 +2,7 @@
   <AppSection label="parameters">
     <ul v-if="params.length !== 0">
       <li>
-        <div class="row-wrapper">
+        <div class="flex flex-1">
           <label for="paramList">{{ $t("parameter_list") }}</label>
           <div>
             <ButtonSecondary

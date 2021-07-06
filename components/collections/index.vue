@@ -7,7 +7,7 @@
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="input rounded-t-lg"
+        class="px-4 py-2 text-xs flex flex-1"
       />
     </div>
     <CollectionsChooseType
@@ -53,7 +53,7 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
-    <div class="border-b row-wrapper border-divider">
+    <div class="border-b flex flex-1 border-divider">
       <ButtonSecondary
         v-if="
           collectionsType.type == 'team-collections' &&

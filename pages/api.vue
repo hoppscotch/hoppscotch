@@ -1,10 +1,10 @@
 <template>
   <!-- eslint-disable -->
   <div>
-    <Splitpanes vertical class="hoppscotch-theme">
-      <Pane min-size="60" class="bg-violet-100">
-        <Splitpanes horizontal class="hoppscotch-theme">
-          <Pane class="bg-indigo-100">
+    <Splitpanes vertical :dbl-click-splitter="false">
+      <Pane class="overflow-auto">
+        <Splitpanes horizontal :dbl-click-splitter="false">
+          <Pane class="overflow-auto">
             <AppSection ref="request" label="request">
               <ul>
                 <li class="shrink">
@@ -142,7 +142,7 @@
                 </ul>
                 <ul>
                   <li>
-                    <div class="row-wrapper">
+                    <div class="flex flex-1">
                       <span>
                         <SmartToggle
                           v-if="canListParameters"
@@ -175,7 +175,7 @@
                   "
                 />
               </div>
-              <div class="row-wrapper">
+              <div class="flex flex-1">
                 <span>
                   <ButtonSecondary
                     @click.native="showCurlImportModal = !showCurlImportModal"
@@ -262,7 +262,7 @@
                   <AppSection label="authentication">
                     <ul>
                       <li>
-                        <div class="row-wrapper">
+                        <div class="flex flex-1">
                           <label for="auth">{{ $t("authentication") }}</label>
                           <div>
                             <ButtonSecondary
@@ -317,7 +317,7 @@
                     </ul>
                     <ul v-if="auth === 'Bearer Token' || auth === 'OAuth 2.0'">
                       <li>
-                        <div class="row-wrapper">
+                        <div class="flex flex-1">
                           <input
                             class="input"
                             placeholder="Token"
@@ -343,7 +343,7 @@
                         </div>
                       </li>
                     </ul>
-                    <div class="row-wrapper">
+                    <div class="flex flex-1">
                       <SmartToggle
                         :on="!URL_EXCLUDES.auth"
                         @change="setExclude('auth', !$event)"
@@ -359,7 +359,7 @@
                   >
                     <ul>
                       <li>
-                        <div class="row-wrapper">
+                        <div class="flex flex-1">
                           <label for="token-name">{{ $t("token_name") }}</label>
                           <div>
                             <ButtonSecondary
@@ -487,7 +487,7 @@
                   <AppSection v-if="showPreRequestScript" label="preRequest">
                     <ul>
                       <li>
-                        <div class="row-wrapper">
+                        <div class="flex flex-1">
                           <label>{{ $t("javascript_code") }}</label>
                           <div>
                             <ButtonSecondary
@@ -521,7 +521,7 @@
                   <AppSection v-if="testsEnabled" label="postRequestTests">
                     <ul>
                       <li>
-                        <div class="row-wrapper">
+                        <div class="flex flex-1">
                           <label>{{ $t("javascript_code") }}</label>
                           <div>
                             <ButtonSecondary
@@ -547,7 +547,7 @@
                           completeMode="test"
                         />
                         <div v-if="testReports.length !== 0">
-                          <div class="row-wrapper">
+                          <div class="flex flex-1">
                             <label>Test Reports</label>
                             <div>
                               <ButtonSecondary
@@ -570,7 +570,7 @@
                             </div>
                             <p
                               v-else-if="testReport.result"
-                              class="row-wrapper info"
+                              class="flex flex-1 info"
                             >
                               <span :class="testReport.styles.class">
                                 <i class="material-icons">
@@ -595,7 +595,7 @@
               </SmartTabs>
             </section>
           </Pane>
-          <Pane class="bg-purple-100">
+          <Pane class="overflow-auto">
             <HttpResponse
               :response="response"
               :active="runningRequest"
@@ -604,27 +604,25 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane max-size="40" class="bg-pink-100">
-        <aside class="lg:max-w-md">
-          <section>
-            <SmartTabs>
-              <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-                <History
-                  :page="'rest'"
-                  @useHistory="handleUseHistory"
-                  ref="historyComponent"
-                />
-              </SmartTab>
+      <Pane max-size="35" min-size="20" class="overflow-auto">
+        <aside class="h-full bg-yellow-200">
+          <SmartTabs>
+            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+              <History
+                :page="'rest'"
+                @useHistory="handleUseHistory"
+                ref="historyComponent"
+              />
+            </SmartTab>
 
-              <SmartTab :id="'collections'" :label="$t('collections')">
-                <Collections />
-              </SmartTab>
+            <SmartTab :id="'collections'" :label="$t('collections')">
+              <Collections />
+            </SmartTab>
 
-              <SmartTab :id="'env'" :label="$t('environments')">
-                <Environments />
-              </SmartTab>
-            </SmartTabs>
-          </section>
+            <SmartTab :id="'env'" :label="$t('environments')">
+              <Environments />
+            </SmartTab>
+          </SmartTabs>
         </aside>
       </Pane>
     </Splitpanes>
@@ -673,7 +671,7 @@
         </div>
       </template>
       <template #body>
-        <div class="row-wrapper">
+        <div class="flex flex-1">
           <label for="token-req-list">{{ $t("token_req_list") }}</label>
           <div>
             <ButtonSecondary

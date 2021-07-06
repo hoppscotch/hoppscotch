@@ -41,7 +41,7 @@
           />
         </tippy>
       </span>
-      <div class="row-wrapper">
+      <div class="flex flex-1">
         <label for="generatedCode">{{ $t("generated_code") }}</label>
         <div>
           <ButtonSecondary

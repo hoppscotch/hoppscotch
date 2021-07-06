@@ -23,7 +23,7 @@
       :editingteam-i-d="editingteamID"
       @hide-modal="displayModalEdit(false)"
     />
-    <div class="row-wrapper">
+    <div class="flex flex-1">
       <div>
         <ButtonSecondary
           icon="add"

@@ -1,114 +1,139 @@
 <template>
   <div>
-    <AppSection label="request">
-      <ul>
-        <li>
-          <label for="mqtt-url">{{ $t("url") }}</label>
-          <input
-            id="mqtt-url"
-            v-model="url"
-            type="url"
-            spellcheck="false"
-            class="input md:rounded-bl-lg"
-            :placeholder="$t('url')"
-          />
-        </li>
-        <div>
-          <li>
-            <ButtonSecondary
-              id="connect"
-              :disabled="!validUrl"
-              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              :icon="!connectionState ? 'sync' : 'sync_disabled'"
-              :label="connectionState ? $t('disconnect') : $t('connect')"
-              reverse
-              @click.native="toggleConnection"
-            />
-          </li>
-        </div>
-      </ul>
-    </AppSection>
-
-    <AppSection label="response">
-      <ul>
-        <li>
-          <RealtimeLog :title="$t('log')" :log="log" />
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <label for="pub_topic">{{ $t("mqtt_topic") }}</label>
-          <input
-            id="pub_topic"
-            v-model="pub_topic"
-            class="input"
-            type="text"
-            spellcheck="false"
-          />
-        </li>
-        <li>
-          <label for="mqtt-message">{{ $t("message") }}</label>
-          <input
-            id="mqtt-message"
-            v-model="msg"
-            type="text"
-            spellcheck="false"
-            class="input border-dashed md:border-l border-divider"
-          />
-        </li>
-        <div>
-          <li>
-            <ButtonSecondary
-              id="publish"
-              class="button"
-              name="get"
-              :disabled="!canpublish"
-              icon="send"
-              :label="$t('mqtt_publish')"
-              @click.native="publish"
-            />
-          </li>
-        </div>
-      </ul>
-      <ul>
-        <li>
-          <label for="sub_topic">{{ $t("mqtt_topic") }}</label>
-          <input
-            id="sub_topic"
-            v-model="sub_topic"
-            type="text"
-            spellcheck="false"
-            class="input md:rounded-bl-lg"
-          />
-        </li>
-        <div>
-          <li>
-            <ButtonSecondary
-              id="subscribe"
-              name="get"
-              :disabled="!cansubscribe"
-              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
-              :icon="subscriptionState ? 'sync_disabled' : 'sync'"
-              :label="
-                subscriptionState
-                  ? $t('mqtt_unsubscribe')
-                  : $t('mqtt_subscribe')
-              "
-              reverse
-              @click.native="toggleSubscription"
-            />
-          </li>
-        </div>
-      </ul>
-    </AppSection>
+    <Splitpanes vertical :dbl-click-splitter="false">
+      <Pane class="overflow-auto">
+        <Splitpanes horizontal :dbl-click-splitter="false">
+          <Pane class="overflow-auto">
+            <AppSection label="request">
+              <ul>
+                <li>
+                  <label for="mqtt-url">{{ $t("url") }}</label>
+                  <input
+                    id="mqtt-url"
+                    v-model="url"
+                    type="url"
+                    spellcheck="false"
+                    class="input md:rounded-bl-lg"
+                    :placeholder="$t('url')"
+                  />
+                </li>
+                <div>
+                  <li>
+                    <ButtonSecondary
+                      id="connect"
+                      :disabled="!validUrl"
+                      class="
+                        button
+                        rounded-b-lg
+                        md:rounded-bl-none md:rounded-br-lg
+                      "
+                      :icon="!connectionState ? 'sync' : 'sync_disabled'"
+                      :label="
+                        connectionState ? $t('disconnect') : $t('connect')
+                      "
+                      reverse
+                      @click.native="toggleConnection"
+                    />
+                  </li>
+                </div>
+              </ul>
+            </AppSection>
+          </Pane>
+          <Pane class="overflow-auto">
+            <AppSection label="response">
+              <ul>
+                <li>
+                  <RealtimeLog :title="$t('log')" :log="log" />
+                </li>
+              </ul>
+            </AppSection>
+          </Pane>
+        </Splitpanes>
+      </Pane>
+      <Pane max-size="35" min-size="20" class="overflow-auto">
+        <AppSection label="messages">
+          <ul>
+            <li>
+              <label for="pub_topic">{{ $t("mqtt_topic") }}</label>
+              <input
+                id="pub_topic"
+                v-model="pub_topic"
+                class="input"
+                type="text"
+                spellcheck="false"
+              />
+            </li>
+            <li>
+              <label for="mqtt-message">{{ $t("message") }}</label>
+              <input
+                id="mqtt-message"
+                v-model="msg"
+                type="text"
+                spellcheck="false"
+                class="input border-dashed md:border-l border-divider"
+              />
+            </li>
+            <div>
+              <li>
+                <ButtonSecondary
+                  id="publish"
+                  class="button"
+                  name="get"
+                  :disabled="!canpublish"
+                  icon="send"
+                  :label="$t('mqtt_publish')"
+                  @click.native="publish"
+                />
+              </li>
+            </div>
+          </ul>
+          <ul>
+            <li>
+              <label for="sub_topic">{{ $t("mqtt_topic") }}</label>
+              <input
+                id="sub_topic"
+                v-model="sub_topic"
+                type="text"
+                spellcheck="false"
+                class="input md:rounded-bl-lg"
+              />
+            </li>
+            <div>
+              <li>
+                <ButtonSecondary
+                  id="subscribe"
+                  name="get"
+                  :disabled="!cansubscribe"
+                  class="
+                    button
+                    rounded-b-lg
+                    md:rounded-bl-none md:rounded-br-lg
+                  "
+                  :icon="subscriptionState ? 'sync_disabled' : 'sync'"
+                  :label="
+                    subscriptionState
+                      ? $t('mqtt_unsubscribe')
+                      : $t('mqtt_subscribe')
+                  "
+                  reverse
+                  @click.native="toggleSubscription"
+                />
+              </li>
+            </div>
+          </ul>
+        </AppSection>
+      </Pane>
+    </Splitpanes>
   </div>
 </template>
 
 <script>
+import { Splitpanes, Pane } from "splitpanes"
 import Paho from "paho-mqtt"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
+  components: { Splitpanes, Pane },
   data() {
     return {
       url: "wss://test.mosquitto.org:8081",

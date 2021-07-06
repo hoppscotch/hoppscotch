@@ -1,5 +1,5 @@
 <template>
-  <section :id="label.toLowerCase()">
+  <section :id="label.toLowerCase()" class="flex flex-col">
     <slot></slot>
   </section>
 </template>

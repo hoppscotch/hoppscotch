@@ -44,7 +44,7 @@
           </div>
         </div>
         <div v-if="hasFooterSlot" class="p-2">
-          <div class="row-wrapper">
+          <div class="flex flex-1">
             <slot name="footer"></slot>
           </div>
         </div>

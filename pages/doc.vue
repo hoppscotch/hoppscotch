@@ -1,116 +1,123 @@
 <template>
-  <div class="page">
-    <div class="content">
-      <div class="">
-        <AppSection label="import">
-          <div class="flex flex-col">
-            <label>{{ $t("collection") }}</label>
-            <p>
-              {{ $t("generate_docs_message") }}
-            </p>
-            <div class="row-wrapper">
-              <label for="collectionUpload">
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  title="JSON"
-                  icon="folder"
-                  :label="$t('import_collections')"
-                  @click.native="$refs.collectionUpload.click()"
+  <div>
+    <Splitpanes vertical :dbl-click-splitter="false">
+      <Pane class="overflow-auto">
+        <Splitpanes horizontal :dbl-click-splitter="false">
+          <Pane class="overflow-auto">
+            <AppSection label="import">
+              <div class="flex flex-col">
+                <label>{{ $t("collection") }}</label>
+                <p>
+                  {{ $t("generate_docs_message") }}
+                </p>
+                <div class="flex flex-1">
+                  <label for="collectionUpload">
+                    <ButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      title="JSON"
+                      icon="folder"
+                      :label="$t('import_collections')"
+                      @click.native="$refs.collectionUpload.click()"
+                    />
+                  </label>
+                  <input
+                    ref="collectionUpload"
+                    class="input"
+                    name="collectionUpload"
+                    type="file"
+                    @change="uploadCollection"
+                  />
+                  <div>
+                    <ButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="$t('clear')"
+                      icon="clear_all"
+                      @click.native="collectionJSON = '[]'"
+                    />
+                  </div>
+                </div>
+                <SmartAceEditor
+                  v-model="collectionJSON"
+                  :lang="'json'"
+                  :lint="false"
+                  :options="{
+                    maxLines: '16',
+                    minLines: '8',
+                    fontSize: '15px',
+                    autoScrollEditorIntoView: true,
+                    showPrintMargin: false,
+                    useWorker: false,
+                  }"
                 />
-              </label>
-              <input
-                ref="collectionUpload"
-                class="input"
-                name="collectionUpload"
-                type="file"
-                @change="uploadCollection"
-              />
-              <div>
                 <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="$t('clear')"
-                  icon="clear_all"
-                  @click.native="collectionJSON = '[]'"
-                />
-              </div>
-            </div>
-            <SmartAceEditor
-              v-model="collectionJSON"
-              :lang="'json'"
-              :lint="false"
-              :options="{
-                maxLines: '16',
-                minLines: '8',
-                fontSize: '15px',
-                autoScrollEditorIntoView: true,
-                showPrintMargin: false,
-                useWorker: false,
-              }"
-            />
-            <ButtonSecondary
-              icon="topic"
-              :label="$t('generate_docs')"
-              @click.native="getDoc"
-            />
-          </div>
-        </AppSection>
-
-        <AppSection label="documentation">
-          <div class="flex flex-col">
-            <label>{{ $t("documentation") }}</label>
-            <p v-if="items.length === 0">
-              {{ $t("generate_docs_first") }}
-            </p>
-            <div v-else class="row-wrapper">
-              <div
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  !currentUser
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : currentUser.provider !== 'github.com'
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : null
-                "
-              >
-                <ButtonSecondary
-                  :disabled="
-                    !currentUser
-                      ? true
-                      : currentUser.provider !== 'github.com'
-                      ? true
-                      : false
-                  "
-                  icon="assignment"
-                  label="$t('create_secret_gist')"
-                  @click.native="createDocsGist"
+                  icon="topic"
+                  :label="$t('generate_docs')"
+                  @click.native="getDoc"
                 />
               </div>
-            </div>
-            <div>
-              <span
-                v-for="(collection, index) in items"
-                :key="`collection-${index}`"
-              >
-                <DocsCollection :collection="collection" />
-              </span>
-            </div>
-          </div>
-        </AppSection>
-      </div>
-
-      <aside class="lg:max-w-md">
-        <Collections
-          :selected="selected"
-          :doc="true"
-          @use-collection="useSelectedCollection($event)"
-          @remove-collection="removeSelectedCollection($event)"
-        />
-      </aside>
-    </div>
+            </AppSection>
+          </Pane>
+          <Pane class="overflow-auto">
+            <AppSection label="documentation">
+              <div class="flex flex-col">
+                <label>{{ $t("documentation") }}</label>
+                <p v-if="items.length === 0">
+                  {{ $t("generate_docs_first") }}
+                </p>
+                <div v-else class="flex flex-1">
+                  <div
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="
+                      !currentUser
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : currentUser.provider !== 'github.com'
+                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        : null
+                    "
+                  >
+                    <ButtonSecondary
+                      :disabled="
+                        !currentUser
+                          ? true
+                          : currentUser.provider !== 'github.com'
+                          ? true
+                          : false
+                      "
+                      icon="assignment"
+                      label="$t('create_secret_gist')"
+                      @click.native="createDocsGist"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <span
+                    v-for="(collection, index) in items"
+                    :key="`collection-${index}`"
+                  >
+                    <DocsCollection :collection="collection" />
+                  </span>
+                </div>
+              </div>
+            </AppSection>
+          </Pane>
+        </Splitpanes>
+      </Pane>
+      <Pane max-size="35" min-size="20" class="overflow-auto">
+        <aside class="lg:max-w-md">
+          <Collections
+            :selected="selected"
+            :doc="true"
+            @use-collection="useSelectedCollection($event)"
+            @remove-collection="removeSelectedCollection($event)"
+          />
+        </aside>
+      </Pane>
+    </Splitpanes>
   </div>
 </template>
 
 <script>
+import { Splitpanes, Pane } from "splitpanes"
 import Mustache from "mustache"
 import { currentUser$ } from "~/helpers/fb/auth"
 import DocsTemplate from "~/assets/md/docs.md"
@@ -118,6 +125,7 @@ import folderContents from "~/assets/md/folderContents.md"
 import folderBody from "~/assets/md/folderBody.md"
 
 export default {
+  components: { Splitpanes, Pane },
   data() {
     return {
       collectionJSON: "[]",

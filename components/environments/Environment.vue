@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row-wrapper">
+    <div class="flex flex-1">
       <div>
         <ButtonSecondary
           icon="layers"

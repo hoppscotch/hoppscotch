@@ -7,7 +7,7 @@
       </div>
     </template>
     <template #body>
-      <div class="row-wrapper">
+      <div class="flex flex-1">
         <label>{{ $t("token_list") }}</label>
         <div v-if="tokens.length != 0">
           <ButtonSecondary
@@ -35,7 +35,7 @@
         <li>
           <input class="input" :value="token.value" readonly />
         </li>
-        <div class="row-wrapper">
+        <div class="flex flex-1">
           <li>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"

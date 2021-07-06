@@ -45,7 +45,7 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-    <div class="border-b row-wrapper border-divider">
+    <div class="border-b flex flex-1 border-divider">
       <ButtonSecondary
         icon="new"
         :label="$t('new')"

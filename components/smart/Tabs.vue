@@ -1,5 +1,5 @@
 <template>
-  <div class="tabs-wrapper">
+  <div class="tabs-wrapper bg-blue-300">
     <div class="tabs" :class="styles">
       <div class="flex w-0">
         <div class="inline-flex">
@@ -65,17 +65,19 @@ export default {
 
   .tabs {
     @apply flex;
+    @apply flex-1;
     @apply whitespace-nowrap;
     @apply overflow-auto;
-    @apply mt-4;
 
     .tab {
       @apply flex;
       @apply items-center;
       @apply justify-center;
-      @apply p-3;
+      @apply px-4;
+      @apply py-2;
       @apply text-secondaryLight;
       @apply font-semibold;
+      @apply text-xs;
       @apply cursor-pointer;
       @apply transition;
       @apply border-b-2;

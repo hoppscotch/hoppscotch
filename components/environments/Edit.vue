@@ -16,7 +16,7 @@
         :placeholder="editingEnvironment.name"
         @keyup.enter="saveEnvironment"
       />
-      <div class="row-wrapper">
+      <div class="flex flex-1">
         <label for="variableList">{{ $t("env_variable_list") }}</label>
         <div>
           <ButtonSecondary

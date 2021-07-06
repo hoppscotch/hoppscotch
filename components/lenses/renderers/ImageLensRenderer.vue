@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row-wrapper">
+    <div class="flex flex-1">
       <label for="body">{{ $t("response_body") }}</label>
       <div>
         <ButtonSecondary

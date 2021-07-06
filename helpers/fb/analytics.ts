@@ -13,6 +13,13 @@ type SettingsCustomDimensions = {
   syncHistory: boolean
 }
 
+type HoppRequestEvent =
+  | {
+      platform: "rest" | "graphql-query" | "graphql-schema"
+      strategy: "normal" | "proxy" | "extension"
+    }
+  | { platform: "wss" | "sse" | "socketio" | "mqtt" }
+
 export function initAnalytics() {
   analytics = firebase.app().analytics()
 
@@ -45,4 +52,8 @@ function initSettingsListeners() {
       syncHistory: settings.syncHistory,
     })
   })
+}
+
+export function logHoppRequestRunToAnalytics(ev: HoppRequestEvent) {
+  analytics.logEvent("hopp-request", ev)
 }

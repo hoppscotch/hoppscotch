@@ -48,6 +48,7 @@
 </template>
 
 <script>
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
@@ -158,6 +159,10 @@ export default {
           },
         ]
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "mqtt",
+      })
     },
     handleSSEError(error) {
       this.stop()

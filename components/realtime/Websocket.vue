@@ -159,6 +159,7 @@
 </template>
 
 <script>
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
@@ -273,6 +274,10 @@ export default {
           icon: "error",
         })
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "wss",
+      })
     },
     disconnect() {
       if (this.socket) {

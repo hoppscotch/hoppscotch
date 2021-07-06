@@ -141,6 +141,7 @@
 import { io as Client } from "socket.io-client"
 import wildcard from "socketio-wildcard"
 import debounce from "~/helpers/utils/debounce"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
 export default {
   data() {
@@ -262,6 +263,10 @@ export default {
           icon: "error",
         })
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "socketio",
+      })
     },
     disconnect() {
       this.io.close()

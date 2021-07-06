@@ -766,7 +766,11 @@ import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
 import { tokenRequest, oauthRedirect } from "~/helpers/oauth"
-import { cancelRunningRequest, sendNetworkRequest } from "~/helpers/network"
+import {
+  cancelRunningRequest,
+  getCurrentStrategyID,
+  sendNetworkRequest,
+} from "~/helpers/network"
 import {
   hasPathParams,
   addPathParamsToVariables,
@@ -782,6 +786,7 @@ import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import { getSettingSubject, applySetting } from "~/newstore/settings"
 import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
 export default {
   data() {
@@ -1642,6 +1647,11 @@ export default {
         response: syntheticResponse,
       })
       this.testReports = testResults
+
+      logHoppRequestRunToAnalytics({
+        platform: "rest",
+        strategy: getCurrentStrategyID(),
+      })
     },
     getQueryStringFromPath() {
       const pathParsed = url.parse(this.uri)

@@ -1,6 +1,6 @@
 import firebase from "firebase"
 import { authEvents$ } from "./auth"
-import { settings$ } from "~/newstore/settings"
+import { HoppAccentColor, HoppBgColor, settings$ } from "~/newstore/settings"
 
 let analytics: firebase.analytics.Analytics
 
@@ -11,6 +11,8 @@ type SettingsCustomDimensions = {
   syncCollections: boolean
   syncEnvironments: boolean
   syncHistory: boolean
+  usesBg: HoppBgColor
+  usesAccent: HoppAccentColor
 }
 
 type HoppRequestEvent =
@@ -43,14 +45,18 @@ function initLoginListeners() {
 
 function initSettingsListeners() {
   settings$.subscribe((settings) => {
-    analytics.setUserProperties(<SettingsCustomDimensions>{
+    const conf: SettingsCustomDimensions = {
       usesProxy: settings.PROXY_ENABLED,
       usesExtension: settings.EXTENSIONS_ENABLED,
       usesScrollInto: settings.SCROLL_INTO_ENABLED,
       syncCollections: settings.syncCollections,
       syncEnvironments: settings.syncEnvironments,
       syncHistory: settings.syncHistory,
-    })
+      usesAccent: settings.THEME_COLOR,
+      usesBg: settings.BG_COLOR,
+    }
+
+    analytics.setUserProperties(conf)
   })
 }
 

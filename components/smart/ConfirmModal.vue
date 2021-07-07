@@ -43,6 +43,7 @@ export default {
     },
     resolve() {
       this.$emit("resolve")
+      this.$emit("hide-modal")
     },
   },
 }

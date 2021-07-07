@@ -33,6 +33,10 @@
   @apply h-4;
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  @apply hidden;
+}
+
 ::selection {
   @apply bg-accent;
   @apply text-primary;
@@ -214,17 +218,8 @@ input[type="checkbox"] {
   }
 }
 
-.error:not(input),
-.disabled:not(input),
-[disabled] {
-  @apply bg-error;
-  @apply text-secondaryLight;
-  @apply fill-current;
-  @apply cursor-not-allowed;
-}
-
 .info-response {
-  @apply text-yellow-400;
+  @apply text-pink-400;
 }
 
 .success-response {
@@ -232,7 +227,7 @@ input[type="checkbox"] {
 }
 
 .redir-response {
-  @apply text-pink-400;
+  @apply text-yellow-400;
 }
 
 .cl-error-response {

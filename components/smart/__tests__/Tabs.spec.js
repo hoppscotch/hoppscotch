@@ -50,7 +50,7 @@ describe("tabs", () => {
     wrapper.vm.selectTab({ id: "tab2" })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.$data.tabs[1].$data.isActive).toEqual(true)
+    expect(wrapper.vm.$data.tabs[1].$data.active).toEqual(true)
   })
 
   test("switched tab page is rendered and the other page is not rendered", async () => {
@@ -60,8 +60,8 @@ describe("tabs", () => {
     wrapper.vm.selectTab({ id: "tab2" })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.$data.tabs[0].$data.isActive).toEqual(false)
-    expect(wrapper.vm.$data.tabs[1].$data.isActive).toEqual(true)
-    expect(wrapper.vm.$data.tabs[2].$data.isActive).toEqual(false)
+    expect(wrapper.vm.$data.tabs[0].$data.active).toEqual(false)
+    expect(wrapper.vm.$data.tabs[1].$data.active).toEqual(true)
+    expect(wrapper.vm.$data.tabs[2].$data.active).toEqual(false)
   })
 })

@@ -129,7 +129,6 @@ export default Vue.extend({
       this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
-      this.confirmRemove = false
     },
   },
 })

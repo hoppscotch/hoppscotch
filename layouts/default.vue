@@ -6,23 +6,23 @@
           <Pane
             v-if="!hideNavigationPane"
             style="width: auto"
-            class="overflow-auto"
+            class="hide-scrollbar overflow-auto"
           >
             <AppSidenav />
           </Pane>
           <Pane class="flex flex-1 overflow-auto">
             <Splitpanes horizontal :dbl-click-splitter="false">
-              <Pane v-if="!zenMode" style="height: auto" class="overflow-auto">
+              <Pane v-if="!zenMode" style="height: auto">
                 <AppHeader />
               </Pane>
               <Pane class="flex flex-1 overflow-auto">
-                <nuxt class="container" :hide-right-pane="hideRightPane" />
+                <nuxt class="flex flex-1" :hide-right-pane="hideRightPane" />
               </Pane>
             </Splitpanes>
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto" class="overflow-auto">
+      <Pane style="height: auto">
         <div class="flex justify-between">
           <div>
             <ButtonSecondary

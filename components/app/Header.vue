@@ -1,5 +1,5 @@
 <template>
-  <header class="flex container items-center justify-between p-2 flex-1">
+  <header class="flex items-center justify-between p-2 flex-1">
     <div class="inline-flex space-x-2 items-center flex-shrink-0">
       <AppLogo class="h-6" />
     </div>

@@ -196,7 +196,6 @@ export default {
               icon: "delete",
             })
             this.$emit("update-team-collections")
-            this.confirmRemove = false
           })
           .catch((error) => {
             // Error

@@ -17,8 +17,8 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="!entry.star ? $t('add_star') : $t('remove_star')"
         data-testid="star_button"
-        :class="{ stared: entry.star }"
         :icon="entry.star ? 'star' : 'star_border'"
+        color="yellow"
         @click.native="$emit('toggle-star')"
       />
       <ButtonSecondary
@@ -130,9 +130,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.stared {
-  color: #f8e81c !important;
-}
-</style>

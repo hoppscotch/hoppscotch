@@ -212,7 +212,6 @@ export default {
         collectionIndex: this.collectionIndex,
         collectionID: this.collection.id,
       })
-      this.confirmRemove = false
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging

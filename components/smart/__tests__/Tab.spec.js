@@ -61,7 +61,7 @@ describe("tab", () => {
         selected: true,
       },
       {
-        isActive: true,
+        active: true,
       }
     )
 
@@ -76,7 +76,7 @@ describe("tab", () => {
         id: "testid",
       },
       {
-        isActive: false,
+        active: false,
       }
     )
 

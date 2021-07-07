@@ -5,17 +5,10 @@
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"
         :to="localePath(navigation.target)"
-        class="
-          p-4
-          flex-col flex-1
-          hover:bg-primaryDark hover:text-secondaryDark
-          items-center
-          justify-center
-          transition
-        "
+        class="nav-link"
       >
-        <i class="material-icons opacity-75">{{ navigation.icon }}</i>
-        <span class="mt-2 text-xs font-semibold">{{ navigation.title }}</span>
+        <i class="material-icons">{{ navigation.icon }}</i>
+        <span>{{ navigation.title }}</span>
       </nuxt-link>
     </nav>
   </aside>
@@ -40,7 +33,34 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.active {
-  @apply text-accent;
+.nav-link {
+  @apply p-4;
+  @apply flex-col;
+  @apply flex-1;
+  @apply hover:bg-primaryDark;
+  @apply hover:text-secondaryDark;
+  @apply items-center;
+  @apply justify-center;
+  @apply transition;
+
+  .material-icons {
+    @apply transition-opacity;
+    @apply opacity-50;
+  }
+
+  span {
+    @apply mt-2;
+    @apply text-xs;
+    @apply font-semibold;
+  }
+
+  &.active {
+    @apply text-accent;
+    @apply hover:text-accent;
+
+    .material-icons {
+      @apply opacity-100;
+    }
+  }
 }
 </style>

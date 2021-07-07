@@ -1,19 +1,24 @@
 <template>
-  <AppSection label="history" class="bg-green-200">
-    <div class="flex">
+  <AppSection label="history">
+    <div class="flex sticky top-10 shadow-sm">
       <input
         v-model="filterText"
         aria-label="Search"
         type="search"
-        class="px-4 py-2 text-xs flex flex-1"
+        class="px-4 py-2 text-xs flex flex-1 focus:outline-none border-divider"
         :placeholder="$t('search')"
       />
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        data-testid="clear_history"
+        :disabled="history.length === 0"
+        icon="clear_all"
+        :title="$t('clear_all')"
+        @click.native="confirmRemove = true"
+      />
     </div>
-    <div
-      class="divide-y overflow-auto divide-dashed divide-divider"
-      :class="{ filled: filteredHistory.length }"
-    >
-      <ul v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
+    <div class="flex flex-col">
+      <div v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
         <HistoryRestCard
           v-if="page == 'rest'"
           :id="index"
@@ -31,56 +36,32 @@
           @delete-entry="deleteHistory(entry)"
           @use-entry="useHistory(entry)"
         />
-      </ul>
-    </div>
-    <p :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }">
-      {{ $t("nothing_found") }} "{{ filterText }}"
-    </p>
-    <p v-if="history.length === 0">
-      <i class="material-icons">schedule</i> {{ $t("history_empty") }}
-    </p>
-    <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryLight">
-      <div
-        v-if="!isClearingHistory"
-        class="flex items-center justify-between flex-1"
-      >
-        <ButtonSecondary
-          data-testid="clear_history"
-          :disabled="history.length === 0"
-          icon="clear_all"
-          :label="$t('clear_all')"
-          @click.native="enableHistoryClearing"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="!showMore ? $t('show_more') : $t('hide_more')"
-          :icon="!showMore ? 'unfold_more' : 'unfold_less'"
-          @click.native="toggleCollapse()"
-        />
-      </div>
-      <div v-else class="flex items-center justify-between flex-1">
-        <span class="flex items-center">
-          <i class="material-icons mx-2">help_outline</i>
-          {{ $t("are_you_sure") }}
-        </span>
-        <div>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('yes')"
-            data-testid="confirm_clear_history"
-            icon="done"
-            @click.native="clearHistory"
-          />
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('no')"
-            data-testid="reject_clear_history"
-            icon="close"
-            @click.native="disableHistoryClearing"
-          />
-        </div>
       </div>
     </div>
+    <div
+      :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">manage_search</i>
+      <span class="text-xs">
+        {{ $t("nothing_found") }} "{{ filterText }}"
+      </span>
+    </div>
+    <div
+      v-if="history.length === 0"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">schedule</i>
+      <span class="text-xs">
+        {{ $t("history_empty") }}
+      </span>
+    </div>
+    <SmartConfirmModal
+      :show="confirmRemove"
+      :title="$t('are_you_sure_remove_history')"
+      @hide-modal="confirmRemove = false"
+      @resolve="clearHistory"
+    />
   </AppSection>
 </template>
 
@@ -103,9 +84,8 @@ export default {
   data() {
     return {
       filterText: "",
-      showFilter: false,
-      isClearingHistory: false,
       showMore: false,
+      confirmRemove: false,
     }
   },
   subscriptions() {
@@ -132,8 +112,6 @@ export default {
       if (this.page === "rest") clearRESTHistory()
       else clearGraphqlHistory()
 
-      this.isClearingHistory = false
-
       this.$toast.error(this.$t("history_deleted"), {
         icon: "delete",
       })
@@ -148,16 +126,6 @@ export default {
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
-    },
-    enableHistoryClearing() {
-      if (!this.history || !this.history.length) return
-      this.isClearingHistory = true
-    },
-    disableHistoryClearing() {
-      this.isClearingHistory = false
-    },
-    toggleCollapse() {
-      this.showMore = !this.showMore
     },
     toggleStar(entry) {
       if (this.page === "rest") toggleRESTHistoryEntryStar(entry)

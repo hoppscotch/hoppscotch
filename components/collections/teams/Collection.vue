@@ -213,7 +213,6 @@ export default {
         collectionIndex: this.collectionIndex,
         collectionID: this.collection.id,
       })
-      this.confirmRemove = false
     },
     expandCollection(collectionID) {
       this.$emit("expand-collection", collectionID)

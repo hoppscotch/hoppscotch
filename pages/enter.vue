@@ -1,5 +1,5 @@
 <template>
-  <div class="flex container flex-col min-h-screen">
+  <div class="flex flex-col min-h-screen">
     <span v-if="signingInWithEmail">{{ $t("loading") }}</span>
     <span v-else>{{ $t("waiting_for_connection") }}</span>
     <pre v-if="error">{{ error }}</pre>

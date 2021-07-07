@@ -150,9 +150,7 @@
                 <div>
                   <ButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
-                    title="
-                  `${$t('run_query')} (${getSpecialKey()}-Enter)`
-                "
+                    :title="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
                     class="button"
                     icon="play_arrow"
                     @click.native="runQuery()"

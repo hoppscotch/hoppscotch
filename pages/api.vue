@@ -172,10 +172,12 @@
                 />
               </div>
               <div class="flex flex-1">
-                <span>
+              <ButtonSecondary
                     :title="$t('import_curl')"
                     icon="import_export"
-                  />
+                @click.native="showCurlImportModal = !showCurlImportModal"
+                    v-tippy="{ theme: 'tooltip' }"
+              />
                   <ButtonSecondary
                     @click.native="showCodegenModal = !showCodegenModal"
                     :disabled="!isValidURL"
@@ -597,9 +599,9 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane max-size="35" min-size="20" class="overflow-auto">
-        <aside class="h-full bg-yellow-200">
-          <SmartTabs>
+      <Pane max-size="35" min-size="20" class="overflow-auto hide-scrollbar">
+        <aside class="h-full">
+          <SmartTabs styles="sticky top-0">
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
               <History
                 :page="'rest'"

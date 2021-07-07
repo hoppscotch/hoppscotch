@@ -1,13 +1,13 @@
 <template>
-  <div class="tabs-wrapper bg-blue-300">
-    <div class="tabs" :class="styles">
+  <div class="flex flex-col flex-nowrap relative flex-1">
+    <div class="tabs hide-scrollbar" :class="styles">
       <div class="flex w-0">
         <div class="inline-flex">
           <button
             v-for="(tab, index) in tabs"
             :key="index"
             class="tab"
-            :class="{ 'is-active': tab.isActive }"
+            :class="{ active: tab.active }"
             :tabindex="0"
             @keyup.enter="selectTab(tab)"
             @click="selectTab(tab)"
@@ -20,7 +20,7 @@
         </div>
       </div>
     </div>
-    <div class="tabs-details">
+    <div>
       <slot></slot>
     </div>
   </div>
@@ -48,7 +48,7 @@ export default {
   methods: {
     selectTab({ id }) {
       this.tabs.forEach((tab) => {
-        tab.isActive = tab.id === id
+        tab.active = tab.id === id
       })
       this.$emit("tab-changed", id)
     },
@@ -57,47 +57,61 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.tabs-wrapper {
+.tabs {
   @apply flex;
-  @apply flex-col;
-  @apply flex-nowrap;
   @apply flex-1;
+  @apply whitespace-nowrap;
+  @apply overflow-auto;
+  @apply bg-primary;
 
-  .tabs {
+  &::after {
+    @apply absolute;
+    @apply inset-x-0;
+    @apply bottom-0;
+    @apply bg-dividerLight;
+    @apply z-1;
+    @apply h-0.5;
+
+    content: "";
+  }
+
+  .tab {
     @apply flex;
-    @apply flex-1;
-    @apply whitespace-nowrap;
-    @apply overflow-auto;
+    @apply items-center;
+    @apply justify-center;
+    @apply px-4;
+    @apply py-3;
+    @apply text-secondary;
+    @apply font-semibold;
+    @apply text-xs;
+    @apply cursor-pointer;
+    @apply transition;
+    @apply hover:text-secondaryDark;
+    @apply focus:text-secondaryDark;
+    @apply focus:outline-none;
+    @apply relative;
 
-    .tab {
-      @apply flex;
-      @apply items-center;
-      @apply justify-center;
-      @apply px-4;
-      @apply py-2;
-      @apply text-secondaryLight;
-      @apply font-semibold;
-      @apply text-xs;
-      @apply cursor-pointer;
-      @apply transition;
-      @apply border-b-2;
-      @apply border-transparent;
-      @apply rounded-t-lg;
+    &::after {
+      @apply absolute;
+      @apply inset-x-0;
+      @apply bottom-0;
+      @apply bg-dividerLight;
+      @apply z-2;
+      @apply h-0.5;
 
-      .material-icons {
-        @apply mr-4;
-      }
+      content: "";
+    }
 
-      &:hover {
-        @apply text-secondaryDark;
-      }
-      &:focus {
-        @apply text-secondaryDark;
-        @apply outline-none;
-      }
-      &.is-active {
-        @apply text-accent;
-        @apply border-accent;
+    .material-icons {
+      @apply mr-4;
+    }
+
+    &.active {
+      @apply text-accent;
+      @apply border-accent;
+
+      &::after {
+        @apply bg-accent;
       }
     }
   }

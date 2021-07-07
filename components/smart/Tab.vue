@@ -1,5 +1,5 @@
 <template>
-  <div v-show="isActive">
+  <div v-show="active">
     <slot></slot>
   </div>
 </template>
@@ -18,18 +18,12 @@ export default {
 
   data() {
     return {
-      isActive: false,
+      active: false,
     }
   },
 
-  // computed: {
-  //   href() {
-  //     return `#${this.label.toLowerCase().replace(/ /g, "-")}`
-  //   },
-  // },
-
   mounted() {
-    this.isActive = this.selected
+    this.active = this.selected
   },
 }
 </script>

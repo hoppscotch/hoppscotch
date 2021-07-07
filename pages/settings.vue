@@ -199,6 +199,15 @@
             {{ $t("use_experimental_url_bar") }}
           </SmartToggle>
         </div>
+        <span>
+          <SmartToggle
+            :on="TELEMETRY_ENABLED"
+            @change="toggleSetting('TELEMETRY_ENABLED')"
+          >
+            {{ $t("telemetry") }}
+            {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
+          </SmartToggle>
+        </span>
       </div>
     </AppSection>
     <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
@@ -262,6 +271,8 @@ export default Vue.extend({
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
+
+      TELEMETRY_ENABLED: getSettingSubject("TELEMETRY_ENABLED"),
 
       // Teams feature flag
       currentBackendUser: currentUserInfo$,

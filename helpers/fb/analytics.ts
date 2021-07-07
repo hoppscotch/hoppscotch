@@ -13,6 +13,7 @@ type SettingsCustomDimensions = {
   syncHistory: boolean
   usesBg: HoppBgColor
   usesAccent: HoppAccentColor
+  usesTelemetry: boolean
 }
 
 type HoppRequestEvent =
@@ -54,6 +55,7 @@ function initSettingsListeners() {
       syncHistory: settings.syncHistory,
       usesAccent: settings.THEME_COLOR,
       usesBg: settings.BG_COLOR,
+      usesTelemetry: settings.TELEMETRY_ENABLED,
     }
 
     analytics.setUserProperties(conf)

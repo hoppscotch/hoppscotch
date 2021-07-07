@@ -1,6 +1,11 @@
 import firebase from "firebase"
 import { authEvents$ } from "./auth"
-import { HoppAccentColor, HoppBgColor, settings$ } from "~/newstore/settings"
+import {
+  HoppAccentColor,
+  HoppBgColor,
+  settings$,
+  settingsStore,
+} from "~/newstore/settings"
 
 let analytics: firebase.analytics.Analytics
 
@@ -33,18 +38,25 @@ export function initAnalytics() {
 function initLoginListeners() {
   authEvents$.subscribe((ev) => {
     if (ev.event === "login") {
-      analytics.setUserId(ev.user.uid)
+      if (settingsStore.value.TELEMETRY_ENABLED) {
+        analytics.setUserId(ev.user.uid)
 
-      analytics.logEvent("login", {
-        method: ev.user.providerData[0]?.providerId, // Assume the first provider is the login provider
-      })
+        analytics.logEvent("login", {
+          method: ev.user.providerData[0]?.providerId, // Assume the first provider is the login provider
+        })
+      }
     } else if (ev.event === "logout") {
-      analytics.logEvent("logout")
+      if (settingsStore.value.TELEMETRY_ENABLED) {
+        analytics.logEvent("logout")
+      }
     }
   })
 }
 
 function initSettingsListeners() {
+  // Keep track of the telemetry status
+  let telemetryStatus = settingsStore.value.TELEMETRY_ENABLED
+
   settings$.subscribe((settings) => {
     const conf: SettingsCustomDimensions = {
       usesProxy: settings.PROXY_ENABLED,
@@ -58,10 +70,24 @@ function initSettingsListeners() {
       usesTelemetry: settings.TELEMETRY_ENABLED,
     }
 
-    analytics.setUserProperties(conf)
+    // User toggled telemetry mode to off or to on
+    if (
+      (telemetryStatus && !settings.TELEMETRY_ENABLED) ||
+      settings.TELEMETRY_ENABLED
+    ) {
+      analytics.setUserProperties(conf)
+    }
+
+    telemetryStatus = settings.TELEMETRY_ENABLED
+
+    analytics.setAnalyticsCollectionEnabled(telemetryStatus)
   })
+
+  analytics.setAnalyticsCollectionEnabled(telemetryStatus)
 }
 
 export function logHoppRequestRunToAnalytics(ev: HoppRequestEvent) {
-  analytics.logEvent("hopp-request", ev)
+  if (settingsStore.value.TELEMETRY_ENABLED) {
+    analytics.logEvent("hopp-request", ev)
+  }
 }

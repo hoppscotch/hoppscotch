@@ -11,6 +11,7 @@
         py-2
         focus:outline-none
         border-b border-dividerLight
+        bg-primary
       "
     >
       <option :value="-1">No environment</option>

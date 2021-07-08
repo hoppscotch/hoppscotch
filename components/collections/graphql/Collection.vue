@@ -33,13 +33,14 @@
         />
         <tippy
           ref="options"
+          interactive
           tabindex="-1"
           trigger="click"
           theme="popover"
           arrow
         >
           <template #trigger>
-            <TabPrimary
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
               icon="more_vert"
@@ -79,7 +80,7 @@
         <li
           v-for="(folder, index) in collection.folders"
           :key="folder.name"
-          class="ml-8 border-l border-divider"
+          class="ml-5 border-l border-dividerLight"
         >
           <CollectionsGraphqlFolder
             :picked="picked"
@@ -101,7 +102,7 @@
         <li
           v-for="(request, index) in collection.requests"
           :key="index"
-          class="ml-8 border-l border-divider"
+          class="ml-5 border-l border-dividerLight"
         >
           <CollectionsGraphqlRequest
             :picked="picked"
@@ -123,7 +124,12 @@
           v-if="
             collection.folders.length === 0 && collection.requests.length === 0
           "
-          class="flex ml-8 border-l border-divider"
+          class="
+            ml-5
+            border-l border-dividerLight
+            ml-5
+            border-l border-dividerLight
+          "
         >
           <p>
             <i class="material-icons">not_interested</i>

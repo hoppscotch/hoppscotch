@@ -57,6 +57,7 @@
           <span class="select-wrapper">
             <tippy
               ref="options"
+              interactive
               tabindex="-1"
               trigger="click"
               theme="popover"
@@ -136,6 +137,7 @@
           <span class="select-wrapper">
             <tippy
               ref="memberOptions"
+              interactive
               tabindex="-1"
               trigger="click"
               theme="popover"

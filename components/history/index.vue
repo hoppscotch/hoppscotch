@@ -1,11 +1,11 @@
 <template>
   <AppSection label="history">
-    <div class="flex sticky top-10 shadow-sm">
+    <div class="flex sticky top-10 border-b border-dividerLight">
       <input
         v-model="filterText"
         aria-label="Search"
         type="search"
-        class="px-4 py-2 text-xs flex flex-1 focus:outline-none border-divider"
+        class="px-4 py-3 text-xs flex flex-1 bg-primary focus:outline-none"
         :placeholder="$t('search')"
       />
       <ButtonSecondary

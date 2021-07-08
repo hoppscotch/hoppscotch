@@ -28,7 +28,14 @@
         :icon="expand ? 'unfold_less' : 'unfold_more'"
         @click.native="expand = !expand"
       />
-      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
           <TabPrimary
             v-tippy="{ theme: 'tooltip' }"

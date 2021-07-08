@@ -10,7 +10,7 @@
                 <li class="shrink">
                   <label for="method">{{ $t("method") }}</label>
                   <span class="select-wrapper">
-                    <tippy
+                    <tippy interactive
                       ref="options"
                       tabindex="-1"
                       trigger="click"
@@ -104,7 +104,7 @@
                       $t("content_type")
                     }}</label>
                     <span class="select-wrapper">
-                      <tippy
+                      <tippy interactive
                         ref="contentTypeOptions"
                         tabindex="-1"
                         trigger="click"
@@ -599,7 +599,7 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane max-size="35" min-size="20" class="overflow-auto hide-scrollbar">
+      <Pane max-size="30" size="25" min-size="20" class="overflow-auto hide-scrollbar">
         <aside class="h-full">
           <SmartTabs styles="sticky top-0">
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">

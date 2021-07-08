@@ -1,10 +1,6 @@
 <template>
   <div v-if="show">
-    <SmartTabs
-      :id="'collections_tab'"
-      styles="m-4"
-      @tab-changed="updateCollectionsType"
-    >
+    <SmartTabs :id="'collections_tab'" @tab-changed="updateCollectionsType">
       <SmartTab
         :id="'my-collections'"
         :label="'My Collections'"
@@ -15,38 +11,40 @@
         :id="'team-collections'"
         :label="'Team Collections'"
       >
-        <ul>
-          <li>
-            <span class="select-wrapper">
-              <SmartIntersection @intersecting="onTeamSelectIntersect">
-                <select
-                  id="team"
-                  type="text"
-                  class="team select"
-                  autofocus
-                  @change="updateSelectedTeam(myTeams[$event.target.value])"
-                >
-                  <option
-                    :key="undefined"
-                    :value="undefined"
-                    hidden
-                    disabled
-                    selected
-                  >
-                    Select team
-                  </option>
-                  <option
-                    v-for="(team, index) in myTeams"
-                    :key="index"
-                    :value="index"
-                  >
-                    {{ team.name }}
-                  </option>
-                </select>
-              </SmartIntersection>
-            </span>
-          </li>
-        </ul>
+        <SmartIntersection @intersecting="onTeamSelectIntersect">
+          <select
+            id="team"
+            type="text"
+            autofocus
+            class="
+              flex
+              w-full
+              px-4
+              text-xs
+              py-2
+              focus:outline-none
+              border-b border-dividerLight
+            "
+            @change="updateSelectedTeam(myTeams[$event.target.value])"
+          >
+            <option
+              :key="undefined"
+              :value="undefined"
+              hidden
+              disabled
+              selected
+            >
+              Select team
+            </option>
+            <option
+              v-for="(team, index) in myTeams"
+              :key="index"
+              :value="index"
+            >
+              {{ team.name }}
+            </option>
+          </select>
+        </SmartIntersection>
       </SmartTab>
     </SmartTabs>
   </div>

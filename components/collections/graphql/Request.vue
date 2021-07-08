@@ -10,17 +10,22 @@
     >
       <div>
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="!doc ? $t('use_request') : ''"
           :class="{ 'mx-3 text-green-400': isSelected }"
           :icon="isSelected ? 'check_circle' : 'description'"
           :label="request.name"
           @click.native="!doc ? selectRequest() : {}"
         />
       </div>
-      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
-          <TabPrimary
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"

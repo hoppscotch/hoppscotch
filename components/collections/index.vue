@@ -1,13 +1,13 @@
 <template>
   <AppSection label="collections">
-    <div class="flex">
+    <div class="flex sticky top-10 border-b border-dividerLight">
       <input
         v-if="!saveRequest"
         v-model="filterText"
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="px-4 py-2 text-xs flex flex-1"
+        class="px-4 py-3 text-xs flex flex-1 bg-primary focus:outline-none"
       />
     </div>
     <CollectionsChooseType
@@ -53,7 +53,7 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
-    <div class="border-b flex flex-1 border-divider">
+    <div class="border-b flex justify-between flex-1 border-dividerLight">
       <ButtonSecondary
         v-if="
           collectionsType.type == 'team-collections' &&
@@ -75,58 +75,65 @@
       />
       <ButtonSecondary
         v-if="!saveRequest"
+        v-tippy="{ theme: 'tooltip' }"
         :disabled="
           collectionsType.type == 'team-collections' &&
           collectionsType.selectedTeam == undefined
         "
-        :label="$t('import_export')"
+        icon="import_export"
+        :title="$t('import_export')"
         @click.native="displayModalImportExport(true)"
       />
     </div>
-    <p v-if="collections.length === 0">
-      <i class="material-icons">help_outline</i>
-      {{ $t("create_new_collection") }}
-    </p>
-    <div class="overflow-auto">
-      <ul class="flex-col">
-        <li
-          v-for="(collection, index) in filteredCollections"
-          :key="collection.name"
-        >
-          <component
-            :is="
-              collectionsType.type == 'my-collections'
-                ? 'CollectionsMyCollection'
-                : 'CollectionsTeamsCollection'
-            "
-            :name="collection.name"
-            :collection-index="index"
-            :collection="collection"
-            :doc="doc"
-            :is-filtered="filterText.length > 0"
-            :selected="selected.some((coll) => coll == collection)"
-            :save-request="saveRequest"
-            :collections-type="collectionsType"
-            :picked="picked"
-            @edit-collection="editCollection(collection, index)"
-            @add-folder="addFolder($event)"
-            @edit-folder="editFolder($event)"
-            @edit-request="editRequest($event)"
-            @update-team-collections="updateTeamCollections"
-            @select-collection="$emit('use-collection', collection)"
-            @unselect-collection="$emit('remove-collection', collection)"
-            @select="$emit('select', $event)"
-            @expand-collection="expandCollection"
-            @remove-collection="removeCollection"
-            @remove-request="removeRequest"
-          />
-        </li>
-      </ul>
+    <div
+      v-if="collections.length === 0"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
+      <span class="text-xs">
+        {{ $t("create_new_collection") }}
+      </span>
     </div>
-    <p v-if="filterText && filteredCollections.length === 0">
-      <i class="material-icons">not_interested</i>
-      {{ $t("nothing_found") }} "{{ filterText }}"
-    </p>
+    <div class="flex flex-col">
+      <component
+        :is="
+          collectionsType.type == 'my-collections'
+            ? 'CollectionsMyCollection'
+            : 'CollectionsTeamsCollection'
+        "
+        v-for="(collection, index) in filteredCollections"
+        :key="collection.name"
+        :name="collection.name"
+        :collection-index="index"
+        :collection="collection"
+        :doc="doc"
+        :is-filtered="filterText.length > 0"
+        :selected="selected.some((coll) => coll == collection)"
+        :save-request="saveRequest"
+        :collections-type="collectionsType"
+        :picked="picked"
+        @edit-collection="editCollection(collection, index)"
+        @add-folder="addFolder($event)"
+        @edit-folder="editFolder($event)"
+        @edit-request="editRequest($event)"
+        @update-team-collections="updateTeamCollections"
+        @select-collection="$emit('use-collection', collection)"
+        @unselect-collection="$emit('remove-collection', collection)"
+        @select="$emit('select', $event)"
+        @expand-collection="expandCollection"
+        @remove-collection="removeCollection"
+        @remove-request="removeRequest"
+      />
+    </div>
+    <div
+      v-if="filterText && filteredCollections.length === 0"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">manage_search</i>
+      <span class="text-xs">
+        {{ $t("nothing_found") }} "{{ filterText }}"
+      </span>
+    </div>
   </AppSection>
 </template>
 

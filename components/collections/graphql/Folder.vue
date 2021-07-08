@@ -23,9 +23,16 @@
         <i v-else class="material-icons">folder_open</i>
         <span>{{ folder.name }}</span>
       </div>
-      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
+      <tippy
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
-          <TabPrimary
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
@@ -62,7 +69,7 @@
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="subFolder.name"
-          class="ml-8 border-l border-divider"
+          class="ml-5 border-l border-dividerLight"
         >
           <CollectionsGraphqlFolder
             :picked="picked"
@@ -84,7 +91,7 @@
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
-          class="flex ml-8 border-l border-divider"
+          class="ml-5 border-l border-dividerLight"
         >
           <CollectionsGraphqlRequest
             :picked="picked"
@@ -109,7 +116,14 @@
           folder.requests.length === 0
         "
       >
-        <li class="flex ml-8 border-l border-divider">
+        <li
+          class="
+            ml-5
+            border-l border-dividerLight
+            ml-5
+            border-l border-dividerLight
+          "
+        >
           <p>
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}

@@ -1,24 +1,52 @@
 <template>
-  <div>
-    <div>
-      <div>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="!doc ? $t('use_request') : ''"
-          :label="request.name"
-          @click.native="!doc ? selectRequest() : {}"
-        />
-        <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
-          >check_circle</i
-        >
-        <span v-else :class="getRequestLabelColor(request.method)">{{
-          request.method
-        }}</span>
-      </div>
-      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
+  <div class="flex flex-col">
+    <div class="flex items-center group">
+      <span
+        class="
+          font-mono font-bold
+          flex
+          justify-center
+          items-center
+          text-xs
+          w-12
+          truncate
+          cursor-pointer
+        "
+        :class="[
+          getRequestLabelColor(request.method),
+          { 'mx-3 text-green-400': isSelected },
+        ]"
+        @click="!doc ? selectRequest() : {}"
+      >
+        <i v-if="isSelected" class="material-icons">check_circle</i>
+        {{ request.method }}
+      </span>
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-3
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="!doc ? selectRequest() : {}"
+      >
+        <span class="truncate"> {{ request.name }} </span>
+      </span>
+      <tippy
+        v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
-          <TabPrimary
-            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
@@ -73,7 +101,6 @@ export default {
   },
   data() {
     return {
-      dragging: false,
       requestMethodLabels: {
         get: "text-green-400",
         post: "text-yellow-400",

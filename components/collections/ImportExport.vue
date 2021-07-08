@@ -18,6 +18,7 @@
             mode == 'import_export' && collectionsType.type == 'my-collections'
           "
           ref="options"
+          interactive
           tabindex="-1"
           trigger="click"
           theme="popover"

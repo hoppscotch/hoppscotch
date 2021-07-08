@@ -2,6 +2,7 @@
   <span>
     <tippy
       ref="language"
+      interactive
       tabindex="-1"
       trigger="click"
       theme="popover"

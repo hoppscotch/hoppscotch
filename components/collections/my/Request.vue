@@ -1,29 +1,58 @@
 <template>
-  <div>
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      :class="[{ 'bg-primaryDark': dragging }]"
+      class="flex items-center group"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
-      <div>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="!doc ? $t('use_request') : ''"
-          :class="[
-            getRequestLabelColor(request.method),
-            { 'mx-3 text-green-400': isSelected },
-          ]"
-          :icon="isSelected ? 'check_circle' : ''"
-          :label="request.method + request.name"
-          @click.native="!doc ? selectRequest() : {}"
-        />
-      </div>
-      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
+      <span
+        class="
+          font-mono font-bold
+          flex
+          justify-center
+          items-center
+          text-xs
+          w-12
+          truncate
+          cursor-pointer
+        "
+        :class="[
+          getRequestLabelColor(request.method),
+          { 'mx-3 text-green-400': isSelected },
+        ]"
+        @click="!doc ? selectRequest() : {}"
+      >
+        <i v-if="isSelected" class="material-icons">check_circle</i>
+        {{ request.method }}
+      </span>
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-3
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="!doc ? selectRequest() : {}"
+      >
+        <span class="truncate"> {{ request.name }} </span>
+      </span>
+      <tippy
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
-          <TabPrimary
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"

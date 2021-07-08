@@ -1,5 +1,5 @@
 <template>
-  <div class="flex group">
+  <div class="flex items-center group">
     <span
       class="
         font-mono font-bold
@@ -10,14 +10,26 @@
         w-12
         mx-2
         truncate
+        cursor-pointer
       "
       :class="entryStatus.className"
-      :style="{ '--status-code': entry.status }"
       @click="$emit('use-entry')"
     >
       {{ entry.method }}
     </span>
-    <span class="py-3 pr-3 flex flex-1 min-w-0 text-secondaryLight text-xs">
+    <span
+      class="
+        py-3
+        cursor-pointer
+        pr-3
+        flex flex-1
+        min-w-0
+        text-secondaryLight text-xs
+        group-hover:text-secondary
+        transition
+      "
+      @click="$emit('use-entry')"
+    >
       <span class="truncate">
         {{ `${entry.url}${entry.path}` }}
       </span>

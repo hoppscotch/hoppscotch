@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col flex-nowrap relative flex-1">
-    <div class="tabs hide-scrollbar" :class="styles">
+  <div class="flex flex-col flex-nowrap flex-1">
+    <div class="tabs hide-scrollbar relative" :class="styles">
       <div class="flex w-0">
         <div class="inline-flex">
           <button

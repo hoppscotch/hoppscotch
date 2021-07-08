@@ -33,5 +33,4 @@ export default defineConfig({
       icon: "var(--font-icon)",
     },
   },
-  safelist: "text-red-500 text-red-600",
 })

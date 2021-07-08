@@ -20,6 +20,7 @@
         <tippy
           v-else
           ref="user"
+          interactive
           tabindex="-1"
           trigger="click"
           theme="popover"
@@ -63,6 +64,7 @@
       <span tabindex="-1">
         <tippy
           ref="options"
+          interactive
           tabindex="-1"
           trigger="click"
           theme="popover"

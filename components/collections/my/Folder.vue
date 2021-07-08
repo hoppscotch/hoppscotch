@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      :class="[{ 'bg-primaryDark': dragging }]"
+      class="flex items-center group"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -9,25 +9,54 @@
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
-      <div>
-        <ButtonSecondary
-          :label="folder.name ? folder.name : folder.title"
-          @click.native="toggleShowChildren"
-        />
-        <i v-show="!showChildren && !isFiltered" class="material-icons"
-          >arrow_right</i
-        >
-        <i v-show="showChildren || isFiltered" class="material-icons"
-          >arrow_drop_down</i
-        >
-        <i v-if="isSelected" class="text-green-400 material-icons"
-          >check_circle</i
-        >
-        <i v-else class="material-icons">folder_open</i>
-      </div>
-      <tippy ref="options" tabindex="-1" trigger="click" theme="popover" arrow>
+      <span
+        class="
+          flex
+          justify-center
+          items-center
+          text-xs
+          w-10
+          truncate
+          cursor-pointer
+        "
+        @click="toggleShowChildren()"
+      >
+        <i class="material-icons">{{ getCollectionIcon }}</i>
+      </span>
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-3
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="toggleShowChildren()"
+      >
+        <span class="truncate">
+          {{ folder.name ? folder.name : folder.title }}
+        </span>
+      </span>
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        icon="create_new_folder"
+        :title="$t('new_folder')"
+        class="group-hover:inline-flex hidden"
+        @click.native="$emit('add-folder', { folder, path: folderPath })"
+      />
+      <tippy
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
-          <TabPrimary
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('more')"
             icon="more_vert"
@@ -56,7 +85,7 @@
         />
         <SmartItem
           icon="delete"
-          :labl="$t('delete')"
+          :label="$t('delete')"
           @click.native="
             confirmRemove = true
             $refs.options.tippy().hide()
@@ -65,68 +94,66 @@
       </tippy>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col">
-        <li
-          v-for="(subFolder, subFolderIndex) in folder.folders"
-          :key="subFolder.name"
-          class="ml-8 border-l border-divider"
-        >
-          <CollectionsMyFolder
-            :folder="subFolder"
-            :folder-index="subFolderIndex"
-            :collection-index="collectionIndex"
-            :doc="doc"
-            :save-request="saveRequest"
-            :collections-type="collectionsType"
-            :folder-path="`${folderPath}/${subFolderIndex}`"
-            :picked="picked"
-            @add-folder="$emit('add-folder', $event)"
-            @edit-folder="$emit('edit-folder', $event)"
-            @edit-request="$emit('edit-request', $event)"
-            @update-team-collections="$emit('update-team-collections')"
-            @select="$emit('select', $event)"
-            @remove-request="removeRequest"
-          />
-        </li>
-      </ul>
-      <ul class="flex-col">
-        <li
-          v-for="(request, index) in folder.requests"
-          :key="index"
-          class="flex ml-8 border-l border-divider"
-        >
-          <CollectionsMyRequest
-            :request="request"
-            :collection-index="collectionIndex"
-            :folder-index="folderIndex"
-            :folder-name="folder.name"
-            :folder-path="folderPath"
-            :request-index="index"
-            :doc="doc"
-            :picked="picked"
-            :save-request="saveRequest"
-            :collections-type="collectionsType"
-            @edit-request="$emit('edit-request', $event)"
-            @select="$emit('select', $event)"
-            @remove-request="removeRequest"
-          />
-        </li>
-      </ul>
-      <ul
+      <CollectionsMyFolder
+        v-for="(subFolder, subFolderIndex) in folder.folders"
+        :key="subFolder.name"
+        class="ml-5 border-l border-dividerLight"
+        :folder="subFolder"
+        :folder-index="subFolderIndex"
+        :collection-index="collectionIndex"
+        :doc="doc"
+        :save-request="saveRequest"
+        :collections-type="collectionsType"
+        :folder-path="`${folderPath}/${subFolderIndex}`"
+        :picked="picked"
+        @add-folder="$emit('add-folder', $event)"
+        @edit-folder="$emit('edit-folder', $event)"
+        @edit-request="$emit('edit-request', $event)"
+        @update-team-collections="$emit('update-team-collections')"
+        @select="$emit('select', $event)"
+        @remove-request="removeRequest"
+      />
+      <CollectionsMyRequest
+        v-for="(request, index) in folder.requests"
+        :key="index"
+        class="ml-5 border-l border-dividerLight"
+        :request="request"
+        :collection-index="collectionIndex"
+        :folder-index="folderIndex"
+        :folder-name="folder.name"
+        :folder-path="folderPath"
+        :request-index="index"
+        :doc="doc"
+        :picked="picked"
+        :save-request="saveRequest"
+        :collections-type="collectionsType"
+        @edit-request="$emit('edit-request', $event)"
+        @select="$emit('select', $event)"
+        @remove-request="removeRequest"
+      />
+      <div
         v-if="
           folder.folders &&
           folder.folders.length === 0 &&
           folder.requests &&
           folder.requests.length === 0
         "
+        class="
+          flex
+          items-center
+          text-secondaryLight
+          flex-col
+          p-4
+          justify-center
+          ml-5
+          border-l border-dividerLight
+        "
       >
-        <li class="flex ml-8 border-l border-divider">
-          <p>
-            <i class="material-icons">not_interested</i>
-            {{ $t("folder_empty") }}
-          </p>
-        </li>
-      </ul>
+        <i class="material-icons opacity-50 pb-2">folder_open</i>
+        <span class="text-xs">
+          {{ $t("folder_empty") }}
+        </span>
+      </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
@@ -173,6 +200,12 @@ export default {
         this.picked.pickedType === "my-folder" &&
         this.picked.folderPath === this.folderPath
       )
+    },
+    getCollectionIcon() {
+      if (this.isSelected) return "check_circle"
+      else if (!this.showChildren && !this.isFiltered) return "arrow_right"
+      else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
+      else return "folder"
     },
   },
   methods: {

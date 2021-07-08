@@ -131,6 +131,7 @@
 import { Splitpanes, Pane } from "splitpanes"
 import Paho from "paho-mqtt"
 import debounce from "~/helpers/utils/debounce"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
 export default {
   components: { Splitpanes, Pane },
@@ -202,6 +203,10 @@ export default {
       })
       this.client.onConnectionLost = this.onConnectionLost
       this.client.onMessageArrived = this.onMessageArrived
+
+      logHoppRequestRunToAnalytics({
+        platform: "mqtt",
+      })
     },
     onConnectionFailure() {
       this.connectionState = false

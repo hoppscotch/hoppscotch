@@ -169,6 +169,7 @@
 
 <script>
 import { Splitpanes, Pane } from "splitpanes"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 import "splitpanes/dist/splitpanes.css"
 
@@ -285,6 +286,10 @@ export default {
           icon: "error",
         })
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "wss",
+      })
     },
     disconnect() {
       if (this.socket) {

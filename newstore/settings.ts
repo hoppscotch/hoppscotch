@@ -4,7 +4,47 @@ import { Observable } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import type { KeysMatching } from "~/types/ts-utils"
 
-export const defaultSettings = {
+export const HoppBgColors = ["system", "light", "dark", "black"] as const
+
+export type HoppBgColor = typeof HoppBgColors[number]
+
+export const HoppAccentColors = [
+  "blue",
+  "green",
+  "teal",
+  "indigo",
+  "purple",
+  "orange",
+  "pink",
+  "red",
+  "yellow",
+] as const
+
+export type HoppAccentColor = typeof HoppAccentColors[number]
+
+export type SettingsType = {
+  syncCollections: boolean
+  syncHistory: boolean
+  syncEnvironments: boolean
+
+  SCROLL_INTO_ENABLED: boolean
+  PROXY_ENABLED: boolean
+  PROXY_URL: string
+  PROXY_KEY: string
+  EXTENSIONS_ENABLED: boolean
+  EXPERIMENTAL_URL_BAR_ENABLED: boolean
+  URL_EXCLUDES: {
+    auth: boolean
+    httpUser: boolean
+    httpPassword: boolean
+    bearerToken: boolean
+  }
+  THEME_COLOR: HoppAccentColor
+  BG_COLOR: HoppBgColor
+  TELEMETRY_ENABLED: boolean
+}
+
+export const defaultSettings: SettingsType = {
   syncCollections: true,
   syncHistory: true,
   syncEnvironments: true,
@@ -21,9 +61,10 @@ export const defaultSettings = {
     httpPassword: true,
     bearerToken: true,
   },
+  THEME_COLOR: "green",
+  BG_COLOR: "system",
+  TELEMETRY_ENABLED: true,
 }
-
-export type SettingsType = typeof defaultSettings
 
 const validKeys = Object.keys(defaultSettings)
 

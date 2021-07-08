@@ -167,6 +167,12 @@
                   {{ $t("use_experimental_url_bar") }}
                 </SmartToggle>
               </div>
+              <div class="flex items-center">
+                <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
+                  {{ $t("telemetry") }}
+                  {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
+                </SmartToggle>
+              </div>
             </div>
           </fieldset>
         </div>
@@ -275,8 +281,19 @@
         </div>
       </div>
     </div>
-
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
+    <SmartConfirmModal
+      :show="confirmRemove"
+      :title="`${$t('are_you_sure_remove_telemetry')} ${$t(
+        'telemetry_helps_us'
+      )}`"
+      @hide-modal="confirmRemove = false"
+      @resolve="
+        toggleSetting('TELEMETRY_ENABLED')
+        confirmRemove = false
+      "
+    />
   </div>
 </template>
 
@@ -319,6 +336,9 @@ export default Vue.extend({
       showLogin: false,
 
       active: getLocalConfig("THEME_COLOR") || "green",
+      confirmRemove: false,
+
+      TELEMETRY_ENABLED: null,
     }
   },
   subscriptions() {
@@ -338,6 +358,8 @@ export default Vue.extend({
       SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
+
+      TELEMETRY_ENABLED: getSettingSubject("TELEMETRY_ENABLED"),
 
       currentUser: currentUser$,
     }
@@ -365,6 +387,10 @@ export default Vue.extend({
     },
   },
   methods: {
+    showConfirmModal() {
+      if (this.TELEMETRY_ENABLED) this.confirmRemove = true
+      else toggleSetting("TELEMETRY_ENABLED")
+    },
     applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
       applySetting(key, value)
     },

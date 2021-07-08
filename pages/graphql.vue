@@ -455,9 +455,10 @@ import { Splitpanes, Pane } from "splitpanes"
 import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
-import { sendNetworkRequest } from "~/helpers/network"
+import { getCurrentStrategyID, sendNetworkRequest } from "~/helpers/network"
 import { getSettingSubject } from "~/newstore/settings"
 import { addGraphqlHistoryEntry } from "~/newstore/history"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
 export default {
   components: { Splitpanes, Pane },
@@ -818,6 +819,11 @@ export default {
         })
         console.log("Error", error)
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "graphql-query",
+        strategy: getCurrentStrategyID(),
+      })
     },
 
     // NOTE : schema required here is the GQL Schema document object, not the schema string
@@ -887,6 +893,11 @@ export default {
         await this.getSchema()
 
         this.pollSchema()
+
+        logHoppRequestRunToAnalytics({
+          platform: "graphql-schema",
+          strategy: getCurrentStrategyID(),
+        })
       }
     },
     async pollSchema() {

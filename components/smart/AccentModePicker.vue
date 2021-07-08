@@ -21,36 +21,34 @@
   </div>
 </template>
 
-<script>
-import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
+<script lang="ts">
+import Vue from "vue"
+import {
+  HoppAccentColors,
+  HoppAccentColor,
+  getSettingSubject,
+  settingsStore,
+  applySetting,
+} from "~/newstore/settings"
 
-export default {
+export default Vue.extend({
   data() {
     return {
-      active: getLocalConfig("THEME_COLOR") || "green",
-      accentColors: [
-        "blue",
-        "green",
-        "teal",
-        "indigo",
-        "purple",
-        "orange",
-        "pink",
-        "red",
-        "yellow",
-      ],
+      accentColors: HoppAccentColors,
+      active: settingsStore.value.THEME_COLOR,
     }
   },
-  watch: {
-    active(color) {
-      setLocalConfig("THEME_COLOR", color)
-    },
+  subscriptions() {
+    return {
+      active: getSettingSubject("THEME_COLOR"),
+    }
   },
   methods: {
-    setActiveColor(color) {
+    setActiveColor(color: HoppAccentColor) {
       document.documentElement.setAttribute("data-accent", color)
-      this.active = color
+
+      applySetting("THEME_COLOR", color)
     },
   },
-}
+})
 </script>

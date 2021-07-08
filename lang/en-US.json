@@ -286,6 +286,8 @@
   "are_you_sure_remove_folder": "Are you sure you want to remove this folder?",
   "are_you_sure_remove_request": "Are you sure you want to remove this request?",
   "are_you_sure_remove_environment": "Are you sure you want to remove this environment?",
+  "are_you_sure_remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
+  "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",
   "select_next_method": "Select Next method",
   "select_previous_method": "Select Previous method",
   "select_get_method": "Select GET method",
@@ -345,5 +347,6 @@
   "share": "Share",
   "interceptor": "Interceptor",
   "profile": "Profile",
-  "are_you_sure_logout": "Are you sure you want to logout?"
+  "are_you_sure_logout": "Are you sure you want to logout?",
+  "telemetry": "Telemetry"
 }

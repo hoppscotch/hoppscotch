@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-block cursor-pointer" @click="toggle()">
+  <div class="inline-block cursor-pointer" @click="$emit('change')">
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
@@ -15,13 +15,6 @@ export default {
     on: {
       type: Boolean,
       default: false,
-    },
-  },
-
-  methods: {
-    toggle() {
-      const containsOnClass = this.$refs.toggle.classList.toggle("on")
-      this.$emit("change", containsOnClass)
     },
   },
 }

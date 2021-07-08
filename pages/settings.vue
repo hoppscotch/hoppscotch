@@ -200,10 +200,7 @@
           </SmartToggle>
         </div>
         <span>
-          <SmartToggle
-            :on="TELEMETRY_ENABLED"
-            @change="toggleSetting('TELEMETRY_ENABLED')"
-          >
+          <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
             {{ $t("telemetry") }}
             {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
           </SmartToggle>
@@ -211,6 +208,17 @@
       </div>
     </AppSection>
     <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
+    <SmartConfirmModal
+      :show="confirmRemove"
+      :title="`${$t('are_you_sure_remove_telemetry')} ${$t(
+        'telemetry_helps_us'
+      )}`"
+      @hide-modal="confirmRemove = false"
+      @resolve="
+        toggleSetting('TELEMETRY_ENABLED')
+        confirmRemove = false
+      "
+    />
   </div>
 </template>
 
@@ -252,6 +260,10 @@ export default Vue.extend({
 
       currentBackendUser: null,
       currentUser: null,
+
+      confirmRemove: false,
+
+      TELEMETRY_ENABLED: null,
     }
   },
   subscriptions() {
@@ -302,6 +314,10 @@ export default Vue.extend({
     },
   },
   methods: {
+    showConfirmModal() {
+      if (this.TELEMETRY_ENABLED) this.confirmRemove = true
+      else toggleSetting("TELEMETRY_ENABLED")
+    },
     applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
       applySetting(key, value)
     },

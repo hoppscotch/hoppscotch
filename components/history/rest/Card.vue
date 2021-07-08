@@ -24,8 +24,8 @@
         pr-3
         flex flex-1
         min-w-0
-        text-secondaryLight text-xs
-        group-hover:text-secondary
+        text-xs
+        group-hover:text-secondaryDark
         transition
       "
       @click="$emit('use-entry')"

@@ -1,46 +1,68 @@
 <template>
-  <div>
-    <div class="flex flex-1">
-      <div>
+  <div class="flex items-center group">
+    <span
+      class="
+        flex
+        justify-center
+        items-center
+        text-xs
+        w-10
+        truncate
+        cursor-pointer
+      "
+      @click="$emit('edit-environment')"
+    >
+      <i class="material-icons">layers</i>
+    </span>
+    <span
+      class="
+        py-3
+        cursor-pointer
+        pr-3
+        flex flex-1
+        min-w-0
+        text-xs
+        group-hover:text-secondaryDark
+        transition
+      "
+      @click="$emit('edit-environment')"
+    >
+      <span class="truncate">
+        {{ environment.name }}
+      </span>
+    </span>
+    <tippy
+      ref="options"
+      interactive
+      tabindex="-1"
+      trigger="click"
+      theme="popover"
+      arrow
+    >
+      <template #trigger>
         <ButtonSecondary
-          icon="layers"
-          :label="environment.name"
-          @click.native="$emit('edit-environment')"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('more')"
+          icon="more_vert"
         />
-      </div>
-      <tippy
-        ref="options"
-        interactive
-        tabindex="-1"
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <TabPrimary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
-            icon="more_vert"
-          />
-        </template>
-        <SmartItem
-          icon="create"
-          :label="$t('edit')"
-          @click.native="
-            $emit('edit-environment')
-            $refs.options.tippy().hide()
-          "
-        />
-        <SmartItem
-          icon="delete"
-          :label="$t('delete')"
-          @click.native="
-            confirmRemove = true
-            $refs.options.tippy().hide()
-          "
-        />
-      </tippy>
-    </div>
+      </template>
+      <SmartItem
+        icon="create"
+        :label="$t('edit')"
+        @click.native="
+          $emit('edit-environment')
+          $refs.options.tippy().hide()
+        "
+      />
+      <SmartItem
+        icon="delete"
+        :label="$t('delete')"
+        @click.native="
+          confirmRemove = true
+          $refs.options.tippy().hide()
+        "
+      />
+    </tippy>
     <SmartConfirmModal
       :show="confirmRemove"
       :title="$t('are_you_sure_remove_environment')"

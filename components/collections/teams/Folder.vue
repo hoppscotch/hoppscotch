@@ -13,13 +13,15 @@
         "
         @click="toggleShowChildren()"
       >
-        <i class="material-icons">{{ getCollectionIcon }}</i>
+        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+          {{ getCollectionIcon }}
+        </i>
       </span>
       <span
         class="
           py-3
           cursor-pointer
-          pr-3
+          pr-2
           flex flex-1
           min-w-0
           text-xs

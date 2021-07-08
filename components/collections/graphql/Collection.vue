@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      :class="[{ 'bg-primaryDark': dragging }]"
+      class="flex items-center group"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -9,134 +9,145 @@
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
+      <span
+        class="
+          flex
+          justify-center
+          items-center
+          text-xs
+          w-10
+          truncate
+          cursor-pointer
+        "
+        @click="toggleShowChildren()"
+      >
+        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+          {{ getCollectionIcon }}
+        </i>
+      </span>
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-2
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="toggleShowChildren()"
+      >
+        <span class="truncate"> {{ collection.name }} </span>
+      </span>
       <ButtonSecondary
-        :label="collection.name"
-        @click.native="toggleShowChildren"
+        v-tippy="{ theme: 'tooltip' }"
+        icon="create_new_folder"
+        :title="$t('new_folder')"
+        class="group-hover:inline-flex hidden"
+        @click.native="
+          $emit('add-folder', {
+            path: `${collectionIndex}`,
+          })
+        "
       />
-      <i v-show="!showChildren && !isFiltered" class="material-icons"
-        >arrow_right</i
+      <tippy
+        ref="options"
+        interactive
+        tabindex="-1"
+        trigger="click"
+        theme="popover"
+        arrow
       >
-      <i v-show="showChildren || isFiltered" class="material-icons"
-        >arrow_drop_down</i
-      >
-      <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
-        >check_circle</i
-      >
-      <i v-else class="material-icons">folder</i>
-      <div>
-        <ButtonSecondary
-          v-if="doc"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('import')"
-          icon="topic"
-          @click.native="$emit('select-collection')"
+        <template #trigger>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('more')"
+            icon="more_vert"
+          />
+        </template>
+        <SmartItem
+          icon="create_new_folder"
+          :label="$t('new_folder')"
+          @click.native="
+            $emit('add-folder', {
+              path: `${collectionIndex}`,
+            })
+            $refs.options.tippy().hide()
+          "
         />
-        <tippy
-          ref="options"
-          interactive
-          tabindex="-1"
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('more')"
-              icon="more_vert"
-            />
-          </template>
-          <SmartItem
-            icon="create_new_folder"
-            :label="$t('new_folder')"
-            @click.native="
-              $emit('add-folder', {
-                path: `${collectionIndex}`,
-              })
-              $refs.options.tippy().hide()
-            "
-          />
-          <SmartItem
-            icon="create"
-            :label="$t('edit')"
-            @click.native="
-              $emit('edit-collection')
-              $refs.options.tippy().hide()
-            "
-          />
-          <SmartItem
-            icon="delete"
-            :label="$t('delete')"
-            @click.native="
-              confirmRemove = true
-              $refs.options.tippy().hide()
-            "
-          />
-        </tippy>
-      </div>
+        <SmartItem
+          icon="create"
+          :label="$t('edit')"
+          @click.native="
+            $emit('edit-collection')
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          icon="delete"
+          :label="$t('delete')"
+          @click.native="
+            confirmRemove = true
+            $refs.options.tippy().hide()
+          "
+        />
+      </tippy>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col">
-        <li
-          v-for="(folder, index) in collection.folders"
-          :key="folder.name"
-          class="ml-5 border-l border-dividerLight"
-        >
-          <CollectionsGraphqlFolder
-            :picked="picked"
-            :saving-mode="savingMode"
-            :folder="folder"
-            :folder-index="index"
-            :folder-path="`${collectionIndex}/${index}`"
-            :collection-index="collectionIndex"
-            :doc="doc"
-            :is-filtered="isFiltered"
-            @add-folder="$emit('add-folder', $event)"
-            @edit-folder="$emit('edit-folder', $event)"
-            @edit-request="$emit('edit-request', $event)"
-            @select="$emit('select', $event)"
-          />
-        </li>
-      </ul>
-      <ul class="flex-col">
-        <li
-          v-for="(request, index) in collection.requests"
-          :key="index"
-          class="ml-5 border-l border-dividerLight"
-        >
-          <CollectionsGraphqlRequest
-            :picked="picked"
-            :saving-mode="savingMode"
-            :request="request"
-            :collection-index="collectionIndex"
-            :folder-index="-1"
-            :folder-name="collection.name"
-            :folder-path="`${collectionIndex}`"
-            :request-index="index"
-            :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
-            @select="$emit('select', $event)"
-          />
-        </li>
-      </ul>
-      <ul>
-        <li
-          v-if="
-            collection.folders.length === 0 && collection.requests.length === 0
-          "
-          class="
-            ml-5
-            border-l border-dividerLight
-            ml-5
-            border-l border-dividerLight
-          "
-        >
-          <p>
-            <i class="material-icons">not_interested</i>
-            {{ $t("collection_empty") }}
-          </p>
-        </li>
-      </ul>
+      <CollectionsGraphqlFolder
+        v-for="(folder, index) in collection.folders"
+        :key="folder.name"
+        class="ml-5 border-l border-dividerLight"
+        :picked="picked"
+        :saving-mode="savingMode"
+        :folder="folder"
+        :folder-index="index"
+        :folder-path="`${collectionIndex}/${index}`"
+        :collection-index="collectionIndex"
+        :doc="doc"
+        :is-filtered="isFiltered"
+        @add-folder="$emit('add-folder', $event)"
+        @edit-folder="$emit('edit-folder', $event)"
+        @edit-request="$emit('edit-request', $event)"
+        @select="$emit('select', $event)"
+      />
+      <CollectionsGraphqlRequest
+        v-for="(request, index) in collection.requests"
+        :key="index"
+        class="ml-5 border-l border-dividerLight"
+        :picked="picked"
+        :saving-mode="savingMode"
+        :request="request"
+        :collection-index="collectionIndex"
+        :folder-index="-1"
+        :folder-name="collection.name"
+        :folder-path="`${collectionIndex}`"
+        :request-index="index"
+        :doc="doc"
+        @edit-request="$emit('edit-request', $event)"
+        @select="$emit('select', $event)"
+      />
+      <div
+        v-if="
+          collection.folders.length === 0 && collection.requests.length === 0
+        "
+        class="
+          flex
+          items-center
+          text-secondaryLight
+          flex-col
+          p-4
+          justify-center
+          ml-5
+          border-l border-dividerLight
+        "
+      >
+        <i class="material-icons opacity-50 pb-2">folder_open</i>
+        <span class="text-xs">
+          {{ $t("collection_empty") }}
+        </span>
+      </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
@@ -179,6 +190,12 @@ export default Vue.extend({
         this.picked.pickedType === "gql-my-collection" &&
         this.picked.collectionIndex === this.collectionIndex
       )
+    },
+    getCollectionIcon() {
+      if (this.isSelected) return "check_circle"
+      else if (!this.showChildren && !this.isFiltered) return "arrow_right"
+      else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
+      else return "folder"
     },
   },
   methods: {

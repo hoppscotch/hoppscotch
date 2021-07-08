@@ -1,21 +1,46 @@
 <template>
-  <div>
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      :class="[{ 'bg-primaryDark': dragging }]"
+      class="flex items-center group"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
-      <div>
-        <ButtonSecondary
-          :class="{ 'mx-3 text-green-400': isSelected }"
-          :icon="isSelected ? 'check_circle' : 'description'"
-          :label="request.name"
-          @click.native="!doc ? selectRequest() : {}"
-        />
-      </div>
+      <span
+        class="
+          font-mono font-bold
+          flex
+          justify-center
+          items-center
+          text-xs
+          w-12
+          mx-2
+          truncate
+          cursor-pointer
+        "
+        @click="!doc ? selectRequest() : {}"
+      >
+        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+          {{ isSelected ? "check_circle" : "description" }}
+        </i>
+      </span>
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-2
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="!doc ? selectRequest() : {}"
+      >
+        <span class="truncate"> {{ request.name }} </span>
+      </span>
       <tippy
         ref="options"
         interactive

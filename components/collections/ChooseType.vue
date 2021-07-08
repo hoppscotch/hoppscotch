@@ -12,39 +12,41 @@
         :label="'Team Collections'"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
-          <select
-            id="team"
-            type="text"
-            autofocus
-            class="
-              flex
-              w-full
-              px-4
-              text-xs
-              py-2
-              focus:outline-none
-              border-b border-dividerLight
-              bg-primary
-            "
-            @change="updateSelectedTeam(myTeams[$event.target.value])"
-          >
-            <option
-              :key="undefined"
-              :value="undefined"
-              hidden
-              disabled
-              selected
+          <div class="select-wrapper">
+            <select
+              id="team"
+              type="text"
+              autofocus
+              class="
+                flex
+                w-full
+                px-4
+                text-xs
+                py-3
+                focus:outline-none
+                border-b border-dividerLight
+                bg-primaryLight
+              "
+              @change="updateSelectedTeam(myTeams[$event.target.value])"
             >
-              Select team
-            </option>
-            <option
-              v-for="(team, index) in myTeams"
-              :key="index"
-              :value="index"
-            >
-              {{ team.name }}
-            </option>
-          </select>
+              <option
+                :key="undefined"
+                :value="undefined"
+                hidden
+                disabled
+                selected
+              >
+                Select team
+              </option>
+              <option
+                v-for="(team, index) in myTeams"
+                :key="index"
+                :value="index"
+              >
+                {{ team.name }}
+              </option>
+            </select>
+          </div>
         </SmartIntersection>
       </SmartTab>
     </SmartTabs>

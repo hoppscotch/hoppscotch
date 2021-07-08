@@ -1,95 +1,108 @@
 <template>
   <AppSection label="collections">
-    <div class="flex">
+    <div class="flex flex-col sticky top-10 z-10 bg-primary">
       <input
         v-if="showCollActions"
         v-model="filterText"
-        aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="input rounded-t-lg"
+        class="
+          px-4
+          py-3
+          text-xs
+          border-b border-dividerLight
+          flex flex-1
+          bg-primaryLight
+          focus:outline-none
+        "
+      />
+      <CollectionsGraphqlAdd
+        :show="showModalAdd"
+        @hide-modal="displayModalAdd(false)"
+      />
+      <CollectionsGraphqlEdit
+        :show="showModalEdit"
+        :editing-collection="editingCollection"
+        :editing-collection-index="editingCollectionIndex"
+        @hide-modal="displayModalEdit(false)"
+      />
+      <CollectionsGraphqlAddFolder
+        :show="showModalAddFolder"
+        :folder-path="editingFolderPath"
+        @add-folder="onAddFolder($event)"
+        @hide-modal="displayModalAddFolder(false)"
+      />
+      <CollectionsGraphqlEditFolder
+        :show="showModalEditFolder"
+        :collection-index="editingCollectionIndex"
+        :folder="editingFolder"
+        :folder-index="editingFolderIndex"
+        :folder-path="editingFolderPath"
+        @hide-modal="displayModalEditFolder(false)"
+      />
+      <CollectionsGraphqlEditRequest
+        :show="showModalEditRequest"
+        :folder-path="editingFolderPath"
+        :request="editingRequest"
+        :request-index="editingRequestIndex"
+        @hide-modal="displayModalEditRequest(false)"
+      />
+      <CollectionsGraphqlImportExport
+        :show="showModalImportExport"
+        @hide-modal="displayModalImportExport(false)"
+      />
+      <div class="border-b flex justify-between flex-1 border-dividerLight">
+        <ButtonSecondary
+          icon="add"
+          :label="$t('new')"
+          @click.native="displayModalAdd(true)"
+        />
+        <ButtonSecondary
+          v-if="showCollActions"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('import_export')"
+          icon="import_export"
+          @click.native="displayModalImportExport(true)"
+        />
+      </div>
+    </div>
+    <div
+      v-if="collections.length === 0"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
+      <span class="text-xs">
+        {{ $t("create_new_collection") }}
+      </span>
+    </div>
+    <div class="flex-col">
+      <CollectionsGraphqlCollection
+        v-for="(collection, index) in filteredCollections"
+        :key="collection.name"
+        :picked="picked"
+        :name="collection.name"
+        :collection-index="index"
+        :collection="collection"
+        :doc="doc"
+        :is-filtered="filterText.length > 0"
+        :saving-mode="savingMode"
+        @edit-collection="editCollection(collection, index)"
+        @add-folder="addFolder($event)"
+        @edit-folder="editFolder($event)"
+        @edit-request="editRequest($event)"
+        @select-collection="$emit('use-collection', collection)"
+        @select="$emit('select', $event)"
       />
     </div>
-    <CollectionsGraphqlAdd
-      :show="showModalAdd"
-      @hide-modal="displayModalAdd(false)"
-    />
-    <CollectionsGraphqlEdit
-      :show="showModalEdit"
-      :editing-collection="editingCollection"
-      :editing-collection-index="editingCollectionIndex"
-      @hide-modal="displayModalEdit(false)"
-    />
-    <CollectionsGraphqlAddFolder
-      :show="showModalAddFolder"
-      :folder-path="editingFolderPath"
-      @add-folder="onAddFolder($event)"
-      @hide-modal="displayModalAddFolder(false)"
-    />
-    <CollectionsGraphqlEditFolder
-      :show="showModalEditFolder"
-      :collection-index="editingCollectionIndex"
-      :folder="editingFolder"
-      :folder-index="editingFolderIndex"
-      :folder-path="editingFolderPath"
-      @hide-modal="displayModalEditFolder(false)"
-    />
-    <CollectionsGraphqlEditRequest
-      :show="showModalEditRequest"
-      :folder-path="editingFolderPath"
-      :request="editingRequest"
-      :request-index="editingRequestIndex"
-      @hide-modal="displayModalEditRequest(false)"
-    />
-    <CollectionsGraphqlImportExport
-      :show="showModalImportExport"
-      @hide-modal="displayModalImportExport(false)"
-    />
-    <div class="border-b flex flex-1 border-divider">
-      <ButtonSecondary
-        icon="new"
-        :label="$t('new')"
-        @click.native="displayModalAdd(true)"
-      />
-      <ButtonSecondary
-        v-if="showCollActions"
-        :label="$t('import_export')"
-        @click.native="displayModalImportExport(true)"
-      />
+    <div
+      v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">manage_search</i>
+      <span class="text-xs">
+        {{ $t("nothing_found") }} "{{ filterText }}"
+      </span>
     </div>
-    <p v-if="collections.length === 0">
-      <i class="material-icons">help_outline</i>
-      {{ $t("create_new_collection") }}
-    </p>
-    <div class="overflow-auto">
-      <ul class="flex-col">
-        <li
-          v-for="(collection, index) in filteredCollections"
-          :key="collection.name"
-        >
-          <CollectionsGraphqlCollection
-            :picked="picked"
-            :name="collection.name"
-            :collection-index="index"
-            :collection="collection"
-            :doc="doc"
-            :is-filtered="filterText.length > 0"
-            :saving-mode="savingMode"
-            @edit-collection="editCollection(collection, index)"
-            @add-folder="addFolder($event)"
-            @edit-folder="editFolder($event)"
-            @edit-request="editRequest($event)"
-            @select-collection="$emit('use-collection', collection)"
-            @select="$emit('select', $event)"
-          />
-        </li>
-      </ul>
-    </div>
-    <p v-if="filterText && filteredCollections.length === 0">
-      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{
-        filterText
-      }}"
-    </p>
   </AppSection>
 </template>
 

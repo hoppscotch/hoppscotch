@@ -187,6 +187,23 @@ select {
   }
 }
 
+.select-wrapper {
+  @apply relative;
+  @apply w-full;
+
+  &::after {
+    @apply inline-block;
+    @apply absolute;
+    @apply pointer-events-none;
+    @apply font-icon;
+    @apply text-secondaryLight;
+    @apply top-3;
+    @apply right-3;
+
+    content: "\e313";
+  }
+}
+
 input[type="checkbox"] {
   @apply hidden;
 

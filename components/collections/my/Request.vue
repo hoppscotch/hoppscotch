@@ -16,23 +16,29 @@
           items-center
           text-xs
           w-12
+          mx-2
           truncate
           cursor-pointer
         "
-        :class="[
-          getRequestLabelColor(request.method),
-          { 'mx-3 text-green-400': isSelected },
-        ]"
+        :class="getRequestLabelColor(request.method)"
         @click="!doc ? selectRequest() : {}"
       >
-        <i v-if="isSelected" class="material-icons">check_circle</i>
-        {{ request.method }}
+        <i
+          v-if="isSelected"
+          class="material-icons"
+          :class="{ 'text-green-400': isSelected }"
+        >
+          check_circle
+        </i>
+        <span v-else>
+          {{ request.method }}
+        </span>
       </span>
       <span
         class="
           py-3
           cursor-pointer
-          pr-3
+          pr-2
           flex flex-1
           min-w-0
           text-xs

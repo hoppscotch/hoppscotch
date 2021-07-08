@@ -601,7 +601,7 @@
       </Pane>
       <Pane max-size="30" size="25" min-size="20" class="overflow-auto hide-scrollbar">
         <aside class="h-full">
-          <SmartTabs styles="sticky top-0">
+          <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
               <History
                 :page="'rest'"

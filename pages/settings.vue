@@ -282,7 +282,6 @@
       </div>
     </div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
-    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
     <SmartConfirmModal
       :show="confirmRemove"
       :title="`${$t('are_you_sure_remove_telemetry')} ${$t(

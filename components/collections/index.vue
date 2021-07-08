@@ -1,22 +1,61 @@
 <template>
   <AppSection label="collections">
-    <div class="flex sticky top-10 border-b border-dividerLight">
+    <div class="flex flex-col sticky top-10 z-10 bg-primary">
       <input
         v-if="!saveRequest"
         v-model="filterText"
-        aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="px-4 py-3 text-xs flex flex-1 bg-primary focus:outline-none"
+        class="
+          px-4
+          py-3
+          text-xs
+          border-b border-dividerLight
+          flex flex-1
+          bg-primaryLight
+          focus:outline-none
+        "
       />
+      <CollectionsChooseType
+        :collections-type="collectionsType"
+        :show="showTeamCollections"
+        :doc="doc"
+        @update-collection-type="updateCollectionType"
+        @update-selected-team="updateSelectedTeam"
+      />
+      <div class="border-b flex justify-between flex-1 border-dividerLight">
+        <ButtonSecondary
+          v-if="
+            collectionsType.type == 'team-collections' &&
+            (collectionsType.selectedTeam == undefined ||
+              collectionsType.selectedTeam.myRole == 'VIEWER')
+          "
+          v-tippy="{ theme: 'tooltip' }"
+          disabled
+          icon="add"
+          :title="$t('disable_new_collection')"
+          :label="$t('new')"
+          @click.native="displayModalAdd(true)"
+        />
+        <ButtonSecondary
+          v-else
+          icon="add"
+          :label="$t('new')"
+          @click.native="displayModalAdd(true)"
+        />
+        <ButtonSecondary
+          v-if="!saveRequest"
+          v-tippy="{ theme: 'tooltip' }"
+          :disabled="
+            collectionsType.type == 'team-collections' &&
+            collectionsType.selectedTeam == undefined
+          "
+          icon="import_export"
+          :title="$t('import_export')"
+          @click.native="displayModalImportExport(true)"
+        />
+      </div>
     </div>
-    <CollectionsChooseType
-      :collections-type="collectionsType"
-      :show="showTeamCollections"
-      :doc="doc"
-      @update-collection-type="updateCollectionType"
-      @update-selected-team="updateSelectedTeam"
-    />
     <CollectionsAdd
       :show="showModalAdd"
       @submit="addNewRootCollection"
@@ -53,38 +92,6 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
-    <div class="border-b flex justify-between flex-1 border-dividerLight">
-      <ButtonSecondary
-        v-if="
-          collectionsType.type == 'team-collections' &&
-          (collectionsType.selectedTeam == undefined ||
-            collectionsType.selectedTeam.myRole == 'VIEWER')
-        "
-        v-tippy="{ theme: 'tooltip' }"
-        disabled
-        icon="add"
-        :title="$t('disable_new_collection')"
-        :label="$t('new')"
-        @click.native="displayModalAdd(true)"
-      />
-      <ButtonSecondary
-        v-else
-        icon="add"
-        :label="$t('new')"
-        @click.native="displayModalAdd(true)"
-      />
-      <ButtonSecondary
-        v-if="!saveRequest"
-        v-tippy="{ theme: 'tooltip' }"
-        :disabled="
-          collectionsType.type == 'team-collections' &&
-          collectionsType.selectedTeam == undefined
-        "
-        icon="import_export"
-        :title="$t('import_export')"
-        @click.native="displayModalImportExport(true)"
-      />
-    </div>
     <div
       v-if="collections.length === 0"
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
@@ -126,7 +133,7 @@
       />
     </div>
     <div
-      v-if="filterText && filteredCollections.length === 0"
+      v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">manage_search</i>

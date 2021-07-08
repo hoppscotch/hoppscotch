@@ -1,119 +1,65 @@
 <template>
-  <div>
-    <div class="flex">
-      <li>
-        <input
-          data-testid="'url'"
-          :aria-label="$t('url')"
-          type="text"
-          readonly
-          :value="entry.url"
-          :placeholder="$t('empty_req_name')"
-          class="input cursor-pointer text-sm bg-transparent"
-          @click="$emit('use-entry')"
-        />
-      </li>
+  <div class="flex flex-col group">
+    <div class="flex items-center">
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-2
+          pl-4
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="$emit('use-entry')"
+      >
+        <span class="truncate">
+          {{ entry.url }}
+        </span>
+      </span>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="!entry.star ? $t('add_star') : $t('remove_star')"
-        data-testid="star_button"
-        :icon="entry.star ? 'star' : 'star_border'"
-        color="yellow"
-        @click.native="$emit('toggle-star')"
+        icon="delete"
+        :title="$t('delete')"
+        class="group-hover:inline-flex hidden"
+        color="red"
+        @click.native="$emit('delete-entry')"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? $t('hide_more') : $t('show_more')"
-        data-testid="query_expand"
         :icon="expand ? 'unfold_less' : 'unfold_more'"
+        class="group-hover:inline-flex hidden"
         @click.native="expand = !expand"
       />
-      <tippy
-        ref="options"
-        interactive
-        tabindex="-1"
-        trigger="click"
-        theme="popover"
-        arrow
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="!entry.star ? $t('add_star') : $t('remove_star')"
+        :icon="entry.star ? 'star' : 'star_border'"
+        color="yellow"
+        :class="{ 'group-hover:inline-flex hidden': !entry.star }"
+        @click.native="$emit('toggle-star')"
+      />
+    </div>
+    <div class="flex flex-col">
+      <span
+        v-for="(line, index) in query"
+        :key="`line-${index}`"
+        class="
+          text-xs
+          cursor-pointer
+          truncate
+          px-4
+          font-mono
+          text-secondaryLight
+        "
+        @click="$emit('use-entry')"
       >
-        <template #trigger>
-          <TabPrimary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('options')"
-            data-testid="options"
-            icon="more_vert"
-          />
-        </template>
-        <SmartItem
-          data-testid="restore_history_entry"
-          :aria-label="$t('restore')"
-          icon="restore"
-          :label="$t('restore')"
-          @click.native="
-            $emit('use-entry')
-            $refs.options.tippy().hide()
-          "
-        />
-        <SmartItem
-          data-testid="delete_history_entry"
-          :aria-label="$t('delete')"
-          icon="delete"
-          :label="$t('delete')"
-          @click.native="
-            $emit('delete-entry')
-            $refs.options.tippy().hide()
-          "
-        />
-      </tippy>
+        {{ line }}
+      </span>
     </div>
-    <div class="flex">
-      <li data-testid="'query'">
-        <input
-          v-for="(line, index) in query"
-          :key="`line-${index}`"
-          :aria-label="$t('query')"
-          type="text"
-          readonly
-          :value="`${line}`"
-          class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
-        />
-      </li>
-    </div>
-    <transition name="fade">
-      <div v-if="showMore" class="flex">
-        <li>
-          <input
-            v-tippy="{ theme: 'tooltip' }"
-            title="entry.date"
-            :aria-label="$t('time')"
-            type="text"
-            readonly
-            :value="entry.time"
-            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
-          />
-        </li>
-        <li>
-          <input
-            :aria-label="$t('duration')"
-            type="text"
-            readonly
-            :value="`Duration: ${entry.duration}ms`"
-            :placeholder="$t('no_duration')"
-            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
-          />
-        </li>
-        <!-- <li>
-          <input class="input"
-            :aria-label="$t('prerequest_script')"
-            type="text"
-            readonly
-            :value="entry.preRequestScript"
-            :placeholder="$t('no_prerequest_script')"
-            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
-          />
-        </li> -->
-      </div>
-    </transition>
   </div>
 </template>
 

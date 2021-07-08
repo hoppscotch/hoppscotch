@@ -1,31 +1,48 @@
 <template>
   <AppSection label="environments">
-    <select
-      v-model="selectedEnvironmentIndex"
-      :disabled="environments.length == 0"
-      class="
-        flex
-        w-full
-        px-4
-        text-xs
-        py-2
-        focus:outline-none
-        border-b border-dividerLight
-        bg-primary
-      "
-    >
-      <option :value="-1">No environment</option>
-      <option v-if="environments.length === 0" value="0">
-        {{ $t("create_new_environment") }}
-      </option>
-      <option
-        v-for="(environment, index) in environments"
-        :key="index"
-        :value="index"
-      >
-        {{ environment.name }}
-      </option>
-    </select>
+    <div class="flex flex-col sticky z-10 top-10 bg-primary">
+      <div class="select-wrapper">
+        <select
+          v-model="selectedEnvironmentIndex"
+          :disabled="environments.length == 0"
+          class="
+            flex
+            w-full
+            px-4
+            text-xs
+            py-3
+            focus:outline-none
+            border-b border-dividerLight
+            bg-primaryLight
+          "
+        >
+          <option :value="-1">No environment</option>
+          <option v-if="environments.length === 0" value="0">
+            {{ $t("create_new_environment") }}
+          </option>
+          <option
+            v-for="(environment, index) in environments"
+            :key="index"
+            :value="index"
+          >
+            {{ environment.name }}
+          </option>
+        </select>
+      </div>
+      <div class="border-b flex justify-between flex-1 border-dividerLight">
+        <ButtonSecondary
+          icon="add"
+          :label="$t('new')"
+          @click.native="displayModalAdd(true)"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          icon="import_export"
+          :title="$t('import_export')"
+          @click.native="displayModalImportExport(true)"
+        />
+      </div>
+    </div>
     <EnvironmentsAdd
       :show="showModalAdd"
       @hide-modal="displayModalAdd(false)"
@@ -40,19 +57,6 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-    <div class="border-b flex justify-between flex-1 border-dividerLight">
-      <ButtonSecondary
-        icon="add"
-        :label="$t('new')"
-        @click.native="displayModalAdd(true)"
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        icon="import_export"
-        :title="$t('import_export')"
-        @click.native="displayModalImportExport(true)"
-      />
-    </div>
     <div
       v-if="environments.length === 0"
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"

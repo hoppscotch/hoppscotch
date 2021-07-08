@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      :class="[{ 'bg-primaryDark': dragging }]"
+      class="flex items-center group"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -9,20 +9,46 @@
       @dragleave="dragging = false"
       @dragend="dragging = false"
     >
-      <div>
-        <ButtonSecondary @click.native="toggleShowChildren" />
-        <i v-show="!showChildren && !isFiltered" class="material-icons"
-          >arrow_right</i
-        >
-        <i v-show="showChildren || isFiltered" class="material-icons"
-          >arrow_drop_down</i
-        >
-        <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
-          >check_circle</i
-        >
-        <i v-else class="material-icons">folder_open</i>
-        <span>{{ folder.name }}</span>
-      </div>
+      <span
+        class="
+          flex
+          justify-center
+          items-center
+          text-xs
+          w-10
+          truncate
+          cursor-pointer
+        "
+        @click="toggleShowChildren()"
+      >
+        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+          {{ getCollectionIcon }}
+        </i>
+      </span>
+      <span
+        class="
+          py-3
+          cursor-pointer
+          pr-2
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+        "
+        @click="toggleShowChildren()"
+      >
+        <span class="truncate">
+          {{ folder.name ? folder.name : folder.title }}
+        </span>
+      </span>
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        icon="create_new_folder"
+        :title="$t('new_folder')"
+        class="group-hover:inline-flex hidden"
+        @click.native="$emit('add-folder', { folder, path: folderPath })"
+      />
       <tippy
         ref="options"
         interactive
@@ -48,7 +74,7 @@
         />
         <SmartItem
           icon="edit"
-          :labeel="$t('edit')"
+          :label="$t('edit')"
           @click.native="
             $emit('edit-folder', { folder, folderPath })
             $refs.options.tippy().hide()
@@ -65,71 +91,62 @@
       </tippy>
     </div>
     <div v-show="showChildren || isFiltered">
-      <ul class="flex-col">
-        <li
-          v-for="(subFolder, subFolderIndex) in folder.folders"
-          :key="subFolder.name"
-          class="ml-5 border-l border-dividerLight"
-        >
-          <CollectionsGraphqlFolder
-            :picked="picked"
-            :saving-mode="savingMode"
-            :folder="subFolder"
-            :folder-index="subFolderIndex"
-            :folder-path="`${folderPath}/${subFolderIndex}`"
-            :collection-index="collectionIndex"
-            :doc="doc"
-            :is-filtered="isFiltered"
-            @add-folder="$emit('add-folder', $event)"
-            @edit-folder="$emit('edit-folder', $event)"
-            @edit-request="$emit('edit-request', $event)"
-            @select="$emit('select', $event)"
-          />
-        </li>
-      </ul>
-      <ul class="flex-col">
-        <li
-          v-for="(request, index) in folder.requests"
-          :key="index"
-          class="ml-5 border-l border-dividerLight"
-        >
-          <CollectionsGraphqlRequest
-            :picked="picked"
-            :saving-mode="savingMode"
-            :request="request"
-            :collection-index="collectionIndex"
-            :folder-index="folderIndex"
-            :folder-path="folderPath"
-            :folder-name="folder.name"
-            :request-index="index"
-            :doc="doc"
-            @edit-request="$emit('edit-request', $event)"
-            @select="$emit('select', $event)"
-          />
-        </li>
-      </ul>
-      <ul
+      <CollectionsGraphqlFolder
+        v-for="(subFolder, subFolderIndex) in folder.folders"
+        :key="subFolder.name"
+        class="ml-5 border-l border-dividerLight"
+        :picked="picked"
+        :saving-mode="savingMode"
+        :folder="subFolder"
+        :folder-index="subFolderIndex"
+        :folder-path="`${folderPath}/${subFolderIndex}`"
+        :collection-index="collectionIndex"
+        :doc="doc"
+        :is-filtered="isFiltered"
+        @add-folder="$emit('add-folder', $event)"
+        @edit-folder="$emit('edit-folder', $event)"
+        @edit-request="$emit('edit-request', $event)"
+        @select="$emit('select', $event)"
+      />
+      <CollectionsGraphqlRequest
+        v-for="(request, index) in folder.requests"
+        :key="index"
+        class="ml-5 border-l border-dividerLight"
+        :picked="picked"
+        :saving-mode="savingMode"
+        :request="request"
+        :collection-index="collectionIndex"
+        :folder-index="folderIndex"
+        :folder-path="folderPath"
+        :folder-name="folder.name"
+        :request-index="index"
+        :doc="doc"
+        @edit-request="$emit('edit-request', $event)"
+        @select="$emit('select', $event)"
+      />
+      <div
         v-if="
           folder.folders &&
           folder.folders.length === 0 &&
           folder.requests &&
           folder.requests.length === 0
         "
+        class="
+          flex
+          items-center
+          text-secondaryLight
+          flex-col
+          p-4
+          justify-center
+          ml-5
+          border-l border-dividerLight
+        "
       >
-        <li
-          class="
-            ml-5
-            border-l border-dividerLight
-            ml-5
-            border-l border-dividerLight
-          "
-        >
-          <p>
-            <i class="material-icons">not_interested</i>
-            {{ $t("folder_empty") }}
-          </p>
-        </li>
-      </ul>
+        <i class="material-icons opacity-50 pb-2">folder_open</i>
+        <span class="text-xs">
+          {{ $t("folder_empty") }}
+        </span>
+      </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
@@ -171,6 +188,12 @@ export default Vue.extend({
         this.picked.pickedType === "gql-my-folder" &&
         this.picked.folderPath === this.folderPath
       )
+    },
+    getCollectionIcon() {
+      if (this.isSelected) return "check_circle"
+      else if (!this.showChildren && !this.isFiltered) return "arrow_right"
+      else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
+      else return "folder"
     },
   },
   methods: {

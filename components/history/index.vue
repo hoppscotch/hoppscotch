@@ -1,11 +1,19 @@
 <template>
   <AppSection label="history">
-    <div class="flex sticky top-10 border-b border-dividerLight">
+    <div
+      class="
+        flex
+        sticky
+        z-10
+        bg-primaryLight
+        top-10
+        border-b border-dividerLight
+      "
+    >
       <input
         v-model="filterText"
-        aria-label="Search"
         type="search"
-        class="px-4 py-3 text-xs flex flex-1 bg-primary focus:outline-none"
+        class="px-4 py-3 text-xs flex flex-1 bg-primaryLight focus:outline-none"
         :placeholder="$t('search')"
       />
       <ButtonSecondary
@@ -39,7 +47,7 @@
       </div>
     </div>
     <div
-      :class="{ hidden: filteredHistory.length != 0 || history.length === 0 }"
+      v-if="!(filteredHistory.length !== 0 || history.length === 0)"
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">manage_search</i>

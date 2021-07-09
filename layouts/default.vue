@@ -72,6 +72,7 @@ import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
+import { logPageView } from "~/helpers/fb/analytics"
 
 export default {
   components: { Splitpanes, Pane },
@@ -85,6 +86,9 @@ export default {
   watch: {
     zenMode(zenMode) {
       this.hideNavigationPane = this.hideRightPane = zenMode
+    },
+    $route(to) {
+      logPageView(to.fullPath)
     },
   },
   beforeMount() {
@@ -100,7 +104,6 @@ export default {
   },
   async mounted() {
     performMigrations()
-
     console.log(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
@@ -136,6 +139,8 @@ export default {
 
     initializeFirebase()
     initUserInfo()
+
+    logPageView(this.$router.currentRoute.fullPath)
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)

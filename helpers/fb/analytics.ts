@@ -91,3 +91,11 @@ export function logHoppRequestRunToAnalytics(ev: HoppRequestEvent) {
     analytics.logEvent("hopp-request", ev)
   }
 }
+
+export function logPageView(pagePath: string) {
+  if (settingsStore.value.TELEMETRY_ENABLED) {
+    analytics.logEvent("page_view", {
+      page_path: pagePath,
+    })
+  }
+}

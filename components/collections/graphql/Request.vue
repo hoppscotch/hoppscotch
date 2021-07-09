@@ -41,6 +41,13 @@
       >
         <span class="truncate"> {{ request.name }} </span>
       </span>
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        icon="replay"
+        :title="$t('restore')"
+        class="group-hover:inline-flex hidden"
+        @click.native="!doc ? selectRequest() : {}"
+      />
       <tippy
         ref="options"
         interactive

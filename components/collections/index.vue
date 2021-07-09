@@ -35,7 +35,6 @@
           icon="add"
           :title="$t('disable_new_collection')"
           :label="$t('new')"
-          @click.native="displayModalAdd(true)"
         />
         <ButtonSecondary
           v-else
@@ -55,6 +54,55 @@
           @click.native="displayModalImportExport(true)"
         />
       </div>
+    </div>
+    <div class="flex flex-col">
+      <component
+        :is="
+          collectionsType.type == 'my-collections'
+            ? 'CollectionsMyCollection'
+            : 'CollectionsTeamsCollection'
+        "
+        v-for="(collection, index) in filteredCollections"
+        :key="collection.name"
+        :name="collection.name"
+        :collection-index="index"
+        :collection="collection"
+        :doc="doc"
+        :is-filtered="filterText.length > 0"
+        :selected="selected.some((coll) => coll == collection)"
+        :save-request="saveRequest"
+        :collections-type="collectionsType"
+        :picked="picked"
+        @edit-collection="editCollection(collection, index)"
+        @add-folder="addFolder($event)"
+        @edit-folder="editFolder($event)"
+        @edit-request="editRequest($event)"
+        @update-team-collections="updateTeamCollections"
+        @select-collection="$emit('use-collection', collection)"
+        @unselect-collection="$emit('remove-collection', collection)"
+        @select="$emit('select', $event)"
+        @expand-collection="expandCollection"
+        @remove-collection="removeCollection"
+        @remove-request="removeRequest"
+      />
+    </div>
+    <div
+      v-if="collections.length === 0"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
+      <span class="text-xs">
+        {{ $t("create_new_collection") }}
+      </span>
+    </div>
+    <div
+      v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">manage_search</i>
+      <span class="text-xs">
+        {{ $t("nothing_found") }} "{{ filterText }}"
+      </span>
     </div>
     <CollectionsAdd
       :show="showModalAdd"
@@ -92,55 +140,6 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
-    <div
-      v-if="collections.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
-    >
-      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
-      <span class="text-xs">
-        {{ $t("create_new_collection") }}
-      </span>
-    </div>
-    <div class="flex flex-col">
-      <component
-        :is="
-          collectionsType.type == 'my-collections'
-            ? 'CollectionsMyCollection'
-            : 'CollectionsTeamsCollection'
-        "
-        v-for="(collection, index) in filteredCollections"
-        :key="collection.name"
-        :name="collection.name"
-        :collection-index="index"
-        :collection="collection"
-        :doc="doc"
-        :is-filtered="filterText.length > 0"
-        :selected="selected.some((coll) => coll == collection)"
-        :save-request="saveRequest"
-        :collections-type="collectionsType"
-        :picked="picked"
-        @edit-collection="editCollection(collection, index)"
-        @add-folder="addFolder($event)"
-        @edit-folder="editFolder($event)"
-        @edit-request="editRequest($event)"
-        @update-team-collections="updateTeamCollections"
-        @select-collection="$emit('use-collection', collection)"
-        @unselect-collection="$emit('remove-collection', collection)"
-        @select="$emit('select', $event)"
-        @expand-collection="expandCollection"
-        @remove-collection="removeCollection"
-        @remove-request="removeRequest"
-      />
-    </div>
-    <div
-      v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
-    >
-      <i class="material-icons opacity-50 pb-2">manage_search</i>
-      <span class="text-xs">
-        {{ $t("nothing_found") }} "{{ filterText }}"
-      </span>
-    </div>
   </AppSection>
 </template>
 

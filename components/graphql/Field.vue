@@ -1,6 +1,9 @@
 <template>
-  <div class="p-2 m-2 border-b border-dashed border-divider">
-    <div class="field-title" :class="{ 'field-highlighted': isHighlighted }">
+  <div>
+    <div
+      class="font-bold text-xs field-title"
+      :class="{ 'field-highlighted': isHighlighted }"
+    >
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
         (
@@ -10,7 +13,7 @@
             :gql-type="field.type"
             :jump-type-callback="jumpTypeCallback"
           />
-          <span v-if="index !== fieldArgs.length - 1"> , </span>
+          <span v-if="index !== fieldArgs.length - 1">, </span>
         </span>
         ) </span
       >:
@@ -21,7 +24,7 @@
     </div>
     <div
       v-if="gqlField.description"
-      class="py-2 text-sm text-secondaryLight field-desc"
+      class="py-2 text-xs text-secondaryLight field-desc"
     >
       {{ gqlField.description }}
     </div>
@@ -29,31 +32,32 @@
       v-if="gqlField.isDeprecated"
       class="
         inline-block
-        px-4
-        py-2
-        my-2
-        text-sm
-        font-bold
-        text-black
+        px-2
+        py-1
+        my-1
+        text-xs text-black
         bg-yellow-200
-        rounded-lg
+        rounded
+        font-bold
         field-deprecated
       "
     >
       {{ $t("deprecated") }}
     </div>
     <div v-if="fieldArgs.length > 0">
-      <h5 class="my-2 text-xs">ARGUMENTS:</h5>
-      <div class="px-4 border-l-2 border-accent">
+      <h5 class="my-2 text-xs">Arguments:</h5>
+      <div class="pl-4 border-l-2 border-divider">
         <div v-for="(field, index) in fieldArgs" :key="index">
-          {{ field.name }}:
-          <GraphqlTypeLink
-            :gql-type="field.type"
-            :jump-type-callback="jumpTypeCallback"
-          />
+          <span class="font-bold text-xs">
+            {{ field.name }}:
+            <GraphqlTypeLink
+              :gql-type="field.type"
+              :jump-type-callback="jumpTypeCallback"
+            />
+          </span>
           <div
             v-if="field.description"
-            class="py-2 text-sm text-secondaryLight field-desc"
+            class="py-2 text-xs text-secondaryLight field-desc"
           >
             {{ field.description }}
           </div>

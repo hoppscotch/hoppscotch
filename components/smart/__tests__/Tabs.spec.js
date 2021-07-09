@@ -30,7 +30,7 @@ describe("tabs", () => {
 
     await wrapper.vm.$nextTick()
 
-    const labels = wrapper.findAll("li a span").wrappers.map((w) => w.text())
+    const labels = wrapper.findAll("button span").wrappers.map((w) => w.text())
     expect(labels).toEqual(["tab 1", "tab 2", "tab 3"])
   })
 

@@ -16,41 +16,6 @@
           focus:outline-none
         "
       />
-      <CollectionsGraphqlAdd
-        :show="showModalAdd"
-        @hide-modal="displayModalAdd(false)"
-      />
-      <CollectionsGraphqlEdit
-        :show="showModalEdit"
-        :editing-collection="editingCollection"
-        :editing-collection-index="editingCollectionIndex"
-        @hide-modal="displayModalEdit(false)"
-      />
-      <CollectionsGraphqlAddFolder
-        :show="showModalAddFolder"
-        :folder-path="editingFolderPath"
-        @add-folder="onAddFolder($event)"
-        @hide-modal="displayModalAddFolder(false)"
-      />
-      <CollectionsGraphqlEditFolder
-        :show="showModalEditFolder"
-        :collection-index="editingCollectionIndex"
-        :folder="editingFolder"
-        :folder-index="editingFolderIndex"
-        :folder-path="editingFolderPath"
-        @hide-modal="displayModalEditFolder(false)"
-      />
-      <CollectionsGraphqlEditRequest
-        :show="showModalEditRequest"
-        :folder-path="editingFolderPath"
-        :request="editingRequest"
-        :request-index="editingRequestIndex"
-        @hide-modal="displayModalEditRequest(false)"
-      />
-      <CollectionsGraphqlImportExport
-        :show="showModalImportExport"
-        @hide-modal="displayModalImportExport(false)"
-      />
       <div class="border-b flex justify-between flex-1 border-dividerLight">
         <ButtonSecondary
           icon="add"
@@ -65,15 +30,6 @@
           @click.native="displayModalImportExport(true)"
         />
       </div>
-    </div>
-    <div
-      v-if="collections.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
-    >
-      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
-      <span class="text-xs">
-        {{ $t("create_new_collection") }}
-      </span>
     </div>
     <div class="flex-col">
       <CollectionsGraphqlCollection
@@ -95,6 +51,15 @@
       />
     </div>
     <div
+      v-if="collections.length === 0"
+      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+    >
+      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
+      <span class="text-xs">
+        {{ $t("create_new_collection") }}
+      </span>
+    </div>
+    <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
@@ -103,6 +68,41 @@
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>
+    <CollectionsGraphqlAdd
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+    />
+    <CollectionsGraphqlEdit
+      :show="showModalEdit"
+      :editing-collection="editingCollection"
+      :editing-collection-index="editingCollectionIndex"
+      @hide-modal="displayModalEdit(false)"
+    />
+    <CollectionsGraphqlAddFolder
+      :show="showModalAddFolder"
+      :folder-path="editingFolderPath"
+      @add-folder="onAddFolder($event)"
+      @hide-modal="displayModalAddFolder(false)"
+    />
+    <CollectionsGraphqlEditFolder
+      :show="showModalEditFolder"
+      :collection-index="editingCollectionIndex"
+      :folder="editingFolder"
+      :folder-index="editingFolderIndex"
+      :folder-path="editingFolderPath"
+      @hide-modal="displayModalEditFolder(false)"
+    />
+    <CollectionsGraphqlEditRequest
+      :show="showModalEditRequest"
+      :folder-path="editingFolderPath"
+      :request="editingRequest"
+      :request-index="editingRequestIndex"
+      @hide-modal="displayModalEditRequest(false)"
+    />
+    <CollectionsGraphqlImportExport
+      :show="showModalImportExport"
+      @hide-modal="displayModalImportExport(false)"
+    />
   </AppSection>
 </template>
 

@@ -13,6 +13,7 @@
           group-hover:text-secondaryDark
           transition
         "
+        data-testid="restore_history_entry"
         @click="$emit('use-entry')"
       >
         <span class="truncate">
@@ -25,6 +26,7 @@
         :title="$t('delete')"
         class="group-hover:inline-flex hidden"
         color="red"
+        data-testid="delete_history_entry"
         @click.native="$emit('delete-entry')"
       />
       <ButtonSecondary
@@ -40,6 +42,7 @@
         :icon="entry.star ? 'star' : 'star_border'"
         color="yellow"
         :class="{ 'group-hover:inline-flex hidden': !entry.star }"
+        data-testid="star_button"
         @click.native="$emit('toggle-star')"
       />
     </div>
@@ -55,6 +58,7 @@
           font-mono
           text-secondaryLight
         "
+        data-testid="restore_history_entry"
         @click="$emit('use-entry')"
       >
         {{ line }}

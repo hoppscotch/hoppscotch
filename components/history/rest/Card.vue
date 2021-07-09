@@ -13,6 +13,7 @@
         cursor-pointer
       "
       :class="entryStatus.className"
+      data-testid="restore_history_entry"
       @click="$emit('use-entry')"
     >
       {{ entry.method }}
@@ -28,6 +29,7 @@
         group-hover:text-secondaryDark
         transition
       "
+      data-testid="restore_history_entry"
       @click="$emit('use-entry')"
     >
       <span class="truncate">
@@ -40,6 +42,7 @@
       :title="$t('delete')"
       class="group-hover:inline-flex hidden"
       color="red"
+      data-testid="delete_history_entry"
       @click.native="$emit('delete-entry')"
     />
     <ButtonSecondary
@@ -48,6 +51,7 @@
       :class="{ 'group-hover:inline-flex hidden': !entry.star }"
       :icon="entry.star ? 'star' : 'star_border'"
       color="yellow"
+      data-testid="star_button"
       @click.native="$emit('toggle-star')"
     />
   </div>

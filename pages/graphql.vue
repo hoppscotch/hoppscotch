@@ -353,60 +353,60 @@
                   styles="
                     border-t border-dividerLight sticky z-10 top-20"
                 >
-                  <SmartTab
-                    v-if="queryFields.length > 0"
-                    :id="'queries'"
-                    :label="$t('queries')"
-                    :selected="true"
-                  >
-                    <div v-for="field in filteredQueryFields" :key="field.name">
-                      <GraphqlField
-                        :gql-field="field"
-                        :jump-type-callback="handleJumpToType"
-                      />
-                    </div>
-                  </SmartTab>
-
-                  <SmartTab
-                    v-if="mutationFields.length > 0"
-                    :id="'mutations'"
-                    :label="$t('mutations')"
-                  >
-                    <div
-                      v-for="field in filteredMutationFields"
-                      :key="field.name"
+                  <div class="gqlTabs">
+                    <SmartTab
+                      v-if="queryFields.length > 0"
+                      :id="'queries'"
+                      :label="$t('queries')"
+                      :selected="true"
+                      class="divide-y divide-dividerLight"
                     >
                       <GraphqlField
+                        v-for="field in filteredQueryFields"
+                        :key="field.name"
                         :gql-field="field"
                         :jump-type-callback="handleJumpToType"
+                        class="p-4"
                       />
-                    </div>
-                  </SmartTab>
-
-                  <SmartTab
-                    v-if="subscriptionFields.length > 0"
-                    :id="'subscriptions'"
-                    :label="$t('subscriptions')"
-                  >
-                    <div
-                      v-for="field in filteredSubscriptionFields"
-                      :key="field.name"
+                    </SmartTab>
+                    <SmartTab
+                      v-if="mutationFields.length > 0"
+                      :id="'mutations'"
+                      :label="$t('mutations')"
+                      class="divide-y divide-dividerLight"
                     >
                       <GraphqlField
+                        v-for="field in filteredMutationFields"
+                        :key="field.name"
                         :gql-field="field"
                         :jump-type-callback="handleJumpToType"
+                        class="p-4"
                       />
-                    </div>
-                  </SmartTab>
-
-                  <SmartTab
-                    v-if="graphqlTypes.length > 0"
-                    :id="'types'"
-                    ref="typesTab"
-                    :label="$t('types')"
-                  >
-                    <div v-for="type in filteredGraphqlTypes" :key="type.name">
+                    </SmartTab>
+                    <SmartTab
+                      v-if="subscriptionFields.length > 0"
+                      :id="'subscriptions'"
+                      :label="$t('subscriptions')"
+                      class="divide-y divide-dividerLight"
+                    >
+                      <GraphqlField
+                        v-for="field in filteredSubscriptionFields"
+                        :key="field.name"
+                        :gql-field="field"
+                        :jump-type-callback="handleJumpToType"
+                        class="p-4"
+                      />
+                    </SmartTab>
+                    <SmartTab
+                      v-if="graphqlTypes.length > 0"
+                      :id="'types'"
+                      ref="typesTab"
+                      :label="$t('types')"
+                      class="divide-y divide-dividerLight"
+                    >
                       <GraphqlType
+                        v-for="type in filteredGraphqlTypes"
+                        :key="type.name"
                         :gql-type="type"
                         :gql-types="graphqlTypes"
                         :is-highlighted="
@@ -417,8 +417,8 @@
                         "
                         :jump-type-callback="handleJumpToType"
                       />
-                    </div>
-                  </SmartTab>
+                    </SmartTab>
+                  </div>
                 </SmartTabs>
                 <p
                   v-if="

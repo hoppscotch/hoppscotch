@@ -1,7 +1,7 @@
 <template>
   <span
-    :class="{ 'cursor-pointer': !isScalar }"
-    class="font-mono text-sm text-accent"
+    :class="isScalar ? 'text-secondaryLight' : 'cursor-pointer text-accent'"
+    class="font-mono text-xs"
     @click="jumpToType"
   >
     {{ typeString }}

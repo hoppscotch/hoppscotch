@@ -12,6 +12,7 @@
           text-xs
           group-hover:text-secondaryDark
           transition
+          font-semibold
         "
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"

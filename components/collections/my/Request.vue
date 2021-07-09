@@ -44,6 +44,7 @@
           text-xs
           group-hover:text-secondaryDark
           transition
+          font-semibold
         "
         @click="!doc ? selectRequest() : {}"
       >

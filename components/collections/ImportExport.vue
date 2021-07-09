@@ -2,7 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-if="mode == 'import_from_my_collections'"
           v-tippy="{ theme: 'tooltip' }"
@@ -67,8 +67,8 @@
       </div>
     </template>
     <template #body>
-      <div v-if="mode == 'import_export'" class="flex flex-col p-2 items-start">
-        <ButtonSecondary
+      <div v-if="mode == 'import_export'" class="flex flex-col space-y-2">
+        <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('replace_current')"
           icon="folder_special"
@@ -83,7 +83,7 @@
           accept="application/json"
           @change="replaceWithJSON"
         />
-        <ButtonSecondary
+        <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
           icon="create_new_folder"
@@ -98,7 +98,7 @@
           accept="application/json"
           @change="importFromJSON"
         />
-        <ButtonSecondary
+        <SmartItem
           v-if="collectionsType.type == 'team-collections'"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
@@ -106,7 +106,7 @@
           :label="$t('import_from_my_collections')"
           @click.native="mode = 'import_from_my_collections'"
         />
-        <ButtonSecondary
+        <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
           icon="drive_file_move"
@@ -114,8 +114,11 @@
           @click.native="exportJSON"
         />
       </div>
-      <div v-if="mode == 'import_from_my_collections'">
-        <span class="select-wrapper">
+      <div
+        v-if="mode == 'import_from_my_collections'"
+        class="flex px-2 flex-col"
+      >
+        <div class="select-wrapper">
           <select
             type="text"
             class="select"
@@ -143,15 +146,13 @@
               {{ collection.name }}
             </option>
           </select>
-        </span>
+        </div>
       </div>
     </template>
     <template #footer>
       <div v-if="mode == 'import_from_my_collections'">
-        <span></span>
         <span>
-          <ButtonSecondary
-            class="m-2"
+          <ButtonPrimary
             :disabled="mySelectedCollectionID == undefined"
             icon="create_new_folder"
             :label="$t('import')"

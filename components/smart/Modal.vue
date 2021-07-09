@@ -30,23 +30,20 @@
           bg-primary
           rounded-lg
           shadow-xl
-          max-w-md
+          max-w-md max-h-lg
         "
       >
-        <div class="pl-2">
-          <div class="flex items-center justify-between">
-            <slot name="header"></slot>
-          </div>
+        <div class="flex pl-2 items-center justify-between">
+          <slot name="header"></slot>
         </div>
-        <div class="my-4 overflow-auto max-h-xl">
-          <div class="flex flex-col">
-            <slot name="body"></slot>
-          </div>
+        <div class="my-4 overflow-auto flex flex-col">
+          <slot name="body"></slot>
         </div>
-        <div v-if="hasFooterSlot" class="p-2">
-          <div class="flex flex-1">
-            <slot name="footer"></slot>
-          </div>
+        <div
+          v-if="hasFooterSlot"
+          class="p-2 flex flex-1 items-center justify-between"
+        >
+          <slot name="footer"></slot>
         </div>
       </div>
     </div>
@@ -138,46 +135,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.modal-backdrop {
-  @apply fixed;
-  @apply inset-0;
-  @apply z-50;
-  @apply w-full;
-  @apply h-full;
-  @apply flex;
-  @apply items-center;
-  @apply justify-center;
-  @apply transition;
-
-  @apply bg-primaryLight;
-}
-
-.modal-container {
-  @apply relative;
-  @apply flex flex-1 flex-col;
-  @apply m-2;
-  @apply p-4;
-  @apply transition;
-  @apply bg-primary;
-  @apply rounded-lg;
-  @apply shadow-xl;
-  @apply max-w-md;
-}
-
-.modal-header {
-  @apply pl-2;
-}
-
-.modal-body {
-  @apply my-4;
-  @apply overflow-auto;
-  @apply max-h-xl;
-}
-
-.modal-footer {
-  @apply p-2;
-}
-
 .modal-enter,
 .modal-leave-active {
   @apply opacity-0;

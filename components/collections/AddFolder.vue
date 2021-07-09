@@ -7,21 +7,27 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabelAddFolder">{{ $t("label") }}</label>
-      <input
-        id="selectLabelAddFolder"
-        v-model="name"
-        class="input"
-        type="text"
-        :placeholder="$t('my_new_folder')"
-        @keyup.enter="addFolder"
-      />
+      <div class="px-2 flex flex-col">
+        <label
+          for="selectLabelAddFolder"
+          class="px-4 font-semibold pb-4 text-xs"
+        >
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelAddFolder"
+          v-model="name"
+          class="input"
+          type="text"
+          :placeholder="$t('my_new_folder')"
+          @keyup.enter="addFolder"
+        />
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="addFolder" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

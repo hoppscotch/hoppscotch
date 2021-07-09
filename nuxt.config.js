@@ -361,6 +361,11 @@ export default {
     },
   },
 
+  // https://github.com/nuxt-community/color-mode-module
+  colorMode: {
+    classSuffix: "",
+  },
+
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     transpile: ["three"],

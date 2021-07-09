@@ -7,82 +7,90 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabelEnvEdit">{{ $t("label") }}</label>
-      <input
-        id="selectLabelEnvEdit"
-        v-model="name"
-        class="input"
-        type="text"
-        :placeholder="editingEnvironment.name"
-        @keyup.enter="saveEnvironment"
-      />
-      <div class="flex flex-1">
-        <label for="variableList">{{ $t("env_variable_list") }}</label>
-        <div>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('clear')"
-            icon="clearIcon"
-            @click.native="clearContent($event)"
-          />
-        </div>
-      </div>
-      <ul
-        v-for="(variable, index) in vars"
-        :key="index"
-        class="
-          border-b border-dashed
-          divide-y
-          md:divide-x
-          border-divider
-          divide-dashed divide-divider
-          md:divide-y-0
-        "
-        :class="{ 'border-t': index == 0 }"
-      >
-        <li>
-          <input
-            v-model="variable.key"
-            class="input"
-            :placeholder="$t('variable_count', { count: index + 1 })"
-            :name="'param' + index"
-          />
-        </li>
-        <li>
-          <input
-            v-model="variable.value"
-            class="input"
-            :placeholder="$t('value_count', { count: index + 1 })"
-            :name="'value' + index"
-          />
-        </li>
-        <div>
-          <li>
+      <div class="px-2 flex flex-col">
+        <label for="selectLabelEnvEdit" class="px-4 font-semibold pb-4 text-xs">
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelEnvEdit"
+          v-model="name"
+          class="input"
+          type="text"
+          :placeholder="editingEnvironment.name"
+          @keyup.enter="saveEnvironment"
+        />
+        <div class="flex justify-between items-center flex-1">
+          <label
+            for="variableList"
+            class="px-4 pt-4 font-semibold pb-4 text-xs"
+          >
+            {{ $t("env_variable_list") }}
+          </label>
+          <div>
             <ButtonSecondary
-              id="variable"
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
-              icon="delete"
-              @click.native="removeEnvironmentVariable(index)"
+              :title="$t('clear')"
+              :icon="clearIcon"
+              @click.native="clearContent($event)"
+            />
+          </div>
+        </div>
+        <ul
+          v-for="(variable, index) in vars"
+          :key="index"
+          class="
+            border-b border-dashed
+            divide-y
+            md:divide-x
+            border-divider
+            divide-dashed divide-divider
+            md:divide-y-0
+          "
+          :class="{ 'border-t': index == 0 }"
+        >
+          <li>
+            <input
+              v-model="variable.key"
+              class="input"
+              :placeholder="$t('variable_count', { count: index + 1 })"
+              :name="'param' + index"
             />
           </li>
-        </div>
-      </ul>
-      <ul>
-        <li>
-          <ButtonSecondary
-            icon="add"
-            :label="$t('add_new')"
-            @click.native="addEnvironmentVariable"
-          />
-        </li>
-      </ul>
+          <li>
+            <input
+              v-model="variable.value"
+              class="input"
+              :placeholder="$t('value_count', { count: index + 1 })"
+              :name="'value' + index"
+            />
+          </li>
+          <div>
+            <li>
+              <ButtonSecondary
+                id="variable"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                @click.native="removeEnvironmentVariable(index)"
+              />
+            </li>
+          </div>
+        </ul>
+        <ul>
+          <li>
+            <ButtonSecondary
+              icon="add"
+              :label="$t('add_new')"
+              @click.native="addEnvironmentVariable"
+            />
+          </li>
+        </ul>
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="saveEnvironment" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

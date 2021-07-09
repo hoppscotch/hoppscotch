@@ -7,21 +7,24 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabelEnvAdd">{{ $t("label") }}</label>
-      <input
-        id="selectLabelEnvAdd"
-        v-model="name"
-        class="input"
-        type="text"
-        :placeholder="$t('my_new_environment')"
-        @keyup.enter="addNewEnvironment"
-      />
+      <div class="px-2 flex flex-col">
+        <label for="selectLabelEnvAdd" class="px-4 font-semibold pb-4 text-xs">
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelEnvAdd"
+          v-model="name"
+          class="input"
+          type="text"
+          :placeholder="$t('my_new_environment')"
+          @keyup.enter="addNewEnvironment"
+        />
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="addNewEnvironment" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

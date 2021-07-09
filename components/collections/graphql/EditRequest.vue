@@ -7,21 +7,27 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabelGqlEditReq">{{ $t("label") }}</label>
-      <input
-        id="selectLabelGqlEditReq"
-        v-model="requestUpdateData.name"
-        class="input"
-        type="text"
-        :placeholder="request.name"
-        @keyup.enter="saveRequest"
-      />
+      <div class="px-2 flex flex-col">
+        <label
+          for="selectLabelGqlEditReq"
+          class="px-4 font-semibold pb-4 text-xs"
+        >
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelGqlEditReq"
+          v-model="requestUpdateData.name"
+          class="input"
+          type="text"
+          :placeholder="request.name"
+          @keyup.enter="saveRequest"
+        />
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="saveRequest" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

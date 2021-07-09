@@ -15,7 +15,7 @@
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:text-${color}-900 hover:bg-${color}-300 focus:text-${color}-900 focus:bg-${color}-300`
-        : `text-white bg-accent hover:bg-accentDark focus:bg-accentDark`,
+        : `text-white dark:text-accentDark bg-accent hover:bg-accentDark focus:bg-accentDark`,
       label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded-lg',
       { 'opacity-50 cursor-not-allowed': disabled },

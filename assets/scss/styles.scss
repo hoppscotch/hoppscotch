@@ -162,12 +162,24 @@ hr {
   @apply text-lg;
 }
 
-input {
+.input,
+.select {
+  @apply flex;
+  @apply w-full;
+  @apply px-4;
+  @apply py-2;
+  @apply bg-primaryLight;
   @apply truncate;
+  @apply rounded-lg;
+  @apply font-semibold;
+  @apply focus:outline-none;
+  @apply focus-visible:ring;
+  @apply focus-visible:ring-inset;
+  @apply focus-visible:ring-accent;
 }
 
-input[type="file"],
-input[type="radio"],
+.input[type="file"],
+.input[type="radio"],
 #installPWA {
   @apply hidden;
 }

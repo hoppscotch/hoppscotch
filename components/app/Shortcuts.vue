@@ -7,61 +7,30 @@
       </div>
     </template>
     <template #body>
-      <div class="p-2">
-        <div>
-          <kbd>{{ getSpecialKey() }}</kbd>
-          +
-          <kbd>G</kbd>
-          <label>{{ $t("send_request") }}</label>
-        </div>
-        <div>
-          <kbd>{{ getSpecialKey() }}</kbd
-          >+<kbd>S</kbd>
-          <label>{{ $t("save_to_collections") }}</label>
-        </div>
-        <div>
-          <kbd>{{ getSpecialKey() }}</kbd
-          >+<kbd>K</kbd>
-          <label>{{ $t("copy_request_link") }}</label>
-        </div>
-        <div>
-          <kbd>{{ getSpecialKey() }}</kbd
-          >+<kbd>I</kbd>
-          <label>{{ $t("reset_request") }}</label>
-        </div>
-      </div>
-      <hr />
-      <div class="p-2">
-        <div>
-          <kbd>Alt</kbd>+<kbd>▲</kbd>
-          <label>{{ $t("select_next_method") }}</label>
-        </div>
-        <div>
-          <kbd>Alt</kbd>+<kbd>▼</kbd>
-          <label>{{ $t("select_previous_method") }}</label>
-        </div>
-      </div>
-      <hr />
-      <div class="p-2">
-        <div>
-          <kbd>Alt</kbd>+<kbd>G</kbd>
-          <label>{{ $t("select_get_method") }}</label>
-        </div>
-        <div>
-          <kbd>Alt</kbd>+<kbd>H</kbd>
-          <label>{{ $t("select_head_method") }}</label>
-        </div>
-        <div>
-          <kbd>Alt</kbd>+<kbd>P</kbd>
-          <label>{{ $t("select_post_method") }}</label>
-        </div>
-        <div>
-          <kbd>Alt</kbd>+<kbd>U</kbd>
-          <label>{{ $t("select_put_method") }}</label>
-        </div>
-        <div>
-          <kbd>Alt</kbd>+<kbd>X</kbd>
-          <label>{{ $t("select_delete_method") }}</label>
+      <div class="px-2">
+        <div
+          v-for="(shortcut, index) in shortcuts"
+          :key="`shortcut-${index}`"
+          class="flex items-center"
+        >
+          <kbd
+            v-for="(key, keyIndex) in shortcut.keys"
+            :key="`key-${keyIndex}`"
+            class="
+              py-2
+              px-4
+              m-1
+              text-xs
+              border border-divider
+              rounded-lg
+              font-bold
+            "
+          >
+            {{ key }}
+          </kbd>
+          <span class="flex text-xs ml-4">
+            {{ shortcut.label }}
+          </span>
         </div>
       </div>
     </template>
@@ -75,6 +44,56 @@ export default {
   props: {
     show: Boolean,
   },
+  data() {
+    return {
+      shortcuts: [
+        {
+          keys: [this.getSpecialKey(), "G"],
+          label: this.$t("send_request"),
+        },
+        {
+          keys: [this.getSpecialKey(), "S"],
+          label: this.$t("save_to_collections"),
+        },
+        {
+          keys: [this.getSpecialKey(), "K"],
+          label: this.$t("copy_request_link"),
+        },
+        {
+          keys: [this.getSpecialKey(), "I"],
+          label: this.$t("reset_request"),
+        },
+        {
+          keys: ["Alt", "▲"],
+          label: this.$t("select_next_method"),
+        },
+        {
+          keys: ["Alt", "▼"],
+          label: this.$t("select_previous_method"),
+        },
+        {
+          keys: ["Alt", "G"],
+          label: this.$t("select_get_method"),
+        },
+        {
+          keys: ["Alt", "H"],
+          label: this.$t("select_head_method"),
+        },
+        {
+          keys: ["Alt", "P"],
+          label: this.$t("select_post_method"),
+        },
+        {
+          keys: ["Alt", "U"],
+          label: this.$t("select_put_method"),
+        },
+        {
+          keys: ["Alt", "X"],
+          label: this.$t("select_delete_method"),
+        },
+      ],
+    }
+  },
   methods: {
     getSpecialKey: getPlatformSpecialKey,
     hideModal() {
@@ -83,14 +102,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-kbd {
-  @apply inline-flex;
-  @apply resize-none;
-  @apply m-2;
-  @apply py-2 px-4;
-  @apply rounded-lg;
-  @apply text-sm;
-}
-</style>

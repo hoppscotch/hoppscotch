@@ -4,7 +4,7 @@
       <h3 class="heading">
         {{ $t("import_export") }} {{ $t("environments") }}
       </h3>
-      <div>
+      <div class="flex">
         <tippy
           ref="options"
           interactive
@@ -56,8 +56,8 @@
       </div>
     </template>
     <template #body>
-      <div class="flex flex-col items-start p-2">
-        <ButtonSecondary
+      <div class="flex flex-col space-y-2">
+        <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('replace_current')"
           icon="folder_special"
@@ -72,7 +72,7 @@
           accept="application/json"
           @change="replaceWithJSON"
         />
-        <ButtonSecondary
+        <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
           icon="create_new_folder"
@@ -87,7 +87,7 @@
           accept="application/json"
           @change="importFromJSON"
         />
-        <ButtonSecondary
+        <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
           icon="drive_file_move"

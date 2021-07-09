@@ -6,27 +6,27 @@
 
 @mixin darkTheme {
   // Background color
-  --primary-color: rgba(32, 33, 36, 1);
+  --primary-color: theme("colors.dark.800");
   // Light Background color
-  --primary-light-color: rgba(255, 255, 255, 0.04);
+  --primary-light-color: theme("colors.dark.700");
   // Dark Background color
-  --primary-dark-color: rgba(12, 12, 12, 1);
+  --primary-dark-color: theme("colors.dark.600");
   // Text color
-  --secondary-color: rgba(255, 255, 255, 0.9);
+  --secondary-color: theme("colors.gray.400");
   // Light Text color
-  --secondary-light-color: rgba(255, 255, 255, 0.5);
+  --secondary-light-color: theme("colors.gray.500");
   // Dark Text color
-  --secondary-dark-color: rgba(0, 0, 0, 0.5);
+  --secondary-dark-color: theme("colors.white");
   // Border color
-  --divider-color: rgba(255, 255, 255, 0.05);
+  --divider-color: theme("colors.dark.500");
   // Light Border color
-  --divider-light-color: rgba(255, 255, 255, 0.05);
+  --divider-light-color: theme("colors.dark.400");
   // Dark Border color
-  --divider-dark-color: rgba(255, 255, 255, 0.05);
+  --divider-dark-color: theme("colors.dark.700");
   // Error color
-  --error-color: rgba(255, 255, 255, 0.05);
+  --error-color: theme("colors.dark.600");
   // Tooltip color
-  --tooltip-color: rgba(48, 48, 48, 1);
+  --tooltip-color: theme("colors.dark.700");
   // Editor theme
   --editor-theme: "twilight";
 }
@@ -102,11 +102,11 @@
 
 @mixin greenTheme {
   // Accent color
-  --accent-color: rgba(73, 204, 104, 1);
+  --accent-color: rgb(97, 207, 123);
   // Light Accent color
   --accent-light-color: rgba(73, 204, 104, 1);
   // Dark Accent color
-  --accent-dark-color: rgba(64, 182, 91, 1);
+  --accent-dark-color: rgb(0, 71, 17);
   // Gradient from
   --gradient-from-color: theme("colors.green.200");
   // Gradient via
@@ -226,15 +226,15 @@
   @include greenTheme;
 }
 
-:root.light-mode {
+:root.light {
   @include lightTheme;
 }
 
-:root.dark-mode {
+:root.dark {
   @include darkTheme;
 }
 
-:root.black-mode {
+:root.black {
   @include blackTheme;
 }
 

@@ -5,28 +5,24 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <ul>
-        <li>
-          <label>{{ $t("label") }}</label>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <input
-            v-model="name"
-            class="input"
-            type="text"
-            :placeholder="$t('my_new_team')"
-            @keyup.enter="addNewTeam"
-          />
-        </li>
-      </ul>
+      <div class="px-2 flex flex-col">
+        <label for="selectLabelTeamAdd" class="px-4 font-semibold pb-4 text-xs">
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelTeamAdd"
+          v-model="name"
+          class="input"
+          type="text"
+          :placeholder="$t('my_new_team')"
+          @keyup.enter="addNewTeam"
+        />
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="addNewTeam" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

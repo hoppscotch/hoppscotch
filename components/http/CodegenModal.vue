@@ -2,49 +2,61 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("generate_code") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <label for="requestType">{{ $t("choose_language") }}</label>
-      <span class="select-wrapper">
-        <tippy
-          ref="options"
-          interactive
-          tabindex="-1"
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <pre v-if="requestType">{{
-              codegens.find((x) => x.id === requestType).name
-            }}</pre>
-            <input
-              v-else
-              id="requestType"
-              v-model="requestType"
-              :placeholder="$t('choose_language')"
-              class="input cursor-pointer"
-              readonly
-              autofocus
-            />
-          </template>
-          <SmartItem
-            v-for="gen in codegens"
-            :key="gen.id"
-            :label="gen.name"
-            @click.native="
-              requestType = gen.id
-              $refs.options.tippy().hide()
-            "
-          />
-        </tippy>
-      </span>
-      <div class="flex flex-1">
-        <label for="generatedCode">{{ $t("generated_code") }}</label>
-        <div>
+      <div class="px-2 flex flex-col">
+        <label for="requestType" class="px-4 font-semibold pb-4 text-xs">
+          {{ $t("choose_language") }}
+        </label>
+        <div class="flex flex-1">
+          <span class="select-wrapper">
+            <tippy
+              ref="options"
+              interactive
+              tabindex="-1"
+              trigger="click"
+              theme="popover"
+              arrow
+            >
+              <template #trigger>
+                <span
+                  class="
+                    flex
+                    w-full
+                    px-4
+                    text-xs
+                    py-3
+                    rounded-lg
+                    font-semibold
+                    focus:outline-none
+                    border-b border-dividerLight
+                    bg-primaryLight
+                    cursor-pointer
+                  "
+                >
+                  {{ codegens.find((x) => x.id === requestType).name }}
+                </span>
+              </template>
+              <SmartItem
+                v-for="gen in codegens"
+                :key="gen.id"
+                :label="gen.name"
+                @click.native="
+                  requestType = gen.id
+                  $refs.options.tippy().hide()
+                "
+              />
+            </tippy>
+          </span>
+        </div>
+        <div class="flex justify-between flex-1">
+          <label
+            for="generatedCode"
+            class="px-4 pt-4 font-semibold pb-4 text-xs"
+          >
+            {{ $t("generated_code") }}
+          </label>
           <ButtonSecondary
             ref="copyRequestCode"
             v-tippy="{ theme: 'tooltip' }"
@@ -53,23 +65,23 @@
             @click.native="copyRequestCode"
           />
         </div>
+        <SmartAceEditor
+          v-if="requestType"
+          ref="generatedCode"
+          :value="requestCode"
+          :lang="codegens.find((x) => x.id === requestType).language"
+          :options="{
+            maxLines: '10',
+            minLines: '10',
+            fontSize: '15px',
+            autoScrollEditorIntoView: true,
+            readOnly: true,
+            showPrintMargin: false,
+            useWorker: false,
+          }"
+          styles="rounded-lg"
+        />
       </div>
-      <SmartAceEditor
-        v-if="requestType"
-        ref="generatedCode"
-        :value="requestCode"
-        :lang="codegens.find((x) => x.id === requestType).language"
-        :options="{
-          maxLines: '10',
-          minLines: '10',
-          fontSize: '15px',
-          autoScrollEditorIntoView: true,
-          readOnly: true,
-          showPrintMargin: false,
-          useWorker: false,
-        }"
-        styles="rounded-b-lg"
-      />
     </template>
   </SmartModal>
 </template>

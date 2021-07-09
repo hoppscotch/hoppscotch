@@ -5,208 +5,200 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <ul>
-        <li>
-          <div class="flex flex-1">
-            <label>{{ $t("label") }}</label>
-          </div>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <input
-            v-model="name"
-            class="input"
-            type="text"
-            :placeholder="editingTeam.name"
-            @keyup.enter="saveTeam"
-          />
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <div class="flex flex-1">
-            <label for="memberList">{{ $t("team_member_list") }}</label>
-            <div></div>
-          </div>
-        </li>
-      </ul>
-      <ul
-        v-for="(member, index) in members"
-        :key="`new-${index}`"
-        class="
-          border-b border-dashed
-          divide-y
-          md:divide-x
-          border-divider
-          divide-dashed divide-divider
-          md:divide-y-0
-        "
-        :class="{ 'border-t': index == 0 }"
-      >
-        <li>
-          <input
-            class="input"
-            :placeholder="$t('email')"
-            :name="'param' + index"
-            :value="member.user.email"
-            readonly
-          />
-        </li>
-        <li>
-          <span class="select-wrapper">
-            <tippy
-              ref="options"
-              interactive
-              tabindex="-1"
-              trigger="click"
-              theme="popover"
-              arrow
-            >
-              <template #trigger>
-                <input
-                  class="input"
-                  :placeholder="$t('permissions')"
-                  :name="'value' + index"
-                  :value="
-                    typeof member.role === 'string'
-                      ? member.role
-                      : JSON.stringify(member.role)
-                  "
-                  readonly
-                />
-              </template>
-              <SmartItem
-                label="OWNER"
-                @click.native="
-                  updateRole(index, 'OWNER')
-                  $refs.options.tippy().hide()
-                "
-              />
-              <SmartItem
-                label="EDITOR"
-                @click.native="
-                  updateRole(index, 'EDITOR')
-                  $refs.options.tippy().hide()
-                "
-              />
-              <SmartItem
-                label="VIEWER"
-                @click.native="
-                  updateRole(index, 'VIEWER')
-                  $refs.options.tippy().hide()
-                "
-              />
-            </tippy>
-          </span>
-        </li>
-        <div>
+      <div class="px-2 flex flex-col">
+        <label
+          for="selectLabelTeamEdit"
+          class="px-4 font-semibold pb-4 text-xs"
+        >
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelTeamEdit"
+          v-model="name"
+          class="input"
+          type="text"
+          :placeholder="editingTeam.name"
+          @keyup.enter="saveTeam"
+        />
+        <label for="memberList" class="px-4 pt-4 font-semibold pb-4 text-xs">
+          {{ $t("team_member_list") }}
+        </label>
+        <ul
+          v-for="(member, index) in members"
+          :key="`new-${index}`"
+          class="
+            border-b border-dashed
+            divide-y
+            md:divide-x
+            border-divider
+            divide-dashed divide-divider
+            md:divide-y-0
+          "
+          :class="{ 'border-t': index == 0 }"
+        >
           <li>
-            <ButtonSecondary
-              id="member"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
-              icon="delete"
-              @click.native="removeExistingTeamMember(member.user.uid)"
+            <input
+              class="input"
+              :placeholder="$t('email')"
+              :name="'param' + index"
+              :value="member.user.email"
+              readonly
             />
           </li>
-        </div>
-      </ul>
-      <ul
-        v-for="(member, index) in newMembers"
-        :key="index"
-        class="
-          border-b border-dashed
-          divide-y
-          md:divide-x
-          border-divider
-          divide-dashed divide-divider
-          md:divide-y-0
-        "
-      >
-        <li>
-          <input
-            v-model="member.key"
-            class="input"
-            :placeholder="$t('email')"
-            :name="'param' + index"
-            autofocus
-          />
-        </li>
-        <li>
-          <span class="select-wrapper">
-            <tippy
-              ref="memberOptions"
-              interactive
-              tabindex="-1"
-              trigger="click"
-              theme="popover"
-              arrow
-            >
-              <template #trigger>
-                <input
-                  class="input"
-                  :placeholder="$t('permissions')"
-                  :name="'value' + index"
-                  :value="
-                    typeof member.value === 'string'
-                      ? member.value
-                      : JSON.stringify(member.value)
-                  "
-                  readonly
-                />
-              </template>
-              <SmartItem
-                label="OWNER"
-                @click.native="
-                  member.value = 'OWNER'
-                  $refs.options.tippy().hide()
-                "
-              />
-              <SmartItem
-                label="EDITOR"
-                @click.native="
-                  member.value = 'EDITOR'
-                  $refs.options.tippy().hide()
-                "
-              />
-              <SmartItem
-                label="VIEWER"
-                @click.native="
-                  member.value = 'VIEWER'
-                  $refs.options.tippy().hide()
-                "
-              />
-            </tippy>
-          </span>
-        </li>
-        <div>
           <li>
-            <ButtonSecondary
-              id="member"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
-              icon="delete"
-              @click.native="removeTeamMember(index)"
+            <span class="select-wrapper">
+              <tippy
+                ref="options"
+                interactive
+                tabindex="-1"
+                trigger="click"
+                theme="popover"
+                arrow
+              >
+                <template #trigger>
+                  <input
+                    class="input"
+                    :placeholder="$t('permissions')"
+                    :name="'value' + index"
+                    :value="
+                      typeof member.role === 'string'
+                        ? member.role
+                        : JSON.stringify(member.role)
+                    "
+                    readonly
+                  />
+                </template>
+                <SmartItem
+                  label="OWNER"
+                  @click.native="
+                    updateRole(index, 'OWNER')
+                    $refs.options.tippy().hide()
+                  "
+                />
+                <SmartItem
+                  label="EDITOR"
+                  @click.native="
+                    updateRole(index, 'EDITOR')
+                    $refs.options.tippy().hide()
+                  "
+                />
+                <SmartItem
+                  label="VIEWER"
+                  @click.native="
+                    updateRole(index, 'VIEWER')
+                    $refs.options.tippy().hide()
+                  "
+                />
+              </tippy>
+            </span>
+          </li>
+          <div>
+            <li>
+              <ButtonSecondary
+                id="member"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                @click.native="removeExistingTeamMember(member.user.uid)"
+              />
+            </li>
+          </div>
+        </ul>
+        <ul
+          v-for="(member, index) in newMembers"
+          :key="index"
+          class="
+            border-b border-dashed
+            divide-y
+            md:divide-x
+            border-divider
+            divide-dashed divide-divider
+            md:divide-y-0
+          "
+        >
+          <li>
+            <input
+              v-model="member.key"
+              class="input"
+              :placeholder="$t('email')"
+              :name="'param' + index"
+              autofocus
             />
           </li>
-        </div>
-      </ul>
-      <ul>
-        <li>
-          <ButtonSecondary
-            icon="add"
-            :label="$t('add_new')"
-            @click.native="addTeamMember"
-          />
-        </li>
-      </ul>
+          <li>
+            <span class="select-wrapper">
+              <tippy
+                ref="memberOptions"
+                interactive
+                tabindex="-1"
+                trigger="click"
+                theme="popover"
+                arrow
+              >
+                <template #trigger>
+                  <input
+                    class="input"
+                    :placeholder="$t('permissions')"
+                    :name="'value' + index"
+                    :value="
+                      typeof member.value === 'string'
+                        ? member.value
+                        : JSON.stringify(member.value)
+                    "
+                    readonly
+                  />
+                </template>
+                <SmartItem
+                  label="OWNER"
+                  @click.native="
+                    member.value = 'OWNER'
+                    $refs.options.tippy().hide()
+                  "
+                />
+                <SmartItem
+                  label="EDITOR"
+                  @click.native="
+                    member.value = 'EDITOR'
+                    $refs.options.tippy().hide()
+                  "
+                />
+                <SmartItem
+                  label="VIEWER"
+                  @click.native="
+                    member.value = 'VIEWER'
+                    $refs.options.tippy().hide()
+                  "
+                />
+              </tippy>
+            </span>
+          </li>
+          <div>
+            <li>
+              <ButtonSecondary
+                id="member"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                @click.native="removeTeamMember(index)"
+              />
+            </li>
+          </div>
+        </ul>
+        <ul>
+          <li>
+            <ButtonSecondary
+              icon="add"
+              :label="$t('add_new')"
+              @click.native="addTeamMember"
+            />
+          </li>
+        </ul>
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="saveTeam" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

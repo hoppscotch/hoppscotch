@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="font-bold text-xs field-title"
+      class="font-semibold text-xs field-title"
       :class="{ 'field-highlighted': isHighlighted }"
     >
       {{ fieldName }}
@@ -38,7 +38,7 @@
         text-xs text-black
         bg-yellow-200
         rounded
-        font-bold
+        font-semibold
         field-deprecated
       "
     >
@@ -48,7 +48,7 @@
       <h5 class="my-2 text-xs">Arguments:</h5>
       <div class="pl-4 border-l-2 border-divider">
         <div v-for="(field, index) in fieldArgs" :key="index">
-          <span class="font-bold text-xs">
+          <span class="font-semibold text-xs">
             {{ field.name }}:
             <GraphqlTypeLink
               :gql-type="field.type"

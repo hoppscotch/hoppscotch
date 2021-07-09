@@ -2,45 +2,45 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("save_request_as") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <label for="selectLabelSaveReq">{{ $t("token_req_name") }}</label>
-      <input
-        id="selectLabelSaveReq"
-        v-model="requestData.name"
-        class="input"
-        type="text"
-        @keyup.enter="saveRequestAs"
-      />
-      <label>Select location</label>
-      <!-- <input class="input" readonly :value="path" /> -->
-
-      <CollectionsGraphql
-        v-if="mode === 'graphql'"
-        :doc="false"
-        :show-coll-actions="false"
-        :picked="picked"
-        :saving-mode="true"
-        @select="onSelect"
-      />
-
-      <Collections
-        v-else
-        :picked="picked"
-        :save-request="true"
-        @select="onSelect"
-        @update-collection="collectionsType.type = $event"
-        @update-coll-type="onUpdateCollType"
-      />
+      <div class="px-2 flex flex-col">
+        <label for="selectLabelSaveReq" class="px-4 font-semibold pb-4 text-xs">
+          {{ $t("token_req_name") }}</label
+        >
+        <input
+          id="selectLabelSaveReq"
+          v-model="requestData.name"
+          class="input"
+          type="text"
+          @keyup.enter="saveRequestAs"
+        />
+        <label class="px-4 pt-4 font-semibold pb-4 text-xs">
+          Select Location
+        </label>
+        <CollectionsGraphql
+          v-if="mode === 'graphql'"
+          :doc="false"
+          :show-coll-actions="false"
+          :picked="picked"
+          :saving-mode="true"
+          @select="onSelect"
+        />
+        <Collections
+          v-else
+          :picked="picked"
+          :save-request="true"
+          @select="onSelect"
+          @update-collection="collectionsType.type = $event"
+          @update-coll-type="onUpdateCollType"
+        />
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="saveRequestAs" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

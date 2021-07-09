@@ -7,13 +7,16 @@
       </div>
     </template>
     <template #body>
-      <label>{{ title }}</label>
+      <div class="px-2 flex flex-col">
+        <label class="font-semibold text-xs">
+          {{ title }}
+        </label>
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="no" @click.native="hideModal" />
         <ButtonPrimary :label="yes" @click.native="resolve" />
+        <ButtonSecondary :label="no" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

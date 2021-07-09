@@ -7,21 +7,24 @@
       </div>
     </template>
     <template #body>
-      <label for="selectLabelGqlEdit">{{ $t("label") }}</label>
-      <input
-        id="selectLabelGqlEdit"
-        v-model="name"
-        class="input"
-        type="text"
-        :placeholder="editingCollection.name"
-        @keyup.enter="saveCollection"
-      />
+      <div class="px-2 flex flex-col">
+        <label for="selectLabelGqlEdit" class="px-4 font-semibold pb-4 text-xs">
+          {{ $t("label") }}
+        </label>
+        <input
+          id="selectLabelGqlEdit"
+          v-model="name"
+          class="input"
+          type="text"
+          :placeholder="editingCollection.name"
+          @keyup.enter="saveCollection"
+        />
+      </div>
     </template>
     <template #footer>
-      <span></span>
       <span>
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
         <ButtonPrimary :label="$t('save')" @click.native="saveCollection" />
+        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>
   </SmartModal>

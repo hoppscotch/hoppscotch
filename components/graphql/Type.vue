@@ -1,7 +1,7 @@
 <template>
   <div :id="`type_${gqlType.name}`" class="p-4">
     <div
-      class="font-bold text-xs type-title"
+      class="font-semibold text-xs type-title"
       :class="{ 'text-accent': isHighlighted }"
     >
       <span v-if="isInput" class="text-accent">input </span>

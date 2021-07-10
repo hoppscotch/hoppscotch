@@ -343,6 +343,7 @@
                       py-3
                       text-xs
                       flex flex-1
+                      font-medium
                       bg-primaryLight
                       focus:outline-none
                     "
@@ -420,16 +421,27 @@
                     </SmartTab>
                   </div>
                 </SmartTabs>
-                <p
+                <div
                   v-if="
                     queryFields.length === 0 &&
                     mutationFields.length === 0 &&
                     subscriptionFields.length === 0 &&
                     graphqlTypes.length === 0
                   "
+                  class="
+                    flex
+                    items-center
+                    text-secondaryLight
+                    flex-col
+                    p-4
+                    justify-center
+                  "
                 >
-                  {{ $t("send_request_first") }}
-                </p>
+                  <i class="material-icons opacity-50 pb-2">description</i>
+                  <span class="text-xs">
+                    {{ $t("send_request_first") }}
+                  </span>
+                </div>
               </AppSection>
             </SmartTab>
 

@@ -1,6 +1,13 @@
 <template>
-  <AppSection label="collections">
-    <div class="flex flex-col sticky top-10 z-10 bg-primary">
+  <AppSection
+    label="collections"
+    class=""
+    :class="{ 'rounded-lg border-2 border-divider': savingMode }"
+  >
+    <div
+      class="flex flex-col sticky top-10 z-10"
+      :class="{ 'bg-primary': !savingMode }"
+    >
       <input
         v-if="showCollActions"
         v-model="filterText"
@@ -12,6 +19,7 @@
           text-xs
           border-b border-dividerLight
           flex flex-1
+          font-medium
           bg-primaryLight
           focus:outline-none
         "

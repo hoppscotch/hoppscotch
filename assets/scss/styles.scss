@@ -54,7 +54,7 @@ html {
 body {
   @apply bg-primary;
   @apply text-secondary;
-  @apply text-sm;
+  @apply !text-sm;
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
@@ -168,14 +168,15 @@ hr {
   @apply w-full;
   @apply px-4;
   @apply py-2;
-  @apply bg-primaryLight;
+  @apply bg-primary;
   @apply truncate;
   @apply rounded-lg;
   @apply font-semibold;
+  @apply border-2;
+  @apply border-divider;
+  @apply transition;
   @apply focus:outline-none;
-  @apply focus-visible:ring;
-  @apply focus-visible:ring-inset;
-  @apply focus-visible:ring-accent;
+  @apply focus:border-accent;
 }
 
 .input[type="file"],

@@ -204,10 +204,10 @@ export default {
 
   // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
   googleFonts: {
-    display: "swap",
+    display: "block",
     families: {
-      "Material+Icons": true,
       Montserrat: [400, 500, 600, 700, 800],
+      "Material+Icons": true,
       "Roboto+Mono": true,
     },
   },

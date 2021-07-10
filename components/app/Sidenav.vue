@@ -20,7 +20,6 @@ export default {
     return {
       primaryNavigation: [
         { target: "index", icon: "home", title: "Home" },
-        { target: "api", icon: "apps", title: "APIs" },
         { target: "realtime", icon: "language", title: "Realtime" },
         { target: "graphql", icon: "code", title: "GraphQL" },
         { target: "doc", icon: "book", title: "Docs" },

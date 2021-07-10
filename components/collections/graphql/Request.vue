@@ -43,6 +43,7 @@
         <span class="truncate"> {{ request.name }} </span>
       </span>
       <ButtonSecondary
+        v-if="!savingMode"
         v-tippy="{ theme: 'tooltip' }"
         icon="replay"
         :title="$t('restore')"

@@ -13,7 +13,15 @@
       <input
         v-model="filterText"
         type="search"
-        class="px-4 py-3 text-xs flex flex-1 bg-primaryLight focus:outline-none"
+        class="
+          px-4
+          py-3
+          text-xs
+          flex flex-1
+          font-medium
+          bg-primaryLight
+          focus:outline-none
+        "
         :placeholder="$t('search')"
       />
       <ButtonSecondary

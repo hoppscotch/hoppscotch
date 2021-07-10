@@ -25,6 +25,7 @@
                 py-3
                 focus:outline-none
                 border-b border-dividerLight
+                font-medium
                 bg-primaryLight
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"

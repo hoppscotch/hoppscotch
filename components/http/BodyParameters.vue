@@ -1,132 +1,127 @@
 <template>
-  <div>
-    <ul>
-      <li>
-        <div class="flex flex-1">
-          <label for="reqParamList">{{ $t("request_body") }}</label>
-          <div>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('clear')"
-              icon="clear_all"
-              @click.native="clearContent('bodyParams', $event)"
-            />
-          </div>
-        </div>
-      </li>
-    </ul>
-    <ul
+  <AppSection label="bodyParameters">
+    <div
+      v-if="bodyParams.length !== 0"
+      class="flex flex-1 items-center justify-between pl-4"
+    >
+      <label for="reqParamList" class="font-semibold text-xs">
+        {{ $t("request_body") }}
+      </label>
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="$t('clear')"
+        icon="clear_all"
+        @click.native="clearContent('bodyParams', $event)"
+      />
+    </div>
+    <div
       v-for="(param, index) in bodyParams"
       :key="index"
       class="
+        flex
         border-b border-dashed
-        divide-y
-        md:divide-x
+        divide-x
         border-divider
         divide-dashed divide-divider
-        md:divide-y-0
       "
       :class="{ 'border-t': index == 0 }"
     >
-      <li>
-        <input
-          class="input"
-          :placeholder="`key ${index + 1}`"
-          :name="`bparam ${index}`"
-          :value="param.key"
-          autofocus
-          @change="updateBodyParams($event, index, `setKeyBodyParams`)"
-          @keyup.prevent="setRouteQueryState"
-        />
-      </li>
-      <li>
-        <input
-          v-if="!requestBodyParamIsFile(index)"
-          class="input"
-          :placeholder="`value ${index + 1}`"
-          :value="param.value"
-          @change="
-            // if input is form data, set value to be an array containing the value
-            // only
-            updateBodyParams($event, index, `setValueBodyParams`)
-          "
-          @keyup.prevent="setRouteQueryState"
-        />
-        <div v-else class="file-chips-container">
-          <div class="file-chips-wrapper">
-            <SmartDeletableChip
-              v-for="(file, i) in Array.from(bodyParams[index].value)"
-              :key="`body-param-${index}-file-${i}`"
-              @chip-delete="chipDelete(index, i)"
-            >
-              {{ file.name }}
-            </SmartDeletableChip>
-          </div>
+      <input
+        class="
+          px-4
+          py-3
+          text-xs
+          flex flex-1
+          font-semibold
+          bg-primaryLight
+          focus:outline-none
+        "
+        :placeholder="$t('parameter_count', { count: index + 1 })"
+        :name="'param' + index"
+        :value="param.key"
+        autofocus
+        @change="updateBodyParams($event, index, `setKeyBodyParams`)"
+        @keyup.prevent="setRouteQueryState"
+      />
+      <input
+        v-if="!requestBodyParamIsFile(index)"
+        class="
+          px-4
+          py-3
+          text-xs
+          flex flex-1
+          font-semibold
+          bg-primaryLight
+          focus:outline-none
+        "
+        :placeholder="$t('value_count', { count: index + 1 })"
+        :name="'value' + index"
+        :value="param.value"
+        @change="
+          // if input is form data, set value to be an array containing the value
+          // only
+          updateBodyParams($event, index, `setValueBodyParams`)
+        "
+        @keyup.prevent="setRouteQueryState"
+      />
+      <div v-else class="file-chips-container">
+        <div class="file-chips-wrapper">
+          <SmartDeletableChip
+            v-for="(file, i) in Array.from(bodyParams[index].value)"
+            :key="`body-param-${index}-file-${i}`"
+            @chip-delete="chipDelete(index, i)"
+          >
+            {{ file.name }}
+          </SmartDeletableChip>
         </div>
-      </li>
+      </div>
       <div>
-        <li>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              param.hasOwnProperty('active')
-                ? param.active
-                  ? $t('turn_off')
-                  : $t('turn_on')
-                : $t('turn_off')
-            "
-            :icon="
-              param.hasOwnProperty('active')
-                ? param.active
-                  ? 'check_box'
-                  : 'check_box_outline_blank'
-                : 'check_box'
-            "
-            @click.native="toggleActive(index, param)"
-          />
-        </li>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="
+            param.hasOwnProperty('active')
+              ? param.active
+                ? $t('turn_off')
+                : $t('turn_on')
+              : $t('turn_off')
+          "
+          :icon="
+            param.hasOwnProperty('active')
+              ? param.active
+                ? 'check_box'
+                : 'check_box_outline_blank'
+              : 'check_box'
+          "
+          @click.native="toggleActive(index, param)"
+        />
       </div>
       <div v-if="contentType === 'multipart/form-data'">
-        <li>
-          <label for="attachment" class="p-0">
-            <ButtonSecondary
-              class="w-full"
-              icon="attach_file"
-              @click.native="$refs.attachment[index].click()"
-            />
-          </label>
-          <input
-            ref="attachment"
-            class="input"
-            name="attachment"
-            type="file"
-            multiple
-            @change="setRequestAttachment($event, index)"
+        <label for="attachment" class="p-0">
+          <ButtonSecondary
+            class="w-full"
+            icon="attach_file"
+            @click.native="$refs.attachment[index].click()"
           />
-        </li>
+        </label>
+        <input
+          ref="attachment"
+          class="input"
+          name="attachment"
+          type="file"
+          multiple
+          @change="setRequestAttachment($event, index)"
+        />
       </div>
       <div>
-        <li>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('delete')"
-            icon="delete"
-            @click.native="removeRequestBodyParam(index)"
-          />
-        </li>
-      </div>
-    </ul>
-    <ul>
-      <li>
         <ButtonSecondary
-          name="addrequest"
-          icon="add"
-          :label="$t('add_new')"
-          @click.native="addRequestBodyParam"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('delete')"
+          icon="delete"
+          @click.native="removeRequestBodyParam(index)"
         />
-      </li>
-    </ul>
-  </div>
+      </div>
+    </div>
+  </AppSection>
 </template>
 
 <script>
@@ -138,6 +133,23 @@ export default {
     contentType() {
       return this.$store.state.request.contentType
     },
+  },
+  watch: {
+    bodyParams: {
+      handler(newValue) {
+        if (
+          newValue[newValue.length - 1]?.key !== "" ||
+          newValue[newValue.length - 1]?.value !== ""
+        )
+          this.addRequestBodyParam()
+      },
+      deep: true,
+    },
+  },
+  mounted() {
+    if (!this.bodyParams?.length) {
+      this.addRequestBodyParam()
+    }
   },
   methods: {
     clearContent(bodyParams, $event) {

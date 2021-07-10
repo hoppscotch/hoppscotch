@@ -1,28 +1,28 @@
 <template>
-  <div class="flex flex-col">
-    <div class="flex items-center justify-between">
-      <label>{{ $t("response") }}</label>
-      <label v-if="active"
-        ><i class="animate-spin material-icons">refresh</i></label
-      >
-      <label v-else :class="statusCategory ? statusCategory.className : ''">
-        <i class="material-icons">fiber_manual_record</i>
-      </label>
-    </div>
-    <div class="flex flex-col lg:flex-row">
-      <label class="flex-1">
-        {{ $t("status") + `: \xA0 ` }}
-        <span :class="statusCategory ? statusCategory.className : ''">
-          {{ response.status || $t("waiting_send_req") }}
-        </span>
-      </label>
-      <label>
-        {{ $t("duration") + `: \xA0 ${response.duration} ms` }}
-      </label>
-      <label>
-        {{ $t("size") + `: \xA0 ${response.size} B` }}
-      </label>
-    </div>
+  <div
+    class="
+      flex
+      sticky
+      top-0
+      z-10
+      bg-primary
+      items-center
+      p-4
+      font-mono font-semibold
+      space-x-4
+    "
+    :class="statusCategory ? statusCategory.className : ''"
+  >
+    <i v-if="active" class="animate-spin material-icons">refresh</i>
+    <span v-else>
+      {{ response.status }}
+    </span>
+    <span v-if="response.duration" class="text-xs">
+      {{ `${response.duration} ms` }}
+    </span>
+    <span v-if="response.size" class="text-xs">
+      {{ `${response.size} B` }}
+    </span>
   </div>
 </template>
 

@@ -2,10 +2,10 @@
   <!-- eslint-disable -->
   <div>
     <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
+      <Pane class="overflow-auto hide-scrollbar">
         <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto">
-            <div class="sticky top-0 z-10 bg-primary flex px-4 pt-4 pb-2">
+          <Pane class="overflow-auto hide-scrollbar">
+            <div class="sticky top-0 z-10 bg-primary flex p-4">
               <div class="relative inline-flex">
                 <span class="select-wrapper">
                   <tippy
@@ -28,6 +28,7 @@
                           px-4
                           py-2
                           truncate
+                          text-secondaryDark
                           font-semibold
                           border border-divider
                           transition
@@ -59,6 +60,7 @@
                     w-full
                     font-mono font-semibold
                     truncate
+                    text-secondaryDark
                     px-4
                     py-2
                     border border-divider
@@ -90,7 +92,6 @@
                     font-mono
                     flex
                     items-center
-                    justify-center
                     truncate
                     font-semibold
                     bg-accent
@@ -110,7 +111,6 @@
                     font-mono
                     flex
                     items-center
-                    justify-center
                     truncate
                     font-semibold
                     bg-accent
@@ -248,7 +248,7 @@
                 </tippy>
               </div>
             </div>
-            <SmartTabs styles="sticky top-62px z-10">
+            <SmartTabs styles="sticky top-70px z-10">
               <SmartTab
                 :id="'params'"
                 :label="
@@ -325,7 +325,13 @@
                   <li>
                     <div class="flex flex-1">
                       <span>
-                        <SmartToggle :on="rawInput" />
+                        <SmartToggle
+                          v-if="canListParameters"
+                          :on="rawInput"
+                          @change="rawInput = !rawInput"
+                        >
+                          {{ $t("raw_input") }}
+                        </SmartToggle>
                       </span>
                     </div>
                   </li>
@@ -700,7 +706,7 @@
               </SmartTab>
             </SmartTabs>
           </Pane>
-          <Pane class="overflow-auto">
+          <Pane class="overflow-auto hide-scrollbar">
             <HttpResponse
               :response="response"
               :active="runningRequest"
@@ -966,22 +972,7 @@ export default {
       this.setRouteQueryState()
     },
     params: {
-      handler(newValue) {
-        if (!this.paramsWatchEnabled) {
-          this.paramsWatchEnabled = true
-          return
-        }
-        let path = this.path
-        let queryString = getQueryParams(newValue)
-          .map(({ key, value }) => `${key.trim()}=${value.trim()}`)
-          .join("&")
-        queryString = queryString === "" ? "" : `?${encodeURI(queryString)}`
-        if (path.includes("?")) {
-          path = path.slice(0, path.indexOf("?")) + queryString
-        } else {
-          path = path + queryString
-        }
-        this.path = path
+      handler() {
         this.setRouteQueryState()
       },
       deep: true,
@@ -2026,7 +2017,7 @@ export default {
           this.headers = []
           this.testReports = []
       }
-      target.innerHTML = this.doneButton
+      // target.innerHTML = this.doneButton
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })

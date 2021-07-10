@@ -3,7 +3,15 @@
     <input
       ref="acInput"
       v-model="text"
-      class="input"
+      class="
+        px-4
+        py-3
+        text-xs
+        flex flex-1
+        font-semibold
+        bg-primaryLight
+        focus:outline-none
+      "
       type="text"
       :placeholder="placeholder"
       :spellcheck="spellcheck"
@@ -187,6 +195,8 @@ export default {
 <style scoped lang="scss">
 .autocomplete-wrapper {
   @apply relative;
+  @apply flex;
+  @apply flex-1;
 
   input:focus + ul.suggestions,
   ul.suggestions:hover {
@@ -209,7 +219,7 @@ export default {
       @apply w-full;
       @apply block;
       @apply py-2 px-4;
-      @apply text-sm;
+      @apply text-xs;
       @apply font-mono;
 
       &:last-child {

@@ -9,7 +9,7 @@
       </label>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="$t('clear')"
+        :title="$t('clear_all')"
         icon="clear_all"
         @click.native="clearContent('parameters', $event)"
       />
@@ -20,11 +20,9 @@
       class="
         flex
         border-b border-dashed
-        divide-y
-        md:divide-x
+        divide-x
         border-divider
         divide-dashed divide-divider
-        md:divide-y-0
       "
       :class="{ 'border-t': index == 0 }"
     >
@@ -80,7 +78,6 @@
               py-3
               mr-8
               focus:outline-none
-              border-b border-dividerLight
               font-medium
               bg-primaryLight
             "
@@ -135,14 +132,6 @@
         />
       </div>
     </div>
-    <div class="flex sticky bottom-0 bg-primary z-10 flex-1">
-      <ButtonSecondary
-        icon="add"
-        class="flex-1"
-        :label="$t('add_new')"
-        @click.native="addRequestParam"
-      />
-    </div>
   </AppSection>
 </template>
 
@@ -150,6 +139,23 @@
 export default {
   props: {
     params: { type: Array, default: () => [] },
+  },
+  watch: {
+    params: {
+      handler(newValue) {
+        if (
+          newValue[newValue.length - 1]?.key !== "" ||
+          newValue[newValue.length - 1]?.value !== ""
+        )
+          this.addRequestParam()
+      },
+      deep: true,
+    },
+  },
+  mounted() {
+    if (!this.params?.length) {
+      this.addRequestParam()
+    }
   },
   methods: {
     clearContent(parameters, $event) {

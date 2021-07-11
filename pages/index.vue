@@ -278,64 +278,58 @@
                   }`
                 "
               >
-                <ul>
-                  <li>
-                    <label for="contentType" class="text-sm">{{
-                      $t("content_type")
-                    }}</label>
-                    <span class="select-wrapper">
-                      <tippy
-                        interactive
-                        ref="contentTypeOptions"
-                        tabindex="-1"
-                        trigger="click"
-                        theme="popover"
-                        arrow
-                      >
-                        <template #trigger>
+                <div class="flex flex-1 items-center justify-between py-2">
+                  <tippy
+                    interactive
+                    ref="contentTypeOptions"
+                    tabindex="-1"
+                    trigger="click"
+                    theme="popover"
+                    arrow
+                  >
+                    <template #trigger>
+                      <div class="flex">
+                        <span class="select-wrapper">
                           <input
                             id="contentType"
-                            class="input"
+                            class="
+                              flex
+                              w-full
+                              px-4
+                              py-2
+                              bg-primary
+                              truncate
+                              rounded-lg
+                              font-semibold font-mono
+                              text-xs
+                              transition
+                              focus:outline-none
+                            "
                             v-model="contentType"
                             readonly
                           />
-                        </template>
-                        <SmartItem
-                          v-for="(
-                            contentTypeMenuItem, index
-                          ) in validContentTypes"
-                          :key="`content-type-${index}`"
-                          @click.native="
-                            contentType = contentTypeMenuItem
-                            $refs.contentTypeOptions.tippy().hide()
-                          "
-                          :label="contentTypeMenuItem"
-                        />
-                      </tippy>
-                    </span>
-                    <!-- <SmartAutoComplete
-                  :source="validContentTypes"
-                  :spellcheck="false"
-                  v-model="contentType"
-                  styles="text-sm"
-                /> -->
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <div class="flex flex-1">
-                      <span>
-                        <SmartToggle
-                          v-if="canListParameters"
-                          :on="rawInput"
-                          @change="rawInput = !rawInput"
-                        >
-                          {{ $t("raw_input") }}
-                        </SmartToggle>
-                      </span>
-                    </div>
-                  </li>
-                </ul>
+                        </span>
+                      </div>
+                    </template>
+                    <SmartItem
+                      v-for="(contentTypeMenuItem, index) in validContentTypes"
+                      :key="`content-type-${index}`"
+                      @click.native="
+                        contentType = contentTypeMenuItem
+                        $refs.contentTypeOptions.tippy().hide()
+                      "
+                      :label="contentTypeMenuItem"
+                    />
+                  </tippy>
+                  <SmartToggle
+                    v-if="canListParameters"
+                    :on="rawInput"
+                    @change="rawInput = !rawInput"
+                    class="px-4"
+                  >
+                    {{ $t("raw_input") }}
+                  </SmartToggle>
+                </div>
                 <HttpBodyParameters
                   v-if="!rawInput"
                   :bodyParams="bodyParams"
@@ -597,111 +591,102 @@
                 :label="$t('pre_request_script')"
               >
                 <AppSection v-if="showPreRequestScript" label="preRequest">
-                  <ul>
-                    <li>
-                      <div class="flex flex-1">
-                        <label>{{ $t("javascript_code") }}</label>
-                        <div>
-                          <ButtonSecondary
-                            to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
-                            blank
-                            v-tippy="{ theme: 'tooltip' }"
-                            :title="$t('wiki')"
-                            icon="help_outline"
-                          />
-                        </div>
-                      </div>
-                      <SmartJsEditor
-                        v-model="preRequestScript"
-                        :options="{
-                          maxLines: '16',
-                          minLines: '8',
-                          fontSize: '15px',
-                          autoScrollEditorIntoView: true,
-                          showPrintMargin: false,
-                          useWorker: false,
-                        }"
-                        styles="rounded-b-lg"
-                        completeMode="pre"
-                      />
-                    </li>
-                  </ul>
+                  <div class="flex flex-1 items-center justify-between pl-4">
+                    <label class="font-semibold text-xs">
+                      {{ $t("javascript_code") }}
+                    </label>
+                    <ButtonSecondary
+                      to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
+                      blank
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="$t('wiki')"
+                      icon="help_outline"
+                    />
+                  </div>
+                  <SmartJsEditor
+                    v-model="preRequestScript"
+                    :options="{
+                      maxLines: '16',
+                      minLines: '8',
+                      fontSize: '14px',
+                      autoScrollEditorIntoView: true,
+                      showPrintMargin: false,
+                      useWorker: false,
+                    }"
+                    completeMode="pre"
+                  />
                 </AppSection>
               </SmartTab>
 
               <SmartTab :id="'tests'" :label="$t('tests')">
                 <AppSection v-if="testsEnabled" label="postRequestTests">
-                  <ul>
-                    <li>
-                      <div class="flex flex-1">
-                        <label>{{ $t("javascript_code") }}</label>
-                        <div>
-                          <ButtonSecondary
-                            to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
-                            blank
-                            v-tippy="{ theme: 'tooltip' }"
-                            :title="$t('wiki')"
-                            icon="help_outline"
-                          />
-                        </div>
-                      </div>
-                      <SmartJsEditor
-                        v-model="testScript"
-                        :options="{
-                          maxLines: '16',
-                          minLines: '8',
-                          fontSize: '15px',
-                          autoScrollEditorIntoView: true,
-                          showPrintMargin: false,
-                          useWorker: false,
-                        }"
-                        styles="rounded-b-lg"
-                        completeMode="test"
+                  <div class="flex flex-1 items-center justify-between pl-4">
+                    <label class="font-semibold text-xs">
+                      {{ $t("javascript_code") }}
+                    </label>
+                    <ButtonSecondary
+                      to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
+                      blank
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="$t('wiki')"
+                      icon="help_outline"
+                    />
+                  </div>
+                  <SmartJsEditor
+                    v-model="testScript"
+                    :options="{
+                      maxLines: '16',
+                      minLines: '8',
+                      fontSize: '14px',
+                      autoScrollEditorIntoView: true,
+                      showPrintMargin: false,
+                      useWorker: false,
+                    }"
+                    completeMode="test"
+                  />
+                  <div v-if="testReports.length !== 0">
+                    <div class="flex flex-1 items-center justify-between pl-4">
+                      <label class="font-semibold text-xs">
+                        Test Reports
+                      </label>
+                      <ButtonSecondary
+                        @click.native="clearContent('tests', $event)"
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('clear')"
+                        icon="clear_all"
                       />
-                      <div v-if="testReports.length !== 0">
-                        <div class="flex flex-1">
-                          <label>Test Reports</label>
-                          <div>
-                            <ButtonSecondary
-                              @click.native="clearContent('tests', $event)"
-                              v-tippy="{ theme: 'tooltip' }"
-                              :title="$t('clear')"
-                              icon="clear_all"
-                            />
-                          </div>
-                        </div>
-                        <div
-                          v-for="(testReport, index) in testReports"
-                          :key="index"
-                        >
-                          <div v-if="testReport.startBlock">
-                            <hr />
-                            <h4 class="heading">
-                              {{ testReport.startBlock }}
-                            </h4>
-                          </div>
-                          <p
-                            v-else-if="testReport.result"
-                            class="flex flex-1 info"
-                          >
-                            <span :class="testReport.styles.class">
-                              <i class="material-icons">
-                                {{ testReport.styles.icon }}
-                              </i>
-                              <span>&nbsp; {{ testReport.result }}</span>
-                              <span v-if="testReport.message">
-                                <label
-                                  >&nbsp; • &nbsp;
-                                  {{ testReport.message }}</label
-                                >
-                              </span>
-                            </span>
-                          </p>
-                          <div v-else-if="testReport.endBlock"><hr /></div>
-                        </div>
+                    </div>
+                    <div
+                      v-for="(testReport, index) in testReports"
+                      :key="index"
+                      class="px-4"
+                    >
+                      <div v-if="testReport.startBlock">
+                        <hr />
+                        <h4 class="heading">
+                          {{ testReport.startBlock }}
+                        </h4>
                       </div>
-                    </li>
-                  </ul>
+                      <p
+                        v-else-if="testReport.result"
+                        class="flex flex-1 font-mono text-xs info"
+                      >
+                        <span
+                          :class="testReport.styles.class"
+                          class="flex items-center"
+                        >
+                          <i class="material-icons text-sm">
+                            {{ testReport.styles.icon }}
+                          </i>
+                          <span>&nbsp;{{ testReport.result }}</span>
+                          <span v-if="testReport.message">
+                            <label>: {{ testReport.message }}</label>
+                          </span>
+                        </span>
+                      </p>
+                      <div v-else-if="testReport.endBlock"><hr /></div>
+                    </div>
+                  </div>
                 </AppSection>
               </SmartTab>
             </SmartTabs>

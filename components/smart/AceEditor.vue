@@ -1,6 +1,6 @@
 <template>
   <div class="show-if-initialized" :class="{ initialized }">
-    <div v-if="lang == 'json'" class="outline">
+    <div v-if="lang == 'json'" class="outline hide-scrollbar">
       <div v-for="(p, index) in currPath" :key="index" class="block">
         <div class="label" @click="onBlockClick(index)">
           {{ p }}
@@ -258,7 +258,7 @@ export default {
 
 .outline {
   @apply flex flex-nowrap;
-  @apply w-full;
+  @apply flex-1;
   @apply overflow-auto;
   @apply font-mono;
   @apply shadow-lg;

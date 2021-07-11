@@ -183,9 +183,9 @@
                 styles="rounded-b-lg"
                 :on-run-g-q-l-query="runQuery"
                 :options="{
-                  maxLines: responseBodyMaxLines,
+                  maxLines: Infinity,
                   minLines: 10,
-                  fontSize: '15px',
+                  fontSize: '14px',
                   autoScrollEditorIntoView: true,
                   showPrintMargin: false,
                   useWorker: false,
@@ -202,7 +202,7 @@
                   :options="{
                     maxLines: 10,
                     minLines: 5,
-                    fontSize: '15px',
+                    fontSize: '14px',
                     autoScrollEditorIntoView: true,
                     showPrintMargin: false,
                     useWorker: false,
@@ -249,9 +249,9 @@
                 :value="schema"
                 :lang="'graphqlschema'"
                 :options="{
-                  maxLines: responseBodyMaxLines,
+                  maxLines: Infinity,
                   minLines: 16,
-                  fontSize: '15px',
+                  fontSize: '14px',
                   autoScrollEditorIntoView: true,
                   readOnly: true,
                   showPrintMargin: false,
@@ -299,9 +299,9 @@
                   :lang="'json'"
                   :lint="false"
                   :options="{
-                    maxLines: responseBodyMaxLines,
+                    maxLines: Infinity,
                     minLines: 10,
-                    fontSize: '15px',
+                    fontSize: '14px',
                     autoScrollEditorIntoView: true,
                     readOnly: true,
                     showPrintMargin: false,

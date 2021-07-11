@@ -9,18 +9,21 @@
       items-center
       p-4
       font-mono font-semibold
-      space-x-4
+      space-x-8
     "
     :class="statusCategory ? statusCategory.className : ''"
   >
     <i v-if="active" class="animate-spin material-icons">refresh</i>
     <span v-else>
-      {{ response.status }}
+      <span class="text-secondaryDark"> Status: </span>
+      {{ response.status || $t("waiting_send_req") }}
     </span>
     <span v-if="response.duration" class="text-xs">
+      <span class="text-secondaryDark"> Time: </span>
       {{ `${response.duration} ms` }}
     </span>
     <span v-if="response.size" class="text-xs">
+      <span class="text-secondaryDark"> Size: </span>
       {{ `${response.size} B` }}
     </span>
   </div>

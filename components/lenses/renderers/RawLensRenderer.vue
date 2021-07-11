@@ -1,18 +1,20 @@
 <template>
   <div>
-    <div class="flex flex-1">
-      <label for="body">{{ $t("response_body") }}</label>
+    <div
+      class="
+        flex flex-1
+        sticky
+        top-23
+        z-10
+        bg-primary
+        items-center
+        justify-between
+      "
+    >
+      <label for="body" class="px-4 font-semibold text-xs">
+        {{ $t("response_body") }}
+      </label>
       <div>
-        <ButtonSecondary
-          v-if="response.body"
-          ref="ToggleExpandResponse"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
-            !expandResponse ? $t('expand_response') : $t('collapse_response')
-          "
-          :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
-          @click.native="ToggleExpandResponse"
-        />
         <ButtonSecondary
           v-if="response.body && canDownloadResponse"
           ref="downloadResponse"
@@ -36,15 +38,14 @@
         :value="responseBodyText"
         :lang="'plain_text'"
         :options="{
-          maxLines: responseBodyMaxLines,
+          maxLines: Infinity,
           minLines: '16',
-          fontSize: '15px',
+          fontSize: '14px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,
           useWorker: false,
         }"
-        styles="rounded-b-lg"
       />
     </div>
   </div>
@@ -61,8 +62,6 @@ export default {
   },
   data() {
     return {
-      expandResponse: false,
-      responseBodyMaxLines: 16,
       downloadIcon: "save_alt",
       copyIcon: "content_copy",
     }
@@ -83,11 +82,6 @@ export default {
     },
   },
   methods: {
-    ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines =
-        this.responseBodyMaxLines === Infinity ? 16 : Infinity
-    },
     downloadResponse() {
       const dataToWrite = this.responseBodyText
       const file = new Blob([dataToWrite], { type: this.responseType })

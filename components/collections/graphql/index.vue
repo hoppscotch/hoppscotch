@@ -1,7 +1,6 @@
 <template>
   <AppSection
     label="collections"
-    class=""
     :class="{ 'rounded-lg border-2 border-divider': savingMode }"
   >
     <div

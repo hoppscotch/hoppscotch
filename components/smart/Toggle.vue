@@ -1,9 +1,11 @@
 <template>
-  <div class="inline-block cursor-pointer" @click="$emit('change')">
+  <div class="inline-flex cursor-pointer flex-nowrap" @click="$emit('change')">
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
-    <label class="pl-0 align-middle cursor-pointer">
+    <label
+      class="pl-0 align-middle font-semibold truncate text-xs cursor-pointer"
+    >
       <slot></slot>
     </label>
   </div>

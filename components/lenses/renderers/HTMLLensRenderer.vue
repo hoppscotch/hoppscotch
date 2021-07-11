@@ -1,18 +1,8 @@
 <template>
   <div>
-    <div class="flex flex-1">
+    <div class="flex flex-1 items-center justify-between">
       <label for="body">{{ $t("response_body") }}</label>
       <div>
-        <ButtonSecondary
-          v-if="response.body"
-          ref="ToggleExpandResponse"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
-            !expandResponse ? $t('expand_response') : $t('collapse_response')
-          "
-          :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
-          @click.native="ToggleExpandResponse"
-        />
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
@@ -43,15 +33,14 @@
         :value="responseBodyText"
         :lang="'html'"
         :options="{
-          maxLines: responseBodyMaxLines,
+          maxLines: Infinity,
           minLines: '16',
-          fontSize: '15px',
+          fontSize: '14px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,
           useWorker: false,
         }"
-        styles="rounded-b-lg"
       />
       <iframe
         ref="previewFrame"
@@ -73,19 +62,12 @@ export default {
   },
   data() {
     return {
-      expandResponse: false,
-      responseBodyMaxLines: 16,
       downloadIcon: "save_alt",
       copyIcon: "content_copy",
       previewEnabled: false,
     }
   },
   methods: {
-    ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines =
-        this.responseBodyMaxLines === Infinity ? 16 : Infinity
-    },
     downloadResponse() {
       const dataToWrite = this.responseBodyText
       const file = new Blob([dataToWrite], { type: "text/html" })

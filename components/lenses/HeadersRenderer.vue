@@ -1,13 +1,50 @@
 <template>
-  <div>
-    <p v-for="(value, key) in headers" :key="key">
-      <input
-        :value="`${key} → ${value}`"
-        :name="key"
-        class="input bg-transparent"
-        readonly
-      />
-    </p>
+  <div class="p-2 font-mono">
+    <div v-for="(value, key) in headers" :key="key" class="flex items-center">
+      <span
+        class="
+          p-2
+          flex
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+          font-semibold
+        "
+      >
+        <span class="truncate">
+          {{ key }}
+        </span>
+      </span>
+      <span
+        class="
+          font-mono font-bold
+          flex
+          justify-center
+          items-center
+          text-xs
+          mx-2
+          truncate
+        "
+      >
+        →
+      </span>
+      <span
+        class="
+          p-2
+          flex flex-1
+          min-w-0
+          text-xs
+          group-hover:text-secondaryDark
+          transition
+          font-semibold
+        "
+      >
+        <span class="truncate">
+          {{ value }}
+        </span>
+      </span>
+    </div>
   </div>
 </template>
 

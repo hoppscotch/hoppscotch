@@ -1,57 +1,55 @@
 <template>
   <div>
-    <ul>
-      <li>
-        <div class="flex flex-1">
-          <label for="rawBody">{{ $t("raw_request_body") }}</label>
-          <div>
-            <ButtonSecondary
-              v-if="rawInput && contentType.endsWith('json')"
-              ref="prettifyRequest"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('prettify_body')"
-              :icon="prettifyIcon"
-              @click.native="prettifyRequestBody"
-            />
-            <label for="payload" class="p-0">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('import_json')"
-                icon="post_add"
-                @click.native="$refs.payload.click()"
-              />
-            </label>
-            <input
-              ref="payload"
-              class="input"
-              name="payload"
-              type="file"
-              @change="uploadPayload"
-            />
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('clear')"
-              icon="clear_all"
-              @click.native="clearContent('rawParams', $event)"
-            />
-          </div>
-        </div>
-        <div class="relative">
-          <SmartAceEditor
-            v-model="rawParamsBody"
-            :lang="rawInputEditorLang"
-            :options="{
-              maxLines: '16',
-              minLines: '8',
-              fontSize: '15px',
-              autoScrollEditorIntoView: true,
-              showPrintMargin: false,
-              useWorker: false,
-            }"
+    <div class="flex flex-1 items-center justify-between pl-4">
+      <label for="rawBody" class="font-semibold text-xs">
+        {{ $t("raw_request_body") }}
+      </label>
+      <div>
+        <ButtonSecondary
+          v-if="rawInput && contentType.endsWith('json')"
+          ref="prettifyRequest"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('prettify_body')"
+          :icon="prettifyIcon"
+          @click.native="prettifyRequestBody"
+        />
+        <label for="payload">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('import_json')"
+            icon="post_add"
+            @click.native="$refs.payload.click()"
           />
-        </div>
-      </li>
-    </ul>
+        </label>
+        <input
+          ref="payload"
+          class="input"
+          name="payload"
+          type="file"
+          @change="uploadPayload"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent('rawParams', $event)"
+        />
+      </div>
+    </div>
+    <div class="relative">
+      <SmartAceEditor
+        v-model="rawParamsBody"
+        :lang="rawInputEditorLang"
+        :options="{
+          maxLines: '16',
+          minLines: '8',
+          fontSize: '14px',
+          autoScrollEditorIntoView: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
+      />
+    </div>
   </div>
 </template>
 

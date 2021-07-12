@@ -72,7 +72,7 @@
                   id="url"
                   name="url"
                   type="text"
-                  v-model="uri"
+                  v-model="newEndpoint$"
                   spellcheck="false"
                   @input="pathInputHandler"
                   :placeholder="$t('url')"
@@ -254,13 +254,13 @@
                 :label="
                   $t('parameters') +
                   `${
-                    params.length !== 0 ? ' \xA0 • \xA0 ' + params.length : ''
+                    newParams$.length !== 0 ? ' \xA0 • \xA0 ' + newParams$.length : ''
                   }`
                 "
                 :selected="true"
               >
                 <HttpParameters
-                  :params="params"
+                  :params="newParams$"
                   @clear-content="clearContent"
                   @remove-request-param="removeRequestParam"
                   @add-request-param="addRequestParam"
@@ -864,6 +864,7 @@ import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
 import { getSettingSubject, applySetting } from "~/newstore/settings"
 import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
+import { restEndpoint$, restParams$, restRequest$, setRESTEndpoint } from "~/newstore/RESTSession"
 
 export default {
   components: { Splitpanes, Pane },
@@ -912,6 +913,9 @@ export default {
         "PATCH",
         "CUSTOM",
       ],
+
+      newEndpoint$: "",
+      newParams$: []
     }
   },
   subscriptions() {
@@ -922,9 +926,14 @@ export default {
       EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
         "EXPERIMENTAL_URL_BAR_ENABLED"
       ),
+      newEndpoint$: restEndpoint$,
+      newParams$: restParams$
     }
   },
   watch: {
+    newEndpoint$(newVal) {
+      setRESTEndpoint(newVal)
+    },
     canListParameters: {
       immediate: true,
       handler(canListParameters) {
@@ -2172,6 +2181,7 @@ export default {
     },
   },
   async mounted() {
+    restRequest$.subscribe(x => console.log(x))
     this._keyListener = function (e) {
       if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()

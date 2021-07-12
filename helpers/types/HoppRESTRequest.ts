@@ -5,6 +5,7 @@ export type HoppRESTParam = {
 }
 
 export interface HoppRESTRequest {
+  method: string
   endpoint: string
   params: HoppRESTParam[]
 }

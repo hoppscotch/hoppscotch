@@ -1,21 +1,26 @@
 <template>
   <AppSection label="parameters">
-    <div
-      v-if="params.length !== 0"
-      class="flex flex-1 items-center justify-between pl-4"
-    >
+    <div class="flex flex-1 items-center justify-between pl-4">
       <label for="paramList" class="font-semibold text-xs">
         {{ $t("parameter_list") }}
       </label>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('clear_all')"
-        icon="clear_all"
-        @click.native="clearContent('parameters', $event)"
-      />
+      <div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear_all')"
+          icon="clear_all"
+          @click.native="clearContent"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('add_new')"
+          icon="add"
+          @click.native="addParam"
+        />
+      </div>
     </div>
     <div
-      v-for="(param, index) in params"
+      v-for="(param, index) in params$"
       :key="index"
       class="
         flex
@@ -41,9 +46,10 @@
         :value="param.key"
         autofocus
         @change="
-          $store.commit('setKeyParams', {
-            index,
-            value: $event.target.value,
+          updateParam(index, {
+            key: $event.target.value,
+            value: param.value,
+            active: param.active,
           })
         "
       />
@@ -61,43 +67,13 @@
         :name="'value' + index"
         :value="param.value"
         @change="
-          $store.commit('setValueParams', {
-            index,
+          updateParam(index, {
+            key: param.key,
             value: $event.target.value,
+            active: param.active,
           })
         "
       />
-      <div class="flex relative">
-        <span class="select-wrapper">
-          <select
-            class="
-              flex
-              w-full
-              px-4
-              text-xs
-              py-3
-              mr-8
-              focus:outline-none
-              font-medium
-              bg-primaryLight
-            "
-            :name="'type' + index"
-            @change="
-              $store.commit('setTypeParams', {
-                index,
-                value: $event.target.value,
-              })
-            "
-          >
-            <option value="query" :selected="param.type === 'query'">
-              {{ $t("query") }}
-            </option>
-            <option value="path" :selected="param.type === 'path'">
-              {{ $t("path") }}
-            </option>
-          </select>
-        </span>
-      </div>
       <div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -116,9 +92,10 @@
               : 'check_box'
           "
           @click.native="
-            $store.commit('setActiveParams', {
-              index,
-              value: param.hasOwnProperty('active') ? !param.active : false,
+            updateParam(index, {
+              key: param.key,
+              value: param.value,
+              active: param.hasOwnProperty('active') ? !param.active : false,
             })
           "
         />
@@ -128,7 +105,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
           icon="delete"
-          @click.native="removeRequestParam(index)"
+          @click.native="deleteParam(index)"
         />
       </div>
     </div>
@@ -136,36 +113,56 @@
 </template>
 
 <script>
+import {
+  restParams$,
+  addRESTParam,
+  updateRESTParam,
+  deleteRESTParam,
+  deleteAllRESTParams,
+} from "~/newstore/RESTSession"
+
 export default {
-  props: {
-    params: { type: Array, default: () => [] },
+  data() {
+    return {
+      params$: [],
+    }
   },
-  watch: {
-    params: {
-      handler(newValue) {
-        if (
-          newValue[newValue.length - 1]?.key !== "" ||
-          newValue[newValue.length - 1]?.value !== ""
-        )
-          this.addRequestParam()
-      },
-      deep: true,
-    },
+  subscriptions() {
+    return {
+      params$: restParams$,
+    }
   },
+  // watch: {
+  //   params$: {
+  //     handler(newValue) {
+  //       if (
+  //         newValue[newValue.length - 1]?.key !== "" ||
+  //         newValue[newValue.length - 1]?.value !== ""
+  //       )
+  //         this.addParam()
+  //     },
+  //     deep: true,
+  //   },
+  // },
   mounted() {
-    if (!this.params?.length) {
-      this.addRequestParam()
+    if (!this.params$?.length) {
+      this.addParam()
     }
   },
   methods: {
-    clearContent(parameters, $event) {
-      this.$emit("clear-content", parameters, $event)
+    addParam() {
+      addRESTParam({ key: "", value: "", active: true })
     },
-    removeRequestParam(index) {
-      this.$emit("remove-request-param", index)
+    updateParam(index, item) {
+      console.log(index, item)
+      updateRESTParam(index, item)
     },
-    addRequestParam() {
-      this.$emit("add-request-param")
+    deleteParam(index) {
+      console.log(index)
+      deleteRESTParam(index)
+    },
+    clearContent() {
+      deleteAllRESTParams()
     },
   },
 }

@@ -33,8 +33,9 @@
                           border border-divider
                           transition
                           focus:outline-none focus:border-accent
+                          pointer-cursor
                         "
-                        v-model="method"
+                        :value="newMethod$"
                         :readonly="!customMethod"
                         autofocus
                       />
@@ -44,7 +45,7 @@
                       :key="`method-${index}`"
                       @click.native="
                         customMethod = methodMenuItem == 'CUSTOM' ? true : false
-                        method = methodMenuItem
+                        updateMethod(methodMenuItem)
                         $refs.options.tippy().hide()
                       "
                       :label="methodMenuItem"
@@ -96,6 +97,7 @@
                     font-semibold
                     bg-accent
                     text-white
+                    cursor-pointer
                   "
                 >
                   {{ $t("send") }}
@@ -115,6 +117,7 @@
                     font-semibold
                     bg-accent
                     text-white
+                    cursor-pointer
                   "
                 >
                   {{ $t("cancel") }}
@@ -187,7 +190,9 @@
                     truncate
                     font-semibold
                     rounded-l-lg
+                    cursor-pointer
                   "
+                  @click="saveRequest"
                 >
                   Save
                 </span>
@@ -227,7 +232,7 @@
                   />
                   <SmartItem
                     @click.native="
-                      copyRequest
+                      copyRequest()
                       $refs.saveOptions.tippy().hide()
                     "
                     ref="copyRequest"
@@ -237,7 +242,7 @@
                   />
                   <SmartItem
                     @click.native="
-                      saveRequest
+                      saveRequest()
                       $refs.saveOptions.tippy().hide()
                     "
                     ref="saveRequest"
@@ -251,22 +256,10 @@
             <SmartTabs styles="sticky top-70px z-10">
               <SmartTab
                 :id="'params'"
-                :label="
-                  $t('parameters') +
-                  `${
-                    newParams$.length !== 0
-                      ? ' \xA0 • \xA0 ' + newParams$.length
-                      : ''
-                  }`
-                "
+                :label="$t('parameters')"
                 :selected="true"
               >
-                <HttpParameters
-                  :params="newParams$"
-                  @clear-content="clearContent"
-                  @remove-request-param="removeRequestParam"
-                  @add-request-param="addRequestParam"
-                />
+                <HttpParameters />
               </SmartTab>
 
               <SmartTab
@@ -867,10 +860,11 @@ import { getSettingSubject, applySetting } from "~/newstore/settings"
 import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
 import {
+  restMethod$,
   restEndpoint$,
-  restParams$,
   restRequest$,
   setRESTEndpoint,
+  updateRESTMethod,
 } from "~/newstore/RESTSession"
 
 export default {
@@ -922,7 +916,7 @@ export default {
       ],
 
       newEndpoint$: "",
-      newParams$: [],
+      newMethod$: "",
     }
   },
   subscriptions() {
@@ -934,7 +928,7 @@ export default {
         "EXPERIMENTAL_URL_BAR_ENABLED"
       ),
       newEndpoint$: restEndpoint$,
-      newParams$: restParams$,
+      newMethod$: restMethod$,
     }
   },
   watch: {
@@ -1406,6 +1400,9 @@ export default {
     },
   },
   methods: {
+    updateMethod(method) {
+      updateRESTMethod(method)
+    },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth",

@@ -147,7 +147,7 @@
                     <SmartToggle
                       v-if="canListParameters"
                       :on="rawInput"
-                      @change="rawInput = $event"
+                      @change="rawInput = !rawInput"
                     >
                       {{ $t("raw_input") }}
                     </SmartToggle>

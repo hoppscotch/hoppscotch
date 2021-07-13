@@ -15,7 +15,7 @@
         >
           <kbd
             v-for="(key, keyIndex) in shortcut.keys"
-            :key="`key-${keyIndex}`"
+            :key="`shortcut-${index}-key-${keyIndex}`"
             class="
               py-2
               px-4

@@ -31,7 +31,7 @@
     >
       <li
         v-for="(suggestion, index) in suggestions"
-        :key="index"
+        :key="`suggestion-${index}`"
         :class="{ active: currentSuggestionIndex === index }"
         @click.prevent="forceSuggestion(suggestion)"
       >

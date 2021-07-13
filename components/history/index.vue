@@ -59,7 +59,7 @@
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">manage_search</i>
-      <span class="text-xs">
+      <span class="text-xs text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -68,7 +68,7 @@
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">schedule</i>
-      <span class="text-xs">
+      <span class="text-xs text-center">
         {{ $t("history_empty") }}
       </span>
     </div>

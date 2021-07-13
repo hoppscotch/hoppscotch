@@ -6,7 +6,7 @@
     </h2>
     <span
       v-for="(folder, index) in collection.folders"
-      :key="`sub-collection-${index}`"
+      :key="`folder-${index}`"
       class="folder"
     >
       <DocsFolder :folder="folder" />

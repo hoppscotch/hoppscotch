@@ -18,8 +18,8 @@
       "
     >
       <div
-        v-for="(p, index) in currPath"
-        :key="index"
+        v-for="(p, index) in currentPath"
+        :key="`p-${index}`"
         class="
           inline-flex
           items-center
@@ -34,11 +34,11 @@
         <span @click="onBlockClick(index)">
           {{ p }}
         </span>
-        <i v-if="index + 1 !== currPath.length" class="material-icons mx-2">
+        <i v-if="index + 1 !== currentPath.length" class="material-icons mx-2">
           chevron_right
         </i>
         <tippy
-          v-if="sibDropDownIndex == index"
+          v-if="siblingDropDownIndex == index"
           ref="options"
           interactive
           tabindex="-1"
@@ -47,11 +47,11 @@
           arrow
         >
           <SmartItem
-            v-for="(sib, i) in currSib"
-            :key="i"
+            v-for="(sibling, siblingIndex) in currentSibling"
+            :key="`p-${index}-sibling-${siblingIndex}`"
             class="font-mono"
-            :label="sib.key ? sib.key.value : i"
-            @click.native="goToSib(sib)"
+            :label="sibling.key ? sibling.key.value : i"
+            @click.native="goToSibling(sibling)"
           />
         </tippy>
       </div>
@@ -107,9 +107,9 @@ export default {
       editor: null,
       cacheValue: "",
       outline: outline(),
-      currPath: [],
-      currSib: [],
-      sibDropDownIndex: null,
+      currentPath: [],
+      currentSibling: [],
+      siblingDropDownIndex: null,
     }
   },
 
@@ -176,7 +176,7 @@ export default {
         )
         const path = this.outline.genPath(index)
         if (path.success) {
-          this.currPath = path.res
+          this.currentPath = path.res
         }
       })
     }
@@ -225,19 +225,19 @@ export default {
     }, 2000),
 
     onBlockClick(index) {
-      if (this.sibDropDownIndex === index) {
-        this.clearSibList()
+      if (this.siblingDropDownIndex === index) {
+        this.clearSiblingList()
       } else {
-        this.currSib = this.outline.getSiblings(index)
-        if (this.currSib.length) this.sibDropDownIndex = index
+        this.currentSibling = this.outline.getSiblings(index)
+        if (this.currentSibling.length) this.siblingDropDownIndex = index
       }
     },
-    clearSibList() {
-      this.currSib = []
-      this.sibDropDownIndex = null
+    clearSiblingList() {
+      this.currentSibling = []
+      this.siblingDropDownIndex = null
     },
-    goToSib(obj) {
-      this.clearSibList()
+    goToSibling(obj) {
+      this.clearSiblingList()
       if (obj.start) {
         const pos = this.editor.session.doc.indexToPosition(obj.start, 0)
         if (pos) {
@@ -252,8 +252,8 @@ export default {
         try {
           this.outline.init(content)
 
-          if (content[0] === "[") this.currPath.push("[]")
-          else this.currPath.push("{}")
+          if (content[0] === "[") this.currentPath.push("[]")
+          else this.currentPath.push("{}")
         } catch (e) {
           console.log("Outline error: ", e)
         }

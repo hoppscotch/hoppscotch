@@ -19,10 +19,10 @@
         />
       </template>
       <SmartItem
-        v-for="locale in $i18n.locales.filter(
+        v-for="(locale, index) in $i18n.locales.filter(
           ({ code }) => code !== $i18n.locale
         )"
-        :key="locale.code"
+        :key="`locale-${index}`"
         :to="switchLocalePath(locale.code).toString()"
         :label="`${locale.country} ${locale.name}`"
         @click.native="$refs.language.tippy().hide()"

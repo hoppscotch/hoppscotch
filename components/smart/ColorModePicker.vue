@@ -6,11 +6,11 @@
       v-tippy="{ theme: 'tooltip' }"
       :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
       :class="[
-        { 'bg-primary': color === $colorMode.preference },
-        { 'text-accent hover:text-accent': color === $colorMode.value },
+        { 'bg-primary': color === activeColor },
+        { 'text-accent hover:text-accent': color === activeColor },
       ]"
       :icon="getIcon(color)"
-      @click.native="$colorMode.preference = color"
+      @click.native="setBGMode(color)"
     />
   </div>
 </template>

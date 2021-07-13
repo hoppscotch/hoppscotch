@@ -39,8 +39,8 @@
                 </span>
               </template>
               <SmartItem
-                v-for="gen in codegens"
-                :key="gen.id"
+                v-for="(gen, index) in codegens"
+                :key="`gen-${index}`"
                 :label="gen.name"
                 @click.native="
                   requestType = gen.id

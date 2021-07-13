@@ -23,7 +23,7 @@
           </option>
           <option
             v-for="(environment, index) in environments"
-            :key="index"
+            :key="`environment-${index}`"
             :value="index"
           >
             {{ environment.name }}
@@ -63,14 +63,14 @@
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">library_add</i>
-      <span class="text-xs">
+      <span class="text-xs text-center">
         {{ $t("create_new_environment") }}
       </span>
     </div>
     <div class="flex flex-col">
       <EnvironmentsEnvironment
         v-for="(environment, index) in environments"
-        :key="environment.name"
+        :key="`environment-${index}`"
         :environment-index="index"
         :environment="environment"
         @edit-environment="editEnvironment(environment, index)"

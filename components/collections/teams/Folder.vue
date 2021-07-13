@@ -96,7 +96,7 @@
     <div v-show="showChildren || isFiltered">
       <CollectionsTeamsFolder
         v-for="(subFolder, subFolderIndex) in folder.children"
-        :key="subFolder.name"
+        :key="`subFolder-${subFolderIndex}`"
         class="ml-5 border-l border-dividerLight"
         :folder="subFolder"
         :folder-index="subFolderIndex"
@@ -116,7 +116,7 @@
       />
       <CollectionsTeamsRequest
         v-for="(request, index) in folder.requests"
-        :key="index"
+        :key="`request-${index}`"
         class="ml-5 border-l border-dividerLight"
         :request="request.request"
         :collection-index="collectionIndex"
@@ -148,7 +148,7 @@
         "
       >
         <i class="material-icons opacity-50 pb-2">folder_open</i>
-        <span class="text-xs">
+        <span class="text-xs text-center">
           {{ $t("folder_empty") }}
         </span>
       </div>

@@ -140,7 +140,7 @@
             </option>
             <option
               v-for="(collection, index) in myCollections"
-              :key="index"
+              :key="`collection-${index}`"
               :value="index"
             >
               {{ collection.name }}

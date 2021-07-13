@@ -25,7 +25,7 @@
     </div>
     <div
       v-for="(param, index) in bodyParams"
-      :key="index"
+      :key="`param-${index}`"
       class="
         flex
         border-b border-dashed
@@ -76,9 +76,9 @@
       <div v-else class="file-chips-container">
         <div class="file-chips-wrapper">
           <SmartDeletableChip
-            v-for="(file, i) in Array.from(bodyParams[index].value)"
-            :key="`body-param-${index}-file-${i}`"
-            @chip-delete="chipDelete(index, i)"
+            v-for="(file, fileIndex) in Array.from(bodyParams[index].value)"
+            :key="`param-${index}-file-${fileIndex}`"
+            @chip-delete="chipDelete(index, fileIndex)"
           >
             {{ file.name }}
           </SmartDeletableChip>

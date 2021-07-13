@@ -47,7 +47,11 @@
     </p>
     <h4 v-if="request.headers" class="heading">{{ $t("headers") }}</h4>
     <span v-if="request.headers">
-      <p v-for="header in request.headers" :key="header.key" class="doc-desc">
+      <p
+        v-for="(header, index) in request.headers"
+        :key="`header-${index}`"
+        class="doc-desc"
+      >
         <span>
           {{ header.key || $t("none") }}:
           <code>{{ header.value || $t("none") }}</code>
@@ -57,8 +61,8 @@
     <h4 v-if="request.params" class="heading">{{ $t("parameters") }}</h4>
     <span v-if="request.params">
       <p
-        v-for="parameter in request.params"
-        :key="parameter.key"
+        v-for="(parameter, index) in request.params"
+        :key="`parameter-${index}`"
         class="doc-desc"
       >
         <span>
@@ -70,8 +74,8 @@
     <h4 v-if="request.bodyParams" class="heading">{{ $t("payload") }}</h4>
     <span v-if="request.bodyParams">
       <p
-        v-for="payload in request.bodyParams"
-        :key="payload.key"
+        v-for="(payload, index) in request.bodyParams"
+        :key="`payload-${index}`"
         class="doc-desc"
       >
         <span>

@@ -5,7 +5,7 @@
         <div class="inline-flex">
           <button
             v-for="(tab, index) in tabs"
-            :key="index"
+            :key="`tab-${index}`"
             class="tab"
             :class="{ active: tab.active }"
             :tabindex="0"

@@ -18,7 +18,7 @@
           />
         </div>
       </div>
-      <ul v-for="(token, index) in tokens" :key="index">
+      <ul v-for="(token, index) in tokens" :key="`token-${index}`">
         <li>
           <input
             class="input"

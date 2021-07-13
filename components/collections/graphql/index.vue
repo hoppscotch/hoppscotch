@@ -41,7 +41,7 @@
     <div class="flex-col">
       <CollectionsGraphqlCollection
         v-for="(collection, index) in filteredCollections"
-        :key="collection.name"
+        :key="`collection-${index}`"
         :picked="picked"
         :name="collection.name"
         :collection-index="index"
@@ -62,7 +62,7 @@
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">create_new_folder</i>
-      <span class="text-xs">
+      <span class="text-xs text-center">
         {{ $t("create_new_collection") }}
       </span>
     </div>
@@ -71,7 +71,7 @@
       class="flex items-center text-secondaryLight flex-col p-4 justify-center"
     >
       <i class="material-icons opacity-50 pb-2">manage_search</i>
-      <span class="text-xs">
+      <span class="text-xs text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>

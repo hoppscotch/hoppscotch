@@ -4,11 +4,11 @@
     <div ref="log" name="log" class="realtime-log">
       <span v-if="log">
         <span
-          v-for="(logEntry, index) in log"
-          :key="index"
-          :style="{ color: logEntry.color }"
-          >@ {{ logEntry.ts }}{{ getSourcePrefix(logEntry.source)
-          }}{{ logEntry.payload }}</span
+          v-for="(entry, index) in log"
+          :key="`entry-${index}`"
+          :style="{ color: entry.color }"
+          >@ {{ entry.ts }}{{ getSourcePrefix(entry.source)
+          }}{{ entry.payload }}</span
         >
       </span>
       <span v-else>{{ $t("waiting_for_connection") }}</span>

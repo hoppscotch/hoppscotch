@@ -3,7 +3,7 @@
     <SmartTab
       v-for="(lens, index) in validLenses"
       :id="lens.lensName"
-      :key="lens.lensName"
+      :key="`lens-${index}`"
       :label="lens.lensName"
       :selected="index === 0"
     >

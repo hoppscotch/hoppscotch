@@ -94,7 +94,7 @@
     <div v-show="showChildren || isFiltered">
       <CollectionsGraphqlFolder
         v-for="(subFolder, subFolderIndex) in folder.folders"
-        :key="subFolder.name"
+        :key="`subFolder-${subFolderIndex}`"
         class="ml-5 border-l border-dividerLight"
         :picked="picked"
         :saving-mode="savingMode"
@@ -111,7 +111,7 @@
       />
       <CollectionsGraphqlRequest
         v-for="(request, index) in folder.requests"
-        :key="index"
+        :key="`request-${index}`"
         class="ml-5 border-l border-dividerLight"
         :picked="picked"
         :saving-mode="savingMode"
@@ -144,7 +144,7 @@
         "
       >
         <i class="material-icons opacity-50 pb-2">folder_open</i>
-        <span class="text-xs">
+        <span class="text-xs text-center">
           {{ $t("folder_empty") }}
         </span>
       </div>

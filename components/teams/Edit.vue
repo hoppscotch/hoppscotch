@@ -25,7 +25,7 @@
         </label>
         <ul
           v-for="(member, index) in members"
-          :key="`new-${index}`"
+          :key="`member-${index}`"
           class="
             border-b border-dashed
             divide-y
@@ -106,7 +106,7 @@
         </ul>
         <ul
           v-for="(member, index) in newMembers"
-          :key="index"
+          :key="`member-${index}`"
           class="
             border-b border-dashed
             divide-y

@@ -33,7 +33,7 @@
     </div>
     <div
       v-for="(param, index) in params$"
-      :key="index"
+      :key="`param-${index}`"
       class="
         flex
         border-b border-dashed

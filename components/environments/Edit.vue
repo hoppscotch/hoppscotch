@@ -44,7 +44,7 @@
         <div class="border-2 border-divider">
           <div
             v-for="(variable, index) in vars"
-            :key="index"
+            :key="`variable-${index}`"
             class="
               flex
               border-b

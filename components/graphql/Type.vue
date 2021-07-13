@@ -17,7 +17,10 @@
     </div>
     <div v-if="interfaces.length > 0">
       <h5 class="my-2 text-xs">Interfaces:</h5>
-      <div v-for="gqlInterface in interfaces" :key="gqlInterface.name">
+      <div
+        v-for="(gqlInterface, index) in interfaces"
+        :key="`gqlInterface-${index}`"
+      >
         <GraphqlTypeLink
           :gql-type="gqlInterface"
           :jump-type-callback="jumpTypeCallback"
@@ -28,8 +31,8 @@
     <div v-if="children.length > 0" class="mb-2">
       <h5 class="my-2 text-xs">Children:</h5>
       <GraphqlTypeLink
-        v-for="child in children"
-        :key="child.name"
+        v-for="(child, index) in children"
+        :key="`child-${index}`"
         :gql-type="child"
         :jump-type-callback="jumpTypeCallback"
         class="pl-4 border-l-2 border-divider"
@@ -38,8 +41,8 @@
     <div v-if="gqlType.getFields">
       <h5 class="my-2 text-xs">Fields:</h5>
       <GraphqlField
-        v-for="field in gqlType.getFields()"
-        :key="field.name"
+        v-for="(field, index) in gqlType.getFields()"
+        :key="`field-${index}`"
         class="pl-4 border-l-2 border-divider"
         :gql-field="field"
         :is-highlighted="isFieldHighlighted({ field })"
@@ -49,8 +52,8 @@
     <div v-if="isEnum">
       <h5 class="my-2 text-xs">Values:</h5>
       <div
-        v-for="value in gqlType.getValues()"
-        :key="value.name"
+        v-for="(value, index) in gqlType.getValues()"
+        :key="`value-${index}`"
         class="pl-4 border-l-2 border-divider"
         v-text="value.name"
       ></div>

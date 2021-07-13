@@ -7,7 +7,7 @@
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
         (
-        <span v-for="(field, index) in fieldArgs" :key="index">
+        <span v-for="(field, index) in fieldArgs" :key="`field-${index}`">
           {{ field.name }}:
           <GraphqlTypeLink
             :gql-type="field.type"
@@ -47,7 +47,7 @@
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2 text-xs">Arguments:</h5>
       <div class="pl-4 border-l-2 border-divider">
-        <div v-for="(field, index) in fieldArgs" :key="index">
+        <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
           <span class="font-semibold text-xs">
             {{ field.name }}:
             <GraphqlTypeLink

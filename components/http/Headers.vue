@@ -33,7 +33,7 @@
     </div>
     <div
       v-for="(header, index) in headers$"
-      :key="index"
+      :key="`header-${index}`"
       class="
         flex
         border-b border-dashed

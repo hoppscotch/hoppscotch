@@ -2,7 +2,7 @@
   <div class="p-2 font-mono">
     <div
       v-for="(header, index) in headers"
-      :key="index"
+      :key="`header-${index}`"
       class="flex items-center"
     >
       <span

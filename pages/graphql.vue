@@ -53,7 +53,7 @@
                 </ul>
                 <ul
                   v-for="(header, index) in headers"
-                  :key="`${header.value}_${index}`"
+                  :key="`header-${index}`"
                   class="
                     divide-y divide-dashed divide-divider
                     border-b border-dashed border-divider
@@ -363,8 +363,8 @@
                       class="divide-y divide-dividerLight"
                     >
                       <GraphqlField
-                        v-for="field in filteredQueryFields"
-                        :key="field.name"
+                        v-for="(field, index) in filteredQueryFields"
+                        :key="`field-${index}`"
                         :gql-field="field"
                         :jump-type-callback="handleJumpToType"
                         class="p-4"
@@ -377,8 +377,8 @@
                       class="divide-y divide-dividerLight"
                     >
                       <GraphqlField
-                        v-for="field in filteredMutationFields"
-                        :key="field.name"
+                        v-for="(field, index) in filteredMutationFields"
+                        :key="`field-${index}`"
                         :gql-field="field"
                         :jump-type-callback="handleJumpToType"
                         class="p-4"
@@ -391,8 +391,8 @@
                       class="divide-y divide-dividerLight"
                     >
                       <GraphqlField
-                        v-for="field in filteredSubscriptionFields"
-                        :key="field.name"
+                        v-for="(field, index) in filteredSubscriptionFields"
+                        :key="`field-${index}`"
                         :gql-field="field"
                         :jump-type-callback="handleJumpToType"
                         class="p-4"
@@ -406,8 +406,8 @@
                       class="divide-y divide-dividerLight"
                     >
                       <GraphqlType
-                        v-for="type in filteredGraphqlTypes"
-                        :key="type.name"
+                        v-for="(type, index) in filteredGraphqlTypes"
+                        :key="`type-${index}`"
                         :gql-type="type"
                         :gql-types="graphqlTypes"
                         :is-highlighted="
@@ -438,7 +438,7 @@
                   "
                 >
                   <i class="material-icons opacity-50 pb-2">description</i>
-                  <span class="text-xs">
+                  <span class="text-xs text-center">
                     {{ $t("send_request_first") }}
                   </span>
                 </div>

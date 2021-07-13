@@ -41,7 +41,7 @@
               </option>
               <option
                 v-for="(team, index) in myTeams"
-                :key="index"
+                :key="`team-${index}`"
                 :value="index"
               >
                 {{ team.name }}

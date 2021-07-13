@@ -51,13 +51,13 @@
                       </div>
                     </template>
                     <SmartItem
-                      v-for="(contentTypeMenuItem, index) in validContentTypes"
-                      :key="`content-type-${index}`"
+                      v-for="(contentTypeItem, index) in validContentTypes"
+                      :key="`contentTypeItem-${index}`"
                       @click.native="
-                        contentType = contentTypeMenuItem
+                        contentType = contentTypeItem
                         $refs.contentTypeOptions.tippy().hide()
                       "
-                      :label="contentTypeMenuItem"
+                      :label="contentTypeItem"
                     />
                   </tippy>
                   <SmartToggle
@@ -411,7 +411,7 @@
                     </div>
                     <div
                       v-for="(testReport, index) in testReports"
-                      :key="index"
+                      :key="`testReport-${index}`"
                       class="px-4"
                     >
                       <div v-if="testReport.startBlock">
@@ -556,7 +556,7 @@
               >
                 <option
                   v-for="(req, index) in tokenReqs"
-                  :key="index"
+                  :key="`req-${index}`"
                   :value="req.name"
                 >
                   {{ req.name }}

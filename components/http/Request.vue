@@ -34,12 +34,12 @@
             />
           </template>
           <SmartItem
-            v-for="(methodMenuItem, index) in methodMenuItems"
+            v-for="(method, index) in methods"
             :key="`method-${index}`"
-            :label="methodMenuItem"
+            :label="method"
             class="font-mono"
             @click.native="
-              updateMethod(methodMenuItem)
+              updateMethod(method)
               $refs.options.tippy().hide()
             "
           />
@@ -257,7 +257,7 @@ export default {
   data() {
     return {
       newMethod$: "",
-      methodMenuItems: [
+      methods: [
         "GET",
         "HEAD",
         "POST",

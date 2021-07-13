@@ -1,8 +1,17 @@
 <template>
   <AppSection label="bodyParameters">
     <div
-      v-if="bodyParams.length !== 0"
-      class="flex flex-1 items-center justify-between pl-4"
+      class="
+        sticky
+        top-110px
+        z-10
+        bg-primary
+        flex flex-1
+        items-center
+        justify-between
+        pl-4
+        border-b border-dividerLight
+      "
     >
       <label for="reqParamList" class="font-semibold text-xs">
         {{ $t("request_body") }}

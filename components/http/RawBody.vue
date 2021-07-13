@@ -1,6 +1,18 @@
 <template>
   <div>
-    <div class="flex flex-1 items-center justify-between pl-4">
+    <div
+      class="
+        sticky
+        top-110px
+        z-10
+        bg-primary
+        flex flex-1
+        items-center
+        justify-between
+        pl-4
+        border-b border-dividerLight
+      "
+    >
       <label for="rawBody" class="font-semibold text-xs">
         {{ $t("raw_request_body") }}
       </label>

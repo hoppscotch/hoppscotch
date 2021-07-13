@@ -320,7 +320,19 @@
                 :label="$t('pre_request_script')"
               >
                 <AppSection v-if="showPreRequestScript" label="preRequest">
-                  <div class="flex flex-1 items-center justify-between pl-4">
+                  <div
+                    class="
+                      sticky
+                      top-110px
+                      z-10
+                      bg-primary
+                      flex flex-1
+                      items-center
+                      justify-between
+                      pl-4
+                      border-b border-dividerLight
+                    "
+                  >
                     <label class="font-semibold text-xs">
                       {{ $t("javascript_code") }}
                     </label>
@@ -349,7 +361,19 @@
 
               <SmartTab :id="'tests'" :label="$t('tests')">
                 <AppSection v-if="testsEnabled" label="postRequestTests">
-                  <div class="flex flex-1 items-center justify-between pl-4">
+                  <div
+                    class="
+                      sticky
+                      top-110px
+                      z-10
+                      bg-primary
+                      flex flex-1
+                      items-center
+                      justify-between
+                      pl-4
+                      border-b border-dividerLight
+                    "
+                  >
                     <label class="font-semibold text-xs">
                       {{ $t("javascript_code") }}
                     </label>

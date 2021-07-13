@@ -33,39 +33,55 @@
               :icon="clearIcon"
               @click.native="clearContent($event)"
             />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              icon="add"
+              :title="$t('add_new')"
+              @click.native="addEnvironmentVariable"
+            />
           </div>
         </div>
-        <ul
-          v-for="(variable, index) in vars"
-          :key="index"
-          class="
-            border-b border-dashed
-            divide-y
-            md:divide-x
-            border-divider
-            divide-dashed divide-divider
-            md:divide-y-0
-          "
-          :class="{ 'border-t': index == 0 }"
-        >
-          <li>
+        <div class="border-2 border-divider">
+          <div
+            v-for="(variable, index) in vars"
+            :key="index"
+            class="
+              flex
+              border-b
+              divide-x
+              border-divider
+              divide-dashed divide-divider
+            "
+          >
             <input
               v-model="variable.key"
-              class="input"
+              class="
+                px-4
+                py-3
+                text-xs
+                flex flex-1
+                font-semibold
+                bg-primaryLight
+                focus:outline-none
+              "
               :placeholder="$t('variable_count', { count: index + 1 })"
               :name="'param' + index"
             />
-          </li>
-          <li>
             <input
               v-model="variable.value"
-              class="input"
+              class="
+                px-4
+                py-3
+                text-xs
+                flex flex-1
+                font-semibold
+                bg-primaryLight
+                focus:outline-none
+              "
               :placeholder="$t('value_count', { count: index + 1 })"
               :name="'value' + index"
             />
-          </li>
-          <div>
-            <li>
+            <div>
               <ButtonSecondary
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
@@ -73,18 +89,9 @@
                 icon="delete"
                 @click.native="removeEnvironmentVariable(index)"
               />
-            </li>
+            </div>
           </div>
-        </ul>
-        <ul>
-          <li>
-            <ButtonSecondary
-              icon="add"
-              :label="$t('add_new')"
-              @click.native="addEnvironmentVariable"
-            />
-          </li>
-        </ul>
+        </div>
       </div>
     </template>
     <template #footer>

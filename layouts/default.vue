@@ -13,6 +13,7 @@
           <Pane class="flex flex-1 overflow-auto">
             <Splitpanes horizontal :dbl-click-splitter="false">
               <Pane v-if="!zenMode" style="height: auto">
+                <!-- <AppAnnouncement /> -->
                 <AppHeader />
               </Pane>
               <Pane class="flex flex-1 overflow-auto">

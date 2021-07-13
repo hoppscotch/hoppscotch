@@ -10,6 +10,7 @@
         items-center
         justify-between
         pl-4
+        border-b border-dividerLight
       "
     >
       <label for="headerList" class="font-semibold text-xs">

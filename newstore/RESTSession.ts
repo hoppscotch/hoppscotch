@@ -115,7 +115,7 @@ type RESTSession = {
 
 const defaultRESTSession: RESTSession = {
   request: {
-    endpoint: "https://httpbin.org/",
+    endpoint: "https://httpbin.org/get",
     params: [],
     headers: [],
     method: "GET",

@@ -13,7 +13,7 @@
       :data-show-count="true"
       data-text="Star"
       aria-label="Star Hoppscotch on GitHub"
-      data-size="large"
+      :data-size="size"
     />
   </transition>
 </template>
@@ -24,6 +24,12 @@ import GithubButton from "vue-github-button"
 export default {
   components: {
     GithubButton,
+  },
+  props: {
+    size: {
+      type: String,
+      default: undefined,
+    },
   },
 }
 </script>

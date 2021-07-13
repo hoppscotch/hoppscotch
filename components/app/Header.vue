@@ -1,9 +1,10 @@
 <template>
   <header class="flex items-center justify-between p-2 flex-1">
-    <div class="inline-flex space-x-2 items-center flex-shrink-0">
-      <AppLogo class="h-6" />
+    <div class="inline-flex space-x-2 items-center font-bold flex-shrink-0">
+      <AppLogo class="h-6 mx-4" /> Hoppscotch
     </div>
     <div class="inline-flex space-x-2 items-center flex-shrink-0">
+      <AppGitHubStarButton class="mt-1 mr-2" />
       <TabPrimary
         id="installPWA"
         v-tippy="{ theme: 'tooltip' }"

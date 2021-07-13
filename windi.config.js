@@ -1,7 +1,6 @@
 import { defineConfig } from "windicss/helpers"
 
 export default defineConfig({
-  dark: "class",
   theme: {
     container: {
       center: true,

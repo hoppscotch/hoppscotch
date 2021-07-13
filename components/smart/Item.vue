@@ -11,6 +11,7 @@
       font-semibold
       transition
       rounded-lg
+      items-center
       focus:bg-primaryDark focus:text-secondaryDark
       hover:bg-primaryDark hover:text-secondaryDark
       focus:outline-none

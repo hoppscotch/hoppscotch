@@ -262,10 +262,8 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .show-if-initialized {
-  @apply opacity-0;
-
   &.initialized {
     @apply opacity-100;
   }

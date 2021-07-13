@@ -1,6 +1,17 @@
 <template>
   <AppSection label="parameters">
-    <div class="flex flex-1 items-center justify-between pl-4">
+    <div
+      class="
+        sticky
+        top-110px
+        z-10
+        bg-primary
+        flex flex-1
+        items-center
+        justify-between
+        pl-4
+      "
+    >
       <label for="paramList" class="font-semibold text-xs">
         {{ $t("parameter_list") }}
       </label>

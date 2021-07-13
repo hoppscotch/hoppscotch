@@ -1,31 +1,61 @@
 <template>
   <div class="show-if-initialized" :class="{ initialized }">
-    <div v-if="lang == 'json'" class="outline hide-scrollbar">
-      <div v-for="(p, index) in currPath" :key="index" class="block">
-        <div class="label" @click="onBlockClick(index)">
+    <pre ref="editor" :class="styles"></pre>
+    <div
+      v-if="lang == 'json'"
+      class="
+        sticky
+        bottom-0
+        z-10
+        flex flex-nowrap flex-1
+        overflow-auto
+        font-mono
+        shadow-lg
+        px-4
+        bg-primaryLight
+        border-t border-divider
+        hide-scrollbar
+      "
+    >
+      <div
+        v-for="(p, index) in currPath"
+        :key="index"
+        class="
+          inline-flex
+          items-center
+          flex-grow-0 flex-shrink-0
+          text-secondaryLight
+          hover:text-secondary
+          cursor-pointer
+          font-semibold
+          text-xs
+        "
+      >
+        <span @click="onBlockClick(index)">
           {{ p }}
-        </div>
-        <i v-if="index + 1 !== currPath.length" class="material-icons"
-          >chevron_right</i
-        >
-        <div
+        </span>
+        <i v-if="index + 1 !== currPath.length" class="material-icons mx-2">
+          chevron_right
+        </i>
+        <tippy
           v-if="sibDropDownIndex == index"
-          :ref="`sibling-${index}`"
-          class="siblings"
-          @mouseleave="clearSibList"
+          ref="options"
+          interactive
+          tabindex="-1"
+          trigger="click"
+          theme="popover"
+          arrow
         >
-          <div
+          <SmartItem
             v-for="(sib, i) in currSib"
             :key="i"
-            class="sib"
-            @click="goToSib(sib)"
-          >
-            {{ sib.key ? sib.key.value : i }}
-          </div>
-        </div>
+            class="font-mono"
+            :label="sib.key ? sib.key.value : i"
+            @click.native="goToSib(sib)"
+          />
+        </tippy>
       </div>
     </div>
-    <pre ref="editor" :class="styles"></pre>
   </div>
 </template>
 
@@ -149,7 +179,6 @@ export default {
           this.currPath = path.res
         }
       })
-      document.addEventListener("touchstart", this.onTouchStart)
     }
 
     // Disable linting, if lint prop is false
@@ -158,7 +187,6 @@ export default {
 
   destroyed() {
     this.editor.destroy()
-    document.removeEventListener("touchstart", this.onTouchStart)
   },
 
   methods: {
@@ -195,6 +223,7 @@ export default {
         }
       }
     }, 2000),
+
     onBlockClick(index) {
       if (this.sibDropDownIndex === index) {
         this.clearSibList()
@@ -230,77 +259,18 @@ export default {
         }
       }
     }),
-    onTouchStart(e) {
-      if (
-        this.sibDropDownIndex !== null &&
-        e.target.parentElement !==
-          this.$refs[`sibling-${this.sibDropDownIndex}`][0]
-      ) {
-        this.clearSibList()
-      }
-    },
   },
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .show-if-initialized {
-  @apply opacity-0;
-
   &.initialized {
     @apply opacity-100;
   }
 
   & > * {
     @apply transition-none;
-  }
-}
-
-.outline {
-  @apply flex flex-nowrap;
-  @apply flex-1;
-  @apply overflow-auto;
-  @apply font-mono;
-  @apply shadow-lg;
-  @apply px-4;
-
-  .block {
-    @apply inline-flex;
-    @apply items-center;
-    @apply flex-grow-0 flex-shrink-0;
-    @apply text-secondaryLight text-sm;
-
-    &:hover {
-      @apply text-secondary;
-      @apply cursor-pointer;
-    }
-
-    .label {
-      @apply p-2;
-    }
-
-    .siblings {
-      @apply absolute;
-      @apply z-50;
-      @apply top-9;
-      @apply bg-primary;
-      @apply max-h-60;
-      @apply overflow-auto;
-      @apply shadow-lg;
-      @apply text-secondaryLight;
-      @apply overscroll-none;
-
-      border-radius: 0 0 8px 8px;
-    }
-
-    .sib {
-      @apply px-4 py-1;
-
-      &:hover {
-        @apply text-secondary;
-        @apply bg-primaryLight;
-      }
-    }
   }
 }
 </style>

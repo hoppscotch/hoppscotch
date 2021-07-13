@@ -9,6 +9,7 @@
         bg-primary
         items-center
         justify-between
+        border-b border-divider
       "
     >
       <label for="body" class="px-4 font-semibold text-xs">

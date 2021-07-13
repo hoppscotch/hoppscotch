@@ -1,7 +1,20 @@
 <template>
   <div>
-    <div class="flex flex-1 items-center justify-between">
-      <label for="body">{{ $t("response_body") }}</label>
+    <div
+      class="
+        flex flex-1
+        sticky
+        top-23
+        z-10
+        bg-primary
+        items-center
+        justify-between
+        border-b border-divider
+      "
+    >
+      <label for="body" class="px-4 font-semibold text-xs">
+        {{ $t("response_body") }}
+      </label>
       <div>
         <ButtonSecondary
           v-if="response.body"

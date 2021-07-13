@@ -12,7 +12,8 @@
     <SmartTab
       v-if="Object.keys(response.headers).length !== 0"
       id="headers"
-      :label="`Headers \xA0 • \xA0 ${Object.keys(response.headers).length}`"
+      :label="$t('Headers')"
+      :info="Object.keys(response.headers).length.toString()"
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>

@@ -16,17 +16,7 @@
                 <HttpParameters />
               </SmartTab>
 
-              <SmartTab
-                :id="'bodyParams'"
-                :label="
-                  $t('body') +
-                  `${
-                    bodyParams.length !== 0
-                      ? ' \xA0 • \xA0 ' + bodyParams.length
-                      : ''
-                  }`
-                "
-              >
+              <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
                 <div class="flex flex-1 items-center justify-between py-2">
                   <tippy
                     interactive

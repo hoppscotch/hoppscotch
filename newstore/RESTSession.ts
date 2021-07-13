@@ -1,6 +1,10 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { HoppRESTParam, HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
+import {
+  HoppRESTHeader,
+  HoppRESTParam,
+  HoppRESTRequest,
+} from "~/helpers/types/HoppRESTRequest"
 
 function getParamsInURL(url: string): { key: string; value: string }[] {
   const result: { key: string; value: string }[] = []
@@ -111,6 +115,7 @@ const defaultRESTSession: RESTSession = {
   request: {
     endpoint: "https://httpbin.org/",
     params: [],
+    headers: [],
     method: "GET",
   },
 }
@@ -234,6 +239,36 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  addHeader(curr: RESTSession, { entry }: { entry: HoppRESTHeader }) {
+    return {
+      request: {
+        ...curr.request,
+        headers: [...curr.request.headers, entry],
+      },
+    }
+  },
+  updateHeader(
+    curr: RESTSession,
+    { index, updatedEntry }: { index: number; updatedEntry: HoppRESTHeader }
+  ) {
+    return {
+      request: {
+        ...curr.request,
+        headers: curr.request.headers.map((header, i) => {
+          if (i === index) return updatedEntry
+          else return header
+        }),
+      },
+    }
+  },
+  deleteHeader(curr: RESTSession, { index }: { index: number }) {
+    return {
+      request: {
+        ...curr.request,
+        headers: curr.request.headers.filter((_, i) => i !== index),
+      },
+    }
+  },
 })
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
@@ -287,6 +322,34 @@ export function updateRESTMethod(newMethod: string) {
     dispatcher: "updateMethod",
     payload: {
       newMethod,
+    },
+  })
+}
+
+export function addRESTHeader(entry: HoppRESTHeader) {
+  restSessionStore.dispatch({
+    dispatcher: "addHeader",
+    payload: {
+      entry,
+    },
+  })
+}
+
+export function updateRESTHeader(index: number, updatedEntry: HoppRESTHeader) {
+  restSessionStore.dispatch({
+    dispatcher: "updateHeader",
+    payload: {
+      index,
+      updatedEntry,
+    },
+  })
+}
+
+export function deleteRESTHeader(index: number) {
+  restSessionStore.dispatch({
+    dispatcher: "deleteHeader",
+    payload: {
+      index,
     },
   })
 }

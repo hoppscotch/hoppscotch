@@ -7,7 +7,8 @@
       inline-flex
       px-4
       py-2
-      text-sm
+      text-xs
+      font-semibold
       transition
       rounded-lg
       focus:bg-primaryDark focus:text-secondaryDark

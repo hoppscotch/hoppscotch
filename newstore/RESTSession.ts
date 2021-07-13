@@ -1,10 +1,11 @@
-import { pluck, distinctUntilChanged } from "rxjs/operators"
+import { pluck, distinctUntilChanged, map } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTRequest,
 } from "~/helpers/types/HoppRESTRequest"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 function getParamsInURL(url: string): { key: string; value: string }[] {
   const result: { key: string; value: string }[] = []
@@ -109,6 +110,7 @@ function updateURLParam(
 
 type RESTSession = {
   request: HoppRESTRequest
+  response: HoppRESTResponse | null
 }
 
 const defaultRESTSession: RESTSession = {
@@ -118,6 +120,7 @@ const defaultRESTSession: RESTSession = {
     headers: [],
     method: "GET",
   },
+  response: null,
 }
 
 const dispatchers = defineDispatchers({
@@ -269,6 +272,27 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  deleteAllHeaders(curr: RESTSession) {
+    return {
+      request: {
+        ...curr.request,
+        headers: [],
+      },
+    }
+  },
+  updateResponse(
+    _curr: RESTSession,
+    { updatedRes }: { updatedRes: HoppRESTResponse | null }
+  ) {
+    return {
+      response: updatedRes,
+    }
+  },
+  clearResponse(_curr: RESTSession) {
+    return {
+      response: null,
+    }
+  },
 })
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
@@ -354,6 +378,29 @@ export function deleteRESTHeader(index: number) {
   })
 }
 
+export function deleteAllRESTHeaders() {
+  restSessionStore.dispatch({
+    dispatcher: "deleteAllHeaders",
+    payload: {},
+  })
+}
+
+export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
+  restSessionStore.dispatch({
+    dispatcher: "updateResponse",
+    payload: {
+      updatedRes,
+    },
+  })
+}
+
+export function clearRESTResponse() {
+  restSessionStore.dispatch({
+    dispatcher: "clearResponse",
+    payload: {},
+  })
+}
+
 export const restRequest$ = restSessionStore.subject$.pipe(
   pluck("request"),
   distinctUntilChanged()
@@ -369,7 +416,25 @@ export const restParams$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
+export const restActiveParamsCount$ = restParams$.pipe(
+  map((params) => params.filter((x) => x.active).length)
+)
+
 export const restMethod$ = restSessionStore.subject$.pipe(
   pluck("request", "method"),
+  distinctUntilChanged()
+)
+
+export const restHeaders$ = restSessionStore.subject$.pipe(
+  pluck("request", "headers"),
+  distinctUntilChanged()
+)
+
+export const restActiveHeadersCount$ = restHeaders$.pipe(
+  map((params) => params.filter((x) => x.active).length)
+)
+
+export const restResponse$ = restSessionStore.subject$.pipe(
+  pluck("response"),
   distinctUntilChanged()
 )

@@ -1,6 +1,10 @@
 <template>
   <div class="p-2 font-mono">
-    <div v-for="(value, key) in headers" :key="key" class="flex items-center">
+    <div
+      v-for="(header, index) in headers"
+      :key="index"
+      class="flex items-center"
+    >
       <span
         class="
           p-2
@@ -13,7 +17,7 @@
         "
       >
         <span class="truncate">
-          {{ key }}
+          {{ header.key }}
         </span>
       </span>
       <span
@@ -41,7 +45,7 @@
         "
       >
         <span class="truncate">
-          {{ value }}
+          {{ header.value }}
         </span>
       </span>
     </div>
@@ -51,7 +55,7 @@
 <script>
 export default {
   props: {
-    headers: { type: Object, default: () => {} },
+    headers: { type: Array, default: () => [] },
   },
 }
 </script>

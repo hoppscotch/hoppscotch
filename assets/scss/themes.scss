@@ -28,7 +28,7 @@
   // Tooltip color
   --tooltip-color: theme("colors.dark.700");
   // Editor theme
-  --editor-theme: "twilight";
+  --editor-theme: "merbivore_soft";
 }
 
 @mixin lightTheme {
@@ -55,7 +55,7 @@
   // Tooltip color
   --tooltip-color: theme("colors.gray.50");
   // Editor theme
-  --editor-theme: "iplastic";
+  --editor-theme: "textmate";
 }
 
 @mixin blackTheme {

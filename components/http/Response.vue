@@ -1,22 +1,22 @@
 <template>
   <AppSection label="response">
-    <HttpResponseMeta :response="response" :active="active" />
-    <div v-if="response.body && response.body !== $t('loading')">
-      <LensesResponseBodyRenderer :response="response" />
-    </div>
+    <HttpResponseMeta v-if="!loading" :response="response" />
+    <LensesResponseBodyRenderer v-if="!loading" :response="response" />
   </AppSection>
 </template>
 
 <script>
+import { restResponse$ } from "~/newstore/RESTSession"
+
 export default {
-  props: {
-    response: {
-      type: Object,
-      default: () => {},
-    },
-    active: {
-      type: Boolean,
-      default: false,
+  subscriptions() {
+    return {
+      response: restResponse$,
+    }
+  },
+  computed: {
+    loading() {
+      return this.response === null || this.response.type === "loading"
     },
   },
 }

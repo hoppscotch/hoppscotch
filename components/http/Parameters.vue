@@ -154,11 +154,9 @@ export default {
       addRESTParam({ key: "", value: "", active: true })
     },
     updateParam(index, item) {
-      console.log(index, item)
       updateRESTParam(index, item)
     },
     deleteParam(index) {
-      console.log(index)
       deleteRESTParam(index)
     },
     clearContent() {

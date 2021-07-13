@@ -5,259 +5,13 @@
       <Pane class="overflow-auto hide-scrollbar">
         <Splitpanes horizontal :dbl-click-splitter="false">
           <Pane class="overflow-auto hide-scrollbar">
-            <div class="sticky top-0 z-10 bg-primary flex p-4">
-              <div class="relative inline-flex">
-                <span class="select-wrapper">
-                  <tippy
-                    interactive
-                    ref="options"
-                    tabindex="-1"
-                    trigger="click"
-                    theme="popover"
-                    arrow
-                  >
-                    <template #trigger>
-                      <input
-                        id="method"
-                        class="
-                          flex
-                          rounded-l-lg
-                          bg-primaryLight
-                          font-mono
-                          w-32
-                          px-4
-                          py-2
-                          truncate
-                          text-secondaryDark
-                          font-semibold
-                          border border-divider
-                          transition
-                          focus:outline-none focus:border-accent
-                          pointer-cursor
-                        "
-                        :value="newMethod$"
-                        :readonly="!customMethod"
-                        autofocus
-                      />
-                    </template>
-                    <SmartItem
-                      v-for="(methodMenuItem, index) in methodMenuItems"
-                      :key="`method-${index}`"
-                      @click.native="
-                        customMethod = methodMenuItem == 'CUSTOM' ? true : false
-                        updateMethod(methodMenuItem)
-                        $refs.options.tippy().hide()
-                      "
-                      :label="methodMenuItem"
-                    />
-                  </tippy>
-                </span>
-              </div>
-              <div class="flex-1 inline-flex">
-                <input
-                  v-if="!EXPERIMENTAL_URL_BAR_ENABLED"
-                  :class="{ error: !isValidURL }"
-                  class="
-                    w-full
-                    font-mono font-semibold
-                    truncate
-                    text-secondaryDark
-                    px-4
-                    py-2
-                    border border-divider
-                    bg-primaryLight
-                    transition
-                    focus:outline-none focus:border-accent
-                  "
-                  @keyup.enter="isValidURL ? sendRequest() : null"
-                  id="url"
-                  name="url"
-                  type="text"
-                  v-model="newEndpoint$"
-                  spellcheck="false"
-                  @input="pathInputHandler"
-                  :placeholder="$t('url')"
-                />
-                <SmartUrlField v-model="uri" v-else />
-              </div>
-              <div class="flex">
-                <span
-                  id="send"
-                  :disabled="!isValidURL"
-                  @click="sendRequest"
-                  v-if="!runningRequest"
-                  class="
-                    px-4
-                    py-2
-                    border border-accent
-                    font-mono
-                    flex
-                    items-center
-                    truncate
-                    font-semibold
-                    bg-accent
-                    text-white
-                    cursor-pointer
-                  "
-                >
-                  {{ $t("send") }}
-                </span>
-                <span
-                  id="cancel"
-                  @click="cancelRequest"
-                  v-else
-                  class="
-                    px-4
-                    py-2
-                    border border-accent
-                    font-mono
-                    flex
-                    items-center
-                    truncate
-                    font-semibold
-                    bg-accent
-                    text-white
-                    cursor-pointer
-                  "
-                >
-                  {{ $t("cancel") }}
-                </span>
-                <tippy
-                  ref="sendOptions"
-                  interactive
-                  tabindex="-1"
-                  trigger="click"
-                  theme="popover"
-                  arrow
-                >
-                  <template #trigger>
-                    <span
-                      class="
-                        px-1
-                        py-2
-                        border border-accent
-                        font-mono
-                        flex
-                        items-center
-                        justify-center
-                        truncate
-                        font-semibold
-                        bg-accent
-                        text-white
-                        rounded-r-lg
-                      "
-                    >
-                      <i class="material-icons">keyboard_arrow_down</i>
-                    </span>
-                  </template>
-                  <SmartItem
-                    :label="$t('import_curl')"
-                    icon="import_export"
-                    @click.native="
-                      showCurlImportModal = !showCurlImportModal
-                      $refs.sendOptions.tippy().hide()
-                    "
-                  />
-                  <SmartItem
-                    @click.native="
-                      showCodegenModal = !showCodegenModal
-                      $refs.sendOptions.tippy().hide()
-                    "
-                    :disabled="!isValidURL"
-                    :label="$t('show_code')"
-                    icon="code"
-                  />
-                  <SmartItem
-                    @click.native="
-                      clearContent('', $event)
-                      $refs.sendOptions.tippy().hide()
-                    "
-                    :label="$t('clear_all')"
-                    ref="clearAll"
-                    icon="clear_all"
-                  />
-                </tippy>
-                <span
-                  class="
-                    ml-4
-                    px-4
-                    py-2
-                    border border-divider
-                    font-mono
-                    flex
-                    items-center
-                    justify-center
-                    truncate
-                    font-semibold
-                    rounded-l-lg
-                    cursor-pointer
-                  "
-                  @click="saveRequest"
-                >
-                  Save
-                </span>
-                <tippy
-                  ref="saveOptions"
-                  interactive
-                  tabindex="-1"
-                  trigger="click"
-                  theme="popover"
-                  arrow
-                >
-                  <template #trigger>
-                    <span
-                      class="
-                        px-1
-                        py-2
-                        border border-divider
-                        font-mono
-                        flex
-                        items-center
-                        justify-center
-                        truncate
-                        font-semibold
-                        rounded-r-lg
-                      "
-                    >
-                      <i class="material-icons">keyboard_arrow_down</i>
-                    </span>
-                  </template>
-                  <SmartItem :description="$t('token_req_name')" />
-                  <input
-                    id="request-name"
-                    name="request-name"
-                    type="text"
-                    v-model="name"
-                    class="input text-sm"
-                  />
-                  <SmartItem
-                    @click.native="
-                      copyRequest()
-                      $refs.saveOptions.tippy().hide()
-                    "
-                    ref="copyRequest"
-                    :disabled="!isValidURL"
-                    :label="$t('copy_request_link')"
-                    :icon="navigatorShare ? 'share' : 'content_copy'"
-                  />
-                  <SmartItem
-                    @click.native="
-                      saveRequest()
-                      $refs.saveOptions.tippy().hide()
-                    "
-                    ref="saveRequest"
-                    :disabled="!isValidURL"
-                    :label="$t('save_to_collections')"
-                    icon="create_new_folder"
-                  />
-                </tippy>
-              </div>
-            </div>
+            <HttpRequest />
             <SmartTabs styles="sticky top-70px z-10">
               <SmartTab
                 :id="'params'"
                 :label="$t('parameters')"
                 :selected="true"
+                :info="newActiveParamsCount$"
               >
                 <HttpParameters />
               </SmartTab>
@@ -348,20 +102,10 @@
 
               <SmartTab
                 :id="'headers'"
-                :label="
-                  $t('headers') +
-                  `${
-                    headers.length !== 0 ? ' \xA0 • \xA0 ' + headers.length : ''
-                  }`
-                "
+                :label="$t('headers')"
+                :info="newActiveHeadersCount$"
               >
-                <HttpHeaders
-                  :headers="headers"
-                  @clear-content="clearContent"
-                  @set-route-query-state="setRouteQueryState"
-                  @remove-request-header="removeRequestHeader"
-                  @add-request-header="addRequestHeader"
-                />
+                <HttpHeaders />
               </SmartTab>
 
               <SmartTab :id="'authentication'" :label="$t('authentication')">
@@ -860,12 +604,11 @@ import { getSettingSubject, applySetting } from "~/newstore/settings"
 import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
 import {
-  restMethod$,
-  restEndpoint$,
   restRequest$,
-  setRESTEndpoint,
-  updateRESTMethod,
+  restActiveParamsCount$,
+  restActiveHeadersCount$,
 } from "~/newstore/RESTSession"
+import { map } from "rxjs/operators"
 
 export default {
   components: { Splitpanes, Pane },
@@ -896,27 +639,15 @@ export default {
       showTokenRequestList: false,
       showSaveRequestModal: false,
       editRequest: {},
-      customMethod: false,
       files: [],
       filenames: "",
-      navigatorShare: navigator.share,
       runningRequest: false,
       currentMethodIndex: 0,
-      methodMenuItems: [
-        "GET",
-        "HEAD",
-        "POST",
-        "PUT",
-        "DELETE",
-        "CONNECT",
-        "OPTIONS",
-        "TRACE",
-        "PATCH",
-        "CUSTOM",
-      ],
 
-      newEndpoint$: "",
-      newMethod$: "",
+      newActiveParamsCount$: "",
+      newActiveHeadersCount$: "",
+
+      effectiveStream$: null,
     }
   },
   subscriptions() {
@@ -927,14 +658,21 @@ export default {
       EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
         "EXPERIMENTAL_URL_BAR_ENABLED"
       ),
-      newEndpoint$: restEndpoint$,
-      newMethod$: restMethod$,
+      newActiveParamsCount$: restActiveParamsCount$.pipe(
+        map((e) => {
+          if (e == 0) return null
+          return e.toString()
+        })
+      ),
+      newActiveHeadersCount$: restActiveHeadersCount$.pipe(
+        map((e) => {
+          if (e == 0) return null
+          return e.toString()
+        })
+      ),
     }
   },
   watch: {
-    newEndpoint$(newVal) {
-      setRESTEndpoint(newVal)
-    },
     canListParameters: {
       immediate: true,
       handler(canListParameters) {
@@ -1400,9 +1138,6 @@ export default {
     },
   },
   methods: {
-    updateMethod(method) {
-      updateRESTMethod(method)
-    },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth",
@@ -1477,6 +1212,7 @@ export default {
     cancelRequest() {
       cancelRunningRequest()
     },
+    newSendRequest() {},
     async sendRequest() {
       this.$toast.clear()
       if (this.SCROLL_INTO_ENABLED) this.scrollInto("response")

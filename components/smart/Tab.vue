@@ -8,6 +8,7 @@
 export default {
   props: {
     label: { type: String, default: null },
+    info: { type: String, default: null },
     icon: { type: String, default: null },
     id: { type: String, default: null, required: true },
     selected: {

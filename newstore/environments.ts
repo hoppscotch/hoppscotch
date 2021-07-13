@@ -1,4 +1,5 @@
-import { pluck } from "rxjs/operators"
+import { combineLatest } from "rxjs"
+import { map, pluck } from "rxjs/operators"
 import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
@@ -200,6 +201,24 @@ export const environments$ = environmentsStore.subject$.pipe(
 
 export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
   pluck("currentEnvironmentIndex")
+)
+
+export const currentEnvironment$ = combineLatest([
+  environments$,
+  selectedEnvIndex$,
+]).pipe(
+  map(([envs, selectedIndex]) => {
+    if (selectedIndex === -1) {
+      const env: Environment = {
+        name: "No Environment",
+        variables: [],
+      }
+
+      return env
+    } else {
+      return envs[selectedIndex]
+    }
+  })
 )
 
 export function getCurrentEnvironment(): Environment {

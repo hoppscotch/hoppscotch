@@ -1,22 +1,27 @@
 <template>
   <AppSection label="headers">
-    <div
-      v-if="headers.length !== 0"
-      class="flex flex-1 items-center justify-between pl-4"
-    >
+    <div class="flex flex-1 items-center justify-between pl-4">
       <label for="headerList" class="font-semibold text-xs">
         {{ $t("header_list") }}
       </label>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('clear')"
-        icon="clear_all"
-        @click.native="clearContent('headers', $event)"
-      />
+      <div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('add_new')"
+          icon="add"
+          @click.native="addHeader"
+        />
+      </div>
     </div>
     <div
-      v-for="(header, index) in headers"
-      :key="`${header.value}_${index}`"
+      v-for="(header, index) in headers$"
+      :key="index"
       class="
         flex
         border-b border-dashed
@@ -32,13 +37,13 @@
         :spellcheck="false"
         :value="header.key"
         autofocus
-        @input="
-          $store.commit('setKeyHeader', {
-            index,
-            value: $event,
+        @change="
+          updateHeader(index, {
+            key: $event.target.value,
+            value: header.value,
+            active: header.active,
           })
         "
-        @keyup.prevent="setRouteQueryState"
       />
       <input
         class="
@@ -54,12 +59,12 @@
         :name="'value' + index"
         :value="header.value"
         @change="
-          $store.commit('setValueHeader', {
-            index,
+          updateHeader(index, {
+            key: header.key,
             value: $event.target.value,
+            active: header.active,
           })
         "
-        @keyup.prevent="setRouteQueryState"
       />
       <div>
         <ButtonSecondary
@@ -79,9 +84,10 @@
               : 'check_box'
           "
           @click.native="
-            $store.commit('setActiveHeader', {
-              index,
-              value: header.hasOwnProperty('active') ? !header.active : false,
+            updateHeader(index, {
+              key: header.key,
+              value: header.value,
+              active: header.hasOwnProperty('active') ? !header.active : false,
             })
           "
         />
@@ -91,7 +97,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
           icon="delete"
-          @click.native="removeRequestHeader(index)"
+          @click.native="deleteHeader(index)"
         />
       </div>
     </div>
@@ -99,46 +105,57 @@
 </template>
 
 <script>
+import {
+  restHeaders$,
+  addRESTHeader,
+  updateRESTHeader,
+  deleteRESTHeader,
+  deleteAllRESTHeaders,
+} from "~/newstore/RESTSession"
+
 import { commonHeaders } from "~/helpers/headers"
 
 export default {
-  props: {
-    headers: { type: Array, default: () => [] },
-  },
   data() {
     return {
       commonHeaders,
     }
   },
-  watch: {
-    headers: {
-      handler(newValue) {
-        if (
-          newValue[newValue.length - 1]?.key !== "" ||
-          newValue[newValue.length - 1]?.value !== ""
-        )
-          this.addRequestHeader()
-      },
-      deep: true,
-    },
+  subscriptions() {
+    return {
+      headers$: restHeaders$,
+    }
   },
+  // watch: {
+  //   headers: {
+  //     handler(newValue) {
+  //       if (
+  //         newValue[newValue.length - 1]?.key !== "" ||
+  //         newValue[newValue.length - 1]?.value !== ""
+  //       )
+  //         this.addRequestHeader()
+  //     },
+  //     deep: true,
+  //   },
+  // },
   mounted() {
-    if (!this.params?.length) {
-      this.addRequestHeader()
+    if (!this.headers$?.length) {
+      this.addHeader()
     }
   },
   methods: {
-    clearContent(headers, $event) {
-      this.$emit("clear-content", headers, $event)
+    addHeader() {
+      addRESTHeader({ key: "", value: "", active: true })
     },
-    setRouteQueryState() {
-      this.$emit("set-route-query-state")
+    updateHeader(index, item) {
+      console.log(index, item)
+      updateRESTHeader(index, item)
     },
-    removeRequestHeader(index) {
-      this.$emit("remove-request-header", index)
+    deleteHeader(index) {
+      deleteRESTHeader(index)
     },
-    addRequestHeader() {
-      this.$emit("add-request-header")
+    clearContent() {
+      deleteAllRESTHeaders()
     },
   },
 }

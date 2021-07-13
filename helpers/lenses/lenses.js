@@ -7,13 +7,14 @@ import xmlLens from "./xmlLens"
 export const lenses = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
 
 export function getSuitableLenses(response) {
-  if (!response || !response.headers || !response.headers["content-type"])
-    return [rawLens]
+  const contentType = response.headers.find((h) => h.key === "content-type")
+  console.log(contentType)
+
+  if (!contentType) return [rawLens]
 
   const result = []
   for (const lens of lenses) {
-    if (lens.isSupportedContentType(response.headers["content-type"]))
-      result.push(lens)
+    if (lens.isSupportedContentType(contentType.value)) result.push(lens)
   }
 
   return result

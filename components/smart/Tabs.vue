@@ -16,6 +16,9 @@
               {{ tab.icon }}
             </i>
             <span v-if="tab.label">{{ tab.label }}</span>
+            <span v-if="tab.info" class="tab-info">
+              {{ tab.info }}
+            </span>
           </button>
         </div>
       </div>
@@ -91,6 +94,20 @@ export default {
     @apply focus:outline-none;
     @apply relative;
 
+    .tab-info {
+      @apply inline-flex;
+      @apply items-center;
+      @apply justify-center;
+      @apply w-5;
+      @apply h-4;
+      @apply ml-2;
+      @apply text-8px;
+      @apply border border-divider;
+      @apply font-mono;
+      @apply rounded;
+      @apply text-secondaryLight;
+    }
+
     &::after {
       @apply absolute;
       @apply inset-x-0;
@@ -109,6 +126,11 @@ export default {
     &.active {
       @apply text-accent;
       @apply border-accent;
+
+      .tab-info {
+        @apply text-secondary;
+        @apply border-dividerDark;
+      }
 
       &::after {
         @apply bg-accent;

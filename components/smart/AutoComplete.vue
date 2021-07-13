@@ -22,6 +22,7 @@
       @keyup="updateSuggestions"
       @click="updateSuggestions"
       @keydown="handleKeystroke"
+      @change="$emit('change', $event)"
     />
     <ul
       v-if="suggestions.length > 0 && suggestionsVisible"

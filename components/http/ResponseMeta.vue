@@ -11,20 +11,21 @@
       font-mono font-semibold
       space-x-8
     "
-    :class="statusCategory ? statusCategory.className : ''"
   >
-    <i v-if="active" class="animate-spin material-icons">refresh</i>
+    <i v-if="response.type === 'loading'" class="animate-spin material-icons"
+      >refresh</i
+    >
     <span v-else>
       <span class="text-secondaryDark"> Status: </span>
-      {{ response.status || $t("waiting_send_req") }}
+      {{ response.statusCode || $t("waiting_send_req") }}
     </span>
-    <span v-if="response.duration" class="text-xs">
+    <span class="text-xs">
       <span class="text-secondaryDark"> Time: </span>
-      {{ `${response.duration} ms` }}
+      {{ `${response.meta.responseDuration} ms` }}
     </span>
-    <span v-if="response.size" class="text-xs">
+    <span class="text-xs">
       <span class="text-secondaryDark"> Size: </span>
-      {{ `${response.size} B` }}
+      {{ `${response.meta.responseSize} B` }}
     </span>
   </div>
 </template>
@@ -38,14 +39,10 @@ export default {
       type: Object,
       default: () => {},
     },
-    active: {
-      type: Boolean,
-      default: false,
-    },
   },
   computed: {
     statusCategory() {
-      return findStatusGroup(this.response.status)
+      return findStatusGroup(this.response.statusCode)
     },
   },
 }

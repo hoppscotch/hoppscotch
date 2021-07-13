@@ -3,7 +3,7 @@ import { map } from "rxjs/operators"
 import { HoppRESTRequest } from "../types/HoppRESTRequest"
 import { Environment } from "~/newstore/environments"
 
-interface EffectiveHoppRESTRequest extends HoppRESTRequest {
+export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
    * The effective final URL.
    *

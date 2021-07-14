@@ -110,8 +110,7 @@
             :aria-label="$t('duration')"
             type="text"
             readonly
-            :value="`Duration: ${entry.duration}ms`"
-            :placeholder="$t('no_duration')"
+            :value="duration"
             class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
           />
         </li>
@@ -144,6 +143,12 @@ export default {
     }
   },
   computed: {
+    duration() {
+      const { duration } = this.entry
+      return duration > 0
+        ? `${this.$t("duration")}: ${duration}ms`
+        : this.$t("no_duration")
+    },
     entryStatus() {
       const foundStatusGroup = findStatusGroup(this.entry.status)
       return (

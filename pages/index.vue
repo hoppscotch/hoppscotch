@@ -1568,6 +1568,7 @@ export default {
               path: this.path,
               usesPreScripts: this.showPreRequestScript,
               preRequestScript: this.preRequestScript,
+              duration,
               star: false,
               auth: this.auth,
               httpUser: this.httpUser,

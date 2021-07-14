@@ -10,6 +10,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    * This contains path, params and environment variables all applied to it
    */
   effectiveFinalURL: string
+  effectiveFinalHeaders: { key: string; value: string }[]
 }
 
 /**
@@ -31,6 +32,11 @@ export function getEffectiveRESTRequestStream(
       return {
         ...request,
         effectiveFinalURL: request.endpoint,
+        effectiveFinalHeaders: request.headers.filter(
+          (x) =>
+            x.key !== "" && // Remove empty keys
+            x.active // Only active
+        ),
       }
     })
   )

@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from "axios"
 import { BehaviorSubject, Observable } from "rxjs"
 import AxiosStrategy, {
   cancelRunningAxiosRequest,
@@ -20,7 +21,7 @@ export const cancelRunningRequest = () => {
 
 const isExtensionsAllowed = () => settingsStore.value.EXTENSIONS_ENABLED
 
-const runAppropriateStrategy = (req: any) => {
+const runAppropriateStrategy = (req: AxiosRequestConfig) => {
   if (isExtensionsAllowed() && hasExtensionInstalled()) {
     return ExtensionStrategy(req)
   }
@@ -52,10 +53,15 @@ export function createRESTNetworkRequestStream(
 ): Observable<HoppRESTResponse> {
   const response = new BehaviorSubject<HoppRESTResponse>({ type: "loading" })
 
+  const headers = req.effectiveFinalHeaders.reduce((acc, { key, value }) => {
+    return Object.assign(acc, { [key]: value })
+  }, {})
+
   const timeStart = Date.now()
 
   runAppropriateStrategy({
     url: req.effectiveFinalURL,
+    headers,
   }).then((res: any) => {
     const timeEnd = Date.now()
 

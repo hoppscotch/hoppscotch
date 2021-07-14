@@ -52,10 +52,16 @@ export function createRESTNetworkRequestStream(
 ): Observable<HoppRESTResponse> {
   const response = new BehaviorSubject<HoppRESTResponse>({ type: "loading" })
 
+  const timeStart = Date.now()
+
   runAppropriateStrategy({
     url: req.effectiveFinalURL,
   }).then((res: any) => {
-    console.log(res)
+    const timeEnd = Date.now()
+
+    const contentLength = res.headers["content-length"]
+      ? parseInt(res.headers["content-length"])
+      : (res.data as ArrayBuffer).byteLength
 
     const resObj: HoppRESTResponse = {
       type: "success",
@@ -66,9 +72,8 @@ export function createRESTNetworkRequestStream(
         value: res.headers[x],
       })),
       meta: {
-        // TODO: Implement
-        responseSize: 0,
-        responseDuration: 0,
+        responseSize: contentLength,
+        responseDuration: timeEnd - timeStart,
       },
     }
     response.next(resObj)

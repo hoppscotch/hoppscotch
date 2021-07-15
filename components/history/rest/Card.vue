@@ -14,6 +14,7 @@
       "
       :class="entryStatus.className"
       data-testid="restore_history_entry"
+      :title="duration"
       @click="$emit('use-entry')"
     >
       {{ entry.method }}
@@ -31,6 +32,7 @@
         font-semibold
       "
       data-testid="restore_history_entry"
+      :title="duration"
       @click="$emit('use-entry')"
     >
       <span class="truncate">
@@ -67,6 +69,12 @@ export default {
     showMore: Boolean,
   },
   computed: {
+    duration() {
+      const { duration } = this.entry
+      return duration > 0
+        ? `${this.$t("duration")}: ${duration}ms`
+        : this.$t("no_duration")
+    },
     entryStatus() {
       const foundStatusGroup = findStatusGroup(this.entry.status)
       return (

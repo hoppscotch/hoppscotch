@@ -418,45 +418,45 @@ export default {
       })
     },
     parsePostmanCollection({ info, name, item }) {
-      const postwomanCollection = {
+      const hoppscotchCollection = {
         name: "",
         folders: [],
         requests: [],
       }
 
-      postwomanCollection.name = info ? info.name : name
+      hoppscotchCollection.name = info ? info.name : name
 
       if (item && item.length > 0) {
         for (const collectionItem of item) {
           if (collectionItem.request) {
             if (
               Object.prototype.hasOwnProperty.call(
-                postwomanCollection,
+                hoppscotchCollection,
                 "folders"
               )
             ) {
-              postwomanCollection.name = info ? info.name : name
-              postwomanCollection.requests.push(
+              hoppscotchCollection.name = info ? info.name : name
+              hoppscotchCollection.requests.push(
                 this.parsePostmanRequest(collectionItem)
               )
             } else {
-              postwomanCollection.name = name || ""
-              postwomanCollection.requests.push(
+              hoppscotchCollection.name = name || ""
+              hoppscotchCollection.requests.push(
                 this.parsePostmanRequest(collectionItem)
               )
             }
           } else if (this.hasFolder(collectionItem)) {
-            postwomanCollection.folders.push(
+            hoppscotchCollection.folders.push(
               this.parsePostmanCollection(collectionItem)
             )
           } else {
-            postwomanCollection.requests.push(
+            hoppscotchCollection.requests.push(
               this.parsePostmanRequest(collectionItem)
             )
           }
         }
       }
-      return postwomanCollection
+      return hoppscotchCollection
     },
     parsePostmanRequest({ name, request }) {
       const pwRequest = {

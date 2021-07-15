@@ -1,6 +1,7 @@
 import eq from "lodash/eq"
 import { pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { completedRESTResponse$ } from "./RESTSession"
 
 export const defaultRESTHistoryState = {
   state: [] as any[],
@@ -136,3 +137,18 @@ export function toggleGraphqlHistoryEntryStar(entry: any) {
     payload: { entry },
   })
 }
+
+// Listen to completed responses to add to history
+completedRESTResponse$.subscribe((res) => {
+  if (res !== null) {
+    if (res.type === "loading" || res.type === "network_fail") return
+
+    addRESTHistoryEntry({
+      ...res.req,
+      type: res.type,
+      meta: res.meta,
+      statusCode: res.statusCode,
+      star: false,
+    })
+  }
+})

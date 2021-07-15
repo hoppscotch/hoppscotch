@@ -51,7 +51,10 @@ export const sendNetworkRequest = (req: any) =>
 export function createRESTNetworkRequestStream(
   req: EffectiveHoppRESTRequest
 ): Observable<HoppRESTResponse> {
-  const response = new BehaviorSubject<HoppRESTResponse>({ type: "loading" })
+  const response = new BehaviorSubject<HoppRESTResponse>({
+    type: "loading",
+    req,
+  })
 
   const headers = req.effectiveFinalHeaders.reduce((acc, { key, value }) => {
     return Object.assign(acc, { [key]: value })
@@ -60,32 +63,73 @@ export function createRESTNetworkRequestStream(
   const timeStart = Date.now()
 
   runAppropriateStrategy({
+    method: req.method as any,
     url: req.effectiveFinalURL,
     headers,
-  }).then((res: any) => {
-    const timeEnd = Date.now()
-
-    const contentLength = res.headers["content-length"]
-      ? parseInt(res.headers["content-length"])
-      : (res.data as ArrayBuffer).byteLength
-
-    const resObj: HoppRESTResponse = {
-      type: "success",
-      statusCode: res.status,
-      body: res.data,
-      headers: Object.keys(res.headers).map((x) => ({
-        key: x,
-        value: res.headers[x],
-      })),
-      meta: {
-        responseSize: contentLength,
-        responseDuration: timeEnd - timeStart,
-      },
-    }
-    response.next(resObj)
-
-    response.complete()
   })
+    .then((res: any) => {
+      const timeEnd = Date.now()
+
+      const contentLength = res.headers["content-length"]
+        ? parseInt(res.headers["content-length"])
+        : (res.data as ArrayBuffer).byteLength
+
+      const resObj: HoppRESTResponse = {
+        type: "success",
+        statusCode: res.status,
+        body: res.data,
+        headers: Object.keys(res.headers).map((x) => ({
+          key: x,
+          value: res.headers[x],
+        })),
+        meta: {
+          responseSize: contentLength,
+          responseDuration: timeEnd - timeStart,
+        },
+        req,
+      }
+      response.next(resObj)
+
+      response.complete()
+    })
+    .catch((err) => {
+      if (err.response) {
+        const timeEnd = Date.now()
+
+        const contentLength = err.response.headers["content-length"]
+          ? parseInt(err.response.headers["content-length"])
+          : (err.response.data as ArrayBuffer).byteLength
+
+        const resObj: HoppRESTResponse = {
+          type: "fail",
+          body: err.response.data,
+          headers: Object.keys(err.response.headers).map((x) => ({
+            key: x,
+            value: err.response.headers[x],
+          })),
+          meta: {
+            responseDuration: timeEnd - timeStart,
+            responseSize: contentLength,
+          },
+          req,
+          statusCode: err.response.status,
+        }
+
+        response.next(resObj)
+
+        response.complete()
+      } else {
+        const resObj: HoppRESTResponse = {
+          type: "network_fail",
+          error: err,
+          req,
+        }
+
+        response.next(resObj)
+
+        response.complete()
+      }
+    })
 
   return response
 }

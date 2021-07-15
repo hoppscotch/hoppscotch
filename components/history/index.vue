@@ -92,6 +92,7 @@ import {
   deleteGraphqlHistoryEntry,
   deleteRESTHistoryEntry,
 } from "~/newstore/history"
+import { setRESTRequest } from "~/newstore/RESTSession"
 
 export default {
   props: {
@@ -133,7 +134,7 @@ export default {
       })
     },
     useHistory(entry) {
-      this.$emit("useHistory", entry)
+      setRESTRequest(entry)
     },
     deleteHistory(entry) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)

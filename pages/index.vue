@@ -462,11 +462,7 @@
         <aside class="h-full">
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <History
-                :page="'rest'"
-                @useHistory="handleUseHistory"
-                ref="historyComponent"
-              />
+              <History :page="'rest'" ref="historyComponent" />
             </SmartTab>
 
             <SmartTab :id="'collections'" :label="$t('collections')">
@@ -767,7 +763,7 @@ export default {
   computed: {
     /**
      * Check content types that can be automatically
-     * serialized by postwoman.
+     * serialized by Hoppscotch.
      */
     canListParameters() {
       return (
@@ -1156,29 +1152,6 @@ export default {
       this.$refs[view].$el.scrollIntoView({
         behavior: "smooth",
       })
-    },
-    handleUseHistory(entry) {
-      this.name = entry.name
-      this.method = entry.method
-      this.uri = entry.url + entry.path
-      this.url = entry.url
-      this.path = entry.path
-      this.showPreRequestScript = entry.usesPreScripts
-      this.preRequestScript = entry.preRequestScript
-      this.auth = entry.auth
-      this.httpUser = entry.httpUser
-      this.httpPassword = entry.httpPassword
-      this.bearerToken = entry.bearerToken
-      this.headers = entry.headers
-      this.params = entry.params
-      this.bodyParams = entry.bodyParams
-      this.rawParams = entry.rawParams
-      this.rawInput = entry.rawInput
-      this.contentType = entry.contentType
-      this.requestType = entry.requestType
-      this.testScript = entry.testScript
-      this.testsEnabled = entry.usesPostScripts
-      if (this.SCROLL_INTO_ENABLED) this.scrollInto("request")
     },
     async makeRequest(auth, headers, requestBody, preRequestScript) {
       const requestOptions = {

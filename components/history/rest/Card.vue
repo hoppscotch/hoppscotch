@@ -36,7 +36,7 @@
       @click="$emit('use-entry')"
     >
       <span class="truncate">
-        {{ `${entry.url}${entry.path}` }}
+        {{ `${entry.endpoint}` }}
       </span>
     </span>
     <ButtonSecondary
@@ -70,13 +70,15 @@ export default {
   },
   computed: {
     duration() {
-      const { duration } = this.entry
-      return duration > 0
-        ? `${this.$t("duration")}: ${duration}ms`
-        : this.$t("no_duration")
+      if (this.entry.meta.responseDuration) {
+        const responseDuration = this.entry.meta.responseDuration
+        return responseDuration > 0
+          ? `${this.$t("duration")}: ${responseDuration}ms`
+          : this.$t("no_duration")
+      } else return this.$t("no_duration")
     },
     entryStatus() {
-      const foundStatusGroup = findStatusGroup(this.entry.status)
+      const foundStatusGroup = findStatusGroup(this.entry.statusCode)
       return (
         foundStatusGroup || {
           className: "",

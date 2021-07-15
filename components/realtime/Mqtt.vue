@@ -194,7 +194,7 @@ export default {
       this.client = new Paho.Client(
         parseUrl.hostname,
         parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
-        "postwoman"
+        "hoppscotch"
       )
       this.client.connect({
         onSuccess: this.onConnectionSuccess,

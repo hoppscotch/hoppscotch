@@ -49,9 +49,9 @@
         :spellcheck="false"
         :value="header.key"
         autofocus
-        @change="
+        @input="
           updateHeader(index, {
-            key: $event.target.value,
+            key: $event,
             value: header.value,
             active: header.active,
           })

@@ -1,6 +1,6 @@
 <template>
   <AppSection label="response">
-    <HttpResponseMeta v-if="!loading" :response="response" />
+    <HttpResponseMeta :response="response" />
     <LensesResponseBodyRenderer v-if="!loading" :response="response" />
   </AppSection>
 </template>

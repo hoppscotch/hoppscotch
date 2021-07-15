@@ -204,13 +204,13 @@ export default {
         ) {
           this.importFromPostman(importFileObj)
         } else {
-          this.importFromPostwoman(importFileObj)
+          this.importFromHoppscotch(importFileObj)
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
     },
-    importFromPostwoman(environments) {
+    importFromHoppscotch(environments) {
       appendEnvironments(environments)
       this.fileImported()
     },
@@ -220,7 +220,7 @@ export default {
         environment.variables.push({ key, value })
       )
       const environments = [environment]
-      this.importFromPostwoman(environments)
+      this.importFromHoppscotch(environments)
     },
     exportJSON() {
       let text = this.environmentJson

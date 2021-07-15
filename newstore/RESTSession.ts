@@ -1,9 +1,10 @@
-import { pluck, distinctUntilChanged, map } from "rxjs/operators"
+import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTRequest,
+  RESTReqSchemaVersion,
 } from "~/helpers/types/HoppRESTRequest"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
@@ -115,6 +116,7 @@ type RESTSession = {
 
 const defaultRESTSession: RESTSession = {
   request: {
+    v: RESTReqSchemaVersion,
     endpoint: "https://httpbin.org/get",
     params: [],
     headers: [],
@@ -124,6 +126,11 @@ const defaultRESTSession: RESTSession = {
 }
 
 const dispatchers = defineDispatchers({
+  setRequest(_: RESTSession, { req }: { req: HoppRESTRequest }) {
+    return {
+      request: req,
+    }
+  },
   setEndpoint(curr: RESTSession, { newEndpoint }: { newEndpoint: string }) {
     const paramsInNewURL = getParamsInURL(newEndpoint)
     const updatedParams = recalculateParams(
@@ -297,6 +304,15 @@ const dispatchers = defineDispatchers({
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
 
+export function setRESTRequest(req: HoppRESTRequest) {
+  restSessionStore.dispatch({
+    dispatcher: "setRequest",
+    payload: {
+      req,
+    },
+  })
+}
+
 export function setRESTEndpoint(newEndpoint: string) {
   restSessionStore.dispatch({
     dispatcher: "setEndpoint",
@@ -437,4 +453,11 @@ export const restActiveHeadersCount$ = restHeaders$.pipe(
 export const restResponse$ = restSessionStore.subject$.pipe(
   pluck("response"),
   distinctUntilChanged()
+)
+
+export const completedRESTResponse$ = restResponse$.pipe(
+  filter(
+    (res) =>
+      res !== null && res.type !== "loading" && res.type !== "network_fail"
+  )
 )

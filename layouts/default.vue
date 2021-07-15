@@ -93,6 +93,8 @@ export default {
     },
   },
   beforeMount() {
+    setupLocalPersistence()
+
     registerApolloAuthUpdate()
 
     this.$subscribeTo(getSettingSubject("THEME_COLOR"), (color) => {
@@ -135,8 +137,6 @@ export default {
         }
       })
     }
-
-    setupLocalPersistence()
 
     initializeFirebase()
     initUserInfo()

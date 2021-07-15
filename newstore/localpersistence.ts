@@ -74,7 +74,7 @@ function checkAndMigrateOldSettings() {
     const color = window.localStorage.getItem("nuxt-color-mode") as HoppBgColor
     applySetting("BG_COLOR", color)
 
-    window.localStorage.removeItem("BG_COLOR")
+    window.localStorage.removeItem("nuxt-color-mode")
   }
 }
 

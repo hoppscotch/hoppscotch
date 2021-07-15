@@ -1,52 +1,6 @@
 import Vue from "vue"
 
-export const SETTINGS_KEYS = [
-  /**
-   * Whether or not to enable scrolling to a specified element, when certain
-   * actions are triggered.
-   */
-  "SCROLL_INTO_ENABLED",
-
-  /**
-   * Whether or not requests should be proxied.
-   */
-  "PROXY_ENABLED",
-
-  /**
-   * The URL of the proxy to connect to for requests.
-   */
-  "PROXY_URL",
-
-  /**
-   * The security key of the proxy.
-   */
-  "PROXY_KEY",
-
-  /**
-   * An array of properties to exclude from the URL.
-   * e.g. 'auth'
-   */
-  "URL_EXCLUDES",
-
-  /**
-   * A boolean value indicating whether to use the browser extensions
-   * to run the requests
-   */
-  "EXTENSIONS_ENABLED",
-
-  /**
-   * A boolean value indicating whether Telemetry is enabled.
-   */
-  "TELEMETRY_ENABLED",
-
-  /**
-   * A boolean value indicating whether to use the URL bar experiments
-   */
-  "EXPERIMENTAL_URL_BAR_ENABLED",
-]
-
 export const state = () => ({
-  settings: {},
   editingEnvironment: {},
   selectedRequest: {},
   selectedGraphqlRequest: {},

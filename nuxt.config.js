@@ -361,9 +361,21 @@ export default {
     },
   },
 
-  // https://github.com/nuxt-community/color-mode-module
+  // Color mode configuration (https://github.com/nuxt-community/color-mode-module)
   colorMode: {
     classSuffix: "",
+  },
+
+  // Storybook configuration (https://github.com/nuxt-community/storybook)
+  storybook: {
+    webpackFinal(config, _options) {
+      config.node = {
+        fs: "empty",
+      }
+
+      // extend config here
+      return config
+    },
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

@@ -16,7 +16,9 @@
     "lintfix": "eslint --ext .ts,.js,.vue --ignore-path .gitignore . --fix",
     "test": "jest",
     "prepare": "husky install",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "storybook": "nuxt storybook",
+    "storybook:build": "nuxt storybook build"
   },
   "lint-staged": {
     "*.{ts,js,vue}": "eslint",
@@ -76,6 +78,7 @@
     "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/google-fonts": "^1.3.0",
     "@nuxtjs/pwa": "^3.3.5",
+    "@nuxtjs/storybook": "^4.1.1",
     "@nuxtjs/stylelint-module": "^4.0.0",
     "@nuxtjs/svg": "^0.1.12",
     "@testing-library/jest-dom": "^5.14.1",
@@ -104,5 +107,8 @@
     "ts-jest": "^27.0.3",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
+  },
+  "browser": {
+    "fs": false
   }
 }

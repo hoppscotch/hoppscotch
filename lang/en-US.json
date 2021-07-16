@@ -167,7 +167,7 @@
   "copy_query": "Copy Query",
   "loading": "Loading...",
   "fetching": "Fetching...",
-  "waiting_send_req": "(waiting to send request)",
+  "waiting_send_req": "Waiting to send request",
   "waiting_receive_response": "(waiting to receive response)",
   "waiting_receive_schema": "(waiting to receive schema)",
   "gql_prettify_invalid_query": "Couldn't prettify an invalid query, solve query syntax errors and try again",

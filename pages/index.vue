@@ -445,11 +445,7 @@
             </SmartTabs>
           </Pane>
           <Pane class="overflow-auto hide-scrollbar">
-            <HttpResponse
-              :response="response"
-              :active="runningRequest"
-              ref="response"
-            />
+            <HttpResponse ref="response" />
           </Pane>
         </Splitpanes>
       </Pane>

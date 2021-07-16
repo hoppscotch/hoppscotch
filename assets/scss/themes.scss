@@ -6,27 +6,27 @@
 
 @mixin darkTheme {
   // Background color
-  --primary-color: theme("colors.dark.800");
+  --primary-color: theme("colors.true-gray.900");
   // Light Background color
-  --primary-light-color: theme("colors.dark.700");
+  --primary-light-color: theme("colors.true-gray.800");
   // Dark Background color
-  --primary-dark-color: theme("colors.dark.600");
+  --primary-dark-color: theme("colors.dark.900");
   // Text color
-  --secondary-color: theme("colors.gray.400");
+  --secondary-color: theme("colors.true-gray.400");
   // Light Text color
-  --secondary-light-color: theme("colors.gray.500");
+  --secondary-light-color: theme("colors.true-gray.200");
   // Dark Text color
   --secondary-dark-color: theme("colors.white");
   // Border color
-  --divider-color: theme("colors.dark.500");
+  --divider-color: theme("colors.true-gray.700");
   // Light Border color
-  --divider-light-color: theme("colors.dark.400");
+  --divider-light-color: theme("colors.true-gray.800");
   // Dark Border color
-  --divider-dark-color: theme("colors.dark.700");
+  --divider-dark-color: theme("colors.true-gray.600");
   // Error color
-  --error-color: theme("colors.dark.600");
+  --error-color: theme("colors.true-gray.600");
   // Tooltip color
-  --tooltip-color: theme("colors.dark.700");
+  --tooltip-color: theme("colors.true-gray.800");
   // Editor theme
   --editor-theme: "merbivore_soft";
 }
@@ -35,52 +35,52 @@
   // Background color
   --primary-color: theme("colors.white");
   // Light Background color
-  --primary-light-color: theme("colors.gray.50");
+  --primary-light-color: theme("colors.true-gray.50");
   // Dark Background color
-  --primary-dark-color: theme("colors.gray.100");
+  --primary-dark-color: theme("colors.true-gray.100");
   // Text color
-  --secondary-color: theme("colors.gray.500");
+  --secondary-color: theme("colors.true-gray.500");
   // Light Text color
-  --secondary-light-color: theme("colors.gray.400");
+  --secondary-light-color: theme("colors.true-gray.400");
   // Dark Text color
-  --secondary-dark-color: theme("colors.gray.600");
+  --secondary-dark-color: theme("colors.true-gray.600");
   // Border color
-  --divider-color: theme("colors.gray.200");
+  --divider-color: theme("colors.true-gray.200");
   // Light Border color
-  --divider-light-color: theme("colors.gray.100");
+  --divider-light-color: theme("colors.true-gray.100");
   // Dark Border color
-  --divider-dark-color: theme("colors.gray.300");
+  --divider-dark-color: theme("colors.true-gray.300");
   // Error color
-  --error-color: theme("colors.gray.700");
+  --error-color: theme("colors.true-gray.700");
   // Tooltip color
-  --tooltip-color: theme("colors.gray.50");
+  --tooltip-color: theme("colors.true-gray.50");
   // Editor theme
   --editor-theme: "textmate";
 }
 
 @mixin blackTheme {
   // Background color
-  --primary-color: rgba(0, 0, 0, 1);
+  --primary-color: theme("colors.dark.900");
   // Light Background color
-  --primary-light-color: rgba(255, 255, 255, 0.02);
+  --primary-light-color: theme("colors.dark.700");
   // Dark Background color
-  --primary-dark-color: rgba(255, 255, 255, 0.07);
+  --primary-dark-color: theme("colors.dark.800");
   // Text color
-  --secondary-color: rgba(255, 255, 255, 0.9);
+  --secondary-color: theme("colors.true-gray.400");
   // Light Text color
-  --secondary-light-color: rgba(255, 255, 255, 0.5);
+  --secondary-light-color: theme("colors.true-gray.600");
   // Dark Text color
-  --secondary-dark-color: rgba(9, 9, 9, 0.5);
+  --secondary-dark-color: theme("colors.true-gray.100");
   // Border color
-  --divider-color: rgba(255, 255, 255, 0.11);
+  --divider-color: theme("colors.dark.800");
   // Light Border color
-  --divider-light-color: rgba(255, 255, 255, 0.11);
+  --divider-light-color: theme("colors.dark.700");
   // Dark Border color
-  --divider-dark-color: rgba(255, 255, 255, 0.11);
+  --divider-dark-color: theme("colors.dark.600");
   // Error color
-  --error-color: rgba(255, 255, 255, 0.05);
+  --error-color: theme("colors.dark.800");
   // Tooltip color
-  --tooltip-color: rgba(32, 32, 32, 1);
+  --tooltip-color: theme("colors.dark.500");
   // Editor theme
   --editor-theme: "vibrant_ink";
 }

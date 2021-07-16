@@ -85,6 +85,7 @@
           bg-accent
           text-white
           cursor-pointer
+          dark:text-accentDark
         "
         @click="newSendRequest"
       >
@@ -133,6 +134,7 @@
               bg-accent
               text-white
               rounded-r-lg
+              dark:text-accentDark
             "
           >
             <i class="material-icons">keyboard_arrow_down</i>

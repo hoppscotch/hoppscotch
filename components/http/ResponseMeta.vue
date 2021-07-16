@@ -1,26 +1,30 @@
 <template>
-  <div>
-    <span v-if="response == null">
-      {{ $t("waiting_send_req") }}
-    </span>
+  <div class="flex sticky top-0 z-10 bg-primary items-center p-4">
     <div
-      v-else
+      v-if="response == null"
       class="
-        flex
-        sticky
-        top-0
-        z-10
-        bg-primary
+        flex flex-1
         items-center
+        text-secondaryLight
+        flex-col
         p-4
-        font-mono font-semibold
-        space-x-8
+        justify-center
       "
     >
+      <i class="material-icons opacity-50 pb-2">send</i>
+      <span class="text-xs text-center">
+        {{ $t("waiting_send_req") }}
+      </span>
+    </div>
+    <div v-else>
       <i v-if="response.type === 'loading'" class="animate-spin material-icons">
         refresh
       </i>
-      <div v-else :class="statusCategory.className">
+      <div
+        v-else
+        :class="statusCategory.className"
+        class="font-mono font-semibold space-x-4"
+      >
         <span v-if="response.statusCode">
           <span class="text-secondaryDark"> Status: </span>
           {{ response.statusCode || $t("waiting_send_req") }}

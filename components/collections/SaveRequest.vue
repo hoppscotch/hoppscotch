@@ -5,8 +5,8 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelSaveReq" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="selectLabelSaveReq" class="font-semibold text-xs px-4 pb-4">
           {{ $t("token_req_name") }}</label
         >
         <input
@@ -16,7 +16,7 @@
           type="text"
           @keyup.enter="saveRequestAs"
         />
-        <label class="px-4 pt-4 font-semibold pb-4 text-xs">
+        <label class="font-semibold text-xs px-4 pt-4 pb-4">
           Select Location
         </label>
         <CollectionsGraphql

@@ -4,14 +4,14 @@
     :exact="exact"
     :blank="blank"
     class="
+      rounded-lg
+      font-semibold
+      py-2
+      px-4
+      transition
       inline-flex
       items-center
-      px-4
-      py-2
-      font-semibold
       truncate
-      transition
-      rounded-lg
       focus:outline-none
     "
     :class="[

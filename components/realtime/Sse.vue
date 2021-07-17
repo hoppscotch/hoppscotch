@@ -23,8 +23,8 @@
                   :disabled="!serverValid"
                   name="start"
                   class="
-                    button
                     rounded-b-lg
+                    button
                     md:rounded-bl-none md:rounded-br-lg
                   "
                   :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"

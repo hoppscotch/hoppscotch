@@ -2,24 +2,25 @@
   <AppSection label="history">
     <div
       class="
-        flex
-        sticky
-        z-10
         bg-primaryLight
-        top-10
         border-b border-dividerLight
+        flex
+        top-10
+        z-10
+        sticky
       "
     >
       <input
         v-model="filterText"
         type="search"
         class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-medium
           bg-primaryLight
+          flex
+          font-medium
+          flex-1
+          text-xs
+          py-3
+          px-4
           focus:outline-none
         "
         :placeholder="$t('search')"
@@ -56,18 +57,18 @@
     </div>
     <div
       v-if="!(filteredHistory.length !== 0 || history.length === 0)"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">manage_search</i>
+      <i class="opacity-50 pb-2 material-icons">manage_search</i>
       <span class="text-xs text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <div
       v-if="history.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">schedule</i>
+      <i class="opacity-50 pb-2 material-icons">schedule</i>
       <span class="text-xs text-center">
         {{ $t("history_empty") }}
       </span>

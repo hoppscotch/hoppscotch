@@ -7,7 +7,7 @@
       </div>
     </template>
     <template #body>
-      <div class="flex flex-col px-2 space-y-2">
+      <div class="flex flex-col space-y-2 px-2">
         <SmartItem
           to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
           blank
@@ -25,7 +25,7 @@
       </div>
     </template>
     <template #footer>
-      <div class="px-2 text-secondaryLight text-xs">
+      <div class="text-secondaryLight text-xs px-2">
         {{ $t("extensions_info1") }}
       </div>
     </template>

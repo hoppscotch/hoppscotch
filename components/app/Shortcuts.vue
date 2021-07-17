@@ -17,13 +17,13 @@
             v-for="(key, keyIndex) in shortcut.keys"
             :key="`shortcut-${index}-key-${keyIndex}`"
             class="
-              py-2
-              px-4
-              m-1
-              text-xs
               border border-divider
               rounded-lg
               font-bold
+              m-1
+              text-xs
+              py-2
+              px-4
             "
           >
             {{ key }}

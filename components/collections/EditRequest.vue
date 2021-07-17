@@ -7,10 +7,10 @@
       </div>
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelEditReq" class="px-4 font-semibold pb-4 text-xs">
-          {{ $t("label") }}</label
-        >
+      <div class="flex flex-col px-2">
+        <label for="selectLabelEditReq" class="font-semibold text-xs px-4 pb-4">
+          {{ $t("label") }}
+        </label>
         <input
           id="selectLabelEditReq"
           v-model="requestUpdateData.name"

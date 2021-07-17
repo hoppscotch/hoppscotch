@@ -1,26 +1,25 @@
 <template>
   <div class="flex flex-col p-4">
     <div class="flex flex-col items-center">
-      <p class="my-4 font-semibold tracking-widest text-center text-accent">
+      <p class="font-semibold my-4 text-center text-accent tracking-widest">
         FEATURES
       </p>
     </div>
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="(feature, index) in features"
         :key="`feature-${index}`"
-        class="inline-flex flex-col p-8"
+        class="flex-col p-8 inline-flex"
       >
-        <i class="text-4xl material-icons text-accent">{{ feature.icon }}</i>
+        <i class="text-accent text-4xl material-icons">{{ feature.icon }}</i>
         <div class="flex-grow">
           <h2
             class="
-              mt-4
-              mb-2
-              text-lg
               font-semibold
+              mt-4
+              text-lg text-secondaryDark
+              mb-2
               transition
-              text-secondaryDark
             "
           >
             {{ feature.title }}

@@ -2,13 +2,13 @@
   <div class="flex items-center group">
     <span
       class="
+        cursor-pointer
         flex
-        justify-center
-        items-center
         text-xs
         w-10
+        justify-center
+        items-center
         truncate
-        cursor-pointer
       "
       @click="$emit('edit-environment')"
     >
@@ -16,15 +16,16 @@
     </span>
     <span
       class="
-        py-3
         cursor-pointer
-        pr-2
-        flex flex-1
-        min-w-0
-        text-xs
-        group-hover:text-secondaryDark
-        transition
+        flex
         font-semibold
+        flex-1
+        text-xs
+        min-w-0
+        py-3
+        pr-2
+        transition
+        group-hover:text-secondaryDark
       "
       @click="$emit('edit-environment')"
     >

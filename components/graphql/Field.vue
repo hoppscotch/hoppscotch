@@ -24,21 +24,21 @@
     </div>
     <div
       v-if="gqlField.description"
-      class="py-2 text-xs text-secondaryLight field-desc"
+      class="text-xs text-secondaryLight py-2 field-desc"
     >
       {{ gqlField.description }}
     </div>
     <div
       v-if="gqlField.isDeprecated"
       class="
-        inline-block
-        px-2
-        py-1
-        my-1
-        text-xs text-black
-        bg-yellow-200
         rounded
         font-semibold
+        bg-yellow-200
+        my-1
+        text-xs text-black
+        py-1
+        px-2
+        inline-block
         field-deprecated
       "
     >
@@ -46,7 +46,7 @@
     </div>
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2 text-xs">Arguments:</h5>
-      <div class="pl-4 border-l-2 border-divider">
+      <div class="border-divider border-l-2 pl-4">
         <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
           <span class="font-semibold text-xs">
             {{ field.name }}:
@@ -57,7 +57,7 @@
           </span>
           <div
             v-if="field.description"
-            class="py-2 text-xs text-secondaryLight field-desc"
+            class="text-xs text-secondaryLight py-2 field-desc"
           >
             {{ field.description }}
           </div>

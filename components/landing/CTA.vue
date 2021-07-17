@@ -1,21 +1,20 @@
 <template>
-  <div class="flex p-4 bg-primaryLight rounded">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+  <div class="bg-primaryLight rounded flex p-4">
+    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="(cta, index) in ctas"
         :key="`cta-${index}`"
-        class="inline-flex flex-col p-8"
+        class="flex-col p-8 inline-flex"
       >
-        <i class="text-3xl material-icons text-accent">{{ cta.icon }}</i>
+        <i class="text-accent text-3xl material-icons">{{ cta.icon }}</i>
         <div class="flex-grow">
           <h2
             class="
-              mt-4
-              mb-2
-              text-lg
               font-semibold
+              mt-4
+              text-lg text-secondaryDark
+              mb-2
               transition
-              text-secondaryDark
             "
           >
             {{ cta.title }}

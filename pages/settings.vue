@@ -2,7 +2,7 @@
   <div>
     <div class="space-y-8">
       <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="md:col-span-1 p-8">
+        <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("account") }}
           </h3>
@@ -10,7 +10,7 @@
             Customize your account settings.
           </p>
         </div>
-        <div class="md:col-span-2 border border-divider p-8 rounded-lg">
+        <div class="border border-divider rounded-lg p-8 md:col-span-2">
           <div v-if="currentUser === null">
             <ButtonPrimary label="Log in" @click.native="showLogin = true" />
             <div class="mt-4 text-xs text-secondaryLight">
@@ -20,13 +20,13 @@
           <div v-else class="space-y-8">
             <fieldset>
               <legend class="font-bold text-secondaryDark">User</legend>
-              <div class="mt-4 space-y-4">
+              <div class="space-y-4 mt-4">
                 <div class="flex items-start">
                   <div class="flex items-center">
                     <img
                       v-if="currentUser.photoURL"
                       :src="currentUser.photoURL"
-                      class="w-5 h-5 rounded-full"
+                      class="rounded-full h-5 w-5"
                     />
                     <i v-else class="material-icons">account_circle</i>
                   </div>
@@ -59,7 +59,7 @@
               <div class="mt-1 text-xs text-secondaryLight">
                 These settings are synced to cloud.
               </div>
-              <div class="mt-4 space-y-4">
+              <div class="space-y-4 mt-4">
                 <div class="flex items-center">
                   <SmartToggle
                     :on="SYNC_COLLECTIONS"
@@ -95,7 +95,7 @@
       </div>
 
       <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="md:col-span-1 p-8">
+        <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("theme") }}
           </h3>
@@ -104,7 +104,7 @@
           </p>
         </div>
         <div
-          class="md:col-span-2 border border-divider p-8 rounded-lg space-y-8"
+          class="border border-divider rounded-lg space-y-8 p-8 md:col-span-2"
         >
           <fieldset>
             <legend class="font-bold text-secondaryDark">
@@ -150,7 +150,7 @@
                 {{ $t("contact_us") }} </SmartLink
               >.
             </div>
-            <div class="mt-4 space-y-4">
+            <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="SCROLL_INTO_ENABLED"
@@ -179,7 +179,7 @@
       </div>
 
       <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="md:col-span-1 p-8">
+        <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("interceptor") }}
           </h3>
@@ -188,7 +188,7 @@
           </p>
         </div>
         <div
-          class="md:col-span-2 border border-divider p-8 rounded-lg space-y-8"
+          class="border border-divider rounded-lg space-y-8 p-8 md:col-span-2"
         >
           <fieldset>
             <legend class="font-bold text-secondaryDark">
@@ -207,7 +207,7 @@
                 {{ $t("extension_ver_not_reported") }}
               </span>
             </div>
-            <div class="mt-4 space-y-4">
+            <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="EXTENSIONS_ENABLED"
@@ -232,7 +232,7 @@
                 {{ $t("proxy_privacy_policy") }} </SmartLink
               >.
             </div>
-            <div class="mt-4 space-y-4">
+            <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="PROXY_ENABLED"
@@ -241,13 +241,12 @@
                 <label
                   for="url"
                   class="
+                    bg-primaryLight
+                    border border-divider
                     rounded-l
                     ml-2
-                    border
-                    px-2
                     py-1
-                    bg-primaryLight
-                    border-divider
+                    px-2
                   "
                   >{{ $t("url") }}</label
                 >
@@ -255,15 +254,14 @@
                   id="url"
                   v-model="PROXY_URL"
                   class="
-                    flex-1
-                    block
-                    w-full
+                    border border-divider
                     rounded-r
-                    border
-                    px-2
-                    py-1
+                    flex-1
                     mr-2
-                    border-divider
+                    w-full
+                    py-1
+                    px-2
+                    block
                   "
                   type="url"
                   :disabled="!PROXY_ENABLED"

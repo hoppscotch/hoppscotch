@@ -28,13 +28,13 @@
       </div>
       <div v-if="mode === 'email'" class="flex flex-col space-y-2">
         <div class="flex items-center">
-          <label for="email" class="flex items-center px-4">
-            <i class="material-icons opacity-75">mail</i>
+          <label for="email" class="flex px-4 items-center">
+            <i class="opacity-75 material-icons">mail</i>
           </label>
           <input
             id="email"
             v-model="form.email"
-            class="flex flex-1 rounded px-4 py-2 outline-none"
+            class="rounded flex outline-none flex-1 py-2 px-4"
             type="email"
             name="email"
             placeholder="enter your email"
@@ -61,8 +61,8 @@
         />
       </div>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
-        <div class="flex justify-center max-w-md items-center flex-col">
-          <i class="material-icons text-accent text-4xl"> verified </i>
+        <div class="flex flex-col max-w-md justify-center items-center">
+          <i class="text-accent text-4xl material-icons"> verified </i>
           <h3 class="font-bold my-2 text-center text-lg">
             {{ $t("we_sent_magic_link") }}
           </h3>
@@ -88,7 +88,7 @@
       </p>
       <p
         v-if="mode === 'email-sent'"
-        class="flex flex-1 justify-between text-secondaryLight text-xs"
+        class="flex flex-1 text-secondaryLight text-xs justify-between"
       >
         <SmartAnchor
           class="link"

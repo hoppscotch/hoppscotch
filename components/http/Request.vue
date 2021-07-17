@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky top-0 z-10 bg-primary flex p-4">
+  <div class="bg-primary flex p-4 top-0 z-10 sticky">
     <div class="relative inline-flex">
       <span class="select-wrapper">
         <tippy
@@ -14,23 +14,23 @@
             <input
               id="method"
               class="
-                flex
-                rounded-l-lg
                 bg-primaryLight
-                font-mono
-                w-32
-                px-4
-                py-2
-                truncate
-                text-secondaryDark
-                font-semibold
                 border border-divider
-                transition
-                focus:outline-none focus:border-accent
+                rounded-l-lg
                 cursor-pointer
+                flex
+                font-mono
+                text-secondaryDark
+                py-2
+                px-4
+                transition
+                w-32
+                truncate
+                focus:outline-none focus:border-accent
               "
               :value="newMethod$"
               autofocus
+              readonly
             />
           </template>
           <SmartItem
@@ -51,15 +51,15 @@
         id="url"
         v-model="newEndpoint$"
         class="
-          w-full
-          font-mono font-semibold
-          truncate
-          text-secondaryDark
-          px-4
-          py-2
-          border border-divider
           bg-primaryLight
+          border border-divider
+          font-mono
+          text-secondaryDark
+          w-full
+          py-2
+          px-4
           transition
+          truncate
           focus:outline-none focus:border-accent
         "
         name="url"
@@ -71,173 +71,103 @@
       <!-- <SmartUrlField v-else v-model="uri" /> -->
     </div>
     <div class="flex">
-      <span
+      <ButtonPrimary
         id="send"
-        class="
-          px-4
-          py-2
-          border border-accent
-          font-mono
-          flex
-          items-center
-          truncate
-          font-semibold
-          bg-accent
-          text-white
-          cursor-pointer
-          dark:text-accentDark
-        "
-        @click="newSendRequest"
-      >
-        {{ $t("send") }}
-      </span>
-      <!-- <span
-        v-else
-        id="cancel"
-        class="
-          px-4
-          py-2
-          border border-accent
-          font-mono
-          flex
-          items-center
-          truncate
-          font-semibold
-          bg-accent
-          text-white
-          cursor-pointer
-        "
-        @click="cancelRequest"
-      >
-        {{ $t("cancel") }}
-      </span> -->
-      <tippy
-        ref="sendOptions"
-        interactive
-        tabindex="-1"
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <span
-            class="
-              px-1
-              py-2
-              border border-accent
-              font-mono
-              flex
-              items-center
-              justify-center
-              truncate
-              font-semibold
-              bg-accent
-              text-white
-              rounded-r-lg
-              dark:text-accentDark
+        class="rounded-none font-bold"
+        :label="!loading ? $t('send') : $('cancel')"
+        :shortcuts="[getSpecialKey(), 'G']"
+        @click.native="!loading ? newSendRequest() : cancelRequest()"
+      />
+      <span class="inline-flex">
+        <tippy
+          ref="sendOptions"
+          interactive
+          tabindex="-1"
+          trigger="click"
+          theme="popover"
+          arrow
+        >
+          <template #trigger>
+            <ButtonPrimary class="rounded-l-none" icon="keyboard_arrow_down" />
+          </template>
+          <SmartItem
+            :label="$t('import_curl')"
+            icon="import_export"
+            @click.native="
+              showCurlImportModal = !showCurlImportModal
+              $refs.sendOptions.tippy().hide()
             "
-          >
-            <i class="material-icons">keyboard_arrow_down</i>
-          </span>
-        </template>
-        <SmartItem
-          :label="$t('import_curl')"
-          icon="import_export"
-          @click.native="
-            showCurlImportModal = !showCurlImportModal
-            $refs.sendOptions.tippy().hide()
-          "
-        />
-        <SmartItem
-          :label="$t('show_code')"
-          icon="code"
-          @click.native="
-            showCodegenModal = !showCodegenModal
-            $refs.sendOptions.tippy().hide()
-          "
-        />
-        <SmartItem
-          ref="clearAll"
-          :label="$t('clear_all')"
-          icon="clear_all"
-          @click.native="
-            clearContent('', $event)
-            $refs.sendOptions.tippy().hide()
-          "
-        />
-      </tippy>
-      <span
-        class="
-          ml-4
-          px-4
-          py-2
-          border border-divider
-          font-mono
-          flex
-          items-center
-          justify-center
-          truncate
-          font-semibold
-          rounded-l-lg
-          cursor-pointer
-        "
-        @click="newSendRequest"
-      >
-        Save
-      </span>
-      <tippy
-        ref="saveOptions"
-        interactive
-        tabindex="-1"
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <span
-            class="
-              px-1
-              py-2
-              border border-divider
-              font-mono
-              flex
-              items-center
-              justify-center
-              truncate
-              font-semibold
-              rounded-r-lg
+          />
+          <SmartItem
+            :label="$t('show_code')"
+            icon="code"
+            @click.native="
+              showCodegenModal = !showCodegenModal
+              $refs.sendOptions.tippy().hide()
             "
-          >
-            <i class="material-icons">keyboard_arrow_down</i>
-          </span>
-        </template>
-        <SmartItem :description="$t('token_req_name')" />
-        <input
-          id="request-name"
-          v-model="name"
-          name="request-name"
-          type="text"
-          class="input text-sm"
-        />
-        <SmartItem
-          ref="copyRequest"
-          :label="$t('copy_request_link')"
-          :icon="navigatorShare ? 'share' : 'content_copy'"
-          @click.native="
-            copyRequest()
-            $refs.saveOptions.tippy().hide()
-          "
-        />
-        <SmartItem
-          ref="saveRequest"
-          :label="$t('save_to_collections')"
-          icon="create_new_folder"
-          @click.native="
-            saveRequest()
-            $refs.saveOptions.tippy().hide()
-          "
-        />
-      </tippy>
+          />
+          <SmartItem
+            ref="clearAll"
+            :label="$t('clear_all')"
+            icon="clear_all"
+            @click.native="
+              clearContent('', $event)
+              $refs.sendOptions.tippy().hide()
+            "
+          />
+        </tippy>
+      </span>
+      <ButtonSecondary
+        class="rounded-r-none ml-2"
+        :label="$t('save')"
+        :shortcuts="[getSpecialKey(), 'S']"
+        outline
+        @click.native="newSendRequest"
+      />
+      <span class="inline-flex">
+        <tippy
+          ref="saveOptions"
+          interactive
+          tabindex="-1"
+          trigger="click"
+          theme="popover"
+          arrow
+        >
+          <template #trigger>
+            <ButtonSecondary
+              icon="keyboard_arrow_down"
+              outline
+              class="rounded-l-none"
+            />
+          </template>
+          <SmartItem :description="$t('token_req_name')" />
+          <input
+            id="request-name"
+            v-model="name"
+            name="request-name"
+            type="text"
+            class="text-sm input"
+          />
+          <SmartItem
+            ref="copyRequest"
+            :label="$t('copy_request_link')"
+            :icon="navigatorShare ? 'share' : 'content_copy'"
+            @click.native="
+              copyRequest()
+              $refs.saveOptions.tippy().hide()
+            "
+          />
+          <SmartItem
+            ref="saveRequest"
+            :label="$t('save_to_collections')"
+            icon="create_new_folder"
+            @click.native="
+              saveRequest()
+              $refs.saveOptions.tippy().hide()
+            "
+          />
+        </tippy>
+      </span>
     </div>
   </div>
 </template>
@@ -254,6 +184,7 @@ import {
 import { createRESTNetworkRequestStream } from "~/helpers/network"
 import { currentEnvironment$ } from "~/newstore/environments"
 import { getEffectiveRESTRequestStream } from "~/helpers/utils/EffectiveURL"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
 export default {
   data() {
@@ -277,6 +208,7 @@ export default {
       showCodegenModal: false,
       navigatorShare: navigator.share,
       effectiveStream$: null,
+      loading: false,
     }
   },
   subscriptions() {
@@ -294,12 +226,13 @@ export default {
       setRESTEndpoint(newVal)
     },
   },
-  mounted() {},
   methods: {
+    getSpecialKey: getPlatformSpecialKey,
     updateMethod(method) {
       updateRESTMethod(method)
     },
     newSendRequest() {
+      this.loading = true
       this.$subscribeTo(
         createRESTNetworkRequestStream(
           this.effectiveStream$,
@@ -308,6 +241,7 @@ export default {
         (responseState) => {
           console.log(responseState)
           updateRESTResponse(responseState)
+          this.loading = false
         }
       )
     },

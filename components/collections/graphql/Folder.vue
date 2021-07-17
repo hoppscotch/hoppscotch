@@ -11,13 +11,13 @@
     >
       <span
         class="
+          cursor-pointer
           flex
-          justify-center
-          items-center
           text-xs
           w-10
+          justify-center
+          items-center
           truncate
-          cursor-pointer
         "
         @click="toggleShowChildren()"
       >
@@ -27,15 +27,16 @@
       </span>
       <span
         class="
-          py-3
           cursor-pointer
-          pr-2
-          flex flex-1
-          min-w-0
-          text-xs
-          group-hover:text-secondaryDark
-          transition
+          flex
           font-semibold
+          flex-1
+          text-xs
+          min-w-0
+          py-3
+          pr-2
+          transition
+          group-hover:text-secondaryDark
         "
         @click="toggleShowChildren()"
       >
@@ -95,7 +96,7 @@
       <CollectionsGraphqlFolder
         v-for="(subFolder, subFolderIndex) in folder.folders"
         :key="`subFolder-${subFolderIndex}`"
-        class="ml-5 border-l border-dividerLight"
+        class="border-l border-dividerLight ml-5"
         :picked="picked"
         :saving-mode="savingMode"
         :folder="subFolder"
@@ -112,7 +113,7 @@
       <CollectionsGraphqlRequest
         v-for="(request, index) in folder.requests"
         :key="`request-${index}`"
-        class="ml-5 border-l border-dividerLight"
+        class="border-l border-dividerLight ml-5"
         :picked="picked"
         :saving-mode="savingMode"
         :request="request"
@@ -133,17 +134,16 @@
           folder.requests.length === 0
         "
         class="
-          flex
-          items-center
-          text-secondaryLight
-          flex-col
-          p-4
-          justify-center
-          ml-5
           border-l border-dividerLight
+          flex flex-col
+          text-secondaryLight
+          ml-5
+          p-4
+          items-center
+          justify-center
         "
       >
-        <i class="material-icons opacity-50 pb-2">folder_open</i>
+        <i class="opacity-50 pb-2 material-icons">folder_open</i>
         <span class="text-xs text-center">
           {{ $t("folder_empty") }}
         </span>

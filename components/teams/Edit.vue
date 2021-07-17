@@ -5,10 +5,10 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
+      <div class="flex flex-col px-2">
         <label
           for="selectLabelTeamEdit"
-          class="px-4 font-semibold pb-4 text-xs"
+          class="font-semibold text-xs px-4 pb-4"
         >
           {{ $t("label") }}
         </label>
@@ -20,19 +20,16 @@
           :placeholder="editingTeam.name"
           @keyup.enter="saveTeam"
         />
-        <label for="memberList" class="px-4 pt-4 font-semibold pb-4 text-xs">
+        <label for="memberList" class="font-semibold text-xs px-4 pt-4 pb-4">
           {{ $t("team_member_list") }}
         </label>
         <ul
           v-for="(member, index) in members"
           :key="`member-${index}`"
           class="
-            border-b border-dashed
-            divide-y
-            md:divide-x
-            border-divider
-            divide-dashed divide-divider
-            md:divide-y-0
+            divide-y divide-dashed divide-divider
+            border-b border-dashed border-divider
+            md:divide-x md:divide-y-0
           "
           :class="{ 'border-t': index == 0 }"
         >
@@ -108,12 +105,9 @@
           v-for="(member, index) in newMembers"
           :key="`member-${index}`"
           class="
-            border-b border-dashed
-            divide-y
-            md:divide-x
-            border-divider
-            divide-dashed divide-divider
-            md:divide-y-0
+            divide-y divide-dashed divide-divider
+            border-b border-dashed border-divider
+            md:divide-x md:divide-y-0
           "
         >
           <li>

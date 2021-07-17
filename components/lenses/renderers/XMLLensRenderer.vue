@@ -2,17 +2,17 @@
   <div>
     <div
       class="
+        bg-primary
+        border-b border-dividerLight
         flex flex-1
-        sticky
         top-23
         z-10
-        bg-primary
+        sticky
         items-center
         justify-between
-        border-b border-dividerLight
       "
     >
-      <label for="body" class="px-4 font-semibold text-xs">
+      <label for="body" class="font-semibold text-xs px-4">
         {{ $t("response_body") }}
       </label>
       <div>

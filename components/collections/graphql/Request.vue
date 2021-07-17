@@ -10,15 +10,15 @@
     >
       <span
         class="
-          font-mono font-bold
+          cursor-pointer
           flex
-          justify-center
-          items-center
+          font-mono font-bold
+          mx-2
           text-xs
           w-12
-          mx-2
+          justify-center
+          items-center
           truncate
-          cursor-pointer
         "
         @click="!doc ? selectRequest() : {}"
       >
@@ -28,15 +28,16 @@
       </span>
       <span
         class="
-          py-3
           cursor-pointer
-          pr-2
-          flex flex-1
-          min-w-0
-          text-xs
-          group-hover:text-secondaryDark
-          transition
+          flex
           font-semibold
+          flex-1
+          text-xs
+          min-w-0
+          py-3
+          pr-2
+          transition
+          group-hover:text-secondaryDark
         "
         @click="!doc ? selectRequest() : {}"
       >

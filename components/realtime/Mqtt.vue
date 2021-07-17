@@ -23,8 +23,8 @@
                       id="connect"
                       :disabled="!validUrl"
                       class="
-                        button
                         rounded-b-lg
+                        button
                         md:rounded-bl-none md:rounded-br-lg
                       "
                       :icon="!connectionState ? 'sync' : 'sync_disabled'"
@@ -70,7 +70,7 @@
                 v-model="msg"
                 type="text"
                 spellcheck="false"
-                class="input border-dashed md:border-l border-divider"
+                class="border-dashed border-divider input md:border-l"
               />
             </li>
             <div>
@@ -105,8 +105,8 @@
                   name="get"
                   :disabled="!cansubscribe"
                   class="
-                    button
                     rounded-b-lg
+                    button
                     md:rounded-bl-none md:rounded-br-lg
                   "
                   :icon="subscriptionState ? 'sync_disabled' : 'sync'"

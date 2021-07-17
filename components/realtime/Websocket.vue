@@ -48,12 +48,9 @@
                 :key="`protocol-${index}`"
                 :class="{ 'border-t': index == 0 }"
                 class="
-                  border-b border-dashed
-                  divide-y
-                  md:divide-x
-                  border-divider
-                  divide-dashed divide-divider
-                  md:divide-y-0
+                  divide-y divide-dashed divide-divider
+                  border-b border-dashed border-divider
+                  md:divide-x md:divide-y-0
                 "
               >
                 <li>
@@ -150,8 +147,8 @@
                   name="send"
                   :disabled="!connectionState"
                   class="
-                    button
                     rounded-b-lg
+                    button
                     md:rounded-bl-none md:rounded-br-lg
                   "
                   icon="send"

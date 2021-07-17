@@ -7,8 +7,8 @@
       </div>
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelEnvEdit" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="selectLabelEnvEdit" class="font-semibold text-xs px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -19,10 +19,10 @@
           :placeholder="editingEnvironment.name"
           @keyup.enter="saveEnvironment"
         />
-        <div class="flex justify-between items-center flex-1">
+        <div class="flex flex-1 justify-between items-center">
           <label
             for="variableList"
-            class="px-4 pt-4 font-semibold pb-4 text-xs"
+            class="font-semibold text-xs px-4 pt-4 pb-4"
           >
             {{ $t("env_variable_list") }}
           </label>
@@ -41,27 +41,26 @@
             />
           </div>
         </div>
-        <div class="border-2 border-divider">
+        <div class="border-divider border-2">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
             class="
+              divide-x divide-dashed divide-divider
+              border-b border-divider
               flex
-              border-b
-              divide-x
-              border-divider
-              divide-dashed divide-divider
             "
           >
             <input
               v-model="variable.key"
               class="
-                px-4
-                py-3
-                text-xs
-                flex flex-1
-                font-semibold
                 bg-primaryLight
+                flex
+                font-semibold
+                flex-1
+                text-xs
+                py-3
+                px-4
                 focus:outline-none
               "
               :placeholder="$t('variable_count', { count: index + 1 })"
@@ -70,12 +69,13 @@
             <input
               v-model="variable.value"
               class="
-                px-4
-                py-3
-                text-xs
-                flex flex-1
-                font-semibold
                 bg-primaryLight
+                flex
+                font-semibold
+                flex-1
+                text-xs
+                py-3
+                px-4
                 focus:outline-none
               "
               :placeholder="$t('value_count', { count: index + 1 })"

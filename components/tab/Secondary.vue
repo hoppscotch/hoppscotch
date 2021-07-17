@@ -4,18 +4,19 @@
     :exact="exact"
     :blank="blank"
     class="
-      inline-flex
-      items-center
+      font-semibold
       flex-1
       py-2
-      font-semibold
-      transition
       transform
+      transition
+      inline-flex
+      items-center
+      focus:outline-none
       hover:translate-x-2
-      focus:translate-x-2 focus:outline-none
+      focus:translate-x-2
     "
     :class="[
-      label ? 'px-3 rounded-lg' : 'px-2 rounded-full',
+      label ? 'px-3' : 'px-2',
       active
         ? color
           ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`

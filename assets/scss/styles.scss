@@ -110,13 +110,24 @@ a {
 
 .tippy-popper {
   .tooltip-theme {
-    @apply bg-secondary;
+    @apply bg-tooltip;
     @apply text-primaryLight;
     @apply text-xs;
     @apply font-semibold;
+    @apply py-1;
     @apply px-2;
-    @apply px-4;
     @apply shadow;
+
+    kbd {
+      @apply first:ml-2;
+      @apply last:-mr-1;
+      @apply font-sans;
+      @apply bg-secondaryDark;
+      @apply text-primaryDark;
+      @apply rounded;
+      @apply px-1;
+      @apply ml-1;
+    }
   }
 
   .popover-theme {
@@ -124,6 +135,7 @@ a {
     @apply text-secondary;
     @apply p-2;
     @apply shadow-lg;
+    @apply focus:outline-none;
   }
 
   &[x-placement^="top"] .tippy-tooltip .tippy-arrow {

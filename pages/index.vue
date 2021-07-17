@@ -17,7 +17,7 @@
               </SmartTab>
 
               <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
-                <div class="flex flex-1 items-center justify-between py-2">
+                <div class="flex flex-1 py-2 items-center justify-between">
                   <tippy
                     interactive
                     ref="contentTypeOptions"
@@ -31,19 +31,7 @@
                         <span class="select-wrapper">
                           <input
                             id="contentType"
-                            class="
-                              flex
-                              w-full
-                              px-4
-                              py-2
-                              bg-primary
-                              truncate
-                              rounded-lg
-                              font-semibold font-mono
-                              text-xs
-                              transition
-                              focus:outline-none
-                            "
+                            class="bg-primary rounded-lg flex font-semibold font-mono text-xs w-full py-2 px-4 transition truncate focus:outline-none"
                             v-model="contentType"
                             readonly
                           />
@@ -321,17 +309,7 @@
               >
                 <AppSection v-if="showPreRequestScript" label="preRequest">
                   <div
-                    class="
-                      sticky
-                      top-110px
-                      z-10
-                      bg-primary
-                      flex flex-1
-                      items-center
-                      justify-between
-                      pl-4
-                      border-b border-dividerLight
-                    "
+                    class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-110px z-10 sticky items-center justify-between"
                   >
                     <label class="font-semibold text-xs">
                       {{ $t("javascript_code") }}
@@ -362,17 +340,7 @@
               <SmartTab :id="'tests'" :label="$t('tests')">
                 <AppSection v-if="testsEnabled" label="postRequestTests">
                   <div
-                    class="
-                      sticky
-                      top-110px
-                      z-10
-                      bg-primary
-                      flex flex-1
-                      items-center
-                      justify-between
-                      pl-4
-                      border-b border-dividerLight
-                    "
+                    class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-110px z-10 sticky items-center justify-between"
                   >
                     <label class="font-semibold text-xs">
                       {{ $t("javascript_code") }}
@@ -398,7 +366,7 @@
                     completeMode="test"
                   />
                   <div v-if="testReports.length !== 0">
-                    <div class="flex flex-1 items-center justify-between pl-4">
+                    <div class="flex flex-1 pl-4 items-center justify-between">
                       <label class="font-semibold text-xs">
                         Test Reports
                       </label>
@@ -422,13 +390,13 @@
                       </div>
                       <p
                         v-else-if="testReport.result"
-                        class="flex flex-1 font-mono text-xs info"
+                        class="flex font-mono flex-1 text-xs info"
                       >
                         <span
                           :class="testReport.styles.class"
                           class="flex items-center"
                         >
-                          <i class="material-icons text-sm">
+                          <i class="text-sm material-icons">
                             {{ testReport.styles.icon }}
                           </i>
                           <span>&nbsp;{{ testReport.result }}</span>

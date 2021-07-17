@@ -1,17 +1,16 @@
 <template>
-  <div class="flex sticky top-0 z-10 bg-primary items-center p-4">
+  <div class="bg-primary flex p-4 top-0 z-10 sticky items-center">
     <div
       v-if="response == null"
       class="
-        flex flex-1
-        items-center
+        flex flex-col flex-1
         text-secondaryLight
-        flex-col
         p-4
+        items-center
         justify-center
       "
     >
-      <i class="material-icons opacity-50 pb-2">send</i>
+      <i class="opacity-50 pb-2 material-icons">send</i>
       <span class="text-xs text-center">
         {{ $t("waiting_send_req") }}
       </span>

@@ -262,7 +262,7 @@
               <input
                 v-else
                 ref="status"
-                class="input rounded-b-lg missing-data-response"
+                class="rounded-b-lg input missing-data-response"
                 :value="$t('waiting_receive_schema')"
                 name="status"
                 readonly
@@ -312,7 +312,7 @@
                 <input
                   v-else
                   ref="status"
-                  class="input rounded-b-lg missing-data-response"
+                  class="rounded-b-lg input missing-data-response"
                   :value="$t('waiting_receive_response')"
                   name="status"
                   readonly
@@ -333,18 +333,19 @@
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
               <AppSection label="docs">
-                <div class="flex flex-col sticky z-10 bg-primaryLight top-10">
+                <div class="bg-primaryLight flex flex-col top-10 z-10 sticky">
                   <input
                     v-model="graphqlFieldsFilterText"
                     type="text"
                     :placeholder="$t('search')"
                     class="
-                      px-4
-                      py-3
-                      text-xs
-                      flex flex-1
-                      font-medium
                       bg-primaryLight
+                      flex
+                      font-medium
+                      flex-1
+                      text-xs
+                      py-3
+                      px-4
                       focus:outline-none
                     "
                   />
@@ -429,15 +430,14 @@
                     graphqlTypes.length === 0
                   "
                   class="
-                    flex
-                    items-center
+                    flex flex-col
                     text-secondaryLight
-                    flex-col
                     p-4
+                    items-center
                     justify-center
                   "
                 >
-                  <i class="material-icons opacity-50 pb-2">description</i>
+                  <i class="opacity-50 pb-2 material-icons">description</i>
                   <span class="text-xs text-center">
                     {{ $t("send_request_first") }}
                   </span>

@@ -4,19 +4,19 @@
     :exact="exact"
     :blank="blank"
     class="
+      font-semibold
+      py-2
+      transition
       inline-flex
       items-center
       justify-center
-      py-2
-      font-semibold
-      transition
       focus:outline-none
     "
     :class="[
       color
         ? `text-${color}-400 hover:text-${color}-600 focus:text-${color}-600`
         : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
-      label ? 'px-3 rounded-lg' : 'px-2 rounded-full',
+      label ? 'px-3' : 'px-2',
       rounded ? 'rounded-full' : 'rounded-lg',
       { 'opacity-50 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
@@ -41,6 +41,22 @@
       class="svg-icons"
     />
     {{ label }}
+    <div v-if="shortcuts.length" class="ml-2">
+      <kbd
+        v-for="(key, index) in shortcuts"
+        :key="`key-${index}`"
+        class="
+          bg-dividerLight
+          rounded
+          text-secondaryLight
+          ml-1
+          px-1
+          inline-flex
+        "
+      >
+        {{ key }}
+      </kbd>
+    </div>
   </SmartLink>
 </template>
 
@@ -90,6 +106,10 @@ export default {
     outline: {
       type: Boolean,
       default: false,
+    },
+    shortcuts: {
+      type: Array,
+      default: () => [],
     },
   },
 }

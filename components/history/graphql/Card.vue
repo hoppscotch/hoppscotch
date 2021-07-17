@@ -3,16 +3,17 @@
     <div class="flex items-center">
       <span
         class="
-          py-3
           cursor-pointer
+          flex
+          font-semibold
+          flex-1
+          text-xs
+          min-w-0
+          py-3
           pr-2
           pl-4
-          flex flex-1
-          min-w-0
-          text-xs
-          group-hover:text-secondaryDark
           transition
-          font-semibold
+          group-hover:text-secondaryDark
         "
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"
@@ -52,12 +53,11 @@
         v-for="(line, index) in query"
         :key="`line-${index}`"
         class="
-          text-xs
           cursor-pointer
-          truncate
-          px-4
           font-mono
-          text-secondaryLight
+          text-xs text-secondaryLight
+          px-4
+          truncate
         "
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"

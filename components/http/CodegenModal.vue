@@ -5,8 +5,8 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="requestType" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="requestType" class="font-semibold text-xs px-4 pb-4">
           {{ $t("choose_language") }}
         </label>
         <div class="flex flex-1">
@@ -22,17 +22,17 @@
               <template #trigger>
                 <span
                   class="
-                    flex
-                    w-full
-                    px-4
-                    text-xs
-                    py-3
-                    rounded-lg
-                    font-semibold
-                    focus:outline-none
-                    border-b border-dividerLight
                     bg-primaryLight
+                    border-b border-dividerLight
+                    rounded-lg
                     cursor-pointer
+                    flex
+                    font-semibold
+                    text-xs
+                    w-full
+                    py-3
+                    px-4
+                    focus:outline-none
                   "
                 >
                   {{ codegens.find((x) => x.id === requestType).name }}
@@ -50,10 +50,10 @@
             </tippy>
           </span>
         </div>
-        <div class="flex justify-between flex-1">
+        <div class="flex flex-1 justify-between">
           <label
             for="generatedCode"
-            class="px-4 pt-4 font-semibold pb-4 text-xs"
+            class="font-semibold text-xs px-4 pt-4 pb-4"
           >
             {{ $t("generated_code") }}
           </label>

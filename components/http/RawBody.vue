@@ -2,15 +2,15 @@
   <div>
     <div
       class="
-        sticky
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        pl-4
         top-110px
         z-10
-        bg-primary
-        flex flex-1
+        sticky
         items-center
         justify-between
-        pl-4
-        border-b border-dividerLight
       "
     >
       <label for="rawBody" class="font-semibold text-xs">

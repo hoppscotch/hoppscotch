@@ -5,8 +5,8 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelGqlAdd" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="selectLabelGqlAdd" class="font-semibold text-xs px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input

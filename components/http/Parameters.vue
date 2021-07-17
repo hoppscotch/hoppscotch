@@ -2,15 +2,15 @@
   <AppSection label="parameters">
     <div
       class="
-        sticky
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        pl-4
         top-110px
         z-10
-        bg-primary
-        flex flex-1
+        sticky
         items-center
         justify-between
-        pl-4
-        border-b border-dividerLight
       "
     >
       <label for="paramList" class="font-semibold text-xs">
@@ -35,22 +35,21 @@
       v-for="(param, index) in params$"
       :key="`param-${index}`"
       class="
+        divide-x divide-dashed divide-divider
+        border-b border-dashed border-divider
         flex
-        border-b border-dashed
-        divide-x
-        border-divider
-        divide-dashed divide-divider
       "
       :class="{ 'border-t': index == 0 }"
     >
       <input
         class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
           bg-primaryLight
+          flex
+          font-semibold
+          flex-1
+          text-xs
+          py-3
+          px-4
           focus:outline-none
         "
         :placeholder="$t('parameter_count', { count: index + 1 })"
@@ -67,12 +66,13 @@
       />
       <input
         class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
           bg-primaryLight
+          flex
+          font-semibold
+          flex-1
+          text-xs
+          py-3
+          px-4
           focus:outline-none
         "
         :placeholder="$t('value_count', { count: index + 1 })"

@@ -3,16 +3,16 @@
     <div
       ref="modal"
       class="
-        fixed
-        inset-0
-        z-50
-        w-full
-        h-full
+        bg-primaryLight
         flex
+        h-full
+        w-full
+        inset-0
+        transition
+        z-50
+        fixed
         items-center
         justify-center
-        transition
-        bg-primaryLight
       "
       @touchstart="onBackdropMouseDown"
       @touchend="onBackdropMouseUp"
@@ -21,27 +21,28 @@
     >
       <div
         class="
-          modal-container
-          relative
-          flex flex-1 flex-col
-          m-2
-          p-4
-          transition
           bg-primary
           rounded-lg
-          shadow-xl
+          flex flex-col
           max-w-md max-h-lg
+          flex-1
+          m-2
+          shadow-xl
+          p-4
+          transition
+          modal-container
+          relative
         "
       >
         <div class="flex pl-2 items-center justify-between">
           <slot name="header"></slot>
         </div>
-        <div class="my-4 overflow-auto flex flex-col">
+        <div class="flex flex-col my-4 overflow-auto">
           <slot name="body"></slot>
         </div>
         <div
           v-if="hasFooterSlot"
-          class="p-2 flex flex-1 items-center justify-between"
+          class="flex flex-1 p-2 items-center justify-between"
         >
           <slot name="footer"></slot>
         </div>

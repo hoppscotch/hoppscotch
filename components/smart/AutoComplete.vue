@@ -4,12 +4,13 @@
       ref="acInput"
       v-model="text"
       class="
-        px-4
-        py-3
-        text-xs
-        flex flex-1
-        font-semibold
         bg-primaryLight
+        flex
+        font-semibold
+        flex-1
+        text-xs
+        py-3
+        px-4
         focus:outline-none
       "
       type="text"

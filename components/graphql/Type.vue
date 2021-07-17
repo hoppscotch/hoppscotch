@@ -11,7 +11,7 @@
     </div>
     <div
       v-if="gqlType.description"
-      class="py-2 text-xs text-secondaryLight type-desc"
+      class="text-xs text-secondaryLight py-2 type-desc"
     >
       {{ gqlType.description }}
     </div>
@@ -24,7 +24,7 @@
         <GraphqlTypeLink
           :gql-type="gqlInterface"
           :jump-type-callback="jumpTypeCallback"
-          class="pl-4 border-l-2 border-divider"
+          class="border-divider border-l-2 pl-4"
         />
       </div>
     </div>
@@ -35,7 +35,7 @@
         :key="`child-${index}`"
         :gql-type="child"
         :jump-type-callback="jumpTypeCallback"
-        class="pl-4 border-l-2 border-divider"
+        class="border-divider border-l-2 pl-4"
       />
     </div>
     <div v-if="gqlType.getFields">
@@ -43,7 +43,7 @@
       <GraphqlField
         v-for="(field, index) in gqlType.getFields()"
         :key="`field-${index}`"
-        class="pl-4 border-l-2 border-divider"
+        class="border-divider border-l-2 pl-4"
         :gql-field="field"
         :is-highlighted="isFieldHighlighted({ field })"
         :jump-type-callback="jumpTypeCallback"
@@ -54,7 +54,7 @@
       <div
         v-for="(value, index) in gqlType.getValues()"
         :key="`value-${index}`"
-        class="pl-4 border-l-2 border-divider"
+        class="border-divider border-l-2 pl-4"
         v-text="value.name"
       ></div>
     </div>

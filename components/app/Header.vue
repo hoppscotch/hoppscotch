@@ -1,9 +1,9 @@
 <template>
-  <header class="flex items-center justify-between p-2 flex-1">
-    <div class="inline-flex space-x-2 items-center font-bold flex-shrink-0">
+  <header class="flex flex-1 p-2 items-center justify-between">
+    <div class="font-bold space-x-2 flex-shrink-0 inline-flex items-center">
       <AppLogo class="h-6 mx-4" /> Hoppscotch
     </div>
-    <div class="inline-flex space-x-2 items-center flex-shrink-0">
+    <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="mt-1 mr-2" />
       <TabPrimary
         id="installPWA"
@@ -74,7 +74,10 @@
           <template #trigger>
             <TabPrimary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('more')"
+              :title="
+                $t('more') +
+                `<kbd class='shortcut'>${getSpecialKey()}</kbd><kbd class='shortcut'>M</kbd>`
+              "
               icon="drag_indicator"
             />
           </template>
@@ -119,7 +122,7 @@
 import intializePwa from "~/helpers/pwa"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
-// import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
 export default {
   data() {
@@ -176,6 +179,7 @@ export default {
         // fallback
       }
     },
+    getSpecialKey: getPlatformSpecialKey,
   },
 }
 </script>

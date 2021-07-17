@@ -4,19 +4,19 @@
     :exact="exact"
     :blank="blank"
     class="
+      font-semibold
+      py-2
+      transition
       inline-flex
       items-center
       justify-center
-      py-2
-      font-semibold
-      transition
       focus:outline-none
     "
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:text-${color}-900 hover:bg-${color}-300 focus:text-${color}-900 focus:bg-${color}-300`
         : `text-white dark:text-accentDark bg-accent hover:bg-accentDark focus:bg-accentDark`,
-      label ? 'px-4' : 'px-2',
+      label ? 'px-3' : 'px-2',
       rounded ? 'rounded-full' : 'rounded-lg',
       { 'opacity-50 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
@@ -25,6 +25,10 @@
       {
         'text-white bg-gradient-to-tr from-gradientFrom via-gradientVia to-gradientTo':
           gradient,
+      },
+      {
+        'border border-divider hover:border-dividerDark focus:border-dividerDark':
+          outline,
       },
     ]"
     :disabled="disabled"
@@ -49,9 +53,15 @@
         class="svg-icons"
       />
       {{ label }}
-      <span v-if="shortkey" class="px-1 ml-2 rounded bg-accentLight">{{
-        shortkey
-      }}</span>
+      <div v-if="shortcuts.length" class="ml-2">
+        <kbd
+          v-for="(key, index) in shortcuts"
+          :key="`key-${index}`"
+          class="bg-accentLight rounded ml-1 px-1 inline-flex"
+        >
+          {{ key }}
+        </kbd>
+      </div>
     </span>
     <SmartSpinner v-else />
   </SmartLink>
@@ -116,9 +126,13 @@ export default {
       type: Boolean,
       default: false,
     },
-    shortkey: {
-      type: String,
-      default: "",
+    outline: {
+      type: Boolean,
+      default: false,
+    },
+    shortcuts: {
+      type: Array,
+      default: () => [],
     },
   },
 }

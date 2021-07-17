@@ -116,7 +116,7 @@
       </div>
       <div
         v-if="mode == 'import_from_my_collections'"
-        class="flex px-2 flex-col"
+        class="flex flex-col px-2"
       >
         <div class="select-wrapper">
           <select

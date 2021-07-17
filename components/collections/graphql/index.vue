@@ -4,7 +4,7 @@
     :class="{ 'rounded-lg border-2 border-divider': savingMode }"
   >
     <div
-      class="flex flex-col sticky top-10 z-10"
+      class="flex flex-col top-10 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
     >
       <input
@@ -13,17 +13,18 @@
         type="search"
         :placeholder="$t('search')"
         class="
-          px-4
-          py-3
-          text-xs
-          border-b border-dividerLight
-          flex flex-1
-          font-medium
           bg-primaryLight
+          border-b border-dividerLight
+          flex
+          font-medium
+          flex-1
+          text-xs
+          py-3
+          px-4
           focus:outline-none
         "
       />
-      <div class="border-b flex justify-between flex-1 border-dividerLight">
+      <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"
           :label="$t('new')"
@@ -59,18 +60,18 @@
     </div>
     <div
       v-if="collections.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
+      <i class="opacity-50 pb-2 material-icons">create_new_folder</i>
       <span class="text-xs text-center">
         {{ $t("create_new_collection") }}
       </span>
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">manage_search</i>
+      <i class="opacity-50 pb-2 material-icons">manage_search</i>
       <span class="text-xs text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>

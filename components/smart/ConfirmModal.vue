@@ -7,7 +7,7 @@
       </div>
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
+      <div class="flex flex-col px-2">
         <label class="font-semibold text-xs">
           {{ title }}
         </label>

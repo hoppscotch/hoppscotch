@@ -4,13 +4,13 @@
     :exact="exact"
     :blank="blank"
     class="
-      inline-flex
-      px-4
-      py-2
-      text-xs
-      font-semibold
-      transition
       rounded-lg
+      font-semibold
+      text-xs
+      py-2
+      px-4
+      transition
+      inline-flex
       items-center
       focus:bg-primaryDark focus:text-secondaryDark
       hover:bg-primaryDark hover:text-secondaryDark
@@ -49,7 +49,7 @@
         {{ description }}
       </p>
     </div>
-    <i v-if="infoIcon" class="ml-4 text-accent material-icons">
+    <i v-if="infoIcon" class="text-accent ml-4 material-icons">
       {{ infoIcon }}
     </i>
   </SmartLink>

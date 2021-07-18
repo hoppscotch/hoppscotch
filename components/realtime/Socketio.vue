@@ -1,148 +1,136 @@
 <template>
-  <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto">
-            <AppSection label="request">
-              <ul>
-                <li>
-                  <label for="socketio-url">{{ $t("url") }}</label>
-                  <input
-                    id="socketio-url"
-                    v-model="url"
-                    type="url"
-                    spellcheck="false"
-                    :class="{ error: !urlValid }"
-                    class="input md:rounded-bl-lg"
-                    :placeholder="$t('url')"
-                    @keyup.enter="urlValid ? toggleConnection() : null"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <label for="socketio-path">{{ $t("path") }}</label>
-                    <input
-                      id="socketio-path"
-                      v-model="path"
-                      class="input"
-                      spellcheck="false"
-                    />
-                  </li>
-                </div>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      id="connect"
-                      :disabled="!urlValid"
-                      name="connect"
-                      class="
-                        rounded-b-lg
-                        button
-                        md:rounded-bl-none md:rounded-br-lg
-                      "
-                      :icon="!connectionState ? 'sync' : 'sync_disabled'"
-                      :label="
-                        !connectionState ? $t('connect') : $t('disconnect')
-                      "
-                      reverse
-                      @click.native="toggleConnection"
-                    />
-                  </li>
-                </div>
-              </ul>
-            </AppSection>
-          </Pane>
-          <Pane class="overflow-auto">
-            <AppSection label="response">
-              <ul>
-                <li>
-                  <RealtimeLog :title="$t('log')" :log="communication.log" />
-                </li>
-              </ul>
-            </AppSection>
-          </Pane>
-        </Splitpanes>
-      </Pane>
-      <Pane max-size="35" min-size="20" class="overflow-auto">
-        <AppSection label="messages">
-          <ul>
-            <li>
-              <label for="event_name">{{ $t("event_name") }}</label>
-              <input
-                id="event_name"
-                v-model="communication.eventName"
-                class="input"
-                name="event_name"
-                type="text"
-                :readonly="!connectionState"
-              />
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <div class="flex flex-1">
-                <label>{{ $t("message") }}s</label>
+  <Splitpanes vertical :dbl-click-splitter="false">
+    <Pane class="overflow-auto hide-scrollbar">
+      <Splitpanes horizontal :dbl-click-splitter="false">
+        <Pane class="overflow-auto hide-scrollbar">
+          <AppSection label="request">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+              <div class="flex-1 inline-flex">
+                <input
+                  id="socketio-url"
+                  v-model="url"
+                  type="url"
+                  spellcheck="false"
+                  :class="{ error: !urlValid }"
+                  class="
+                    bg-primaryLight
+                    border border-divider
+                    rounded-l-lg
+                    font-mono
+                    text-secondaryDark
+                    w-full
+                    py-1
+                    px-4
+                    transition
+                    truncate
+                    focus:outline-none focus:border-accent
+                  "
+                  :placeholder="$t('url')"
+                  @keyup.enter="urlValid ? toggleConnection() : null"
+                />
+                <input
+                  id="socketio-path"
+                  v-model="path"
+                  class="
+                    bg-primaryLight
+                    border border-divider
+                    font-mono
+                    text-secondaryDark
+                    w-full
+                    py-1
+                    px-4
+                    transition
+                    truncate
+                    focus:outline-none focus:border-accent
+                  "
+                  spellcheck="false"
+                />
+                <ButtonPrimary
+                  id="connect"
+                  :disabled="!urlValid"
+                  name="connect"
+                  class="rounded-l-none"
+                  :icon="!connectionState ? 'sync' : 'sync_disabled'"
+                  :label="!connectionState ? $t('connect') : $t('disconnect')"
+                  reverse
+                  @click.native="toggleConnection"
+                />
               </div>
-            </li>
-          </ul>
-          <ul
-            v-for="(input, index) of communication.inputs"
-            :key="`input-${index}`"
-            :class="{ 'border-t': index == 0 }"
-            class="
-              divide-y divide-dashed divide-divider
-              border-b border-dashed border-divider
-              md:divide-x md:divide-y-0
-            "
-          >
-            <li>
-              <input
-                v-model="communication.inputs[index]"
-                class="input"
-                name="message"
-                type="text"
-                :readonly="!connectionState"
-                @keyup.enter="connectionState ? sendMessage() : null"
-              />
-            </li>
-            <div v-if="index + 1 !== communication.inputs.length">
-              <li>
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="$t('delete')"
-                  icon="delete"
-                  @click.native="removeCommunicationInput({ index })"
-                />
-              </li>
             </div>
-            <div v-if="index + 1 === communication.inputs.length">
-              <li>
-                <ButtonSecondary
-                  id="send"
-                  class="button"
-                  name="send"
-                  :disabled="!connectionState"
-                  icon="send"
-                  :label="$t('send')"
-                  @click.native="sendMessage"
-                />
-              </li>
-            </div>
-          </ul>
-          <ul>
-            <li>
-              <ButtonSecondary
-                icon="add"
-                :label="$t('add_new')"
-                @click.native="addCommunicationInput"
-              />
-            </li>
-          </ul>
-        </AppSection>
-      </Pane>
-    </Splitpanes>
-  </div>
+          </AppSection>
+        </Pane>
+        <Pane class="overflow-auto hide-scrollbar">
+          <AppSection label="response">
+            <RealtimeLog :title="$t('log')" :log="communication.log" />
+          </AppSection>
+        </Pane>
+      </Splitpanes>
+    </Pane>
+    <Pane
+      max-size="30"
+      size="25"
+      min-size="20"
+      class="overflow-auto hide-scrollbar"
+    >
+      <AppSection label="messages">
+        <label for="event_name">{{ $t("event_name") }}</label>
+        <input
+          id="event_name"
+          v-model="communication.eventName"
+          class="input"
+          name="event_name"
+          type="text"
+          :readonly="!connectionState"
+        />
+        <div class="flex flex-1">
+          <label>{{ $t("message") }}s</label>
+        </div>
+        <div
+          v-for="(input, index) of communication.inputs"
+          :key="`input-${index}`"
+          :class="{ 'border-t': index == 0 }"
+          class="
+            divide-y divide-dashed divide-divider
+            border-b border-dashed border-divider
+            md:divide-x md:divide-y-0
+          "
+        >
+          <input
+            v-model="communication.inputs[index]"
+            class="input"
+            name="message"
+            type="text"
+            :readonly="!connectionState"
+            @keyup.enter="connectionState ? sendMessage() : null"
+          />
+          <div v-if="index + 1 !== communication.inputs.length">
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
+              icon="delete"
+              @click.native="removeCommunicationInput({ index })"
+            />
+          </div>
+          <div v-if="index + 1 === communication.inputs.length">
+            <ButtonSecondary
+              id="send"
+              class="button"
+              name="send"
+              :disabled="!connectionState"
+              icon="send"
+              :label="$t('send')"
+              @click.native="sendMessage"
+            />
+          </div>
+          <ButtonSecondary
+            icon="add"
+            :label="$t('add_new')"
+            @click.native="addCommunicationInput"
+          />
+        </div>
+      </AppSection>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script>

@@ -1,167 +1,177 @@
 <template>
-  <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto">
-            <AppSection label="request">
-              <ul>
-                <li>
-                  <label for="websocket-url">{{ $t("url") }}</label>
-                  <input
-                    id="websocket-url"
-                    v-model="url"
-                    class="input"
-                    type="url"
-                    spellcheck="false"
-                    :class="{ error: !urlValid }"
-                    :placeholder="$t('url')"
-                    @keyup.enter="urlValid ? toggleConnection() : null"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      id="connect"
-                      :disabled="!urlValid"
-                      class="button"
-                      name="connect"
-                      :icon="!connectionState ? 'sync' : 'sync_disabled'"
-                      :label="
-                        !connectionState ? $t('connect') : $t('disconnect')
-                      "
-                      reverse
-                      @click.native="toggleConnection"
-                    />
-                  </li>
-                </div>
-              </ul>
-              <ul>
-                <li>
-                  <div class="flex flex-1">
-                    <label>{{ $t("protocols") }}</label>
-                  </div>
-                </li>
-              </ul>
-              <ul
-                v-for="(protocol, index) of protocols"
-                :key="`protocol-${index}`"
-                :class="{ 'border-t': index == 0 }"
-                class="
-                  divide-y divide-dashed divide-divider
-                  border-b border-dashed border-divider
-                  md:divide-x md:divide-y-0
-                "
-              >
-                <li>
-                  <input
-                    v-model="protocol.value"
-                    class="input"
-                    :placeholder="$t('protocol_count', { count: index + 1 })"
-                    name="message"
-                    type="text"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="
-                        protocol.hasOwnProperty('active')
-                          ? protocol.active
-                            ? $t('turn_off')
-                            : $t('turn_on')
-                          : $t('turn_off')
-                      "
-                      @click.native="
-                        protocol.active = protocol.hasOwnProperty('active')
-                          ? !protocol.active
-                          : false
-                      "
-                    />
-                    <i class="material-icons">
-                      {{
-                        protocol.hasOwnProperty("active")
-                          ? protocol.active
-                            ? "check_box"
-                            : "check_box_outline_blank"
-                          : "check_box"
-                      }}
-                    </i>
-                  </li>
-                </div>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('delete')"
-                      icon="delete"
-                      @click.native="deleteProtocol({ index })"
-                    />
-                  </li>
-                </div>
-              </ul>
-              <ul>
-                <li>
-                  <ButtonSecondary
-                    icon="add"
-                    :label="$t('add_new')"
-                    @click.native="addProtocol"
-                  />
-                </li>
-              </ul>
-            </AppSection>
-          </Pane>
-          <Pane class="overflow-auto">
-            <AppSection label="response">
-              <ul>
-                <li>
-                  <RealtimeLog :title="$t('log')" :log="communication.log" />
-                </li>
-              </ul>
-            </AppSection>
-          </Pane>
-        </Splitpanes>
-      </Pane>
-      <Pane max-size="35" min-size="20" class="overflow-auto">
-        <AppSection label="messages">
-          <ul>
-            <li>
-              <label for="websocket-message">{{ $t("message") }}</label>
+  <Splitpanes vertical :dbl-click-splitter="false">
+    <Pane class="overflow-auto hide-scrollbar">
+      <Splitpanes horizontal :dbl-click-splitter="false">
+        <Pane class="overflow-auto hide-scrollbar">
+          <AppSection class="bg-primary flex p-4 top-0 z-10 sticky">
+            <div class="flex-1 inline-flex">
               <input
-                id="websocket-message"
-                v-model="communication.input"
-                name="message"
-                type="text"
-                :readonly="!connectionState"
-                class="input md:rounded-bl-lg"
-                @keyup.enter="connectionState ? sendMessage() : null"
-                @keyup.up="connectionState ? walkHistory('up') : null"
-                @keyup.down="connectionState ? walkHistory('down') : null"
+                id="websocket-url"
+                v-model="url"
+                class="
+                  bg-primaryLight
+                  border border-divider
+                  rounded-l-lg
+                  font-mono
+                  text-secondaryDark
+                  w-full
+                  py-1
+                  px-4
+                  transition
+                  truncate
+                  focus:outline-none focus:border-accent
+                "
+                type="url"
+                spellcheck="false"
+                :class="{ error: !urlValid }"
+                :placeholder="$t('url')"
+                @keyup.enter="urlValid ? toggleConnection() : null"
               />
-            </li>
-            <div>
-              <li>
-                <ButtonSecondary
-                  id="send"
-                  name="send"
-                  :disabled="!connectionState"
-                  class="
-                    rounded-b-lg
-                    button
-                    md:rounded-bl-none md:rounded-br-lg
-                  "
-                  icon="send"
-                  :label="$t('send')"
-                  @click.native="sendMessage"
-                />
-              </li>
+              <ButtonPrimary
+                id="connect"
+                :disabled="!urlValid"
+                class="rounded-l-none"
+                name="connect"
+                :icon="!connectionState ? 'sync' : 'sync_disabled'"
+                :label="!connectionState ? $t('connect') : $t('disconnect')"
+                reverse
+                @click.native="toggleConnection"
+              />
             </div>
-          </ul>
-        </AppSection>
-      </Pane>
-    </Splitpanes>
-  </div>
+          </AppSection>
+          <div
+            class="
+              bg-primary
+              border-b border-dividerLight
+              flex flex-1
+              pl-4
+              top-68px
+              z-10
+              sticky
+              items-center
+              justify-between
+            "
+          >
+            <label class="font-semibold text-xs">
+              {{ $t("protocols") }}
+            </label>
+            <div>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('clear_all')"
+                icon="clear_all"
+                @click.native="clearContent"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('add_new')"
+                icon="add"
+                @click.native="addProtocol"
+              />
+            </div>
+          </div>
+          <div
+            v-for="(protocol, index) of protocols"
+            :key="`protocol-${index}`"
+            class="
+              divide-x divide-dashed divide-divider
+              border-b border-dashed border-divider
+              flex
+            "
+            :class="{ 'border-t': index == 0 }"
+          >
+            <input
+              v-model="protocol.value"
+              class="
+                bg-primaryLight
+                flex
+                font-semibold
+                flex-1
+                text-xs
+                py-3
+                px-4
+                focus:outline-none
+              "
+              :placeholder="$t('protocol_count', { count: index + 1 })"
+              name="message"
+              type="text"
+            />
+            <div>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="
+                  protocol.hasOwnProperty('active')
+                    ? protocol.active
+                      ? $t('turn_off')
+                      : $t('turn_on')
+                    : $t('turn_off')
+                "
+                :icon="
+                  protocol.hasOwnProperty('active')
+                    ? protocol.active
+                      ? 'check_box'
+                      : 'check_box_outline_blank'
+                    : 'check_box'
+                "
+                @click.native="
+                  protocol.active = protocol.hasOwnProperty('active')
+                    ? !protocol.active
+                    : false
+                "
+              />
+            </div>
+            <div>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                @click.native="deleteProtocol({ index })"
+              />
+            </div>
+          </div>
+        </Pane>
+        <Pane class="overflow-auto hide-scrollbar">
+          <AppSection label="response">
+            <RealtimeLog :title="$t('log')" :log="communication.log" />
+          </AppSection>
+        </Pane>
+      </Splitpanes>
+    </Pane>
+    <Pane
+      max-size="30"
+      size="25"
+      min-size="20"
+      class="overflow-auto hide-scrollbar"
+    >
+      <AppSection label="messages">
+        <label for="websocket-message" class="font-semibold text-xs">
+          {{ $t("message") }}
+        </label>
+        <input
+          id="websocket-message"
+          v-model="communication.input"
+          name="message"
+          type="text"
+          :readonly="!connectionState"
+          class="input md:rounded-bl-lg"
+          @keyup.enter="connectionState ? sendMessage() : null"
+          @keyup.up="connectionState ? walkHistory('up') : null"
+          @keyup.down="connectionState ? walkHistory('down') : null"
+        />
+        <div>
+          <ButtonSecondary
+            id="send"
+            name="send"
+            :disabled="!connectionState"
+            class="rounded-b-lg button md:rounded-bl-none md:rounded-br-lg"
+            icon="send"
+            :label="$t('send')"
+            @click.native="sendMessage"
+          />
+        </div>
+      </AppSection>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script>

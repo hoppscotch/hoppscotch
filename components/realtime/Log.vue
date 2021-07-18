@@ -1,6 +1,20 @@
 <template>
   <div class="flex flex-col">
-    <label for="log">{{ title }}</label>
+    <div
+      class="
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        pl-4
+        top-0
+        z-10
+        sticky
+        items-center
+        justify-between
+      "
+    >
+      <label for="log" class="font-semibold text-xs py-2">{{ title }}</label>
+    </div>
     <div ref="log" name="log" class="realtime-log">
       <span v-if="log">
         <span

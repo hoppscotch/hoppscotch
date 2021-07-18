@@ -1,147 +1,154 @@
 <template>
   <div>
     <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
+      <Pane class="overflow-auto hide-scrollbar">
         <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto">
+          <Pane class="overflow-auto hide-scrollbar">
             <AppSection label="endpoint">
-              <ul>
-                <li>
-                  <label for="url">{{ $t("url") }}</label>
+              <div class="bg-primary flex p-4 top-0 z-10 sticky">
+                <div class="flex-1 inline-flex">
                   <input
                     id="url"
                     v-model="url"
                     type="url"
                     spellcheck="false"
-                    class="input md:rounded-bl-lg"
+                    class="
+                      bg-primaryLight
+                      border border-divider
+                      rounded-l-lg
+                      font-mono
+                      text-secondaryDark
+                      w-full
+                      py-1
+                      px-4
+                      transition
+                      truncate
+                      focus:outline-none focus:border-accent
+                    "
                     :placeholder="$t('url')"
                     @keyup.enter="onPollSchemaClick()"
                   />
-                </li>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      id="get"
-                      name="get"
-                      :icon="!isPollingSchema ? 'sync' : 'sync_disabled'"
-                      :label="
-                        !isPollingSchema ? $t('connect') : $t('disconnect')
-                      "
-                      @click.native="onPollSchemaClick"
-                    />
-                  </li>
+                  <ButtonPrimary
+                    id="get"
+                    name="get"
+                    :icon="!isPollingSchema ? 'sync' : 'sync_disabled'"
+                    :label="!isPollingSchema ? $t('connect') : $t('disconnect')"
+                    class="rounded-l-none"
+                    @click.native="onPollSchemaClick"
+                  />
                 </div>
-              </ul>
+              </div>
             </AppSection>
             <AppSection label="headers">
-              <div class="flex flex-col">
-                <label>{{ $t("headers") }}</label>
-                <ul v-if="headers.length !== 0">
-                  <li>
-                    <div class="flex flex-1">
-                      <label for="headerList">{{ $t("header_list") }}</label>
-                      <div>
-                        <ButtonSecondary
-                          v-tippy="{ theme: 'tooltip' }"
-                          :title="$t('clear')"
-                          icon="clear_all"
-                          @click.native="headers = []"
-                        />
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-                <ul
-                  v-for="(header, index) in headers"
-                  :key="`header-${index}`"
-                  class="
-                    divide-y divide-dashed divide-divider
-                    border-b border-dashed border-divider
-                    md:divide-x md:divide-y-0
+              <div
+                class="
+                  bg-primary
+                  border-b border-dividerLight
+                  flex flex-1
+                  pl-4
+                  top-68px
+                  z-10
+                  sticky
+                  items-center
+                  justify-between
+                "
+              >
+                <label class="font-semibold text-xs">{{ $t("headers") }}</label>
+                <div>
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('clear')"
+                    icon="clear_all"
+                    @click.native="headers = []"
+                  />
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('add_new')"
+                    icon="add"
+                    @click.native="addRequestHeader"
+                  />
+                </div>
+              </div>
+              <div
+                v-for="(header, index) in headers"
+                :key="`header-${index}`"
+                class="
+                  divide-x divide-dashed divide-divider
+                  border-b border-dashed border-divider
+                  flex
+                "
+                :class="{ 'border-t': index == 0 }"
+              >
+                <SmartAutoComplete
+                  :placeholder="$t('header_count', { count: index + 1 })"
+                  :source="commonHeaders"
+                  :spellcheck="false"
+                  :value="header.key"
+                  autofocus
+                  @input="
+                    $store.commit('setGQLHeaderKey', {
+                      index,
+                      value: $event,
+                    })
                   "
-                  :class="{ 'border-t': index == 0 }"
-                >
-                  <li>
-                    <SmartAutoComplete
-                      :placeholder="$t('header_count', { count: index + 1 })"
-                      :source="commonHeaders"
-                      :spellcheck="false"
-                      :value="header.key"
-                      autofocus
-                      @input="
-                        $store.commit('setGQLHeaderKey', {
-                          index,
-                          value: $event,
-                        })
-                      "
-                    />
-                  </li>
-                  <li>
-                    <input
-                      class="input"
-                      :placeholder="$t('value_count', { count: index + 1 })"
-                      :name="`value ${index}`"
-                      :value="header.value"
-                      autofocus
-                      @change="
-                        $store.commit('setGQLHeaderValue', {
-                          index,
-                          value: $event.target.value,
-                        })
-                      "
-                    />
-                  </li>
-                  <div>
-                    <li>
-                      <ButtonSecondary
-                        v-tippy="{ theme: 'tooltip' }"
-                        :title="
-                          header.hasOwnProperty('active')
-                            ? header.active
-                              ? $t('turn_off')
-                              : $t('turn_on')
-                            : $t('turn_off')
-                        "
-                        @click.native="
-                          $store.commit('setActiveGQLHeader', {
-                            index,
-                            value: header.hasOwnProperty('active')
-                              ? !header.active
-                              : false,
-                          })
-                        "
-                      />
-                      <i class="material-icons">
-                        {{
-                          header.hasOwnProperty("active")
-                            ? header.active
-                              ? "check_box"
-                              : "check_box_outline_blank"
-                            : "check_box"
-                        }}
-                      </i>
-                    </li>
-                  </div>
-                  <div>
-                    <li>
-                      <ButtonSecondary
-                        v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('delete')"
-                        icon="delete"
-                        @click.native="removeRequestHeader(index)"
-                      />
-                    </li>
-                  </div>
-                </ul>
-                <ul>
-                  <li>
-                    <ButtonSecondary
-                      icon="add"
-                      :label="$t('add_new')"
-                      @click.native="addRequestHeader"
-                    />
-                  </li>
-                </ul>
+                />
+                <input
+                  class="
+                    bg-primaryLight
+                    flex
+                    font-semibold
+                    flex-1
+                    text-xs
+                    py-3
+                    px-4
+                    focus:outline-none
+                  "
+                  :placeholder="$t('value_count', { count: index + 1 })"
+                  :name="`value ${index}`"
+                  :value="header.value"
+                  autofocus
+                  @change="
+                    $store.commit('setGQLHeaderValue', {
+                      index,
+                      value: $event.target.value,
+                    })
+                  "
+                />
+                <div>
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="
+                      header.hasOwnProperty('active')
+                        ? header.active
+                          ? $t('turn_off')
+                          : $t('turn_on')
+                        : $t('turn_off')
+                    "
+                    :icon="
+                      header.hasOwnProperty('active')
+                        ? header.active
+                          ? 'check_box'
+                          : 'check_box_outline_blank'
+                        : 'check_box'
+                    "
+                    @click.native="
+                      $store.commit('setActiveGQLHeader', {
+                        index,
+                        value: header.hasOwnProperty('active')
+                          ? !header.active
+                          : false,
+                      })
+                    "
+                  />
+                </div>
+                <div>
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('delete')"
+                    icon="delete"
+                    @click.native="removeRequestHeader(index)"
+                  />
+                </div>
               </div>
             </AppSection>
             <AppSection label="query">
@@ -212,7 +219,7 @@
               </div>
             </AppSection>
           </Pane>
-          <Pane class="overflow-auto">
+          <Pane class="overflow-auto hide-scrollbar">
             <AppSection ref="schema" label="schema">
               <div class="flex flex-1">
                 <label>{{ $t("schema") }}</label>

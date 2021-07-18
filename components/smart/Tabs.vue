@@ -62,7 +62,6 @@ export default {
 <style scoped lang="scss">
 .tabs {
   @apply flex;
-  @apply flex-1;
   @apply whitespace-nowrap;
   @apply overflow-auto;
   @apply bg-primary;

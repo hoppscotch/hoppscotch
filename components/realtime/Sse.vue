@@ -1,54 +1,55 @@
 <template>
-  <div>
-    <Splitpanes horizontal :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
-        <AppSection label="request">
-          <ul>
-            <li>
-              <label for="server">{{ $t("server") }}</label>
-              <input
-                id="server"
-                v-model="server"
-                type="url"
-                :class="{ error: !serverValid }"
-                class="input md:rounded-bl-lg"
-                :placeholder="$t('url')"
-                @keyup.enter="serverValid ? toggleSSEConnection() : null"
-              />
-            </li>
-            <div>
-              <li>
-                <ButtonSecondary
-                  id="start"
-                  :disabled="!serverValid"
-                  name="start"
-                  class="
-                    rounded-b-lg
-                    button
-                    md:rounded-bl-none md:rounded-br-lg
-                  "
-                  :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
-                  :label="!connectionSSEState ? $t('start') : $t('stop')"
-                  reverse
-                  @click.native="toggleSSEConnection"
-                />
-              </li>
-            </div>
-          </ul>
-        </AppSection>
-      </Pane>
-      <Pane class="overflow-auto">
-        <AppSection label="response">
-          <ul>
-            <li>
-              <RealtimeLog :title="$t('events')" :log="events.log" />
-              <div id="result"></div>
-            </li>
-          </ul>
-        </AppSection>
-      </Pane>
-    </Splitpanes>
-  </div>
+  <Splitpanes horizontal :dbl-click-splitter="false">
+    <Pane class="overflow-auto hide-scrollbar">
+      <AppSection label="request">
+        <div class="bg-primary flex p-4 top-0 z-10 sticky">
+          <div class="flex-1 inline-flex">
+            <input
+              id="server"
+              v-model="server"
+              type="url"
+              :class="{ error: !serverValid }"
+              class="
+                bg-primaryLight
+                border border-divider
+                rounded-l-lg
+                font-mono
+                text-secondaryDark
+                w-full
+                py-1
+                px-4
+                transition
+                truncate
+                focus:outline-none focus:border-accent
+              "
+              :placeholder="$t('url')"
+              @keyup.enter="serverValid ? toggleSSEConnection() : null"
+            />
+            <ButtonPrimary
+              id="start"
+              :disabled="!serverValid"
+              name="start"
+              class="rounded-l-none"
+              :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
+              :label="!connectionSSEState ? $t('start') : $t('stop')"
+              reverse
+              @click.native="toggleSSEConnection"
+            />
+          </div>
+        </div>
+      </AppSection>
+    </Pane>
+    <Pane class="overflow-auto hide-scrollbar">
+      <AppSection label="response">
+        <ul>
+          <li>
+            <RealtimeLog :title="$t('events')" :log="events.log" />
+            <div id="result"></div>
+          </li>
+        </ul>
+      </AppSection>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script>

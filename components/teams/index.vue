@@ -38,7 +38,7 @@
     <p v-if="myTeams.length === 0">
       <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
     </p>
-    <div v-else class="overflow-auto">
+    <div v-else class="overflow-auto hide-scrollbar">
       <ul class="flex-col">
         <li v-for="(team, index) in myTeams" :key="`team-${index}`">
           <TeamsTeam

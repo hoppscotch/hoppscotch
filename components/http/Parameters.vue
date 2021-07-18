@@ -13,7 +13,7 @@
         justify-between
       "
     >
-      <label for="paramList" class="font-semibold text-xs">
+      <label class="font-semibold text-xs">
         {{ $t("parameter_list") }}
       </label>
       <div>

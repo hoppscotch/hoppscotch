@@ -68,14 +68,15 @@
         :placeholder="$t('url')"
         @keyup.enter="newSendRequest()"
       />
-      <!-- <SmartUrlField v-else v-model="uri" /> -->
     </div>
+    <!-- <SmartUrlField v-else v-model="uri" /> -->
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-none font-bold"
+        class="rounded-none"
         :label="!loading ? $t('send') : $('cancel')"
         :shortcuts="[getSpecialKey(), 'G']"
+        outline
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="inline-flex">
@@ -88,7 +89,11 @@
           arrow
         >
           <template #trigger>
-            <ButtonPrimary class="rounded-l-none" icon="keyboard_arrow_down" />
+            <ButtonPrimary
+              class="rounded-l-none"
+              icon="keyboard_arrow_down"
+              outline
+            />
           </template>
           <SmartItem
             :label="$t('import_curl')"

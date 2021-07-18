@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="space-y-8">
+    <div class="divide-y divide-dividerLight space-y-8">
       <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
@@ -10,7 +10,7 @@
             Customize your account settings.
           </p>
         </div>
-        <div class="border border-divider rounded-lg p-8 md:col-span-2">
+        <div class="p-8 md:col-span-2">
           <div v-if="currentUser === null">
             <ButtonPrimary label="Log in" @click.native="showLogin = true" />
             <div class="mt-4 text-xs text-secondaryLight">
@@ -103,9 +103,7 @@
             Customize your application theme.
           </p>
         </div>
-        <div
-          class="border border-divider rounded-lg space-y-8 p-8 md:col-span-2"
-        >
+        <div class="space-y-8 p-8 md:col-span-2">
           <fieldset>
             <legend class="font-bold text-secondaryDark">
               {{ $t("background") }}
@@ -187,9 +185,7 @@
             Middleware between application and APIs.
           </p>
         </div>
-        <div
-          class="border border-divider rounded-lg space-y-8 p-8 md:col-span-2"
-        >
+        <div class="space-y-8 p-8 md:col-span-2">
           <fieldset>
             <legend class="font-bold text-secondaryDark">
               {{ $t("extensions") }}

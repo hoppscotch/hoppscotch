@@ -304,23 +304,31 @@ input[type="checkbox"] {
 }
 
 .toasted-container {
-  margin-bottom: 68px;
-
   .toasted {
-    justify-content: space-between !important;
+    &.toasted-primary {
+      @apply px-6;
+      @apply py-1;
+      @apply bg-tooltip;
+      @apply text-primary;
+      @apply text-xs;
+      @apply !font-semibold;
+
+      .material-icons {
+        @apply !text-md;
+      }
+
+      .action {
+        @apply transition;
+        @apply text-current;
+        @apply text-xs;
+        @apply hover:opacity-75;
+        @apply hover:no-underline;
+      }
+    }
 
     &.info {
-      background-color: var(--accent-color) !important;
-      color: var(--primary-color) !important;
-      font-weight: 700 !important;
-    }
-
-    &.bubble .action {
-      color: inherit !important;
-    }
-
-    .action {
-      margin-left: auto !important;
+      @apply !bg-accent;
+      @apply !text-primary;
     }
   }
 }

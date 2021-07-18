@@ -169,6 +169,14 @@
         </tippy>
       </span>
     </div>
+    <HttpImportCurl
+      :show="showCurlImportModal"
+      @hide-modal="showCurlImportModal = false"
+    />
+    <HttpCodegenModal
+      :show="showCodegenModal"
+      @hide-modal="showCodegenModal = false"
+    />
   </div>
 </template>
 

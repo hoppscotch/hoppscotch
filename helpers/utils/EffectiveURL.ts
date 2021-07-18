@@ -14,6 +14,30 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
 }
 
 /**
+ * Outputs an executable request format with environment variables applied
+ *
+ * @param request The request to source from
+ * @param environment The environment to apply
+ *
+ * @returns An object with extra fields defining a complete request
+ */
+export function getEffectiveRESTRequest(
+  request: HoppRESTRequest,
+  _environment: Environment
+) {
+  // TODO: Change this
+  return {
+    ...request,
+    effectiveFinalURL: request.endpoint,
+    effectiveFinalHeaders: request.headers.filter(
+      (x) =>
+        x.key !== "" && // Remove empty keys
+        x.active // Only active
+    ),
+  }
+}
+
+/**
  * Creates an Observable Stream that emits HoppRESTRequests whenever
  * the input streams emit a value
  *
@@ -27,17 +51,8 @@ export function getEffectiveRESTRequestStream(
   environment$: Observable<Environment>
 ): Observable<EffectiveHoppRESTRequest> {
   return combineLatest([request$, environment$]).pipe(
-    map(([request, _env]) => {
-      // TODO: Change this
-      return {
-        ...request,
-        effectiveFinalURL: request.endpoint,
-        effectiveFinalHeaders: request.headers.filter(
-          (x) =>
-            x.key !== "" && // Remove empty keys
-            x.active // Only active
-        ),
-      }
+    map(([request, env]) => {
+      return getEffectiveRESTRequest(request, env)
     })
   )
 }

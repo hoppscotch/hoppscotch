@@ -8,7 +8,7 @@ import parser from "yargs-parser"
  * output this: 'msg1=value1&msg2=value2'
  * @param dataArguments
  */
-const joinDataArguments = (dataArguments) => {
+const joinDataArguments = (dataArguments: string[]) => {
   let data = ""
   dataArguments.forEach((argument, i) => {
     if (i === 0) {
@@ -20,7 +20,49 @@ const joinDataArguments = (dataArguments) => {
   return data
 }
 
-const parseCurlCommand = (curlCommand) => {
+const parseDataFromArguments = (parsedArguments: any) => {
+  if (parsedArguments.data) {
+    return {
+      data: Array.isArray(parsedArguments.data)
+        ? joinDataArguments(parsedArguments.data)
+        : parsedArguments.data,
+      dataArray: Array.isArray(parsedArguments.data)
+        ? parsedArguments.data
+        : null,
+      isDataBinary: false,
+    }
+  } else if (parsedArguments["data-binary"]) {
+    return {
+      data: Array.isArray(parsedArguments["data-binary"])
+        ? joinDataArguments(parsedArguments["data-binary"])
+        : parsedArguments["data-binary"],
+      dataArray: Array.isArray(parsedArguments["data-binary"])
+        ? parsedArguments["data-binary"]
+        : null,
+      isDataBinary: true,
+    }
+  } else if (parsedArguments.d) {
+    return {
+      data: Array.isArray(parsedArguments.d)
+        ? joinDataArguments(parsedArguments.d)
+        : parsedArguments.d,
+      dataArray: Array.isArray(parsedArguments.d) ? parsedArguments.d : null,
+      isDataBinary: false,
+    }
+  } else if (parsedArguments["data-ascii"]) {
+    return {
+      data: Array.isArray(parsedArguments["data-ascii"])
+        ? joinDataArguments(parsedArguments["data-ascii"])
+        : parsedArguments["data-ascii"],
+      dataArray: Array.isArray(parsedArguments["data-ascii"])
+        ? parsedArguments["data-ascii"]
+        : null,
+      isDataBinary: false,
+    }
+  }
+}
+
+const parseCurlCommand = (curlCommand: string) => {
   const newlineFound = /\\/gi.test(curlCommand)
   if (newlineFound) {
     // remove '\' and newlines
@@ -47,9 +89,9 @@ const parseCurlCommand = (curlCommand) => {
       }
     }
   }
-  let headers
+  let headers: any
 
-  const parseHeaders = (headerFieldName) => {
+  const parseHeaders = (headerFieldName: string) => {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {}
@@ -57,7 +99,7 @@ const parseCurlCommand = (curlCommand) => {
       if (!Array.isArray(parsedArguments[headerFieldName])) {
         parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]]
       }
-      parsedArguments[headerFieldName].forEach((header) => {
+      parsedArguments[headerFieldName].forEach((header: string) => {
         if (header.includes("Cookie")) {
           // stupid javascript tricks: closure
           cookieString = header
@@ -91,13 +133,12 @@ const parseCurlCommand = (curlCommand) => {
   if (parsedArguments.cookie) {
     cookieString = parsedArguments.cookie
   }
-  let multipartUploads
+  const multipartUploads: Record<string, string> = {}
   if (parsedArguments.F) {
-    multipartUploads = {}
     if (!Array.isArray(parsedArguments.F)) {
       parsedArguments.F = [parsedArguments.F]
     }
-    parsedArguments.F.forEach((multipartArgument) => {
+    parsedArguments.F.forEach((multipartArgument: string) => {
       // input looks like key=value. value could be json or a file path prepended with an @
       const [key, value] = multipartArgument.split("=", 2)
       multipartUploads[key] = value
@@ -105,7 +146,7 @@ const parseCurlCommand = (curlCommand) => {
   }
   if (cookieString) {
     const cookieParseOptions = {
-      decode: (s) => s,
+      decode: (s: any) => s,
     }
     // separate out cookie headers into separate data structure
     // note: cookie is case insensitive
@@ -169,7 +210,7 @@ const parseCurlCommand = (curlCommand) => {
       delete parsedArguments[option]
     }
   }
-  const query = querystring.parse(urlObject.query, null, null, {
+  const query = querystring.parse(urlObject.query!, null as any, null as any, {
     maxKeys: 10000,
   })
 
@@ -177,51 +218,18 @@ const parseCurlCommand = (curlCommand) => {
   const request = {
     url,
     urlWithoutQuery: URL.format(urlObject),
-  }
-  if (compressed) {
-    request.compressed = true
-  }
-
-  if (Object.keys(query).length > 0) {
-    request.query = query
-  }
-  if (headers) {
-    request.headers = headers
-  }
-  request.method = method
-
-  if (cookies) {
-    request.cookies = cookies
-    request.cookieString = cookieString.replace("Cookie: ", "")
-  }
-  if (multipartUploads) {
-    request.multipartUploads = multipartUploads
-  }
-  if (parsedArguments.data) {
-    request.data = parsedArguments.data
-  } else if (parsedArguments["data-binary"]) {
-    request.data = parsedArguments["data-binary"]
-    request.isDataBinary = true
-  } else if (parsedArguments.d) {
-    request.data = parsedArguments.d
-  } else if (parsedArguments["data-ascii"]) {
-    request.data = parsedArguments["data-ascii"]
+    compressed,
+    query,
+    headers,
+    method,
+    cookies,
+    cookieString: cookieString?.replace("Cookie: ", ""),
+    multipartUploads,
+    ...parseDataFromArguments(parsedArguments),
+    auth: parsedArguments.u,
+    user: parsedArguments.user,
   }
 
-  if (parsedArguments.u) {
-    request.auth = parsedArguments.u
-  }
-  if (parsedArguments.user) {
-    request.auth = parsedArguments.user
-  }
-  if (Array.isArray(request.data)) {
-    request.dataArray = request.data
-    request.data = joinDataArguments(request.data)
-  }
-
-  if (parsedArguments.k || parsedArguments.insecure) {
-    request.insecure = true
-  }
   return request
 }
 

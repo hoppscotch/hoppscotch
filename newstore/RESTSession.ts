@@ -304,6 +304,10 @@ const dispatchers = defineDispatchers({
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
 
+export function getRESTRequest() {
+  return restSessionStore.subject$.value.request
+}
+
 export function setRESTRequest(req: HoppRESTRequest) {
   restSessionStore.dispatch({
     dispatcher: "setRequest",

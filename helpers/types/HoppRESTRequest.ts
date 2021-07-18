@@ -21,6 +21,15 @@ export interface HoppRESTRequest {
   headers: HoppRESTHeader[]
 }
 
+export function makeRESTRequest(
+  x: Omit<HoppRESTRequest, "v">
+): HoppRESTRequest {
+  return {
+    ...x,
+    v: RESTReqSchemaVersion,
+  }
+}
+
 export function isHoppRESTRequest(x: any): x is HoppRESTRequest {
   return x && typeof x === "object" && "v" in x
 }

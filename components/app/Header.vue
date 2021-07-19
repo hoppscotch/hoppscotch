@@ -74,10 +74,7 @@
           <template #trigger>
             <TabPrimary
               v-tippy="{ theme: 'tooltip' }"
-              :title="
-                $t('more') +
-                `<kbd class='shortcut'>${getSpecialKey()}</kbd><kbd class='shortcut'>M</kbd>`
-              "
+              :title="$t('more')"
               icon="drag_indicator"
             />
           </template>

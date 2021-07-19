@@ -171,6 +171,17 @@
                   {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="SHORTCUTS_INDICATOR_ENABLED"
+                  @change="toggleSetting('SHORTCUTS_INDICATOR_ENABLED')"
+                >
+                  {{ $t("shortcuts_indicator") }}
+                  {{
+                    SHORTCUTS_INDICATOR_ENABLED ? $t("enabled") : $t("disabled")
+                  }}
+                </SmartToggle>
+              </div>
             </div>
           </fieldset>
         </div>
@@ -332,6 +343,8 @@ export default Vue.extend({
       confirmRemove: false,
 
       TELEMETRY_ENABLED: null,
+
+      SHORTCUTS_INDICATOR_ENABLED: null,
     }
   },
   subscriptions() {
@@ -353,6 +366,9 @@ export default Vue.extend({
       SYNC_HISTORY: getSettingSubject("syncHistory"),
 
       TELEMETRY_ENABLED: getSettingSubject("TELEMETRY_ENABLED"),
+      SHORTCUTS_INDICATOR_ENABLED: getSettingSubject(
+        "SHORTCUTS_INDICATOR_ENABLED"
+      ),
 
       currentUser: currentUser$,
     }

@@ -42,6 +42,7 @@ export type SettingsType = {
   THEME_COLOR: HoppAccentColor
   BG_COLOR: HoppBgColor
   TELEMETRY_ENABLED: boolean
+  SHORTCUTS_INDICATOR_ENABLED: boolean
 }
 
 export const defaultSettings: SettingsType = {
@@ -64,6 +65,7 @@ export const defaultSettings: SettingsType = {
   THEME_COLOR: "green",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
+  SHORTCUTS_INDICATOR_ENABLED: false,
 }
 
 const validKeys = Object.keys(defaultSettings)

@@ -53,7 +53,7 @@
         class="svg-icons"
       />
       {{ label }}
-      <div v-if="shortcuts.length" class="ml-2">
+      <div v-if="shortcuts.length && SHORTCUTS_INDICATOR_ENABLED" class="ml-2">
         <kbd
           v-for="(key, index) in shortcuts"
           :key="`key-${index}`"
@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import { getSettingSubject } from "~/newstore/settings"
+
 export default {
   props: {
     to: {
@@ -134,6 +136,18 @@ export default {
       type: Array,
       default: () => [],
     },
+  },
+  data() {
+    return {
+      SHORTCUTS_INDICATOR_ENABLED: null,
+    }
+  },
+  subscriptions() {
+    return {
+      SHORTCUTS_INDICATOR_ENABLED: getSettingSubject(
+        "SHORTCUTS_INDICATOR_ENABLED"
+      ),
+    }
   },
 }
 </script>

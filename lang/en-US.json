@@ -346,5 +346,6 @@
   "interceptor": "Interceptor",
   "profile": "Profile",
   "are_you_sure_logout": "Are you sure you want to logout?",
-  "telemetry": "Telemetry"
+  "telemetry": "Telemetry",
+  "shortcuts_indicator": "Shortcuts indicator"
 }

@@ -35,7 +35,7 @@
                     focus:outline-none
                   "
                 >
-                  {{ codegens.find((x) => x.id === requestType).name }}
+                  {{ codegens.find((x) => x.id === codegenType).name }}
                 </span>
               </template>
               <SmartItem
@@ -43,7 +43,7 @@
                 :key="`gen-${index}`"
                 :label="gen.name"
                 @click.native="
-                  requestType = gen.id
+                  codegenType = gen.id
                   $refs.options.tippy().hide()
                 "
               />
@@ -66,10 +66,10 @@
           />
         </div>
         <SmartAceEditor
-          v-if="requestType"
+          v-if="codegenType"
           ref="generatedCode"
           :value="requestCode"
-          :lang="codegens.find((x) => x.id === requestType).language"
+          :lang="codegens.find((x) => x.id === codegenType).language"
           :options="{
             maxLines: '10',
             minLines: '10',
@@ -96,23 +96,46 @@ import { getCurrentEnvironment } from "~/newstore/environments"
 export default defineComponent({
   props: {
     show: Boolean,
-    requestTypeProp: { type: String, default: "curl" },
   },
   data() {
     return {
       codegens,
       copyIcon: "content_copy",
       request: getRESTRequest(),
+      codegenType: "curl",
     }
   },
   computed: {
-    requestType: {
-      get(): string {
-        return this.requestTypeProp
-      },
-      set(val: string) {
-        this.$emit("set-request-type", val)
-      },
+    requestCode(): string {
+      const effectiveRequest = getEffectiveRESTRequest(
+        this.request,
+        getCurrentEnvironment()
+      )
+
+      const urlObj = new URL(effectiveRequest.effectiveFinalURL)
+      const baseURL = urlObj.origin
+      const path = urlObj.pathname
+
+      // TODO: Solidify
+      return codegens
+        .find((x) => x.id === this.codegenType)!
+        .generator({
+          auth: "None",
+          httpUser: null,
+          httpPassword: null,
+          method: effectiveRequest.method,
+          url: baseURL,
+          pathName: path,
+          queryString: urlObj.searchParams.toString(),
+          bearerToken: null,
+          headers: effectiveRequest.effectiveFinalHeaders,
+          rawInput: null,
+          rawParams: null,
+          rawRequestBody: "",
+          contentType: effectiveRequest.effectiveFinalHeaders.find(
+            (x) => x.key === "content-type"
+          ),
+        })
     },
   },
   watch: {
@@ -123,9 +146,6 @@ export default defineComponent({
     },
   },
   methods: {
-    requestCode() {
-      return getEffectiveRESTRequest(this.request, getCurrentEnvironment())
-    },
     hideModal() {
       this.$emit("hide-modal")
     },
@@ -133,15 +153,16 @@ export default defineComponent({
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      ;(this.$refs.generatedCode as any).editor
-        .selectAll()(this.$refs.generatedCode as any)
-        .editor.focus()
+      const editor: any = this.$refs.generatedCode
+
+      editor.editor.selectAll()
+      editor.editor.focus()
+
       document.execCommand("copy")
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard").toString(), {
         icon: "done",
       })
-      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
 })

@@ -448,20 +448,6 @@
       :editing-request="editRequest"
     />
 
-    <HttpImportCurl
-      :show="showCurlImportModal"
-      @hide-modal="showCurlImportModal = false"
-      @handle-import="handleImport"
-    />
-
-    <HttpCodegenModal
-      :show="showCodegenModal"
-      :requestTypeProp="requestType"
-      :requestCode="requestCode"
-      @hide-modal="showCodegenModal = false"
-      @set-request-type="setRequestType"
-    />
-
     <HttpTokenList
       :show="showTokenListModal"
       :tokens="tokens"
@@ -556,7 +542,6 @@ import "splitpanes/dist/splitpanes.css"
 
 import url from "url"
 import querystring from "querystring"
-import parseCurlCommand from "~/helpers/curlparser"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
@@ -1065,41 +1050,6 @@ export default {
         .join("&")
       return result === "" ? "" : `?${result}`
     },
-    requestCode() {
-      let headers = []
-      if (this.preRequestScript || hasPathParams(this.params)) {
-        let environmentVariables = getEnvironmentVariablesFromScript(
-          this.preRequestScript
-        )
-        environmentVariables = addPathParamsToVariables(
-          this.params,
-          environmentVariables
-        )
-        for (let k of this.headers.filter((item) =>
-          item.hasOwnProperty("active") ? item.active == true : true
-        )) {
-          const kParsed = parseTemplateString(k.key, environmentVariables)
-          const valParsed = parseTemplateString(k.value, environmentVariables)
-          headers.push({ key: kParsed, value: valParsed })
-        }
-      }
-
-      return generateCodeWithGenerator(this.requestType, {
-        auth: this.auth,
-        method: this.method,
-        url: this.url,
-        pathName: this.pathName,
-        queryString: this.queryString,
-        httpUser: this.httpUser,
-        httpPassword: this.httpPassword,
-        bearerToken: this.bearerToken,
-        headers,
-        rawInput: this.rawInput,
-        rawParams: this.rawParams,
-        rawRequestBody: this.rawRequestBody,
-        contentType: this.contentType,
-      })
-    },
     tokenReqDetails() {
       const details = {
         oidcDiscoveryUrl: this.oidcDiscoveryUrl,
@@ -1591,48 +1541,6 @@ export default {
         } else if (typeof this[key] === "string") {
           this[key] = queries[key]
         }
-      }
-    },
-    handleImport() {
-      const { value: text } = document.getElementById("import-curl")
-      try {
-        const parsedCurl = parseCurlCommand(text)
-        const { origin, pathname } = new URL(
-          parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
-        )
-        this.url = origin
-        this.path = pathname
-        this.uri = this.url + this.path
-        this.headers = []
-        if (parsedCurl.query) {
-          for (const key of Object.keys(parsedCurl.query)) {
-            this.$store.commit("addParams", {
-              key,
-              value: parsedCurl.query[key],
-              type: "query",
-              active: true,
-            })
-          }
-        }
-        if (parsedCurl.headers) {
-          for (const key of Object.keys(parsedCurl.headers)) {
-            this.$store.commit("addHeaders", {
-              key,
-              value: parsedCurl.headers[key],
-            })
-          }
-        }
-        this.method = parsedCurl.method.toUpperCase()
-        if (parsedCurl["data"]) {
-          this.rawInput = true
-          this.rawParams = parsedCurl["data"]
-        }
-        this.showCurlImportModal = false
-      } catch (error) {
-        this.showCurlImportModal = false
-        this.$toast.error(this.$t("curl_invalid_format"), {
-          icon: "error",
-        })
       }
     },
     switchVisibility() {

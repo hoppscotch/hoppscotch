@@ -1,3 +1,4 @@
+import { HoppRESTHeader, HoppRESTParam } from "../types/HoppRESTRequest"
 import { CLibcurlCodegen } from "./generators/c-libcurl"
 import { CsRestsharpCodegen } from "./generators/cs-restsharp"
 import { CurlCodegen } from "./generators/curl"
@@ -54,7 +55,30 @@ export const codegens = [
   ShellWgetCodegen,
 ]
 
-export function generateCodeWithGenerator(codegenID, context) {
+export type HoppCodegenContext = {
+  name: string
+  method: string
+  uri: string
+  url: string
+  pathName: string
+  auth: any // TODO: Change this
+  httpUser: string | null
+  httpPassword: string | null
+  bearerToken: string | null
+  headers: HoppRESTHeader[]
+  params: HoppRESTParam[]
+  bodyParams: any // TODO: Change this
+  rawParams: string | null
+  rawInput: boolean
+  rawRequestBody: any
+  contentType: string
+  queryString: string
+}
+
+export function generateCodeWithGenerator(
+  codegenID: string,
+  context: HoppCodegenContext
+) {
   if (codegenID) {
     const gen = codegens.find(({ id }) => id === codegenID)
     return gen ? gen.generator(context) : ""

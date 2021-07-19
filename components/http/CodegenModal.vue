@@ -86,32 +86,46 @@
   </SmartModal>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import { codegens } from "~/helpers/codegen/codegen"
+import { getRESTRequest } from "~/newstore/RESTSession"
+import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
+import { getCurrentEnvironment } from "~/newstore/environments"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
-    requestCode: { type: String, default: null },
     requestTypeProp: { type: String, default: "curl" },
   },
   data() {
     return {
       codegens,
       copyIcon: "content_copy",
+      request: getRESTRequest(),
     }
   },
   computed: {
     requestType: {
-      get() {
+      get(): string {
         return this.requestTypeProp
       },
-      set(val) {
+      set(val: string) {
         this.$emit("set-request-type", val)
       },
     },
   },
+  watch: {
+    show(goingToShow) {
+      if (goingToShow) {
+        this.request = getRESTRequest()
+      }
+    },
+  },
   methods: {
+    requestCode() {
+      return getEffectiveRESTRequest(this.request, getCurrentEnvironment())
+    },
     hideModal() {
       this.$emit("hide-modal")
     },
@@ -119,15 +133,16 @@ export default {
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      this.$refs.generatedCode.editor.selectAll()
-      this.$refs.generatedCode.editor.focus()
+      ;(this.$refs.generatedCode as any).editor
+        .selectAll()(this.$refs.generatedCode as any)
+        .editor.focus()
       document.execCommand("copy")
       this.copyIcon = "done"
-      this.$toast.success(this.$t("copied_to_clipboard"), {
+      this.$toast.success(this.$t("copied_to_clipboard").toString(), {
         icon: "done",
       })
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
-}
+})
 </script>

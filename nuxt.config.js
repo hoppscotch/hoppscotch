@@ -127,6 +127,8 @@ export default {
     "@nuxt/typescript-build",
     // https://github.com/nuxt-community/dotenv-module
     "@nuxtjs/dotenv",
+    // https://github.com/nuxt-community/composition-api
+    "@nuxtjs/composition-api/module",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)

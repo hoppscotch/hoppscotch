@@ -144,20 +144,22 @@
       class="overflow-auto hide-scrollbar"
     >
       <AppSection label="messages">
-        <label for="websocket-message" class="font-semibold text-xs">
-          {{ $t("message") }}
-        </label>
-        <input
-          id="websocket-message"
-          v-model="communication.input"
-          name="message"
-          type="text"
-          :readonly="!connectionState"
-          class="input md:rounded-bl-lg"
-          @keyup.enter="connectionState ? sendMessage() : null"
-          @keyup.up="connectionState ? walkHistory('up') : null"
-          @keyup.down="connectionState ? walkHistory('down') : null"
-        />
+        <div class="flex flex-col flex-1 p-4 inline-flex">
+          <label for="websocket-message" class="font-semibold text-xs pb-4">
+            {{ $t("message") }}
+          </label>
+          <input
+            id="websocket-message"
+            v-model="communication.input"
+            name="message"
+            type="text"
+            :readonly="!connectionState"
+            class="input"
+            @keyup.enter="connectionState ? sendMessage() : null"
+            @keyup.up="connectionState ? walkHistory('up') : null"
+            @keyup.down="connectionState ? walkHistory('down') : null"
+          />
+        </div>
         <div>
           <ButtonSecondary
             id="send"

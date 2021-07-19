@@ -16,11 +16,11 @@
       color
         ? `text-${color}-800 bg-${color}-200 hover:text-${color}-900 hover:bg-${color}-300 focus:text-${color}-900 focus:bg-${color}-300`
         : `text-white bg-accent hover:bg-accentDark focus:bg-accentDark`,
-      label ? 'px-3' : 'px-2',
+      label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded-lg',
       { 'opacity-50 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
-      { 'px-4 py-4 text-lg': large },
+      { 'px-6 py-4 text-lg': large },
       { 'shadow-lg hover:shadow-xl': shadow },
       {
         'text-white bg-gradient-to-tr from-gradientFrom via-gradientVia to-gradientTo':

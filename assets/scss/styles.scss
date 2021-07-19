@@ -177,6 +177,7 @@ hr {
 .input,
 .select {
   @apply flex;
+  @apply flex-1;
   @apply w-full;
   @apply px-4;
   @apply py-2;
@@ -184,7 +185,9 @@ hr {
   @apply truncate;
   @apply rounded-lg;
   @apply font-semibold;
-  @apply border-2;
+  @apply font-mono;
+  @apply text-xs;
+  @apply border;
   @apply border-divider;
   @apply transition;
   @apply focus:outline-none;

@@ -19,12 +19,13 @@ export default {
   data() {
     return {
       primaryNavigation: [
-        { target: "index", icon: "home", title: "Home" },
+        { target: "index", icon: "apps", title: "App" },
         { target: "realtime", icon: "language", title: "Realtime" },
         { target: "graphql", icon: "code", title: "GraphQL" },
-        { target: "doc", icon: "book", title: "Docs" },
+        { target: "documentation", icon: "book", title: "Doc" },
         { target: "profile", icon: "person", title: "Profile" },
         { target: "settings", icon: "settings", title: "Settings" },
+        { target: "home", icon: "home", title: "Home" },
       ],
     }
   },

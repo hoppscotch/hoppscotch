@@ -10,23 +10,38 @@
       :animate-fill="false"
     >
       <template #trigger>
-        <TabPrimary
+        <SmartLink
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('choose_language')"
-          :label="`${
-            $i18n.locales.find(({ code }) => code == $i18n.locale).country
-          } ${$i18n.locales.find(({ code }) => code == $i18n.locale).name}`"
-        />
+          class="font-medium focus:outline-none"
+        >
+          {{ `${$i18n.locales.find(({ code }) => code == $i18n.locale).name}` }}
+        </SmartLink>
       </template>
-      <SmartItem
+      <nuxt-link
         v-for="(locale, index) in $i18n.locales.filter(
           ({ code }) => code !== $i18n.locale
         )"
         :key="`locale-${index}`"
-        :to="switchLocalePath(locale.code).toString()"
-        :label="`${locale.country} ${locale.name}`"
-        @click.native="$refs.language.tippy().hide()"
-      />
+        :to="switchLocalePath(locale.code)"
+        @click="$refs.language.tippy().hide()"
+      >
+        <SmartItem
+          :label="`${getFlagEmoji(locale.country)} \xA0 ${locale.name}`"
+        />
+      </nuxt-link>
     </tippy>
   </span>
 </template>
+
+<script>
+export default {
+  methods: {
+    getFlagEmoji(c) {
+      return String.fromCodePoint(
+        ...[...c.toUpperCase()].map((x) => 0x1f1a5 + x.charCodeAt())
+      )
+    },
+  },
+}
+</script>

@@ -41,32 +41,32 @@ export default {
       ctas: [
         {
           icon: "layers",
-          title: "API Documentation",
+          title: "Feature",
           description:
             "Get up and running with Kooli in as little as 10 minutes.",
           link: {
-            title: "API reference",
-            target: "https://docs.kooli.tech/api",
+            title: "Feature",
+            target: "https://docs.hoppscotch.io/api",
           },
         },
         {
           icon: "local_library",
-          title: "Guides",
+          title: "Feature",
           description:
             "Explore and start integrating Kooli's products and tools.",
           link: {
-            title: "Guides and resources",
-            target: "https://docs.kooli.tech/guides",
+            title: "Feature",
+            target: "https://docs.hoppscotch.io/guides",
           },
         },
         {
           icon: "local_library",
-          title: "Guides",
+          title: "Feature",
           description:
             "Explore and start integrating Kooli's products and tools.",
           link: {
-            title: "Guides and resources",
-            target: "https://docs.kooli.tech/guides",
+            title: "Feature",
+            target: "https://docs.hoppscotch.io/guides",
           },
         },
       ],

@@ -38,7 +38,7 @@
           svg="github"
           large
           rounded
-          :shortcuts="['30k']"
+          :shortcuts="['30k Stars']"
         />
       </div>
       <LandingStats />

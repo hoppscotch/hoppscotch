@@ -28,7 +28,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .collection {
   @apply flex flex-col flex-1;
   @apply justify-center;

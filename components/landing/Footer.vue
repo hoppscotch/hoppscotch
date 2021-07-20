@@ -154,13 +154,12 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .footer-nav {
+  @apply px-2 py-1;
+  @apply -mx-2 -my-1;
   @apply text-xs;
-
-  &:hover,
-  &:focus {
-    @apply text-secondaryDark;
-  }
+  @apply hover:text-secondaryDark;
+  @apply focus:text-secondaryDark;
 }
 </style>

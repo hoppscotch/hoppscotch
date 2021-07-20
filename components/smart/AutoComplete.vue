@@ -197,8 +197,7 @@ export default {
 <style scoped lang="scss">
 .autocomplete-wrapper {
   @apply relative;
-  @apply flex;
-  @apply flex-1;
+  @apply flex flex-1;
 
   input:focus + ul.suggestions,
   ul.suggestions:hover {

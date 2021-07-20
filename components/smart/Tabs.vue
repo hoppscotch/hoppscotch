@@ -78,11 +78,11 @@ export default {
   }
 
   .tab {
+    @apply relative;
     @apply flex;
     @apply items-center;
     @apply justify-center;
-    @apply px-4;
-    @apply py-3;
+    @apply px-4 py-3;
     @apply text-secondary;
     @apply font-semibold;
     @apply text-xs;
@@ -91,7 +91,6 @@ export default {
     @apply hover:text-secondaryDark;
     @apply focus:text-secondaryDark;
     @apply focus:outline-none;
-    @apply relative;
 
     .tab-info {
       @apply inline-flex;

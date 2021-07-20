@@ -29,9 +29,9 @@ $activeColor: var(--accent-color);
 $inactiveColor: var(--divider-dark-color);
 $inactiveHandleColor: var(--primary-color);
 $activeHandleColor: var(--primary-color);
-$width: 32px;
-$height: 16px;
-$handleSpacing: 4px;
+$width: 2rem;
+$height: 1rem;
+$handleSpacing: 0.25rem;
 $transition: all 0.2s ease-in-out;
 
 .toggle {

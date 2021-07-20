@@ -123,11 +123,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.teal.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.teal.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.teal.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.teal.600");
 }
 
 @mixin indigoTheme {
@@ -138,11 +138,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.indigo.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.indigo.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.indigo.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.indigo.600");
 }
 
 @mixin purpleTheme {
@@ -153,11 +153,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.purple.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.purple.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.purple.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.purple.600");
 }
 
 @mixin orangeTheme {
@@ -168,11 +168,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.orange.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.orange.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.orange.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.orange.600");
 }
 
 @mixin pinkTheme {
@@ -183,11 +183,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.pink.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.pink.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.pink.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.pink.600");
 }
 
 @mixin redTheme {
@@ -198,11 +198,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.red.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.red.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.red.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.red.600");
 }
 
 @mixin yellowTheme {
@@ -213,11 +213,11 @@
   // Dark Accent color
   --accent-dark-color: theme("colors.yellow.600");
   // Gradient from
-  --gradient-from-color: theme("colors.blue.200");
+  --gradient-from-color: theme("colors.yellow.200");
   // Gradient via
-  --gradient-via-color: theme("colors.blue.400");
+  --gradient-via-color: theme("colors.yellow.400");
   // Gradient to
-  --gradient-to-color: theme("colors.blue.600");
+  --gradient-to-color: theme("colors.yellow.600");
 }
 
 :root {

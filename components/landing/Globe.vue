@@ -9,6 +9,26 @@ import TrackballControls from "three-trackballcontrols"
 import geojson from "~/assets/geojson/ne_110m_admin_0_countries.geojson"
 import texture from "~/assets/images/texture.png"
 
+const COLORS = [
+  "#f43f5e",
+  "#ec4899",
+  "#d946ef",
+  "#a855f7",
+  "#8b5cf6",
+  "#6366f1",
+  "#3b82f6",
+  "#0ea5e9",
+  "#06b6d4",
+  "#14b8a6",
+  "#10b981",
+  "#22c55e",
+  "#84cc16",
+  "#eab308",
+  "#f59e0b",
+  "#f97316",
+  "#ef4444",
+]
+
 export default {
   data() {
     return {
@@ -17,18 +37,14 @@ export default {
       scene: null,
       camera: null,
       tbControls: null,
-      arcsData: [...Array(20).keys()].map(() => ({
-        startLat: (Math.random() - 0.5) * 180,
-        startLng: (Math.random() - 0.5) * 360,
-        endLat: (Math.random() - 0.5) * 180,
+      arcsData: [...Array(16).keys()].map(() => ({
+        startLat: (Math.random() - 0.5) * 90,
+        startLng: (Math.random() - 0.5) * 180,
+        endLat: (Math.random() - 0.5) * 270,
         endLng: (Math.random() - 0.5) * 360,
         color: [
-          ["#00acee", "#aceeff", "#00ffac", "#aaef3e"][
-            Math.round(Math.random() * 3)
-          ],
-          ["#00acee", "#aceeff", "#00ffac", "#aaef3e"][
-            Math.round(Math.random() * 3)
-          ],
+          COLORS[Math.round(Math.random() * 16)],
+          COLORS[Math.round(Math.random() * 16)],
         ],
       })),
     }
@@ -47,7 +63,9 @@ export default {
               lat,
               lng,
               color: color[edgeIdx],
-              text: `${linkIdx} ${edgeIdx ? "tgt" : "src"}`,
+              text: `#${linkIdx} ${
+                edgeIdx ? "response" : "request"
+              } ${Math.random().toString(36).substring(7)}`,
             })
           )
       )

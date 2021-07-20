@@ -35,13 +35,12 @@ export default {
 <style scoped lang="scss">
 .nav-link {
   @apply p-4;
-  @apply flex-col;
-  @apply flex-1;
-  @apply hover:bg-primaryDark;
-  @apply hover:text-secondaryDark;
+  @apply flex flex-col flex-1;
   @apply items-center;
   @apply justify-center;
   @apply transition;
+  @apply hover:bg-primaryDark;
+  @apply hover:text-secondaryDark;
 
   .material-icons {
     @apply transition-opacity;

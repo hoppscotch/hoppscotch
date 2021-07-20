@@ -15,17 +15,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-divider;
+  @apply bg-divider bg-clip-content;
   @apply rounded-full;
-  @apply border-solid;
-  @apply border-4;
-  @apply border-transparent;
-  @apply bg-clip-content;
-
-  &:hover {
-    @apply bg-dividerDark;
-    @apply bg-clip-content;
-  }
+  @apply border-solid border-4 border-transparent;
+  @apply hover:(bg-dividerDark bg-clip-content);
 }
 
 ::-webkit-scrollbar {
@@ -53,8 +46,7 @@ html {
 
 body {
   @apply bg-primary;
-  @apply text-secondary;
-  @apply !text-sm;
+  @apply text-secondary !text-sm;
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
@@ -73,7 +65,8 @@ body {
 }
 
 .fade-enter,
-.fade-leave-to .page-enter,
+.fade-leave-to,
+.page-enter,
 .page-leave-to,
 .layout-enter,
 .layout-leave-to {
@@ -96,26 +89,25 @@ a {
   @apply text-current;
   @apply no-underline;
   @apply outline-none;
-  @apply focus-visible:ring;
-  @apply focus-visible:ring-inset;
-  @apply focus-visible:ring-accent;
+  @apply rounded-lg;
+  @apply focus-visible:(ring ring-inset ring-accent);
+  @apply transition;
 
   &.link {
     @apply items-center;
+    @apply px-2 py-1;
+    @apply -mx-2 -my-1;
     @apply text-accent;
-    @apply hover:text-accent;
-    @apply focus:text-accent;
+    @apply hover:text-accentDark;
   }
 }
 
 .tippy-popper {
   .tooltip-theme {
     @apply bg-tooltip;
-    @apply text-primaryLight;
-    @apply text-xs;
+    @apply text-primaryLight text-xs;
     @apply font-semibold;
-    @apply py-1;
-    @apply px-2;
+    @apply py-1 px-2;
     @apply shadow;
 
     kbd {
@@ -139,59 +131,51 @@ a {
   }
 
   &[x-placement^="top"] .tippy-tooltip .tippy-arrow {
-    border-top-color: var(--primary-color);
+    @apply border-t-primary;
   }
 
   &[x-placement^="bottom"] .tippy-tooltip .tippy-arrow {
-    border-bottom-color: var(--primary-color);
+    @apply border-b-primary;
   }
 
   &[x-placement^="left"] .tippy-tooltip .tippy-arrow {
-    border-left-color: var(--primary-color);
+    @apply border-l-primary;
   }
 
   &[x-placement^="right"] .tippy-tooltip .tippy-arrow {
-    border-right-color: var(--primary-color);
+    @apply border-r-primary;
   }
 }
 
 .tippy-content > div {
-  @apply flex;
-  @apply flex-col;
+  @apply flex flex-col;
   @apply max-h-64;
-  @apply overflow-y-auto;
   @apply items-stretch;
+  @apply overflow-y-auto;
 }
 
 hr {
-  @apply border-b;
-  @apply border-dividerLight;
+  @apply border-b border-dividerLight;
 }
 
 .heading {
   @apply font-bold;
-  @apply text-secondaryDark;
-  @apply text-lg;
+  @apply text-secondaryDark text-lg;
 }
 
 .input,
 .select {
-  @apply flex;
-  @apply flex-1;
+  @apply flex flex-1;
   @apply w-full;
-  @apply px-4;
-  @apply py-2;
+  @apply px-4 py-2;
   @apply bg-primary;
   @apply truncate;
   @apply rounded-lg;
-  @apply font-semibold;
-  @apply font-mono;
+  @apply font-semibold font-mono;
   @apply text-xs;
-  @apply border;
-  @apply border-divider;
+  @apply border border-divider;
   @apply transition;
-  @apply focus:outline-none;
-  @apply focus:border-accent;
+  @apply focus:(outline-none border-accent);
 }
 
 .input[type="file"],
@@ -202,13 +186,13 @@ hr {
 
 pre.ace_editor {
   @apply font-mono;
-  @apply z-0;
   @apply resize-none;
+  @apply z-0;
 }
 
 select {
-  @apply cursor-pointer;
   @apply appearance-none;
+  @apply cursor-pointer;
 
   &::-ms-expand {
     @apply hidden;
@@ -220,8 +204,8 @@ select {
   @apply w-full;
 
   &::after {
-    @apply inline-block;
     @apply absolute;
+    @apply inline-block;
     @apply pointer-events-none;
     @apply font-icon;
     @apply text-secondaryLight;
@@ -241,8 +225,7 @@ input[type="checkbox"] {
     @apply cursor-pointer;
 
     &::before {
-      @apply border;
-      @apply border-secondary;
+      @apply border border-secondary;
       @apply rounded-lg;
       @apply inline-flex;
       @apply items-center;
@@ -293,8 +276,6 @@ input[type="checkbox"] {
   textarea {
     @apply m-0;
     @apply w-full;
-
-    line-height: 1;
   }
 
   .covers-response {
@@ -309,11 +290,9 @@ input[type="checkbox"] {
 .toasted-container {
   .toasted {
     &.toasted-primary {
-      @apply px-6;
-      @apply py-1;
+      @apply px-6 py-1;
       @apply bg-tooltip;
-      @apply text-primary;
-      @apply text-xs;
+      @apply text-white text-xs;
       @apply !font-semibold;
 
       .material-icons {
@@ -322,10 +301,8 @@ input[type="checkbox"] {
 
       .action {
         @apply transition;
-        @apply text-current;
-        @apply text-xs;
-        @apply hover:opacity-75;
-        @apply hover:no-underline;
+        @apply text-current text-xs;
+        @apply hover:(opacity-75 no-underline);
       }
     }
 
@@ -333,12 +310,6 @@ input[type="checkbox"] {
       @apply !bg-accent;
       @apply !text-primary;
     }
-  }
-}
-
-@media (max-width: 767px) {
-  main {
-    margin-bottom: env(safe-area-inset-bottom);
   }
 }
 
@@ -401,4 +372,10 @@ input[type="checkbox"] {
   top: -2px;
   bottom: -2px;
   width: 100%;
+}
+
+@media (max-width: 767px) {
+  main {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
 }

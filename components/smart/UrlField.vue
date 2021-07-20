@@ -389,7 +389,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .VAR {
   @apply font-bold;
   @apply text-accent;
@@ -404,7 +404,6 @@ export default {
   @apply whitespace-nowrap;
   @apply overflow-x-auto;
   @apply resize-none;
-  @apply md:border-l;
 }
 
 .url-field::-webkit-scrollbar {

@@ -60,12 +60,17 @@ export function createRESTNetworkRequestStream(
     return Object.assign(acc, { [key]: value })
   }, {})
 
+  const params = req.effectiveFinalParams.reduce((acc, { key, value }) => {
+    return Object.assign(acc, { [key]: value })
+  }, {})
+
   const timeStart = Date.now()
 
   runAppropriateStrategy({
     method: req.method as any,
     url: req.effectiveFinalURL,
     headers,
+    params,
   })
     .then((res: any) => {
       const timeEnd = Date.now()

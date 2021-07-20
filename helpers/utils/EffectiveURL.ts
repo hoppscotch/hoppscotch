@@ -11,6 +11,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    */
   effectiveFinalURL: string
   effectiveFinalHeaders: { key: string; value: string }[]
+  effectiveFinalParams: { key: string; value: string }[]
 }
 
 /**
@@ -24,12 +25,17 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
 export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   _environment: Environment
-) {
+): EffectiveHoppRESTRequest {
   // TODO: Change this
   return {
     ...request,
     effectiveFinalURL: request.endpoint,
     effectiveFinalHeaders: request.headers.filter(
+      (x) =>
+        x.key !== "" && // Remove empty keys
+        x.active // Only active
+    ),
+    effectiveFinalParams: request.params.filter(
       (x) =>
         x.key !== "" && // Remove empty keys
         x.active // Only active
@@ -51,8 +57,6 @@ export function getEffectiveRESTRequestStream(
   environment$: Observable<Environment>
 ): Observable<EffectiveHoppRESTRequest> {
   return combineLatest([request$, environment$]).pipe(
-    map(([request, env]) => {
-      return getEffectiveRESTRequest(request, env)
-    })
+    map(([request, env]) => getEffectiveRESTRequest(request, env))
   )
 }

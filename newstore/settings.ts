@@ -45,7 +45,9 @@ export type SettingsType = {
   BG_COLOR: HoppBgColor
   TELEMETRY_ENABLED: boolean
   SHORTCUTS_INDICATOR_ENABLED: boolean
-  HIDE_NAVBAR: boolean
+  LEFT_SIDEBAR: boolean
+  RIGHT_SIDEBAR: boolean
+  ZEN_MODE: boolean
 }
 
 export const defaultSettings: SettingsType = {
@@ -69,7 +71,9 @@ export const defaultSettings: SettingsType = {
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
   SHORTCUTS_INDICATOR_ENABLED: false,
-  HIDE_NAVBAR: false,
+  LEFT_SIDEBAR: true,
+  RIGHT_SIDEBAR: true,
+  ZEN_MODE: false,
 }
 
 const validKeys = Object.keys(defaultSettings)

@@ -4,7 +4,7 @@
       <Pane class="flex flex-1 overflow-auto">
         <Splitpanes vertical :dbl-click-splitter="false">
           <Pane
-            v-if="!HIDE_NAVBAR"
+            v-if="LEFT_SIDEBAR"
             style="width: auto"
             class="hide-scrollbar overflow-auto"
           >
@@ -12,12 +12,12 @@
           </Pane>
           <Pane class="flex flex-1 overflow-auto">
             <Splitpanes horizontal :dbl-click-splitter="false">
-              <Pane v-if="!zenMode" style="height: auto">
+              <Pane v-if="!ZEN_MODE" style="height: auto">
                 <!-- <AppAnnouncement /> -->
                 <AppHeader />
               </Pane>
               <Pane class="flex flex-1 overflow-auto">
-                <nuxt class="flex flex-1" :hide-right-pane="hideRightPane" />
+                <nuxt class="flex flex-1" :hide-right-pane="RIGHT_SIDEBAR" />
               </Pane>
             </Splitpanes>
           </Pane>
@@ -28,32 +28,30 @@
           <div>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="HIDE_NAVBAR ? $t('show_sidebar') : $t('hide_sidebar')"
+              :title="LEFT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
               icon="menu_open"
-              :class="{ 'transform rotate-180': HIDE_NAVBAR }"
-              @click.native="toggleSetting('HIDE_NAVBAR')"
+              :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
+              @click.native="toggleSetting('LEFT_SIDEBAR')"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="
-                zenMode
-                  ? `${$t('turn_off')} Zen mode`
-                  : `${$t('turn_on')} Zen mode`
-              "
-              :icon="zenMode ? 'fullscreen_exit' : 'fullscreen'"
+              :title="`${ZEN_MODE ? $t('turn_off') : $t('turn_on')} ${$t(
+                'zen_mode'
+              )}`"
+              :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
               :class="{
-                'text-accent focus:text-accent hover:text-accent': zenMode,
+                'text-accent focus:text-accent hover:text-accent': ZEN_MODE,
               }"
-              @click.native="zenMode = !zenMode"
+              @click.native="toggleSetting('ZEN_MODE')"
             />
           </div>
           <div>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="hideRightPane ? $t('show_sidebar') : $t('hide_sidebar')"
+              :title="RIGHT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
               icon="menu_open"
-              :class="['transform rotate-180', { ' rotate-0': hideRightPane }]"
-              @click.native="hideRightPane = !hideRightPane"
+              :class="['transform rotate-180', { 'rotate-0': !RIGHT_SIDEBAR }]"
+              @click.native="toggleSetting('RIGHT_SIDEBAR')"
             />
           </div>
         </div>
@@ -62,7 +60,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
@@ -70,26 +69,37 @@ import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
-import { getSettingSubject, toggleSetting } from "~/newstore/settings"
+import {
+  defaultSettings,
+  getSettingSubject,
+  applySetting,
+  toggleSetting,
+} from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
+import type { KeysMatching } from "~/types/ts-utils"
 
-export default {
+type SettingsType = typeof defaultSettings
+
+export default defineComponent({
   components: { Splitpanes, Pane },
   data() {
     return {
-      zenMode: false,
-      hideRightPane: false,
-      HIDE_NAVBAR: null,
+      LEFT_SIDEBAR: null,
+      RIGHT_SIDEBAR: null,
+      ZEN_MODE: null,
     }
   },
   subscriptions() {
     return {
-      HIDE_NAVBAR: getSettingSubject("HIDE_NAVBAR"),
+      LEFT_SIDEBAR: getSettingSubject("LEFT_SIDEBAR"),
+      RIGHT_SIDEBAR: getSettingSubject("RIGHT_SIDEBAR"),
+      ZEN_MODE: getSettingSubject("ZEN_MODE"),
     }
   },
   watch: {
-    zenMode(zenMode) {
-      this.hideNavigationPane = this.hideRightPane = zenMode
+    ZEN_MODE(ZEN_MODE) {
+      this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
+      this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
     },
     $route(to) {
       logPageView(to.fullPath)
@@ -150,9 +160,12 @@ export default {
     document.removeEventListener("keydown", this._keyListener)
   },
   methods: {
-    toggleSetting(key) {
+    toggleSetting<K extends KeysMatching<SettingsType, boolean>>(key: K) {
       toggleSetting(key)
     },
+    applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
+      applySetting(key, value)
+    },
   },
-}
+})
 </script>

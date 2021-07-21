@@ -31,7 +31,19 @@
                         <span class="select-wrapper">
                           <input
                             id="contentType"
-                            class="bg-primary rounded-lg flex font-semibold font-mono text-xs w-full py-2 px-4 transition truncate focus:outline-none"
+                            class="
+                              bg-primary
+                              rounded-lg
+                              flex
+                              font-semibold font-mono
+                              text-xs
+                              w-full
+                              py-2
+                              px-4
+                              transition
+                              truncate
+                              focus:outline-none
+                            "
                             v-model="contentType"
                             readonly
                           />
@@ -321,6 +333,7 @@
         </Splitpanes>
       </Pane>
       <Pane
+        v-if="RIGHT_SIDEBAR"
         max-size="30"
         size="25"
         min-size="20"
@@ -462,8 +475,11 @@ import {
   knownContentTypes,
   isJSONContentType,
 } from "~/helpers/utils/contenttypes"
-import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
-import { getSettingSubject, applySetting } from "~/newstore/settings"
+import {
+  getSettingSubject,
+  applySetting,
+  useSetting,
+} from "~/newstore/settings"
 import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
 import {
@@ -476,10 +492,10 @@ import { map } from "rxjs/operators"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
-
   setup() {
     return {
       preRequestScript: usePreRequestScript(),
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
     }
   },
   data() {

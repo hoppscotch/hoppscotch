@@ -184,11 +184,17 @@
               </div>
               <div class="flex items-center">
                 <SmartToggle
-                  :on="HIDE_NAVBAR"
-                  @change="toggleSetting('HIDE_NAVBAR')"
+                  :on="LEFT_SIDEBAR"
+                  @change="toggleSetting('LEFT_SIDEBAR')"
                 >
                   {{ $t("navigation_sidebar") }}
-                  {{ HIDE_NAVBAR ? $t("enabled") : $t("disabled") }}
+                  {{ LEFT_SIDEBAR ? $t("enabled") : $t("disabled") }}
+                </SmartToggle>
+              </div>
+              <div class="flex items-center">
+                <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
+                  {{ $t("zen_mode") }}
+                  {{ ZEN_MODE ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
             </div>
@@ -340,7 +346,8 @@ export default defineComponent({
       SYNC_HISTORY: useSetting("syncHistory"),
       TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
       SHORTCUTS_INDICATOR_ENABLED: useSetting("SHORTCUTS_INDICATOR_ENABLED"),
-      HIDE_NAVBAR: useSetting("HIDE_NAVBAR"),
+      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+      ZEN_MODE: useSetting("ZEN_MODE"),
       currentUser: useReadonlyStream(currentUser$, currentUser$.value),
     }
   },
@@ -372,6 +379,10 @@ export default defineComponent({
     },
   },
   watch: {
+    ZEN_MODE(ZEN_MODE) {
+      this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
+      this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
+    },
     proxySettings: {
       deep: true,
       handler({ url, key }) {

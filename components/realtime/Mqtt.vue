@@ -47,6 +47,7 @@
       </Splitpanes>
     </Pane>
     <Pane
+      v-if="RIGHT_SIDEBAR"
       max-size="30"
       size="25"
       min-size="20"
@@ -108,13 +109,20 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import Paho from "paho-mqtt"
 import debounce from "~/helpers/utils/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
+import { useSetting } from "~/newstore/settings"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
+  setup() {
+    return {
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+    }
+  },
   data() {
     return {
       url: "wss://test.mosquitto.org:8081",
@@ -322,5 +330,5 @@ export default {
       })
     },
   },
-}
+})
 </script>

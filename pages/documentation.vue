@@ -103,6 +103,7 @@
         </Splitpanes>
       </Pane>
       <Pane
+        v-if="RIGHT_SIDEBAR"
         max-size="30"
         size="25"
         min-size="20"
@@ -122,15 +123,22 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import Mustache from "mustache"
 import { currentUser$ } from "~/helpers/fb/auth"
 import DocsTemplate from "~/assets/md/docs.md"
 import folderContents from "~/assets/md/folderContents.md"
 import folderBody from "~/assets/md/folderBody.md"
+import { useSetting } from "~/newstore/settings"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
+  setup() {
+    return {
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+    }
+  },
   data() {
     return {
       collectionJSON: "[]",
@@ -298,5 +306,5 @@ export default {
       )
     },
   },
-}
+})
 </script>

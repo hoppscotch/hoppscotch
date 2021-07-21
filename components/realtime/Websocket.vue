@@ -138,6 +138,7 @@
       </Splitpanes>
     </Pane>
     <Pane
+      v-if="RIGHT_SIDEBAR"
       max-size="30"
       size="25"
       min-size="20"
@@ -176,14 +177,20 @@
   </Splitpanes>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 import "splitpanes/dist/splitpanes.css"
-
-export default {
+import { useSetting } from "~/newstore/settings"
+export default defineComponent({
   components: { Splitpanes, Pane },
+  setup() {
+    return {
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+    }
+  },
   data() {
     return {
       connectionState: false,
@@ -387,5 +394,5 @@ export default {
       })
     },
   },
-}
+})
 </script>

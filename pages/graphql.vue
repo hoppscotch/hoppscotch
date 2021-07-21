@@ -331,6 +331,7 @@
         </Splitpanes>
       </Pane>
       <Pane
+        v-if="RIGHT_SIDEBAR"
         max-size="30"
         size="25"
         min-size="20"
@@ -478,21 +479,27 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { getCurrentStrategyID, sendNetworkRequest } from "~/helpers/network"
-import { getSettingSubject } from "~/newstore/settings"
+import { getSettingSubject, useSetting } from "~/newstore/settings"
 import { addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
   beforeRouteLeave(_to, _from, next) {
     this.isPollingSchema = false
     if (this.timeoutSubscription) clearTimeout(this.timeoutSubscription)
     next()
+  },
+  setup() {
+    return {
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+    }
   },
   data() {
     return {
@@ -1157,7 +1164,7 @@ export default {
       this.gqlQueryString = updatedQuery
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

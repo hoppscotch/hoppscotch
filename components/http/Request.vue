@@ -254,6 +254,11 @@ export default {
         (responseState) => {
           console.log(responseState)
           updateRESTResponse(responseState)
+        },
+        () => {
+          this.loading = false
+        },
+        () => {
           this.loading = false
         }
       )

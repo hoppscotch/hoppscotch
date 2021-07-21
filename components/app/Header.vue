@@ -15,7 +15,7 @@
       <span tabindex="-1">
         <ButtonPrimary
           v-if="currentUser === null"
-          label="Get Started"
+          label="Login"
           @click.native="showLogin = true"
         />
         <tippy

@@ -8,13 +8,13 @@
           leading-none
           tracking-tighter
           text-4xl
-          md:text-5xl
-          lg:text-6xl
+          md:text-6xl
+          lg:text-8xl
         "
       >
         Open Source
       </h2>
-      <h3 class="my-4 text-secondaryDark text-3xl md:text-4xl lg:text-4xl">
+      <h3 class="my-4 text-secondaryDark text-3xl md:text-4xl lg:text-5xl">
         API Development Ecosystem
       </h3>
       <p class="my-4 text-lg">
@@ -43,9 +43,7 @@
       </div>
       <LandingStats />
     </div>
-    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-      <LandingGlobe class="h-64 w-full lg:h-full sm:h-72 md:h-96" />
-    </div>
+    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2"></div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>

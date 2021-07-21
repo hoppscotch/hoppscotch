@@ -19,7 +19,7 @@ function getParamsInURL(url: string): { key: string; value: string }[] {
     uriObj.searchParams.forEach((value, key) => {
       result.push({ key, value })
     })
-  } catch (_e) { }
+  } catch (_e) {}
 
   return result
 }

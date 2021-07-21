@@ -3,7 +3,7 @@ import {
   getGlobalEnvironment,
 } from "~/newstore/environments"
 
-export default function getEnvironmentVariablesFromScript(script: any) {
+export default function getEnvironmentVariablesFromScript(script: string) {
   const _variables: Record<string, string> = {}
 
   const currentEnv = getCurrentEnvironment()

@@ -31,7 +31,19 @@
                         <span class="select-wrapper">
                           <input
                             id="contentType"
-                            class="bg-primary rounded-lg flex font-semibold font-mono text-xs w-full py-2 px-4 transition truncate focus:outline-none"
+                            class="
+                              bg-primary
+                              rounded-lg
+                              flex
+                              font-semibold font-mono
+                              text-xs
+                              w-full
+                              py-2
+                              px-4
+                              transition
+                              truncate
+                              focus:outline-none
+                            "
                             v-model="contentType"
                             readonly
                           />
@@ -309,7 +321,17 @@
               >
                 <AppSection v-if="showPreRequestScript" label="preRequest">
                   <div
-                    class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-110px z-10 sticky items-center justify-between"
+                    class="
+                      bg-primary
+                      border-b border-dividerLight
+                      flex flex-1
+                      pl-4
+                      top-110px
+                      z-10
+                      sticky
+                      items-center
+                      justify-between
+                    "
                   >
                     <label class="font-semibold text-xs">
                       {{ $t("javascript_code") }}
@@ -340,7 +362,17 @@
               <SmartTab :id="'tests'" :label="$t('tests')">
                 <AppSection v-if="testsEnabled" label="postRequestTests">
                   <div
-                    class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-110px z-10 sticky items-center justify-between"
+                    class="
+                      bg-primary
+                      border-b border-dividerLight
+                      flex flex-1
+                      pl-4
+                      top-110px
+                      z-10
+                      sticky
+                      items-center
+                      justify-between
+                    "
                   >
                     <label class="font-semibold text-xs">
                       {{ $t("javascript_code") }}
@@ -537,6 +569,7 @@
 
 <script>
 /* eslint-disable */
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 
@@ -566,19 +599,24 @@ import {
   restRequest$,
   restActiveParamsCount$,
   restActiveHeadersCount$,
+  usePreRequestScript,
 } from "~/newstore/RESTSession"
 import { map } from "rxjs/operators"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
 
+  setup() {
+    return {
+      preRequestScript: usePreRequestScript(),
+    }
+  },
   data() {
     return {
       showCurlImportModal: false,
       showPreRequestScript: true,
       testsEnabled: true,
       testScript: "// pw.expect('variable').toBe('value');",
-      preRequestScript: "// pw.env.set('variable', 'value');",
       testReports: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
@@ -1864,5 +1902,5 @@ export default {
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)
   },
-}
+})
 </script>

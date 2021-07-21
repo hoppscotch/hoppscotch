@@ -19,6 +19,7 @@ export interface HoppRESTRequest {
   endpoint: string
   params: HoppRESTParam[]
   headers: HoppRESTHeader[]
+  preRequestScript: string
 }
 
 export function makeRESTRequest(
@@ -54,12 +55,17 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
 
     const method = x.method
 
-    return {
+    const preRequestScript = x.preRequestScript
+
+    const result: HoppRESTRequest = {
       endpoint,
       headers,
       params,
       method,
+      preRequestScript,
       v: RESTReqSchemaVersion,
     }
+
+    return result
   }
 }

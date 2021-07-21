@@ -1,4 +1,6 @@
 import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
+import { customRef, onBeforeUnmount, Ref } from "@nuxtjs/composition-api"
+import { Subscription } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   HoppRESTHeader,
@@ -17,7 +19,7 @@ function getParamsInURL(url: string): { key: string; value: string }[] {
     uriObj.searchParams.forEach((value, key) => {
       result.push({ key, value })
     })
-  } catch (_e) {}
+  } catch (_e) { }
 
   return result
 }
@@ -121,6 +123,7 @@ const defaultRESTSession: RESTSession = {
     params: [],
     headers: [],
     method: "GET",
+    preRequestScript: "// pw.env.set('variable', 'value');",
   },
   response: null,
 }
@@ -287,6 +290,14 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setPreRequestScript(curr: RESTSession, { newScript }: { newScript: string }) {
+    return {
+      request: {
+        ...curr.request,
+        preRequestScript: newScript,
+      },
+    }
+  },
   updateResponse(
     _curr: RESTSession,
     { updatedRes }: { updatedRes: HoppRESTResponse | null }
@@ -405,6 +416,15 @@ export function deleteAllRESTHeaders() {
   })
 }
 
+export function setPreRequestScript(newScript: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setPreRequestScript",
+    payload: {
+      newScript,
+    },
+  })
+}
+
 export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
   restSessionStore.dispatch({
     dispatcher: "updateResponse",
@@ -454,6 +474,11 @@ export const restActiveHeadersCount$ = restHeaders$.pipe(
   map((params) => params.filter((x) => x.active).length)
 )
 
+export const restPreRequestScript$ = restSessionStore.subject$.pipe(
+  pluck("request", "preRequestScript"),
+  distinctUntilChanged()
+)
+
 export const restResponse$ = restSessionStore.subject$.pipe(
   pluck("response"),
   distinctUntilChanged()
@@ -465,3 +490,37 @@ export const completedRESTResponse$ = restResponse$.pipe(
       res !== null && res.type !== "loading" && res.type !== "network_fail"
   )
 )
+
+/**
+ * A Vue 3 composable function that gives access to a ref
+ * which is updated to the preRequestScript value in the store.
+ * The ref value is kept in sync with the store and all writes
+ * to the ref are dispatched to the store as `setPreRequestScript`
+ * dispatches.
+ */
+export function usePreRequestScript(): Ref<string> {
+  let sub: Subscription | null = null
+
+  onBeforeUnmount(() => {
+    if (sub) {
+      sub.unsubscribe()
+    }
+  })
+
+  return customRef((track, trigger) => {
+    sub = restPreRequestScript$.subscribe(() => {
+      trigger()
+    })
+
+    return {
+      get() {
+        track()
+        return restSessionStore.value.request.preRequestScript
+      },
+      set(value: string) {
+        trigger()
+        setPreRequestScript(value)
+      },
+    }
+  })
+}

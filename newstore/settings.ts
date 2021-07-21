@@ -1,8 +1,10 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
 import has from "lodash/has"
 import { Observable } from "rxjs"
+import { Ref } from "@nuxtjs/composition-api"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import type { KeysMatching } from "~/types/ts-utils"
+import { useStream } from "~/helpers/utils/composables"
 
 export const HoppBgColors = ["system", "light", "dark", "black"] as const
 
@@ -43,6 +45,7 @@ export type SettingsType = {
   BG_COLOR: HoppBgColor
   TELEMETRY_ENABLED: boolean
   SHORTCUTS_INDICATOR_ENABLED: boolean
+  HIDE_NAVBAR: boolean
 }
 
 export const defaultSettings: SettingsType = {
@@ -66,6 +69,7 @@ export const defaultSettings: SettingsType = {
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
   SHORTCUTS_INDICATOR_ENABLED: false,
+  HIDE_NAVBAR: false,
 }
 
 const validKeys = Object.keys(defaultSettings)
@@ -151,4 +155,22 @@ export function applySetting<K extends keyof SettingsType>(
       value,
     },
   })
+}
+
+export function useSetting<K extends keyof SettingsType>(
+  settingKey: K
+): Ref<SettingsType[K]> {
+  return useStream(
+    settingsStore.subject$.pipe(pluck(settingKey), distinctUntilChanged()),
+    settingsStore.value[settingKey],
+    (value: SettingsType[K]) => {
+      settingsStore.dispatch({
+        dispatcher: "applySetting",
+        payload: {
+          settingKey,
+          value,
+        },
+      })
+    }
+  )
 }

@@ -31,19 +31,7 @@
                         <span class="select-wrapper">
                           <input
                             id="contentType"
-                            class="
-                              bg-primary
-                              rounded-lg
-                              flex
-                              font-semibold font-mono
-                              text-xs
-                              w-full
-                              py-2
-                              px-4
-                              transition
-                              truncate
-                              focus:outline-none
-                            "
+                            class="bg-primary rounded-lg flex font-semibold font-mono text-xs w-full py-2 px-4 transition truncate focus:outline-none"
                             v-model="contentType"
                             readonly
                           />
@@ -319,128 +307,11 @@
                 :id="'pre_request_script'"
                 :label="$t('pre_request_script')"
               >
-                <AppSection v-if="showPreRequestScript" label="preRequest">
-                  <div
-                    class="
-                      bg-primary
-                      border-b border-dividerLight
-                      flex flex-1
-                      pl-4
-                      top-110px
-                      z-10
-                      sticky
-                      items-center
-                      justify-between
-                    "
-                  >
-                    <label class="font-semibold text-xs">
-                      {{ $t("javascript_code") }}
-                    </label>
-                    <ButtonSecondary
-                      to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
-                      blank
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('wiki')"
-                      icon="help_outline"
-                    />
-                  </div>
-                  <SmartJsEditor
-                    v-model="preRequestScript"
-                    :options="{
-                      maxLines: '16',
-                      minLines: '8',
-                      fontSize: '14px',
-                      autoScrollEditorIntoView: true,
-                      showPrintMargin: false,
-                      useWorker: false,
-                    }"
-                    completeMode="pre"
-                  />
-                </AppSection>
+                <HttpPreRequestScript />
               </SmartTab>
 
               <SmartTab :id="'tests'" :label="$t('tests')">
-                <AppSection v-if="testsEnabled" label="postRequestTests">
-                  <div
-                    class="
-                      bg-primary
-                      border-b border-dividerLight
-                      flex flex-1
-                      pl-4
-                      top-110px
-                      z-10
-                      sticky
-                      items-center
-                      justify-between
-                    "
-                  >
-                    <label class="font-semibold text-xs">
-                      {{ $t("javascript_code") }}
-                    </label>
-                    <ButtonSecondary
-                      to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
-                      blank
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('wiki')"
-                      icon="help_outline"
-                    />
-                  </div>
-                  <SmartJsEditor
-                    v-model="testScript"
-                    :options="{
-                      maxLines: '16',
-                      minLines: '8',
-                      fontSize: '14px',
-                      autoScrollEditorIntoView: true,
-                      showPrintMargin: false,
-                      useWorker: false,
-                    }"
-                    completeMode="test"
-                  />
-                  <div v-if="testReports.length !== 0">
-                    <div class="flex flex-1 pl-4 items-center justify-between">
-                      <label class="font-semibold text-xs">
-                        Test Reports
-                      </label>
-                      <ButtonSecondary
-                        @click.native="clearContent('tests', $event)"
-                        v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('clear')"
-                        icon="clear_all"
-                      />
-                    </div>
-                    <div
-                      v-for="(testReport, index) in testReports"
-                      :key="`testReport-${index}`"
-                      class="px-4"
-                    >
-                      <div v-if="testReport.startBlock">
-                        <hr />
-                        <h4 class="heading">
-                          {{ testReport.startBlock }}
-                        </h4>
-                      </div>
-                      <p
-                        v-else-if="testReport.result"
-                        class="flex font-mono flex-1 text-xs info"
-                      >
-                        <span
-                          :class="testReport.styles.class"
-                          class="flex items-center"
-                        >
-                          <i class="text-sm material-icons">
-                            {{ testReport.styles.icon }}
-                          </i>
-                          <span>&nbsp;{{ testReport.result }}</span>
-                          <span v-if="testReport.message">
-                            <label>: {{ testReport.message }}</label>
-                          </span>
-                        </span>
-                      </p>
-                      <div v-else-if="testReport.endBlock"><hr /></div>
-                    </div>
-                  </div>
-                </AppSection>
+                <HttpTests />
               </SmartTab>
             </SmartTabs>
           </Pane>
@@ -615,8 +486,6 @@ export default defineComponent({
     return {
       showCurlImportModal: false,
       showPreRequestScript: true,
-      testsEnabled: true,
-      testScript: "// pw.expect('variable').toBe('value');",
       testReports: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
@@ -731,7 +600,6 @@ export default defineComponent({
         this.preRequestScript = newValue.preRequestScript
       }
       if (newValue.testScript) {
-        this.testsEnabled = true
         this.testScript = newValue.testScript
       }
       this.name = newValue.name
@@ -1333,7 +1201,6 @@ export default defineComponent({
               contentType: this.contentType,
               requestType: this.requestType,
               testScript: this.testScript,
-              usesPostScripts: this.testsEnabled,
             }
 
             if (
@@ -1678,7 +1545,7 @@ export default defineComponent({
         requestType: this.requestType,
         preRequestScript:
           this.showPreRequestScript == true ? this.preRequestScript : null,
-        testScript: this.testsEnabled == true ? this.testScript : null,
+        testScript: this.testScript,
         name: this.requestName,
       }
       this.showSaveRequestModal = true

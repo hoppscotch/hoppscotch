@@ -340,6 +340,7 @@
   "we_sent_magic_link_description": "Check your inbox - we sent an email to {email}. It contains a magic link that will log you in.",
   "hide_sidebar": "Hide sidebar",
   "show_sidebar": "Show sidebar",
+  "navigation_sidebar": "Navigation sidebar",
   "protocols": "Protocols",
   "protocol_count": "Protocol {count}",
   "share": "Share",

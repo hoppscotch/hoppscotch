@@ -4,7 +4,7 @@
       <Pane class="flex flex-1 overflow-auto">
         <Splitpanes vertical :dbl-click-splitter="false">
           <Pane
-            v-if="!hideNavigationPane"
+            v-if="!HIDE_NAVBAR"
             style="width: auto"
             class="hide-scrollbar overflow-auto"
           >
@@ -28,12 +28,10 @@
           <div>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="
-                hideNavigationPane ? $t('show_sidebar') : $t('hide_sidebar')
-              "
+              :title="HIDE_NAVBAR ? $t('show_sidebar') : $t('hide_sidebar')"
               icon="menu_open"
-              :class="{ 'transform rotate-180': hideNavigationPane }"
-              @click.native="hideNavigationPane = !hideNavigationPane"
+              :class="{ 'transform rotate-180': HIDE_NAVBAR }"
+              @click.native="toggleSetting('HIDE_NAVBAR')"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -72,16 +70,21 @@ import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+import { getSettingSubject, toggleSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 
 export default {
   components: { Splitpanes, Pane },
   data() {
     return {
-      hideNavigationPane: false,
       zenMode: false,
       hideRightPane: false,
+      HIDE_NAVBAR: null,
+    }
+  },
+  subscriptions() {
+    return {
+      HIDE_NAVBAR: getSettingSubject("HIDE_NAVBAR"),
     }
   },
   watch: {
@@ -145,6 +148,11 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)
+  },
+  methods: {
+    toggleSetting(key) {
+      toggleSetting(key)
+    },
   },
 }
 </script>

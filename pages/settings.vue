@@ -182,6 +182,15 @@
                   }}
                 </SmartToggle>
               </div>
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="HIDE_NAVBAR"
+                  @change="toggleSetting('HIDE_NAVBAR')"
+                >
+                  {{ $t("navigation_sidebar") }}
+                  {{ HIDE_NAVBAR ? $t("enabled") : $t("disabled") }}
+                </SmartToggle>
+              </div>
             </div>
           </fieldset>
         </div>
@@ -302,21 +311,39 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
 import {
-  getSettingSubject,
   applySetting,
   toggleSetting,
   defaultSettings,
+  useSetting,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig } from "~/newstore/localpersistence"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 type SettingsType = typeof defaultSettings
 
-export default Vue.extend({
+export default defineComponent({
+  setup() {
+    return {
+      SCROLL_INTO_ENABLED: useSetting("SCROLL_INTO_ENABLED"),
+      PROXY_ENABLED: useSetting("PROXY_ENABLED"),
+      PROXY_URL: useSetting("PROXY_URL"),
+      PROXY_KEY: useSetting("PROXY_KEY"),
+      EXTENSIONS_ENABLED: useSetting("EXTENSIONS_ENABLED"),
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
+      SYNC_COLLECTIONS: useSetting("syncCollections"),
+      SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
+      SYNC_HISTORY: useSetting("syncHistory"),
+      TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
+      SHORTCUTS_INDICATOR_ENABLED: useSetting("SHORTCUTS_INDICATOR_ENABLED"),
+      HIDE_NAVBAR: useSetting("HIDE_NAVBAR"),
+      currentUser: useReadonlyStream(currentUser$, currentUser$.value),
+    }
+  },
   data() {
     return {
       extensionVersion: hasExtensionInstalled()
@@ -325,52 +352,10 @@ export default Vue.extend({
 
       clearIcon: "clear_all",
 
-      SYNC_COLLECTIONS: true,
-      SYNC_ENVIRONMENTS: true,
-      SYNC_HISTORY: true,
-
-      PROXY_URL: "",
-      PROXY_KEY: "",
-
-      EXTENSIONS_ENABLED: true,
-      PROXY_ENABLED: true,
-
-      currentUser: null,
-
       showLogin: false,
 
       active: getLocalConfig("THEME_COLOR") || "green",
       confirmRemove: false,
-
-      TELEMETRY_ENABLED: null,
-
-      SHORTCUTS_INDICATOR_ENABLED: null,
-    }
-  },
-  subscriptions() {
-    return {
-      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
-
-      PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
-      PROXY_URL: getSettingSubject("PROXY_URL"),
-      PROXY_KEY: getSettingSubject("PROXY_KEY"),
-
-      EXTENSIONS_ENABLED: getSettingSubject("EXTENSIONS_ENABLED"),
-
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
-        "EXPERIMENTAL_URL_BAR_ENABLED"
-      ),
-
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
-      SYNC_HISTORY: getSettingSubject("syncHistory"),
-
-      TELEMETRY_ENABLED: getSettingSubject("TELEMETRY_ENABLED"),
-      SHORTCUTS_INDICATOR_ENABLED: getSettingSubject(
-        "SHORTCUTS_INDICATOR_ENABLED"
-      ),
-
-      currentUser: currentUser$,
     }
   },
   head() {
@@ -421,7 +406,7 @@ export default Vue.extend({
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
       this.clearIcon = "done"
-      this.$toast.info(this.$t("cleared"), {
+      this.$toast.info(this.$t("cleared").toString(), {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "clear_all"), 1000)

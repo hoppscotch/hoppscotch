@@ -1,6 +1,5 @@
 import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
-import { customRef, onBeforeUnmount, Ref } from "@nuxtjs/composition-api"
-import { Subscription } from "rxjs"
+import { Ref } from "@nuxtjs/composition-api"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   HoppRESTHeader,
@@ -9,6 +8,7 @@ import {
   RESTReqSchemaVersion,
 } from "~/helpers/types/HoppRESTRequest"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { useStream } from "~/helpers/utils/composables"
 
 function getParamsInURL(url: string): { key: string; value: string }[] {
   const result: { key: string; value: string }[] = []
@@ -124,6 +124,7 @@ const defaultRESTSession: RESTSession = {
     headers: [],
     method: "GET",
     preRequestScript: "// pw.env.set('variable', 'value');",
+    testScript: "// pw.expect('variable').toBe('value');",
   },
   response: null,
 }
@@ -298,6 +299,14 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setTestScript(curr: RESTSession, { newScript }: { newScript: string }) {
+    return {
+      request: {
+        ...curr.request,
+        testScript: newScript,
+      },
+    }
+  },
   updateResponse(
     _curr: RESTSession,
     { updatedRes }: { updatedRes: HoppRESTResponse | null }
@@ -416,9 +425,18 @@ export function deleteAllRESTHeaders() {
   })
 }
 
-export function setPreRequestScript(newScript: string) {
+export function setRESTPreRequestScript(newScript: string) {
   restSessionStore.dispatch({
     dispatcher: "setPreRequestScript",
+    payload: {
+      newScript,
+    },
+  })
+}
+
+export function setRESTTestScript(newScript: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setTestScript",
     payload: {
       newScript,
     },
@@ -479,6 +497,11 @@ export const restPreRequestScript$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
+export const restTestScript$ = restSessionStore.subject$.pipe(
+  pluck("request", "testScript"),
+  distinctUntilChanged()
+)
+
 export const restResponse$ = restSessionStore.subject$.pipe(
   pluck("response"),
   distinctUntilChanged()
@@ -499,28 +522,28 @@ export const completedRESTResponse$ = restResponse$.pipe(
  * dispatches.
  */
 export function usePreRequestScript(): Ref<string> {
-  let sub: Subscription | null = null
-
-  onBeforeUnmount(() => {
-    if (sub) {
-      sub.unsubscribe()
+  return useStream(
+    restPreRequestScript$,
+    restSessionStore.value.request.preRequestScript,
+    (value) => {
+      setRESTPreRequestScript(value)
     }
-  })
+  )
+}
 
-  return customRef((track, trigger) => {
-    sub = restPreRequestScript$.subscribe(() => {
-      trigger()
-    })
-
-    return {
-      get() {
-        track()
-        return restSessionStore.value.request.preRequestScript
-      },
-      set(value: string) {
-        trigger()
-        setPreRequestScript(value)
-      },
+/**
+ * A Vue 3 composable function that gives access to a ref
+ * which is updated to the testScript value in the store.
+ * The ref value is kept in sync with the store and all writes
+ * to the ref are dispatched to the store as `setTestScript`
+ * dispatches.
+ */
+export function useTestScript(): Ref<string> {
+  return useStream(
+    restTestScript$,
+    restSessionStore.value.request.testScript,
+    (value) => {
+      setRESTTestScript(value)
     }
-  })
+  )
 }

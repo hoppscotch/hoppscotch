@@ -107,6 +107,7 @@ export default defineComponent({
             params,
             headers,
             preRequestScript: "",
+            testScript: "",
           })
         )
       } catch (error) {

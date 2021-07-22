@@ -74,7 +74,7 @@
       <ButtonPrimary
         id="send"
         class="rounded-none"
-        :label="!loading ? $t('send') : $('cancel')"
+        :label="!loading ? $t('send') : $t('cancel')"
         :shortcuts="[getSpecialKey(), 'G']"
         outline
         @click.native="!loading ? newSendRequest() : cancelRequest()"
@@ -188,16 +188,13 @@
 <script>
 import {
   updateRESTResponse,
-  restRequest$,
   restEndpoint$,
   setRESTEndpoint,
   restMethod$,
   updateRESTMethod,
 } from "~/newstore/RESTSession"
-import { createRESTNetworkRequestStream } from "~/helpers/network"
-import { currentEnvironment$ } from "~/newstore/environments"
-import { getEffectiveRESTRequestStream } from "~/helpers/utils/EffectiveURL"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { runRESTRequest$ } from "~/helpers/RequestRunner"
 
 export default {
   data() {
@@ -220,7 +217,6 @@ export default {
       showCurlImportModal: false,
       showCodegenModal: false,
       navigatorShare: navigator.share,
-      effectiveStream$: null,
       loading: false,
     }
   },
@@ -228,10 +224,6 @@ export default {
     return {
       newMethod$: restMethod$,
       newEndpoint$: restEndpoint$,
-      effectiveStream$: getEffectiveRESTRequestStream(
-        restRequest$,
-        currentEnvironment$
-      ),
     }
   },
   watch: {
@@ -247,10 +239,7 @@ export default {
     newSendRequest() {
       this.loading = true
       this.$subscribeTo(
-        createRESTNetworkRequestStream(
-          this.effectiveStream$,
-          currentEnvironment$
-        ),
+        runRESTRequest$(),
         (responseState) => {
           console.log(responseState)
           updateRESTResponse(responseState)

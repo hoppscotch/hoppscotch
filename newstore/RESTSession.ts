@@ -9,6 +9,7 @@ import {
 } from "~/helpers/types/HoppRESTRequest"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useStream } from "~/helpers/utils/composables"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
 function getParamsInURL(url: string): { key: string; value: string }[] {
   const result: { key: string; value: string }[] = []
@@ -114,6 +115,7 @@ function updateURLParam(
 type RESTSession = {
   request: HoppRESTRequest
   response: HoppRESTResponse | null
+  testResults: HoppTestResult | null
 }
 
 const defaultRESTSession: RESTSession = {
@@ -127,6 +129,7 @@ const defaultRESTSession: RESTSession = {
     testScript: "// pw.expect('variable').toBe('value');",
   },
   response: null,
+  testResults: null,
 }
 
 const dispatchers = defineDispatchers({
@@ -320,6 +323,14 @@ const dispatchers = defineDispatchers({
       response: null,
     }
   },
+  setTestResults(
+    _curr: RESTSession,
+    { newResults }: { newResults: HoppTestResult | null }
+  ) {
+    return {
+      testResults: newResults,
+    }
+  },
 })
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
@@ -459,6 +470,15 @@ export function clearRESTResponse() {
   })
 }
 
+export function setRESTTestResults(newResults: HoppTestResult | null) {
+  restSessionStore.dispatch({
+    dispatcher: "setTestResults",
+    payload: {
+      newResults,
+    },
+  })
+}
+
 export const restRequest$ = restSessionStore.subject$.pipe(
   pluck("request"),
   distinctUntilChanged()
@@ -512,6 +532,11 @@ export const completedRESTResponse$ = restResponse$.pipe(
     (res) =>
       res !== null && res.type !== "loading" && res.type !== "network_fail"
   )
+)
+
+export const restTestResults$ = restSessionStore.subject$.pipe(
+  pluck("testResults"),
+  distinctUntilChanged()
 )
 
 /**

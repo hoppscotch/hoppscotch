@@ -79,12 +79,14 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { useTestScript } from "~/newstore/RESTSession"
+import { useTestScript, restTestResults$ } from "~/newstore/RESTSession"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   setup() {
     return {
       testScript: useTestScript(),
+      testResults: useReadonlyStream(restTestResults$, null),
       testReports: [],
     }
   },

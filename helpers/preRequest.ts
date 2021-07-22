@@ -36,7 +36,7 @@ export default function getEnvironmentVariablesFromScript(script: string) {
     // run pre-request script within this function so that it has access to the pw object.
     // eslint-disable-next-line no-new-func
     new Function("pw", script)(pw)
-  } catch (_e) {}
+  } catch (_e) { }
 
   return _variables
 }

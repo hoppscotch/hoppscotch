@@ -1,3 +1,5 @@
+import { ValidContentTypes } from "../utils/contenttypes"
+
 export const RESTReqSchemaVersion = "1"
 
 export type HoppRESTParam = {
@@ -12,6 +14,12 @@ export type HoppRESTHeader = {
   active: boolean
 }
 
+export type HoppRESTReqBody = {
+  contentType: ValidContentTypes
+  body: string
+  isRaw: boolean
+}
+
 export interface HoppRESTRequest {
   v: string
 
@@ -21,6 +29,8 @@ export interface HoppRESTRequest {
   headers: HoppRESTHeader[]
   preRequestScript: string
   testScript: string
+
+  body: HoppRESTReqBody
 }
 
 export function makeRESTRequest(
@@ -34,6 +44,22 @@ export function makeRESTRequest(
 
 export function isHoppRESTRequest(x: any): x is HoppRESTRequest {
   return x && typeof x === "object" && "v" in x
+}
+
+function parseRequestBody(x: any): HoppRESTReqBody {
+  if (x.contentType === "application/json") {
+    return {
+      contentType: "application/json",
+      body: x.rawParams,
+      isRaw: x.rawInput,
+    }
+  }
+
+  return {
+    contentType: "application/json",
+    body: "",
+    isRaw: x.rawInput,
+  }
 }
 
 export function translateToNewRequest(x: any): HoppRESTRequest {
@@ -59,6 +85,8 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
     const preRequestScript = x.preRequestScript
     const testScript = x.testScript
 
+    const body = parseRequestBody(x)
+
     const result: HoppRESTRequest = {
       endpoint,
       headers,
@@ -66,6 +94,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       method,
       preRequestScript,
       testScript,
+      body,
       v: RESTReqSchemaVersion,
     }
 

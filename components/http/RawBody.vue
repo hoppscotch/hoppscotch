@@ -18,7 +18,7 @@
       </label>
       <div>
         <ButtonSecondary
-          v-if="rawInput && contentType.endsWith('json')"
+          v-if="contentType.endsWith('json')"
           ref="prettifyRequest"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('prettify_body')"
@@ -66,43 +66,39 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
+import { pluckRef } from "~/helpers/utils/composables"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
 
-export default {
+export default defineComponent({
   props: {
-    rawParams: { type: String, default: null },
-    contentType: { type: String, default: null },
-    rawInput: { type: Boolean, default: false },
+    contentType: {
+      type: String,
+      required: true,
+    },
   },
-  data() {
+  setup() {
     return {
+      rawParamsBody: pluckRef(useRESTRequestBody(), "body"),
       prettifyIcon: "photo_filter",
     }
   },
   computed: {
-    rawParamsBody: {
-      get() {
-        return this.rawParams
-      },
-      set(value) {
-        this.$emit("update-raw-body", value)
-      },
-    },
     rawInputEditorLang() {
       return getEditorLangForMimeType(this.contentType)
     },
   },
   methods: {
-    clearContent(bodyParams, $event) {
-      this.$emit("clear-content", bodyParams, $event)
+    clearContent() {
+      this.rawParamsBody = ""
     },
     uploadPayload() {
-      this.$emit("update-raw-input", true)
       const file = this.$refs.payload.files[0]
       if (file !== undefined && file !== null) {
         const reader = new FileReader()
         reader.onload = ({ target }) => {
-          this.$emit("update-raw-body", target.result)
+          this.rawParamsBody = target.result
         }
         reader.readAsText(file)
         this.$toast.info(this.$t("file_imported"), {
@@ -128,5 +124,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

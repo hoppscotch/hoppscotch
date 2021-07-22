@@ -79,6 +79,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@types/cookie": "^0.4.1",
     "@types/lodash": "^4.14.171",
+    "@types/splitpanes": "^2.2.1",
     "@vue/test-utils": "^1.2.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^27.0.6",

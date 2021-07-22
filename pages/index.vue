@@ -17,77 +17,7 @@
               </SmartTab>
 
               <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
-                <div class="flex flex-1 py-2 items-center justify-between">
-                  <tippy
-                    interactive
-                    ref="contentTypeOptions"
-                    tabindex="-1"
-                    trigger="click"
-                    theme="popover"
-                    arrow
-                  >
-                    <template #trigger>
-                      <div class="flex">
-                        <span class="select-wrapper">
-                          <input
-                            id="contentType"
-                            class="
-                              bg-primary
-                              rounded-lg
-                              flex
-                              font-semibold font-mono
-                              text-xs
-                              w-full
-                              py-2
-                              px-4
-                              transition
-                              truncate
-                              focus:outline-none
-                            "
-                            v-model="contentType"
-                            readonly
-                          />
-                        </span>
-                      </div>
-                    </template>
-                    <SmartItem
-                      v-for="(contentTypeItem, index) in validContentTypes"
-                      :key="`contentTypeItem-${index}`"
-                      @click.native="
-                        contentType = contentTypeItem
-                        $refs.contentTypeOptions.tippy().hide()
-                      "
-                      :label="contentTypeItem"
-                    />
-                  </tippy>
-                  <SmartToggle
-                    v-if="canListParameters"
-                    :on="rawInput"
-                    @change="rawInput = !rawInput"
-                    class="px-4"
-                  >
-                    {{ $t("raw_input") }}
-                  </SmartToggle>
-                </div>
-                <HttpBodyParameters
-                  v-if="!rawInput"
-                  :bodyParams="bodyParams"
-                  @clear-content="clearContent"
-                  @set-route-query-state="setRouteQueryState"
-                  @remove-request-body-param="removeRequestBodyParam"
-                  @add-request-body-param="addRequestBodyParam"
-                />
-                <HttpRawBody
-                  v-else
-                  :rawParams="rawParams"
-                  :contentType="contentType"
-                  :rawInput="rawInput"
-                  @clear-content="clearContent"
-                  @update-raw-body="updateRawBody"
-                  @update-raw-input="
-                    updateRawInput = (value) => (rawInput = value)
-                  "
-                />
+                <HttpBody />
               </SmartTab>
 
               <SmartTab
@@ -555,18 +485,6 @@ export default defineComponent({
     }
   },
   watch: {
-    canListParameters: {
-      immediate: true,
-      handler(canListParameters) {
-        if (canListParameters) {
-          this.$nextTick(() => {
-            this.rawInput = Boolean(this.rawParams && this.rawParams !== "{}")
-          })
-        } else {
-          this.rawInput = true
-        }
-      },
-    },
     contentType(contentType, oldContentType) {
       const getDefaultParams = (contentType) => {
         if (isJSONContentType(contentType)) return "{}"
@@ -632,17 +550,6 @@ export default defineComponent({
     },
   },
   computed: {
-    /**
-     * Check content types that can be automatically
-     * serialized by Hoppscotch.
-     */
-    canListParameters() {
-      return (
-        this.contentType === "application/x-www-form-urlencoded" ||
-        this.contentType === "multipart/form-data" ||
-        isJSONContentType(this.contentType)
-      )
-    },
     uri: {
       get() {
         return this.$store.state.request.uri

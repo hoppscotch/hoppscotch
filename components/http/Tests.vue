@@ -36,42 +36,45 @@
       }"
       complete-mode="test"
     />
-    <div v-if="testReports.length !== 0">
+    <pre>
+    {{ testResults }}
+    </pre>
+    <div v-if="testResults">
       <div class="flex flex-1 pl-4 items-center justify-between">
-        <label class="font-semibold text-xs"> Test Reports </label>
+        <div>
+          <label class="font-semibold text-xs"> Test Report: </label>
+          <span class="font-semibold text-xs text-red-500">
+            {{ failedTests }} failing,
+          </span>
+          <span class="font-semibold text-xs text-green-500">
+            {{ passedTests }} successful,
+          </span>
+          <span class="font-semibold text-xs text-secondaryDark">
+            out of {{ totalTests }} tests.
+          </span>
+        </div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
           icon="clear_all"
-          @click.native="clearContent('tests', $event)"
+          @click.native="clearContent()"
         />
       </div>
-      <div
-        v-for="(testReport, index) in testReports"
-        :key="`testReport-${index}`"
-        class="px-4"
-      >
-        <div v-if="testReport.startBlock">
-          <hr />
-          <h4 class="heading">
-            {{ testReport.startBlock }}
-          </h4>
-        </div>
-        <p
-          v-else-if="testReport.result"
-          class="flex font-mono flex-1 text-xs info"
-        >
-          <span :class="testReport.styles.class" class="flex items-center">
-            <i class="text-sm material-icons">
-              {{ testReport.styles.icon }}
-            </i>
-            <span>&nbsp;{{ testReport.result }}</span>
-            <span v-if="testReport.message">
-              <label>: {{ testReport.message }}</label>
-            </span>
-          </span>
-        </p>
-        <div v-else-if="testReport.endBlock"><hr /></div>
+      <div v-if="testResults.expectResults">
+        <HttpTestResult
+          v-for="(result, index) in testResults.expectResults"
+          :key="`result-${index}`"
+          class="divide-y divide-dividerLight"
+          :results="testResults.expectResults"
+        />
+      </div>
+      <div v-if="testResults.tests">
+        <HttpTestResult
+          v-for="(result, index) in testResults.tests"
+          :key="`result-${index}`"
+          class="divide-y divide-dividerLight"
+          :results="testResults.tests"
+        />
       </div>
     </div>
   </AppSection>
@@ -79,7 +82,11 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { useTestScript, restTestResults$ } from "~/newstore/RESTSession"
+import {
+  useTestScript,
+  restTestResults$,
+  setRESTTestResults,
+} from "~/newstore/RESTSession"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
@@ -87,8 +94,27 @@ export default defineComponent({
     return {
       testScript: useTestScript(),
       testResults: useReadonlyStream(restTestResults$, null),
-      testReports: [],
     }
+  },
+  computed: {
+    totalTests() {
+      return this.testResults.expectResults.length
+    },
+    failedTests() {
+      return this.testResults.expectResults.filter(
+        (result) => result.status === "fail"
+      ).length
+    },
+    passedTests() {
+      return this.testResults.expectResults.filter(
+        (result) => result.status === "pass"
+      ).length
+    },
+  },
+  methods: {
+    clearContent() {
+      setRESTTestResults(null)
+    },
   },
 })
 </script>

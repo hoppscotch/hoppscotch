@@ -4,6 +4,7 @@ import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
 } from "~/helpers/types/HoppRESTRequest"
@@ -127,6 +128,11 @@ const defaultRESTSession: RESTSession = {
     method: "GET",
     preRequestScript: "// pw.env.set('variable', 'value');",
     testScript: "// pw.expect('variable').toBe('value');",
+    body: {
+      contentType: "application/json",
+      body: "",
+      isRaw: false,
+    },
   },
   response: null,
   testResults: null,
@@ -310,6 +316,14 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setRequestBody(curr: RESTSession, { newBody }: { newBody: HoppRESTReqBody }) {
+    return {
+      request: {
+        ...curr.request,
+        body: newBody,
+      },
+    }
+  },
   updateResponse(
     _curr: RESTSession,
     { updatedRes }: { updatedRes: HoppRESTResponse | null }
@@ -454,6 +468,15 @@ export function setRESTTestScript(newScript: string) {
   })
 }
 
+export function setRESTReqBody(newBody: HoppRESTReqBody | null) {
+  restSessionStore.dispatch({
+    dispatcher: "setRequestBody",
+    payload: {
+      newBody,
+    },
+  })
+}
+
 export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
   restSessionStore.dispatch({
     dispatcher: "updateResponse",
@@ -522,6 +545,11 @@ export const restTestScript$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
+export const restReqBody$ = restSessionStore.subject$.pipe(
+  pluck("request", "body"),
+  distinctUntilChanged()
+)
+
 export const restResponse$ = restSessionStore.subject$.pipe(
   pluck("response"),
   distinctUntilChanged()
@@ -570,5 +598,13 @@ export function useTestScript(): Ref<string> {
     (value) => {
       setRESTTestScript(value)
     }
+  )
+}
+
+export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
+  return useStream(
+    restReqBody$,
+    restSessionStore.value.request.body,
+    setRESTReqBody
   )
 }

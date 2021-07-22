@@ -177,7 +177,7 @@
   </Splitpanes>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"

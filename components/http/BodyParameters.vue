@@ -104,7 +104,7 @@
           @click.native="toggleActive(index, param)"
         />
       </div>
-      <div v-if="contentType === 'multipart/form-data'">
+      <div>
         <label for="attachment" class="p-0">
           <ButtonSecondary
             class="w-full"
@@ -133,10 +133,15 @@
   </AppSection>
 </template>
 
-<script>
-export default {
-  props: {
-    bodyParams: { type: Array, default: () => [] },
+<script lang="ts">
+import { defineComponent, toRef } from "@nuxtjs/composition-api"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
+
+export default defineComponent({
+  setup() {
+    return {
+      bodyParams: toRef(useRESTRequestBody(), "body"),
+    }
   },
   computed: {
     contentType() {
@@ -249,7 +254,7 @@ export default {
       })
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

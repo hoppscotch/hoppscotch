@@ -22,7 +22,7 @@
       <div
         class="
           bg-primary
-          rounded-lg
+          rounded
           flex flex-col
           max-w-md max-h-lg
           flex-1

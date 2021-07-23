@@ -17,44 +17,14 @@
                 <AppHeader />
               </Pane>
               <Pane class="flex flex-1 overflow-auto">
-                <nuxt class="flex flex-1" :hide-right-pane="RIGHT_SIDEBAR" />
+                <nuxt class="flex flex-1" />
               </Pane>
             </Splitpanes>
           </Pane>
         </Splitpanes>
       </Pane>
       <Pane style="height: auto">
-        <div class="flex justify-between">
-          <div>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="LEFT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
-              icon="menu_open"
-              :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
-              @click.native="toggleSetting('LEFT_SIDEBAR')"
-            />
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="`${ZEN_MODE ? $t('turn_off') : $t('turn_on')} ${$t(
-                'zen_mode'
-              )}`"
-              :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
-              :class="{
-                'text-accent focus:text-accent hover:text-accent': ZEN_MODE,
-              }"
-              @click.native="toggleSetting('ZEN_MODE')"
-            />
-          </div>
-          <div>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="RIGHT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
-              icon="menu_open"
-              :class="['transform rotate-180', { 'rotate-0': !RIGHT_SIDEBAR }]"
-              @click.native="toggleSetting('RIGHT_SIDEBAR')"
-            />
-          </div>
-        </div>
+        <AppFooter />
       </Pane>
     </Splitpanes>
   </div>
@@ -69,38 +39,24 @@ import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
-import {
-  defaultSettings,
-  getSettingSubject,
-  applySetting,
-  toggleSetting,
-} from "~/newstore/settings"
+import { getSettingSubject } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
-import type { KeysMatching } from "~/types/ts-utils"
-
-type SettingsType = typeof defaultSettings
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   data() {
     return {
       LEFT_SIDEBAR: null,
-      RIGHT_SIDEBAR: null,
       ZEN_MODE: null,
     }
   },
   subscriptions() {
     return {
       LEFT_SIDEBAR: getSettingSubject("LEFT_SIDEBAR"),
-      RIGHT_SIDEBAR: getSettingSubject("RIGHT_SIDEBAR"),
       ZEN_MODE: getSettingSubject("ZEN_MODE"),
     }
   },
   watch: {
-    ZEN_MODE(ZEN_MODE) {
-      this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
-      this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
-    },
     $route(to) {
       logPageView(to.fullPath)
     },
@@ -158,14 +114,6 @@ export default defineComponent({
   },
   beforeDestroy() {
     document.removeEventListener("keydown", this._keyListener)
-  },
-  methods: {
-    toggleSetting<K extends KeysMatching<SettingsType, boolean>>(key: K) {
-      toggleSetting(key)
-    },
-    applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
-      applySetting(key, value)
-    },
   },
 })
 </script>

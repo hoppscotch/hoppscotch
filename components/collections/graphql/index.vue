@@ -1,7 +1,7 @@
 <template>
   <AppSection
     label="collections"
-    :class="{ 'rounded-lg border-2 border-divider': savingMode }"
+    :class="{ 'rounded border-2 border-divider': savingMode }"
   >
     <div
       class="flex flex-col top-10 z-10 sticky"

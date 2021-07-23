@@ -14,7 +14,7 @@
   @apply inline-flex;
   @apply items-center;
   @apply justify-center;
-  @apply rounded-lg;
+  @apply rounded;
   @apply m-1;
   @apply pl-4;
   @apply bg-primaryDark;

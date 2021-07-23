@@ -1,7 +1,7 @@
 <template>
-  <header class="flex flex-1 p-2 items-center justify-between">
+  <header class="flex flex-1 py-2 px-4 items-center justify-between">
     <div class="font-bold space-x-2 flex-shrink-0 inline-flex items-center">
-      <AppLogo class="h-6 mx-4" /> Hoppscotch
+      <AppLogo class="h-6 mr-4" /> Hoppscotch
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="mt-1 mr-2" />
@@ -62,56 +62,8 @@
           <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
         </tippy>
       </span>
-      <span tabindex="-1">
-        <tippy
-          ref="options"
-          interactive
-          tabindex="-1"
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <TabPrimary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('more')"
-              icon="drag_indicator"
-            />
-          </template>
-          <SmartItem
-            icon="extension"
-            :label="$t('extensions')"
-            @click.native="
-              showExtensions = true
-              $refs.options.tippy().hide()
-            "
-          />
-          <SmartItem
-            icon="keyboard"
-            :label="$t('shortcuts')"
-            @click.native="
-              showShortcuts = true
-              $refs.options.tippy().hide()
-            "
-          />
-          <SmartItem
-            v-if="navigatorShare"
-            icon="share"
-            :label="$t('share')"
-            @click.native="
-              nativeShare()
-              $refs.options.tippy().hide()
-            "
-          />
-        </tippy>
-      </span>
     </div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
-    <AppExtensions
-      :show="showExtensions"
-      @hide-modal="showExtensions = false"
-    />
-    <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
   </header>
 </template>
 
@@ -119,7 +71,6 @@
 import intializePwa from "~/helpers/pwa"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
 export default {
   data() {
@@ -129,9 +80,6 @@ export default {
       // prompt.
       showInstallPrompt: null,
       showLogin: false,
-      showExtensions: false,
-      showShortcuts: false,
-      navigatorShare: navigator.share,
     }
   },
   subscriptions() {
@@ -160,23 +108,6 @@ export default {
         ],
       })
     }
-  },
-  methods: {
-    nativeShare() {
-      if (navigator.share) {
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
-            url: "https://hoppscotch.io",
-          })
-          .then(() => {})
-          .catch(console.error)
-      } else {
-        // fallback
-      }
-    },
-    getSpecialKey: getPlatformSpecialKey,
   },
 }
 </script>

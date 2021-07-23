@@ -16,7 +16,7 @@
               class="
                 bg-primaryLight
                 border border-divider
-                rounded-l-lg
+                rounded-l
                 cursor-pointer
                 flex
                 font-mono
@@ -75,7 +75,7 @@
         id="send"
         class="rounded-none"
         :label="!loading ? $t('send') : $t('cancel')"
-        :shortcuts="[getSpecialKey(), 'G']"
+        :shortcut="[getSpecialKey(), 'G']"
         outline
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
@@ -125,7 +125,7 @@
       <ButtonSecondary
         class="rounded-r-none ml-2"
         :label="$t('save')"
-        :shortcuts="[getSpecialKey(), 'S']"
+        :shortcut="[getSpecialKey(), 'S']"
         outline
         @click.native="newSendRequest"
       />

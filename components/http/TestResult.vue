@@ -1,8 +1,22 @@
 <template>
   <div>
-    <div v-if="results">
+    <div v-if="results.tests">
+      <span
+        v-if="results.tests.description"
+        class="font-semibold text-secondaryDark text-xs"
+      >
+        {{ results.tests.description }}
+      </span>
+      <HttpTestResult
+        v-for="(result, index) in results.tests"
+        :key="`result-${index}`"
+        class="divide-y divide-dividerLight"
+        :results="result"
+      />
+    </div>
+    <div v-if="results.expectResults">
       <div
-        v-for="(result, index) in results"
+        v-for="(result, index) in results.expectResults"
         :key="`result-${index}`"
         class="flex py-2 px-4 items-center"
       >
@@ -27,14 +41,6 @@
         </span>
       </div>
     </div>
-    <div v-if="results.tests">
-      <HttpTestResult
-        v-for="(result, index) in results.expectResults"
-        :key="`result-${index}`"
-        class="divide-y divide-dividerLight"
-        :results="results.expectResults"
-      />
-    </div>
   </div>
 </template>
 
@@ -45,7 +51,7 @@ import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 export default defineComponent({
   props: {
     results: {
-      type: Array as PropType<HoppTestResult>,
+      type: Object as PropType<HoppTestResult>,
       default: null,
     },
   },

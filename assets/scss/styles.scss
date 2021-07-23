@@ -89,7 +89,6 @@ a {
   @apply text-current;
   @apply no-underline;
   @apply outline-none;
-  @apply rounded-lg;
   @apply focus-visible:(ring ring-inset ring-accent);
   @apply transition;
 
@@ -149,7 +148,7 @@ a {
 
 .tippy-content > div {
   @apply flex flex-col;
-  @apply max-h-64;
+  @apply max-h-48;
   @apply items-stretch;
   @apply overflow-y-auto;
 }
@@ -170,7 +169,7 @@ hr {
   @apply px-4 py-2;
   @apply bg-primary;
   @apply truncate;
-  @apply rounded-lg;
+  @apply rounded;
   @apply font-semibold font-mono;
   @apply text-xs;
   @apply border border-divider;
@@ -226,7 +225,7 @@ input[type="checkbox"] {
 
     &::before {
       @apply border border-secondary;
-      @apply rounded-lg;
+      @apply rounded;
       @apply inline-flex;
       @apply items-center;
       @apply justify-center;

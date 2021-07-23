@@ -17,7 +17,7 @@
                 v-model="contentType"
                 class="
                   bg-primary
-                  rounded-lg
+                  rounded
                   flex
                   font-semibold font-mono
                   text-xs

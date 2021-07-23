@@ -59,7 +59,7 @@
   "status": "Status",
   "headers": "Headers",
   "websocket": "WebSocket",
-  "waiting_for_connection": "(waiting for connection)",
+  "waiting_for_connection": "waiting for connection",
   "message": "Message",
   "sse": "SSE",
   "server": "Server",

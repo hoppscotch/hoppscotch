@@ -24,7 +24,7 @@
                   class="
                     bg-primaryLight
                     border-b border-dividerLight
-                    rounded-lg
+                    rounded
                     cursor-pointer
                     flex
                     font-semibold
@@ -79,7 +79,7 @@
             showPrintMargin: false,
             useWorker: false,
           }"
-          styles="rounded-lg"
+          styles="rounded"
         />
       </div>
     </template>

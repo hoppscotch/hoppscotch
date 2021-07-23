@@ -18,7 +18,7 @@
             :key="`shortcut-${index}-key-${keyIndex}`"
             class="
               border border-divider
-              rounded-lg
+              rounded
               font-bold
               m-1
               text-xs

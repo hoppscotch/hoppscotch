@@ -11,3 +11,7 @@ export const knownContentTypes = {
 }
 
 export type ValidContentTypes = keyof typeof knownContentTypes
+
+export function isJSONContentType(contentType: string) {
+  return /\bjson\b/i.test(contentType)
+}

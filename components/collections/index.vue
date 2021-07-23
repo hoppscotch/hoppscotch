@@ -1,7 +1,7 @@
 <template>
   <AppSection
     label="collections"
-    :class="{ 'rounded-lg border-2 border-divider': saveRequest }"
+    :class="{ 'rounded border-2 border-divider': saveRequest }"
   >
     <div
       class="bg-primary flex flex-col top-0 z-10 sticky"

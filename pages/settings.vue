@@ -173,13 +173,11 @@
               </div>
               <div class="flex items-center">
                 <SmartToggle
-                  :on="SHORTCUTS_INDICATOR_ENABLED"
-                  @change="toggleSetting('SHORTCUTS_INDICATOR_ENABLED')"
+                  :on="SHORTCUT_INDICATOR"
+                  @change="toggleSetting('SHORTCUT_INDICATOR')"
                 >
                   {{ $t("shortcuts_indicator") }}
-                  {{
-                    SHORTCUTS_INDICATOR_ENABLED ? $t("enabled") : $t("disabled")
-                  }}
+                  {{ SHORTCUT_INDICATOR ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
@@ -227,6 +225,26 @@
               <span v-else>
                 {{ $t("extension_version") }}:
                 {{ $t("extension_ver_not_reported") }}
+              </span>
+            </div>
+            <div class="flex flex-col space-y-2 py-4">
+              <span>
+                <SmartItem
+                  to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+                  blank
+                  svg="firefox"
+                  label="Firefox"
+                  :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
+                />
+              </span>
+              <span>
+                <SmartItem
+                  to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+                  blank
+                  svg="chrome"
+                  label="Chrome"
+                  :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
+                />
               </span>
             </div>
             <div class="space-y-4 mt-4">
@@ -318,7 +336,11 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
+import {
+  hasExtensionInstalled,
+  hasChromeExtensionInstalled,
+  hasFirefoxExtensionInstalled,
+} from "~/helpers/strategies/ExtensionStrategy"
 import {
   applySetting,
   toggleSetting,
@@ -345,7 +367,7 @@ export default defineComponent({
       SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
       SYNC_HISTORY: useSetting("syncHistory"),
       TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
-      SHORTCUTS_INDICATOR_ENABLED: useSetting("SHORTCUTS_INDICATOR_ENABLED"),
+      SHORTCUT_INDICATOR: useSetting("SHORTCUT_INDICATOR"),
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
       currentUser: useReadonlyStream(currentUser$, currentUser$.value),
@@ -356,6 +378,9 @@ export default defineComponent({
       extensionVersion: hasExtensionInstalled()
         ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
         : null,
+
+      hasChromeExtInstalled: hasChromeExtensionInstalled(),
+      hasFirefoxExtInstalled: hasFirefoxExtensionInstalled(),
 
       clearIcon: "clear_all",
 

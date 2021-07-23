@@ -15,9 +15,9 @@
     :class="[
       color
         ? `text-${color}-400 hover:text-${color}-600 focus:text-${color}-600`
-        : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
+        : 'text-secondary hover:text-secondaryDark hover:bg-primaryDark focus:text-secondaryDark',
       label ? 'px-3' : 'px-2',
-      rounded ? 'rounded-full' : 'rounded-lg',
+      rounded ? 'rounded-full' : 'rounded',
       { 'opacity-50 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
       {
@@ -41,9 +41,9 @@
       class="svg-icons"
     />
     {{ label }}
-    <div v-if="shortcuts.length && SHORTCUTS_INDICATOR_ENABLED" class="ml-2">
+    <div v-if="shortcut.length && SHORTCUT_INDICATOR" class="ml-2">
       <kbd
-        v-for="(key, index) in shortcuts"
+        v-for="(key, index) in shortcut"
         :key="`key-${index}`"
         class="
           bg-dividerLight
@@ -109,21 +109,19 @@ export default {
       type: Boolean,
       default: false,
     },
-    shortcuts: {
+    shortcut: {
       type: Array,
       default: () => [],
     },
   },
   data() {
     return {
-      SHORTCUTS_INDICATOR_ENABLED: null,
+      SHORTCUT_INDICATOR: null,
     }
   },
   subscriptions() {
     return {
-      SHORTCUTS_INDICATOR_ENABLED: getSettingSubject(
-        "SHORTCUTS_INDICATOR_ENABLED"
-      ),
+      SHORTCUT_INDICATOR: getSettingSubject("SHORTCUT_INDICATOR"),
     }
   },
 }

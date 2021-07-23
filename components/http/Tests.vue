@@ -36,9 +36,6 @@
       }"
       complete-mode="test"
     />
-    <pre>
-    {{ testResults }}
-    </pre>
     <div v-if="testResults">
       <div class="flex flex-1 pl-4 items-center justify-between">
         <div>
@@ -60,22 +57,7 @@
           @click.native="clearContent()"
         />
       </div>
-      <div v-if="testResults.expectResults">
-        <HttpTestResult
-          v-for="(result, index) in testResults.expectResults"
-          :key="`result-${index}`"
-          class="divide-y divide-dividerLight"
-          :results="testResults.expectResults"
-        />
-      </div>
-      <div v-if="testResults.tests">
-        <HttpTestResult
-          v-for="(result, index) in testResults.tests"
-          :key="`result-${index}`"
-          class="divide-y divide-dividerLight"
-          :results="testResults.tests"
-        />
-      </div>
+      <HttpTestResult v-if="testResults" :results="testResults" />
     </div>
   </AppSection>
 </template>

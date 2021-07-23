@@ -15,7 +15,7 @@
                     class="
                       bg-primaryLight
                       border border-divider
-                      rounded-l-lg
+                      rounded-l
                       font-mono
                       text-secondaryDark
                       w-full

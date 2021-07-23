@@ -14,7 +14,7 @@
       :alt="alt"
       loading="lazy"
     />
-    <div class="rounded-lg shadow-inner inset-0 absolute"></div>
+    <div class="rounded shadow-inner inset-0 absolute"></div>
   </div>
 </template>
 

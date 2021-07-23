@@ -4,7 +4,7 @@
     :exact="exact"
     :blank="blank"
     class="
-      rounded-lg
+      rounded
       font-semibold
       py-2
       px-4

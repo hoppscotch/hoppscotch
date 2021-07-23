@@ -120,7 +120,7 @@ export default {
   @apply p-4;
   @apply mt-4;
   @apply border border-divider;
-  @apply rounded-lg;
+  @apply rounded;
 
   h4 {
     @apply mt-4;

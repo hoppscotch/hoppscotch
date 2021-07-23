@@ -16,7 +16,7 @@
         class="
           bg-primaryLight
           flex
-          font-medium
+          font-semibold font-mono
           flex-1
           text-xs
           py-3

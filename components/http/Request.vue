@@ -19,7 +19,7 @@
                 rounded-l
                 cursor-pointer
                 flex
-                font-mono
+                font-semibold font-mono
                 text-secondaryDark
                 py-2
                 px-4
@@ -53,7 +53,7 @@
         class="
           bg-primaryLight
           border border-divider
-          font-mono
+          font-semibold font-mono
           text-secondaryDark
           w-full
           py-2

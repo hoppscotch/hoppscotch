@@ -16,7 +16,7 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
-                    font-mono
+                    font-semibold font-mono
                     text-secondaryDark
                     w-full
                     py-1
@@ -34,7 +34,7 @@
                   class="
                     bg-primaryLight
                     border border-divider
-                    font-mono
+                    font-semibold font-mono
                     text-secondaryDark
                     w-full
                     py-1

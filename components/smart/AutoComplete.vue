@@ -6,10 +6,10 @@
       class="
         bg-primaryLight
         flex
-        font-semibold
+        font-semibold font-mono
         flex-1
         text-xs
-        py-3
+        py-2
         px-4
         focus:outline-none
       "

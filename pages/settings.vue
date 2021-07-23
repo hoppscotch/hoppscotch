@@ -296,7 +296,9 @@
                   class="
                     border border-divider
                     rounded-r
+                    font-semibold font-mono
                     flex-1
+                    text-xs
                     mr-2
                     w-full
                     py-1

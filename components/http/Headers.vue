@@ -59,7 +59,7 @@
         class="
           bg-primaryLight
           flex
-          font-semibold
+          font-semibold font-mono
           flex-1
           text-xs
           py-3

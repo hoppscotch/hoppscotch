@@ -16,7 +16,7 @@
           bg-primaryLight
           border-b border-dividerLight
           flex
-          font-medium
+          font-semibold font-mono
           flex-1
           text-xs
           py-3

@@ -13,7 +13,7 @@
                 bg-primaryLight
                 border border-divider
                 rounded-l
-                font-mono
+                font-semibold font-mono
                 text-secondaryDark
                 w-full
                 py-1

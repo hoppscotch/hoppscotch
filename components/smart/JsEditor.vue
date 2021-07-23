@@ -15,6 +15,7 @@ import {
   getPreRequestScriptCompletions,
   getTestScriptCompletions,
   performPreRequestLinting,
+  performTestLinting,
 } from "~/helpers/tern"
 
 export default {
@@ -177,7 +178,12 @@ export default {
     provideLinting: debounce(function (code) {
       let results = []
 
-      performPreRequestLinting(code)
+      const lintFunc =
+        this.completeMode === "pre"
+          ? performPreRequestLinting
+          : performTestLinting
+
+      lintFunc(code)
         .then((semanticLints) => {
           results = results.concat(
             semanticLints.map((lint) => ({

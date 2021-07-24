@@ -93,16 +93,16 @@ export default defineComponent({
     }
   },
   computed: {
-    totalTests() {
-      return this.testResults.expectResults.length
+    totalTests(): number | undefined {
+      return this.testResults?.expectResults.length
     },
-    failedTests() {
-      return this.testResults.expectResults.filter(
+    failedTests(): number | undefined {
+      return this.testResults?.expectResults.filter(
         (result: { status: string }) => result.status === "fail"
       ).length
     },
-    passedTests() {
-      return this.testResults.expectResults.filter(
+    passedTests(): number | undefined {
+      return this.testResults?.expectResults.filter(
         (result: { status: string }) => result.status === "pass"
       ).length
     },

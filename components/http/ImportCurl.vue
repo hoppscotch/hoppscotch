@@ -108,6 +108,11 @@ export default defineComponent({
             headers,
             preRequestScript: "",
             testScript: "",
+            body: {
+              contentType: "application/json",
+              body: "",
+              isRaw: false,
+            },
           })
         )
       } catch (error) {

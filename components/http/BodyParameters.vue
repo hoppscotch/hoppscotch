@@ -135,15 +135,10 @@
   </AppSection>
 </template>
 
-<script lang="ts">
-import { defineComponent, toRef } from "@nuxtjs/composition-api"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
-
-export default defineComponent({
-  setup() {
-    return {
-      bodyParams: toRef(useRESTRequestBody(), "body"),
-    }
+<script>
+export default {
+  props: {
+    bodyParams: { type: Array, default: () => [] },
   },
   computed: {
     contentType() {
@@ -168,15 +163,15 @@ export default defineComponent({
     }
   },
   methods: {
-    clearContent(bodyParams: string, $event: any) {
+    clearContent(bodyParams, $event) {
       this.$emit("clear-content", bodyParams, $event)
     },
     setRouteQueryState() {
       this.$emit("set-route-query-state")
     },
-    removeRequestBodyParam(index: number) {
+    removeRequestBodyParam(index) {
       const paramArr = this.$store.state.request.bodyParams.filter(
-        (item: { active: boolean }, itemIndex: any) =>
+        (item, itemIndex) =>
           itemIndex !== index &&
           (Object.prototype.hasOwnProperty.call(item, "active")
             ? item.active === true
@@ -188,45 +183,40 @@ export default defineComponent({
     addRequestBodyParam() {
       this.$emit("add-request-body-param")
     },
-    setRequestAttachment(event: { target: { files: any } }, index: number) {
+    setRequestAttachment(event, index) {
       const { files } = event.target
       this.$store.commit("setFilesBodyParams", {
         index,
         value: Array.from(files),
       })
     },
-    requestBodyParamIsFile(index: number) {
+    requestBodyParamIsFile(index) {
       const bodyParamValue = this.bodyParams?.[index]?.value
       const isFile = bodyParamValue?.[0] instanceof File
       return isFile
     },
-    chipDelete(paramIndex: number, fileIndex: number) {
+    chipDelete(paramIndex, fileIndex) {
       this.$store.commit("removeFile", {
         index: paramIndex,
         fileIndex,
       })
     },
-    updateBodyParams(
-      event: { target: { value: any } },
-      index: number,
-      type: string
-    ) {
+    updateBodyParams(event, index, type) {
       this.$store.commit(type, {
         index,
         value: event.target.value,
       })
-      const paramArr = this.$store.state.request.bodyParams.filter(
-        (item: { active: boolean }) =>
-          Object.prototype.hasOwnProperty.call(item, "active")
-            ? item.active === true
-            : true
+      const paramArr = this.$store.state.request.bodyParams.filter((item) =>
+        Object.prototype.hasOwnProperty.call(item, "active")
+          ? item.active === true
+          : true
       )
 
       this.setRawParams(paramArr)
     },
-    toggleActive(index: number, param: { active: any }) {
+    toggleActive(index, param) {
       const paramArr = this.$store.state.request.bodyParams.filter(
-        (item: { active: boolean }, itemIndex: any) => {
+        (item, itemIndex) => {
           if (index === itemIndex) {
             return !param.active
           } else {
@@ -246,9 +236,9 @@ export default defineComponent({
           : false,
       })
     },
-    setRawParams(filteredParamArr: any[]) {
+    setRawParams(filteredParamArr) {
       let rawParams = {}
-      filteredParamArr.forEach((_param: { key: any; value: any }) => {
+      filteredParamArr.forEach((_param) => {
         rawParams = {
           ...rawParams,
           [_param.key]: _param.value,
@@ -261,7 +251,7 @@ export default defineComponent({
       })
     },
   },
-})
+}
 </script>
 
 <style scoped lang="scss">

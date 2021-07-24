@@ -71,7 +71,7 @@ export default defineComponent({
     })
 
     this.$subscribeTo(getSettingSubject("BG_COLOR"), (color) => {
-      this.$colorMode.preference = color
+      ;(this as any).$colorMode.preference = color
     })
   },
   async mounted() {
@@ -85,7 +85,7 @@ export default defineComponent({
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
 
-    const workbox = await window.$workbox
+    const workbox = await (window as any).$workbox
     if (workbox) {
       workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {

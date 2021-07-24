@@ -1,5 +1,6 @@
 import {
   customRef,
+  DeepReadonly,
   onBeforeUnmount,
   readonly,
   Ref,
@@ -8,7 +9,10 @@ import {
 } from "@nuxtjs/composition-api"
 import { Observable, Subscription } from "rxjs"
 
-export function useReadonlyStream<T>(stream$: Observable<T>, initialValue: T) {
+export function useReadonlyStream<T>(
+  stream$: Observable<T>,
+  initialValue: T
+): Ref<DeepReadonly<T>> {
   let sub: Subscription | null = null
 
   onBeforeUnmount(() => {

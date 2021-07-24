@@ -39,11 +39,11 @@
   // Dark Background color
   --primary-dark-color: theme("colors.true-gray.100");
   // Text color
-  --secondary-color: theme("colors.true-gray.500");
+  --secondary-color: theme("colors.true-gray.600");
   // Light Text color
   --secondary-light-color: theme("colors.true-gray.400");
   // Dark Text color
-  --secondary-dark-color: theme("colors.true-gray.600");
+  --secondary-dark-color: theme("colors.true-gray.800");
   // Border color
   --divider-color: theme("colors.true-gray.200");
   // Light Border color
@@ -53,7 +53,7 @@
   // Error color
   --error-color: theme("colors.true-gray.700");
   // Tooltip color
-  --tooltip-color: theme("colors.true-gray.700");
+  --tooltip-color: theme("colors.true-gray.800");
   // Editor theme
   --editor-theme: "textmate";
 }
@@ -80,7 +80,7 @@
   // Error color
   --error-color: theme("colors.dark.800");
   // Tooltip color
-  --tooltip-color: theme("colors.true-gray.300");
+  --tooltip-color: theme("colors.true-gray.200");
   // Editor theme
   --editor-theme: "vibrant_ink";
 }

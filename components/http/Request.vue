@@ -24,7 +24,7 @@
                 py-2
                 px-4
                 transition
-                w-32
+                w-28
                 truncate
                 focus:outline-none focus:border-accent
               "

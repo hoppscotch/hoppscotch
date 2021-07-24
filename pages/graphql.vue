@@ -59,14 +59,16 @@
                     </label>
                     <div>
                       <ButtonSecondary
-                        :label="$t('run_query')"
+                        :label="$t('run')"
                         :shortcut="[getSpecialKey(), 'Enter']"
                         icon="play_arrow"
+                        class="text-xs !text-accent"
+                        outline
                         @click.native="runQuery()"
                       />
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('copy_query')"
+                        :title="$t('copy')"
                         :icon="copyQueryIcon"
                         @click.native="copyQuery"
                       />
@@ -125,7 +127,7 @@
                     <div>
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('copy_variables')"
+                        :title="$t('copy')"
                         :icon="copyVariablesIcon"
                         @click.native="copyVariables"
                       />
@@ -303,7 +305,7 @@
                   <ButtonSecondary
                     ref="copyResponseButton"
                     v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('copy_response')"
+                    :title="$t('copy')"
                     :icon="copyResponseIcon"
                     @click.native="copyResponse"
                   />
@@ -509,7 +511,7 @@
                     <ButtonSecondary
                       ref="copySchemaCode"
                       v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('copy_schema')"
+                      :title="$t('copy')"
                       :icon="copySchemaIcon"
                       @click.native="copySchema"
                     />

@@ -104,7 +104,7 @@ a {
 .tippy-popper {
   .tooltip-theme {
     @apply bg-tooltip;
-    @apply text-primaryLight text-xs;
+    @apply text-primary text-xs;
     @apply font-semibold;
     @apply py-1 px-2;
     @apply shadow;
@@ -291,7 +291,7 @@ input[type="checkbox"] {
     &.toasted-primary {
       @apply px-6 py-1;
       @apply bg-tooltip;
-      @apply text-white text-xs;
+      @apply text-primary text-xs;
       @apply !font-semibold;
 
       .material-icons {

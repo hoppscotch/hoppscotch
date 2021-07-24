@@ -87,7 +87,7 @@ export default defineComponent({
 
     const workbox = await window.$workbox
     if (workbox) {
-      workbox.addEventListener("installed", (event) => {
+      workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {
           this.$toast.show(this.$t("new_version_found").toString(), {
             icon: "info",
@@ -111,9 +111,6 @@ export default defineComponent({
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
 })
 </script>

@@ -163,8 +163,8 @@
   "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
   "log": "Log",
   "no_url": "No URL",
-  "run_query": "Run Query",
-  "copy_query": "Copy Query",
+  "run": "Run",
+  "copy": "Copy Query",
   "loading": "Loading...",
   "fetching": "Fetching...",
   "waiting_send_req": "Waiting to send request",
@@ -191,10 +191,10 @@
   "import_json": "Import from JSON",
   "download_file": "Download file",
   "upload_file": "Upload file",
-  "copy_response": "Copy response",
-  "copy_code": "Copy code",
-  "copy_schema": "Copy schema",
-  "copy_variables": "Copy variables",
+  "copy": "Copy response",
+  "copy": "Copy code",
+  "copy": "Copy schema",
+  "copy": "Copy variables",
   "use_request": "Use request",
   "documentation": "Documentation",
   "docs": "Docs",
@@ -352,5 +352,6 @@
   "shortcuts_indicator": "Shortcuts indicator",
   "zen_mode": "Zen mode",
   "notifications": "Notifications",
-  "connect_graphql_endpoint": "Connect to a GraphQL endpoint"
+  "connect_graphql_endpoint": "Connect to a GraphQL endpoint",
+  "copy": "Copy"
 }

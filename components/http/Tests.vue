@@ -98,12 +98,12 @@ export default defineComponent({
     },
     failedTests() {
       return this.testResults.expectResults.filter(
-        (result) => result.status === "fail"
+        (result: { status: string }) => result.status === "fail"
       ).length
     },
     passedTests() {
       return this.testResults.expectResults.filter(
-        (result) => result.status === "pass"
+        (result: { status: string }) => result.status === "pass"
       ).length
     },
   },

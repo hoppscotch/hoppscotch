@@ -166,15 +166,15 @@ export default defineComponent({
     }
   },
   methods: {
-    clearContent(bodyParams, $event) {
+    clearContent(bodyParams: string, $event: any) {
       this.$emit("clear-content", bodyParams, $event)
     },
     setRouteQueryState() {
       this.$emit("set-route-query-state")
     },
-    removeRequestBodyParam(index) {
+    removeRequestBodyParam(index: number) {
       const paramArr = this.$store.state.request.bodyParams.filter(
-        (item, itemIndex) =>
+        (item: { active: boolean }, itemIndex: any) =>
           itemIndex !== index &&
           (Object.prototype.hasOwnProperty.call(item, "active")
             ? item.active === true
@@ -186,40 +186,45 @@ export default defineComponent({
     addRequestBodyParam() {
       this.$emit("add-request-body-param")
     },
-    setRequestAttachment(event, index) {
+    setRequestAttachment(event: { target: { files: any } }, index: number) {
       const { files } = event.target
       this.$store.commit("setFilesBodyParams", {
         index,
         value: Array.from(files),
       })
     },
-    requestBodyParamIsFile(index) {
+    requestBodyParamIsFile(index: number) {
       const bodyParamValue = this.bodyParams?.[index]?.value
       const isFile = bodyParamValue?.[0] instanceof File
       return isFile
     },
-    chipDelete(paramIndex, fileIndex) {
+    chipDelete(paramIndex: number, fileIndex: number) {
       this.$store.commit("removeFile", {
         index: paramIndex,
         fileIndex,
       })
     },
-    updateBodyParams(event, index, type) {
+    updateBodyParams(
+      event: { target: { value: any } },
+      index: number,
+      type: string
+    ) {
       this.$store.commit(type, {
         index,
         value: event.target.value,
       })
-      const paramArr = this.$store.state.request.bodyParams.filter((item) =>
-        Object.prototype.hasOwnProperty.call(item, "active")
-          ? item.active === true
-          : true
+      const paramArr = this.$store.state.request.bodyParams.filter(
+        (item: { active: boolean }) =>
+          Object.prototype.hasOwnProperty.call(item, "active")
+            ? item.active === true
+            : true
       )
 
       this.setRawParams(paramArr)
     },
-    toggleActive(index, param) {
+    toggleActive(index: number, param: { active: any }) {
       const paramArr = this.$store.state.request.bodyParams.filter(
-        (item, itemIndex) => {
+        (item: { active: boolean }, itemIndex: any) => {
           if (index === itemIndex) {
             return !param.active
           } else {
@@ -239,9 +244,9 @@ export default defineComponent({
           : false,
       })
     },
-    setRawParams(filteredParamArr) {
+    setRawParams(filteredParamArr: any[]) {
       let rawParams = {}
-      filteredParamArr.forEach((_param) => {
+      filteredParamArr.forEach((_param: { key: any; value: any }) => {
         rawParams = {
           ...rawParams,
           [_param.key]: _param.value,

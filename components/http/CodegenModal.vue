@@ -60,7 +60,7 @@
           <ButtonSecondary
             ref="copyRequestCode"
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('copy_code')"
+            :title="$t('copy')"
             :icon="copyIcon"
             @click.native="copyRequestCode"
           />

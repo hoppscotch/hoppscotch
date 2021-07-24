@@ -286,8 +286,8 @@
                     rounded-l
                     text-xs
                     ml-2
-                    py-1
-                    px-2
+                    py-2
+                    px-4
                   "
                 >
                   {{ `${$t("proxy")} ${$t("url")}` }}
@@ -296,6 +296,7 @@
                   id="url"
                   v-model="PROXY_URL"
                   class="
+                    bg-primaryLight
                     border border-divider
                     rounded-r
                     font-semibold font-mono
@@ -303,9 +304,10 @@
                     text-xs
                     mr-2
                     w-full
-                    py-1
-                    px-2
+                    py-2
+                    px-4
                     block
+                    focus:outline-none focus:border-accent
                   "
                   type="url"
                   :disabled="!PROXY_ENABLED"

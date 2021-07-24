@@ -26,7 +26,7 @@
         ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`
         : '',
       { 'translate-x-2': active },
-      { 'opacity-50 cursor-not-allowed': disabled },
+      { 'opacity-75 cursor-not-allowed': disabled },
     ]"
     :disabled="disabled"
     type="button"

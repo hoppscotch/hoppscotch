@@ -16,7 +16,7 @@
       <label for="headerList" class="font-semibold text-xs">
         {{ $t("header_list") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"

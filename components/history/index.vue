@@ -59,7 +59,7 @@
       v-if="!(filteredHistory.length !== 0 || history.length === 0)"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-50 pb-2 material-icons">manage_search</i>
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-xs text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
@@ -68,7 +68,7 @@
       v-if="history.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-50 pb-2 material-icons">schedule</i>
+      <i class="opacity-75 pb-2 material-icons">schedule</i>
       <span class="text-xs text-center">
         {{ $t("history_empty") }}
       </span>

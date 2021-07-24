@@ -18,7 +18,7 @@
       color
         ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`
         : 'hover:text-secondaryDark focus:text-accent',
-      { 'opacity-50 cursor-not-allowed': disabled },
+      { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
     ]"
     :disabled="disabled"

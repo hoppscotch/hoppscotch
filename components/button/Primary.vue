@@ -18,7 +18,7 @@
         : `text-white bg-accent hover:bg-accentDark focus:bg-accentDark`,
       label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',
-      { 'opacity-50 cursor-not-allowed': disabled },
+      { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
       { 'px-6 py-4 text-lg': large },
       { 'shadow-lg hover:shadow-xl': shadow },

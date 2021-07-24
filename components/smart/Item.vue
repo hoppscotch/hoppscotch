@@ -17,7 +17,7 @@
       focus:outline-none
     "
     :class="[
-      { 'opacity-50 cursor-not-allowed': disabled },
+      { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
       { 'flex-1': label },
       { 'flex-row-reverse justify-end': reverse },

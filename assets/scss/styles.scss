@@ -307,7 +307,15 @@ input[type="checkbox"] {
 
     &.info {
       @apply !bg-accent;
-      @apply !text-primary;
+      @apply !text-white;
+    }
+
+    &.error {
+      @apply !text-white;
+    }
+
+    &.success {
+      @apply !text-white;
     }
   }
 }

@@ -18,7 +18,7 @@
         : 'text-secondary hover:text-secondaryDark hover:bg-primaryDark focus:text-secondaryDark',
       label ? 'px-3' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',
-      { 'opacity-50 cursor-not-allowed': disabled },
+      { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
       {
         'border border-divider hover:border-dividerDark focus:border-dividerDark':

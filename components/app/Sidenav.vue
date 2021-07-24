@@ -43,8 +43,7 @@ export default {
   @apply hover:text-secondaryDark;
 
   .material-icons {
-    @apply transition-opacity;
-    @apply opacity-50;
+    @apply opacity-75;
   }
 
   span {

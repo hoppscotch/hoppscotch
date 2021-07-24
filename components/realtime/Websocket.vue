@@ -55,7 +55,7 @@
             <label class="font-semibold text-xs">
               {{ $t("protocols") }}
             </label>
-            <div>
+            <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('clear_all')"

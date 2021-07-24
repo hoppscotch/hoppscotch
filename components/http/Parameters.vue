@@ -16,7 +16,7 @@
       <label class="font-semibold text-xs">
         {{ $t("parameter_list") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear_all')"

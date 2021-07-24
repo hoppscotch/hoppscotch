@@ -57,13 +57,12 @@
                     <label for="gqlQuery" class="font-semibold text-xs">
                       {{ $t("query") }}
                     </label>
-                    <div>
+                    <div class="flex">
                       <ButtonSecondary
                         :label="$t('run')"
                         :shortcut="[getSpecialKey(), 'Enter']"
                         icon="play_arrow"
                         class="text-xs !text-accent"
-                        outline
                         @click.native="runQuery()"
                       />
                       <ButtonSecondary
@@ -124,7 +123,7 @@
                     <label class="font-semibold text-xs">
                       {{ $t("variables") }}
                     </label>
-                    <div>
+                    <div class="flex">
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
                         :title="$t('copy')"
@@ -172,10 +171,10 @@
                       justify-between
                     "
                   >
-                    <label class="font-semibold text-xs">{{
-                      $t("headers")
-                    }}</label>
-                    <div>
+                    <label class="font-semibold text-xs">
+                      {{ $t("headers") }}
+                    </label>
+                    <div class="flex">
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
                         :title="$t('clear')"
@@ -294,7 +293,7 @@
                 <label class="font-semibold text-xs" for="responseField">
                   {{ $t("response") }}
                 </label>
-                <div>
+                <div class="flex">
                   <ButtonSecondary
                     ref="downloadResponse"
                     v-tippy="{ theme: 'tooltip' }"
@@ -337,7 +336,7 @@
                   justify-center
                 "
               >
-                <i class="opacity-50 pb-2 material-icons">send</i>
+                <i class="opacity-75 pb-2 material-icons">send</i>
                 <span class="text-xs text-center">
                   {{ $t("waiting_send_req") }}
                 </span>
@@ -461,7 +460,7 @@
                     justify-center
                   "
                 >
-                  <i class="opacity-50 pb-2 material-icons">link</i>
+                  <i class="opacity-75 pb-2 material-icons">link</i>
                   <span class="text-xs text-center">
                     {{ $t("connect_graphql_endpoint") }}
                   </span>
@@ -500,7 +499,7 @@
                   <label class="font-semibold text-xs">
                     {{ $t("schema") }}
                   </label>
-                  <div>
+                  <div class="flex">
                     <ButtonSecondary
                       ref="downloadSchema"
                       v-tippy="{ theme: 'tooltip' }"
@@ -541,7 +540,7 @@
                     justify-center
                   "
                 >
-                  <i class="opacity-50 pb-2 material-icons">link</i>
+                  <i class="opacity-75 pb-2 material-icons">link</i>
                   <span class="text-xs text-center">
                     {{ $t("connect_graphql_endpoint") }}
                   </span>
@@ -924,7 +923,7 @@ export default defineComponent({
 
         this.$nuxt.$loading.finish()
         const duration = Date.now() - startTime
-        this.$toast.info(this.$t("finished_in", { duration }), {
+        this.$toast.success(this.$t("finished_in", { duration }), {
           icon: "done",
         })
 

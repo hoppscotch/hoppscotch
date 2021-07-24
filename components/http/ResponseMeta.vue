@@ -10,7 +10,7 @@
         justify-center
       "
     >
-      <i class="opacity-50 pb-2 material-icons">send</i>
+      <i class="opacity-75 pb-2 material-icons">send</i>
       <span class="text-xs text-center">
         {{ $t("waiting_send_req") }}
       </span>

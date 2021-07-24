@@ -1,49 +1,51 @@
 <template>
-  <div class="flex justify-between">
-    <div>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="LEFT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
-        icon="menu_open"
-        :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
-        @click.native="toggleSetting('LEFT_SIDEBAR')"
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="`${ZEN_MODE ? $t('turn_off') : $t('turn_on')} ${$t(
-          'zen_mode'
-        )}`"
-        :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
-        :class="{
-          'text-accent focus:text-accent hover:text-accent': ZEN_MODE,
-        }"
-        @click.native="toggleSetting('ZEN_MODE')"
-      />
+  <div>
+    <div class="flex justify-between">
+      <div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="LEFT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
+          icon="menu_open"
+          :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
+          @click.native="toggleSetting('LEFT_SIDEBAR')"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${ZEN_MODE ? $t('turn_off') : $t('turn_on')} ${$t(
+            'zen_mode'
+          )}`"
+          :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
+          :class="{
+            '!text-accent focus:text-accent hover:text-accent': ZEN_MODE,
+          }"
+          @click.native="toggleSetting('ZEN_MODE')"
+        />
+      </div>
+      <div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          icon="keyboard"
+          :title="$t('shortcuts')"
+          :shortcut="[getSpecialKey(), '/']"
+          @click.native="showShortcuts = true"
+        />
+        <ButtonSecondary
+          v-if="navigatorShare"
+          v-tippy="{ theme: 'tooltip' }"
+          icon="share"
+          :title="$t('share')"
+          @click.native="nativeShare()"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="RIGHT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
+          icon="menu_open"
+          :class="['transform rotate-180', { 'rotate-0': !RIGHT_SIDEBAR }]"
+          @click.native="toggleSetting('RIGHT_SIDEBAR')"
+        />
+      </div>
     </div>
-    <div>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        icon="keyboard"
-        :title="$t('shortcuts')"
-        :shortcut="[getSpecialKey(), '/']"
-        @click.native="showShortcuts = true"
-      />
-      <ButtonSecondary
-        v-if="navigatorShare"
-        v-tippy="{ theme: 'tooltip' }"
-        icon="share"
-        :title="$t('share')"
-        @click.native="nativeShare()"
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="RIGHT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
-        icon="menu_open"
-        :class="['transform rotate-180', { 'rotate-0': !RIGHT_SIDEBAR }]"
-        @click.native="toggleSetting('RIGHT_SIDEBAR')"
-      />
-    </div>
-    <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
+    <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
   </div>
 </template>
 
@@ -80,7 +82,7 @@ export default defineComponent({
   watch: {
     ZEN_MODE(ZEN_MODE) {
       this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
-      this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
+      // this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
     },
   },
   methods: {

@@ -1,13 +1,25 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("shortcuts") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
+  <AppSlideOver :show="show" @close="close()">
+    <template #content>
+      <div
+        class="
+          bg-primary
+          border-b border-dividerLight
+          flex
+          p-2
+          top-0
+          items-center
+          sticky
+          justify-between
+        "
+      >
+        <h3 class="ml-2 heading">{{ $t("shortcuts") }}</h3>
+        <div>
+          <ButtonSecondary to="/settings" icon="tune" />
+          <ButtonSecondary icon="close" @click.native="close()" />
+        </div>
       </div>
-    </template>
-    <template #body>
-      <div class="px-2">
+      <div class="p-4">
         <div
           v-for="(shortcut, index) in shortcuts"
           :key="`shortcut-${index}`"
@@ -34,7 +46,7 @@
         </div>
       </div>
     </template>
-  </SmartModal>
+  </AppSlideOver>
 </template>
 
 <script>
@@ -94,10 +106,15 @@ export default {
       ],
     }
   },
+  watch: {
+    $route() {
+      this.$emit("close")
+    },
+  },
   methods: {
     getSpecialKey: getPlatformSpecialKey,
-    hideModal() {
-      this.$emit("hide-modal")
+    close() {
+      this.$emit("close")
     },
   },
 }

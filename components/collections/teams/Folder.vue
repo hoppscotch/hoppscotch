@@ -147,7 +147,7 @@
           justify-center
         "
       >
-        <i class="opacity-50 pb-2 material-icons">folder_open</i>
+        <i class="opacity-75 pb-2 material-icons">folder_open</i>
         <span class="text-xs text-center">
           {{ $t("folder_empty") }}
         </span>

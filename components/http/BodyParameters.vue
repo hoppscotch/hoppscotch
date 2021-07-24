@@ -16,12 +16,14 @@
       <label for="reqParamList" class="font-semibold text-xs">
         {{ $t("request_body") }}
       </label>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('clear')"
-        icon="clear_all"
-        @click.native="clearContent('bodyParams', $event)"
-      />
+      <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent('bodyParams', $event)"
+        />
+      </div>
     </div>
     <div
       v-for="(param, index) in bodyParams"

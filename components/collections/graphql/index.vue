@@ -1,7 +1,7 @@
 <template>
   <AppSection
     label="collections"
-    :class="{ 'rounded border-2 border-divider': savingMode }"
+    :class="{ 'rounded border border-divider': savingMode }"
   >
     <div
       class="flex flex-col top-10 z-10 sticky"
@@ -62,7 +62,7 @@
       v-if="collections.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-50 pb-2 material-icons">create_new_folder</i>
+      <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
       <span class="text-xs text-center">
         {{ $t("create_new_collection") }}
       </span>
@@ -71,7 +71,7 @@
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-50 pb-2 material-icons">manage_search</i>
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-xs text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>

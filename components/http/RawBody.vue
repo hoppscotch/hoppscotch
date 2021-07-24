@@ -16,7 +16,7 @@
       <label for="rawBody" class="font-semibold text-xs">
         {{ $t("raw_request_body") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-if="contentType.endsWith('json')"
           ref="prettifyRequest"

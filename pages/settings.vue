@@ -412,7 +412,7 @@ export default defineComponent({
   watch: {
     ZEN_MODE(ZEN_MODE) {
       this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
-      this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
+      // this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
     },
     proxySettings: {
       deep: true,

@@ -145,13 +145,13 @@
               class="rounded-l-none"
             />
           </template>
-          <SmartItem :description="$t('token_req_name')" />
           <input
             id="request-name"
             v-model="name"
+            :placeholder="$t('request_name')"
             name="request-name"
             type="text"
-            class="text-sm input"
+            class="mb-2 input"
           />
           <SmartItem
             ref="copyRequest"

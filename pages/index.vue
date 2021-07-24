@@ -357,7 +357,7 @@
             </span>
           </li>
         </ul>
-        <label for="token-req-name">{{ $t("token_req_name") }}</label>
+        <label for="token-req-name">{{ $t("request_name") }}</label>
         <input class="input" v-model="tokenReqName" />
         <label for="token-req-details">
           {{ $t("token_req_details") }}

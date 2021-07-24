@@ -101,7 +101,7 @@
   "save_token_req": "Tokenaanvraag opslaan",
   "manage_token_req": "Tokenaanvraag beheren",
   "use_token_req": "Tokenaanvraag gebruiken",
-  "token_req_name": "Naam request",
+  "request_name": "Naam request",
   "token_req_details": "Request details",
   "token_name": "Naam token",
   "oidc_discovery_url": "OIDC Discovery URL",

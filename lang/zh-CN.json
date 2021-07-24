@@ -105,7 +105,7 @@
   "save_token_req": "保存 Token Request",
   "manage_token_req": "管理 Token Request",
   "use_token_req": "使用 Token Request",
-  "token_req_name": "请求名称",
+  "request_name": "请求名称",
   "empty_req_name": "空请求名称",
   "token_req_details": "请求详情",
   "token_name": "Token 名称",

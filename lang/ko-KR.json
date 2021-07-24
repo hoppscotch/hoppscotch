@@ -101,7 +101,7 @@
   "save_token_req": "토큰 요청 저장",
   "manage_token_req": "토큰 요청 관리",
   "use_token_req": "토큰 요청 사용",
-  "token_req_name": "요청 이름",
+  "request_name": "요청 이름",
   "token_req_details": "요청 세부 사항",
   "token_name": "토큰 이름",
   "oidc_discovery_url": "OIDC Discovery URL",

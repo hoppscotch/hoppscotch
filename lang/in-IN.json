@@ -100,7 +100,7 @@
   "save_token_req": "टोकन अनुरोध सहेजें",
   "manage_token_req": "टोकन अनुरोध प्रबंधित करें",
   "use_token_req": "टोकन अनुरोध का प्रयोग करें",
-  "token_req_name": "अनुरोध का नाम",
+  "request_name": "अनुरोध का नाम",
   "empty_req_name": "खाली अनुरोध का नाम",
   "token_req_details": "अनुरोध विवरण",
   "token_name": "टोकन नाम",

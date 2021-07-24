@@ -14,7 +14,21 @@
       :alt="alt"
       loading="lazy"
     />
-    <div class="rounded shadow-inner inset-0 absolute"></div>
+    <div class="rounded-full shadow-inner inset-0 absolute"></div>
+    <span
+      v-if="indicator"
+      class="
+        bg-accent
+        border-primary
+        rounded-full
+        border-2
+        h-3
+        -top-1
+        -right-1
+        w-3
+        absolute
+      "
+    ></span>
   </div>
 </template>
 
@@ -30,6 +44,10 @@ export default {
     alt: {
       type: String,
       default: "Profile picture",
+    },
+    indicator: {
+      type: Boolean,
+      default: false,
     },
   },
 }

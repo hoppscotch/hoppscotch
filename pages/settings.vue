@@ -284,12 +284,14 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
+                    text-xs
                     ml-2
                     py-1
                     px-2
                   "
-                  >{{ $t("url") }}</label
                 >
+                  {{ `${$t("proxy")} ${$t("url")}` }}
+                </label>
                 <input
                   id="url"
                   v-model="PROXY_URL"

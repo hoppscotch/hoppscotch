@@ -100,7 +100,7 @@
   "save_token_req": "Lagre pollettforespørsel",
   "manage_token_req": "Administrer pollettforespørsel",
   "use_token_req": "Bruk pollettforespørsel",
-  "token_req_name": "Forespørselsnavn",
+  "request_name": "Forespørselsnavn",
   "empty_req_name": "Tøm forespørselsnavn",
   "token_req_details": "Forespørselsdetaljer",
   "token_name": "Pollettnavn",

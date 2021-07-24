@@ -101,7 +101,7 @@
   "save_token_req": "Token İsteğini Kaydet",
   "manage_token_req": "Token İsteğini Yönet",
   "use_token_req": "Token İsteğini Kullan",
-  "token_req_name": "İstek Adı",
+  "request_name": "İstek Adı",
   "token_req_details": "İstek Detayları",
   "token_name": "Token Adı",
   "oidc_discovery_url": "OIDC Keşif URL'i",

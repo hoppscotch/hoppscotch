@@ -34,11 +34,11 @@
               :url="currentUser.photoURL"
               :alt="currentUser.displayName"
               :title="
-                (currentUser.displayName ||
-                  '<label><i>Name not found</i></label>') +
+                `${currentUser.displayName || 'Name not found'}` +
                 '<br>' +
-                (currentUser.email || '<label><i>Email not found</i></label>')
+                `<sub>${currentUser.email || 'Email not found'}</sub>`
               "
+              indicator
             />
             <TabPrimary
               v-else

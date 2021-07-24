@@ -95,7 +95,7 @@
   "save_token_req": "Sauvegarder la requête ",
   "manage_token_req": "Gérer la requête avec Token",
   "use_token_req": "Utiliser la requête avec Token",
-  "token_req_name": "Nom de la requête",
+  "request_name": "Nom de la requête",
   "token_req_details": "Détails de la requête",
   "token_name": "Nom du Token",
   "oidc_discovery_url": "OIDC Discovery URL",

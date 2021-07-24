@@ -7,8 +7,8 @@
     <template #body>
       <div class="flex flex-col px-2">
         <label for="selectLabelSaveReq" class="font-semibold text-xs px-4 pb-4">
-          {{ $t("token_req_name") }}</label
-        >
+          {{ $t("request_name") }}
+        </label>
         <input
           id="selectLabelSaveReq"
           v-model="requestData.name"

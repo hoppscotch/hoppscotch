@@ -112,7 +112,7 @@
   "save_token_req": "Salvar Token de Request",
   "manage_token_req": "Gerenciar Token de Request",
   "use_token_req": "Usar Token de Request",
-  "token_req_name": "Nome da Request",
+  "request_name": "Nome da Request",
   "token_req_details": "Detalhes da Request",
   "token_name": "Nome do Token",
   "oidc_discovery_url": "URL de Descobrimento OIDC",

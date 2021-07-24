@@ -101,7 +101,7 @@
   "save_token_req": "Lưu Token Request",
   "manage_token_req": "Quản lý Token Request",
   "use_token_req": "Dùng Token Request",
-  "token_req_name": "Tên Request",
+  "request_name": "Tên Request",
   "token_req_details": "Chi tiết Request",
   "token_name": "Tên Token",
   "oidc_discovery_url": "OIDC Discovery URL",

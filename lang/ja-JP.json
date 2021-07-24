@@ -95,7 +95,7 @@
   "save_token_req": "トークンリクエストを保存",
   "manage_token_req": "トークンリクエストを管理",
   "use_token_req": "トークンリクエストを使用",
-  "token_req_name": "リクエスト名",
+  "request_name": "リクエスト名",
   "token_req_details": "リクエスト詳細",
   "token_name": "トークン名",
   "oidc_discovery_url": "OIDC Discovery URL",

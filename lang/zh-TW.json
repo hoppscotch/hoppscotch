@@ -101,7 +101,7 @@
   "save_token_req": "Save Token Request",
   "manage_token_req": "Manage Token Request",
   "use_token_req": "Use Token Request",
-  "token_req_name": "請求名稱",
+  "request_name": "請求名稱",
   "token_req_details": "請求細節",
   "token_name": "權杖名稱",
   "oidc_discovery_url": "OIDC Discovery URL",

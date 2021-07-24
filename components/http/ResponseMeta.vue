@@ -28,11 +28,17 @@
           <span class="text-secondaryDark"> Status: </span>
           {{ response.statusCode || $t("waiting_send_req") }}
         </span>
-        <span v-if="response.meta.responseDuration" class="text-xs">
+        <span
+          v-if="response.meta && response.meta.responseDuration"
+          class="text-xs"
+        >
           <span class="text-secondaryDark"> Time: </span>
           {{ `${response.meta.responseDuration} ms` }}
         </span>
-        <span v-if="response.meta.responseSize" class="text-xs">
+        <span
+          v-if="response.meta && response.meta.responseSize"
+          class="text-xs"
+        >
           <span class="text-secondaryDark"> Size: </span>
           {{ `${response.meta.responseSize} B` }}
         </span>

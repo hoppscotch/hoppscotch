@@ -22,8 +22,8 @@
               font-bold
               m-1
               text-xs
-              py-2
-              px-4
+              py-1
+              px-2
             "
           >
             {{ key }}

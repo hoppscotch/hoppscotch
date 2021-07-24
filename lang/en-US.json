@@ -101,7 +101,7 @@
   "save_token_req": "Save Token Request",
   "manage_token_req": "Manage Token Request",
   "use_token_req": "Use Token Request",
-  "token_req_name": "Request Name",
+  "request_name": "Request Name",
   "empty_req_name": "Empty Request Name",
   "token_req_details": "Request Details",
   "token_name": "Token Name",
@@ -349,5 +349,6 @@
   "are_you_sure_logout": "Are you sure you want to logout?",
   "telemetry": "Telemetry",
   "shortcuts_indicator": "Shortcuts indicator",
-  "zen_mode": "Zen mode"
+  "zen_mode": "Zen mode",
+  "notifications": "Notifications"
 }

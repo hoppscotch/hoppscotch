@@ -193,7 +193,8 @@
   "upload_file": "Upload file",
   "copy_response": "Copy response",
   "copy_code": "Copy code",
-  "copy_schema": "Copy Schema",
+  "copy_schema": "Copy schema",
+  "copy_variables": "Copy variables",
   "use_request": "Use request",
   "documentation": "Documentation",
   "docs": "Docs",
@@ -350,5 +351,6 @@
   "telemetry": "Telemetry",
   "shortcuts_indicator": "Shortcuts indicator",
   "zen_mode": "Zen mode",
-  "notifications": "Notifications"
+  "notifications": "Notifications",
+  "connect_graphql_endpoint": "Connect to a GraphQL endpoint"
 }

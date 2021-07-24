@@ -109,7 +109,7 @@
         min-size="20"
         class="overflow-auto hide-scrollbar"
       >
-        <aside class="lg:max-w-md">
+        <aside>
           <Collections
             :selected="selected"
             :doc="true"

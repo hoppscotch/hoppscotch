@@ -4,327 +4,341 @@
       <Pane class="overflow-auto hide-scrollbar">
         <Splitpanes horizontal :dbl-click-splitter="false">
           <Pane class="overflow-auto hide-scrollbar">
-            <AppSection label="endpoint">
-              <div class="bg-primary flex p-4 top-0 z-10 sticky">
-                <div class="flex-1 inline-flex">
-                  <input
-                    id="url"
-                    v-model="url"
-                    type="url"
-                    spellcheck="false"
-                    class="
-                      bg-primaryLight
-                      border border-divider
-                      rounded-l
-                      font-semibold font-mono
-                      text-secondaryDark
-                      w-full
-                      py-1
-                      px-4
-                      transition
-                      truncate
-                      focus:outline-none focus:border-accent
-                    "
-                    :placeholder="$t('url')"
-                    @keyup.enter="onPollSchemaClick()"
-                  />
-                  <ButtonPrimary
-                    id="get"
-                    name="get"
-                    :icon="!isPollingSchema ? 'sync' : 'sync_disabled'"
-                    :label="!isPollingSchema ? $t('connect') : $t('disconnect')"
-                    class="rounded-l-none"
-                    @click.native="onPollSchemaClick"
-                  />
-                </div>
+            <div class="bg-primary flex p-4 top-0 z-20 sticky">
+              <div class="flex-1 inline-flex">
+                <input
+                  id="url"
+                  v-model="url"
+                  type="url"
+                  spellcheck="false"
+                  class="
+                    bg-primaryLight
+                    border border-divider
+                    rounded-l
+                    font-semibold font-mono
+                    text-secondaryDark
+                    w-full
+                    py-1
+                    px-4
+                    transition
+                    truncate
+                    focus:outline-none focus:border-accent
+                  "
+                  :placeholder="$t('url')"
+                  @keyup.enter="onPollSchemaClick()"
+                />
+                <ButtonPrimary
+                  id="get"
+                  name="get"
+                  :icon="!isPollingSchema ? 'sync' : 'sync_disabled'"
+                  :label="!isPollingSchema ? $t('connect') : $t('disconnect')"
+                  class="rounded-l-none"
+                  @click.native="onPollSchemaClick"
+                />
               </div>
-            </AppSection>
-            <AppSection label="headers">
+            </div>
+            <SmartTabs styles="sticky top-68px z-10">
+              <SmartTab :id="'query'" :label="$t('query')" :selected="true">
+                <AppSection label="query">
+                  <div
+                    class="
+                      bg-primary
+                      border-b border-dividerLight
+                      flex flex-1
+                      pl-4
+                      top-108px
+                      z-10
+                      sticky
+                      items-center
+                      justify-between
+                      gqlRunQuery
+                    "
+                  >
+                    <label for="gqlQuery" class="font-semibold text-xs">
+                      {{ $t("query") }}
+                    </label>
+                    <div>
+                      <ButtonSecondary
+                        :label="$t('run_query')"
+                        :shortcut="[getSpecialKey(), 'Enter']"
+                        icon="play_arrow"
+                        @click.native="runQuery()"
+                      />
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('copy_query')"
+                        :icon="copyQueryIcon"
+                        @click.native="copyQuery"
+                      />
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="`${$t(
+                          'prettify_query'
+                        )} (${getSpecialKey()}-P)`"
+                        :icon="prettifyQueryIcon"
+                        @click.native="prettifyQuery"
+                      />
+                      <ButtonSecondary
+                        ref="saveRequest"
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('save_to_collections')"
+                        icon="create_new_folder"
+                        @click.native="saveRequest"
+                      />
+                    </div>
+                  </div>
+                  <GraphqlQueryEditor
+                    ref="queryEditor"
+                    v-model="gqlQueryString"
+                    :on-run-g-q-l-query="runQuery"
+                    :options="{
+                      maxLines: Infinity,
+                      minLines: '16',
+                      fontSize: '14px',
+                      autoScrollEditorIntoView: true,
+                      showPrintMargin: false,
+                      useWorker: false,
+                    }"
+                    @update-query="updateQuery"
+                  />
+                </AppSection>
+              </SmartTab>
+
+              <SmartTab :id="'variables'" :label="$t('variables')">
+                <AppSection label="variables">
+                  <div
+                    class="
+                      bg-primary
+                      border-b border-dividerLight
+                      flex flex-1
+                      pl-4
+                      top-108px
+                      z-10
+                      sticky
+                      items-center
+                      justify-between
+                    "
+                  >
+                    <label class="font-semibold text-xs">
+                      {{ $t("variables") }}
+                    </label>
+                    <div>
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('copy_variables')"
+                        :icon="copyVariablesIcon"
+                        @click.native="copyVariables"
+                      />
+                      <!-- <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="`${$t(
+                          'prettify_variables'
+                        )} (${getSpecialKey()}-P)`"
+                        :icon="prettifyVariablesIcon"
+                        @click.native="prettifyVariables"
+                      /> -->
+                    </div>
+                  </div>
+                  <SmartAceEditor
+                    ref="variableEditor"
+                    v-model="variableString"
+                    :lang="'json'"
+                    :options="{
+                      maxLines: Infinity,
+                      minLines: '16',
+                      fontSize: '14px',
+                      autoScrollEditorIntoView: true,
+                      showPrintMargin: false,
+                      useWorker: false,
+                    }"
+                  />
+                </AppSection>
+              </SmartTab>
+
+              <SmartTab :id="'headers'" :label="$t('headers')">
+                <AppSection label="headers">
+                  <div
+                    class="
+                      bg-primary
+                      border-b border-dividerLight
+                      flex flex-1
+                      pl-4
+                      top-108px
+                      z-10
+                      sticky
+                      items-center
+                      justify-between
+                    "
+                  >
+                    <label class="font-semibold text-xs">{{
+                      $t("headers")
+                    }}</label>
+                    <div>
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('clear')"
+                        icon="clear_all"
+                        @click.native="headers = []"
+                      />
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('add_new')"
+                        icon="add"
+                        @click.native="addRequestHeader"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-for="(header, index) in headers"
+                    :key="`header-${index}`"
+                    class="
+                      divide-x divide-dashed divide-divider
+                      border-b border-dashed border-divider
+                      flex
+                    "
+                    :class="{ 'border-t': index == 0 }"
+                  >
+                    <SmartAutoComplete
+                      :placeholder="$t('header_count', { count: index + 1 })"
+                      :source="commonHeaders"
+                      :spellcheck="false"
+                      :value="header.key"
+                      autofocus
+                      @input="
+                        $store.commit('setGQLHeaderKey', {
+                          index,
+                          value: $event,
+                        })
+                      "
+                    />
+                    <input
+                      class="
+                        bg-primaryLight
+                        flex
+                        font-semibold font-mono
+                        flex-1
+                        text-xs
+                        py-2
+                        px-4
+                        focus:outline-none
+                      "
+                      :placeholder="$t('value_count', { count: index + 1 })"
+                      :name="`value ${index}`"
+                      :value="header.value"
+                      autofocus
+                      @change="
+                        $store.commit('setGQLHeaderValue', {
+                          index,
+                          value: $event.target.value,
+                        })
+                      "
+                    />
+                    <div>
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="
+                          header.hasOwnProperty('active')
+                            ? header.active
+                              ? $t('turn_off')
+                              : $t('turn_on')
+                            : $t('turn_off')
+                        "
+                        :icon="
+                          header.hasOwnProperty('active')
+                            ? header.active
+                              ? 'check_box'
+                              : 'check_box_outline_blank'
+                            : 'check_box'
+                        "
+                        @click.native="
+                          $store.commit('setActiveGQLHeader', {
+                            index,
+                            value: header.hasOwnProperty('active')
+                              ? !header.active
+                              : false,
+                          })
+                        "
+                      />
+                    </div>
+                    <div>
+                      <ButtonSecondary
+                        v-tippy="{ theme: 'tooltip' }"
+                        :title="$t('delete')"
+                        icon="delete"
+                        @click.native="removeRequestHeader(index)"
+                      />
+                    </div>
+                  </div>
+                </AppSection>
+              </SmartTab>
+            </SmartTabs>
+          </Pane>
+          <Pane class="overflow-auto hide-scrollbar">
+            <AppSection ref="response" label="response">
               <div
+                v-if="response"
                 class="
                   bg-primary
                   border-b border-dividerLight
                   flex flex-1
                   pl-4
-                  top-68px
+                  top-0
                   z-10
                   sticky
                   items-center
                   justify-between
                 "
               >
-                <label class="font-semibold text-xs">{{ $t("headers") }}</label>
+                <label class="font-semibold text-xs" for="responseField">
+                  {{ $t("response") }}
+                </label>
                 <div>
                   <ButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('clear')"
-                    icon="clear_all"
-                    @click.native="headers = []"
-                  />
-                  <ButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('add_new')"
-                    icon="add"
-                    @click.native="addRequestHeader"
-                  />
-                </div>
-              </div>
-              <div
-                v-for="(header, index) in headers"
-                :key="`header-${index}`"
-                class="
-                  divide-x divide-dashed divide-divider
-                  border-b border-dashed border-divider
-                  flex
-                "
-                :class="{ 'border-t': index == 0 }"
-              >
-                <SmartAutoComplete
-                  :placeholder="$t('header_count', { count: index + 1 })"
-                  :source="commonHeaders"
-                  :spellcheck="false"
-                  :value="header.key"
-                  autofocus
-                  @input="
-                    $store.commit('setGQLHeaderKey', {
-                      index,
-                      value: $event,
-                    })
-                  "
-                />
-                <input
-                  class="
-                    bg-primaryLight
-                    flex
-                    font-semibold font-mono
-                    flex-1
-                    text-xs
-                    py-2
-                    px-4
-                    focus:outline-none
-                  "
-                  :placeholder="$t('value_count', { count: index + 1 })"
-                  :name="`value ${index}`"
-                  :value="header.value"
-                  autofocus
-                  @change="
-                    $store.commit('setGQLHeaderValue', {
-                      index,
-                      value: $event.target.value,
-                    })
-                  "
-                />
-                <div>
-                  <ButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="
-                      header.hasOwnProperty('active')
-                        ? header.active
-                          ? $t('turn_off')
-                          : $t('turn_on')
-                        : $t('turn_off')
-                    "
-                    :icon="
-                      header.hasOwnProperty('active')
-                        ? header.active
-                          ? 'check_box'
-                          : 'check_box_outline_blank'
-                        : 'check_box'
-                    "
-                    @click.native="
-                      $store.commit('setActiveGQLHeader', {
-                        index,
-                        value: header.hasOwnProperty('active')
-                          ? !header.active
-                          : false,
-                      })
-                    "
-                  />
-                </div>
-                <div>
-                  <ButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('delete')"
-                    icon="delete"
-                    @click.native="removeRequestHeader(index)"
-                  />
-                </div>
-              </div>
-            </AppSection>
-            <AppSection label="query">
-              <div class="flex flex-1 gqlRunQuery">
-                <label for="gqlQuery">{{ $t("query") }}</label>
-                <div>
-                  <ButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
-                    class="button"
-                    icon="play_arrow"
-                    @click.native="runQuery()"
-                  />
-                  <ButtonSecondary
-                    ref="copyQueryButton"
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('copy_query')"
-                    :icon="copyQueryIcon"
-                    @click.native="copyQuery"
-                  />
-                  <ButtonSecondary
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
-                    :icon="prettifyIcon"
-                    @click.native="doPrettifyQuery"
-                  />
-                  <ButtonSecondary
-                    ref="saveRequest"
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('save_to_collections')"
-                    icon="create_new_folder"
-                    @click.native="saveRequest"
-                  />
-                </div>
-              </div>
-              <GraphqlQueryEditor
-                ref="queryEditor"
-                v-model="gqlQueryString"
-                styles="rounded-b-lg"
-                :on-run-g-q-l-query="runQuery"
-                :options="{
-                  maxLines: Infinity,
-                  minLines: 10,
-                  fontSize: '14px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
-                @update-query="updateQuery"
-              />
-            </AppSection>
-            <AppSection label="variables">
-              <div class="flex flex-col">
-                <label>{{ $t("variables") }}</label>
-                <SmartAceEditor
-                  v-model="variableString"
-                  :lang="'json'"
-                  :options="{
-                    maxLines: 10,
-                    minLines: 5,
-                    fontSize: '14px',
-                    autoScrollEditorIntoView: true,
-                    showPrintMargin: false,
-                    useWorker: false,
-                  }"
-                  styles="rounded-b-lg"
-                />
-              </div>
-            </AppSection>
-          </Pane>
-          <Pane class="overflow-auto hide-scrollbar">
-            <AppSection ref="schema" label="schema">
-              <div class="flex flex-1">
-                <label>{{ $t("schema") }}</label>
-                <div v-if="schema">
-                  <ButtonSecondary
-                    ref="ToggleExpandResponse"
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="
-                      !expandResponse
-                        ? $t('expand_response')
-                        : $t('collapse_response')
-                    "
-                    :icon="!expandResponse ? 'unfold_more' : 'unfold_less'"
-                    @click.native="ToggleExpandResponse"
-                  />
-                  <ButtonSecondary
-                    ref="downloadSchema"
+                    ref="downloadResponse"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="$t('download_file')"
-                    :icon="downloadSchemaIcon"
-                    @click.native="downloadSchema"
+                    :icon="downloadResponseIcon"
+                    @click.native="downloadResponse"
                   />
                   <ButtonSecondary
-                    ref="copySchemaCode"
+                    ref="copyResponseButton"
                     v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('copy_schema')"
-                    :icon="copySchemaIcon"
-                    @click.native="copySchema"
+                    :title="$t('copy_response')"
+                    :icon="copyResponseIcon"
+                    @click.native="copyResponse"
                   />
                 </div>
               </div>
               <SmartAceEditor
-                v-if="schema"
-                :value="schema"
-                :lang="'graphqlschema'"
+                v-if="response"
+                :value="response"
+                :lang="'json'"
+                :lint="false"
                 :options="{
                   maxLines: Infinity,
-                  minLines: 16,
+                  minLines: '16',
                   fontSize: '14px',
                   autoScrollEditorIntoView: true,
                   readOnly: true,
                   showPrintMargin: false,
                   useWorker: false,
                 }"
-                styles="rounded-b-lg"
               />
-              <input
+              <div
                 v-else
-                ref="status"
-                class="rounded-b-lg input missing-data-response"
-                :value="$t('waiting_receive_schema')"
-                name="status"
-                readonly
-                type="text"
-              />
-            </AppSection>
-            <AppSection ref="response" label="response">
-              <div class="flex flex-col">
-                <label>{{ $t("response") }}</label>
-                <div class="flex flex-1">
-                  <label for="responseField">{{ $t("response_body") }}</label>
-                  <div>
-                    <ButtonSecondary
-                      v-if="response"
-                      ref="downloadResponse"
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('download_file')"
-                      :icon="downloadResponseIcon"
-                      @click.native="downloadResponse"
-                    />
-                    <ButtonSecondary
-                      v-if="response"
-                      ref="copyResponseButton"
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('copy_response')"
-                      :icon="copyResponseIcon"
-                      @click.native="copyResponse"
-                    />
-                  </div>
-                </div>
-                <SmartAceEditor
-                  v-if="response"
-                  :value="response"
-                  :lang="'json'"
-                  :lint="false"
-                  :options="{
-                    maxLines: Infinity,
-                    minLines: 10,
-                    fontSize: '14px',
-                    autoScrollEditorIntoView: true,
-                    readOnly: true,
-                    showPrintMargin: false,
-                    useWorker: false,
-                  }"
-                  styles="rounded-b-lg"
-                />
-                <input
-                  v-else
-                  ref="status"
-                  class="rounded-b-lg input missing-data-response"
-                  :value="$t('waiting_receive_response')"
-                  name="status"
-                  readonly
-                  type="text"
-                />
+                class="
+                  flex flex-col flex-1
+                  text-secondaryLight
+                  py-8
+                  px-4
+                  items-center
+                  justify-center
+                "
+              >
+                <i class="opacity-50 pb-2 material-icons">send</i>
+                <span class="text-xs text-center">
+                  {{ $t("waiting_send_req") }}
+                </span>
               </div>
             </AppSection>
           </Pane>
@@ -337,7 +351,7 @@
         min-size="20"
         class="overflow-auto hide-scrollbar"
       >
-        <aside class="lg:max-w-md">
+        <aside>
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
               <AppSection label="docs">
@@ -445,9 +459,9 @@
                     justify-center
                   "
                 >
-                  <i class="opacity-50 pb-2 material-icons">description</i>
+                  <i class="opacity-50 pb-2 material-icons">link</i>
                   <span class="text-xs text-center">
-                    {{ $t("send_request_first") }}
+                    {{ $t("connect_graphql_endpoint") }}
                   </span>
                 </div>
               </AppSection>
@@ -463,6 +477,74 @@
 
             <SmartTab :id="'collections'" :label="$t('collections')">
               <CollectionsGraphql />
+            </SmartTab>
+
+            <SmartTab :id="'schema'" :label="`Schema`">
+              <AppSection ref="schema" label="schema">
+                <div
+                  v-if="schema"
+                  class="
+                    bg-primary
+                    border-b border-dividerLight
+                    flex flex-1
+                    pl-4
+                    top-10
+                    z-10
+                    sticky
+                    items-center
+                    justify-between
+                  "
+                >
+                  <label class="font-semibold text-xs">
+                    {{ $t("schema") }}
+                  </label>
+                  <div>
+                    <ButtonSecondary
+                      ref="downloadSchema"
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="$t('download_file')"
+                      :icon="downloadSchemaIcon"
+                      @click.native="downloadSchema"
+                    />
+                    <ButtonSecondary
+                      ref="copySchemaCode"
+                      v-tippy="{ theme: 'tooltip' }"
+                      :title="$t('copy_schema')"
+                      :icon="copySchemaIcon"
+                      @click.native="copySchema"
+                    />
+                  </div>
+                </div>
+                <SmartAceEditor
+                  v-if="schema"
+                  :value="schema"
+                  :lang="'graphqlschema'"
+                  :options="{
+                    maxLines: Infinity,
+                    minLines: '16',
+                    fontSize: '14px',
+                    autoScrollEditorIntoView: true,
+                    readOnly: true,
+                    showPrintMargin: false,
+                    useWorker: false,
+                  }"
+                />
+                <div
+                  v-else
+                  class="
+                    flex flex-col
+                    text-secondaryLight
+                    p-4
+                    items-center
+                    justify-center
+                  "
+                >
+                  <i class="opacity-50 pb-2 material-icons">link</i>
+                  <span class="text-xs text-center">
+                    {{ $t("connect_graphql_endpoint") }}
+                  </span>
+                </div>
+              </AppSection>
             </SmartTab>
           </SmartTabs>
         </aside>
@@ -513,9 +595,9 @@ export default defineComponent({
       copyQueryIcon: "content_copy",
       copySchemaIcon: "content_copy",
       copyResponseIcon: "content_copy",
-      prettifyIcon: "photo_filter",
-      expandResponse: false,
-      responseBodyMaxLines: 16,
+      copyVariablesIcon: "content_copy",
+      prettifyQueryIcon: "photo_filter",
+      // prettifyVariablesIcon: "photo_filter",
       graphqlFieldsFilterText: undefined,
       isPollingSchema: false,
       timeoutSubscription: null,
@@ -728,11 +810,16 @@ export default defineComponent({
       })
     },
     getSpecialKey: getPlatformSpecialKey,
-    doPrettifyQuery() {
+    prettifyQuery() {
       this.$refs.queryEditor.prettifyQuery()
-      this.prettifyIcon = "done"
-      setTimeout(() => (this.prettifyIcon = "photo_filter"), 1000)
+      this.prettifyQueryIcon = "done"
+      setTimeout(() => (this.prettifyQueryIcon = "photo_filter"), 1000)
     },
+    // prettifyVariables() {
+    //   this.$refs.variableEditor.prettifyQuery()
+    //   this.prettifyVariablesIcon = "done"
+    //   setTimeout(() => (this.prettifyVariablesIcon = "photo_filter"), 1000)
+    // },
     async handleJumpToType(type) {
       this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
       await this.$nextTick()
@@ -765,6 +852,11 @@ export default defineComponent({
       this.copyToClipboard(this.response)
       this.copyResponseIcon = "done"
       setTimeout(() => (this.copyResponseIcon = "content_copy"), 1000)
+    },
+    copyVariables() {
+      this.copyToClipboard(this.variableString)
+      this.copyVariablesIcon = "done"
+      setTimeout(() => (this.copyVariablesIcon = "content_copy"), 1000)
     },
     copyToClipboard(content) {
       const aux = document.createElement("textarea")
@@ -1088,11 +1180,6 @@ export default defineComponent({
         console.log("Error", error)
       }
     },
-    ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse
-      this.responseBodyMaxLines =
-        this.responseBodyMaxLines === Infinity ? 16 : Infinity
-    },
     downloadResponse() {
       const dataToWrite = this.response
       const file = new Blob([dataToWrite], { type: "application/json" })
@@ -1166,14 +1253,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped lang="scss">
-.gqlTabs {
-  @apply relative;
-  @apply overflow-auto;
-}
-
-.gqlRunQuery {
-  @apply mb-8;
-}
-</style>

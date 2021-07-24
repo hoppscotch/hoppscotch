@@ -39,16 +39,7 @@
     <div v-if="testResults">
       <div class="flex flex-1 pl-4 items-center justify-between">
         <div>
-          <label class="font-semibold text-xs"> Test Report: </label>
-          <span class="font-semibold text-xs text-red-500">
-            {{ failedTests }} failing,
-          </span>
-          <span class="font-semibold text-xs text-green-500">
-            {{ passedTests }} successful,
-          </span>
-          <span class="font-semibold text-xs text-secondaryDark">
-            out of {{ totalTests }} tests.
-          </span>
+          <label class="font-semibold text-xs"> Test Report </label>
         </div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -57,7 +48,30 @@
           @click.native="clearContent()"
         />
       </div>
-      <HttpTestResult v-if="testResults" :results="testResults" />
+      <div class="flex my-4 items-center">
+        <div class="ml-4">
+          <span class="font-semibold text-xs text-red-500">
+            {{ failedTests }} failing,
+          </span>
+          <span class="font-semibold text-xs text-green-500">
+            {{ passedTests }} successful,
+          </span>
+          <span class="font-semibold text-xs">
+            out of {{ totalTests }} tests.
+          </span>
+        </div>
+        <div class="bg-primaryDark flex space-x-2 flex-1 h-1 mx-4 relative">
+          <div
+            class="rounded h-full bg-green-500"
+            :style="`width: ${(passedTests / totalTests) * 100 + '%'}`"
+          ></div>
+          <div
+            class="rounded h-full bg-red-500"
+            :style="`width: ${(failedTests / totalTests) * 100 + '%'}`"
+          ></div>
+        </div>
+      </div>
+      <HttpTestResult :results="testResults" />
     </div>
   </AppSection>
 </template>

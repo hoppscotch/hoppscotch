@@ -73,7 +73,6 @@
         <div>
           <ButtonSecondary
             id="publish"
-            class="button"
             name="get"
             :disabled="!canpublish"
             icon="send"

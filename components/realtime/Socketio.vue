@@ -115,7 +115,6 @@
           <div v-if="index + 1 === communication.inputs.length">
             <ButtonSecondary
               id="send"
-              class="button"
               name="send"
               :disabled="!connectionState"
               icon="send"

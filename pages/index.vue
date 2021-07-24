@@ -269,7 +269,7 @@
         min-size="20"
         class="overflow-auto hide-scrollbar"
       >
-        <aside class="h-full">
+        <aside>
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
               <History :page="'rest'" ref="historyComponent" />

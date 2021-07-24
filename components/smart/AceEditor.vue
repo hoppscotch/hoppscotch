@@ -2,7 +2,7 @@
   <div class="show-if-initialized" :class="{ initialized }">
     <pre ref="editor" :class="styles"></pre>
     <div
-      v-if="lang == 'json'"
+      v-if="provideJSONOutline"
       class="
         bg-primaryLight
         border-t border-divider

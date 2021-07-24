@@ -71,8 +71,8 @@
           :value="requestCode"
           :lang="codegens.find((x) => x.id === codegenType).language"
           :options="{
-            maxLines: '10',
-            minLines: '10',
+            maxLines: '16',
+            minLines: '8',
             fontSize: '14px',
             autoScrollEditorIntoView: true,
             readOnly: true,

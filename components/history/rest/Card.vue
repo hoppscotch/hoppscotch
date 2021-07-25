@@ -2,7 +2,7 @@
   <div>
     <div class="show-on-large-screen">
       <span
-        class="p-2 m-2 truncate inline-flex cursor-pointer items-center text-sm"
+        class="cursor-pointer m-2 text-sm p-2 truncate inline-flex items-center"
         :class="entryStatus.className"
         :style="{ '--status-code': entry.status }"
         @click="$emit('use-entry')"
@@ -16,7 +16,7 @@
           readonly
           :value="entry.name"
           :placeholder="$t('empty_req_name')"
-          class="input cursor-pointer text-sm bg-transparent"
+          class="cursor-pointer text-sm input !bg-transparent"
           @click="$emit('use-entry')"
         />
       </li>
@@ -89,7 +89,7 @@
           readonly
           :value="`${entry.url}${entry.path}`"
           :placeholder="$t('no_url')"
-          class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+          class="text-sm input !bg-transparent !mt-0 !text-secondaryLight !pt-0"
         />
       </li>
     </div>
@@ -102,7 +102,14 @@
             type="text"
             readonly
             :value="entry.time"
-            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="
+              text-sm
+              input
+              !bg-transparent
+              !mt-0
+              !text-secondaryLight
+              !pt-0
+            "
           />
         </li>
         <li>
@@ -111,7 +118,14 @@
             type="text"
             readonly
             :value="duration"
-            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="
+              text-sm
+              input
+              !bg-transparent
+              !mt-0
+              !text-secondaryLight
+              !pt-0
+            "
           />
         </li>
         <!-- <li>
@@ -121,7 +135,7 @@
             readonly
             :value="entry.preRequestScript"
             :placeholder="$t('no_prerequest_script')"
-            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="bg-transparent mt-0 text-sm text-secondaryLight pt-0"
           />
         </li> -->
       </div>

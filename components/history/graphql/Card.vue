@@ -9,7 +9,7 @@
           readonly
           :value="entry.url"
           :placeholder="$t('empty_req_name')"
-          class="input cursor-pointer text-sm bg-transparent"
+          class="cursor-pointer text-sm input !bg-transparent"
           @click="$emit('use-entry')"
         />
       </li>
@@ -83,7 +83,7 @@
           type="text"
           readonly
           :value="`${line}`"
-          class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+          class="text-sm input !bg-transparent !mt-0 !text-secondaryLight !pt-0"
         />
       </li>
     </div>
@@ -96,7 +96,14 @@
             type="text"
             readonly
             :value="entry.time"
-            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="
+              text-sm
+              input
+              !bg-transparent
+              !mt-0
+              !text-secondaryLight
+              !pt-0
+            "
           />
         </li>
         <li>
@@ -106,7 +113,14 @@
             readonly
             :value="`Duration: ${entry.duration}ms`"
             :placeholder="$t('no_duration')"
-            class="input pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="
+              text-sm
+              input
+              !bg-transparent
+              !mt-0
+              !text-secondaryLight
+              !pt-0
+            "
           />
         </li>
         <!-- <li>
@@ -116,7 +130,7 @@
             readonly
             :value="entry.preRequestScript"
             :placeholder="$t('no_prerequest_script')"
-            class="pt-0 mt-0 text-sm bg-transparent text-secondaryLight"
+            class="bg-transparent mt-0 text-sm text-secondaryLight pt-0"
           />
         </li> -->
       </div>

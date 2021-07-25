@@ -10,7 +10,7 @@
     >
       <div
         v-show="show"
-        class="inset-0 transition-opacity z-10 fixed"
+        class="inset-0 transition-opacity z-20 fixed"
         @keydown.esc="close()"
       >
         <div

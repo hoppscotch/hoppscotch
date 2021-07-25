@@ -23,6 +23,7 @@ export type HoppRESTReqBody = {
 export interface HoppRESTRequest {
   v: string
 
+  name: string
   method: string
   endpoint: string
   params: HoppRESTParam[]
@@ -80,6 +81,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       })
     )
 
+    const name = x.name
     const method = x.method
 
     const preRequestScript = x.preRequestScript
@@ -88,6 +90,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
     const body = parseRequestBody(x)
 
     const result: HoppRESTRequest = {
+      name,
       endpoint,
       headers,
       params,

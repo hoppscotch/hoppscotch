@@ -119,21 +119,24 @@ type RESTSession = {
   testResults: HoppTestResult | null
 }
 
-const defaultRESTSession: RESTSession = {
-  request: {
-    v: RESTReqSchemaVersion,
-    endpoint: "https://httpbin.org/get",
-    params: [],
-    headers: [],
-    method: "GET",
-    preRequestScript: "// pw.env.set('variable', 'value');",
-    testScript: "// pw.expect('variable').toBe('value');",
-    body: {
-      contentType: "application/json",
-      body: "",
-      isRaw: false,
-    },
+const defaultRESTRequest: HoppRESTRequest = {
+  v: RESTReqSchemaVersion,
+  endpoint: "https://httpbin.org/get",
+  name: "Untitled request",
+  params: [],
+  headers: [],
+  method: "GET",
+  preRequestScript: "// pw.env.set('variable', 'value');",
+  testScript: "// pw.expect('variable').toBe('value');",
+  body: {
+    contentType: "application/json",
+    body: "",
+    isRaw: false,
   },
+}
+
+const defaultRESTSession: RESTSession = {
+  request: defaultRESTRequest,
   response: null,
   testResults: null,
 }
@@ -142,6 +145,14 @@ const dispatchers = defineDispatchers({
   setRequest(_: RESTSession, { req }: { req: HoppRESTRequest }) {
     return {
       request: req,
+    }
+  },
+  setRequestName(curr: RESTSession, { newName }: { newName: string }) {
+    return {
+      request: {
+        ...curr.request,
+        name: newName,
+      },
     }
   },
   setEndpoint(curr: RESTSession, { newEndpoint }: { newEndpoint: string }) {
@@ -362,11 +373,24 @@ export function setRESTRequest(req: HoppRESTRequest) {
   })
 }
 
+export function resetRESTRequest() {
+  setRESTRequest(defaultRESTRequest)
+}
+
 export function setRESTEndpoint(newEndpoint: string) {
   restSessionStore.dispatch({
     dispatcher: "setEndpoint",
     payload: {
       newEndpoint,
+    },
+  })
+}
+
+export function setRESTRequestName(newName: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setRequestName",
+    payload: {
+      newName,
     },
   })
 }
@@ -507,6 +531,11 @@ export const restRequest$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
+export const restRequestName$ = restRequest$.pipe(
+  pluck("name"),
+  distinctUntilChanged()
+)
+
 export const restEndpoint$ = restSessionStore.subject$.pipe(
   pluck("request", "endpoint"),
   distinctUntilChanged()
@@ -606,5 +635,13 @@ export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
     restReqBody$,
     restSessionStore.value.request.body,
     setRESTReqBody
+  )
+}
+
+export function useRESTRequestName(): Ref<string> {
+  return useStream(
+    restRequestName$,
+    restSessionStore.value.request.name,
+    setRESTRequestName
   )
 }

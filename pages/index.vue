@@ -287,13 +287,6 @@
       </Pane>
     </Splitpanes>
 
-    <CollectionsSaveRequest
-      mode="rest"
-      :show="showSaveRequestModal"
-      @hide-modal="hideRequestModal"
-      :editing-request="editRequest"
-    />
-
     <HttpTokenList
       :show="showTokenListModal"
       :tokens="tokens"
@@ -449,7 +442,6 @@ export default defineComponent({
       showTokenListModal: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      showSaveRequestModal: false,
       editRequest: {},
       files: [],
       filenames: "",
@@ -1291,35 +1283,6 @@ export default defineComponent({
         },
       })
     },
-    copyRequest() {
-      if (navigator.share) {
-        const time = new Date().toLocaleTimeString()
-        const date = new Date().toLocaleDateString()
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-            url: window.location.href,
-          })
-          .then(() => {})
-          .catch(() => {})
-      } else {
-        const dummy = document.createElement("input")
-        document.body.appendChild(dummy)
-        dummy.value = window.location.href
-        dummy.select()
-        document.execCommand("copy")
-        document.body.removeChild(dummy)
-        this.$refs.copyRequest.innerHTML = this.doneButton
-        this.$toast.info(this.$t("copied_to_clipboard"), {
-          icon: "done",
-        })
-        setTimeout(
-          () => (this.$refs.copyRequest.innerHTML = this.copyButton),
-          1000
-        )
-      }
-    },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {
@@ -1447,35 +1410,6 @@ export default defineComponent({
         () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
       )
-    },
-    saveRequest() {
-      let urlAndPath = parseUrlAndPath(this.uri)
-      this.editRequest = {
-        url: decodeURI(urlAndPath.url),
-        path: decodeURI(urlAndPath.path),
-        method: this.method,
-        auth: this.auth,
-        httpUser: this.httpUser,
-        httpPassword: this.httpPassword,
-        passwordFieldType: this.passwordFieldType,
-        bearerToken: this.bearerToken,
-        headers: this.headers,
-        params: this.params,
-        bodyParams: this.bodyParams,
-        rawParams: this.rawParams,
-        rawInput: this.rawInput,
-        contentType: this.contentType,
-        requestType: this.requestType,
-        preRequestScript:
-          this.showPreRequestScript == true ? this.preRequestScript : null,
-        testScript: this.testScript,
-        name: this.requestName,
-      }
-      this.showSaveRequestModal = true
-    },
-    hideRequestModal() {
-      this.showSaveRequestModal = false
-      this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
       const update = clone(this.URL_EXCLUDES)

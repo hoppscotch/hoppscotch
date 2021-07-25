@@ -116,7 +116,7 @@
             :label="$t('clear_all')"
             icon="clear_all"
             @click.native="
-              clearContent('', $event)
+              clearContent()
               $refs.sendOptions.tippy().hide()
             "
           />
@@ -127,7 +127,7 @@
         :label="$t('save')"
         :shortcut="[getSpecialKey(), 'S']"
         outline
-        @click.native="newSendRequest"
+        @click.native="showSaveRequestModal = true"
       />
       <span class="inline-flex">
         <tippy
@@ -147,7 +147,7 @@
           </template>
           <input
             id="request-name"
-            v-model="name"
+            v-model="requestName"
             :placeholder="$t('request_name')"
             name="request-name"
             type="text"
@@ -167,7 +167,7 @@
             :label="$t('save_to_collections')"
             icon="create_new_folder"
             @click.native="
-              saveRequest()
+              showSaveRequestModal = true
               $refs.saveOptions.tippy().hide()
             "
           />
@@ -182,21 +182,34 @@
       :show="showCodegenModal"
       @hide-modal="showCodegenModal = false"
     />
+    <CollectionsSaveRequest
+      mode="rest"
+      :show="showSaveRequestModal"
+      @hide-modal="showSaveRequestModal = false"
+    />
   </div>
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   updateRESTResponse,
   restEndpoint$,
   setRESTEndpoint,
   restMethod$,
   updateRESTMethod,
+  resetRESTRequest,
+  useRESTRequestName,
 } from "~/newstore/RESTSession"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 
-export default {
+export default defineComponent({
+  setup() {
+    return {
+      requestName: useRESTRequestName(),
+    }
+  },
   data() {
     return {
       newMethod$: "",
@@ -218,6 +231,7 @@ export default {
       showCodegenModal: false,
       navigatorShare: navigator.share,
       loading: false,
+      showSaveRequestModal: false,
     }
   },
   subscriptions() {
@@ -252,6 +266,33 @@ export default {
         }
       )
     },
+    copyRequest() {
+      if (navigator.share) {
+        const time = new Date().toLocaleTimeString()
+        const date = new Date().toLocaleDateString()
+        navigator
+          .share({
+            title: "Hoppscotch",
+            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
+            url: window.location.href,
+          })
+          .then(() => {})
+          .catch(() => {})
+      } else {
+        const dummy = document.createElement("input")
+        document.body.appendChild(dummy)
+        dummy.value = window.location.href
+        dummy.select()
+        document.execCommand("copy")
+        document.body.removeChild(dummy)
+        this.$toast.info(this.$t("copied_to_clipboard"), {
+          icon: "done",
+        })
+      }
+    },
+    clearContent() {
+      resetRESTRequest()
+    },
   },
-}
+})
 </script>

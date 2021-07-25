@@ -102,6 +102,7 @@ export default defineComponent({
 
         setRESTRequest(
           makeRESTRequest({
+            name: "Untitled request",
             endpoint,
             method,
             params,

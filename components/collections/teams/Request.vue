@@ -102,6 +102,8 @@
 </template>
 
 <script>
+import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
+import { setRESTRequest } from "~/newstore/RESTSession"
 export default {
   props: {
     request: { type: Object, default: () => {} },
@@ -145,8 +147,7 @@ export default {
             requestID: this.requestIndex,
           },
         })
-      else
-        this.$store.commit("postwoman/selectRequest", { request: this.request })
+      else setRESTRequest(translateToNewRequest(this.request))
     },
     removeRequest() {
       this.$emit("remove-request", {

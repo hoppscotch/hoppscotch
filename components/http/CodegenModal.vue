@@ -6,7 +6,7 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="requestType" class="font-semibold text-xs px-4 pb-4">
+        <label for="requestType" class="font-semibold px-4 pb-4">
           {{ $t("choose_language") }}
         </label>
         <div class="flex flex-1">
@@ -23,14 +23,13 @@
                 <span
                   class="
                     bg-primaryLight
-                    border-b border-dividerLight
+                    border border-dividerLight
                     rounded
                     cursor-pointer
                     flex
                     font-semibold
-                    text-xs
                     w-full
-                    py-3
+                    py-2
                     px-4
                     focus:outline-none
                   "
@@ -51,10 +50,7 @@
           </span>
         </div>
         <div class="flex flex-1 justify-between">
-          <label
-            for="generatedCode"
-            class="font-semibold text-xs px-4 pt-4 pb-4"
-          >
+          <label for="generatedCode" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("generated_code") }}
           </label>
           <ButtonSecondary
@@ -73,7 +69,7 @@
           :options="{
             maxLines: '16',
             minLines: '8',
-            fontSize: '14px',
+            fontSize: '12px',
             autoScrollEditorIntoView: true,
             readOnly: true,
             showPrintMargin: false,

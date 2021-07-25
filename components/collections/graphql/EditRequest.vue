@@ -8,10 +8,7 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label
-          for="selectLabelGqlEditReq"
-          class="font-semibold text-xs px-4 pb-4"
-        >
+        <label for="selectLabelGqlEditReq" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input

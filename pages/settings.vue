@@ -6,16 +6,14 @@
           <h3 class="heading">
             {{ $t("account") }}
           </h3>
-          <p class="mt-1 text-xs text-secondaryLight">
+          <p class="mt-1 text-secondaryLight">
             Customize your account settings.
           </p>
         </div>
         <div class="p-8 md:col-span-2">
           <div v-if="currentUser === null">
             <ButtonPrimary label="Log in" @click.native="showLogin = true" />
-            <div class="mt-4 text-xs text-secondaryLight">
-              Log in to access.
-            </div>
+            <div class="mt-4 text-secondaryLight">Log in to access.</div>
           </div>
           <div v-else class="space-y-8">
             <fieldset>
@@ -34,7 +32,7 @@
                     <label>
                       {{ currentUser.displayName || $t("nothing_found") }}
                     </label>
-                    <p class="mt-1 text-xs text-secondaryLight">
+                    <p class="mt-1 text-secondaryLight">
                       This is your display name.
                     </p>
                   </div>
@@ -47,7 +45,7 @@
                     <label>
                       {{ currentUser.email || $t("nothing_found") }}
                     </label>
-                    <p class="mt-1 text-xs text-secondaryLight">
+                    <p class="mt-1 text-secondaryLight">
                       Your primary email address.
                     </p>
                   </div>
@@ -56,7 +54,7 @@
             </fieldset>
             <fieldset>
               <legend class="font-bold text-secondaryDark">Sync</legend>
-              <div class="mt-1 text-xs text-secondaryLight">
+              <div class="mt-1 text-secondaryLight">
                 These settings are synced to cloud.
               </div>
               <div class="space-y-4 mt-4">
@@ -99,7 +97,7 @@
           <h3 class="heading">
             {{ $t("theme") }}
           </h3>
-          <p class="mt-1 text-xs text-secondaryLight">
+          <p class="mt-1 text-secondaryLight">
             Customize your application theme.
           </p>
         </div>
@@ -108,7 +106,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("background") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               <ColorScheme placeholder="..." tag="span">
                 {{
                   $colorMode.preference.charAt(0).toUpperCase() +
@@ -127,7 +125,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("color") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               {{ active.charAt(0).toUpperCase() + active.slice(1) }}
             </div>
             <div class="mt-4">
@@ -138,7 +136,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("experiments") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               {{ $t("experiments_notice") }}
               <SmartLink
                 class="link"
@@ -205,7 +203,7 @@
           <h3 class="heading">
             {{ $t("interceptor") }}
           </h3>
-          <p class="mt-1 text-xs text-secondaryLight">
+          <p class="mt-1 text-secondaryLight">
             Middleware between application and APIs.
           </p>
         </div>
@@ -214,7 +212,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("extensions") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               <span v-if="extensionVersion != null">
                 {{
                   `${$t("extension_version")}: v${extensionVersion.major}.${
@@ -262,7 +260,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("proxy") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               {{ `${$t("official_proxy_hosting")} ${$t("read_the")}` }}
               <SmartLink
                 class="link"
@@ -284,7 +282,6 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
-                    text-xs
                     ml-2
                     py-2
                     px-4
@@ -301,7 +298,6 @@
                     rounded-r
                     font-semibold font-mono
                     flex-1
-                    text-xs
                     mr-2
                     w-full
                     py-2

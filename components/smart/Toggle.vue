@@ -1,11 +1,12 @@
 <template>
-  <div class="cursor-pointer flex-nowrap inline-flex" @click="$emit('change')">
+  <div
+    class="cursor-pointer flex-nowrap inline-flex items-center justify-center"
+    @click="$emit('change')"
+  >
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
-    <label
-      class="cursor-pointer font-semibold text-xs pl-0 align-middle truncate"
-    >
+    <label class="cursor-pointer font-semibold pl-0 align-middle truncate">
       <slot></slot>
     </label>
   </div>
@@ -29,15 +30,16 @@ $activeColor: var(--accent-color);
 $inactiveColor: var(--divider-color);
 $inactiveHandleColor: var(--primary-color);
 $activeHandleColor: var(--primary-color);
-$width: 2rem;
-$height: 1rem;
-$handleSpacing: 0.25rem;
+$width: 1.6rem;
+$height: 0.78rem;
+$handleSpacing: 0.2rem;
 $transition: all 0.2s ease-in-out;
 
 .toggle {
   @apply relative;
-  @apply inline-block;
-  @apply align-middle;
+  @apply inline-flex;
+  @apply items-center;
+  @apply justify-center;
   @apply rounded-full;
   @apply p-0;
   @apply mr-4;

@@ -6,14 +6,14 @@
         border-b border-dividerLight
         flex flex-1
         pl-4
-        top-110px
+        top-98px
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label class="font-semibold text-xs">
+      <label class="font-semibold">
         {{ $t("javascript_code") }}
       </label>
       <ButtonSecondary
@@ -29,7 +29,7 @@
       :options="{
         maxLines: '16',
         minLines: '8',
-        fontSize: '14px',
+        fontSize: '12px',
         autoScrollEditorIntoView: true,
         showPrintMargin: false,
         useWorker: false,
@@ -37,9 +37,21 @@
       complete-mode="test"
     />
     <div v-if="testResults">
-      <div class="flex flex-1 pl-4 items-center justify-between">
+      <div
+        class="
+          bg-primary
+          border-b border-dividerLight
+          flex flex-1
+          pl-4
+          top-98px
+          z-10
+          sticky
+          items-center
+          justify-between
+        "
+      >
         <div>
-          <label class="font-semibold text-xs"> Test Report </label>
+          <label class="font-semibold"> Test Report </label>
         </div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -50,15 +62,13 @@
       </div>
       <div class="flex my-4 items-center">
         <div class="ml-4">
-          <span class="font-semibold text-xs text-red-500">
+          <span class="font-semibold text-red-500">
             {{ failedTests }} failing,
           </span>
-          <span class="font-semibold text-xs text-green-500">
+          <span class="font-semibold text-green-500">
             {{ passedTests }} successful,
           </span>
-          <span class="font-semibold text-xs">
-            out of {{ totalTests }} tests.
-          </span>
+          <span class="font-semibold"> out of {{ totalTests }} tests. </span>
         </div>
         <div class="bg-primaryDark flex space-x-2 flex-1 h-1 mx-4 relative">
           <div

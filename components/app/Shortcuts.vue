@@ -20,30 +20,38 @@
           <ButtonSecondary icon="close" @click.native="close()" />
         </div>
       </div>
-      <div class="p-4">
+      <div
+        class="
+          divide-y divide-dividerLight
+          flex flex-col flex-1
+          overflow-auto
+          hide-scrollbar
+        "
+      >
         <div
-          v-for="(shortcut, index) in shortcuts"
-          :key="`shortcut-${index}`"
-          class="flex items-center"
+          v-for="(map, mapIndex) in mappings"
+          :key="`map-${mapIndex}`"
+          class="space-y-4 p-4"
         >
-          <kbd
-            v-for="(key, keyIndex) in shortcut.keys"
-            :key="`shortcut-${index}-key-${keyIndex}`"
-            class="
-              border border-divider
-              rounded
-              font-bold
-              m-1
-              text-xs
-              py-1
-              px-2
-            "
+          <h5 class="font-bold text-secondaryDark text-base">
+            {{ map.section }}
+          </h5>
+          <div
+            v-for="(shortcut, shortcutIndex) in map.shortcuts"
+            :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
+            class="flex items-center"
           >
-            {{ key }}
-          </kbd>
-          <span class="flex text-xs ml-4">
-            {{ shortcut.label }}
-          </span>
+            <span class="flex flex-1 text-secondaryLight mr-4">
+              {{ shortcut.label }}
+            </span>
+            <span
+              v-for="(key, keyIndex) in shortcut.keys"
+              :key="`map-${mapIndex}-shortcut-${shortcutIndex}-key-${keyIndex}`"
+              class="bg-dividerLight rounded ml-1 py-1 px-2 inline-flex"
+            >
+              {{ key }}
+            </span>
+          </div>
         </div>
       </div>
     </template>
@@ -59,50 +67,60 @@ export default {
   },
   data() {
     return {
-      shortcuts: [
+      mappings: [
         {
-          keys: [this.getSpecialKey(), "G"],
-          label: this.$t("send_request"),
+          section: "General",
+          shortcuts: [
+            {
+              keys: [this.getSpecialKey(), "G"],
+              label: this.$t("send_request"),
+            },
+            {
+              keys: [this.getSpecialKey(), "S"],
+              label: this.$t("save_to_collections"),
+            },
+            {
+              keys: [this.getSpecialKey(), "K"],
+              label: this.$t("copy_request_link"),
+            },
+            {
+              keys: [this.getSpecialKey(), "I"],
+              label: this.$t("reset_request"),
+            },
+          ],
         },
         {
-          keys: [this.getSpecialKey(), "S"],
-          label: this.$t("save_to_collections"),
-        },
-        {
-          keys: [this.getSpecialKey(), "K"],
-          label: this.$t("copy_request_link"),
-        },
-        {
-          keys: [this.getSpecialKey(), "I"],
-          label: this.$t("reset_request"),
-        },
-        {
-          keys: ["Alt", "▲"],
-          label: this.$t("select_next_method"),
-        },
-        {
-          keys: ["Alt", "▼"],
-          label: this.$t("select_previous_method"),
-        },
-        {
-          keys: ["Alt", "G"],
-          label: this.$t("select_get_method"),
-        },
-        {
-          keys: ["Alt", "H"],
-          label: this.$t("select_head_method"),
-        },
-        {
-          keys: ["Alt", "P"],
-          label: this.$t("select_post_method"),
-        },
-        {
-          keys: ["Alt", "U"],
-          label: this.$t("select_put_method"),
-        },
-        {
-          keys: ["Alt", "X"],
-          label: this.$t("select_delete_method"),
+          section: "Request",
+          shortcuts: [
+            {
+              keys: ["Alt", "↑"],
+              label: this.$t("select_next_method"),
+            },
+            {
+              keys: ["Alt", "↓"],
+              label: this.$t("select_previous_method"),
+            },
+            {
+              keys: ["Alt", "G"],
+              label: this.$t("select_get_method"),
+            },
+            {
+              keys: ["Alt", "H"],
+              label: this.$t("select_head_method"),
+            },
+            {
+              keys: ["Alt", "P"],
+              label: this.$t("select_post_method"),
+            },
+            {
+              keys: ["Alt", "U"],
+              label: this.$t("select_put_method"),
+            },
+            {
+              keys: ["Alt", "X"],
+              label: this.$t("select_delete_method"),
+            },
+          ],
         },
       ],
     }

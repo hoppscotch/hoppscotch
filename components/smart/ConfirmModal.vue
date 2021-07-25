@@ -8,7 +8,7 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label class="font-semibold text-xs">
+        <label class="font-semibold">
           {{ title }}
         </label>
       </div>

@@ -8,7 +8,7 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelEnvEdit" class="font-semibold text-xs px-4 pb-4">
+        <label for="selectLabelEnvEdit" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -20,10 +20,7 @@
           @keyup.enter="saveEnvironment"
         />
         <div class="flex flex-1 justify-between items-center">
-          <label
-            for="variableList"
-            class="font-semibold text-xs px-4 pt-4 pb-4"
-          >
+          <label for="variableList" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("env_variable_list") }}
           </label>
           <div>
@@ -58,8 +55,7 @@
                 flex
                 font-semibold font-mono
                 flex-1
-                text-xs
-                py-3
+                py-2
                 px-4
                 focus:outline-none
               "
@@ -73,7 +69,6 @@
                 flex
                 font-semibold font-mono
                 flex-1
-                text-xs
                 py-2
                 px-4
                 focus:outline-none

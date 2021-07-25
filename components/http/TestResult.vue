@@ -3,7 +3,7 @@
     <div v-if="results.tests">
       <span
         v-if="results.tests.description"
-        class="font-semibold text-secondaryDark text-xs"
+        class="font-semibold text-secondaryDark"
       >
         {{ results.tests.description }}
       </span>
@@ -26,13 +26,10 @@
         >
           {{ result.status === "pass" ? "check_circle" : "cancel" }}
         </i>
-        <span
-          v-if="result.message"
-          class="font-semibold text-secondaryDark text-xs"
-        >
+        <span v-if="result.message" class="font-semibold text-secondaryDark">
           {{ result.message }}
         </span>
-        <span class="text-secondaryLight text-xs">
+        <span class="text-secondaryLight">
           {{
             ` \xA0 — \xA0test ${
               result.status === "pass" ? $t("passed") : $t("failed")

@@ -158,7 +158,6 @@ export default {
 .footer-nav {
   @apply px-2 py-1;
   @apply -mx-2 -my-1;
-  @apply text-xs;
   @apply hover:text-secondaryDark;
   @apply focus:text-secondaryDark;
 }

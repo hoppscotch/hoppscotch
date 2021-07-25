@@ -6,19 +6,41 @@
       class="flex items-center"
     >
       <span
-        class="flex font-semibold text-xs min-w-0 p-2 transition group-hover:text-secondaryDark"
+        class="
+          flex
+          font-semibold
+          min-w-0
+          p-2
+          transition
+          group-hover:text-secondaryDark
+        "
       >
         <span class="truncate">
           {{ header.key }}
         </span>
       </span>
       <span
-        class="flex font-mono font-bold mx-2 text-xs justify-center items-center truncate"
+        class="
+          flex
+          font-mono font-bold
+          mx-2
+          justify-center
+          items-center
+          truncate
+        "
       >
         →
       </span>
       <span
-        class="flex font-semibold flex-1 text-xs min-w-0 p-2 transition group-hover:text-secondaryDark"
+        class="
+          flex
+          font-semibold
+          flex-1
+          min-w-0
+          p-2
+          transition
+          group-hover:text-secondaryDark
+        "
       >
         <span class="truncate">
           {{ header.value }}

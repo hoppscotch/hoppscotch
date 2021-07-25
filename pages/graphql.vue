@@ -1,10 +1,10 @@
 <template>
   <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto hide-scrollbar">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto hide-scrollbar">
-            <div class="bg-primary flex p-4 top-0 z-20 sticky">
+    <Splitpanes :dbl-click-splitter="false" vertical>
+      <Pane class="hide-scrollbar !overflow-auto">
+        <Splitpanes :dbl-click-splitter="false" horizontal>
+          <Pane class="hide-scrollbar !overflow-auto">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="flex-1 inline-flex">
                 <input
                   id="url"
@@ -37,7 +37,7 @@
                 />
               </div>
             </div>
-            <SmartTabs styles="sticky top-68px z-10">
+            <SmartTabs styles="sticky top-16 z-10">
               <SmartTab :id="'query'" :label="$t('query')" :selected="true">
                 <AppSection label="query">
                   <div
@@ -46,7 +46,7 @@
                       border-b border-dividerLight
                       flex flex-1
                       pl-4
-                      top-108px
+                      top-24
                       z-10
                       sticky
                       items-center
@@ -54,7 +54,7 @@
                       gqlRunQuery
                     "
                   >
-                    <label for="gqlQuery" class="font-semibold text-xs">
+                    <label for="gqlQuery" class="font-semibold">
                       {{ $t("query") }}
                     </label>
                     <div class="flex">
@@ -62,7 +62,7 @@
                         :label="$t('run')"
                         :shortcut="[getSpecialKey(), 'Enter']"
                         icon="play_arrow"
-                        class="text-xs !text-accent"
+                        class="!text-accent"
                         @click.native="runQuery()"
                       />
                       <ButtonSecondary
@@ -95,7 +95,7 @@
                     :options="{
                       maxLines: Infinity,
                       minLines: '16',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       autoScrollEditorIntoView: true,
                       showPrintMargin: false,
                       useWorker: false,
@@ -113,14 +113,14 @@
                       border-b border-dividerLight
                       flex flex-1
                       pl-4
-                      top-108px
+                      top-24
                       z-10
                       sticky
                       items-center
                       justify-between
                     "
                   >
-                    <label class="font-semibold text-xs">
+                    <label class="font-semibold">
                       {{ $t("variables") }}
                     </label>
                     <div class="flex">
@@ -147,7 +147,7 @@
                     :options="{
                       maxLines: Infinity,
                       minLines: '16',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       autoScrollEditorIntoView: true,
                       showPrintMargin: false,
                       useWorker: false,
@@ -164,14 +164,14 @@
                       border-b border-dividerLight
                       flex flex-1
                       pl-4
-                      top-108px
+                      top-24
                       z-10
                       sticky
                       items-center
                       justify-between
                     "
                   >
-                    <label class="font-semibold text-xs">
+                    <label class="font-semibold">
                       {{ $t("headers") }}
                     </label>
                     <div class="flex">
@@ -218,7 +218,6 @@
                         flex
                         font-semibold font-mono
                         flex-1
-                        text-xs
                         py-2
                         px-4
                         focus:outline-none
@@ -276,7 +275,7 @@
               </SmartTab>
             </SmartTabs>
           </Pane>
-          <Pane class="overflow-auto hide-scrollbar">
+          <Pane class="hide-scrollbar !overflow-auto">
             <AppSection ref="response" label="response">
               <div
                 v-if="response"
@@ -292,7 +291,7 @@
                   justify-between
                 "
               >
-                <label class="font-semibold text-xs" for="responseField">
+                <label class="font-semibold" for="responseField">
                   {{ $t("response") }}
                 </label>
                 <div class="flex">
@@ -320,7 +319,7 @@
                 :options="{
                   maxLines: Infinity,
                   minLines: '16',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   autoScrollEditorIntoView: true,
                   readOnly: true,
                   showPrintMargin: false,
@@ -339,7 +338,7 @@
                 "
               >
                 <i class="opacity-75 pb-2 material-icons">send</i>
-                <span class="text-xs text-center">
+                <span class="text-center">
                   {{ $t("waiting_send_req") }}
                 </span>
               </div>
@@ -349,16 +348,16 @@
       </Pane>
       <Pane
         v-if="RIGHT_SIDEBAR"
-        max-size="30"
+        max-size="35"
         size="25"
         min-size="20"
-        class="overflow-auto hide-scrollbar"
+        class="hide-scrollbar !overflow-auto"
       >
         <aside>
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
               <AppSection label="docs">
-                <div class="bg-primaryLight flex flex-col top-10 z-10 sticky">
+                <div class="bg-primaryLight flex flex-col top-8 z-10 sticky">
                   <input
                     v-model="graphqlFieldsFilterText"
                     type="text"
@@ -368,8 +367,7 @@
                       flex
                       font-semibold font-mono
                       flex-1
-                      text-xs
-                      py-3
+                      py-2
                       px-4
                       focus:outline-none
                     "
@@ -378,7 +376,7 @@
                 <SmartTabs
                   ref="gqlTabs"
                   styles="
-                    border-t border-dividerLight sticky z-10 top-20"
+                    border-t border-dividerLight sticky z-8 top-16"
                 >
                   <div class="gqlTabs">
                     <SmartTab
@@ -463,7 +461,7 @@
                   "
                 >
                   <i class="opacity-75 pb-2 material-icons">link</i>
-                  <span class="text-xs text-center">
+                  <span class="text-center">
                     {{ $t("connect_graphql_endpoint") }}
                   </span>
                 </div>
@@ -491,14 +489,14 @@
                     border-b border-dividerLight
                     flex flex-1
                     pl-4
-                    top-10
+                    top-8
                     z-10
                     sticky
                     items-center
                     justify-between
                   "
                 >
-                  <label class="font-semibold text-xs">
+                  <label class="font-semibold">
                     {{ $t("schema") }}
                   </label>
                   <div class="flex">
@@ -525,7 +523,7 @@
                   :options="{
                     maxLines: Infinity,
                     minLines: '16',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     autoScrollEditorIntoView: true,
                     readOnly: true,
                     showPrintMargin: false,
@@ -543,7 +541,7 @@
                   "
                 >
                   <i class="opacity-75 pb-2 material-icons">link</i>
-                  <span class="text-xs text-center">
+                  <span class="text-center">
                     {{ $t("connect_graphql_endpoint") }}
                   </span>
                 </div>

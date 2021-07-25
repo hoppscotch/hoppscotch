@@ -5,14 +5,14 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
-        top-23
+        top-20
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label for="body" class="font-semibold text-xs px-4">
+      <label for="body" class="font-semibold px-4">
         {{ $t("response_body") }}
       </label>
       <div>
@@ -41,7 +41,7 @@
         :options="{
           maxLines: Infinity,
           minLines: '16',
-          fontSize: '14px',
+          fontSize: '12px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,

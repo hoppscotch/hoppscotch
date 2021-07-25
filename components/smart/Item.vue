@@ -45,7 +45,7 @@
       <div class="font-semibold">
         {{ label }}
       </div>
-      <p v-if="description" class="my-2 text-xs text-left text-secondaryLight">
+      <p v-if="description" class="my-2 text-left text-secondaryLight">
         {{ description }}
       </p>
     </div>

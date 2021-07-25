@@ -8,7 +8,6 @@
         flex
         font-semibold font-mono
         flex-1
-        text-xs
         py-2
         px-4
         focus:outline-none
@@ -220,8 +219,7 @@ export default {
       @apply w-full;
       @apply block;
       @apply py-2 px-4;
-      @apply text-xs;
-      @apply font-mono;
+      @apply font-semibold font-mono;
 
       &:last-child {
         border-radius: 0 0 8px 8px;

@@ -6,14 +6,14 @@
         border-b border-dividerLight
         flex flex-1
         pl-4
-        top-110px
+        top-98px
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label class="font-semibold text-xs">
+      <label class="font-semibold">
         {{ $t("parameter_list") }}
       </label>
       <div class="flex">
@@ -47,7 +47,6 @@
           flex
           font-semibold font-mono
           flex-1
-          text-xs
           py-2
           px-4
           focus:outline-none
@@ -70,7 +69,6 @@
           flex
           font-semibold font-mono
           flex-1
-          text-xs
           py-2
           px-4
           focus:outline-none

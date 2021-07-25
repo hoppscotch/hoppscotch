@@ -41,7 +41,7 @@ html {
 
 body {
   @apply bg-primary;
-  @apply text-secondary !text-sm;
+  @apply text-secondary text-xs;
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
@@ -69,14 +69,14 @@ body {
 }
 
 .material-icons {
-  font-size: 1.25rem !important;
+  font-size: 1rem;
 }
 
 .svg-icons {
   @apply inline-flex;
   @apply flex-shrink-0;
-  @apply h-5;
-  @apply w-5;
+  @apply h-4;
+  @apply w-4;
 }
 
 a {
@@ -166,8 +166,7 @@ hr {
   @apply bg-primary;
   @apply truncate;
   @apply rounded;
-  @apply font-semibold font-mono;
-  @apply text-xs;
+  @apply font-semibold;
   @apply border border-divider;
   @apply transition;
   @apply focus:(outline-none border-accent);
@@ -204,7 +203,7 @@ pre.ace_editor {
     @apply pointer-events-none;
     @apply font-icon;
     @apply text-secondaryLight;
-    @apply top-3;
+    @apply top-2.5;
     @apply right-3;
 
     content: "\e313";
@@ -290,13 +289,9 @@ input[type="checkbox"] {
       @apply text-primary text-xs;
       @apply !font-semibold;
 
-      .material-icons {
-        @apply !text-md;
-      }
-
       .action {
         @apply transition;
-        @apply text-current text-xs;
+        @apply text-current;
         @apply hover:(opacity-75 no-underline);
       }
     }

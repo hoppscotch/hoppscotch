@@ -73,13 +73,13 @@
       </div>
     </template>
     <template #footer>
-      <p v-if="mode === 'sign-in'" class="text-secondaryLight text-xs">
+      <p v-if="mode === 'sign-in'" class="text-secondaryLight">
         By signing in, you are agreeing to our
         <SmartAnchor class="link" to="/index" label="Terms of Service" />
         and
         <SmartAnchor class="link" to="/index" label="Privacy Policy" />.
       </p>
-      <p v-if="mode === 'email'" class="text-secondaryLight text-xs">
+      <p v-if="mode === 'email'" class="text-secondaryLight">
         <SmartAnchor
           class="link"
           label="← All sign in options"
@@ -88,7 +88,7 @@
       </p>
       <p
         v-if="mode === 'email-sent'"
-        class="flex flex-1 text-secondaryLight text-xs justify-between"
+        class="flex flex-1 text-secondaryLight justify-between"
       >
         <SmartAnchor
           class="link"

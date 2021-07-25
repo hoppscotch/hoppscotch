@@ -7,7 +7,6 @@
           flex
           font-mono font-bold
           mx-2
-          text-xs
           w-12
           justify-center
           items-center
@@ -33,9 +32,8 @@
           flex
           font-semibold
           flex-1
-          text-xs
           min-w-0
-          py-3
+          py-2
           pr-2
           transition
           group-hover:text-secondaryDark

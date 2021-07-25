@@ -1,6 +1,6 @@
 <template>
   <AppSection label="environments">
-    <div class="bg-primary rounded-t flex flex-col top-10 z-10 sticky">
+    <div class="bg-primary rounded-t flex flex-col top-8 z-10 sticky">
       <div class="select-wrapper">
         <select
           v-model="selectedEnvironmentIndex"
@@ -10,12 +10,11 @@
             border-b border-dividerLight
             flex
             font-medium
-            text-xs
             w-full
-            py-3
+            py-2
             px-4
             focus:outline-none
-            select
+            appearance-none
           "
         >
           <option :value="-1">No environment</option>
@@ -64,7 +63,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">library_add</i>
-      <span class="text-xs text-center">
+      <span class="text-center">
         {{ $t("create_new_environment") }}
       </span>
     </div>

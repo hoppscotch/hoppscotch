@@ -1,8 +1,8 @@
 <template>
   <div class="flex h-screen w-screen">
-    <Splitpanes horizontal :dbl-click-splitter="false">
-      <Pane class="flex flex-1 overflow-auto">
-        <Splitpanes vertical :dbl-click-splitter="false">
+    <Splitpanes :dbl-click-splitter="false" horizontal>
+      <Pane class="flex flex-1 !overflow-auto">
+        <Splitpanes :dbl-click-splitter="false" vertical>
           <Pane
             v-if="LEFT_SIDEBAR"
             style="width: auto"
@@ -10,13 +10,13 @@
           >
             <AppSidenav />
           </Pane>
-          <Pane class="flex flex-1 overflow-auto">
-            <Splitpanes horizontal :dbl-click-splitter="false">
+          <Pane class="flex flex-1 !overflow-auto">
+            <Splitpanes :dbl-click-splitter="false" horizontal>
               <Pane v-if="!ZEN_MODE" style="height: auto">
                 <!-- <AppAnnouncement /> -->
                 <AppHeader />
               </Pane>
-              <Pane class="flex flex-1 overflow-auto">
+              <Pane class="flex flex-1 !overflow-auto">
                 <nuxt class="flex flex-1" />
               </Pane>
             </Splitpanes>

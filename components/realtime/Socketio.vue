@@ -1,8 +1,8 @@
 <template>
-  <Splitpanes vertical :dbl-click-splitter="false">
-    <Pane class="overflow-auto hide-scrollbar">
-      <Splitpanes horizontal :dbl-click-splitter="false">
-        <Pane class="overflow-auto hide-scrollbar">
+  <Splitpanes :dbl-click-splitter="false" vertical>
+    <Pane class="!overflow-auto hide-scrollbar">
+      <Splitpanes :dbl-click-splitter="false" horizontal>
+        <Pane class="!overflow-auto hide-scrollbar">
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="flex-1 inline-flex">
@@ -59,7 +59,7 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="overflow-auto hide-scrollbar">
+        <Pane class="!overflow-auto hide-scrollbar">
           <AppSection label="response">
             <RealtimeLog :title="$t('log')" :log="communication.log" />
           </AppSection>
@@ -68,10 +68,10 @@
     </Pane>
     <Pane
       v-if="RIGHT_SIDEBAR"
-      max-size="30"
+      max-size="35"
       size="25"
       min-size="20"
-      class="overflow-auto hide-scrollbar"
+      class="!overflow-auto hide-scrollbar"
     >
       <AppSection label="messages">
         <label for="event_name">{{ $t("event_name") }}</label>

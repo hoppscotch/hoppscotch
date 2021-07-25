@@ -10,6 +10,7 @@
         font-mono
         flex-1
         shadow-lg
+        py-1
         px-4
         bottom-0
         z-10
@@ -25,7 +26,7 @@
           cursor-pointer
           font-semibold
           flex-grow-0 flex-shrink-0
-          text-secondaryLight text-xs
+          text-secondaryLight
           inline-flex
           items-center
           hover:text-secondary

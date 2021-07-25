@@ -1,5 +1,5 @@
 @mixin baseTheme {
-  --font-sans: "Montserrat", "sans-serif";
+  --font-sans: "Inter", "sans-serif";
   --font-mono: "Roboto Mono", "monospace";
   --font-icon: "Material Icons";
 }
@@ -41,7 +41,7 @@
   // Text color
   --secondary-color: theme("colors.true-gray.600");
   // Light Text color
-  --secondary-light-color: theme("colors.true-gray.400");
+  --secondary-light-color: theme("colors.true-gray.500");
   // Dark Text color
   --secondary-dark-color: theme("colors.true-gray.800");
   // Border color

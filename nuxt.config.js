@@ -207,7 +207,7 @@ export default {
   googleFonts: {
     display: "block",
     families: {
-      Montserrat: [400, 500, 600, 700, 800],
+      Inter: [400, 500, 600, 700, 800],
       "Material+Icons": true,
       "Roboto+Mono": true,
     },

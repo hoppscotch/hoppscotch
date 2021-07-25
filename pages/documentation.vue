@@ -1,9 +1,9 @@
 <template>
   <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto hide-scrollbar">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto hide-scrollbar">
+    <Splitpanes :dbl-click-splitter="false" vertical>
+      <Pane class="!overflow-auto hide-scrollbar">
+        <Splitpanes :dbl-click-splitter="false" horizontal>
+          <Pane class="!overflow-auto hide-scrollbar">
             <AppSection label="import">
               <div class="flex flex-col">
                 <label>{{ $t("collection") }}</label>
@@ -43,7 +43,7 @@
                   :options="{
                     maxLines: '16',
                     minLines: '8',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     autoScrollEditorIntoView: true,
                     showPrintMargin: false,
                     useWorker: false,
@@ -57,7 +57,7 @@
               </div>
             </AppSection>
           </Pane>
-          <Pane class="overflow-auto hide-scrollbar">
+          <Pane class="!overflow-auto hide-scrollbar">
             <AppSection label="documentation">
               <div class="flex flex-col">
                 <label>{{ $t("documentation") }}</label>
@@ -104,10 +104,10 @@
       </Pane>
       <Pane
         v-if="RIGHT_SIDEBAR"
-        max-size="30"
+        max-size="35"
         size="25"
         min-size="20"
-        class="overflow-auto hide-scrollbar"
+        class="!overflow-auto hide-scrollbar"
       >
         <aside>
           <Collections

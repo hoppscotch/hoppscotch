@@ -1,7 +1,16 @@
 <template>
   <div class="flex items-center group">
     <span
-      class="cursor-pointer flex font-mono font-bold mx-2 text-xs w-12 justify-center items-center truncate"
+      class="
+        cursor-pointer
+        flex
+        font-mono font-bold
+        mx-2
+        w-12
+        justify-center
+        items-center
+        truncate
+      "
       :class="entryStatus.className"
       data-testid="restore_history_entry"
       :title="duration"
@@ -10,7 +19,17 @@
       {{ entry.method }}
     </span>
     <span
-      class="cursor-pointer flex font-semibold flex-1 text-xs min-w-0 py-3 pr-2 transition group-hover:text-secondaryDark"
+      class="
+        cursor-pointer
+        flex
+        font-semibold
+        flex-1
+        min-w-0
+        py-2
+        pr-2
+        transition
+        group-hover:text-secondaryDark
+      "
       data-testid="restore_history_entry"
       :title="duration"
       @click="$emit('use-entry')"

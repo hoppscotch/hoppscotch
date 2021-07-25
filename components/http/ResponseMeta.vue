@@ -11,7 +11,7 @@
       "
     >
       <i class="opacity-75 pb-2 material-icons">send</i>
-      <span class="text-xs text-center">
+      <span class="text-center">
         {{ $t("waiting_send_req") }}
       </span>
     </div>
@@ -28,17 +28,11 @@
           <span class="text-secondaryDark"> Status: </span>
           {{ response.statusCode || $t("waiting_send_req") }}
         </span>
-        <span
-          v-if="response.meta && response.meta.responseDuration"
-          class="text-xs"
-        >
+        <span v-if="response.meta && response.meta.responseDuration">
           <span class="text-secondaryDark"> Time: </span>
           {{ `${response.meta.responseDuration} ms` }}
         </span>
-        <span
-          v-if="response.meta && response.meta.responseSize"
-          class="text-xs"
-        >
+        <span v-if="response.meta && response.meta.responseSize">
           <span class="text-secondaryDark"> Size: </span>
           {{ `${response.meta.responseSize} B` }}
         </span>

@@ -48,7 +48,6 @@ export default {
 
   span {
     @apply mt-2;
-    @apply text-xs;
     @apply font-semibold;
   }
 

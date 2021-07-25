@@ -20,7 +20,6 @@
                   rounded
                   flex
                   font-semibold font-mono
-                  text-xs
                   w-full
                   py-2
                   px-4

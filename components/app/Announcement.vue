@@ -13,7 +13,7 @@
         blank
         class="
           flex
-          py-3
+          py-2
           px-4
           transition
           relative
@@ -23,7 +23,7 @@
         "
       >
         <i class="mr-4 material-icons">science</i>
-        <span class="text-secondaryDark text-xs">
+        <span class="text-secondaryDark">
           <span class="md:hidden"> Beta Layout </span>
           <span class="hidden md:inline">
             You're currently viewing an experimental beta layout
@@ -34,7 +34,7 @@
             border-l border-divider
             flex
             font-semibold
-            text-accent text-xs
+            text-accent
             ml-4
             pl-4
             transition
@@ -51,7 +51,7 @@
         to="https://hoppscotch.io"
         class="flex transition items-center justify-center group"
       >
-        <span class="text-secondaryDark text-xs">
+        <span class="text-secondaryDark">
           Switch back to the Hoppscotch website
         </span>
       </SmartLink>

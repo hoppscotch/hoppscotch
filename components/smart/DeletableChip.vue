@@ -19,7 +19,7 @@
   @apply pl-4;
   @apply bg-primaryDark;
   @apply text-secondary;
-  @apply font-mono;
+  @apply font-mono font-semibold;
   @apply border border-divider;
 }
 

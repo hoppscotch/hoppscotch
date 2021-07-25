@@ -1,15 +1,7 @@
 <template>
   <div class="flex items-center group">
     <span
-      class="
-        cursor-pointer
-        flex
-        text-xs
-        w-10
-        justify-center
-        items-center
-        truncate
-      "
+      class="cursor-pointer flex w-10 justify-center items-center truncate"
       @click="$emit('edit-environment')"
     >
       <i class="material-icons">layers</i>
@@ -20,9 +12,8 @@
         flex
         font-semibold
         flex-1
-        text-xs
         min-w-0
-        py-3
+        py-2
         pr-2
         transition
         group-hover:text-secondaryDark

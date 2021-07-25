@@ -6,14 +6,14 @@
         border-b border-dividerLight
         flex flex-1
         pl-4
-        top-110px
+        top-98px
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label for="rawBody" class="font-semibold text-xs">
+      <label for="rawBody" class="font-semibold">
         {{ $t("raw_request_body") }}
       </label>
       <div class="flex">
@@ -55,7 +55,7 @@
         :options="{
           maxLines: '16',
           minLines: '8',
-          fontSize: '14px',
+          fontSize: '12px',
           autoScrollEditorIntoView: true,
           showPrintMargin: false,
           useWorker: false,

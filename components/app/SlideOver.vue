@@ -9,12 +9,12 @@
       leave-to-class="opacity-0"
     >
       <div
-        v-show="show"
+        v-if="show"
         class="inset-0 transition-opacity z-20 fixed"
         @keydown.esc="close()"
       >
         <div
-          class="bg-black opacity-25 inset-0 absolute"
+          class="bg-primaryDark opacity-75 inset-0 absolute"
           tabindex="0"
           @click="close()"
         ></div>
@@ -23,6 +23,7 @@
     <aside
       class="
         bg-primary
+        flex flex-col
         h-full
         max-w-full
         shadow-xl

@@ -6,7 +6,7 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelSaveReq" class="font-semibold text-xs px-4 pb-4">
+        <label for="selectLabelSaveReq" class="font-semibold px-4 pb-4">
           {{ $t("request_name") }}
         </label>
         <input
@@ -15,9 +15,7 @@
           class="input"
           type="text"
         />
-        <label class="font-semibold text-xs px-4 pt-4 pb-4">
-          Select Location
-        </label>
+        <label class="font-semibold px-4 pt-4 pb-4"> Select Location </label>
         <CollectionsGraphql
           v-if="mode === 'graphql'"
           :doc="false"

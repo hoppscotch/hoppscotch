@@ -6,14 +6,14 @@
         border-b border-dividerLight
         flex flex-1
         pl-4
-        top-110px
+        top-98px
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label class="font-semibold text-xs">
+      <label class="font-semibold">
         {{ $t("javascript_code") }}
       </label>
       <ButtonSecondary
@@ -29,7 +29,7 @@
       :options="{
         maxLines: '16',
         minLines: '8',
-        fontSize: '14px',
+        fontSize: '12px',
         autoScrollEditorIntoView: true,
         showPrintMargin: false,
         useWorker: false,

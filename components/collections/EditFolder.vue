@@ -8,11 +8,9 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label
-          for="selectLabelEditFolder"
-          class="font-semibold text-xs px-4 pb-4"
-          >{{ $t("label") }}</label
-        >
+        <label for="selectLabelEditFolder" class="font-semibold px-4 pb-4">{{
+          $t("label")
+        }}</label>
         <input
           id="selectLabelEditFolder"
           v-model="name"

@@ -1,6 +1,8 @@
 <template>
   <header class="flex flex-1 py-2 px-4 items-center justify-between">
-    <div class="font-bold space-x-2 flex-shrink-0 inline-flex items-center">
+    <div
+      class="font-extrabold space-x-2 flex-shrink-0 inline-flex items-center"
+    >
       <AppLogo class="h-6 mr-4" /> Hoppscotch
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">

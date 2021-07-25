@@ -1,12 +1,12 @@
 <template>
   <!-- eslint-disable -->
   <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto hide-scrollbar">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto hide-scrollbar">
+    <Splitpanes :dbl-click-splitter="false" vertical>
+      <Pane class="hide-scrollbar !overflow-auto">
+        <Splitpanes :dbl-click-splitter="false" horizontal>
+          <Pane class="hide-scrollbar !overflow-auto">
             <HttpRequest />
-            <SmartTabs styles="sticky top-70px z-10">
+            <SmartTabs styles="sticky top-66px z-10">
               <SmartTab
                 :id="'params'"
                 :label="$t('parameters')"
@@ -257,17 +257,17 @@
               </SmartTab>
             </SmartTabs>
           </Pane>
-          <Pane class="overflow-auto hide-scrollbar">
+          <Pane class="hide-scrollbar !overflow-auto">
             <HttpResponse ref="response" />
           </Pane>
         </Splitpanes>
       </Pane>
       <Pane
         v-if="RIGHT_SIDEBAR"
-        max-size="30"
+        max-size="35"
         size="25"
         min-size="20"
-        class="overflow-auto hide-scrollbar"
+        class="hide-scrollbar !overflow-auto"
       >
         <aside>
           <SmartTabs styles="sticky z-10 top-0">

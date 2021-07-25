@@ -10,15 +10,7 @@
       @dragend="dragging = false"
     >
       <span
-        class="
-          cursor-pointer
-          flex
-          text-xs
-          w-10
-          justify-center
-          items-center
-          truncate
-        "
+        class="cursor-pointer flex w-10 justify-center items-center truncate"
         @click="toggleShowChildren()"
       >
         <i class="material-icons" :class="{ 'text-green-400': isSelected }">
@@ -31,9 +23,8 @@
           flex
           font-semibold
           flex-1
-          text-xs
           min-w-0
-          py-3
+          py-2
           pr-2
           transition
           group-hover:text-secondaryDark
@@ -98,7 +89,7 @@
         />
       </tippy>
     </div>
-    <div v-show="showChildren || isFiltered">
+    <div v-if="showChildren || isFiltered">
       <CollectionsMyFolder
         v-for="(subFolder, subFolderIndex) in folder.folders"
         :key="`subFolder-${subFolderIndex}`"
@@ -154,7 +145,7 @@
         "
       >
         <i class="opacity-75 pb-2 material-icons">folder_open</i>
-        <span class="text-xs text-center">
+        <span class="text-center">
           {{ $t("folder_empty") }}
         </span>
       </div>

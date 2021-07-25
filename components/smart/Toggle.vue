@@ -24,9 +24,9 @@ export default {
 
 <style scoped lang="scss">
 $useBorder: false;
-$borderColor: var(--divider-dark-color);
+$borderColor: var(--divider-color);
 $activeColor: var(--accent-color);
-$inactiveColor: var(--divider-dark-color);
+$inactiveColor: var(--divider-color);
 $inactiveHandleColor: var(--primary-color);
 $activeHandleColor: var(--primary-color);
 $width: 2rem;

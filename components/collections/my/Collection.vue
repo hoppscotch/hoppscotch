@@ -47,6 +47,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('import')"
         icon="check_box_outline_blank"
+        color="green"
         @click.native="$emit('select-collection')"
       />
       <ButtonSecondary
@@ -104,6 +105,7 @@
         />
         <SmartItem
           icon="delete"
+          color="red"
           :label="$t('delete')"
           @click.native="
             confirmRemove = true

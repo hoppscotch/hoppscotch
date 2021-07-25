@@ -88,6 +88,7 @@
         />
         <SmartItem
           icon="delete"
+          color="red"
           :label="$t('delete')"
           @click.native="
             confirmRemove = true

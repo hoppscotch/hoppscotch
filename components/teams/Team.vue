@@ -36,6 +36,7 @@
       <SmartItem
         v-if="team.myRole === 'OWNER'"
         icon="delete"
+        color="red"
         :label="$t('delete')"
         @click.native="
           deleteTeam

@@ -16,17 +16,17 @@
   // Light Text color
   --secondary-light-color: theme("colors.true-gray.500");
   // Dark Text color
-  --secondary-dark-color: theme("colors.white");
+  --secondary-dark-color: theme("colors.true-gray.100");
   // Border color
   --divider-color: theme("colors.true-gray.700");
   // Light Border color
-  --divider-light-color: theme("colors.true-gray.800");
+  --divider-light-color: theme("colors.dark.600");
   // Dark Border color
-  --divider-dark-color: theme("colors.true-gray.600");
+  --divider-dark-color: theme("colors.dark.200");
   // Error color
-  --error-color: theme("colors.true-gray.600");
+  --error-color: theme("colors.dark.800");
   // Tooltip color
-  --tooltip-color: theme("colors.true-gray.200");
+  --tooltip-color: theme("colors.true-gray.100");
   // Editor theme
   --editor-theme: "merbivore_soft";
 }
@@ -62,25 +62,25 @@
   // Background color
   --primary-color: theme("colors.dark.900");
   // Light Background color
-  --primary-light-color: theme("colors.dark.700");
+  --primary-light-color: theme("colors.dark.800");
   // Dark Background color
-  --primary-dark-color: theme("colors.dark.800");
+  --primary-dark-color: theme("colors.true-gray.900");
   // Text color
   --secondary-color: theme("colors.true-gray.400");
   // Light Text color
-  --secondary-light-color: theme("colors.true-gray.600");
+  --secondary-light-color: theme("colors.true-gray.500");
   // Dark Text color
   --secondary-dark-color: theme("colors.true-gray.100");
   // Border color
-  --divider-color: theme("colors.dark.800");
+  --divider-color: theme("colors.true-gray.800");
   // Light Border color
-  --divider-light-color: theme("colors.dark.700");
+  --divider-light-color: theme("colors.true-gray.900");
   // Dark Border color
-  --divider-dark-color: theme("colors.dark.600");
+  --divider-dark-color: theme("colors.dark.200");
   // Error color
   --error-color: theme("colors.dark.800");
   // Tooltip color
-  --tooltip-color: theme("colors.true-gray.200");
+  --tooltip-color: theme("colors.true-gray.100");
   // Editor theme
   --editor-theme: "vibrant_ink";
 }

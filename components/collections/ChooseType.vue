@@ -27,6 +27,7 @@
                 py-3
                 px-4
                 focus:outline-none
+                select
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >

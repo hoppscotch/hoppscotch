@@ -87,6 +87,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
                 icon="delete"
+                color="red"
                 @click.native="removeEnvironmentVariable(index)"
               />
             </div>

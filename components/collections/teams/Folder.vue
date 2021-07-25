@@ -86,6 +86,7 @@
         <SmartItem
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           icon="delete"
+          color="red"
           :label="$t('delete')"
           @click.native="
             confirmRemove = true

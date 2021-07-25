@@ -35,11 +35,6 @@
   @apply text-primary;
 }
 
-::placeholder {
-  @apply text-secondaryLight;
-  @apply opacity-25;
-}
-
 html {
   scroll-behavior: smooth;
 }
@@ -162,6 +157,7 @@ hr {
   @apply text-secondaryDark text-lg;
 }
 
+.textarea,
 .input,
 .select {
   @apply flex flex-1;
@@ -189,7 +185,7 @@ pre.ace_editor {
   @apply z-0;
 }
 
-select {
+.select {
   @apply appearance-none;
   @apply cursor-pointer;
 
@@ -323,7 +319,6 @@ input[type="checkbox"] {
 .splitpanes__splitter {
   @apply relative;
   @apply bg-primaryLight;
-  @apply transition;
 }
 
 .splitpanes--vertical > .splitpanes__splitter {
@@ -339,7 +334,7 @@ input[type="checkbox"] {
   @apply inset-0;
   @apply bg-dividerLight;
   @apply opacity-0;
-  @apply z-1;
+  @apply z-30;
   @apply transition;
 
   content: "";
@@ -348,7 +343,7 @@ input[type="checkbox"] {
 .splitpanes__splitter::after {
   @apply absolute;
   @apply inset-0;
-  @apply z-1;
+  @apply z-30;
   @apply transition;
   @apply flex;
   @apply items-center;

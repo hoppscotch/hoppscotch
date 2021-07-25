@@ -49,6 +49,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
               icon="delete"
+              color="red"
               @click.native="removeOAuthToken(index)"
             />
           </li>

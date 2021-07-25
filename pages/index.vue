@@ -326,6 +326,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
               icon="delete"
+              color="red"
             />
           </div>
         </div>

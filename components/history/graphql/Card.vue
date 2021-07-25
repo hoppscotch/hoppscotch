@@ -25,9 +25,9 @@
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         icon="delete"
+        color="red"
         :title="$t('delete')"
         class="group-hover:inline-flex hidden"
-        color="red"
         data-testid="delete_history_entry"
         @click.native="$emit('delete-entry')"
       />

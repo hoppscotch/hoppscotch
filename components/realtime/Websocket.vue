@@ -113,6 +113,7 @@
                       : 'check_box_outline_blank'
                     : 'check_box'
                 "
+                color="green"
                 @click.native="
                   protocol.active = protocol.hasOwnProperty('active')
                     ? !protocol.active
@@ -125,6 +126,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
                 icon="delete"
+                color="red"
                 @click.native="deleteProtocol({ index })"
               />
             </div>

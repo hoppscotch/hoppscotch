@@ -7,14 +7,16 @@
       </div>
     </template>
     <template #body>
-      <textarea
-        id="import-curl"
-        v-model="curl"
-        class="textarea"
-        autofocus
-        rows="8"
-        :placeholder="$t('enter_curl')"
-      ></textarea>
+      <div class="flex flex-col px-2">
+        <textarea
+          id="import-curl"
+          v-model="curl"
+          class="textarea"
+          autofocus
+          rows="8"
+          :placeholder="$t('enter_curl')"
+        ></textarea>
+      </div>
     </template>
     <template #footer>
       <span>

@@ -213,7 +213,7 @@ export default {
     @apply z-50;
     @apply shadow-lg;
 
-    top: calc(100% - 8px);
+    top: calc(100% - 4px);
     border-radius: 0 0 8px 8px;
 
     li {

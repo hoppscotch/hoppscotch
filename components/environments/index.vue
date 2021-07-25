@@ -15,6 +15,7 @@
             py-3
             px-4
             focus:outline-none
+            select
           "
         >
           <option :value="-1">No environment</option>

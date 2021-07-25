@@ -103,6 +103,7 @@
                 : 'check_box_outline_blank'
               : 'check_box'
           "
+          color="green"
           @click.native="
             updateParam(index, {
               key: param.key,
@@ -117,6 +118,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
           icon="delete"
+          color="red"
           @click.native="deleteParam(index)"
         />
       </div>

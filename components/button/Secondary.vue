@@ -11,11 +11,12 @@
       items-center
       justify-center
       focus:outline-none
+      hover:bg-primaryDark
     "
     :class="[
       color
         ? `text-${color}-400 hover:text-${color}-600 focus:text-${color}-600`
-        : 'text-secondary hover:text-secondaryDark hover:bg-primaryDark focus:text-secondaryDark',
+        : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
       label ? 'px-3' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',
       { 'opacity-75 cursor-not-allowed': disabled },

@@ -2,19 +2,7 @@
   <div class="flex flex-col group">
     <div class="flex items-center">
       <span
-        class="
-          cursor-pointer
-          flex
-          font-semibold
-          flex-1
-          text-xs
-          min-w-0
-          py-3
-          pr-2
-          pl-4
-          transition
-          group-hover:text-secondaryDark
-        "
+        class="cursor-pointer flex font-semibold flex-1 text-xs min-w-0 py-3 pr-2 pl-4 transition group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"
       >
@@ -52,13 +40,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="
-          cursor-pointer
-          font-mono
-          text-xs text-secondaryLight
-          px-4
-          truncate
-        "
+        class="cursor-pointer font-mono text-xs text-secondaryLight px-4 truncate"
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"
       >

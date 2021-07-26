@@ -43,8 +43,8 @@
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
             class="
-              divide-x divide-dashed divide-divider
-              border-b border-dashed border-divider
+              divide-x divide-dividerLight
+              border-b border-dividerLight
               flex
             "
             :class="{ 'border-t': index == 0 }"

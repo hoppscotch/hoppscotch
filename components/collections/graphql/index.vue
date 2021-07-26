@@ -7,9 +7,8 @@
       class="flex flex-col top-8 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
     >
-      <div class="search-wrapper">
+      <div v-if="showCollActions" class="search-wrapper">
         <input
-          v-if="showCollActions"
           v-model="filterText"
           type="search"
           :placeholder="$t('search')"

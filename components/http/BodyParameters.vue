@@ -28,11 +28,7 @@
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
-      class="
-        divide-x divide-dashed divide-divider
-        border-b border-dashed border-divider
-        flex
-      "
+      class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
       <input

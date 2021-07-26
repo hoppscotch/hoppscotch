@@ -34,11 +34,7 @@
     <div
       v-for="(header, index) in headers$"
       :key="`header-${index}`"
-      class="
-        divide-x divide-dashed divide-divider
-        border-b border-dashed border-divider
-        flex
-      "
+      class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
       <SmartAutoComplete
@@ -112,6 +108,15 @@
           @click.native="deleteHeader(index)"
         />
       </div>
+    </div>
+    <div
+      v-if="headers$.length === 0"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <i class="opacity-75 pb-2 material-icons">post_add</i>
+      <span class="text-center">
+        {{ $t("headers_empty") }}
+      </span>
     </div>
   </AppSection>
 </template>

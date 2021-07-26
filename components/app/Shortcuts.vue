@@ -20,25 +20,14 @@
           <ButtonSecondary icon="close" @click.native="close()" />
         </div>
       </div>
-      <div class="search-wrapper">
+      <!-- <div class="search-wrapper">
         <input
           v-model="filterText"
           type="search"
-          class="
-            bg-primaryLight
-            border-b border-dividerLight
-            flex
-            font-semibold font-mono
-            w-full
-            py-2
-            pr-2
-            pl-8
-            focus:outline-none
-            truncate
-          "
+          class="bg-primaryLight border-b border-dividerLight flex font-semibold font-mono w-full py-2 pr-2 pl-8 focus:outline-none truncate"
           :placeholder="$t('search')"
         />
-      </div>
+      </div> -->
       <div
         class="
           divide-y divide-dividerLight
@@ -52,7 +41,7 @@
           :key="`map-${mapIndex}`"
           class="space-y-4 p-4"
         >
-          <h5 class="font-bold text-secondaryDark text-base">
+          <h5 class="font-bold text-secondaryDark text-sm">
             {{ map.section }}
           </h5>
           <div
@@ -66,7 +55,7 @@
             <span
               v-for="(key, keyIndex) in shortcut.keys"
               :key="`map-${mapIndex}-shortcut-${shortcutIndex}-key-${keyIndex}`"
-              class="bg-dividerLight rounded ml-1 py-1 px-2 inline-flex"
+              class="shortcut-key"
             >
               {{ key }}
             </span>
@@ -78,7 +67,10 @@
 </template>
 
 <script>
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import {
+  getPlatformSpecialKey,
+  getPlatformAlternateKey,
+} from "~/helpers/platformutils"
 
 export default {
   props: {
@@ -92,19 +84,19 @@ export default {
           section: "General",
           shortcuts: [
             {
-              keys: [this.getSpecialKey(), "G"],
+              keys: [getPlatformSpecialKey(), "G"],
               label: this.$t("send_request"),
             },
             {
-              keys: [this.getSpecialKey(), "S"],
+              keys: [getPlatformSpecialKey(), "S"],
               label: this.$t("save_to_collections"),
             },
             {
-              keys: [this.getSpecialKey(), "K"],
+              keys: [getPlatformSpecialKey(), "K"],
               label: this.$t("copy_request_link"),
             },
             {
-              keys: [this.getSpecialKey(), "I"],
+              keys: [getPlatformSpecialKey(), "I"],
               label: this.$t("reset_request"),
             },
           ],
@@ -113,31 +105,31 @@ export default {
           section: "Request",
           shortcuts: [
             {
-              keys: ["Alt", "↑"],
+              keys: [getPlatformAlternateKey(), "↑"],
               label: this.$t("select_next_method"),
             },
             {
-              keys: ["Alt", "↓"],
+              keys: [getPlatformAlternateKey(), "↓"],
               label: this.$t("select_previous_method"),
             },
             {
-              keys: ["Alt", "G"],
+              keys: [getPlatformAlternateKey(), "G"],
               label: this.$t("select_get_method"),
             },
             {
-              keys: ["Alt", "H"],
+              keys: [getPlatformAlternateKey(), "H"],
               label: this.$t("select_head_method"),
             },
             {
-              keys: ["Alt", "P"],
+              keys: [getPlatformAlternateKey(), "P"],
               label: this.$t("select_post_method"),
             },
             {
-              keys: ["Alt", "U"],
+              keys: [getPlatformAlternateKey(), "U"],
               label: this.$t("select_put_method"),
             },
             {
-              keys: ["Alt", "X"],
+              keys: [getPlatformAlternateKey(), "X"],
               label: this.$t("select_delete_method"),
             },
           ],
@@ -151,10 +143,20 @@ export default {
     },
   },
   methods: {
-    getSpecialKey: getPlatformSpecialKey,
     close() {
       this.$emit("close")
     },
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.shortcut-key {
+  @apply bg-dividerLight;
+  @apply rounded;
+  @apply ml-2;
+  @apply py-1;
+  @apply px-2;
+  @apply inline-flex;
+}
+</style>

@@ -167,7 +167,7 @@ hr {
   @apply truncate;
   @apply rounded;
   @apply text-xs;
-  @apply font-semibold font-mono;
+  @apply font-semibold;
   @apply border border-divider;
   @apply transition;
   @apply focus:(outline-none border-accent);

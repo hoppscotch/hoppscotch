@@ -25,7 +25,7 @@
           :key="`member-${index}`"
           class="
             divide-y divide-dashed divide-divider
-            border-b border-dashed border-divider
+            border-b border-divider
             md:divide-x md:divide-y-0
           "
           :class="{ 'border-t': index == 0 }"
@@ -104,7 +104,7 @@
           :key="`member-${index}`"
           class="
             divide-y divide-dashed divide-divider
-            border-b border-dashed border-divider
+            border-b border-divider
             md:divide-x md:divide-y-0
           "
         >

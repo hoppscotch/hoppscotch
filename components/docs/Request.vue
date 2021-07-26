@@ -137,7 +137,7 @@ export default {
   @apply p-4;
   @apply m-0;
   @apply text-secondaryLight;
-  @apply border-b border-dashed border-divider;
+  @apply border-b border-divider;
 
   &:last-child {
     @apply border-b-0;

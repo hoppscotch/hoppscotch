@@ -165,7 +165,6 @@
   "log": "Log",
   "no_url": "No URL",
   "run": "Run",
-  "copy": "Copy Query",
   "loading": "Loading...",
   "fetching": "Fetching...",
   "waiting_send_req": "Waiting to send request",
@@ -192,10 +191,6 @@
   "import_json": "Import from JSON",
   "download_file": "Download file",
   "upload_file": "Upload file",
-  "copy": "Copy response",
-  "copy": "Copy code",
-  "copy": "Copy schema",
-  "copy": "Copy variables",
   "use_request": "Use request",
   "documentation": "Documentation",
   "docs": "Docs",
@@ -355,5 +350,7 @@
   "zen_mode": "Zen mode",
   "notifications": "Notifications",
   "connect_graphql_endpoint": "Connect to a GraphQL endpoint",
-  "copy": "Copy"
+  "copy": "Copy",
+  "parameters_empty": "Parameters are empty",
+  "headers_empty": "Headers are empty"
 }

@@ -9,7 +9,6 @@
         flex flex-nowrap
         font-mono
         flex-1
-        shadow-lg
         py-1
         px-4
         bottom-0

@@ -20,8 +20,9 @@
                 cursor-pointer
                 flex
                 font-semibold font-mono
+                h-8
                 text-secondaryDark
-                py-2
+                py-1
                 px-4
                 transition
                 w-28
@@ -53,10 +54,11 @@
         class="
           bg-primaryLight
           border border-divider
+          flex
           font-semibold font-mono
+          flex-1
           text-secondaryDark
-          w-full
-          py-2
+          py-1
           px-4
           transition
           truncate
@@ -76,7 +78,6 @@
         class="rounded-none"
         :label="!loading ? $t('send') : $t('cancel')"
         :shortcut="[getSpecialKey(), 'G']"
-        outline
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="inline-flex">
@@ -89,11 +90,7 @@
           arrow
         >
           <template #trigger>
-            <ButtonPrimary
-              class="rounded-l-none"
-              icon="keyboard_arrow_down"
-              outline
-            />
+            <ButtonPrimary class="rounded-l-none" icon="keyboard_arrow_down" />
           </template>
           <SmartItem
             :label="$t('import_curl')"
@@ -123,7 +120,7 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded-r-none ml-2"
+        class="rounded-r-none h-8 ml-2"
         :label="$t('save')"
         :shortcut="[getSpecialKey(), 'S']"
         outline
@@ -142,7 +139,7 @@
             <ButtonSecondary
               icon="keyboard_arrow_down"
               outline
-              class="rounded-l-none"
+              class="rounded-l-none h-8"
             />
           </template>
           <input

@@ -6,7 +6,7 @@
         border-b border-dividerLight
         flex flex-1
         pl-4
-        top-98px
+        top-24
         z-10
         sticky
         items-center
@@ -43,7 +43,7 @@
           border-b border-dividerLight
           flex flex-1
           pl-4
-          top-98px
+          top-24
           z-10
           sticky
           items-center

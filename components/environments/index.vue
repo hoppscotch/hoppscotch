@@ -9,7 +9,7 @@
             bg-primaryLight
             border-b border-dividerLight
             flex
-            font-medium
+            font-semibold font-mono
             w-full
             py-2
             px-4

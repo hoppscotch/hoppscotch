@@ -3,7 +3,7 @@
     <div
       ref="modal"
       class="
-        bg-primaryLight
+        bg-primaryDark
         flex
         h-full
         w-full

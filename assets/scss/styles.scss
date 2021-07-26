@@ -166,7 +166,8 @@ hr {
   @apply bg-primary;
   @apply truncate;
   @apply rounded;
-  @apply font-semibold;
+  @apply text-xs;
+  @apply font-semibold font-mono;
   @apply border border-divider;
   @apply transition;
   @apply focus:(outline-none border-accent);

@@ -1,9 +1,9 @@
 <template>
   <div>
     <Splitpanes :dbl-click-splitter="false" vertical>
-      <Pane class="!overflow-auto hide-scrollbar">
+      <Pane class="hide-scrollbar !overflow-auto">
         <Splitpanes :dbl-click-splitter="false" horizontal>
-          <Pane class="!overflow-auto hide-scrollbar">
+          <Pane class="hide-scrollbar !overflow-auto">
             <AppSection label="import">
               <div class="flex flex-col">
                 <label>{{ $t("collection") }}</label>
@@ -57,7 +57,7 @@
               </div>
             </AppSection>
           </Pane>
-          <Pane class="!overflow-auto hide-scrollbar">
+          <Pane class="hide-scrollbar !overflow-auto">
             <AppSection label="documentation">
               <div class="flex flex-col">
                 <label>{{ $t("documentation") }}</label>
@@ -107,7 +107,7 @@
         max-size="35"
         size="25"
         min-size="20"
-        class="!overflow-auto hide-scrollbar"
+        class="hide-scrollbar !overflow-auto"
       >
         <aside>
           <Collections

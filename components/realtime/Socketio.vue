@@ -1,8 +1,8 @@
 <template>
   <Splitpanes :dbl-click-splitter="false" vertical>
-    <Pane class="!overflow-auto hide-scrollbar">
+    <Pane class="hide-scrollbar !overflow-auto">
       <Splitpanes :dbl-click-splitter="false" horizontal>
-        <Pane class="!overflow-auto hide-scrollbar">
+        <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="flex-1 inline-flex">
@@ -59,7 +59,7 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="!overflow-auto hide-scrollbar">
+        <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
             <RealtimeLog :title="$t('log')" :log="communication.log" />
           </AppSection>
@@ -71,63 +71,73 @@
       max-size="35"
       size="25"
       min-size="20"
-      class="!overflow-auto hide-scrollbar"
+      class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <label for="event_name">{{ $t("event_name") }}</label>
-        <input
-          id="event_name"
-          v-model="communication.eventName"
-          class="input"
-          name="event_name"
-          type="text"
-          :readonly="!connectionState"
-        />
-        <div class="flex flex-1">
-          <label>{{ $t("message") }}s</label>
+        <div class="flex flex-col flex-1 p-4 inline-flex">
+          <label for="events" class="font-semibold">
+            {{ $t("events") }}
+          </label>
         </div>
-        <div
-          v-for="(input, index) of communication.inputs"
-          :key="`input-${index}`"
-          :class="{ 'border-t': index == 0 }"
-          class="
-            divide-y divide-dashed divide-divider
-            border-b border-dashed border-divider
-            md:divide-x md:divide-y-0
-          "
-        >
+        <div class="flex px-4">
           <input
-            v-model="communication.inputs[index]"
+            id="event_name"
+            v-model="communication.eventName"
             class="input"
-            name="message"
+            name="event_name"
+            :placeholder="$t('event_name')"
             type="text"
-            :readonly="!connectionState"
-            @keyup.enter="connectionState ? sendMessage() : null"
+            :disabled="!connectionState"
           />
-          <div v-if="index + 1 !== communication.inputs.length">
+        </div>
+        <div class="bg-primary flex flex-1 p-4 items-center justify-between">
+          <label class="font-semibold">{{ $t("communication") }}</label>
+          <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
-              icon="delete"
-              color="red"
-              @click.native="removeCommunicationInput({ index })"
+              :title="$t('add_new')"
+              icon="add"
+              @click.native="addCommunicationInput"
             />
           </div>
-          <div v-if="index + 1 === communication.inputs.length">
-            <ButtonSecondary
-              id="send"
-              name="send"
-              :disabled="!connectionState"
-              icon="send"
-              :label="$t('send')"
-              @click.native="sendMessage"
-            />
+        </div>
+        <div class="flex flex-col space-y-2 px-4">
+          <div
+            v-for="(input, index) of communication.inputs"
+            :key="`input-${index}`"
+          >
+            <div class="flex">
+              <input
+                v-model="communication.inputs[index]"
+                class="input !rounded-r-none"
+                name="message"
+                :placeholder="$t('message_count', { count: index + 1 })"
+                type="text"
+                :disabled="!connectionState"
+                @keyup.enter="connectionState ? sendMessage() : null"
+              />
+              <ButtonSecondary
+                v-if="index + 1 !== communication.inputs.length"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                class="rounded-l-none"
+                color="red"
+                outline
+                @click.native="removeCommunicationInput({ index })"
+              />
+              <ButtonPrimary
+                v-if="index + 1 === communication.inputs.length"
+                id="send"
+                name="send"
+                :disabled="!connectionState"
+                class="rounded-l-none"
+                icon="send"
+                :label="$t('send')"
+                @click.native="sendMessage"
+              />
+            </div>
           </div>
-          <ButtonSecondary
-            icon="add"
-            :label="$t('add_new')"
-            @click.native="addCommunicationInput"
-          />
         </div>
       </AppSection>
     </Pane>

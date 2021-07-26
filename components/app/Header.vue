@@ -1,9 +1,16 @@
 <template>
   <header class="flex flex-1 py-2 px-4 items-center justify-between">
     <div
-      class="font-extrabold space-x-2 flex-shrink-0 inline-flex items-center"
+      class="
+        font-extrabold
+        space-x-2
+        flex-shrink-0
+        text-sm
+        inline-flex
+        items-center
+      "
     >
-      <AppLogo class="h-6 mr-4" /> Hoppscotch
+      Hoppscotch
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="mt-1 mr-2" />

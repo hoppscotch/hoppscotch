@@ -358,20 +358,24 @@
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
               <AppSection label="docs">
                 <div class="bg-primaryLight flex flex-col top-8 z-10 sticky">
-                  <input
-                    v-model="graphqlFieldsFilterText"
-                    type="text"
-                    :placeholder="$t('search')"
-                    class="
-                      bg-primaryLight
-                      flex
-                      font-semibold font-mono
-                      flex-1
-                      py-2
-                      px-4
-                      focus:outline-none
-                    "
-                  />
+                  <div class="search-wrapper">
+                    <input
+                      v-model="graphqlFieldsFilterText"
+                      type="search"
+                      :placeholder="$t('search')"
+                      class="
+                        bg-primaryLight
+                        flex
+                        font-semibold font-mono
+                        w-full
+                        py-2
+                        pr-2
+                        pl-9
+                        focus:outline-none
+                        truncate
+                      "
+                    />
+                  </div>
                 </div>
                 <SmartTabs
                   ref="gqlTabs"

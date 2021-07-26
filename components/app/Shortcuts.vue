@@ -20,6 +20,25 @@
           <ButtonSecondary icon="close" @click.native="close()" />
         </div>
       </div>
+      <div class="search-wrapper">
+        <input
+          v-model="filterText"
+          type="search"
+          class="
+            bg-primaryLight
+            border-b border-dividerLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-8
+            focus:outline-none
+            truncate
+          "
+          :placeholder="$t('search')"
+        />
+      </div>
       <div
         class="
           divide-y divide-dividerLight
@@ -67,6 +86,7 @@ export default {
   },
   data() {
     return {
+      filterText: "",
       mappings: [
         {
           section: "General",

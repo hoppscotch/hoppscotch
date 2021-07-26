@@ -1,6 +1,6 @@
 <template>
   <Splitpanes :dbl-click-splitter="false" horizontal>
-    <Pane class="!overflow-auto hide-scrollbar">
+    <Pane class="hide-scrollbar !overflow-auto">
       <AppSection label="request">
         <div class="bg-primary flex p-4 top-0 z-10 sticky">
           <div class="flex-1 inline-flex">
@@ -39,7 +39,7 @@
         </div>
       </AppSection>
     </Pane>
-    <Pane class="!overflow-auto hide-scrollbar">
+    <Pane class="hide-scrollbar !overflow-auto">
       <AppSection label="response">
         <ul>
           <li>

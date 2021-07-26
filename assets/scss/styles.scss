@@ -171,6 +171,7 @@ hr {
   @apply border border-divider;
   @apply transition;
   @apply focus:(outline-none border-accent);
+  @apply disabled:cursor-not-allowed;
 }
 
 .input[type="file"],
@@ -187,7 +188,6 @@ pre.ace_editor {
 
 .select {
   @apply appearance-none;
-  @apply cursor-pointer;
 
   &::-ms-expand {
     @apply hidden;
@@ -197,6 +197,7 @@ pre.ace_editor {
 .select-wrapper {
   @apply relative;
   @apply w-full;
+  @apply cursor-pointer;
 
   &::after {
     @apply absolute;
@@ -208,6 +209,23 @@ pre.ace_editor {
     @apply right-3;
 
     content: "\e313";
+  }
+}
+
+.search-wrapper {
+  @apply relative;
+  @apply w-full;
+
+  &::after {
+    @apply absolute;
+    @apply inline-block;
+    @apply pointer-events-none;
+    @apply font-icon;
+    @apply text-secondaryLight;
+    @apply top-2;
+    @apply left-3;
+
+    content: "\e8b6";
   }
 }
 

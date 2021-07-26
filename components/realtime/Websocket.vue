@@ -1,42 +1,44 @@
 <template>
   <Splitpanes :dbl-click-splitter="false" vertical>
-    <Pane class="!overflow-auto hide-scrollbar">
+    <Pane class="hide-scrollbar !overflow-auto">
       <Splitpanes :dbl-click-splitter="false" horizontal>
-        <Pane class="!overflow-auto hide-scrollbar">
-          <AppSection class="bg-primary flex p-4 top-0 z-10 sticky">
-            <div class="flex-1 inline-flex">
-              <input
-                id="websocket-url"
-                v-model="url"
-                class="
-                  bg-primaryLight
-                  border border-divider
-                  rounded-l
-                  font-semibold font-mono
-                  text-secondaryDark
-                  w-full
-                  py-1
-                  px-4
-                  transition
-                  truncate
-                  focus:outline-none focus:border-accent
-                "
-                type="url"
-                spellcheck="false"
-                :class="{ error: !urlValid }"
-                :placeholder="$t('url')"
-                @keyup.enter="urlValid ? toggleConnection() : null"
-              />
-              <ButtonPrimary
-                id="connect"
-                :disabled="!urlValid"
-                class="rounded-l-none"
-                name="connect"
-                :icon="!connectionState ? 'sync' : 'sync_disabled'"
-                :label="!connectionState ? $t('connect') : $t('disconnect')"
-                reverse
-                @click.native="toggleConnection"
-              />
+        <Pane class="hide-scrollbar !overflow-auto">
+          <AppSection label="request">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+              <div class="flex-1 inline-flex">
+                <input
+                  id="websocket-url"
+                  v-model="url"
+                  class="
+                    bg-primaryLight
+                    border border-divider
+                    rounded-l
+                    font-semibold font-mono
+                    text-secondaryDark
+                    w-full
+                    py-1
+                    px-4
+                    transition
+                    truncate
+                    focus:outline-none focus:border-accent
+                  "
+                  type="url"
+                  spellcheck="false"
+                  :class="{ error: !urlValid }"
+                  :placeholder="$t('url')"
+                  @keyup.enter="urlValid ? toggleConnection() : null"
+                />
+                <ButtonPrimary
+                  id="connect"
+                  :disabled="!urlValid"
+                  class="rounded-l-none"
+                  name="connect"
+                  :icon="!connectionState ? 'sync' : 'sync_disabled'"
+                  :label="!connectionState ? $t('connect') : $t('disconnect')"
+                  reverse
+                  @click.native="toggleConnection"
+                />
+              </div>
             </div>
           </AppSection>
           <div
@@ -45,7 +47,7 @@
               border-b border-dividerLight
               flex flex-1
               pl-4
-              top-68px
+              top-16
               z-10
               sticky
               items-center
@@ -131,7 +133,7 @@
             </div>
           </div>
         </Pane>
-        <Pane class="!overflow-auto hide-scrollbar">
+        <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
             <RealtimeLog :title="$t('log')" :log="communication.log" />
           </AppSection>
@@ -143,31 +145,32 @@
       max-size="35"
       size="25"
       min-size="20"
-      class="!overflow-auto hide-scrollbar"
+      class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
         <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label for="websocket-message" class="font-semibold pb-4">
-            {{ $t("message") }}
+          <label for="websocket-message" class="font-semibold">
+            {{ $t("communication") }}
           </label>
+        </div>
+        <div class="flex px-4">
           <input
             id="websocket-message"
             v-model="communication.input"
             name="message"
             type="text"
-            :readonly="!connectionState"
-            class="input"
+            :disabled="!connectionState"
+            :placeholder="$t('message')"
+            class="input !rounded-r-none"
             @keyup.enter="connectionState ? sendMessage() : null"
             @keyup.up="connectionState ? walkHistory('up') : null"
             @keyup.down="connectionState ? walkHistory('down') : null"
           />
-        </div>
-        <div>
-          <ButtonSecondary
+          <ButtonPrimary
             id="send"
             name="send"
             :disabled="!connectionState"
-            class="rounded-b-lg button md:rounded-bl-none md:rounded-br-lg"
+            class="rounded-l-none"
             icon="send"
             :label="$t('send')"
             @click.native="sendMessage"

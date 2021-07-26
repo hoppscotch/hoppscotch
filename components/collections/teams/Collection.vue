@@ -38,6 +38,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('delete')"
         icon="check_box"
+        color="green"
         @click.native="$emit('unselect-collection')"
       />
       <ButtonSecondary

@@ -7,22 +7,26 @@
       class="bg-primary rounded-t flex flex-col top-0 z-10 sticky"
       :class="{ '!top-8': !saveRequest && !doc }"
     >
-      <input
-        v-if="!saveRequest"
-        v-model="filterText"
-        type="search"
-        :placeholder="$t('search')"
-        class="
-          bg-primaryLight
-          border-b border-dividerLight
-          flex
-          font-semibold font-mono
-          flex-1
-          py-2
-          px-4
-          focus:outline-none
-        "
-      />
+      <div class="search-wrapper">
+        <input
+          v-if="!saveRequest"
+          v-model="filterText"
+          type="search"
+          :placeholder="$t('search')"
+          class="
+            bg-primaryLight
+            border-b border-dividerLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-9
+            focus:outline-none
+            truncate
+          "
+        />
+      </div>
       <CollectionsChooseType
         :collections-type="collectionsType"
         :show="showTeamCollections"

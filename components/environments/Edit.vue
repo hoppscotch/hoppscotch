@@ -38,15 +38,16 @@
             />
           </div>
         </div>
-        <div class="border-divider rounded border">
+        <div class="border-divider border rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
             class="
               divide-x divide-dashed divide-divider
-              border-b border-divider
+              border-b border-dashed border-divider
               flex
             "
+            :class="{ 'border-t': index == 0 }"
           >
             <input
               v-model="variable.key"

@@ -1,8 +1,8 @@
 <template>
   <Splitpanes :dbl-click-splitter="false" vertical>
-    <Pane class="!overflow-auto hide-scrollbar">
+    <Pane class="hide-scrollbar !overflow-auto">
       <Splitpanes :dbl-click-splitter="false" horizontal>
-        <Pane class="!overflow-auto hide-scrollbar">
+        <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="flex-1 inline-flex">
@@ -39,7 +39,7 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="!overflow-auto hide-scrollbar">
+        <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
             <RealtimeLog :title="$t('log')" :log="log" />
           </AppSection>
@@ -51,49 +51,75 @@
       max-size="35"
       size="25"
       min-size="20"
-      class="!overflow-auto hide-scrollbar"
+      class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <label for="pub_topic">{{ $t("mqtt_topic") }}</label>
-        <input
-          id="pub_topic"
-          v-model="pub_topic"
-          class="input"
-          type="text"
-          spellcheck="false"
-        />
-        <label for="mqtt-message">{{ $t("message") }}</label>
-        <input
-          id="mqtt-message"
-          v-model="msg"
-          type="text"
-          spellcheck="false"
-          class="border-dashed border-divider input md:border-l"
-        />
-        <div>
-          <ButtonSecondary
+        <div class="flex flex-col flex-1 p-4 inline-flex">
+          <label for="pub_topic" class="font-semibold">
+            {{ $t("mqtt_topic") }}
+          </label>
+        </div>
+        <div class="flex px-4">
+          <input
+            id="pub_topic"
+            v-model="pub_topic"
+            class="input"
+            :placeholder="$t('topic_name')"
+            type="text"
+            spellcheck="false"
+          />
+        </div>
+        <div class="bg-primary flex flex-1 p-4 items-center justify-between">
+          <label for="mqtt-message" class="font-semibold">{{
+            $t("communication")
+          }}</label>
+        </div>
+        <div class="flex px-4">
+          <input
+            id="mqtt-message"
+            v-model="msg"
+            class="input !rounded-r-none"
+            type="text"
+            :placeholder="$t('message')"
+            spellcheck="false"
+          />
+          <ButtonPrimary
             id="publish"
             name="get"
+            class="rounded-l-none"
             :disabled="!canpublish"
             icon="send"
             :label="$t('mqtt_publish')"
             @click.native="publish"
           />
         </div>
-        <label for="sub_topic">{{ $t("mqtt_topic") }}</label>
-        <input
-          id="sub_topic"
-          v-model="sub_topic"
-          type="text"
-          spellcheck="false"
-          class="input md:rounded-bl-lg"
-        />
-        <div>
-          <ButtonSecondary
+        <div
+          class="
+            border-t border-dividerLight
+            flex flex-col flex-1
+            mt-4
+            p-4
+            inline-flex
+          "
+        >
+          <label for="sub_topic" class="font-semibold">{{
+            $t("mqtt_topic")
+          }}</label>
+        </div>
+        <div class="flex px-4">
+          <input
+            id="sub_topic"
+            v-model="sub_topic"
+            type="text"
+            :placeholder="$t('topic_name')"
+            spellcheck="false"
+            class="input !rounded-r-none"
+          />
+          <ButtonPrimary
             id="subscribe"
             name="get"
             :disabled="!cansubscribe"
-            class="rounded-b-lg button md:rounded-bl-none md:rounded-br-lg"
+            class="rounded-l-none"
             :icon="subscriptionState ? 'sync_disabled' : 'sync'"
             :label="
               subscriptionState ? $t('mqtt_unsubscribe') : $t('mqtt_subscribe')

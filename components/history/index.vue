@@ -10,20 +10,24 @@
         sticky
       "
     >
-      <input
-        v-model="filterText"
-        type="search"
-        class="
-          bg-primaryLight
-          flex
-          font-semibold font-mono
-          flex-1
-          py-2
-          px-4
-          focus:outline-none
-        "
-        :placeholder="$t('search')"
-      />
+      <div class="search-wrapper">
+        <input
+          v-model="filterText"
+          type="search"
+          class="
+            bg-primaryLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-9
+            focus:outline-none
+            truncate
+          "
+          :placeholder="$t('search')"
+        />
+      </div>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         data-testid="clear_history"

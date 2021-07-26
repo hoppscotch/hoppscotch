@@ -7,22 +7,26 @@
       class="flex flex-col top-8 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
     >
-      <input
-        v-if="showCollActions"
-        v-model="filterText"
-        type="search"
-        :placeholder="$t('search')"
-        class="
-          bg-primaryLight
-          border-b border-dividerLight
-          flex
-          font-semibold font-mono
-          flex-1
-          py-2
-          px-4
-          focus:outline-none
-        "
-      />
+      <div class="search-wrapper">
+        <input
+          v-if="showCollActions"
+          v-model="filterText"
+          type="search"
+          :placeholder="$t('search')"
+          class="
+            bg-primaryLight
+            border-b border-dividerLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-9
+            focus:outline-none
+            truncate
+          "
+        />
+      </div>
       <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"

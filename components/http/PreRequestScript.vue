@@ -27,8 +27,8 @@
     <SmartJsEditor
       v-model="preRequestScript"
       :options="{
-        maxLines: '16',
-        minLines: '8',
+        maxLines: 16,
+        minLines: 8,
         fontSize: '12px',
         autoScrollEditorIntoView: true,
         showPrintMargin: false,

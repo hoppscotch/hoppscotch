@@ -47,7 +47,7 @@
         :lang="'html'"
         :options="{
           maxLines: Infinity,
-          minLines: '16',
+          minLines: 16,
           fontSize: '12px',
           autoScrollEditorIntoView: true,
           readOnly: true,
@@ -102,13 +102,7 @@ export default {
       }, 1000)
     },
     copyResponse() {
-      const aux = document.createElement("textarea")
-      const copy = this.responseBodyText
-      aux.innerText = copy
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
+      this.$clipboard(this.responseBodyText)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",

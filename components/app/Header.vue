@@ -10,7 +10,7 @@
         items-center
       "
     >
-      Hoppscotch
+      <AppLogo />
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="mt-1 mr-2" />

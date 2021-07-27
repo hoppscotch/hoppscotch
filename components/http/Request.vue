@@ -276,12 +276,7 @@ export default defineComponent({
           .then(() => {})
           .catch(() => {})
       } else {
-        const dummy = document.createElement("input")
-        document.body.appendChild(dummy)
-        dummy.value = window.location.href
-        dummy.select()
-        document.execCommand("copy")
-        document.body.removeChild(dummy)
+        this.$clipboard(window.location.href)
         this.$toast.info(this.$t("copied_to_clipboard"), {
           icon: "done",
         })

@@ -17,10 +17,11 @@
       color
         ? `text-${color}-400 hover:text-${color}-600 focus:text-${color}-600`
         : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
-      label ? 'px-3' : 'px-2',
+      label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
+      { 'px-6 py-4 text-lg': large },
       {
         'border border-divider hover:border-dividerDark focus:border-dividerDark':
           outline,
@@ -103,6 +104,10 @@ export default {
       default: false,
     },
     rounded: {
+      type: Boolean,
+      default: false,
+    },
+    large: {
       type: Boolean,
       default: false,
     },

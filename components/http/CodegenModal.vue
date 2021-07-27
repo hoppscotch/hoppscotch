@@ -53,13 +53,6 @@
           <label for="generatedCode" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("generated_code") }}
           </label>
-          <ButtonSecondary
-            ref="copyRequestCode"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('copy')"
-            :icon="copyIcon"
-            @click.native="copyRequestCode"
-          />
         </div>
         <SmartAceEditor
           v-if="codegenType"
@@ -67,8 +60,8 @@
           :value="requestCode"
           :lang="codegens.find((x) => x.id === codegenType).language"
           :options="{
-            maxLines: '16',
-            minLines: '8',
+            maxLines: 16,
+            minLines: 8,
             fontSize: '12px',
             autoScrollEditorIntoView: true,
             readOnly: true,
@@ -78,6 +71,15 @@
           styles="rounded"
         />
       </div>
+    </template>
+    <template #footer>
+      <ButtonPrimary
+        ref="copyRequestCode"
+        :label="$t('copy')"
+        :icon="copyIcon"
+        @click.native="copyRequestCode"
+      />
+      <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
     </template>
   </SmartModal>
 </template>
@@ -149,16 +151,12 @@ export default defineComponent({
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      const editor: any = this.$refs.generatedCode
-
-      editor.editor.selectAll()
-      editor.editor.focus()
-
-      document.execCommand("copy")
+      this.$clipboard(this.requestCode)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard").toString(), {
         icon: "done",
       })
+      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
 })

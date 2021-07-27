@@ -75,7 +75,7 @@
                         v-tippy="{ theme: 'tooltip' }"
                         :title="`${$t(
                           'prettify_query'
-                        )} (${getSpecialKey()}-P)`"
+                        )} <kbd>${getSpecialKey()}</kbd><kbd>P</kbd>`"
                         :icon="prettifyQueryIcon"
                         @click.native="prettifyQuery"
                       />
@@ -94,7 +94,7 @@
                     :on-run-g-q-l-query="runQuery"
                     :options="{
                       maxLines: Infinity,
-                      minLines: '16',
+                      minLines: 16,
                       fontSize: '12px',
                       autoScrollEditorIntoView: true,
                       showPrintMargin: false,
@@ -146,7 +146,7 @@
                     :lang="'json'"
                     :options="{
                       maxLines: Infinity,
-                      minLines: '16',
+                      minLines: 16,
                       fontSize: '12px',
                       autoScrollEditorIntoView: true,
                       showPrintMargin: false,
@@ -333,7 +333,7 @@
                 :lint="false"
                 :options="{
                   maxLines: Infinity,
-                  minLines: '16',
+                  minLines: 16,
                   fontSize: '12px',
                   autoScrollEditorIntoView: true,
                   readOnly: true,
@@ -541,7 +541,7 @@
                   :lang="'graphqlschema'"
                   :options="{
                     maxLines: Infinity,
-                    minLines: '16',
+                    minLines: 16,
                     fontSize: '12px',
                     autoScrollEditorIntoView: true,
                     readOnly: true,
@@ -879,12 +879,7 @@ export default defineComponent({
       setTimeout(() => (this.copyVariablesIcon = "content_copy"), 1000)
     },
     copyToClipboard(content) {
-      const aux = document.createElement("textarea")
-      aux.innerText = content
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
+      this.$clipboard(content)
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })

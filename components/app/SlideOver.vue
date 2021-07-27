@@ -1,18 +1,7 @@
 <template>
   <div>
-    <transition
-      enter-class="opacity-0"
-      enter-active-class="ease-out transition"
-      enter-to-class="opacity-100"
-      leave-class="opacity-100"
-      leave-active-class="ease-out transition"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="show"
-        class="inset-0 transition-opacity z-20 fixed"
-        @keydown.esc="close()"
-      >
+    <transition v-if="show" name="fade" appear>
+      <div class="inset-0 transition-opacity z-20 fixed" @keydown.esc="close()">
         <div
           class="bg-primaryDark opacity-75 inset-0 absolute"
           tabindex="0"

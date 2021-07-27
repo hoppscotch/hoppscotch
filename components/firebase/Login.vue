@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
+  <SmartModal v-if="show" dialog @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("login_to_hoppscotch") }}</h3>
       <div>

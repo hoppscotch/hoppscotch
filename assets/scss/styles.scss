@@ -303,12 +303,13 @@ input[type="checkbox"] {
 .toasted-container {
   .toasted {
     &.toasted-primary {
-      @apply px-6 py-1;
       @apply bg-tooltip;
       @apply text-primary text-xs;
       @apply !font-semibold;
+      @apply justify-start;
 
       .action {
+        @apply ml-auto;
         @apply transition;
         @apply text-current;
         @apply hover:(opacity-75 no-underline);
@@ -317,15 +318,16 @@ input[type="checkbox"] {
 
     &.info {
       @apply !bg-accent;
-      @apply !text-white;
     }
 
     &.error {
-      @apply !text-white;
+      @apply !bg-red-400;
+      @apply !text-red-800;
     }
 
     &.success {
-      @apply !text-white;
+      @apply !bg-green-400;
+      @apply !text-green-800;
     }
   }
 }

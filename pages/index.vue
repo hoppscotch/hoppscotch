@@ -1626,10 +1626,11 @@ export default {
       // tests
       const syntheticResponse = {
         status: this.response.status,
-        body: this.response.body,
-        headers: this.response.headers,
+        body: this.response.body || new Uint8Array([]),
+        headers: this.response.headers || [],
       }
 
+      this.response.body = this.response.body || new Uint8Array([])
       // Parse JSON body
       if (
         syntheticResponse.headers["content-type"] &&

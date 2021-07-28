@@ -17,7 +17,7 @@
       </label>
       <div>
         <ButtonSecondary
-          v-if="response.body && canDownloadResponse"
+          v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
@@ -54,7 +54,6 @@
 
 <script>
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
-import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
 export default {
   mixins: [TextContentRendererMixin],
@@ -72,14 +71,6 @@ export default {
       return (this.response.headers["content-type"] || "")
         .split(";")[0]
         .toLowerCase()
-    },
-    canDownloadResponse() {
-      return (
-        this.response &&
-        this.response.headers &&
-        this.response.headers["content-type"] &&
-        isJSONContentType(this.response.headers["content-type"])
-      )
     },
   },
   methods: {
@@ -99,7 +90,7 @@ export default {
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadIcon = "save_alt"
       }, 1000)
     },

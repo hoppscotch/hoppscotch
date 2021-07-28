@@ -50,6 +50,7 @@
         @click.native="$emit('unselect-collection')"
       />
       <ButtonSecondary
+        v-if="!doc"
         v-tippy="{ theme: 'tooltip' }"
         icon="create_new_folder"
         :title="$t('new_folder')"

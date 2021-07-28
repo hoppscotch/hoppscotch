@@ -31,11 +31,10 @@
                 <ButtonPrimary
                   id="connect"
                   :disabled="!urlValid"
-                  class="rounded-l-none"
+                  class="rounded-l-none w-28"
                   name="connect"
-                  :icon="!connectionState ? 'sync' : 'sync_disabled'"
                   :label="!connectionState ? $t('connect') : $t('disconnect')"
-                  reverse
+                  :loading="connectingState"
                   @click.native="toggleConnection"
                 />
               </div>
@@ -171,7 +170,6 @@
             name="send"
             :disabled="!connectionState"
             class="rounded-l-none"
-            icon="send"
             :label="$t('send')"
             @click.native="sendMessage"
           />
@@ -198,6 +196,7 @@ export default defineComponent({
   data() {
     return {
       connectionState: false,
+      connectingState: false,
       url: "wss://echo.websocket.org",
       isUrlValid: true,
       socket: null,
@@ -263,8 +262,10 @@ export default defineComponent({
         },
       ]
       try {
+        this.connectingState = true
         this.socket = new WebSocket(this.url, this.activeProtocols)
         this.socket.onopen = () => {
+          this.connectingState = false
           this.connectionState = true
           this.communication.log = [
             {

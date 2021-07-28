@@ -97,7 +97,7 @@ export default {
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadIcon = "save_alt"
       }, 1000)
     },

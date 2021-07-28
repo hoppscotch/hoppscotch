@@ -223,22 +223,22 @@ export default {
       this.importFromHoppscotch(environments)
     },
     exportJSON() {
-      let text = this.environmentJson
-      text = text.replace(/\n/g, "\r\n")
-      const blob = new Blob([text], {
-        type: "text/json",
-      })
-      const anchor = document.createElement("a")
-      anchor.download = "hoppscotch-environment.json"
-      anchor.href = window.URL.createObjectURL(blob)
-      anchor.target = "_blank"
-      anchor.style.display = "none"
-      document.body.appendChild(anchor)
-      anchor.click()
-      document.body.removeChild(anchor)
+      const dataToWrite = this.environmentJson
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      // TODO get uri from meta
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
+      document.body.appendChild(a)
+      a.click()
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

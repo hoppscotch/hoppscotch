@@ -75,7 +75,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-none"
+        class="rounded-none w-18"
         :label="!loading ? $t('send') : $t('cancel')"
         :shortcut="[getSpecialKey(), 'G']"
         @click.native="!loading ? newSendRequest() : cancelRequest()"

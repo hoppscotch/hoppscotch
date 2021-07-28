@@ -30,9 +30,8 @@
                 <ButtonPrimary
                   id="get"
                   name="get"
-                  :icon="!isPollingSchema ? 'sync' : 'sync_disabled'"
                   :label="!isPollingSchema ? $t('connect') : $t('disconnect')"
-                  class="rounded-l-none"
+                  class="rounded-l-none w-28"
                   @click.native="onPollSchemaClick"
                 />
               </div>
@@ -1210,7 +1209,7 @@ export default defineComponent({
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadResponseIcon = "save_alt"
       }, 1000)
     },
@@ -1229,7 +1228,7 @@ export default defineComponent({
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadSchemaIcon = "save_alt"
       }, 1000)
     },

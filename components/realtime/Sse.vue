@@ -29,10 +29,9 @@
               id="start"
               :disabled="!serverValid"
               name="start"
-              class="rounded-l-none"
-              :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
+              class="rounded-l-none w-22"
               :label="!connectionSSEState ? $t('start') : $t('stop')"
-              reverse
+              :loading="connectingState"
               @click.native="toggleSSEConnection"
             />
           </div>
@@ -62,6 +61,7 @@ export default {
   data() {
     return {
       connectionSSEState: false,
+      connectingState: false,
       server: "https://express-eventsource.herokuapp.com/events",
       isUrlValid: true,
       sse: null,
@@ -104,6 +104,7 @@ export default {
       else return this.stop()
     },
     start() {
+      this.connectingState = true
       this.events.log = [
         {
           payload: this.$t("connecting_to", { name: this.server }),
@@ -115,6 +116,7 @@ export default {
         try {
           this.sse = new EventSource(this.server)
           this.sse.onopen = () => {
+            this.connectingState = false
             this.connectionSSEState = true
             this.events.log = [
               {

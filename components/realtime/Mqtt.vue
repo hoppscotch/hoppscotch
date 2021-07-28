@@ -29,10 +29,9 @@
                 <ButtonPrimary
                   id="connect"
                   :disabled="!validUrl"
-                  class="rounded-l-none"
-                  :icon="!connectionState ? 'sync' : 'sync_disabled'"
+                  class="rounded-l-none w-28"
                   :label="connectionState ? $t('disconnect') : $t('connect')"
-                  reverse
+                  :loading="connectingState"
                   @click.native="toggleConnection"
                 />
               </div>
@@ -88,7 +87,6 @@
             name="get"
             class="rounded-l-none"
             :disabled="!canpublish"
-            icon="send"
             :label="$t('mqtt_publish')"
             @click.native="publish"
           />
@@ -120,7 +118,6 @@
             name="get"
             :disabled="!cansubscribe"
             class="rounded-l-none"
-            :icon="subscriptionState ? 'sync_disabled' : 'sync'"
             :label="
               subscriptionState ? $t('mqtt_unsubscribe') : $t('mqtt_subscribe')
             "
@@ -157,6 +154,7 @@ export default defineComponent({
       sub_topic: "",
       msg: "",
       connectionState: false,
+      connectingState: false,
       log: null,
       manualDisconnect: false,
       subscriptionState: false,
@@ -195,6 +193,7 @@ export default defineComponent({
       if (data.url === this.url) this.isUrlValid = data.result
     },
     connect() {
+      this.connectingState = true
       this.log = [
         {
           payload: this.$t("connecting_to", { name: this.url }),
@@ -222,6 +221,7 @@ export default defineComponent({
       })
     },
     onConnectionFailure() {
+      this.connectingState = false
       this.connectionState = false
       this.log.push({
         payload: this.$t("error_occurred"),
@@ -231,6 +231,7 @@ export default defineComponent({
       })
     },
     onConnectionSuccess() {
+      this.connectingState = false
       this.connectionState = true
       this.log.push({
         payload: this.$t("connected_to", { name: this.url }),
@@ -268,6 +269,7 @@ export default defineComponent({
       })
     },
     onConnectionLost() {
+      this.connectingState = false
       this.connectionState = false
       if (this.manualDisconnect) {
         this.$toast.error(this.$t("disconnected"), {

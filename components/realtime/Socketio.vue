@@ -16,7 +16,9 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
+                    flex
                     font-semibold font-mono
+                    flex-1
                     text-secondaryDark
                     w-full
                     py-1
@@ -34,7 +36,9 @@
                   class="
                     bg-primaryLight
                     border border-divider
+                    flex
                     font-semibold font-mono
+                    flex-1
                     text-secondaryDark
                     w-full
                     py-1
@@ -49,10 +53,9 @@
                   id="connect"
                   :disabled="!urlValid"
                   name="connect"
-                  class="rounded-l-none"
-                  :icon="!connectionState ? 'sync' : 'sync_disabled'"
+                  class="rounded-l-none w-28"
                   :label="!connectionState ? $t('connect') : $t('disconnect')"
-                  reverse
+                  :loading="connectingState"
                   @click.native="toggleConnection"
                 />
               </div>
@@ -132,7 +135,6 @@
                 name="send"
                 :disabled="!connectionState"
                 class="rounded-l-none"
-                icon="send"
                 :label="$t('send')"
                 @click.native="sendMessage"
               />
@@ -165,6 +167,7 @@ export default defineComponent({
       url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
       path: "/socket.io",
       isUrlValid: true,
+      connectingState: false,
       connectionState: false,
       io: null,
       communication: {
@@ -213,6 +216,7 @@ export default defineComponent({
       else return this.disconnect()
     },
     connect() {
+      this.connectingState = true
       this.communication.log = [
         {
           payload: this.$t("connecting_to", { name: this.url }),
@@ -231,6 +235,7 @@ export default defineComponent({
         // Add ability to listen to all events
         wildcard(Client.Manager)(this.io)
         this.io.on("connect", () => {
+          this.connectingState = false
           this.connectionState = true
           this.communication.log = [
             {
@@ -262,6 +267,7 @@ export default defineComponent({
           this.handleError()
         })
         this.io.on("disconnect", () => {
+          this.connectingState = false
           this.connectionState = false
           this.communication.log.push({
             payload: this.$t("disconnected_from", { name: this.url }),
@@ -289,6 +295,7 @@ export default defineComponent({
     },
     handleError(error) {
       this.disconnect()
+      this.connectingState = false
       this.connectionState = false
       this.communication.log.push({
         payload: this.$t("error_occurred"),

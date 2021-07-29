@@ -23,7 +23,7 @@
     "*.{css,scss,vue}": "stylelint"
   },
   "dependencies": {
-    "@apollo/client": "^3.3.21",
+    "@apollo/client": "^3.4.0",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/robots": "^2.5.0",

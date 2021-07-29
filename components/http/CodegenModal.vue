@@ -151,7 +151,7 @@ export default defineComponent({
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      this.$clipboard(this.requestCode)
+      ;(this.$clipboard as any)(this.requestCode)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard").toString(), {
         icon: "done",

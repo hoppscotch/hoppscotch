@@ -90,33 +90,35 @@ export function pluckRef<T, K extends keyof T>(ref: Ref<T>, key: K): Ref<T[K]> {
 }
 
 /**
- * A composable that listens to the stream and fires update callbacks
- * but respects the component lifecycle
- *
- * @param stream The stream to subscribe to
- * @param next Callback called on value emission
- * @param error Callback called on stream error
- * @param complete Callback called on stream completion
+ * A composable that provides the ability to run streams
+ * and subscribe to them and respect the component lifecycle.
  */
-export function subscribeToStream<T>(
-  stream: Observable<T>,
-  next: (value: T) => void,
-  error: (e: any) => void,
-  complete: () => void
-) {
-  let sub: Subscription | null = null
+export function useStreamSubscriber() {
+  const subs: Subscription[] = []
 
-  // Don't perform anymore updates if the component is
-  // gonna unmount
+  const runAndSubscribe = <T>(
+    stream: Observable<T>,
+    next: (value: T) => void,
+    error: (e: any) => void,
+    complete: () => void
+  ) => {
+    const sub = stream.subscribe({
+      next,
+      error,
+      complete: () => {
+        complete()
+        subs.splice(subs.indexOf(sub), 1)
+      },
+    })
+
+    subs.push(sub)
+  }
+
   onBeforeUnmount(() => {
-    if (sub) {
-      sub.unsubscribe()
-    }
+    subs.forEach((sub) => sub.unsubscribe())
   })
 
-  sub = stream.subscribe({
-    next,
-    error,
-    complete,
-  })
+  return {
+    subscribeToStream: runAndSubscribe,
+  }
 }

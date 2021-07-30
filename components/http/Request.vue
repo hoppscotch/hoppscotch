@@ -197,7 +197,7 @@ import {
 } from "~/newstore/RESTSession"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
-import { subscribeToStream, useStream } from "~/helpers/utils/composables"
+import { useStreamSubscriber, useStream } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 
@@ -221,6 +221,7 @@ export default defineComponent({
       app: { i18n },
     } = useContext()
     const t = i18n.t.bind(i18n)
+    const { subscribeToStream } = useStreamSubscriber()
 
     const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
     const newMethod = useStream(restMethod$, "", updateRESTMethod)
@@ -240,7 +241,11 @@ export default defineComponent({
         runRESTRequest$(),
         (responseState) => {
           console.log(responseState)
-          updateRESTResponse(responseState)
+          if (loading.value) {
+            // Check exists because, loading can be set to false
+            // when cancelled
+            updateRESTResponse(responseState)
+          }
         },
         () => {
           loading.value = false
@@ -249,6 +254,11 @@ export default defineComponent({
           loading.value = false
         }
       )
+    }
+
+    const cancelRequest = () => {
+      loading.value = false
+      updateRESTResponse(null)
     }
 
     const updateMethod = (method: string) => {
@@ -304,7 +314,10 @@ export default defineComponent({
       }
     }
 
-    defineActionHandler("request.send-cancel", newSendRequest)
+    defineActionHandler("request.send-cancel", () => {
+      if (!loading.value) newSendRequest()
+      else cancelRequest()
+    })
     defineActionHandler("request.reset", clearContent)
     defineActionHandler("request.copy-link", copyRequest)
     defineActionHandler("request.method.next", cycleDownMethod)

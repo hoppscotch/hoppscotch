@@ -1,125 +1,179 @@
 <template>
-  <div>
-    <Splitpanes :dbl-click-splitter="false" vertical>
-      <Pane class="hide-scrollbar !overflow-auto">
-        <Splitpanes :dbl-click-splitter="false" horizontal>
-          <Pane class="hide-scrollbar !overflow-auto">
-            <AppSection label="import">
-              <div class="flex flex-col">
-                <label>{{ $t("collection") }}</label>
-                <p>
-                  {{ $t("generate_docs_message") }}
-                </p>
-                <div class="flex flex-1">
-                  <label for="collectionUpload">
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      title="JSON"
-                      icon="folder"
-                      :label="$t('import_collections')"
-                      @click.native="$refs.collectionUpload.click()"
-                    />
-                  </label>
-                  <input
-                    ref="collectionUpload"
-                    class="input"
-                    name="collectionUpload"
-                    type="file"
-                    @change="uploadCollection"
-                  />
-                  <div>
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('clear')"
-                      icon="clear_all"
-                      @click.native="collectionJSON = '[]'"
-                    />
-                  </div>
-                </div>
-                <SmartAceEditor
-                  v-model="collectionJSON"
-                  :lang="'json'"
-                  :lint="false"
-                  :options="{
-                    maxLines: 16,
-                    minLines: 8,
-                    fontSize: '12px',
-                    autoScrollEditorIntoView: true,
-                    showPrintMargin: false,
-                    useWorker: false,
-                  }"
-                />
+  <Splitpanes :dbl-click-splitter="false" vertical>
+    <Pane class="hide-scrollbar !overflow-auto">
+      <Splitpanes :dbl-click-splitter="false" horizontal>
+        <Pane class="hide-scrollbar !overflow-auto">
+          <AppSection label="import">
+            <div class="flex p-4 items-start justify-between">
+              <label class="font-semibold">
+                {{ $t("generate_docs_message") }}
+              </label>
+              <span
+                class="
+                  bg-accentLight
+                  rounded
+                  font-semibold
+                  text-primary
+                  py-1
+                  px-2
+                  inline-flex
+                "
+              >
+                BETA
+              </span>
+            </div>
+            <div
+              class="
+                bg-primary
+                border-b border-dividerLight
+                flex
+                top-0
+                z-10
+                items-start
+                justify-between
+                sticky
+              "
+            >
+              <label for="collectionUpload" class="font-semibold">
                 <ButtonSecondary
-                  icon="topic"
-                  :label="$t('generate_docs')"
-                  @click.native="getDoc"
+                  v-tippy="{ theme: 'tooltip' }"
+                  title="JSON"
+                  icon="folder"
+                  :label="$t('import_collections')"
+                  @click.native="$refs.collectionUpload.click()"
                 />
-              </div>
-            </AppSection>
-          </Pane>
-          <Pane class="hide-scrollbar !overflow-auto">
-            <AppSection label="documentation">
-              <div class="flex flex-col">
-                <label>{{ $t("documentation") }}</label>
-                <p v-if="items.length === 0">
+              </label>
+              <input
+                ref="collectionUpload"
+                class="input"
+                name="collectionUpload"
+                type="file"
+                @change="uploadCollection"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('clear')"
+                icon="clear_all"
+                @click.native="collectionJSON = '[]'"
+              />
+            </div>
+            <SmartAceEditor
+              v-model="collectionJSON"
+              :lang="'json'"
+              :lint="false"
+              :options="{
+                maxLines: Infinity,
+                minLines: 16,
+                fontSize: '12px',
+                autoScrollEditorIntoView: true,
+                showPrintMargin: false,
+                useWorker: false,
+              }"
+            />
+            <div
+              class="
+                bg-primary
+                flex
+                p-4
+                bottom-0
+                z-10
+                justify-between
+                items-start
+                sticky
+              "
+            >
+              <ButtonPrimary
+                :label="$t('generate_docs')"
+                @click.native="getDoc"
+              />
+            </div>
+          </AppSection>
+        </Pane>
+        <Pane class="hide-scrollbar !overflow-auto">
+          <AppSection label="documentation">
+            <div class="flex flex-col">
+              <div
+                v-if="items.length === 0"
+                class="
+                  flex flex-col
+                  text-secondaryLight
+                  p-4
+                  items-center
+                  justify-center
+                "
+              >
+                <i class="opacity-75 pb-2 material-icons">topic</i>
+                <span class="text-center">
                   {{ $t("generate_docs_first") }}
-                </p>
-                <div v-else class="flex flex-1">
-                  <div
-                    v-tippy="{ theme: 'tooltip' }"
-                    :title="
+                </span>
+              </div>
+              <div
+                v-else
+                class="
+                  bg-primary
+                  border-b border-dividerLight
+                  flex flex-1
+                  p-4
+                  top-0
+                  z-10
+                  sticky
+                "
+              >
+                <div
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="
+                    !currentUser
+                      ? `${$t('login_with_github_to')} ${$t(
+                          'create_secret_gist'
+                        ).toLowerCase()}`
+                      : currentUser.provider !== 'github.com'
+                      ? `${$t('login_with_github_to')} ${$t(
+                          'create_secret_gist'
+                        ).toLowerCase()}`
+                      : 'Beta'
+                  "
+                >
+                  <ButtonPrimary
+                    :disabled="
                       !currentUser
-                        ? $t('login_with_github_to') + $t('create_secret_gist')
+                        ? true
                         : currentUser.provider !== 'github.com'
-                        ? $t('login_with_github_to') + $t('create_secret_gist')
-                        : null
+                        ? true
+                        : false
                     "
-                  >
-                    <ButtonSecondary
-                      :disabled="
-                        !currentUser
-                          ? true
-                          : currentUser.provider !== 'github.com'
-                          ? true
-                          : false
-                      "
-                      icon="assignment"
-                      label="$t('create_secret_gist')"
-                      @click.native="createDocsGist"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <span
-                    v-for="(collection, index) in items"
-                    :key="`collection-${index}`"
-                  >
-                    <DocsCollection :collection="collection" />
-                  </span>
+                    :label="$t('create_secret_gist')"
+                    @click.native="createDocsGist"
+                  />
                 </div>
               </div>
-            </AppSection>
-          </Pane>
-        </Splitpanes>
-      </Pane>
-      <Pane
-        v-if="RIGHT_SIDEBAR"
-        max-size="35"
-        size="25"
-        min-size="20"
-        class="hide-scrollbar !overflow-auto"
-      >
-        <aside>
-          <Collections
-            :selected="selected"
-            :doc="true"
-            @use-collection="useSelectedCollection($event)"
-            @remove-collection="removeSelectedCollection($event)"
-          />
-        </aside>
-      </Pane>
-    </Splitpanes>
-  </div>
+              <div
+                v-for="(collection, index) in items"
+                :key="`collection-${index}`"
+              >
+                <DocsCollection :collection="collection" />
+              </div>
+            </div>
+          </AppSection>
+        </Pane>
+      </Splitpanes>
+    </Pane>
+    <Pane
+      v-if="RIGHT_SIDEBAR"
+      max-size="35"
+      size="25"
+      min-size="20"
+      class="hide-scrollbar !overflow-auto"
+    >
+      <aside>
+        <Collections
+          :selected="selected"
+          :doc="true"
+          @use-collection="useSelectedCollection($event)"
+          @remove-collection="removeSelectedCollection($event)"
+        />
+      </aside>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script>

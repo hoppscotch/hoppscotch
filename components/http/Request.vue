@@ -29,7 +29,7 @@
                 truncate
                 focus:outline-none focus:border-accent
               "
-              :value="newMethod$"
+              :value="newMethod"
               autofocus
               readonly
             />
@@ -39,10 +39,7 @@
             :key="`method-${index}`"
             :label="method"
             class="font-mono"
-            @click.native="
-              updateMethod(method)
-              $refs.options.tippy().hide()
-            "
+            @click.native="onSelectMethod(method)"
           />
         </tippy>
       </span>
@@ -50,7 +47,7 @@
     <div class="flex-1 inline-flex">
       <input
         id="url"
-        v-model="newEndpoint$"
+        v-model="newEndpoint"
         class="
           bg-primaryLight
           border border-divider
@@ -153,7 +150,7 @@
           <SmartItem
             ref="copyRequest"
             :label="$t('copy_request_link')"
-            :icon="navigatorShare ? 'share' : 'content_copy'"
+            :icon="hasNavigatorShare ? 'share' : 'content_copy'"
             @click.native="
               copyRequest()
               $refs.saveOptions.tippy().hide()
@@ -187,8 +184,8 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent, ref, useContext } from "@nuxtjs/composition-api"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -200,71 +197,70 @@ import {
 } from "~/newstore/RESTSession"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
+import { subscribeToStream, useStream } from "~/helpers/utils/composables"
+import { defineActionHandler } from "~/helpers/actions"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+
+const methods = [
+  "GET",
+  "HEAD",
+  "POST",
+  "PUT",
+  "DELETE",
+  "CONNECT",
+  "OPTIONS",
+  "TRACE",
+  "PATCH",
+  "CUSTOM",
+]
 
 export default defineComponent({
   setup() {
-    return {
-      requestName: useRESTRequestName(),
-    }
-  },
-  data() {
-    return {
-      newMethod$: "",
-      methods: [
-        "GET",
-        "HEAD",
-        "POST",
-        "PUT",
-        "DELETE",
-        "CONNECT",
-        "OPTIONS",
-        "TRACE",
-        "PATCH",
-        "CUSTOM",
-      ],
-      name: "",
-      newEndpoint$: "",
-      showCurlImportModal: false,
-      showCodegenModal: false,
-      navigatorShare: navigator.share,
-      loading: false,
-      showSaveRequestModal: false,
-    }
-  },
-  subscriptions() {
-    return {
-      newMethod$: restMethod$,
-      newEndpoint$: restEndpoint$,
-    }
-  },
-  watch: {
-    newEndpoint$(newVal) {
-      setRESTEndpoint(newVal)
-    },
-  },
-  methods: {
-    getSpecialKey: getPlatformSpecialKey,
-    updateMethod(method) {
-      updateRESTMethod(method)
-    },
-    newSendRequest() {
-      this.loading = true
-      this.$subscribeTo(
+    const {
+      $toast,
+      app: { i18n },
+    } = useContext()
+    const t = i18n.t.bind(i18n)
+
+    const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
+    const newMethod = useStream(restMethod$, "", updateRESTMethod)
+
+    const loading = ref(false)
+
+    const showCurlImportModal = ref(false)
+    const showCodegenModal = ref(false)
+    const showSaveRequestModal = ref(false)
+
+    const hasNavigatorShare = !!navigator.share
+
+    const newSendRequest = () => {
+      loading.value = true
+
+      subscribeToStream(
         runRESTRequest$(),
         (responseState) => {
           console.log(responseState)
           updateRESTResponse(responseState)
         },
         () => {
-          this.loading = false
+          loading.value = false
         },
         () => {
-          this.loading = false
+          loading.value = false
         }
       )
-    },
-    copyRequest() {
-      if (navigator.share) {
+    }
+
+    const updateMethod = (method: string) => {
+      updateRESTMethod(method)
+    }
+
+    const clearContent = () => {
+      resetRESTRequest()
+    }
+
+    const copyRequest = () => {
+      if (!navigator.share) {
         const time = new Date().toLocaleTimeString()
         const date = new Date().toLocaleDateString()
         navigator
@@ -276,14 +272,77 @@ export default defineComponent({
           .then(() => {})
           .catch(() => {})
       } else {
-        this.$clipboard(window.location.href)
-        this.$toast.info(this.$t("copied_to_clipboard"), {
+        copyToClipboard(window.location.href)
+        $toast.info(t("copied_to_clipboard").toString(), {
           icon: "done",
         })
       }
-    },
-    clearContent() {
-      resetRESTRequest()
+    }
+
+    const cycleUpMethod = () => {
+      const currentIndex = methods.indexOf(newMethod.value)
+      if (currentIndex === -1) {
+        // Most probs we are in CUSTOM mode
+        // Cycle up from CUSTOM is PATCH
+        updateMethod("PATCH")
+      } else if (currentIndex === 0) {
+        updateMethod("CUSTOM")
+      } else {
+        updateMethod(methods[currentIndex - 1])
+      }
+    }
+    const cycleDownMethod = () => {
+      const currentIndex = methods.indexOf(newMethod.value)
+      if (currentIndex === -1) {
+        // Most probs we are in CUSTOM mode
+        // Cycle down from CUSTOM is GET
+        updateMethod("GET")
+      } else if (currentIndex === methods.length - 1) {
+        updateMethod("GET")
+      } else {
+        updateMethod(methods[currentIndex + 1])
+      }
+    }
+
+    defineActionHandler("request.send-cancel", newSendRequest)
+    defineActionHandler("request.reset", clearContent)
+    defineActionHandler("request.copy-link", copyRequest)
+    defineActionHandler("request.method.next", cycleDownMethod)
+    defineActionHandler("request.method.prev", cycleUpMethod)
+    defineActionHandler(
+      "request.save",
+      () => (showSaveRequestModal.value = true)
+    )
+    defineActionHandler("request.method.get", () => updateMethod("GET"))
+    defineActionHandler("request.method.post", () => updateMethod("POST"))
+    defineActionHandler("request.method.put", () => updateMethod("PUT"))
+    defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
+    defineActionHandler("request.method.head", () => updateMethod("HEAD"))
+
+    return {
+      $t: t,
+      $toast,
+      newEndpoint,
+      newMethod,
+      methods,
+      loading,
+      newSendRequest,
+      requestName: useRESTRequestName(),
+      getSpecialKey: getPlatformSpecialKey,
+      showCurlImportModal,
+      showCodegenModal,
+      showSaveRequestModal,
+      hasNavigatorShare,
+      updateMethod,
+      clearContent,
+      copyRequest,
+    }
+  },
+  methods: {
+    onSelectMethod(method: string) {
+      this.updateMethod(method)
+      // Something weird with prettier
+      ;(this.$refs.options as any).tippy().hide()
     },
   },
 })

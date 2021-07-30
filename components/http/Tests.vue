@@ -1,89 +1,111 @@
 <template>
-  <AppSection label="postRequestTests">
-    <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        pl-4
-        top-24
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
-    >
-      <label class="font-semibold">
-        {{ $t("javascript_code") }}
-      </label>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
-        blank
-        :title="$t('wiki')"
-        icon="help_outline"
-      />
-    </div>
-    <SmartJsEditor
-      v-model="testScript"
-      :options="{
-        maxLines: 16,
-        minLines: 8,
-        fontSize: '12px',
-        autoScrollEditorIntoView: true,
-        showPrintMargin: false,
-        useWorker: false,
-      }"
-      complete-mode="test"
-    />
-    <div v-if="testResults">
+  <SmartTabs styles="sticky top-24 z-20">
+    <SmartTab id="script" :label="$t('script')" :selected="true">
       <div
         class="
           bg-primary
           border-b border-dividerLight
           flex flex-1
           pl-4
-          top-24
+          top-32
           z-10
           sticky
           items-center
           justify-between
         "
       >
-        <div>
-          <label class="font-semibold"> Test Report </label>
-        </div>
+        <label class="font-semibold">
+          {{ $t("javascript_code") }}
+        </label>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('clear')"
-          icon="clear_all"
-          @click.native="clearContent()"
+          to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
         />
       </div>
-      <div class="flex my-4 items-center">
-        <div class="ml-4">
-          <span class="font-semibold text-red-500">
-            {{ failedTests }} failing,
-          </span>
-          <span class="font-semibold text-green-500">
-            {{ passedTests }} successful,
-          </span>
-          <span class="font-semibold"> out of {{ totalTests }} tests. </span>
+      <SmartJsEditor
+        v-model="testScript"
+        :options="{
+          maxLines: Infinity,
+          minLines: 16,
+          fontSize: '12px',
+          autoScrollEditorIntoView: true,
+          showPrintMargin: false,
+          useWorker: false,
+        }"
+        complete-mode="test"
+      />
+    </SmartTab>
+    <SmartTab
+      id="results"
+      :label="$t('results')"
+      :info="totalTests ? totalTests.toString() : ''"
+    >
+      <div
+        v-if="
+          testResults &&
+          (testResults.expectResults.length || testResults.tests.length)
+        "
+      >
+        <div
+          class="
+            bg-primary
+            border-b border-dividerLight
+            flex flex-1
+            pl-4
+            top-32
+            z-10
+            sticky
+            items-center
+            justify-between
+          "
+        >
+          <label class="font-semibold"> Test Report </label>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('clear')"
+            icon="clear_all"
+            @click.native="clearContent()"
+          />
         </div>
-        <div class="bg-primaryDark flex space-x-2 flex-1 h-1 mx-4 relative">
-          <div
-            class="rounded h-full bg-green-500"
-            :style="`width: ${(passedTests / totalTests) * 100 + '%'}`"
-          ></div>
-          <div
-            class="rounded h-full bg-red-500"
-            :style="`width: ${(failedTests / totalTests) * 100 + '%'}`"
-          ></div>
+        <div class="flex p-2 items-center">
+          <SmartProgressRing
+            class="text-red-500"
+            :radius="16"
+            :stroke="4"
+            :progress="(failedTests / totalTests) * 100"
+          />
+          <div class="ml-2">
+            <span v-if="failedTests" class="font-semibold text-red-500">
+              {{ failedTests }} failing,
+            </span>
+            <span v-if="passedTests" class="font-semibold text-green-500">
+              {{ passedTests }} successful,
+            </span>
+            <span class="font-semibold"> out of {{ totalTests }} tests. </span>
+          </div>
         </div>
+        <HttpTestResult :results="testResults" />
       </div>
-      <HttpTestResult :results="testResults" />
-    </div>
-  </AppSection>
+      <div
+        v-else
+        class="
+          flex flex-col
+          text-secondaryLight
+          p-4
+          items-center
+          justify-center
+        "
+      >
+        <i class="opacity-75 pb-2 material-icons">bug_report</i>
+        <span class="text-center">
+          {{ $t("add_test_scripts") }}
+        </span>
+      </div>
+    </SmartTab>
+  </SmartTabs>
 </template>
 
 <script lang="ts">

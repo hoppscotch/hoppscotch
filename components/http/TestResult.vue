@@ -1,20 +1,27 @@
 <template>
-  <div>
+  <div class="divide-y divide-dividerLight">
     <div v-if="results.tests">
-      <span
-        v-if="results.tests.description"
-        class="font-semibold text-secondaryDark"
-      >
-        {{ results.tests.description }}
-      </span>
       <HttpTestResult
         v-for="(result, index) in results.tests"
         :key="`result-${index}`"
-        class="divide-y divide-dividerLight"
         :results="result"
       />
     </div>
-    <div v-if="results.expectResults">
+    <span
+      v-if="results.description"
+      class="
+        border-b border-dividerLight
+        flex
+        font-semibold
+        text-secondaryDark
+        py-2
+        px-4
+        items-center
+      "
+    >
+      {{ results.description }}
+    </span>
+    <div v-if="results.expectResults" class="divide-y divide-dividerLight">
       <div
         v-for="(result, index) in results.expectResults"
         :key="`result-${index}`"
@@ -24,7 +31,7 @@
           class="mr-4 material-icons"
           :class="result.status === 'pass' ? 'text-green-500' : 'text-red-500'"
         >
-          {{ result.status === "pass" ? "check_circle" : "cancel" }}
+          {{ result.status === "pass" ? "check" : "close" }}
         </i>
         <span v-if="result.message" class="font-semibold text-secondaryDark">
           {{ result.message }}

@@ -352,5 +352,8 @@
   "connect_graphql_endpoint": "Connect to a GraphQL endpoint",
   "copy": "Copy",
   "parameters_empty": "Parameters are empty",
-  "headers_empty": "Headers are empty"
+  "headers_empty": "Headers are empty",
+  "script": "Script",
+  "results": "Results",
+  "add_test_scripts": "Add test script"
 }

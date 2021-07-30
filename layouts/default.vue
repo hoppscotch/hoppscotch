@@ -41,9 +41,13 @@ import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
+import { hookKeybindingsListener } from "~/helpers/keybindings"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
+  setup() {
+    hookKeybindingsListener()
+  },
   data() {
     return {
       LEFT_SIDEBAR: null,

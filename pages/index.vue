@@ -1546,59 +1546,6 @@ export default defineComponent({
   },
   async mounted() {
     restRequest$.subscribe((x) => console.log(x))
-    this._keyListener = function (e) {
-      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        if (!this.runningRequest) {
-          this.sendRequest()
-        } else {
-          this.cancelRequest()
-        }
-      }
-      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        this.saveRequest()
-      }
-      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        this.copyRequest()
-      }
-      if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        this.$refs.clearAll.click()
-      }
-      if ((e.key === "g" || e.key === "G") && e.altKey) {
-        this.method = "GET"
-      }
-      if ((e.key === "h" || e.key === "H") && e.altKey) {
-        this.method = "HEAD"
-      }
-      if ((e.key === "p" || e.key === "P") && e.altKey) {
-        this.method = "POST"
-      }
-      if ((e.key === "u" || e.key === "U") && e.altKey) {
-        this.method = "PUT"
-      }
-      if ((e.key === "x" || e.key === "X") && e.altKey) {
-        this.method = "DELETE"
-      }
-      if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
-        this.method =
-          this.methodMenuItems[
-            --this.currentMethodIndex % this.methodMenuItems.length
-          ]
-      } else if (
-        e.key == "ArrowDown" &&
-        e.altKey &&
-        this.currentMethodIndex < 9
-      ) {
-        this.method =
-          this.methodMenuItems[
-            ++this.currentMethodIndex % this.methodMenuItems.length
-          ]
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
     await this.oauthRedirectReq()
   },
   created() {
@@ -1624,9 +1571,6 @@ export default defineComponent({
         this.setRouteQueryState()
       }
     )
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
   },
 })
 </script>

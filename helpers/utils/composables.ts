@@ -88,3 +88,37 @@ export function pluckRef<T, K extends keyof T>(ref: Ref<T>, key: K): Ref<T[K]> {
     }
   })
 }
+
+/**
+ * A composable that provides the ability to run streams
+ * and subscribe to them and respect the component lifecycle.
+ */
+export function useStreamSubscriber() {
+  const subs: Subscription[] = []
+
+  const runAndSubscribe = <T>(
+    stream: Observable<T>,
+    next: (value: T) => void,
+    error: (e: any) => void,
+    complete: () => void
+  ) => {
+    const sub = stream.subscribe({
+      next,
+      error,
+      complete: () => {
+        complete()
+        subs.splice(subs.indexOf(sub), 1)
+      },
+    })
+
+    subs.push(sub)
+  }
+
+  onBeforeUnmount(() => {
+    subs.forEach((sub) => sub.unsubscribe())
+  })
+
+  return {
+    subscribeToStream: runAndSubscribe,
+  }
+}

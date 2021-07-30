@@ -47,7 +47,6 @@
                 '<br>' +
                 `<sub>${currentUser.email || 'Email not found'}</sub>`
               "
-              indicator
             />
             <TabPrimary
               v-else
@@ -56,12 +55,6 @@
               icon="account_circle"
             />
           </template>
-          <SmartItem
-            to="/profile"
-            icon="person"
-            :label="$t('profile')"
-            @click.native="$refs.user.tippy().hide()"
-          />
           <SmartItem
             to="/settings"
             icon="settings"

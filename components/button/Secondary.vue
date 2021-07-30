@@ -31,16 +31,22 @@
   >
     <i
       v-if="icon"
-      :class="label ? (reverse ? 'ml-2' : 'mr-2') : ''"
-      class="material-icons"
+      :class="[
+        'material-icons',
+        { '!text-2xl': large },
+        label ? (reverse ? 'ml-2' : 'mr-2') : '',
+      ]"
     >
       {{ icon }}
     </i>
     <SmartIcon
       v-if="svg"
       :name="svg"
-      :class="label ? (reverse ? 'ml-2' : 'mr-2') : ''"
-      class="svg-icons"
+      :class="[
+        'svg-icons',
+        { '!h-6 !w-6': large },
+        label ? (reverse ? 'ml-2' : 'mr-2') : '',
+      ]"
     />
     {{ label }}
     <div v-if="shortcut.length && SHORTCUT_INDICATOR" class="ml-2">

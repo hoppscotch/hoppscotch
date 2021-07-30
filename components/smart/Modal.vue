@@ -9,7 +9,7 @@
       >
         <transition name="fade" appear>
           <div
-            class="bg-primaryDark inset-0 transition-opacity fixed"
+            class="bg-primaryDark opacity-100 inset-0 transition fixed"
             @touchstart="!dialog ? close() : null"
             @touchend="!dialog ? close() : null"
             @mouseup="!dialog ? close() : null"
@@ -33,9 +33,9 @@
           <div
             class="
               bg-primary
-              rounded
-              shadow-xl
+              rounded-lg
               m-4
+              shadow-lg
               text-left
               w-full
               p-4

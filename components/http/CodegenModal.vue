@@ -79,7 +79,7 @@
         :icon="copyIcon"
         @click.native="copyRequestCode"
       />
-      <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+      <ButtonSecondary :label="$t('dismiss')" @click.native="hideModal" />
     </template>
   </SmartModal>
 </template>

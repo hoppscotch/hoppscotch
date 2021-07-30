@@ -26,7 +26,7 @@
           v-tippy="{ theme: 'tooltip' }"
           icon="keyboard"
           :title="$t('shortcuts')"
-          :shortcut="[getSpecialKey(), '/']"
+          :shortcut="['?']"
           @click.native="showShortcuts = true"
         />
         <ButtonSecondary
@@ -58,7 +58,6 @@ import {
   toggleSetting,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
 type SettingsType = typeof defaultSettings
 
@@ -106,7 +105,6 @@ export default defineComponent({
         // fallback
       }
     },
-    getSpecialKey: getPlatformSpecialKey,
   },
 })
 </script>

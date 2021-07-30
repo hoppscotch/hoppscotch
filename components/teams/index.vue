@@ -1,7 +1,7 @@
 <template>
   <AppSection label="teams">
     <div class="flex flex-col">
-      <label>{{ $t("teams") }}</label>
+      <legend class="font-bold text-secondaryDark">{{ $t("teams") }}</legend>
       <div v-if="currentUser"></div>
       <div v-else>
         <label>{{ $t("login_with") }}</label>

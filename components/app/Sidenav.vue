@@ -7,7 +7,12 @@
         :to="localePath(navigation.target)"
         class="nav-link"
       >
-        <i class="material-icons">{{ navigation.icon }}</i>
+        <i v-if="navigation.icon" class="material-icons">
+          {{ navigation.icon }}
+        </i>
+        <div v-if="navigation.svg" class="h-4 w-4">
+          <SmartIcon :name="navigation.svg" class="svg-icons" />
+        </div>
         <span>{{ navigation.title }}</span>
       </nuxt-link>
     </nav>
@@ -19,13 +24,11 @@ export default {
   data() {
     return {
       primaryNavigation: [
-        { target: "index", icon: "apps", title: "App" },
+        { target: "index", icon: "settings_ethernet", title: "REST" },
+        { target: "graphql", svg: "graphql", title: "GraphQL" },
         { target: "realtime", icon: "language", title: "Realtime" },
-        { target: "graphql", icon: "code", title: "GraphQL" },
         { target: "documentation", icon: "book", title: "Doc" },
-        { target: "profile", icon: "person", title: "Profile" },
         { target: "settings", icon: "settings", title: "Settings" },
-        { target: "home", icon: "home", title: "Home" },
       ],
     }
   },
@@ -42,7 +45,8 @@ export default {
   @apply hover:bg-primaryDark;
   @apply hover:text-secondaryDark;
 
-  .material-icons {
+  .material-icons,
+  .svg-icons {
     @apply opacity-75;
   }
 
@@ -55,7 +59,8 @@ export default {
     @apply text-accent;
     @apply hover:text-accent;
 
-    .material-icons {
+    .material-icons,
+    .svg-icons {
       @apply opacity-100;
     }
   }

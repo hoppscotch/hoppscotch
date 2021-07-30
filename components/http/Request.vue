@@ -22,10 +22,10 @@
                 font-semibold font-mono
                 h-8
                 text-secondaryDark
+                min-w-28
                 py-1
                 px-4
                 transition
-                w-28
                 truncate
                 focus:outline-none focus:border-accent
               "
@@ -72,7 +72,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-none w-18"
+        class="rounded-none min-w-18"
         :label="!loading ? $t('send') : $t('cancel')"
         :shortcut="[getSpecialKey(), 'G']"
         @click.native="!loading ? newSendRequest() : cancelRequest()"

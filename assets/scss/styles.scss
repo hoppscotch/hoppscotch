@@ -46,6 +46,7 @@ body {
   @apply select-none;
   @apply overflow-x-hidden;
 
+  overflow: overlay;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -146,6 +147,10 @@ a {
   @apply max-h-48;
   @apply items-stretch;
   @apply overflow-y-auto;
+
+  &::-webkit-scrollbar {
+    @apply hidden;
+  }
 }
 
 hr {
@@ -305,8 +310,9 @@ input[type="checkbox"] {
     &.toasted-primary {
       @apply bg-tooltip;
       @apply text-primary text-xs;
-      @apply !font-semibold;
       @apply justify-start;
+      @apply shadow;
+      @apply font-semibold;
 
       .action {
         @apply ml-auto;
@@ -321,12 +327,12 @@ input[type="checkbox"] {
     }
 
     &.error {
-      @apply !bg-red-400;
+      @apply !bg-red-200;
       @apply !text-red-800;
     }
 
     &.success {
-      @apply !bg-green-400;
+      @apply !bg-green-200;
       @apply !text-green-800;
     }
   }

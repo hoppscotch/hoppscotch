@@ -2,7 +2,9 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("edit_team") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
+      <div>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
+      </div>
     </template>
     <template #body>
       <div class="flex flex-col px-2">
@@ -17,29 +19,43 @@
           :placeholder="editingTeam.name"
           @keyup.enter="saveTeam"
         />
-        <label for="memberList" class="font-semibold px-4 pt-4 pb-4">
-          {{ $t("team_member_list") }}
-        </label>
-        <ul
-          v-for="(member, index) in members"
-          :key="`member-${index}`"
-          class="
-            divide-y divide-dashed divide-divider
-            border-b border-divider
-            md:divide-x md:divide-y-0
-          "
-          :class="{ 'border-t': index == 0 }"
-        >
-          <li>
+        <div class="flex flex-1 justify-between items-center">
+          <label for="memberList" class="font-semibold px-4 pt-4 pb-4">
+            {{ $t("team_member_list") }}
+          </label>
+          <div>
+            <ButtonSecondary
+              icon="add"
+              :label="$t('add_new')"
+              @click.native="addTeamMember"
+            />
+          </div>
+        </div>
+        <div class="border-divider border rounded">
+          <div
+            v-for="(member, index) in members"
+            :key="`member-${index}`"
+            class="
+              divide-x divide-dividerLight
+              border-b border-dividerLight
+              flex
+            "
+          >
             <input
-              class="input"
+              class="
+                bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
+                focus:outline-none
+              "
               :placeholder="$t('email')"
               :name="'param' + index"
               :value="member.user.email"
               readonly
             />
-          </li>
-          <li>
             <span class="select-wrapper">
               <tippy
                 ref="options"
@@ -51,7 +67,15 @@
               >
                 <template #trigger>
                   <input
-                    class="input"
+                    class="
+                      bg-primaryLight
+                      flex
+                      font-semibold font-mono
+                      flex-1
+                      py-2
+                      px-4
+                      focus:outline-none
+                    "
                     :placeholder="$t('permissions')"
                     :name="'value' + index"
                     :value="
@@ -85,9 +109,7 @@
                 />
               </tippy>
             </span>
-          </li>
-          <div>
-            <li>
+            <div>
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
@@ -96,28 +118,32 @@
                 color="red"
                 @click.native="removeExistingTeamMember(member.user.uid)"
               />
-            </li>
+            </div>
           </div>
-        </ul>
-        <ul
-          v-for="(member, index) in newMembers"
-          :key="`member-${index}`"
-          class="
-            divide-y divide-dashed divide-divider
-            border-b border-divider
-            md:divide-x md:divide-y-0
-          "
-        >
-          <li>
+          <div
+            v-for="(member, index) in newMembers"
+            :key="`member-${index}`"
+            class="
+              divide-x divide-dividerLight
+              border-b border-dividerLight
+              flex
+            "
+          >
             <input
               v-model="member.key"
-              class="input"
+              class="
+                bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
+                focus:outline-none
+              "
               :placeholder="$t('email')"
-              :name="'param' + index"
+              :name="'member' + index"
               autofocus
             />
-          </li>
-          <li>
             <span class="select-wrapper">
               <tippy
                 ref="memberOptions"
@@ -129,7 +155,15 @@
               >
                 <template #trigger>
                   <input
-                    class="input"
+                    class="
+                      bg-primaryLight
+                      flex
+                      font-semibold font-mono
+                      flex-1
+                      py-2
+                      px-4
+                      focus:outline-none
+                    "
                     :placeholder="$t('permissions')"
                     :name="'value' + index"
                     :value="
@@ -144,28 +178,26 @@
                   label="OWNER"
                   @click.native="
                     member.value = 'OWNER'
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
                   "
                 />
                 <SmartItem
                   label="EDITOR"
                   @click.native="
                     member.value = 'EDITOR'
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
                   "
                 />
                 <SmartItem
                   label="VIEWER"
                   @click.native="
                     member.value = 'VIEWER'
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
                   "
                 />
               </tippy>
             </span>
-          </li>
-          <div>
-            <li>
+            <div>
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
@@ -174,18 +206,9 @@
                 color="red"
                 @click.native="removeTeamMember(index)"
               />
-            </li>
+            </div>
           </div>
-        </ul>
-        <ul>
-          <li>
-            <ButtonSecondary
-              icon="add"
-              :label="$t('add_new')"
-              @click.native="addTeamMember"
-            />
-          </li>
-        </ul>
+        </div>
       </div>
     </template>
     <template #footer>

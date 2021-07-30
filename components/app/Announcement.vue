@@ -1,12 +1,5 @@
 <template>
-  <div
-    class="
-      bg-primary bg-dividerLight
-      border-b border-divider
-      flex
-      justify-between
-    "
-  >
+  <div class="bg-dividerLight border-b border-divider flex justify-between">
     <span class="flex">
       <SmartLink
         to="https://forms.gle/8yFiEynXB7h477Ns6"

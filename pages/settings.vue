@@ -88,6 +88,9 @@
                 </div>
               </div>
             </fieldset>
+            <fieldset v-if="currentBackendUser && currentBackendUser.eaInvited">
+              <Teams />
+            </fieldset>
           </div>
         </div>
       </div>
@@ -338,6 +341,7 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
+import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,
@@ -373,6 +377,10 @@ export default defineComponent({
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
       currentUser: useReadonlyStream(currentUser$, currentUser$.value),
+      currentBackendUser: useReadonlyStream(
+        currentUserInfo$,
+        currentUserInfo$.value
+      ),
     }
   },
   data() {

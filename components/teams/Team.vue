@@ -3,7 +3,7 @@
     <div>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        title="team.myRole === 'OWNER' ? $t('edit') : ''"
+        :title="team.myRole === 'OWNER' ? $t('edit') : ''"
         icon="group"
         :label="team.name"
         @click.native="team.myRole === 'OWNER' ? $emit('edit-team') : ''"

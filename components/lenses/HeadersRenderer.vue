@@ -15,7 +15,7 @@
           group-hover:text-secondaryDark
         "
       >
-        <span class="truncate">
+        <span class="rounded select-all truncate">
           {{ header.key }}
         </span>
       </span>
@@ -42,7 +42,7 @@
           group-hover:text-secondaryDark
         "
       >
-        <span class="truncate">
+        <span class="rounded select-all truncate">
           {{ header.value }}
         </span>
       </span>

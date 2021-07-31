@@ -589,6 +589,7 @@ import { getCurrentStrategyID, sendNetworkRequest } from "~/helpers/network"
 import { getSettingSubject, useSetting } from "~/newstore/settings"
 import { addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
@@ -878,7 +879,7 @@ export default defineComponent({
       setTimeout(() => (this.copyVariablesIcon = "content_copy"), 1000)
     },
     copyToClipboard(content) {
-      this.$clipboard(content)
+      copyToClipboard(content)
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",
       })

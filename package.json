@@ -50,7 +50,6 @@
     "socketio-wildcard": "^2.0.0",
     "splitpanes": "^2.3.8",
     "tern": "^0.24.3",
-    "v-clipboard": "^2.2.3",
     "vue-apollo": "^3.0.7",
     "vue-cli-plugin-apollo": "^0.22.2",
     "vue-functional-data-merge": "^3.1.0",

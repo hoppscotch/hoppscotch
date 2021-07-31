@@ -90,6 +90,7 @@ import { codegens } from "~/helpers/codegen/codegen"
 import { getRESTRequest } from "~/newstore/RESTSession"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
 import { getCurrentEnvironment } from "~/newstore/environments"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 export default defineComponent({
   props: {
@@ -151,7 +152,7 @@ export default defineComponent({
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      ;(this.$clipboard as any)(this.requestCode)
+      copyToClipboard(this.requestCode)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard").toString(), {
         icon: "done",

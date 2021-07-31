@@ -55,6 +55,7 @@
 
 <script>
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 export default {
   mixins: [TextContentRendererMixin],
@@ -104,7 +105,7 @@ export default {
       }, 1000)
     },
     copyResponse() {
-      this.$clipboard(this.responseBodyText)
+      copyToClipboard(this.responseBodyText)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",

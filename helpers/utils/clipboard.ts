@@ -5,7 +5,7 @@
  * @param content The content to be copied
  */
 export function copyToClipboard(content: string) {
-  const dummy = document.createElement("input")
+  const dummy = document.createElement("textarea")
   document.body.appendChild(dummy)
   dummy.value = content
   dummy.select()

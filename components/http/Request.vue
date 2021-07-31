@@ -30,7 +30,6 @@
                 focus:outline-none focus:border-accent
               "
               :value="newMethod"
-              autofocus
               readonly
             />
           </template>
@@ -45,7 +44,13 @@
       </span>
     </div>
     <div class="flex-1 inline-flex">
+      <SmartUrlField
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="newEndpoint"
+        @enter="newSendRequest()"
+      />
       <input
+        v-else
         id="url"
         v-model="newEndpoint"
         class="
@@ -65,10 +70,10 @@
         type="text"
         spellcheck="false"
         :placeholder="$t('url')"
+        autofocus
         @keyup.enter="newSendRequest()"
       />
     </div>
-    <!-- <SmartUrlField v-else v-model="uri" /> -->
     <div class="flex">
       <ButtonPrimary
         id="send"
@@ -200,6 +205,7 @@ import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { useStreamSubscriber, useStream } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { getSettingSubject } from "~/newstore/settings"
 
 const methods = [
   "GET",
@@ -355,6 +361,13 @@ export default defineComponent({
       // Something weird with prettier
       ;(this.$refs.options as any).tippy().hide()
     },
+  },
+  subscriptions() {
+    return {
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
+    }
   },
 })
 </script>

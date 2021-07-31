@@ -5,7 +5,13 @@
 
 <template>
   <div class="url-field-container">
-    <div ref="editor" class="url-field" contenteditable="true"></div>
+    <div
+      ref="editor"
+      :placeholder="$t('url')"
+      class="url-field"
+      contenteditable="true"
+      @keyup.enter="$emit('enter')"
+    ></div>
   </div>
 </template>
 
@@ -35,7 +41,7 @@ export default {
       highlight: [
         {
           text: /(<<\w+>>)/g,
-          style: "VAR",
+          style: "text-white bg-accentDark rounded px-1.5 py-0.5 mx-0.5",
         },
       ],
       highlightEnabled: true,
@@ -389,18 +395,45 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
-.VAR {
-  @apply font-bold;
-  @apply text-accent;
+<style lang="scss" scoped>
+[contenteditable="true"]:empty {
+  @apply h-8;
+
+  line-height: 1.9;
+
+  &::before {
+    @apply text-secondary;
+    @apply opacity-75;
+    @apply pointer-events-none;
+    @apply block;
+
+    content: attr(placeholder);
+  }
 }
 
 .url-field-container {
   @apply inline-grid;
+  @apply w-full;
 }
 
 .url-field {
-  @apply border-dashed border-divider;
+  @apply flex;
+  @apply items-center;
+  @apply justify-items-start;
+  @apply bg-primaryLight;
+  @apply border;
+  @apply border-divider;
+  @apply font-semibold;
+  @apply font-mono;
+  @apply flex-1;
+  @apply text-secondaryDark;
+  @apply py-1;
+  @apply px-4;
+  @apply transition;
+  @apply truncate;
+  @apply focus:outline-none;
+  @apply focus:border-accent;
+  @apply truncate;
   @apply whitespace-nowrap;
   @apply overflow-x-auto;
   @apply resize-none;

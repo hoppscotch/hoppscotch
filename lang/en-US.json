@@ -355,5 +355,6 @@
   "headers_empty": "Headers are empty",
   "script": "Script",
   "results": "Results",
-  "add_test_scripts": "Add test script"
+  "add_test_scripts": "Add test script",
+  "protocols_empty": "Protocols are empty"
 }

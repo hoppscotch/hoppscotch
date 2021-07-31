@@ -333,8 +333,6 @@ export default defineComponent({
     defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
     return {
-      $t: t,
-      $toast,
       newEndpoint,
       newMethod,
       methods,

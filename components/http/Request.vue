@@ -270,7 +270,7 @@ export default defineComponent({
     }
 
     const copyRequest = () => {
-      if (!navigator.share) {
+      if (navigator.share) {
         const time = new Date().toLocaleTimeString()
         const date = new Date().toLocaleDateString()
         navigator

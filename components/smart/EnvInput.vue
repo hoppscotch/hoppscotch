@@ -24,6 +24,7 @@
 import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
+import { getCurrentEnvironment } from "~/newstore/environments"
 
 const tagsToReplace = {
   "&": "&amp;",
@@ -54,7 +55,7 @@ export default {
       highlight: [
         {
           text: /(<<\w+>>)/g,
-          style: "text-white bg-accentDark rounded px-1 mx-0.5",
+          style: "text-white rounded px-1 mx-0.5",
         },
       ],
       highlightEnabled: true,
@@ -174,14 +175,21 @@ export default {
         result += this.safe_tags_replace(
           this.internalValue.substring(startingPosition, position.start)
         )
-        result +=
-          "<span class='" +
-          highlightPositions[k].style +
-          "'>" +
-          this.safe_tags_replace(
-            this.internalValue.substring(position.start, position.end + 1)
-          ) +
-          "</span>"
+        const envVar = this.internalValue
+          .substring(position.start, position.end + 1)
+          .slice(2, -2)
+        result += `<span class="${highlightPositions[k].style} ${
+          getCurrentEnvironment().variables.find((k) => k.key === envVar)
+            ?.value === undefined
+            ? "bg-red-500"
+            : "bg-accentDark"
+        }" title="Environment: ${
+          getCurrentEnvironment().name
+        } \xA0-\xA0 Value: ${
+          getCurrentEnvironment().variables.find((k) => k.key === envVar)?.value
+        }">${this.safe_tags_replace(
+          this.internalValue.substring(position.start, position.end + 1)
+        )}</span>`
         startingPosition = position.end + 1
       }
       if (startingPosition < this.internalValue.length)

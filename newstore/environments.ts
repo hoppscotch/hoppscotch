@@ -210,7 +210,7 @@ export const currentEnvironment$ = combineLatest([
   map(([envs, selectedIndex]) => {
     if (selectedIndex === -1) {
       const env: Environment = {
-        name: "No Environment",
+        name: "No environment",
         variables: [],
       }
 
@@ -224,7 +224,7 @@ export const currentEnvironment$ = combineLatest([
 export function getCurrentEnvironment(): Environment {
   if (environmentsStore.value.currentEnvironmentIndex === -1) {
     return {
-      name: "No Environment",
+      name: "No environment",
       variables: [],
     }
   }

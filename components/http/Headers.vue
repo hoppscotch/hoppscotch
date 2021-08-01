@@ -168,6 +168,7 @@ export default {
   data() {
     return {
       commonHeaders,
+      headers$: [],
     }
   },
   subscriptions() {
@@ -178,18 +179,20 @@ export default {
       ),
     }
   },
-  // watch: {
-  //   headers: {
-  //     handler(newValue) {
-  //       if (
-  //         newValue[newValue.length - 1]?.key !== "" ||
-  //         newValue[newValue.length - 1]?.value !== ""
-  //       )
-  //         this.addRequestHeader()
-  //     },
-  //     deep: true,
-  //   },
-  // },
+  watch: {
+    headers$: {
+      handler(newValue) {
+        console.log("changed")
+        if (
+          (newValue[newValue.length - 1]?.key !== "" ||
+            newValue[newValue.length - 1]?.value !== "") &&
+          newValue.length
+        )
+          this.addHeader()
+      },
+      deep: true,
+    },
+  },
   mounted() {
     if (!this.headers$?.length) {
       this.addHeader()

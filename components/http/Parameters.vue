@@ -197,18 +197,19 @@ export default {
       ),
     }
   },
-  // watch: {
-  //   params$: {
-  //     handler(newValue) {
-  //       if (
-  //         newValue[newValue.length - 1]?.key !== "" ||
-  //         newValue[newValue.length - 1]?.value !== ""
-  //       )
-  //         this.addParam()
-  //     },
-  //     deep: true,
-  //   },
-  // },
+  watch: {
+    params$: {
+      handler(newValue) {
+        if (
+          (newValue[newValue.length - 1]?.key !== "" ||
+            newValue[newValue.length - 1]?.value !== "") &&
+          newValue.length
+        )
+          this.addParam()
+      },
+      deep: true,
+    },
+  },
   mounted() {
     if (!this.params$?.length) {
       this.addParam()

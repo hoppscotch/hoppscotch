@@ -5,10 +5,14 @@
  * @param content The content to be copied
  */
 export function copyToClipboard(content: string) {
-  const dummy = document.createElement("textarea")
-  document.body.appendChild(dummy)
-  dummy.value = content
-  dummy.select()
-  document.execCommand("copy")
-  document.body.removeChild(dummy)
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(content)
+  } else {
+    const dummy = document.createElement("textarea")
+    document.body.appendChild(dummy)
+    dummy.value = content
+    dummy.select()
+    document.execCommand("copy")
+    document.body.removeChild(dummy)
+  }
 }

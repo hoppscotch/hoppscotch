@@ -205,7 +205,7 @@ import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { useStreamSubscriber, useStream } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { getSettingSubject } from "~/newstore/settings"
+import { useSetting } from "~/newstore/settings"
 
 const methods = [
   "GET",
@@ -240,6 +240,8 @@ export default defineComponent({
 
     const hasNavigatorShare = !!navigator.share
 
+    const options = ref<Vue | null>(null)
+
     const newSendRequest = () => {
       loading.value = true
 
@@ -269,6 +271,12 @@ export default defineComponent({
 
     const updateMethod = (method: string) => {
       updateRESTMethod(method)
+    }
+
+    const onSelectMethod = (method: string) => {
+      updateMethod(method)
+      // Vue-tippy has no typescript support yet
+      ;(options.value as any).tippy().hide()
     }
 
     const clearContent = () => {
@@ -353,20 +361,11 @@ export default defineComponent({
       updateMethod,
       clearContent,
       copyRequest,
-    }
-  },
-  methods: {
-    onSelectMethod(method: string) {
-      this.updateMethod(method)
-      // Something weird with prettier
-      ;(this.$refs.options as any).tippy().hide()
-    },
-  },
-  subscriptions() {
-    return {
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
-        "EXPERIMENTAL_URL_BAR_ENABLED"
-      ),
+      onSelectMethod,
+
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
+
+      options,
     }
   },
 })

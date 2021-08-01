@@ -99,7 +99,7 @@
             icon="import_export"
             @click.native="
               showCurlImportModal = !showCurlImportModal
-              $refs.sendOptions.tippy().hide()
+              sendOptions.tippy().hide()
             "
           />
           <SmartItem
@@ -107,7 +107,7 @@
             icon="code"
             @click.native="
               showCodegenModal = !showCodegenModal
-              $refs.sendOptions.tippy().hide()
+              sendOptions.tippy().hide()
             "
           />
           <SmartItem
@@ -116,7 +116,7 @@
             icon="clear_all"
             @click.native="
               clearContent()
-              $refs.sendOptions.tippy().hide()
+              sendOptions.tippy().hide()
             "
           />
         </tippy>
@@ -158,7 +158,7 @@
             :icon="hasNavigatorShare ? 'share' : 'content_copy'"
             @click.native="
               copyRequest()
-              $refs.saveOptions.tippy().hide()
+              saveOptions.tippy().hide()
             "
           />
           <SmartItem
@@ -167,7 +167,7 @@
             icon="create_new_folder"
             @click.native="
               showSaveRequestModal = true
-              $refs.saveOptions.tippy().hide()
+              saveOptions.tippy().hide()
             "
           />
         </tippy>
@@ -240,7 +240,10 @@ export default defineComponent({
 
     const hasNavigatorShare = !!navigator.share
 
-    const options = ref<Vue | null>(null)
+    // Template refs
+    //
+    const options = ref<any | null>(null)
+    const saveOptions = ref<any | null>(null)
 
     const newSendRequest = () => {
       loading.value = true
@@ -276,7 +279,7 @@ export default defineComponent({
     const onSelectMethod = (method: string) => {
       updateMethod(method)
       // Vue-tippy has no typescript support yet
-      ;(options.value as any).tippy().hide()
+      options.value.tippy().hide()
     }
 
     const clearContent = () => {
@@ -365,7 +368,9 @@ export default defineComponent({
 
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
 
+      // Template refs
       options,
+      saveOptions,
     }
   },
 })

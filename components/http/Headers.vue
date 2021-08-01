@@ -148,7 +148,11 @@
       <span class="text-center pb-4">
         {{ $t("headers_empty") }}
       </span>
-      <ButtonSecondary :label="$t('add_new')" @click.native="addHeader" />
+      <ButtonSecondary
+        outline
+        :label="$t('add_new')"
+        @click.native="addHeader"
+      />
     </div>
   </AppSection>
 </template>

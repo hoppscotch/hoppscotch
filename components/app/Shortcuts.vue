@@ -14,7 +14,7 @@
           justify-between
         "
       >
-        <h3 class="ml-2 heading">{{ $t("shortcuts") }}</h3>
+        <h3 class="ml-4 heading">{{ $t("shortcuts") }}</h3>
         <div>
           <ButtonSecondary to="/settings" icon="tune" />
           <ButtonSecondary icon="close" @click.native="close()" />
@@ -39,7 +39,7 @@
         <div
           v-for="(map, mapIndex) in mappings"
           :key="`map-${mapIndex}`"
-          class="space-y-4 p-4"
+          class="space-y-4 py-4 px-6"
         >
           <h5 class="font-bold text-secondaryDark text-sm">
             {{ map.section }}

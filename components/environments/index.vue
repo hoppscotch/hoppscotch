@@ -68,6 +68,7 @@
       </span>
       <ButtonSecondary
         :label="$t('add_new')"
+        outline
         @click.native="displayModalAdd(true)"
       />
     </div>

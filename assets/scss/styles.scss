@@ -85,7 +85,6 @@ a {
   @apply text-current;
   @apply no-underline;
   @apply outline-none;
-  @apply focus-visible:(ring ring-inset ring-accent);
   @apply transition;
 
   &.link {
@@ -94,6 +93,7 @@ a {
     @apply -mx-2 -my-1;
     @apply text-accent;
     @apply hover:text-accentDark;
+    @apply focus-visible:(ring ring-inset ring-accent);
   }
 }
 
@@ -265,19 +265,19 @@ input[type="checkbox"] {
 }
 
 .info-response {
-  @apply text-pink-400;
+  @apply text-pink-500;
 }
 
 .success-response {
-  @apply text-green-400;
+  @apply text-green-500;
 }
 
 .redir-response {
-  @apply text-yellow-400;
+  @apply text-yellow-500;
 }
 
 .cl-error-response {
-  @apply text-red-400;
+  @apply text-red-500;
 }
 
 .sv-error-response {

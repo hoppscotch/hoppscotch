@@ -15,7 +15,7 @@
     "
     :class="[
       color
-        ? `text-${color}-400 hover:text-${color}-600 focus:text-${color}-600`
+        ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`
         : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
       label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',

@@ -5,7 +5,7 @@
         class="cursor-pointer flex w-10 justify-center items-center truncate"
         @click="toggleShowChildren()"
       >
-        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+        <i class="material-icons" :class="{ 'text-green-500': isSelected }">
           {{ getCollectionIcon }}
         </i>
       </span>

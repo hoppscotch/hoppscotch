@@ -316,6 +316,7 @@
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('reset_default')"
                   :icon="clearIcon"
+                  outline
                   @click.native="resetProxy"
                 />
               </div>
@@ -396,7 +397,7 @@ export default defineComponent({
 
       showLogin: false,
 
-      active: getLocalConfig("THEME_COLOR") || "indigo",
+      active: getLocalConfig("THEME_COLOR") || "green",
       confirmRemove: false,
     }
   },

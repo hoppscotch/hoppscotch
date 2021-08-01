@@ -256,6 +256,9 @@ export default defineComponent({
     this.worker.terminate()
   },
   methods: {
+    clearContent() {
+      this.protocols = []
+    },
     debouncer: debounce(function () {
       this.worker.postMessage({ type: "ws", url: this.url })
     }, 1000),
@@ -330,6 +333,8 @@ export default defineComponent({
     disconnect() {
       if (this.socket) {
         this.socket.close()
+        this.connectionState = false
+        this.connectingState = false
       }
     },
     handleError(error) {

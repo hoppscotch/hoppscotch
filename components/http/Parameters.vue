@@ -169,7 +169,11 @@
       <span class="text-center pb-4">
         {{ $t("parameters_empty") }}
       </span>
-      <ButtonSecondary :label="$t('add_new')" @click.native="addParam" />
+      <ButtonSecondary
+        :label="$t('add_new')"
+        outline
+        @click.native="addParam"
+      />
     </div>
   </AppSection>
 </template>

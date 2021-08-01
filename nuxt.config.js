@@ -209,7 +209,7 @@ export default {
     families: {
       Inter: [400, 500, 600, 700, 800],
       "Material+Icons": true,
-      "Roboto+Mono": true,
+      "Roboto+Mono": [400, 500, 600, 700, 800],
     },
   },
 

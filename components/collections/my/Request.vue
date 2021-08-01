@@ -25,7 +25,7 @@
         <i
           v-if="isSelected"
           class="material-icons"
-          :class="{ 'text-green-400': isSelected }"
+          :class="{ 'text-green-500': isSelected }"
         >
           check_circle
         </i>
@@ -128,11 +128,11 @@ export default {
     return {
       dragging: false,
       requestMethodLabels: {
-        get: "text-green-400",
-        post: "text-yellow-400",
-        put: "text-blue-400",
-        delete: "text-red-400",
-        default: "text-gray-400",
+        get: "text-green-500",
+        post: "text-yellow-500",
+        put: "text-blue-500",
+        delete: "text-red-500",
+        default: "text-gray-500",
       },
       confirmRemove: false,
     }

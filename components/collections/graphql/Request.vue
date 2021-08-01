@@ -21,7 +21,7 @@
         "
         @click="!doc ? selectRequest() : {}"
       >
-        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+        <i class="material-icons" :class="{ 'text-green-500': isSelected }">
           {{ isSelected ? "check_circle" : "description" }}
         </i>
       </span>

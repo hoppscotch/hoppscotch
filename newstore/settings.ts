@@ -11,15 +11,15 @@ export const HoppBgColors = ["system", "light", "dark", "black"] as const
 export type HoppBgColor = typeof HoppBgColors[number]
 
 export const HoppAccentColors = [
-  "blue",
   "green",
   "teal",
+  "blue",
   "indigo",
   "purple",
-  "orange",
-  "pink",
-  "red",
   "yellow",
+  "orange",
+  "red",
+  "pink",
 ] as const
 
 export type HoppAccentColor = typeof HoppAccentColors[number]
@@ -67,7 +67,7 @@ export const defaultSettings: SettingsType = {
     httpPassword: true,
     bearerToken: true,
   },
-  THEME_COLOR: "indigo",
+  THEME_COLOR: "green",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
   SHORTCUT_INDICATOR: false,

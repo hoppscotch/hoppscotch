@@ -113,9 +113,11 @@
         disabled
         :title="$t('disable_new_collection')"
         :label="$t('add_new')"
+        outline
       />
       <ButtonSecondary
         v-else
+        outline
         :label="$t('add_new')"
         @click.native="displayModalAdd(true)"
       />

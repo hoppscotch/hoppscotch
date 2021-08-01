@@ -5,15 +5,20 @@
       class="
         flex flex-col flex-1
         text-secondaryLight
-        p-4
         items-center
         justify-center
       "
     >
       <i class="opacity-75 pb-2 material-icons">send</i>
-      <span class="text-center">
+      <span class="text-center pb-4">
         {{ $t("waiting_send_req") }}
       </span>
+      <ButtonSecondary
+        :label="$t('documentation')"
+        to="https://docs.hoppscotch.io"
+        blank
+        outline
+      />
     </div>
     <div v-else>
       <i v-if="response.type === 'loading'" class="animate-spin material-icons">

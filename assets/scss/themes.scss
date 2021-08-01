@@ -241,27 +241,35 @@
 :root[data-accent="blue"] {
   @include blueTheme;
 }
+
 :root[data-accent="green"] {
   @include greenTheme;
 }
+
 :root[data-accent="teal"] {
   @include tealTheme;
 }
+
 :root[data-accent="indigo"] {
   @include indigoTheme;
 }
+
 :root[data-accent="purple"] {
   @include purpleTheme;
 }
+
 :root[data-accent="orange"] {
   @include orangeTheme;
 }
+
 :root[data-accent="pink"] {
   @include pinkTheme;
 }
+
 :root[data-accent="red"] {
   @include redTheme;
 }
+
 :root[data-accent="yellow"] {
   @include yellowTheme;
 }

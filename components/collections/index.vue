@@ -100,9 +100,25 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
-      <span class="text-center">
-        {{ $t("create_new_collection") }}
+      <span class="text-center pb-4">
+        {{ $t("collections_empty") }}
       </span>
+      <ButtonSecondary
+        v-if="
+          collectionsType.type == 'team-collections' &&
+          (collectionsType.selectedTeam == undefined ||
+            collectionsType.selectedTeam.myRole == 'VIEWER')
+        "
+        v-tippy="{ theme: 'tooltip' }"
+        disabled
+        :title="$t('disable_new_collection')"
+        :label="$t('add_new')"
+      />
+      <ButtonSecondary
+        v-else
+        :label="$t('add_new')"
+        @click.native="displayModalAdd(true)"
+      />
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"

@@ -204,6 +204,15 @@
                       :spellcheck="false"
                       :value="header.key"
                       autofocus
+                      styles="
+                        bg-primaryLight
+                        flex
+                        font-semibold font-mono
+                        flex-1
+                        py-1
+                        px-4
+                        focus:outline-none
+                      "
                       @input="
                         $store.commit('setGQLHeaderKey', {
                           index,
@@ -216,8 +225,8 @@
                         bg-primaryLight
                         flex
                         font-semibold font-mono
-                        flex-1
-                        py-2
+                        w-full
+                        py-1
                         px-4
                         focus:outline-none
                       "
@@ -281,9 +290,13 @@
                     "
                   >
                     <i class="opacity-75 pb-2 material-icons">post_add</i>
-                    <span class="text-center">
+                    <span class="text-center pb-4">
                       {{ $t("headers_empty") }}
                     </span>
+                    <ButtonSecondary
+                      :label="$t('add_new')"
+                      @click.native="addRequestHeader"
+                    />
                   </div>
                 </AppSection>
               </SmartTab>

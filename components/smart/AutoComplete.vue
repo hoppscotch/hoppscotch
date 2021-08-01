@@ -211,6 +211,7 @@ export default {
       @apply w-full;
       @apply block;
       @apply py-2 px-4;
+      @apply text-secondaryLight;
       @apply font-semibold font-mono;
 
       &:last-child {

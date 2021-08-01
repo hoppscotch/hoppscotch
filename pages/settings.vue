@@ -299,10 +299,10 @@
                     bg-primaryLight
                     border border-divider
                     rounded-r
+                    flex
                     font-semibold font-mono
                     flex-1
                     mr-2
-                    w-full
                     py-2
                     px-4
                     block
@@ -396,7 +396,7 @@ export default defineComponent({
 
       showLogin: false,
 
-      active: getLocalConfig("THEME_COLOR") || "green",
+      active: getLocalConfig("THEME_COLOR") || "indigo",
       confirmRemove: false,
     }
   },

@@ -166,9 +166,10 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">post_add</i>
-      <span class="text-center">
+      <span class="text-center pb-4">
         {{ $t("parameters_empty") }}
       </span>
+      <ButtonSecondary :label="$t('add_new')" @click.native="addParam" />
     </div>
   </AppSection>
 </template>

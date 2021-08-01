@@ -47,6 +47,7 @@
                 '<br>' +
                 `<sub>${currentUser.email || 'Email not found'}</sub>`
               "
+              :indicator="isOnLine ? 'bg-green-500' : 'bg-red-500'"
             />
             <TabPrimary
               v-else
@@ -82,6 +83,7 @@ export default {
       // prompt.
       showInstallPrompt: null,
       showLogin: false,
+      isOnLine: navigator.onLine,
     }
   },
   subscriptions() {
@@ -90,6 +92,13 @@ export default {
     }
   },
   async mounted() {
+    window.addEventListener("online", () => {
+      this.isOnLine = true
+    })
+    window.addEventListener("offline", () => {
+      this.isOnLine = false
+    })
+
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()

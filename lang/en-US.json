@@ -119,7 +119,7 @@
   "no_prerequest_script": "No pre-request script",
   "search": "Search",
   "history_empty": "History is empty",
-  "history_deleted": "History Deleted",
+  "history_deleted": "History deleted",
   "clear": "Clear",
   "clear_all": "Clear All",
   "cleared": "Cleared",
@@ -356,5 +356,7 @@
   "script": "Script",
   "results": "Results",
   "add_test_scripts": "Add test script",
-  "protocols_empty": "Protocols are empty"
+  "protocols_empty": "Protocols are empty",
+  "environments_empty": "Environments are empty",
+  "collections_empty": "Collections are empty"
 }

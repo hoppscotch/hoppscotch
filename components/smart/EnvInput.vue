@@ -7,10 +7,15 @@
   <div class="url-field-container">
     <div
       ref="editor"
-      :placeholder="$t('url')"
+      :placeholder="placeholder"
       class="url-field"
+      :class="styles"
       contenteditable="true"
-      @keyup.enter="$emit('enter')"
+      @keyup.enter="$emit('enter', $event)"
+      @change="$emit('change', $event)"
+      @keyup="$emit('keyup', $event)"
+      @click="$emit('click', $event)"
+      @keydown="$emit('keydown', $event)"
     ></div>
   </div>
 </template>
@@ -32,6 +37,14 @@ export default {
       type: String,
       default: "",
     },
+    placeholder: {
+      type: String,
+      default: "",
+    },
+    styles: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -41,7 +54,7 @@ export default {
       highlight: [
         {
           text: /(<<\w+>>)/g,
-          style: "text-white bg-accentDark rounded px-1.5 py-0.5 mx-0.5",
+          style: "text-white bg-accentDark rounded px-1 mx-0.5",
         },
       ],
       highlightEnabled: true,
@@ -396,18 +409,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-[contenteditable="true"]:empty {
-  @apply h-8;
+[contenteditable="true"] {
+  &:empty {
+    line-height: 1.9;
 
-  line-height: 1.9;
+    &::before {
+      @apply text-secondary;
+      @apply opacity-75;
+      @apply pointer-events-none;
 
-  &::before {
-    @apply text-secondary;
-    @apply opacity-75;
-    @apply pointer-events-none;
-    @apply block;
-
-    content: attr(placeholder);
+      content: attr(placeholder);
+    }
   }
 }
 
@@ -420,22 +432,9 @@ export default {
   @apply flex;
   @apply items-center;
   @apply justify-items-start;
-  @apply bg-primaryLight;
-  @apply border;
-  @apply border-divider;
-  @apply font-semibold;
-  @apply font-mono;
-  @apply flex-1;
-  @apply text-secondaryDark;
-  @apply py-1;
-  @apply px-4;
-  @apply transition;
-  @apply truncate;
-  @apply focus:outline-none;
-  @apply focus:border-accent;
-  @apply truncate;
   @apply whitespace-nowrap;
   @apply overflow-x-auto;
+  @apply overflow-y-hidden;
   @apply resize-none;
 }
 

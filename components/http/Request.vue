@@ -3,7 +3,7 @@
     <div class="relative inline-flex">
       <span class="select-wrapper">
         <tippy
-          ref="options"
+          ref="methodOptions"
           interactive
           tabindex="-1"
           trigger="click"
@@ -44,9 +44,23 @@
       </span>
     </div>
     <div class="flex-1 inline-flex">
-      <SmartUrlField
+      <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"
         v-model="newEndpoint"
+        :placeholder="$t('url')"
+        styles="
+          bg-primaryLight
+          border border-divider
+          flex
+          font-semibold font-mono
+          flex-1
+          text-secondaryDark
+          py-1
+          px-4
+          transition
+          truncate
+          focus:outline-none focus:border-accent
+        "
         @enter="newSendRequest()"
       />
       <input
@@ -242,8 +256,9 @@ export default defineComponent({
 
     // Template refs
     //
-    const options = ref<any | null>(null)
+    const methodOptions = ref<any | null>(null)
     const saveOptions = ref<any | null>(null)
+    const sendOptions = ref<any | null>(null)
 
     const newSendRequest = () => {
       loading.value = true
@@ -279,7 +294,7 @@ export default defineComponent({
     const onSelectMethod = (method: string) => {
       updateMethod(method)
       // Vue-tippy has no typescript support yet
-      options.value.tippy().hide()
+      methodOptions.value.tippy().hide()
     }
 
     const clearContent = () => {
@@ -369,7 +384,8 @@ export default defineComponent({
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
 
       // Template refs
-      options,
+      methodOptions,
+      sendOptions,
       saveOptions,
     }
   },

@@ -37,7 +37,29 @@
       class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="param.key"
+        :placeholder="$t('parameter_count', { count: index + 1 })"
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
+        @change="
+          updateParam(index, {
+            key: $event.target.value,
+            value: param.value,
+            active: param.active,
+          })
+        "
+      />
       <input
+        v-else
         class="
           bg-primaryLight
           flex
@@ -59,7 +81,29 @@
           })
         "
       />
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="param.value"
+        :placeholder="$t('value_count', { count: index + 1 })"
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
+        @change="
+          updateParam(index, {
+            key: param.key,
+            value: $event.target.value,
+            active: param.active,
+          })
+        "
+      />
       <input
+        v-else
         class="
           bg-primaryLight
           flex
@@ -137,6 +181,7 @@ import {
   deleteRESTParam,
   deleteAllRESTParams,
 } from "~/newstore/RESTSession"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
@@ -147,6 +192,9 @@ export default {
   subscriptions() {
     return {
       params$: restParams$,
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
     }
   },
   // watch: {

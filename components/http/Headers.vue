@@ -43,6 +43,15 @@
         :spellcheck="false"
         :value="header.key"
         autofocus
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
         @input="
           updateHeader(index, {
             key: $event,
@@ -51,7 +60,29 @@
           })
         "
       />
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="header.value"
+        :placeholder="$t('value_count', { count: index + 1 })"
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
+        @change="
+          updateHeader(index, {
+            key: header.key,
+            value: $event.target.value,
+            active: header.active,
+          })
+        "
+      />
       <input
+        v-else
         class="
           bg-primaryLight
           flex
@@ -131,6 +162,7 @@ import {
 } from "~/newstore/RESTSession"
 
 import { commonHeaders } from "~/helpers/headers"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
@@ -141,6 +173,9 @@ export default {
   subscriptions() {
     return {
       headers$: restHeaders$,
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
     }
   },
   // watch: {

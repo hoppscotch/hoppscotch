@@ -1,16 +1,10 @@
 <template>
   <header class="flex flex-1 py-2 px-4 items-center justify-between">
     <div
-      class="
-        font-extrabold
-        space-x-2
-        flex-shrink-0
-        text-sm
-        inline-flex
-        items-center
-      "
+      class="font-bold space-x-2 flex-shrink-0 text-sm inline-flex items-center"
     >
       <AppLogo />
+      <span>Hoppscotch</span>
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="mt-1 mr-2" />
@@ -59,7 +53,7 @@
           <SmartItem
             to="/settings"
             icon="settings"
-            :label="$t('settings')"
+            :label="$t('navigation.settings')"
             @click.native="$refs.user.tippy().hide()"
           />
           <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />

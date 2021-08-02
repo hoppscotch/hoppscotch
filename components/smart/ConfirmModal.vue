@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("confirm") }}</h3>
+      <h3 class="heading">{{ $t("modal.confirm") }}</h3>
       <div>
         <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>

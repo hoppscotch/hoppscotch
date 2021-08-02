@@ -136,7 +136,7 @@
       </span>
       <ButtonSecondary
         class="rounded-r-none h-8 ml-2"
-        :label="$t('save')"
+        :label="$t('request.save')"
         :shortcut="[getSpecialKey(), 'S']"
         outline
         @click.native="showSaveRequestModal = true"
@@ -160,7 +160,7 @@
           <input
             id="request-name"
             v-model="requestName"
-            :placeholder="$t('request_name')"
+            :placeholder="$t('request.name')"
             name="request-name"
             type="text"
             class="mb-2 input"

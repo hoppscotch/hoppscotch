@@ -7,7 +7,7 @@
     <template #body>
       <div class="flex flex-col px-2">
         <label for="selectLabelSaveReq" class="font-semibold px-4 pb-4">
-          {{ $t("request_name") }}
+          {{ $t("request.name") }}
         </label>
         <input
           id="selectLabelSaveReq"

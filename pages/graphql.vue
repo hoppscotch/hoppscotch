@@ -81,7 +81,7 @@
                       <ButtonSecondary
                         ref="saveRequest"
                         v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('save_to_collections')"
+                        :title="$t('request.save')"
                         icon="create_new_folder"
                         @click.native="saveRequest"
                       />

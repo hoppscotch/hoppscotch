@@ -101,6 +101,7 @@
     "member_removed": "User removed"
   },
   "modal": {
+    "confirm": "Confirm",
     "import_export": "Import / Export"
   },
   "import": {
@@ -142,7 +143,9 @@
   },
   "request": {
     "copy_link": "Copy link",
+    "save": "Save",
     "save_as": "Save as",
+    "name": "Request name",
     "share": "Share"
   },
   "settings": {
@@ -237,7 +240,6 @@
   "save_token_req": "Save Token Request",
   "manage_token_req": "Manage Token Request",
   "use_token_req": "Use Token Request",
-  "request_name": "Request Name",
   "empty_req_name": "Empty Request Name",
   "token_req_details": "Request Details",
   "token_name": "Token Name",
@@ -339,7 +341,7 @@
   "recurring": "Recurring",
   "wiki": "Wiki",
   "error": "Error",
-  "go_home": "Go Home",
+  "home": "Home",
   "reload": "Reload",
   "enter_curl": "Enter cURL",
   "extensions": "Extensions",

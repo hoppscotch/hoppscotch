@@ -1,5 +1,4 @@
 [build]
-  command = "npm run generate"
   functions = "netlify/"
   environment = { NODE_VERSION = "14" }
 

@@ -9,10 +9,29 @@
         justify-center
       "
     >
-      <i class="opacity-75 pb-2 material-icons">send</i>
-      <span class="text-center pb-4">
-        {{ $t("waiting_send_req") }}
-      </span>
+      <div class="flex space-x-2 pb-8">
+        <div class="flex flex-col space-y-4 items-end">
+          <span class="flex flex-1 items-center">{{ $t("send_request") }}</span>
+          <span class="flex flex-1 items-center">{{
+            $t("reset_request")
+          }}</span>
+          <span class="flex flex-1 items-center"> Show all Shortcuts </span>
+        </div>
+        <div class="flex flex-col space-y-4">
+          <div class="flex">
+            <span class="shortcut-key">{{ getSpecialKey() }}</span>
+            <span class="shortcut-key">G</span>
+          </div>
+          <div class="flex">
+            <span class="shortcut-key">{{ getSpecialKey() }}</span>
+            <span class="shortcut-key">I</span>
+          </div>
+          <div class="flex">
+            <span class="shortcut-key">{{ getSpecialKey() }}</span>
+            <span class="shortcut-key">?</span>
+          </div>
+        </div>
+      </div>
       <ButtonSecondary
         :label="$t('documentation')"
         to="https://docs.hoppscotch.io"
@@ -48,6 +67,7 @@
 
 <script>
 import findStatusGroup from "~/helpers/findStatusGroup"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
 export default {
   props: {
@@ -61,5 +81,19 @@ export default {
       return findStatusGroup(this.response.statusCode)
     },
   },
+  methods: {
+    getSpecialKey: getPlatformSpecialKey,
+  },
 }
 </script>
+
+<style lang="scss" scoped>
+.shortcut-key {
+  @apply bg-dividerLight;
+  @apply rounded;
+  @apply ml-2;
+  @apply py-1;
+  @apply px-2;
+  @apply inline-flex;
+}
+</style>

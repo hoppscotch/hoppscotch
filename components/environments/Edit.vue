@@ -88,6 +88,26 @@
               />
             </div>
           </div>
+          <div
+            v-if="vars.length === 0"
+            class="
+              flex flex-col
+              text-secondaryLight
+              p-4
+              items-center
+              justify-center
+            "
+          >
+            <i class="opacity-75 pb-2 material-icons">layers</i>
+            <span class="text-center pb-4">
+              {{ $t("environments_empty") }}
+            </span>
+            <ButtonSecondary
+              :label="$t('add_new')"
+              outline
+              @click.native="addEnvironmentVariable"
+            />
+          </div>
         </div>
       </div>
     </template>

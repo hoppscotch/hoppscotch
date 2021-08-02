@@ -47,12 +47,12 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="
           team.myRole === 'OWNER' && team.ownersCount == 1
-            ? $t('disable_exit')
+            ? $t('team.exit_disabled')
             : ''
         "
         :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
         icon="remove"
-        :label="$t('exit')"
+        :label="$t('team.exit')"
         @click.native="
           exitTeam
           $refs.options.tippy().hide()
@@ -78,7 +78,7 @@ export default {
         .deleteTeam(this.$apollo, this.teamID)
         .then(() => {
           // Result
-          this.$toast.success(this.$t("new_team_created"), {
+          this.$toast.success(this.$t("team.new_created"), {
             icon: "done",
           })
         })
@@ -96,7 +96,7 @@ export default {
         .exitTeam(this.$apollo, this.teamID)
         .then(() => {
           // Result
-          this.$toast.success(this.$t("team_exited"), {
+          this.$toast.success(this.$t("team.left"), {
             icon: "done",
           })
         })

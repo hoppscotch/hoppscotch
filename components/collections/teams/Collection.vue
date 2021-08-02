@@ -28,7 +28,7 @@
       <ButtonSecondary
         v-if="doc && !selected"
         v-tippy="{ theme: 'tooltip' }"
-        :title="$t('import')"
+        :title="$t('import.title')"
         icon="check_box_outline_blank"
         color="green"
         @click.native="$emit('select-collection')"
@@ -45,7 +45,7 @@
         v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
         icon="create_new_folder"
-        :title="$t('new_folder')"
+        :title="$t('folder.new')"
         class="group-hover:inline-flex hidden"
         @click.native="
           $emit('add-folder', {
@@ -73,7 +73,7 @@
         <SmartItem
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           icon="create_new_folder"
-          :label="$t('new_folder')"
+          :label="$t('folder.new')"
           @click.native="
             $emit('add-folder', {
               folder: collection,
@@ -159,13 +159,13 @@
       >
         <i class="opacity-75 pb-2 material-icons">folder_open</i>
         <span class="text-center">
-          {{ $t("collection_empty") }}
+          {{ $t("empty.collection") }}
         </span>
       </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_collection')"
+      :title="$t('confirm.remove_collection')"
       @hide-modal="confirmRemove = false"
       @resolve="removeCollection"
     />

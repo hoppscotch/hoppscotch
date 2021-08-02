@@ -1,6 +1,6 @@
 <template>
   <SmartTabs>
-    <SmartTab id="websocket" :label="$t('websocket')" :selected="true">
+    <SmartTab id="websocket" :label="$t('tab.websocket')" :selected="true">
       <RealtimeWebsocket />
     </SmartTab>
     <SmartTab id="sse" :label="$t('sse')">
@@ -9,7 +9,7 @@
     <SmartTab id="socketio" :label="$t('socketio')">
       <RealtimeSocketio />
     </SmartTab>
-    <SmartTab id="mqtt" :label="$t('mqtt')">
+    <SmartTab id="mqtt" :label="$t('tab.mqtt')">
       <RealtimeMqtt />
     </SmartTab>
   </SmartTabs>

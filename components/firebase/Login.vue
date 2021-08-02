@@ -56,7 +56,7 @@
           "
           type="button"
           tabindex="-1"
-          :label="$t('send_magic_link')"
+          :label="$t('auth.send_magic_link')"
           @click.native="signInWithEmail"
         />
       </div>
@@ -66,10 +66,12 @@
             mark_email_unread
           </i>
           <h3 class="font-bold my-2 text-center text-lg">
-            {{ $t("we_sent_magic_link") }}
+            {{ $t("auth.we_sent_magic_link") }}
           </h3>
           <p class="text-center">
-            {{ $t("we_sent_magic_link_description", { email: form.email }) }}
+            {{
+              $t("auth.we_sent_magic_link_description", { email: form.email })
+            }}
           </p>
         </div>
       </div>
@@ -97,7 +99,11 @@
           label="← Re-enter email"
           @click.native="mode = 'email'"
         />
-        <SmartAnchor class="link" label="Dismiss" @click.native="hideModal" />
+        <SmartAnchor
+          class="link"
+          :label="$t('action.dismiss')"
+          @click.native="hideModal"
+        />
       </p>
     </template>
   </SmartModal>
@@ -151,7 +157,7 @@ export default {
         const { additionalUserInfo } = await signInUserWithGoogle()
 
         if (additionalUserInfo.isNewUser) {
-          this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
+          this.$toast.info(`${this.$t("action.turn_on")} ${this.$t("sync")}`, {
             icon: "sync",
             duration: null,
             closeOnSwipe: false,
@@ -197,7 +203,7 @@ export default {
             return
           }
 
-          this.$toast.info(`${this.$t("account_exists")}`, {
+          this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
             duration: null,
             closeOnSwipe: false,
@@ -227,7 +233,7 @@ export default {
         setProviderInfo(credential.providerId, credential.accessToken)
 
         if (additionalUserInfo.isNewUser) {
-          this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
+          this.$toast.info(`${this.$t("action.turn_on")} ${this.$t("sync")}`, {
             icon: "sync",
             duration: null,
             closeOnSwipe: false,
@@ -273,7 +279,7 @@ export default {
             return
           }
 
-          this.$toast.info(`${this.$t("account_exists")}`, {
+          this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
             duration: null,
             closeOnSwipe: false,

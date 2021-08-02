@@ -43,7 +43,7 @@
           v-tippy="{ theme: 'tooltip' }"
           disabled
           icon="add"
-          :title="$t('disable_new_collection')"
+          :title="$t('team.no_access')"
           :label="$t('new')"
         />
         <ButtonSecondary
@@ -60,7 +60,7 @@
             collectionsType.selectedTeam == undefined
           "
           icon="import_export"
-          :title="$t('import_export')"
+          :title="$t('modal.import_export')"
           @click.native="displayModalImportExport(true)"
         />
       </div>
@@ -101,7 +101,7 @@
     >
       <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
       <span class="text-center pb-4">
-        {{ $t("collections_empty") }}
+        {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
         v-if="
@@ -111,14 +111,14 @@
         "
         v-tippy="{ theme: 'tooltip' }"
         disabled
-        :title="$t('disable_new_collection')"
-        :label="$t('add_new')"
+        :title="$t('team.no_access')"
+        :label="$t('add.new')"
         outline
       />
       <ButtonSecondary
         v-else
         outline
-        :label="$t('add_new')"
+        :label="$t('add.new')"
         @click.native="displayModalAdd(true)"
       />
     </div>
@@ -313,7 +313,7 @@ export default {
     // Intented to be called by the CollectionAdd modal submit event
     addNewRootCollection(name) {
       if (!name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+        this.$toast.info(this.$t("collection.invalid_name"))
         return
       }
       if (this.collectionsType.type === "my-collections") {
@@ -333,7 +333,7 @@ export default {
             this.collectionsType.selectedTeam.id
           )
           .then(() => {
-            this.$toast.success(this.$t("collection_added"), {
+            this.$toast.success(this.$t("collection.created"), {
               icon: "done",
             })
           })
@@ -349,7 +349,7 @@ export default {
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {
       if (!newName) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+        this.$toast.info(this.$t("collection.invalid_name"))
         return
       }
       if (this.collectionsType.type === "my-collections") {
@@ -392,7 +392,7 @@ export default {
           .renameCollection(this.$apollo, name, this.editingFolder.id)
           .then(() => {
             // Result
-            this.$toast.success(this.$t("folder_renamed"), {
+            this.$toast.success(this.$t("folder.renamed"), {
               icon: "done",
             })
           })
@@ -507,7 +507,7 @@ export default {
             })
             .then(() => {
               // Result
-              this.$toast.success(this.$t("folder_added"), {
+              this.$toast.success(this.$t("folder.created"), {
                 icon: "done",
               })
               this.$emit("update-team-collections")

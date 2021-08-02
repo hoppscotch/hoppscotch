@@ -25,7 +25,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('add_new')"
+          :title="$t('add.new')"
           icon="add"
           @click.native="addHeader"
         />
@@ -38,7 +38,7 @@
       :class="{ 'border-t': index == 0 }"
     >
       <SmartAutoComplete
-        :placeholder="$t('header_count', { count: index + 1 })"
+        :placeholder="$t('count.header', { count: index + 1 })"
         :source="commonHeaders"
         :spellcheck="false"
         :value="header.key"
@@ -63,7 +63,7 @@
       <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"
         v-model="header.value"
-        :placeholder="$t('value_count', { count: index + 1 })"
+        :placeholder="$t('count.value', { count: index + 1 })"
         styles="
           bg-primaryLight
           flex
@@ -92,7 +92,7 @@
           px-4
           focus:outline-none
         "
-        :placeholder="$t('value_count', { count: index + 1 })"
+        :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="header.value"
         @change="
@@ -109,9 +109,9 @@
           :title="
             header.hasOwnProperty('active')
               ? header.active
-                ? $t('turn_off')
-                : $t('turn_on')
-              : $t('turn_off')
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
           "
           :icon="
             header.hasOwnProperty('active')
@@ -146,11 +146,11 @@
     >
       <i class="opacity-75 pb-2 material-icons">post_add</i>
       <span class="text-center pb-4">
-        {{ $t("headers_empty") }}
+        {{ $t("empty.headers") }}
       </span>
       <ButtonSecondary
         outline
-        :label="$t('add_new')"
+        :label="$t('add.new')"
         @click.native="addHeader"
       />
     </div>

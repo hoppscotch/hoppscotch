@@ -31,7 +31,7 @@
         v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
         icon="create_new_folder"
-        :title="$t('new_folder')"
+        :title="$t('folder.new')"
         class="group-hover:inline-flex hidden"
         @click.native="$emit('add-folder', { folder, path: folderPath })"
       />
@@ -54,7 +54,7 @@
         <SmartItem
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           icon="create_new_folder"
-          :label="$t('new_folder')"
+          :label="$t('folder.new')"
           @click.native="
             $emit('add-folder', { folder, path: folderPath })
             $refs.options.tippy().hide()
@@ -141,13 +141,13 @@
       >
         <i class="opacity-75 pb-2 material-icons">folder_open</i>
         <span class="text-center">
-          {{ $t("folder_empty") }}
+          {{ $t("empty.folder") }}
         </span>
       </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_folder')"
+      :title="$t('confirm.remove_folder')"
       @hide-modal="confirmRemove = false"
       @resolve="removeFolder"
     />

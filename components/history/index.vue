@@ -73,12 +73,12 @@
     >
       <i class="opacity-75 pb-2 material-icons">schedule</i>
       <span class="text-center">
-        {{ $t("history_empty") }}
+        {{ $t("empty.history") }}
       </span>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_history')"
+      :title="$t('confirm.remove_history')"
       @hide-modal="confirmRemove = false"
       @resolve="clearHistory"
     />

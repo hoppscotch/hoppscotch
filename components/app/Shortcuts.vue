@@ -85,19 +85,19 @@ export default {
           shortcuts: [
             {
               keys: [getPlatformSpecialKey(), "G"],
-              label: this.$t("send_request"),
+              label: this.$t("shortcut.send_request"),
             },
             {
               keys: [getPlatformSpecialKey(), "S"],
-              label: this.$t("save_to_collections"),
+              label: this.$t("shortcut.save_to_collections"),
             },
             {
               keys: [getPlatformSpecialKey(), "K"],
-              label: this.$t("copy_request_link"),
+              label: this.$t("shortcut.copy_request_link"),
             },
             {
               keys: [getPlatformSpecialKey(), "I"],
-              label: this.$t("reset_request"),
+              label: this.$t("shortcut.reset_request"),
             },
           ],
         },
@@ -106,31 +106,31 @@ export default {
           shortcuts: [
             {
               keys: [getPlatformAlternateKey(), "↑"],
-              label: this.$t("select_next_method"),
+              label: this.$t("shortcut.next_method"),
             },
             {
               keys: [getPlatformAlternateKey(), "↓"],
-              label: this.$t("select_previous_method"),
+              label: this.$t("shortcut.previous_method"),
             },
             {
               keys: [getPlatformAlternateKey(), "G"],
-              label: this.$t("select_get_method"),
+              label: this.$t("shortcut.get_method"),
             },
             {
               keys: [getPlatformAlternateKey(), "H"],
-              label: this.$t("select_head_method"),
+              label: this.$t("shortcut.head_method"),
             },
             {
               keys: [getPlatformAlternateKey(), "P"],
-              label: this.$t("select_post_method"),
+              label: this.$t("shortcut.post_method"),
             },
             {
               keys: [getPlatformAlternateKey(), "U"],
-              label: this.$t("select_put_method"),
+              label: this.$t("shortcut.put_method"),
             },
             {
               keys: [getPlatformAlternateKey(), "X"],
-              label: this.$t("select_delete_method"),
+              label: this.$t("shortcut.delete_method"),
             },
           ],
         },

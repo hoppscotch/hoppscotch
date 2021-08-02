@@ -143,8 +143,6 @@
                           />
                           <ButtonSecondary
                             @click.native="showTokenRequest = false"
-                            v-tippy="{ theme: 'tooltip' }"
-                            :title="$t('close')"
                             icon="close"
                           />
                         </div>

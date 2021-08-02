@@ -35,7 +35,7 @@
         <ButtonSecondary
           v-if="showCollActions"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('import_export')"
+          :title="$t('modal.import_export')"
           icon="import_export"
           @click.native="displayModalImportExport(true)"
         />
@@ -66,10 +66,10 @@
     >
       <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
       <span class="text-center pb-4">
-        {{ $t("collections_empty") }}
+        {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
-        :label="$t('add_new')"
+        :label="$t('add.new')"
         outline
         @click.native="displayModalAdd(true)"
       />

@@ -39,7 +39,7 @@
                   v-tippy="{ theme: 'tooltip' }"
                   title="JSON"
                   icon="folder"
-                  :label="$t('import_collections')"
+                  :label="$t('import.collections')"
                   @click.native="$refs.collectionUpload.click()"
                 />
               </label>
@@ -123,13 +123,9 @@
                   v-tippy="{ theme: 'tooltip' }"
                   :title="
                     !currentUser
-                      ? `${$t('login_with_github_to')} ${$t(
-                          'create_secret_gist'
-                        ).toLowerCase()}`
+                      ? $t('export.require_github')
                       : currentUser.provider !== 'github.com'
-                      ? `${$t('login_with_github_to')} ${$t(
-                          'create_secret_gist'
-                        ).toLowerCase()}`
+                      ? $t('export.require_github')
                       : 'Beta'
                   "
                 >
@@ -141,7 +137,7 @@
                         ? true
                         : false
                     "
-                    :label="$t('create_secret_gist')"
+                    :label="$t('export.create_secret_gist')"
                     @click.native="createDocsGist"
                   />
                 </div>
@@ -231,7 +227,7 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          this.$toast.success(this.$t("gist_created"), {
+          this.$toast.success(this.$t("export.gist_created"), {
             icon: "done",
           })
           window.open(res.html_url)

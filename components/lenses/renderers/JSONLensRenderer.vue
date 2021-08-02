@@ -28,7 +28,7 @@
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('copy')"
+          :title="$t('action.copy')"
           :icon="copyIcon"
           @click.native="copyResponse"
         />

@@ -39,7 +39,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           icon="import_export"
-          :title="$t('import_export')"
+          :title="$t('modal.import_export')"
           @click.native="displayModalImportExport(true)"
         />
       </div>
@@ -64,10 +64,10 @@
     >
       <i class="opacity-75 pb-2 material-icons">library_add</i>
       <span class="text-center pb-4">
-        {{ $t("environments_empty") }}
+        {{ $t("empty.environments") }}
       </span>
       <ButtonSecondary
-        :label="$t('add_new')"
+        :label="$t('add.new')"
         outline
         @click.native="displayModalAdd(true)"
       />

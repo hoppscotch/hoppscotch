@@ -10,7 +10,7 @@
     />
     <SmartConfirmModal
       :show="confirmLogout"
-      :title="$t('are_you_sure_logout')"
+      :title="$t('confirm.logout')"
       @hide-modal="confirmLogout = false"
       @resolve="logout"
     />

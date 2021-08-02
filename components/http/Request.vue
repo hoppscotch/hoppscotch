@@ -108,7 +108,7 @@
             <ButtonPrimary class="rounded-l-none" icon="keyboard_arrow_down" />
           </template>
           <SmartItem
-            :label="$t('import_curl')"
+            :label="$t('import.curl')"
             icon="import_export"
             @click.native="
               showCurlImportModal = !showCurlImportModal
@@ -116,7 +116,7 @@
             "
           />
           <SmartItem
-            :label="$t('show_code')"
+            :label="$t('show.code')"
             icon="code"
             @click.native="
               showCodegenModal = !showCodegenModal
@@ -167,7 +167,7 @@
           />
           <SmartItem
             ref="copyRequest"
-            :label="$t('copy_request_link')"
+            :label="$t('request.copy_link')"
             :icon="hasNavigatorShare ? 'share' : 'content_copy'"
             @click.native="
               copyRequest()
@@ -176,7 +176,7 @@
           />
           <SmartItem
             ref="saveRequest"
-            :label="$t('save_to_collections')"
+            :label="$t('request.save_as')"
             icon="create_new_folder"
             @click.native="
               showSaveRequestModal = true

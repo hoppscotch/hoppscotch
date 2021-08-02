@@ -1,6 +1,6 @@
 <template>
   <SmartTabs styles="sticky top-24 z-20">
-    <SmartTab id="script" :label="$t('script')" :selected="true">
+    <SmartTab id="script" :label="$t('test.script')" :selected="true">
       <div
         class="
           bg-primary
@@ -40,7 +40,7 @@
     </SmartTab>
     <SmartTab
       id="results"
-      :label="$t('results')"
+      :label="$t('test.results')"
       :info="totalTests ? totalTests.toString() : ''"
     >
       <div
@@ -101,7 +101,7 @@
       >
         <i class="opacity-75 pb-2 material-icons">bug_report</i>
         <span class="text-center">
-          {{ $t("add_test_scripts") }}
+          {{ $t("empty.tests") }}
         </span>
       </div>
     </SmartTab>

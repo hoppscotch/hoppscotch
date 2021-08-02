@@ -41,7 +41,7 @@
           px-4
           focus:outline-none
         "
-        :placeholder="$t('parameter_count', { count: index + 1 })"
+        :placeholder="$t('count.parameter', { count: index + 1 })"
         :name="'param' + index"
         :value="param.key"
         autofocus
@@ -59,7 +59,7 @@
           px-4
           focus:outline-none
         "
-        :placeholder="$t('value_count', { count: index + 1 })"
+        :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="param.value"
         @change="
@@ -86,9 +86,9 @@
           :title="
             param.hasOwnProperty('active')
               ? param.active
-                ? $t('turn_off')
-                : $t('turn_on')
-              : $t('turn_off')
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
           "
           :icon="
             param.hasOwnProperty('active')

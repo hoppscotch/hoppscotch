@@ -75,11 +75,14 @@
     <template #footer>
       <ButtonPrimary
         ref="copyRequestCode"
-        :label="$t('copy')"
+        :label="$t('action.copy')"
         :icon="copyIcon"
         @click.native="copyRequestCode"
       />
-      <ButtonSecondary :label="$t('dismiss')" @click.native="hideModal" />
+      <ButtonSecondary
+        :label="$t('action.dismiss')"
+        @click.native="hideModal"
+      />
     </template>
   </SmartModal>
 </template>

@@ -56,7 +56,7 @@
         </div>
       </ul>
       <p v-if="tokens.length === 0">
-        {{ $t("empty") }}
+        {{ $t("empty.protocols") }}
       </p>
     </template>
   </SmartModal>

@@ -55,7 +55,7 @@
       <AppSection label="messages">
         <div class="flex flex-col flex-1 p-4 inline-flex">
           <label for="pub_topic" class="font-semibold">
-            {{ $t("mqtt_topic") }}
+            {{ $t("mqtt.topic") }}
           </label>
         </div>
         <div class="flex px-4">
@@ -63,7 +63,7 @@
             id="pub_topic"
             v-model="pub_topic"
             class="input"
-            :placeholder="$t('topic_name')"
+            :placeholder="$t('mqtt.topic_name')"
             type="text"
             spellcheck="false"
           />
@@ -87,7 +87,7 @@
             name="get"
             class="rounded-l-none"
             :disabled="!canpublish"
-            :label="$t('mqtt_publish')"
+            :label="$t('mqtt.publish')"
             @click.native="publish"
           />
         </div>
@@ -101,7 +101,7 @@
           "
         >
           <label for="sub_topic" class="font-semibold">{{
-            $t("mqtt_topic")
+            $t("mqtt.topic")
           }}</label>
         </div>
         <div class="flex px-4">
@@ -109,7 +109,7 @@
             id="sub_topic"
             v-model="sub_topic"
             type="text"
-            :placeholder="$t('topic_name')"
+            :placeholder="$t('mqtt.topic_name')"
             spellcheck="false"
             class="input !rounded-r-none"
           />
@@ -119,7 +119,7 @@
             :disabled="!cansubscribe"
             class="rounded-l-none"
             :label="
-              subscriptionState ? $t('mqtt_unsubscribe') : $t('mqtt_subscribe')
+              subscriptionState ? $t('mqtt.unsubscribe') : $t('mqtt.subscribe')
             "
             reverse
             @click.native="toggleSubscription"

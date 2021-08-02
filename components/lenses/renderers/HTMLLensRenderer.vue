@@ -19,7 +19,7 @@
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          :title="previewEnabled ? $t('hide_preview') : $t('preview_html')"
+          :title="previewEnabled ? $t('hide.preview') : $t('preview_html')"
           :icon="!previewEnabled ? 'visibility' : 'visibility_off'"
           @click.native.prevent="togglePreview"
         />
@@ -35,7 +35,7 @@
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('copy')"
+          :title="$t('action.copy')"
           :icon="copyIcon"
           @click.native="copyResponse"
         />

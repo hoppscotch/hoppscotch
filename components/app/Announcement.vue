@@ -49,10 +49,6 @@
         </span>
       </SmartLink>
     </span>
-    <ButtonSecondary
-      v-tippy="{ theme: 'tooltip' }"
-      icon="close"
-      :title="$t('close')"
-    />
+    <ButtonSecondary icon="close" />
   </div>
 </template>

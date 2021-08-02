@@ -100,7 +100,7 @@
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_request')"
+      :title="$t('confirm.remove_request')"
       @hide-modal="confirmRemove = false"
       @resolve="removeRequest"
     />

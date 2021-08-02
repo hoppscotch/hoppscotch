@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("edit_team") }}</h3>
+      <h3 class="heading">{{ $t("team.edit") }}</h3>
       <div>
         <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
@@ -21,12 +21,12 @@
         />
         <div class="flex flex-1 justify-between items-center">
           <label for="memberList" class="font-semibold px-4 pt-4 pb-4">
-            {{ $t("team_member_list") }}
+            {{ $t("team.members") }}
           </label>
           <div>
             <ButtonSecondary
               icon="add"
-              :label="$t('add_new')"
+              :label="$t('add.new')"
               @click.native="addTeamMember"
             />
           </div>
@@ -51,7 +51,7 @@
                 px-4
                 focus:outline-none
               "
-              :placeholder="$t('email')"
+              :placeholder="$t('team.email')"
               :name="'param' + index"
               :value="member.user.email"
               readonly
@@ -76,7 +76,7 @@
                       px-4
                       focus:outline-none
                     "
-                    :placeholder="$t('permissions')"
+                    :placeholder="$t('team.permissions')"
                     :name="'value' + index"
                     :value="
                       typeof member.role === 'string'
@@ -140,7 +140,7 @@
                 px-4
                 focus:outline-none
               "
-              :placeholder="$t('email')"
+              :placeholder="$t('team.email')"
               :name="'member' + index"
               autofocus
             />
@@ -164,7 +164,7 @@
                       px-4
                       focus:outline-none
                     "
-                    :placeholder="$t('permissions')"
+                    :placeholder="$t('team.permissions')"
                     :name="'value' + index"
                     :value="
                       typeof member.value === 'string'
@@ -275,7 +275,7 @@ export default {
         .removeTeamMember(this.$apollo, userID, this.editingteamID)
         .then(() => {
           // Result
-          this.$toast.success(this.$t("user_removed"), {
+          this.$toast.success(this.$t("team.member_removed"), {
             icon: "done",
           })
           this.hideModal()
@@ -306,7 +306,7 @@ export default {
         this.$data.rename !== null &&
         this.$data.rename.replace(/\s/g, "").length < 6
       ) {
-        this.$toast.error(this.$t("string_length_insufficient"), {
+        this.$toast.error(this.$t("team.name_length_insufficient"), {
           icon: "error",
         })
         return
@@ -314,7 +314,7 @@ export default {
       let invalidEmail = false
       this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
-          this.$toast.error(this.$t("invalid_emailID_format"), {
+          this.$toast.error(this.$t("team.invalid_email_format"), {
             icon: "error",
           })
           invalidEmail = true
@@ -342,7 +342,7 @@ export default {
           )
           .then(() => {
             // Result
-            this.$toast.success(this.$t("team_saved"), {
+            this.$toast.success(this.$t("team.saved"), {
               icon: "done",
             })
           })
@@ -364,7 +364,7 @@ export default {
           )
           .then(() => {
             // Result
-            this.$toast.success(this.$t("role_updated"), {
+            this.$toast.success(this.$t("team.member_role_updated"), {
               icon: "done",
             })
           })
@@ -380,7 +380,7 @@ export default {
         const newName =
           this.name === this.$data.rename ? this.name : this.$data.rename
         if (!/\S/.test(newName))
-          return this.$toast.error(this.$t("team_name_empty"), {
+          return this.$toast.error(this.$t("empty.team_name"), {
             icon: "error",
           })
         // Call to the graphql mutation
@@ -389,7 +389,7 @@ export default {
             .renameTeam(this.$apollo, newName, this.editingteamID)
             .then(() => {
               // Result
-              this.$toast.success(this.$t("team_saved"), {
+              this.$toast.success(this.$t("team.saved"), {
                 icon: "done",
               })
             })

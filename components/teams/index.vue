@@ -1,7 +1,9 @@
 <template>
   <AppSection label="teams">
     <div class="flex flex-col">
-      <legend class="font-bold text-secondaryDark">{{ $t("teams") }}</legend>
+      <legend class="font-bold text-secondaryDark">
+        {{ $t("team.title") }}
+      </legend>
       <div v-if="currentUser"></div>
       <div v-else>
         <label>{{ $t("login_with") }}</label>
@@ -36,7 +38,7 @@
       {{ $t("loading") }}
     </p>
     <p v-if="myTeams.length === 0">
-      <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
+      <i class="material-icons">help_outline</i> {{ $t("team.create_new") }}
     </p>
     <div v-else class="hide-scrollbar !overflow-auto">
       <ul class="flex-col">

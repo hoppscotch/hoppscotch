@@ -4,16 +4,16 @@
       <div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="LEFT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
+          :title="LEFT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           icon="menu_open"
           :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
           @click.native="toggleSetting('LEFT_SIDEBAR')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="`${ZEN_MODE ? $t('turn_off') : $t('turn_on')} ${$t(
-            'zen_mode'
-          )}`"
+          :title="`${
+            ZEN_MODE ? $t('action.turn_off') : $t('action.turn_on')
+          } ${$t('layout.zen_mode')}`"
           :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
           :class="{
             '!text-accent focus:text-accent hover:text-accent': ZEN_MODE,
@@ -33,12 +33,12 @@
           v-if="navigatorShare"
           v-tippy="{ theme: 'tooltip' }"
           icon="share"
-          :title="$t('share')"
+          :title="$t('request.share')"
           @click.native="nativeShare()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="RIGHT_SIDEBAR ? $t('hide_sidebar') : $t('show_sidebar')"
+          :title="RIGHT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           icon="menu_open"
           :class="['transform rotate-180', { 'rotate-0': !RIGHT_SIDEBAR }]"
           @click.native="toggleSetting('RIGHT_SIDEBAR')"

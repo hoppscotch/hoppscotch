@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" @close="$emit('hide-modal')">
     <template #header>
-      <h3 class="heading">{{ $t("edit_folder") }}</h3>
+      <h3 class="heading">{{ $t("folder.edit") }}</h3>
       <div>
         <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>

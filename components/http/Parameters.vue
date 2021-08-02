@@ -25,7 +25,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('add_new')"
+          :title="$t('add.new')"
           icon="add"
           @click.native="addParam"
         />
@@ -40,7 +40,7 @@
       <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"
         v-model="param.key"
-        :placeholder="$t('parameter_count', { count: index + 1 })"
+        :placeholder="$t('count.parameter', { count: index + 1 })"
         styles="
           bg-primaryLight
           flex
@@ -69,7 +69,7 @@
           px-4
           focus:outline-none
         "
-        :placeholder="$t('parameter_count', { count: index + 1 })"
+        :placeholder="$t('count.parameter', { count: index + 1 })"
         :name="'param' + index"
         :value="param.key"
         autofocus
@@ -84,7 +84,7 @@
       <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"
         v-model="param.value"
-        :placeholder="$t('value_count', { count: index + 1 })"
+        :placeholder="$t('count.value', { count: index + 1 })"
         styles="
           bg-primaryLight
           flex
@@ -113,7 +113,7 @@
           px-4
           focus:outline-none
         "
-        :placeholder="$t('value_count', { count: index + 1 })"
+        :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="param.value"
         @change="
@@ -130,9 +130,9 @@
           :title="
             param.hasOwnProperty('active')
               ? param.active
-                ? $t('turn_off')
-                : $t('turn_on')
-              : $t('turn_off')
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
           "
           :icon="
             param.hasOwnProperty('active')
@@ -167,10 +167,10 @@
     >
       <i class="opacity-75 pb-2 material-icons">post_add</i>
       <span class="text-center pb-4">
-        {{ $t("parameters_empty") }}
+        {{ $t("empty.parameters") }}
       </span>
       <ButtonSecondary
-        :label="$t('add_new')"
+        :label="$t('add.new')"
         outline
         @click.native="addParam"
       />

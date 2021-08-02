@@ -17,7 +17,7 @@
       <TabPrimary
         id="installPWA"
         v-tippy="{ theme: 'tooltip' }"
-        :title="$t('install_pwa')"
+        :title="$t('header.install_pwa')"
         icon="offline_bolt"
         @click.native="showInstallPrompt()"
       />
@@ -110,7 +110,7 @@ export default {
         theme: "toasted-primary",
         action: [
           {
-            text: this.$t("dismiss"),
+            text: this.$t("action.dismiss"),
             onClick: (_, toastObject) => {
               setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)

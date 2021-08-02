@@ -20,7 +20,7 @@
           </template>
           <SmartItem
             icon="assignment_returned"
-            :label="$t('import_from_gist')"
+            :label="$t('import.from_gist')"
             @click.native="
               readCollectionGist
               $refs.options.tippy().hide()
@@ -30,9 +30,9 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser
-                ? $t('login_with_github_to') + $t('create_secret_gist')
+                ? $t('export.require_github')
                 : currentUser.provider !== 'github.com'
-                ? $t('login_with_github_to') + $t('create_secret_gist')
+                ? $t('export.require_github')
                 : null
             "
             :disabled="
@@ -43,7 +43,7 @@
                 : false
             "
             icon="assignment_turned_in"
-            :label="$t('create_secret_gist')"
+            :label="$t('export.create_secret_gist')"
             @click.native="
               createCollectionGist
               $refs.options.tippy().hide()
@@ -74,7 +74,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
           icon="create_new_folder"
-          :label="$t('import_json')"
+          :label="$t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
         <input
@@ -89,7 +89,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
           icon="drive_file_move"
-          :label="$t('export_as_json')"
+          :label="$t('export.as_json')"
           @click.native="exportJSON"
         />
       </div>
@@ -140,7 +140,7 @@ export default {
           }
         )
         .then((res) => {
-          this.$toast.success(this.$t("gist_created"), {
+          this.$toast.success(this.$t("export.gist_created"), {
             icon: "done",
           })
           window.open(res.html_url)
@@ -153,7 +153,7 @@ export default {
         })
     },
     async readCollectionGist() {
-      const gist = prompt(this.$t("enter_gist_url"))
+      const gist = prompt(this.$t("import.gist_url"))
       if (!gist) return
       await this.$axios
         .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
@@ -266,7 +266,7 @@ export default {
       })
     },
     failedImport() {
-      this.$toast.error(this.$t("import_failed"), {
+      this.$toast.error(this.$t("import.failed"), {
         icon: "error",
       })
     },

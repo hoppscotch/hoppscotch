@@ -32,14 +32,14 @@
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="expand ? $t('hide_more') : $t('show_more')"
+        :title="expand ? $t('hide.more') : $t('show.more')"
         :icon="expand ? 'unfold_less' : 'unfold_more'"
         class="group-hover:inline-flex hidden"
         @click.native="expand = !expand"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="!entry.star ? $t('add_star') : $t('remove_star')"
+        :title="!entry.star ? $t('add.star') : $t('remove.star')"
         :icon="entry.star ? 'star' : 'star_border'"
         color="yellow"
         :class="{ 'group-hover:inline-flex hidden': !entry.star }"

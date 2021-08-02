@@ -16,7 +16,7 @@
           v-model="name"
           class="input"
           type="text"
-          :placeholder="$t('my_new_folder')"
+          :placeholder="$t('folder.new')"
           @keyup.enter="addFolder"
         />
       </div>

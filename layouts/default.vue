@@ -93,7 +93,7 @@ export default defineComponent({
     if (workbox) {
       workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {
-          this.$toast.show(this.$t("new_version_found").toString(), {
+          this.$toast.show(this.$t("app.new_version_found").toString(), {
             icon: "info",
             duration: 0,
             theme: "toasted-primary",

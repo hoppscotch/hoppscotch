@@ -66,7 +66,7 @@
                       />
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('copy')"
+                        :title="$t('action.copy')"
                         :icon="copyQueryIcon"
                         @click.native="copyQuery"
                       />
@@ -125,7 +125,7 @@
                     <div class="flex">
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('copy')"
+                        :title="$t('action.copy')"
                         :icon="copyVariablesIcon"
                         @click.native="copyVariables"
                       />
@@ -182,7 +182,7 @@
                       />
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('add_new')"
+                        :title="$t('add.new')"
                         icon="add"
                         @click.native="addRequestHeader"
                       />
@@ -199,7 +199,7 @@
                     :class="{ 'border-t': index == 0 }"
                   >
                     <SmartAutoComplete
-                      :placeholder="$t('header_count', { count: index + 1 })"
+                      :placeholder="$t('count.header', { count: index + 1 })"
                       :source="commonHeaders"
                       :spellcheck="false"
                       :value="header.key"
@@ -230,7 +230,7 @@
                         px-4
                         focus:outline-none
                       "
-                      :placeholder="$t('value_count', { count: index + 1 })"
+                      :placeholder="$t('count.value', { count: index + 1 })"
                       :name="`value ${index}`"
                       :value="header.value"
                       autofocus
@@ -247,9 +247,9 @@
                         :title="
                           header.hasOwnProperty('active')
                             ? header.active
-                              ? $t('turn_off')
-                              : $t('turn_on')
-                            : $t('turn_off')
+                              ? $t('action.turn_off')
+                              : $t('action.turn_on')
+                            : $t('action.turn_off')
                         "
                         :icon="
                           header.hasOwnProperty('active')
@@ -291,10 +291,10 @@
                   >
                     <i class="opacity-75 pb-2 material-icons">post_add</i>
                     <span class="text-center pb-4">
-                      {{ $t("headers_empty") }}
+                      {{ $t("empty.headers") }}
                     </span>
                     <ButtonSecondary
-                      :label="$t('add_new')"
+                      :label="$t('add.new')"
                       outline
                       @click.native="addRequestHeader"
                     />
@@ -333,7 +333,7 @@
                   <ButtonSecondary
                     ref="copyResponseButton"
                     v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('copy')"
+                    :title="$t('action.copy')"
                     :icon="copyResponseIcon"
                     @click.native="copyResponse"
                   />
@@ -494,7 +494,7 @@
                 >
                   <i class="opacity-75 pb-2 material-icons">link</i>
                   <span class="text-center">
-                    {{ $t("connect_graphql_endpoint") }}
+                    {{ $t("empty.schema") }}
                   </span>
                 </div>
               </AppSection>
@@ -542,7 +542,7 @@
                     <ButtonSecondary
                       ref="copySchemaCode"
                       v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('copy')"
+                      :title="$t('action.copy')"
                       :icon="copySchemaIcon"
                       @click.native="copySchema"
                     />
@@ -574,7 +574,7 @@
                 >
                   <i class="opacity-75 pb-2 material-icons">link</i>
                   <span class="text-center">
-                    {{ $t("connect_graphql_endpoint") }}
+                    {{ $t("empty.schema") }}
                   </span>
                 </div>
               </AppSection>

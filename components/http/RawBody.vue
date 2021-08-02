@@ -28,7 +28,7 @@
         <label for="payload">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('import_json')"
+            :title="$t('import.json')"
             icon="post_add"
             @click.native="$refs.payload.click()"
           />

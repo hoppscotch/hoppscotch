@@ -71,7 +71,8 @@ export default defineComponent({
       highlight: [
         {
           text: /(<<\w+>>)/g,
-          style: "text-white cursor-help rounded px-1 mx-0.5",
+          style:
+            "text-white cursor-help rounded px-1 focus:outline-none mx-0.5",
         },
       ],
       highlightEnabled: true,

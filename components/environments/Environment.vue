@@ -61,7 +61,7 @@
     </span>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_environment')"
+      :title="$t('confirm.remove_environment')"
       @hide-modal="confirmRemove = false"
       @resolve="removeEnvironment"
     />

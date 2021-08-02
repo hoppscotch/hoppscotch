@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="inline-flex">
     <tippy
       ref="language"
       interactive
@@ -10,13 +10,15 @@
       :animate-fill="false"
     >
       <template #trigger>
-        <SmartLink
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('choose_language')"
           class="font-medium focus:outline-none"
-        >
-          {{ `${$i18n.locales.find(({ code }) => code == $i18n.locale).name}` }}
-        </SmartLink>
+          outline
+          :label="`${
+            $i18n.locales.find(({ code }) => code == $i18n.locale).name
+          }`"
+        />
       </template>
       <nuxt-link
         v-for="(locale, index) in $i18n.locales.filter(
@@ -26,22 +28,8 @@
         :to="switchLocalePath(locale.code)"
         @click="$refs.language.tippy().hide()"
       >
-        <SmartItem
-          :label="`${getFlagEmoji(locale.country)} \xA0 ${locale.name}`"
-        />
+        <SmartItem :label="locale.name" />
       </nuxt-link>
     </tippy>
   </span>
 </template>
-
-<script>
-export default {
-  methods: {
-    getFlagEmoji(c) {
-      return String.fromCodePoint(
-        ...[...c.toUpperCase()].map((x) => 0x1f1a5 + x.charCodeAt())
-      )
-    },
-  },
-}
-</script>

@@ -103,7 +103,7 @@ export default defineComponent({
     },
     saveRequestAs() {
       if (this.picked == null) {
-        this.$toast.error(this.$t("select_collection"), {
+        this.$toast.error(this.$t("collection.select"), {
           icon: "error",
         })
         return

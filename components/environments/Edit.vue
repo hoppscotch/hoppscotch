@@ -33,7 +33,7 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               icon="add"
-              :title="$t('add_new')"
+              :title="$t('add.new')"
               @click.native="addEnvironmentVariable"
             />
           </div>
@@ -60,7 +60,7 @@
                 px-4
                 focus:outline-none
               "
-              :placeholder="$t('variable_count', { count: index + 1 })"
+              :placeholder="$t('count.variable', { count: index + 1 })"
               :name="'param' + index"
             />
             <input
@@ -74,7 +74,7 @@
                 px-4
                 focus:outline-none
               "
-              :placeholder="$t('value_count', { count: index + 1 })"
+              :placeholder="$t('count.value', { count: index + 1 })"
               :name="'value' + index"
             />
             <div>
@@ -100,10 +100,10 @@
           >
             <i class="opacity-75 pb-2 material-icons">layers</i>
             <span class="text-center pb-4">
-              {{ $t("environments_empty") }}
+              {{ $t("empty.environments") }}
             </span>
             <ButtonSecondary
-              :label="$t('add_new')"
+              :label="$t('add.new')"
               outline
               @click.native="addEnvironmentVariable"
             />

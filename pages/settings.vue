@@ -137,6 +137,14 @@
           </fieldset>
           <fieldset>
             <legend class="font-bold text-secondaryDark">
+              {{ $t("choose_language") }}
+            </legend>
+            <div class="mt-4">
+              <SmartChangeLanguage />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
               {{ $t("experiments") }}
             </legend>
             <div class="mt-1 text-secondaryLight">
@@ -168,7 +176,7 @@
               </div>
               <div class="flex items-center">
                 <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
-                  {{ $t("telemetry") }}
+                  {{ $t("settings.telemetry") }}
                   {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
@@ -177,7 +185,7 @@
                   :on="SHORTCUT_INDICATOR"
                   @change="toggleSetting('SHORTCUT_INDICATOR')"
                 >
-                  {{ $t("shortcuts_indicator") }}
+                  {{ $t("settings.shortcuts_indicator") }}
                   {{ SHORTCUT_INDICATOR ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
@@ -186,13 +194,13 @@
                   :on="LEFT_SIDEBAR"
                   @change="toggleSetting('LEFT_SIDEBAR')"
                 >
-                  {{ $t("navigation_sidebar") }}
+                  {{ $t("settings.navigation_sidebar") }}
                   {{ LEFT_SIDEBAR ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
                 <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
-                  {{ $t("zen_mode") }}
+                  {{ $t("layout.zen_mode") }}
                   {{ ZEN_MODE ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
@@ -204,7 +212,7 @@
       <div class="md:grid md:grid-cols-3 md:gap-4">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
-            {{ $t("interceptor") }}
+            {{ $t("settings.interceptor") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
             Middleware between application and APIs.
@@ -288,6 +296,7 @@
                     ml-2
                     py-2
                     px-4
+                    truncate
                   "
                 >
                   {{ `${$t("proxy")} ${$t("url")}` }}
@@ -328,9 +337,7 @@
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="`${$t('are_you_sure_remove_telemetry')} ${$t(
-        'telemetry_helps_us'
-      )}`"
+      :title="`${$t('confirm.remove_telemetry')} ${$t('telemetry_helps_us')}`"
       @hide-modal="confirmRemove = false"
       @resolve="
         toggleSetting('TELEMETRY_ENABLED')

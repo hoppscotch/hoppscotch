@@ -54,7 +54,7 @@
             "
           >
             <label class="font-semibold">
-              {{ $t("protocols") }}
+              {{ $t("websocket.protocols") }}
             </label>
             <div class="flex">
               <ButtonSecondary
@@ -65,7 +65,7 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('add_new')"
+                :title="$t('add.new')"
                 icon="add"
                 @click.native="addProtocol"
               />
@@ -92,7 +92,7 @@
                 px-4
                 focus:outline-none
               "
-              :placeholder="$t('protocol_count', { count: index + 1 })"
+              :placeholder="$t('count.protocol', { count: index + 1 })"
               name="message"
               type="text"
             />
@@ -102,9 +102,9 @@
                 :title="
                   protocol.hasOwnProperty('active')
                     ? protocol.active
-                      ? $t('turn_off')
-                      : $t('turn_on')
-                    : $t('turn_off')
+                      ? $t('action.turn_off')
+                      : $t('action.turn_on')
+                    : $t('action.turn_off')
                 "
                 :icon="
                   protocol.hasOwnProperty('active')
@@ -143,7 +143,7 @@
           >
             <i class="opacity-75 pb-2 material-icons">topic</i>
             <span class="text-center">
-              {{ $t("protocols_empty") }}
+              {{ $t("empty.protocols") }}
             </span>
           </div>
         </Pane>

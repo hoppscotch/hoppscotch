@@ -24,11 +24,31 @@ export default {
   data() {
     return {
       primaryNavigation: [
-        { target: "index", icon: "settings_ethernet", title: "REST" },
-        { target: "graphql", svg: "graphql", title: "GraphQL" },
-        { target: "realtime", icon: "language", title: "Realtime" },
-        { target: "documentation", icon: "book", title: "Doc" },
-        { target: "settings", icon: "settings", title: "Settings" },
+        {
+          target: "index",
+          icon: "settings_ethernet",
+          title: this.$t("navigation.rest"),
+        },
+        {
+          target: "graphql",
+          svg: "graphql",
+          title: this.$t("navigation.graphql"),
+        },
+        {
+          target: "realtime",
+          icon: "language",
+          title: this.$t("navigation.realtime"),
+        },
+        {
+          target: "documentation",
+          icon: "book",
+          title: this.$t("navigation.doc"),
+        },
+        {
+          target: "settings",
+          icon: "settings",
+          title: this.$t("navigation.settings"),
+        },
       ],
     }
   },

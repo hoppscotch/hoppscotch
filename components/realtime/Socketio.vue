@@ -98,7 +98,7 @@
           <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('add_new')"
+              :title="$t('add.new')"
               icon="add"
               @click.native="addCommunicationInput"
             />
@@ -114,7 +114,7 @@
                 v-model="communication.inputs[index]"
                 class="input !rounded-r-none"
                 name="message"
-                :placeholder="$t('message_count', { count: index + 1 })"
+                :placeholder="$t('count.message', { count: index + 1 })"
                 type="text"
                 :disabled="!connectionState"
                 @keyup.enter="connectionState ? sendMessage() : null"

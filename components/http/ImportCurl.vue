@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("import_curl") }}</h3>
+      <h3 class="heading">{{ $t("import.curl") }}</h3>
       <div>
         <ButtonSecondary icon="close" @click.native="hideModal" />
       </div>
@@ -20,7 +20,10 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('import')" @click.native="handleImport" />
+        <ButtonPrimary
+          :label="$t('import.title')"
+          @click.native="handleImport"
+        />
         <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
       </span>
     </template>

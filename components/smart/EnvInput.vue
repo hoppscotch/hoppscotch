@@ -21,9 +21,11 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
+import { tippy } from "vue-tippy"
 import { getCurrentEnvironment } from "~/newstore/environments"
 
 const tagsToReplace = {
@@ -32,7 +34,7 @@ const tagsToReplace = {
   ">": "&gt;",
 }
 
-export default {
+export default defineComponent({
   props: {
     value: {
       type: String,
@@ -47,6 +49,7 @@ export default {
       default: "",
     },
   },
+
   data() {
     return {
       internalValue: "",
@@ -55,7 +58,7 @@ export default {
       highlight: [
         {
           text: /(<<\w+>>)/g,
-          style: "text-white rounded px-1 mx-0.5",
+          style: "text-white cursor-help rounded px-1 mx-0.5",
         },
       ],
       highlightEnabled: true,
@@ -65,6 +68,7 @@ export default {
       fireOnEnabled: true,
     }
   },
+
   watch: {
     highlightStyle() {
       this.processHighlights()
@@ -90,6 +94,7 @@ export default {
       this.restoreSelection(this.$refs.editor, selection)
     },
   },
+
   mounted() {
     if (this.fireOnEnabled)
       this.$refs.editor.addEventListener(this.fireOn, this.handleChange)
@@ -108,6 +113,8 @@ export default {
       this.debouncedHandler()
     },
     processHighlights() {
+      this.renderTippy()
+
       if (!this.highlightEnabled) {
         this.htmlOutput = this.internalValue
         this.$emit("input", this.internalValue)
@@ -183,9 +190,9 @@ export default {
             ?.value === undefined
             ? "bg-red-500"
             : "bg-accentDark"
-        }" title="Environment: ${
+        }" v-tippy data-tippy-content="environment: ${
           getCurrentEnvironment().name
-        } \xA0-\xA0 Value: ${
+        } • value: ${
           getCurrentEnvironment().variables.find((k) => k.key === envVar)?.value
         }">${this.safe_tags_replace(
           this.internalValue.substring(position.start, position.end + 1)
@@ -205,6 +212,25 @@ export default {
       }
       this.htmlOutput = result
       this.$emit("input", this.internalValue)
+    },
+    renderTippy() {
+      const tippable = document.querySelectorAll("[v-tippy]")
+      tippable.forEach((t) => {
+        tippy(t, {
+          content: t.dataset["tippy-content"],
+          theme: "tooltip",
+          popperOptions: {
+            modifiers: {
+              preventOverflow: {
+                enabled: false,
+              },
+              hide: {
+                enabled: false,
+              },
+            },
+          },
+        })
+      })
     },
     insertRange(start, end, highlightObj, intervalTree) {
       const overlap = intervalTree.search(start, end)
@@ -413,7 +439,7 @@ export default {
       }
     },
   },
-}
+})
 </script>
 
 <style lang="scss" scoped>

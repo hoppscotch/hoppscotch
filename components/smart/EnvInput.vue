@@ -11,7 +11,7 @@
       class="url-field"
       :class="styles"
       contenteditable="true"
-      @keyup.enter="$emit('enter', $event)"
+      @keydown.enter.prevent="$emit('enter', $event)"
       @change="$emit('change', $event)"
       @keyup="$emit('keyup', $event)"
       @click="$emit('click', $event)"

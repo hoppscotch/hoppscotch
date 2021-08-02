@@ -1,51 +1,71 @@
 <template>
-  <div class="flex p-4 relative">
-    <div class="relative my-16 z-10 max-w-3xl">
+  <div class="flex flex-col p-6 relative">
+    <div class="flex flex-col mt-16 items-center justify-center">
       <h2
         class="
+          font-extrabold
+          text-accent text-center
           leading-none
           tracking-tighter
-          font-semibold
-          text-accent text-4xl
-          md:text-5xl
-          lg:text-6xl
+          text-4xl
+          md:text-6xl
+          lg:text-8xl
         "
       >
         Open Source
       </h2>
       <h3
         class="
-          text-3xl
+          font-extrabold
           my-4
-          font-mono
-          text-secondaryDark
+          text-center text-secondaryDark
+          leading-none
+          tracking-tighter
+          text-3xl
           md:text-4xl
-          lg:text-4xl
-          font-semibold
+          lg:text-5xl
         "
       >
         API Development Ecosystem
       </h3>
-      <p class="text-lg my-4 text-secondaryLight max-w-4/5">
-        Millions of developers and companies build, ship, and maintain their
-        APIs on Hoppscotch — the largest and most advanced development platform
-        in the world.
+      <p class="my-4 text-lg text-center max-w-2xl">
+        Thousands of developers and companies build, ship, and maintain their
+        APIs on Hoppscotch — the transparent and most flexible API development
+        ecosystem in the world.
       </p>
-      <div class="my-8 flex items-center">
+      <div class="flex space-x-4 my-8 justify-center items-center">
         <ButtonPrimary
-          label="Dashboard"
-          icon="chevron_right"
-          class="my-4"
-          large
+          label="Get Started"
+          icon="arrow_forward"
+          rounded
           reverse
+          large
+          @click.native="showLogin = true"
         />
-        <ButtonSecondary label="Dashboard" icon="chevron_right" />
-        <ButtonPrimary label="GitHub" svg="github" large rounded />
-        <AppGitHubStarButton size="large" />
+        <ButtonSecondary
+          to="https://github.com/hoppscotch/hoppscotch"
+          blank
+          outline
+          label="GitHub"
+          svg="github"
+          large
+          rounded
+          :shortcut="['30k Stars']"
+        />
       </div>
+      <!-- <LandingStats /> -->
     </div>
-    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-      <LandingGlobe class="h-64 w-full sm:h-72 md:h-96 lg:h-full" />
-    </div>
+    <div class="flex flex-col items-center justify-center"></div>
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      showLogin: false,
+    }
+  },
+}
+</script>

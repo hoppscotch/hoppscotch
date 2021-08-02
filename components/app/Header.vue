@@ -1,21 +1,30 @@
 <template>
-  <header class="flex items-center justify-between p-2 flex-1">
-    <div class="inline-flex space-x-2 items-center font-bold flex-shrink-0">
-      <AppLogo class="h-6 mx-4" /> Hoppscotch
+  <header class="flex flex-1 py-2 px-4 items-center justify-between">
+    <div
+      class="
+        font-extrabold
+        space-x-2
+        flex-shrink-0
+        text-sm
+        inline-flex
+        items-center
+      "
+    >
+      <AppLogo />
     </div>
-    <div class="inline-flex space-x-2 items-center flex-shrink-0">
+    <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="mt-1 mr-2" />
       <TabPrimary
         id="installPWA"
         v-tippy="{ theme: 'tooltip' }"
-        :title="$t('install_pwa')"
+        :title="$t('header.install_pwa')"
         icon="offline_bolt"
         @click.native="showInstallPrompt()"
       />
       <span tabindex="-1">
         <ButtonPrimary
           v-if="currentUser === null"
-          label="Get Started"
+          label="Login"
           @click.native="showLogin = true"
         />
         <tippy
@@ -34,11 +43,11 @@
               :url="currentUser.photoURL"
               :alt="currentUser.displayName"
               :title="
-                (currentUser.displayName ||
-                  '<label><i>Name not found</i></label>') +
+                `${currentUser.displayName || 'Name not found'}` +
                 '<br>' +
-                (currentUser.email || '<label><i>Email not found</i></label>')
+                `<sub>${currentUser.email || 'Email not found'}</sub>`
               "
+              :indicator="isOnLine ? 'bg-green-500' : 'bg-red-500'"
             />
             <TabPrimary
               v-else
@@ -48,12 +57,6 @@
             />
           </template>
           <SmartItem
-            to="/profile"
-            icon="person"
-            :label="$t('profile')"
-            @click.native="$refs.user.tippy().hide()"
-          />
-          <SmartItem
             to="/settings"
             icon="settings"
             :label="$t('settings')"
@@ -62,56 +65,8 @@
           <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
         </tippy>
       </span>
-      <span tabindex="-1">
-        <tippy
-          ref="options"
-          interactive
-          tabindex="-1"
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <TabPrimary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('more')"
-              icon="drag_indicator"
-            />
-          </template>
-          <SmartItem
-            icon="extension"
-            :label="$t('extensions')"
-            @click.native="
-              showExtensions = true
-              $refs.options.tippy().hide()
-            "
-          />
-          <SmartItem
-            icon="keyboard"
-            :label="$t('shortcuts')"
-            @click.native="
-              showShortcuts = true
-              $refs.options.tippy().hide()
-            "
-          />
-          <SmartItem
-            v-if="navigatorShare"
-            icon="share"
-            :label="$t('share')"
-            @click.native="
-              nativeShare()
-              $refs.options.tippy().hide()
-            "
-          />
-        </tippy>
-      </span>
     </div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
-    <AppExtensions
-      :show="showExtensions"
-      @hide-modal="showExtensions = false"
-    />
-    <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
   </header>
 </template>
 
@@ -119,7 +74,6 @@
 import intializePwa from "~/helpers/pwa"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
-// import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 
 export default {
   data() {
@@ -129,9 +83,7 @@ export default {
       // prompt.
       showInstallPrompt: null,
       showLogin: false,
-      showExtensions: false,
-      showShortcuts: false,
-      navigatorShare: navigator.share,
+      isOnLine: navigator.onLine,
     }
   },
   subscriptions() {
@@ -140,6 +92,13 @@ export default {
     }
   },
   async mounted() {
+    window.addEventListener("online", () => {
+      this.isOnLine = true
+    })
+    window.addEventListener("offline", () => {
+      this.isOnLine = false
+    })
+
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()
@@ -151,7 +110,7 @@ export default {
         theme: "toasted-primary",
         action: [
           {
-            text: this.$t("dismiss"),
+            text: this.$t("action.dismiss"),
             onClick: (_, toastObject) => {
               setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)
@@ -160,22 +119,6 @@ export default {
         ],
       })
     }
-  },
-  methods: {
-    nativeShare() {
-      if (navigator.share) {
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
-            url: "https://hoppscotch.io",
-          })
-          .then(() => {})
-          .catch(console.error)
-      } else {
-        // fallback
-      }
-    },
   },
 }
 </script>

@@ -2,21 +2,21 @@
   <AppSection label="headers">
     <div
       class="
-        sticky
-        top-110px
-        z-10
         bg-primary
+        border-b border-dividerLight
         flex flex-1
+        pl-4
+        top-24
+        z-10
+        sticky
         items-center
         justify-between
-        pl-4
-        border-b border-dividerLight
       "
     >
-      <label for="headerList" class="font-semibold text-xs">
+      <label for="headerList" class="font-semibold">
         {{ $t("header_list") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
@@ -25,7 +25,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('add_new')"
+          :title="$t('add.new')"
           icon="add"
           @click.native="addHeader"
         />
@@ -34,21 +34,24 @@
     <div
       v-for="(header, index) in headers$"
       :key="`header-${index}`"
-      class="
-        flex
-        border-b border-dashed
-        divide-x
-        border-divider
-        divide-dashed divide-divider
-      "
+      class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
       <SmartAutoComplete
-        :placeholder="$t('header_count', { count: index + 1 })"
+        :placeholder="$t('count.header', { count: index + 1 })"
         :source="commonHeaders"
         :spellcheck="false"
         :value="header.key"
         autofocus
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
         @input="
           updateHeader(index, {
             key: $event,
@@ -57,17 +60,39 @@
           })
         "
       />
-      <input
-        class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="header.value"
+        :placeholder="$t('count.value', { count: index + 1 })"
+        styles="
           bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
           focus:outline-none
         "
-        :placeholder="$t('value_count', { count: index + 1 })"
+        @change="
+          updateHeader(index, {
+            key: header.key,
+            value: $event.target.value,
+            active: header.active,
+          })
+        "
+      />
+      <input
+        v-else
+        class="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-2
+          px-4
+          focus:outline-none
+        "
+        :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="header.value"
         @change="
@@ -84,9 +109,9 @@
           :title="
             header.hasOwnProperty('active')
               ? header.active
-                ? $t('turn_off')
-                : $t('turn_on')
-              : $t('turn_off')
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
           "
           :icon="
             header.hasOwnProperty('active')
@@ -95,6 +120,7 @@
                 : 'check_box_outline_blank'
               : 'check_box'
           "
+          color="green"
           @click.native="
             updateHeader(index, {
               key: header.key,
@@ -109,9 +135,24 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
           icon="delete"
+          color="red"
           @click.native="deleteHeader(index)"
         />
       </div>
+    </div>
+    <div
+      v-if="headers$.length === 0"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <i class="opacity-75 pb-2 material-icons">post_add</i>
+      <span class="text-center pb-4">
+        {{ $t("empty.headers") }}
+      </span>
+      <ButtonSecondary
+        outline
+        :label="$t('add.new')"
+        @click.native="addHeader"
+      />
     </div>
   </AppSection>
 </template>
@@ -126,30 +167,37 @@ import {
 } from "~/newstore/RESTSession"
 
 import { commonHeaders } from "~/helpers/headers"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
     return {
       commonHeaders,
+      headers$: [],
     }
   },
   subscriptions() {
     return {
       headers$: restHeaders$,
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
     }
   },
-  // watch: {
-  //   headers: {
-  //     handler(newValue) {
-  //       if (
-  //         newValue[newValue.length - 1]?.key !== "" ||
-  //         newValue[newValue.length - 1]?.value !== ""
-  //       )
-  //         this.addRequestHeader()
-  //     },
-  //     deep: true,
-  //   },
-  // },
+  watch: {
+    headers$: {
+      handler(newValue) {
+        console.log("changed")
+        if (
+          (newValue[newValue.length - 1]?.key !== "" ||
+            newValue[newValue.length - 1]?.value !== "") &&
+          newValue.length
+        )
+          this.addHeader()
+      },
+      deep: true,
+    },
+  },
   mounted() {
     if (!this.headers$?.length) {
       this.addHeader()

@@ -1,26 +1,25 @@
 <template>
   <div class="flex flex-col p-4">
     <div class="flex flex-col items-center">
-      <p class="my-4 font-semibold tracking-widest text-center text-accent">
+      <p class="font-semibold my-4 text-center text-accent tracking-widest">
         FEATURES
       </p>
     </div>
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="(feature, index) in features"
         :key="`feature-${index}`"
-        class="inline-flex flex-col p-8"
+        class="flex-col p-8 inline-flex"
       >
-        <i class="text-4xl material-icons text-accent">{{ feature.icon }}</i>
+        <i class="text-accent text-4xl material-icons">{{ feature.icon }}</i>
         <div class="flex-grow">
           <h2
             class="
-              mt-4
-              mb-2
-              text-lg
               font-semibold
+              mt-4
+              text-lg text-secondaryDark
+              mb-2
               transition
-              text-secondaryDark
             "
           >
             {{ feature.title }}
@@ -47,44 +46,44 @@ export default {
       features: [
         {
           icon: "offline_bolt",
-          title: "SaaS Executives",
+          title: "Feature",
           description:
-            "Unblock your barriers to new markets to sell software globally, to companies of all sizes, at all different price points, and increase your revenue growth with Kooli’s SaaS Commerce Platform.",
+            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam vel vero quia tenetur obcaecati. Distinctio nesciunt obcaecati deserunt.",
           link: { title: "Learn more", target: "/settings" },
         },
         {
           icon: "stars",
-          title: "Product Managers",
+          title: "Feature",
           description:
-            "Don’t let your billing stack hold you back. Everything you need to grow your SaaS business. Subscription billing, payments, taxes and more, in one unified platform.",
+            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam vel vero quia tenetur obcaecati. Distinctio nesciunt obcaecati deserunt.",
           link: { title: "Learn more", target: "/settings" },
         },
         {
           icon: "supervised_user_circle",
-          title: "Creators",
+          title: "Feature",
           description:
-            "Kooli is for artists and creators: writers, designers, software developers, musicians, educators, filmmakers, and anyone in-between. If you make stuff, you can sell that stuff.",
+            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam vel vero quia tenetur obcaecati. Distinctio nesciunt obcaecati deserunt.",
           link: { title: "Learn more", target: "/settings" },
         },
         {
           icon: "build_circle",
-          title: "Developers",
+          title: "Feature",
           description:
-            "Focus on building, not billing. Save the blood, sweat and tears for your software development, not your billing stack, with Paddle’s subscription and commerce platform.",
+            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam vel vero quia tenetur obcaecati. Distinctio nesciunt obcaecati deserunt.",
           link: { title: "Learn more", target: "/settings" },
         },
         {
           icon: "monetization_on",
-          title: "Finance",
+          title: "Feature",
           description:
-            "All your payments, subscriptions, taxes, invoices, SaaS metrics, and more in one place. Integrate your product, CRM, and accounting with only one tool, not dozens.",
+            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam vel vero quia tenetur obcaecati. Distinctio nesciunt obcaecati deserunt.",
           link: { title: "Learn more", target: "/settings" },
         },
         {
           icon: "group_work",
-          title: "Enterprise",
+          title: "Feature",
           description:
-            "Accept payments in 135+ currencies to better serve your international customers with a single integration. No international business entity required. Fees exclude GST.",
+            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam vel vero quia tenetur obcaecati. Distinctio nesciunt obcaecati deserunt.",
           link: { title: "Learn more", target: "/settings" },
         },
       ],

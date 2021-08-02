@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
+  <SmartModal v-if="show" dialog @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("login_to_hoppscotch") }}</h3>
       <div>
@@ -27,17 +27,17 @@
         />
       </div>
       <div v-if="mode === 'email'" class="flex flex-col space-y-2">
-        <div class="flex items-center">
-          <label for="email" class="flex items-center px-4">
-            <i class="material-icons opacity-75">mail</i>
+        <div class="flex relative items-center">
+          <label for="email" class="flex px-4 absolute items-center">
+            <i class="opacity-75 material-icons">mail</i>
           </label>
           <input
             id="email"
             v-model="form.email"
-            class="flex flex-1 rounded px-4 py-2 outline-none"
+            class="input !pl-12"
             type="email"
             name="email"
-            placeholder="enter your email"
+            :placeholder="$t('email')"
             autocomplete="email"
             required
             spellcheck="false"
@@ -56,30 +56,34 @@
           "
           type="button"
           tabindex="-1"
-          :label="$t('send_magic_link')"
+          :label="$t('auth.send_magic_link')"
           @click.native="signInWithEmail"
         />
       </div>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
-        <div class="flex justify-center max-w-md items-center flex-col">
-          <i class="material-icons text-accent text-4xl"> verified </i>
+        <div class="flex flex-col max-w-md justify-center items-center">
+          <i class="text-accent material-icons !text-4xl">
+            mark_email_unread
+          </i>
           <h3 class="font-bold my-2 text-center text-lg">
-            {{ $t("we_sent_magic_link") }}
+            {{ $t("auth.we_sent_magic_link") }}
           </h3>
           <p class="text-center">
-            {{ $t("we_sent_magic_link_description", { email: form.email }) }}
+            {{
+              $t("auth.we_sent_magic_link_description", { email: form.email })
+            }}
           </p>
         </div>
       </div>
     </template>
     <template #footer>
-      <p v-if="mode === 'sign-in'" class="text-secondaryLight text-xs">
+      <p v-if="mode === 'sign-in'" class="text-secondaryLight">
         By signing in, you are agreeing to our
         <SmartAnchor class="link" to="/index" label="Terms of Service" />
         and
         <SmartAnchor class="link" to="/index" label="Privacy Policy" />.
       </p>
-      <p v-if="mode === 'email'" class="text-secondaryLight text-xs">
+      <p v-if="mode === 'email'" class="text-secondaryLight">
         <SmartAnchor
           class="link"
           label="← All sign in options"
@@ -88,14 +92,18 @@
       </p>
       <p
         v-if="mode === 'email-sent'"
-        class="flex flex-1 justify-between text-secondaryLight text-xs"
+        class="flex flex-1 text-secondaryLight justify-between"
       >
         <SmartAnchor
           class="link"
           label="← Re-enter email"
           @click.native="mode = 'email'"
         />
-        <SmartAnchor class="link" label="Dismiss" @click.native="hideModal" />
+        <SmartAnchor
+          class="link"
+          :label="$t('action.dismiss')"
+          @click.native="hideModal"
+        />
       </p>
     </template>
   </SmartModal>
@@ -149,7 +157,7 @@ export default {
         const { additionalUserInfo } = await signInUserWithGoogle()
 
         if (additionalUserInfo.isNewUser) {
-          this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
+          this.$toast.info(`${this.$t("action.turn_on")} ${this.$t("sync")}`, {
             icon: "sync",
             duration: null,
             closeOnSwipe: false,
@@ -195,7 +203,7 @@ export default {
             return
           }
 
-          this.$toast.info(`${this.$t("account_exists")}`, {
+          this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
             duration: null,
             closeOnSwipe: false,
@@ -225,7 +233,7 @@ export default {
         setProviderInfo(credential.providerId, credential.accessToken)
 
         if (additionalUserInfo.isNewUser) {
-          this.$toast.info(`${this.$t("turn_on")} ${this.$t("sync")}`, {
+          this.$toast.info(`${this.$t("action.turn_on")} ${this.$t("sync")}`, {
             icon: "sync",
             duration: null,
             closeOnSwipe: false,
@@ -271,7 +279,7 @@ export default {
             return
           }
 
-          this.$toast.info(`${this.$t("account_exists")}`, {
+          this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
             duration: null,
             closeOnSwipe: false,

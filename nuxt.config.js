@@ -127,6 +127,8 @@ export default {
     "@nuxt/typescript-build",
     // https://github.com/nuxt-community/dotenv-module
     "@nuxtjs/dotenv",
+    // https://github.com/nuxt-community/composition-api
+    "@nuxtjs/composition-api/module",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -175,7 +177,6 @@ export default {
   toast: {
     position: "bottom-center",
     duration: 3000,
-    theme: "bubble",
     keepOnHover: true,
   },
 
@@ -206,9 +207,9 @@ export default {
   googleFonts: {
     display: "block",
     families: {
-      Montserrat: [400, 500, 600, 700, 800],
+      Inter: [400, 500, 600, 700, 800],
       "Material+Icons": true,
-      "Roboto+Mono": true,
+      "Roboto+Mono": [400, 500, 600, 700, 800],
     },
   },
 

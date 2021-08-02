@@ -1,6 +1,7 @@
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 import { HoppRESTRequest } from "../types/HoppRESTRequest"
+import parseTemplateString from "../templating"
 import { Environment } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -11,6 +12,51 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    */
   effectiveFinalURL: string
   effectiveFinalHeaders: { key: string; value: string }[]
+  effectiveFinalParams: { key: string; value: string }[]
+}
+
+/**
+ * Outputs an executable request format with environment variables applied
+ *
+ * @param request The request to source from
+ * @param environment The environment to apply
+ *
+ * @returns An object with extra fields defining a complete request
+ */
+export function getEffectiveRESTRequest(
+  request: HoppRESTRequest,
+  environment: Environment
+): EffectiveHoppRESTRequest {
+  return {
+    ...request,
+    effectiveFinalURL: parseTemplateString(
+      request.endpoint,
+      environment.variables
+    ),
+    effectiveFinalHeaders: request.headers
+      .filter(
+        (x) =>
+          x.key !== "" && // Remove empty keys
+          x.active // Only active
+      )
+      .map((x) => ({
+        // Parse out environment template strings
+        active: true,
+        key: parseTemplateString(x.key, environment.variables),
+        value: parseTemplateString(x.value, environment.variables),
+      })),
+    effectiveFinalParams: request.params
+      .filter(
+        (x) =>
+          x.key !== "" && // Remove empty keys
+          x.active // Only active
+      )
+      .map((x) => ({
+        active: true,
+        key: parseTemplateString(x.key, environment.variables),
+        value: parseTemplateString(x.value, environment.variables),
+      })),
+  }
 }
 
 /**
@@ -27,17 +73,6 @@ export function getEffectiveRESTRequestStream(
   environment$: Observable<Environment>
 ): Observable<EffectiveHoppRESTRequest> {
   return combineLatest([request$, environment$]).pipe(
-    map(([request, _env]) => {
-      // TODO: Change this
-      return {
-        ...request,
-        effectiveFinalURL: request.endpoint,
-        effectiveFinalHeaders: request.headers.filter(
-          (x) =>
-            x.key !== "" && // Remove empty keys
-            x.active // Only active
-        ),
-      }
-    })
+    map(([request, env]) => getEffectiveRESTRequest(request, env))
   )
 }

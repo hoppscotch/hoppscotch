@@ -1,11 +1,12 @@
 <template>
-  <div class="inline-flex cursor-pointer flex-nowrap" @click="$emit('change')">
+  <div
+    class="cursor-pointer flex-nowrap inline-flex items-center justify-center"
+    @click="$emit('change')"
+  >
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
-    <label
-      class="pl-0 align-middle font-semibold truncate text-xs cursor-pointer"
-    >
+    <label class="cursor-pointer font-semibold pl-0 align-middle truncate">
       <slot></slot>
     </label>
   </div>
@@ -24,20 +25,21 @@ export default {
 
 <style scoped lang="scss">
 $useBorder: false;
-$borderColor: var(--secondary-light-color);
+$borderColor: var(--divider-color);
 $activeColor: var(--accent-color);
-$inactiveColor: var(--secondary-light-color);
+$inactiveColor: var(--divider-color);
 $inactiveHandleColor: var(--primary-color);
 $activeHandleColor: var(--primary-color);
-$width: 32px;
-$height: 16px;
-$handleSpacing: 4px;
+$width: 1.6rem;
+$height: 0.78rem;
+$handleSpacing: 0.2rem;
 $transition: all 0.2s ease-in-out;
 
 .toggle {
   @apply relative;
-  @apply inline-block;
-  @apply align-middle;
+  @apply inline-flex;
+  @apply items-center;
+  @apply justify-center;
   @apply rounded-full;
   @apply p-0;
   @apply mr-4;

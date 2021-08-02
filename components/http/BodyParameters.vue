@@ -2,50 +2,46 @@
   <AppSection label="bodyParameters">
     <div
       class="
-        sticky
-        top-110px
-        z-10
         bg-primary
+        border-b border-dividerLight
         flex flex-1
+        pl-4
+        top-24
+        z-10
+        sticky
         items-center
         justify-between
-        pl-4
-        border-b border-dividerLight
       "
     >
-      <label for="reqParamList" class="font-semibold text-xs">
+      <label for="reqParamList" class="font-semibold">
         {{ $t("request_body") }}
       </label>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('clear')"
-        icon="clear_all"
-        @click.native="clearContent('bodyParams', $event)"
-      />
+      <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent('bodyParams', $event)"
+        />
+      </div>
     </div>
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
-      class="
-        flex
-        border-b border-dashed
-        divide-x
-        border-divider
-        divide-dashed divide-divider
-      "
+      class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
       <input
         class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
           bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-2
+          px-4
           focus:outline-none
         "
-        :placeholder="$t('parameter_count', { count: index + 1 })"
+        :placeholder="$t('count.parameter', { count: index + 1 })"
         :name="'param' + index"
         :value="param.key"
         autofocus
@@ -55,15 +51,15 @@
       <input
         v-if="!requestBodyParamIsFile(index)"
         class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
           bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-2
+          px-4
           focus:outline-none
         "
-        :placeholder="$t('value_count', { count: index + 1 })"
+        :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="param.value"
         @change="
@@ -90,9 +86,9 @@
           :title="
             param.hasOwnProperty('active')
               ? param.active
-                ? $t('turn_off')
-                : $t('turn_on')
-              : $t('turn_off')
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
           "
           :icon="
             param.hasOwnProperty('active')
@@ -101,10 +97,11 @@
                 : 'check_box_outline_blank'
               : 'check_box'
           "
+          color="green"
           @click.native="toggleActive(index, param)"
         />
       </div>
-      <div v-if="contentType === 'multipart/form-data'">
+      <div>
         <label for="attachment" class="p-0">
           <ButtonSecondary
             class="w-full"
@@ -126,6 +123,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
           icon="delete"
+          color="red"
           @click.native="removeRequestBodyParam(index)"
         />
       </div>

@@ -49,13 +49,14 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
               icon="delete"
+              color="red"
               @click.native="removeOAuthToken(index)"
             />
           </li>
         </div>
       </ul>
       <p v-if="tokens.length === 0">
-        {{ $t("empty") }}
+        {{ $t("empty.protocols") }}
       </p>
     </template>
   </SmartModal>

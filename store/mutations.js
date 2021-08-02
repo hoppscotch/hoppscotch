@@ -9,14 +9,6 @@ export default {
     gql[attribute] = value
   },
 
-  setCollapsedSection({ theme }, value) {
-    theme.collapsedSections.includes(value)
-      ? (theme.collapsedSections = theme.collapsedSections.filter(
-          (section) => section !== value
-        ))
-      : theme.collapsedSections.push(value)
-  },
-
   addGQLHeader({ gql }, object) {
     gql.headers.push(object)
   },
@@ -49,52 +41,12 @@ export default {
     request.headers.splice(index, 1)
   },
 
-  setKeyHeader({ request }, { index, value }) {
-    request.headers[index].key = value
-  },
-
-  setValueHeader({ request }, { index, value }) {
-    request.headers[index].value = value
-  },
-
-  setActiveHeader({ request }, { index, value }) {
-    if (
-      !Object.prototype.hasOwnProperty.call(request.headers[index], "active")
-    ) {
-      Vue.set(request.headers[index], "active", value)
-    } else {
-      request.headers[index].active = value
-    }
-  },
-
   addParams({ request }, value) {
     request.params.push(value)
   },
 
   removeParams({ request }, index) {
     request.params.splice(index, 1)
-  },
-
-  setKeyParams({ request }, { index, value }) {
-    request.params[index].key = value
-  },
-
-  setValueParams({ request }, { index, value }) {
-    request.params[index].value = value
-  },
-
-  setTypeParams({ request }, { index, value }) {
-    request.params[index].type = value
-  },
-
-  setActiveParams({ request }, { index, value }) {
-    if (
-      !Object.prototype.hasOwnProperty.call(request.params[index], "active")
-    ) {
-      Vue.set(request.params[index], "active", value)
-    } else {
-      request.params[index].active = value
-    }
   },
 
   addBodyParams({ request }, value) {

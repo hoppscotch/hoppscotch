@@ -1,50 +1,66 @@
 <template>
-  <transition name="modal" appear @leave="onTransitionLeaveStart">
+  <transition name="fade" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="
-        fixed
-        inset-0
-        z-50
-        w-full
-        h-full
-        flex
-        items-center
-        justify-center
-        transition
-        bg-primaryLight
-      "
-      @touchstart="onBackdropMouseDown"
-      @touchend="onBackdropMouseUp"
-      @mouseup="onBackdropMouseUp"
-      @mousedown="onBackdropMouseDown"
+      class="inset-0 transition z-10 z-50 fixed hide-scrollbar overflow-y-auto"
     >
       <div
-        class="
-          modal-container
-          relative
-          flex flex-1 flex-col
-          m-2
-          p-4
-          transition
-          bg-primary
-          rounded-lg
-          shadow-xl
-          max-w-md max-h-lg
-        "
+        class="flex min-h-screen text-center items-end justify-center sm:block"
       >
-        <div class="flex pl-2 items-center justify-between">
-          <slot name="header"></slot>
-        </div>
-        <div class="my-4 overflow-auto flex flex-col">
-          <slot name="body"></slot>
-        </div>
-        <div
-          v-if="hasFooterSlot"
-          class="p-2 flex flex-1 items-center justify-between"
+        <transition name="fade" appear>
+          <div
+            class="bg-primaryDark opacity-100 inset-0 transition fixed"
+            @touchstart="!dialog ? close() : null"
+            @touchend="!dialog ? close() : null"
+            @mouseup="!dialog ? close() : null"
+            @mousedown="!dialog ? close() : null"
+          ></div>
+        </transition>
+        <span
+          class="hidden sm:inline-block sm:align-middle sm:h-screen"
+          aria-hidden="true"
+          >&#8203;</span
         >
-          <slot name="footer"></slot>
-        </div>
+        <transition
+          appear
+          enter-active-class="transition"
+          enter-class="translate-y-4 scale-95"
+          enter-to-class="translate-y-0 scale-100"
+          leave-active-class="transition"
+          leave-class="translate-y-0 scale-100"
+          leave-to-class="translate-y-4 scale-95"
+        >
+          <div
+            class="
+              bg-primary
+              rounded-lg
+              m-4
+              shadow-lg
+              text-left
+              w-full
+              p-4
+              transform
+              transition-all
+              inline-block
+              align-bottom
+              overflow-hidden
+              sm:align-middle sm:max-w-md
+            "
+          >
+            <div class="flex pl-2 items-center justify-between">
+              <slot name="header"></slot>
+            </div>
+            <div class="flex flex-col my-4 overflow-auto">
+              <slot name="body"></slot>
+            </div>
+            <div
+              v-if="hasFooterSlot"
+              class="flex flex-1 p-2 items-center justify-between"
+            >
+              <slot name="footer"></slot>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
   </transition>
@@ -63,10 +79,15 @@ const stack = (() => {
 })()
 
 export default {
+  props: {
+    dialog: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       stackId: Math.random(),
-      shouldCloseOnBackdropClick: true,
       // when doesn't fire on unmount, we should manually remove the modal from DOM
       // (for example, when the parent component of this modal gets destroyed)
       shouldCleanupDomOnUnmount: true,
@@ -95,22 +116,6 @@ export default {
     close() {
       this.$emit("close")
     },
-    onBackdropMouseDown({ target }) {
-      this.shouldCloseOnBackdropClick =
-        !this.checkIfTargetInsideModalContent(target)
-    },
-    onBackdropMouseUp({ target }) {
-      if (
-        this.shouldCloseOnBackdropClick &&
-        !this.checkIfTargetInsideModalContent(target)
-      ) {
-        this.close()
-      }
-      this.shouldCloseOnBackdropClick = true
-    },
-    checkIfTargetInsideModalContent($target) {
-      return $target?.closest(".modal-container")
-    },
     onKeyDown(e) {
       if (e.key === "Escape" && this.stackId === stack.peek()) {
         e.preventDefault()
@@ -133,17 +138,3 @@ export default {
   },
 }
 </script>
-
-<style scoped lang="scss">
-.modal-enter,
-.modal-leave-active {
-  @apply opacity-0;
-}
-
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
-  @apply transform;
-  @apply scale-90;
-  @apply transition;
-}
-</style>

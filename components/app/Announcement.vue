@@ -1,22 +1,22 @@
 <template>
-  <div class="flex bg-primary border-b justify-between border-dividerLight">
+  <div class="bg-dividerLight border-b border-divider flex justify-between">
     <span class="flex">
       <SmartLink
         to="https://forms.gle/8yFiEynXB7h477Ns6"
         blank
         class="
-          relative
           flex
+          py-2
+          px-4
+          transition
+          relative
           items-center
           justify-center
-          px-4
-          py-3
-          transition
           group
         "
       >
-        <i class="material-icons mr-4">science</i>
-        <span class="text-secondaryDark text-xs">
+        <i class="mr-4 material-icons">science</i>
+        <span class="text-secondaryDark">
           <span class="md:hidden"> Beta Layout </span>
           <span class="hidden md:inline">
             You're currently viewing an experimental beta layout
@@ -24,17 +24,16 @@
         </span>
         <span
           class="
+            border-l border-divider
             flex
+            font-semibold
+            text-accent
+            ml-4
+            pl-4
+            transition
             items-center
             justify-center
-            pl-4
-            ml-4
-            font-semibold
-            transition
-            border-l
             group-hover:text-accentDark
-            border-divider
-            text-accent text-xs
           "
         >
           <span class="md:hidden"> Give Feedback </span>
@@ -43,17 +42,13 @@
       </SmartLink>
       <SmartLink
         to="https://hoppscotch.io"
-        class="flex items-center justify-center transition group"
+        class="flex transition items-center justify-center group"
       >
-        <span class="text-secondaryDark text-xs">
+        <span class="text-secondaryDark">
           Switch back to the Hoppscotch website
         </span>
       </SmartLink>
     </span>
-    <ButtonSecondary
-      v-tippy="{ theme: 'tooltip' }"
-      icon="close"
-      :title="$t('close')"
-    />
+    <ButtonSecondary icon="close" />
   </div>
 </template>

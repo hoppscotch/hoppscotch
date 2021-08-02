@@ -5,10 +5,9 @@
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"
       :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
-      :class="[
-        { 'bg-primary': color === activeColor },
-        { 'text-accent hover:text-accent': color === activeColor },
-      ]"
+      :class="{
+        'bg-primaryLight !text-accent hover:text-accent': color === active,
+      }"
       :icon="getIcon(color)"
       @click.native="setBGMode(color)"
     />
@@ -32,7 +31,7 @@ export default Vue.extend({
   },
   subscriptions() {
     return {
-      activeColor: getSettingSubject("BG_COLOR"),
+      active: getSettingSubject("BG_COLOR"),
     }
   },
   methods: {

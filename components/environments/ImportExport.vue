@@ -22,7 +22,7 @@
           </template>
           <SmartItem
             icon="assignment_returned"
-            :label="$t('import_from_gist')"
+            :label="$t('import.from_gist')"
             @click.native="
               readEnvironmentGist
               $refs.options.tippy().hide()
@@ -32,9 +32,9 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser
-                ? $t('login_with_github_to') + $t('create_secret_gist')
+                ? $t('export.require_github')
                 : currentUser.provider !== 'github.com'
-                ? $t('login_with_github_to') + $t('create_secret_gist')
+                ? $t('export.require_github')
                 : null
             "
             :disabled="
@@ -45,7 +45,7 @@
                 : false
             "
             icon="assignment_turned_in"
-            :label="$t('create_secret_gist')"
+            :label="$t('export.create_secret_gist')"
             @click.native="
               createEnvironmentGist
               $refs.options.tippy().hide()
@@ -76,7 +76,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('preserve_current')"
           icon="create_new_folder"
-          :label="$t('import_json')"
+          :label="$t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
         <input
@@ -91,7 +91,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
           icon="drive_file_move"
-          :label="$t('export_as_json')"
+          :label="$t('export.as_json')"
           @click.native="exportJSON"
         />
       </div>
@@ -142,7 +142,7 @@ export default {
           }
         )
         .then((res) => {
-          this.$toast.success(this.$t("gist_created"), {
+          this.$toast.success(this.$t("export.gist_created"), {
             icon: "done",
           })
           window.open(res.html_url)
@@ -155,7 +155,7 @@ export default {
         })
     },
     async readEnvironmentGist() {
-      const gist = prompt(this.$t("enter_gist_url"))
+      const gist = prompt(this.$t("import.gist_url"))
       if (!gist) return
       await this.$axios
         .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
@@ -223,22 +223,22 @@ export default {
       this.importFromHoppscotch(environments)
     },
     exportJSON() {
-      let text = this.environmentJson
-      text = text.replace(/\n/g, "\r\n")
-      const blob = new Blob([text], {
-        type: "text/json",
-      })
-      const anchor = document.createElement("a")
-      anchor.download = "hoppscotch-environment.json"
-      anchor.href = window.URL.createObjectURL(blob)
-      anchor.target = "_blank"
-      anchor.style.display = "none"
-      document.body.appendChild(anchor)
-      anchor.click()
-      document.body.removeChild(anchor)
+      const dataToWrite = this.environmentJson
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      // TODO get uri from meta
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
+      document.body.appendChild(a)
+      a.click()
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

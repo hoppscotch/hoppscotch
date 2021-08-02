@@ -5,20 +5,17 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelSaveReq" class="px-4 font-semibold pb-4 text-xs">
-          {{ $t("token_req_name") }}</label
-        >
+      <div class="flex flex-col px-2">
+        <label for="selectLabelSaveReq" class="font-semibold px-4 pb-4">
+          {{ $t("request_name") }}
+        </label>
         <input
           id="selectLabelSaveReq"
-          v-model="requestData.name"
+          v-model="requestName"
           class="input"
           type="text"
-          @keyup.enter="saveRequestAs"
         />
-        <label class="px-4 pt-4 font-semibold pb-4 text-xs">
-          Select Location
-        </label>
+        <label class="font-semibold px-4 pt-4 pb-4"> Select Location </label>
         <CollectionsGraphql
           v-if="mode === 'graphql'"
           :doc="false"
@@ -47,6 +44,7 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import * as teamUtils from "~/helpers/teams/utils"
 import {
   saveRESTRequestAs,
@@ -54,20 +52,23 @@ import {
   editGraphqlRequest,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
+import { getRESTRequest, useRESTRequestName } from "~/newstore/RESTSession"
 
-export default {
+export default defineComponent({
   props: {
     // mode can be either "graphql" or "rest"
     mode: { type: String, default: "rest" },
     show: Boolean,
-    editingRequest: { type: Object, default: () => {} },
+  },
+  setup() {
+    return {
+      requestName: useRESTRequestName(),
+    }
   },
   data() {
     return {
-      defaultRequestName: "Untitled Request",
-      path: "Path will appear here",
       requestData: {
-        name: undefined,
+        name: this.requestName,
         collectionIndex: undefined,
         folderName: undefined,
         requestIndex: undefined,
@@ -102,7 +103,7 @@ export default {
     },
     saveRequestAs() {
       if (this.picked == null) {
-        this.$toast.error(this.$t("select_collection"), {
+        this.$toast.error(this.$t("collection.select"), {
           icon: "error",
         })
         return
@@ -114,10 +115,7 @@ export default {
         return
       }
 
-      const requestUpdated = {
-        ...this.$props.editingRequest,
-        name: this.$data.requestData.name,
-      }
+      const requestUpdated = getRESTRequest()
 
       // Filter out all REST file inputs
       if (this.mode === "rest" && requestUpdated.bodyParams) {
@@ -180,5 +178,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

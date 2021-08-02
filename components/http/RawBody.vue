@@ -2,23 +2,23 @@
   <div>
     <div
       class="
-        sticky
-        top-110px
-        z-10
         bg-primary
+        border-b border-dividerLight
         flex flex-1
+        pl-4
+        top-24
+        z-10
+        sticky
         items-center
         justify-between
-        pl-4
-        border-b border-dividerLight
       "
     >
-      <label for="rawBody" class="font-semibold text-xs">
+      <label for="rawBody" class="font-semibold">
         {{ $t("raw_request_body") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
-          v-if="rawInput && contentType.endsWith('json')"
+          v-if="contentType.endsWith('json')"
           ref="prettifyRequest"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('prettify_body')"
@@ -28,7 +28,7 @@
         <label for="payload">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('import_json')"
+            :title="$t('import.json')"
             icon="post_add"
             @click.native="$refs.payload.click()"
           />
@@ -53,9 +53,9 @@
         v-model="rawParamsBody"
         :lang="rawInputEditorLang"
         :options="{
-          maxLines: '16',
-          minLines: '8',
-          fontSize: '14px',
+          maxLines: 16,
+          minLines: 8,
+          fontSize: '12px',
           autoScrollEditorIntoView: true,
           showPrintMargin: false,
           useWorker: false,
@@ -66,43 +66,39 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
+import { pluckRef } from "~/helpers/utils/composables"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
 
-export default {
+export default defineComponent({
   props: {
-    rawParams: { type: String, default: null },
-    contentType: { type: String, default: null },
-    rawInput: { type: Boolean, default: false },
+    contentType: {
+      type: String,
+      required: true,
+    },
   },
-  data() {
+  setup() {
     return {
+      rawParamsBody: pluckRef(useRESTRequestBody(), "body"),
       prettifyIcon: "photo_filter",
     }
   },
   computed: {
-    rawParamsBody: {
-      get() {
-        return this.rawParams
-      },
-      set(value) {
-        this.$emit("update-raw-body", value)
-      },
-    },
     rawInputEditorLang() {
       return getEditorLangForMimeType(this.contentType)
     },
   },
   methods: {
-    clearContent(bodyParams, $event) {
-      this.$emit("clear-content", bodyParams, $event)
+    clearContent() {
+      this.rawParamsBody = ""
     },
     uploadPayload() {
-      this.$emit("update-raw-input", true)
       const file = this.$refs.payload.files[0]
       if (file !== undefined && file !== null) {
         const reader = new FileReader()
         reader.onload = ({ target }) => {
-          this.$emit("update-raw-body", target.result)
+          this.rawParamsBody = target.result
         }
         reader.readAsText(file)
         this.$toast.info(this.$t("file_imported"), {
@@ -128,5 +124,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

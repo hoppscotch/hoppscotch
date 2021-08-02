@@ -10,32 +10,24 @@
       @dragend="dragging = false"
     >
       <span
-        class="
-          flex
-          justify-center
-          items-center
-          text-xs
-          w-10
-          truncate
-          cursor-pointer
-        "
+        class="cursor-pointer flex w-10 justify-center items-center truncate"
         @click="toggleShowChildren()"
       >
-        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+        <i class="material-icons" :class="{ 'text-green-500': isSelected }">
           {{ getCollectionIcon }}
         </i>
       </span>
       <span
         class="
-          py-3
           cursor-pointer
-          pr-2
-          flex flex-1
-          min-w-0
-          text-xs
-          group-hover:text-secondaryDark
-          transition
+          flex
           font-semibold
+          flex-1
+          min-w-0
+          py-2
+          pr-2
+          transition
+          group-hover:text-secondaryDark
         "
         @click="toggleShowChildren()"
       >
@@ -44,8 +36,9 @@
       <ButtonSecondary
         v-if="doc && !selected"
         v-tippy="{ theme: 'tooltip' }"
-        :title="$t('import')"
+        :title="$t('import.title')"
         icon="check_box_outline_blank"
+        color="green"
         @click.native="$emit('select-collection')"
       />
       <ButtonSecondary
@@ -53,12 +46,14 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('delete')"
         icon="check_box"
+        color="green"
         @click.native="$emit('unselect-collection')"
       />
       <ButtonSecondary
+        v-if="!doc"
         v-tippy="{ theme: 'tooltip' }"
         icon="create_new_folder"
-        :title="$t('new_folder')"
+        :title="$t('folder.new')"
         class="group-hover:inline-flex hidden"
         @click.native="
           $emit('add-folder', {
@@ -84,7 +79,7 @@
         </template>
         <SmartItem
           icon="create_new_folder"
-          :label="$t('new_folder')"
+          :label="$t('folder.new')"
           @click.native="
             $emit('add-folder', {
               folder: collection,
@@ -103,6 +98,7 @@
         />
         <SmartItem
           icon="delete"
+          color="red"
           :label="$t('delete')"
           @click.native="
             confirmRemove = true
@@ -111,11 +107,11 @@
         />
       </tippy>
     </div>
-    <div v-show="showChildren || isFiltered">
+    <div v-if="showChildren || isFiltered">
       <CollectionsMyFolder
         v-for="(folder, index) in collection.folders"
         :key="`folder-${index}`"
-        class="ml-5 border-l border-dividerLight"
+        class="border-l border-dividerLight ml-5"
         :folder="folder"
         :folder-index="index"
         :folder-path="`${collectionIndex}/${index}`"
@@ -134,7 +130,7 @@
       <CollectionsMyRequest
         v-for="(request, index) in collection.requests"
         :key="`request-${index}`"
-        class="ml-5 border-l border-dividerLight"
+        class="border-l border-dividerLight ml-5"
         :request="request"
         :collection-index="collectionIndex"
         :folder-index="-1"
@@ -156,25 +152,24 @@
           (collection.requests == undefined || collection.requests.length === 0)
         "
         class="
-          flex
-          items-center
-          text-secondaryLight
-          flex-col
-          p-4
-          justify-center
-          ml-5
           border-l border-dividerLight
+          flex flex-col
+          text-secondaryLight
+          ml-5
+          p-4
+          items-center
+          justify-center
         "
       >
-        <i class="material-icons opacity-50 pb-2">folder_open</i>
-        <span class="text-xs text-center">
-          {{ $t("collection_empty") }}
+        <i class="opacity-75 pb-2 material-icons">folder_open</i>
+        <span class="text-center">
+          {{ $t("empty.collection") }}
         </span>
       </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_collection')"
+      :title="$t('confirm.remove_collection')"
       @hide-modal="confirmRemove = false"
       @resolve="removeCollection"
     />

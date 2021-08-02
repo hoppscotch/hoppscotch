@@ -3,16 +3,16 @@
     <div class="flex items-center">
       <span
         class="
-          py-3
           cursor-pointer
+          flex
+          font-semibold
+          flex-1
+          min-w-0
+          py-2
           pr-2
           pl-4
-          flex flex-1
-          min-w-0
-          text-xs
-          group-hover:text-secondaryDark
           transition
-          font-semibold
+          group-hover:text-secondaryDark
         "
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"
@@ -24,22 +24,22 @@
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         icon="delete"
+        color="red"
         :title="$t('delete')"
         class="group-hover:inline-flex hidden"
-        color="red"
         data-testid="delete_history_entry"
         @click.native="$emit('delete-entry')"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="expand ? $t('hide_more') : $t('show_more')"
+        :title="expand ? $t('hide.more') : $t('show.more')"
         :icon="expand ? 'unfold_less' : 'unfold_more'"
         class="group-hover:inline-flex hidden"
         @click.native="expand = !expand"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        :title="!entry.star ? $t('add_star') : $t('remove_star')"
+        :title="!entry.star ? $t('add.star') : $t('remove.star')"
         :icon="entry.star ? 'star' : 'star_border'"
         color="yellow"
         :class="{ 'group-hover:inline-flex hidden': !entry.star }"
@@ -51,14 +51,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="
-          text-xs
-          cursor-pointer
-          truncate
-          px-4
-          font-mono
-          text-secondaryLight
-        "
+        class="cursor-pointer font-mono text-secondaryLight px-4 truncate"
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"
       >

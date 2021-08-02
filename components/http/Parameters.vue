@@ -2,21 +2,21 @@
   <AppSection label="parameters">
     <div
       class="
-        sticky
-        top-110px
-        z-10
         bg-primary
+        border-b border-dividerLight
         flex flex-1
+        pl-4
+        top-24
+        z-10
+        sticky
         items-center
         justify-between
-        pl-4
-        border-b border-dividerLight
       "
     >
-      <label for="paramList" class="font-semibold text-xs">
+      <label class="font-semibold">
         {{ $t("parameter_list") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear_all')"
@@ -25,7 +25,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('add_new')"
+          :title="$t('add.new')"
           icon="add"
           @click.native="addParam"
         />
@@ -34,26 +34,42 @@
     <div
       v-for="(param, index) in params$"
       :key="`param-${index}`"
-      class="
-        flex
-        border-b border-dashed
-        divide-x
-        border-divider
-        divide-dashed divide-divider
-      "
+      class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
-      <input
-        class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="param.key"
+        :placeholder="$t('count.parameter', { count: index + 1 })"
+        styles="
           bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
           focus:outline-none
         "
-        :placeholder="$t('parameter_count', { count: index + 1 })"
+        @change="
+          updateParam(index, {
+            key: $event.target.value,
+            value: param.value,
+            active: param.active,
+          })
+        "
+      />
+      <input
+        v-else
+        class="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-2
+          px-4
+          focus:outline-none
+        "
+        :placeholder="$t('count.parameter', { count: index + 1 })"
         :name="'param' + index"
         :value="param.key"
         autofocus
@@ -65,17 +81,39 @@
           })
         "
       />
-      <input
-        class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-semibold
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="param.value"
+        :placeholder="$t('count.value', { count: index + 1 })"
+        styles="
           bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
           focus:outline-none
         "
-        :placeholder="$t('value_count', { count: index + 1 })"
+        @change="
+          updateParam(index, {
+            key: param.key,
+            value: $event.target.value,
+            active: param.active,
+          })
+        "
+      />
+      <input
+        v-else
+        class="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-2
+          px-4
+          focus:outline-none
+        "
+        :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="param.value"
         @change="
@@ -92,9 +130,9 @@
           :title="
             param.hasOwnProperty('active')
               ? param.active
-                ? $t('turn_off')
-                : $t('turn_on')
-              : $t('turn_off')
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
           "
           :icon="
             param.hasOwnProperty('active')
@@ -103,6 +141,7 @@
                 : 'check_box_outline_blank'
               : 'check_box'
           "
+          color="green"
           @click.native="
             updateParam(index, {
               key: param.key,
@@ -117,9 +156,24 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
           icon="delete"
+          color="red"
           @click.native="deleteParam(index)"
         />
       </div>
+    </div>
+    <div
+      v-if="params$.length === 0"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <i class="opacity-75 pb-2 material-icons">post_add</i>
+      <span class="text-center pb-4">
+        {{ $t("empty.parameters") }}
+      </span>
+      <ButtonSecondary
+        :label="$t('add.new')"
+        outline
+        @click.native="addParam"
+      />
     </div>
   </AppSection>
 </template>
@@ -132,6 +186,7 @@ import {
   deleteRESTParam,
   deleteAllRESTParams,
 } from "~/newstore/RESTSession"
+import { getSettingSubject } from "~/newstore/settings"
 
 export default {
   data() {
@@ -142,20 +197,24 @@ export default {
   subscriptions() {
     return {
       params$: restParams$,
+      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
+        "EXPERIMENTAL_URL_BAR_ENABLED"
+      ),
     }
   },
-  // watch: {
-  //   params$: {
-  //     handler(newValue) {
-  //       if (
-  //         newValue[newValue.length - 1]?.key !== "" ||
-  //         newValue[newValue.length - 1]?.value !== ""
-  //       )
-  //         this.addParam()
-  //     },
-  //     deep: true,
-  //   },
-  // },
+  watch: {
+    params$: {
+      handler(newValue) {
+        if (
+          (newValue[newValue.length - 1]?.key !== "" ||
+            newValue[newValue.length - 1]?.value !== "") &&
+          newValue.length
+        )
+          this.addParam()
+      },
+      deep: true,
+    },
+  },
   mounted() {
     if (!this.params$?.length) {
       this.addParam()

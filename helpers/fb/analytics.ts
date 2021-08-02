@@ -7,7 +7,7 @@ import {
   settingsStore,
 } from "~/newstore/settings"
 
-let analytics: firebase.analytics.Analytics
+let analytics: firebase.analytics.Analytics | null
 
 type SettingsCustomDimensions = {
   usesProxy: boolean
@@ -39,15 +39,15 @@ function initLoginListeners() {
   authEvents$.subscribe((ev) => {
     if (ev.event === "login") {
       if (settingsStore.value.TELEMETRY_ENABLED) {
-        analytics.setUserId(ev.user.uid)
+        analytics?.setUserId(ev.user.uid)
 
-        analytics.logEvent("login", {
+        analytics?.logEvent("login", {
           method: ev.user.providerData[0]?.providerId, // Assume the first provider is the login provider
         })
       }
     } else if (ev.event === "logout") {
       if (settingsStore.value.TELEMETRY_ENABLED) {
-        analytics.logEvent("logout")
+        analytics?.logEvent("logout")
       }
     }
   })
@@ -75,26 +75,26 @@ function initSettingsListeners() {
       (telemetryStatus && !settings.TELEMETRY_ENABLED) ||
       settings.TELEMETRY_ENABLED
     ) {
-      analytics.setUserProperties(conf)
+      analytics?.setUserProperties(conf)
     }
 
     telemetryStatus = settings.TELEMETRY_ENABLED
 
-    analytics.setAnalyticsCollectionEnabled(telemetryStatus)
+    analytics?.setAnalyticsCollectionEnabled(telemetryStatus)
   })
 
-  analytics.setAnalyticsCollectionEnabled(telemetryStatus)
+  analytics?.setAnalyticsCollectionEnabled(telemetryStatus)
 }
 
 export function logHoppRequestRunToAnalytics(ev: HoppRequestEvent) {
   if (settingsStore.value.TELEMETRY_ENABLED) {
-    analytics.logEvent("hopp-request", ev)
+    analytics?.logEvent("hopp-request", ev)
   }
 }
 
 export function logPageView(pagePath: string) {
   if (settingsStore.value.TELEMETRY_ENABLED) {
-    analytics.logEvent("page_view", {
+    analytics?.logEvent("page_view", {
       page_path: pagePath,
     })
   }

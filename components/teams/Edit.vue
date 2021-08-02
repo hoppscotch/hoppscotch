@@ -1,15 +1,14 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("edit_team") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
+      <h3 class="heading">{{ $t("team.edit") }}</h3>
+      <div>
+        <ButtonSecondary icon="close" @click.native="hideModal" />
+      </div>
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label
-          for="selectLabelTeamEdit"
-          class="px-4 font-semibold pb-4 text-xs"
-        >
+      <div class="flex flex-col px-2">
+        <label for="selectLabelTeamEdit" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -20,32 +19,43 @@
           :placeholder="editingTeam.name"
           @keyup.enter="saveTeam"
         />
-        <label for="memberList" class="px-4 pt-4 font-semibold pb-4 text-xs">
-          {{ $t("team_member_list") }}
-        </label>
-        <ul
-          v-for="(member, index) in members"
-          :key="`member-${index}`"
-          class="
-            border-b border-dashed
-            divide-y
-            md:divide-x
-            border-divider
-            divide-dashed divide-divider
-            md:divide-y-0
-          "
-          :class="{ 'border-t': index == 0 }"
-        >
-          <li>
+        <div class="flex flex-1 justify-between items-center">
+          <label for="memberList" class="font-semibold px-4 pt-4 pb-4">
+            {{ $t("team.members") }}
+          </label>
+          <div>
+            <ButtonSecondary
+              icon="add"
+              :label="$t('add.new')"
+              @click.native="addTeamMember"
+            />
+          </div>
+        </div>
+        <div class="border-divider border rounded">
+          <div
+            v-for="(member, index) in members"
+            :key="`member-${index}`"
+            class="
+              divide-x divide-dividerLight
+              border-b border-dividerLight
+              flex
+            "
+          >
             <input
-              class="input"
-              :placeholder="$t('email')"
+              class="
+                bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
+                focus:outline-none
+              "
+              :placeholder="$t('team.email')"
               :name="'param' + index"
               :value="member.user.email"
               readonly
             />
-          </li>
-          <li>
             <span class="select-wrapper">
               <tippy
                 ref="options"
@@ -57,8 +67,16 @@
               >
                 <template #trigger>
                   <input
-                    class="input"
-                    :placeholder="$t('permissions')"
+                    class="
+                      bg-primaryLight
+                      flex
+                      font-semibold font-mono
+                      flex-1
+                      py-2
+                      px-4
+                      focus:outline-none
+                    "
+                    :placeholder="$t('team.permissions')"
                     :name="'value' + index"
                     :value="
                       typeof member.role === 'string'
@@ -91,41 +109,41 @@
                 />
               </tippy>
             </span>
-          </li>
-          <div>
-            <li>
+            <div>
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
                 icon="delete"
+                color="red"
                 @click.native="removeExistingTeamMember(member.user.uid)"
               />
-            </li>
+            </div>
           </div>
-        </ul>
-        <ul
-          v-for="(member, index) in newMembers"
-          :key="`member-${index}`"
-          class="
-            border-b border-dashed
-            divide-y
-            md:divide-x
-            border-divider
-            divide-dashed divide-divider
-            md:divide-y-0
-          "
-        >
-          <li>
+          <div
+            v-for="(member, index) in newMembers"
+            :key="`member-${index}`"
+            class="
+              divide-x divide-dividerLight
+              border-b border-dividerLight
+              flex
+            "
+          >
             <input
               v-model="member.key"
-              class="input"
-              :placeholder="$t('email')"
-              :name="'param' + index"
+              class="
+                bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
+                focus:outline-none
+              "
+              :placeholder="$t('team.email')"
+              :name="'member' + index"
               autofocus
             />
-          </li>
-          <li>
             <span class="select-wrapper">
               <tippy
                 ref="memberOptions"
@@ -137,8 +155,16 @@
               >
                 <template #trigger>
                   <input
-                    class="input"
-                    :placeholder="$t('permissions')"
+                    class="
+                      bg-primaryLight
+                      flex
+                      font-semibold font-mono
+                      flex-1
+                      py-2
+                      px-4
+                      focus:outline-none
+                    "
+                    :placeholder="$t('team.permissions')"
                     :name="'value' + index"
                     :value="
                       typeof member.value === 'string'
@@ -152,47 +178,37 @@
                   label="OWNER"
                   @click.native="
                     member.value = 'OWNER'
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
                   "
                 />
                 <SmartItem
                   label="EDITOR"
                   @click.native="
                     member.value = 'EDITOR'
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
                   "
                 />
                 <SmartItem
                   label="VIEWER"
                   @click.native="
                     member.value = 'VIEWER'
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
                   "
                 />
               </tippy>
             </span>
-          </li>
-          <div>
-            <li>
+            <div>
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
                 icon="delete"
+                color="red"
                 @click.native="removeTeamMember(index)"
               />
-            </li>
+            </div>
           </div>
-        </ul>
-        <ul>
-          <li>
-            <ButtonSecondary
-              icon="add"
-              :label="$t('add_new')"
-              @click.native="addTeamMember"
-            />
-          </li>
-        </ul>
+        </div>
       </div>
     </template>
     <template #footer>
@@ -259,7 +275,7 @@ export default {
         .removeTeamMember(this.$apollo, userID, this.editingteamID)
         .then(() => {
           // Result
-          this.$toast.success(this.$t("user_removed"), {
+          this.$toast.success(this.$t("team.member_removed"), {
             icon: "done",
           })
           this.hideModal()
@@ -290,7 +306,7 @@ export default {
         this.$data.rename !== null &&
         this.$data.rename.replace(/\s/g, "").length < 6
       ) {
-        this.$toast.error(this.$t("string_length_insufficient"), {
+        this.$toast.error(this.$t("team.name_length_insufficient"), {
           icon: "error",
         })
         return
@@ -298,7 +314,7 @@ export default {
       let invalidEmail = false
       this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
-          this.$toast.error(this.$t("invalid_emailID_format"), {
+          this.$toast.error(this.$t("team.invalid_email_format"), {
             icon: "error",
           })
           invalidEmail = true
@@ -326,7 +342,7 @@ export default {
           )
           .then(() => {
             // Result
-            this.$toast.success(this.$t("team_saved"), {
+            this.$toast.success(this.$t("team.saved"), {
               icon: "done",
             })
           })
@@ -348,7 +364,7 @@ export default {
           )
           .then(() => {
             // Result
-            this.$toast.success(this.$t("role_updated"), {
+            this.$toast.success(this.$t("team.member_role_updated"), {
               icon: "done",
             })
           })
@@ -364,7 +380,7 @@ export default {
         const newName =
           this.name === this.$data.rename ? this.name : this.$data.rename
         if (!/\S/.test(newName))
-          return this.$toast.error(this.$t("team_name_empty"), {
+          return this.$toast.error(this.$t("empty.team_name"), {
             icon: "error",
           })
         // Call to the graphql mutation
@@ -373,7 +389,7 @@ export default {
             .renameTeam(this.$apollo, newName, this.editingteamID)
             .then(() => {
               // Result
-              this.$toast.success(this.$t("team_saved"), {
+              this.$toast.success(this.$t("team.saved"), {
                 icon: "done",
               })
             })

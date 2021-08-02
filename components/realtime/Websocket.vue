@@ -1,183 +1,217 @@
 <template>
-  <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto">
-            <AppSection label="request">
-              <ul>
-                <li>
-                  <label for="websocket-url">{{ $t("url") }}</label>
-                  <input
-                    id="websocket-url"
-                    v-model="url"
-                    class="input"
-                    type="url"
-                    spellcheck="false"
-                    :class="{ error: !urlValid }"
-                    :placeholder="$t('url')"
-                    @keyup.enter="urlValid ? toggleConnection() : null"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      id="connect"
-                      :disabled="!urlValid"
-                      class="button"
-                      name="connect"
-                      :icon="!connectionState ? 'sync' : 'sync_disabled'"
-                      :label="
-                        !connectionState ? $t('connect') : $t('disconnect')
-                      "
-                      reverse
-                      @click.native="toggleConnection"
-                    />
-                  </li>
-                </div>
-              </ul>
-              <ul>
-                <li>
-                  <div class="flex flex-1">
-                    <label>{{ $t("protocols") }}</label>
-                  </div>
-                </li>
-              </ul>
-              <ul
-                v-for="(protocol, index) of protocols"
-                :key="`protocol-${index}`"
-                :class="{ 'border-t': index == 0 }"
-                class="
-                  border-b border-dashed
-                  divide-y
-                  md:divide-x
-                  border-divider
-                  divide-dashed divide-divider
-                  md:divide-y-0
-                "
-              >
-                <li>
-                  <input
-                    v-model="protocol.value"
-                    class="input"
-                    :placeholder="$t('protocol_count', { count: index + 1 })"
-                    name="message"
-                    type="text"
-                  />
-                </li>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="
-                        protocol.hasOwnProperty('active')
-                          ? protocol.active
-                            ? $t('turn_off')
-                            : $t('turn_on')
-                          : $t('turn_off')
-                      "
-                      @click.native="
-                        protocol.active = protocol.hasOwnProperty('active')
-                          ? !protocol.active
-                          : false
-                      "
-                    />
-                    <i class="material-icons">
-                      {{
-                        protocol.hasOwnProperty("active")
-                          ? protocol.active
-                            ? "check_box"
-                            : "check_box_outline_blank"
-                          : "check_box"
-                      }}
-                    </i>
-                  </li>
-                </div>
-                <div>
-                  <li>
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('delete')"
-                      icon="delete"
-                      @click.native="deleteProtocol({ index })"
-                    />
-                  </li>
-                </div>
-              </ul>
-              <ul>
-                <li>
-                  <ButtonSecondary
-                    icon="add"
-                    :label="$t('add_new')"
-                    @click.native="addProtocol"
-                  />
-                </li>
-              </ul>
-            </AppSection>
-          </Pane>
-          <Pane class="overflow-auto">
-            <AppSection label="response">
-              <ul>
-                <li>
-                  <RealtimeLog :title="$t('log')" :log="communication.log" />
-                </li>
-              </ul>
-            </AppSection>
-          </Pane>
-        </Splitpanes>
-      </Pane>
-      <Pane max-size="35" min-size="20" class="overflow-auto">
-        <AppSection label="messages">
-          <ul>
-            <li>
-              <label for="websocket-message">{{ $t("message") }}</label>
-              <input
-                id="websocket-message"
-                v-model="communication.input"
-                name="message"
-                type="text"
-                :readonly="!connectionState"
-                class="input md:rounded-bl-lg"
-                @keyup.enter="connectionState ? sendMessage() : null"
-                @keyup.up="connectionState ? walkHistory('up') : null"
-                @keyup.down="connectionState ? walkHistory('down') : null"
-              />
-            </li>
-            <div>
-              <li>
-                <ButtonSecondary
-                  id="send"
-                  name="send"
-                  :disabled="!connectionState"
+  <Splitpanes :dbl-click-splitter="false" vertical>
+    <Pane class="hide-scrollbar !overflow-auto">
+      <Splitpanes :dbl-click-splitter="false" horizontal>
+        <Pane class="hide-scrollbar !overflow-auto">
+          <AppSection label="request">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+              <div class="flex-1 inline-flex">
+                <input
+                  id="websocket-url"
+                  v-model="url"
                   class="
-                    button
-                    rounded-b-lg
-                    md:rounded-bl-none md:rounded-br-lg
+                    bg-primaryLight
+                    border border-divider
+                    rounded-l
+                    font-semibold font-mono
+                    text-secondaryDark
+                    w-full
+                    py-1
+                    px-4
+                    transition
+                    truncate
+                    focus:outline-none focus:border-accent
                   "
-                  icon="send"
-                  :label="$t('send')"
-                  @click.native="sendMessage"
+                  type="url"
+                  spellcheck="false"
+                  :class="{ error: !urlValid }"
+                  :placeholder="$t('url')"
+                  @keyup.enter="urlValid ? toggleConnection() : null"
                 />
-              </li>
+                <ButtonPrimary
+                  id="connect"
+                  :disabled="!urlValid"
+                  class="rounded-l-none w-28"
+                  name="connect"
+                  :label="!connectionState ? $t('connect') : $t('disconnect')"
+                  :loading="connectingState"
+                  @click.native="toggleConnection"
+                />
+              </div>
             </div>
-          </ul>
-        </AppSection>
-      </Pane>
-    </Splitpanes>
-  </div>
+          </AppSection>
+          <div
+            class="
+              bg-primary
+              border-b border-dividerLight
+              flex flex-1
+              pl-4
+              top-16
+              z-10
+              sticky
+              items-center
+              justify-between
+            "
+          >
+            <label class="font-semibold">
+              {{ $t("websocket.protocols") }}
+            </label>
+            <div class="flex">
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('clear_all')"
+                icon="clear_all"
+                @click.native="clearContent"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('add.new')"
+                icon="add"
+                @click.native="addProtocol"
+              />
+            </div>
+          </div>
+          <div
+            v-for="(protocol, index) of protocols"
+            :key="`protocol-${index}`"
+            class="
+              divide-x divide-dividerLight
+              border-b border-dividerLight
+              flex
+            "
+            :class="{ 'border-t': index == 0 }"
+          >
+            <input
+              v-model="protocol.value"
+              class="
+                bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
+                focus:outline-none
+              "
+              :placeholder="$t('count.protocol', { count: index + 1 })"
+              name="message"
+              type="text"
+            />
+            <div>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="
+                  protocol.hasOwnProperty('active')
+                    ? protocol.active
+                      ? $t('action.turn_off')
+                      : $t('action.turn_on')
+                    : $t('action.turn_off')
+                "
+                :icon="
+                  protocol.hasOwnProperty('active')
+                    ? protocol.active
+                      ? 'check_box'
+                      : 'check_box_outline_blank'
+                    : 'check_box'
+                "
+                color="green"
+                @click.native="
+                  protocol.active = protocol.hasOwnProperty('active')
+                    ? !protocol.active
+                    : false
+                "
+              />
+            </div>
+            <div>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                color="red"
+                @click.native="deleteProtocol({ index })"
+              />
+            </div>
+          </div>
+          <div
+            v-if="protocols.length === 0"
+            class="
+              flex flex-col
+              text-secondaryLight
+              p-4
+              items-center
+              justify-center
+            "
+          >
+            <i class="opacity-75 pb-2 material-icons">topic</i>
+            <span class="text-center">
+              {{ $t("empty.protocols") }}
+            </span>
+          </div>
+        </Pane>
+        <Pane class="hide-scrollbar !overflow-auto">
+          <AppSection label="response">
+            <RealtimeLog :title="$t('log')" :log="communication.log" />
+          </AppSection>
+        </Pane>
+      </Splitpanes>
+    </Pane>
+    <Pane
+      v-if="RIGHT_SIDEBAR"
+      max-size="35"
+      size="25"
+      min-size="20"
+      class="hide-scrollbar !overflow-auto"
+    >
+      <AppSection label="messages">
+        <div class="flex flex-col flex-1 p-4 inline-flex">
+          <label for="websocket-message" class="font-semibold">
+            {{ $t("communication") }}
+          </label>
+        </div>
+        <div class="flex px-4">
+          <input
+            id="websocket-message"
+            v-model="communication.input"
+            name="message"
+            type="text"
+            :disabled="!connectionState"
+            :placeholder="$t('message')"
+            class="input !rounded-r-none"
+            @keyup.enter="connectionState ? sendMessage() : null"
+            @keyup.up="connectionState ? walkHistory('up') : null"
+            @keyup.down="connectionState ? walkHistory('down') : null"
+          />
+          <ButtonPrimary
+            id="send"
+            name="send"
+            :disabled="!connectionState"
+            class="rounded-l-none"
+            :label="$t('send')"
+            @click.native="sendMessage"
+          />
+        </div>
+      </AppSection>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 import "splitpanes/dist/splitpanes.css"
-
-export default {
+import { useSetting } from "~/newstore/settings"
+export default defineComponent({
   components: { Splitpanes, Pane },
+  setup() {
+    return {
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+    }
+  },
   data() {
     return {
       connectionState: false,
+      connectingState: false,
       url: "wss://echo.websocket.org",
       isUrlValid: true,
       socket: null,
@@ -222,6 +256,9 @@ export default {
     this.worker.terminate()
   },
   methods: {
+    clearContent() {
+      this.protocols = []
+    },
     debouncer: debounce(function () {
       this.worker.postMessage({ type: "ws", url: this.url })
     }, 1000),
@@ -243,8 +280,10 @@ export default {
         },
       ]
       try {
+        this.connectingState = true
         this.socket = new WebSocket(this.url, this.activeProtocols)
         this.socket.onopen = () => {
+          this.connectingState = false
           this.connectionState = true
           this.communication.log = [
             {
@@ -294,6 +333,8 @@ export default {
     disconnect() {
       if (this.socket) {
         this.socket.close()
+        this.connectionState = false
+        this.connectingState = false
       }
     },
     handleError(error) {
@@ -378,5 +419,5 @@ export default {
       })
     },
   },
-}
+})
 </script>

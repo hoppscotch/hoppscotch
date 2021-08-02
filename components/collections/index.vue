@@ -1,28 +1,31 @@
 <template>
   <AppSection
     label="collections"
-    :class="{ 'rounded-lg border-2 border-divider': saveRequest }"
+    :class="{ 'rounded border border-divider': saveRequest }"
   >
     <div
-      class="flex flex-col sticky z-10 top-0 bg-primary"
-      :class="{ '!top-10': !saveRequest && !doc }"
+      class="bg-primary rounded-t flex flex-col top-0 z-10 sticky"
+      :class="{ '!top-8': !saveRequest && !doc }"
     >
-      <input
-        v-if="!saveRequest"
-        v-model="filterText"
-        type="search"
-        :placeholder="$t('search')"
-        class="
-          px-4
-          py-3
-          text-xs
-          border-b border-dividerLight
-          flex flex-1
-          font-medium
-          bg-primaryLight
-          focus:outline-none
-        "
-      />
+      <div v-if="!saveRequest" class="search-wrapper">
+        <input
+          v-model="filterText"
+          type="search"
+          :placeholder="$t('search')"
+          class="
+            bg-primaryLight
+            border-b border-dividerLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-9
+            focus:outline-none
+            truncate
+          "
+        />
+      </div>
       <CollectionsChooseType
         :collections-type="collectionsType"
         :show="showTeamCollections"
@@ -30,7 +33,7 @@
         @update-collection-type="updateCollectionType"
         @update-selected-team="updateSelectedTeam"
       />
-      <div class="border-b flex justify-between flex-1 border-dividerLight">
+      <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           v-if="
             collectionsType.type == 'team-collections' &&
@@ -40,7 +43,7 @@
           v-tippy="{ theme: 'tooltip' }"
           disabled
           icon="add"
-          :title="$t('disable_new_collection')"
+          :title="$t('team.no_access')"
           :label="$t('new')"
         />
         <ButtonSecondary
@@ -57,7 +60,7 @@
             collectionsType.selectedTeam == undefined
           "
           icon="import_export"
-          :title="$t('import_export')"
+          :title="$t('modal.import_export')"
           @click.native="displayModalImportExport(true)"
         />
       </div>
@@ -94,19 +97,37 @@
     </div>
     <div
       v-if="collections.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
-      <span class="text-xs text-center">
-        {{ $t("create_new_collection") }}
+      <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
+      <span class="text-center pb-4">
+        {{ $t("empty.collections") }}
       </span>
+      <ButtonSecondary
+        v-if="
+          collectionsType.type == 'team-collections' &&
+          (collectionsType.selectedTeam == undefined ||
+            collectionsType.selectedTeam.myRole == 'VIEWER')
+        "
+        v-tippy="{ theme: 'tooltip' }"
+        disabled
+        :title="$t('team.no_access')"
+        :label="$t('add.new')"
+        outline
+      />
+      <ButtonSecondary
+        v-else
+        outline
+        :label="$t('add.new')"
+        @click.native="displayModalAdd(true)"
+      />
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">manage_search</i>
-      <span class="text-xs text-center">
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <span class="text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -292,7 +313,7 @@ export default {
     // Intented to be called by the CollectionAdd modal submit event
     addNewRootCollection(name) {
       if (!name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+        this.$toast.info(this.$t("collection.invalid_name"))
         return
       }
       if (this.collectionsType.type === "my-collections") {
@@ -312,7 +333,7 @@ export default {
             this.collectionsType.selectedTeam.id
           )
           .then(() => {
-            this.$toast.success(this.$t("collection_added"), {
+            this.$toast.success(this.$t("collection.created"), {
               icon: "done",
             })
           })
@@ -328,7 +349,7 @@ export default {
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {
       if (!newName) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+        this.$toast.info(this.$t("collection.invalid_name"))
         return
       }
       if (this.collectionsType.type === "my-collections") {
@@ -371,7 +392,7 @@ export default {
           .renameCollection(this.$apollo, name, this.editingFolder.id)
           .then(() => {
             // Result
-            this.$toast.success(this.$t("folder_renamed"), {
+            this.$toast.success(this.$t("folder.renamed"), {
               icon: "done",
             })
           })
@@ -486,7 +507,7 @@ export default {
             })
             .then(() => {
               // Result
-              this.$toast.success(this.$t("folder_added"), {
+              this.$toast.success(this.$t("folder.created"), {
                 icon: "done",
               })
               this.$emit("update-team-collections")

@@ -5,8 +5,8 @@
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="requestType" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="requestType" class="font-semibold px-4 pb-4">
           {{ $t("choose_language") }}
         </label>
         <div class="flex flex-1">
@@ -22,20 +22,19 @@
               <template #trigger>
                 <span
                   class="
-                    flex
-                    w-full
-                    px-4
-                    text-xs
-                    py-3
-                    rounded-lg
-                    font-semibold
-                    focus:outline-none
-                    border-b border-dividerLight
                     bg-primaryLight
+                    border border-dividerLight
+                    rounded
                     cursor-pointer
+                    flex
+                    font-semibold
+                    w-full
+                    py-2
+                    px-4
+                    focus:outline-none
                   "
                 >
-                  {{ codegens.find((x) => x.id === requestType).name }}
+                  {{ codegens.find((x) => x.id === codegenType).name }}
                 </span>
               </template>
               <SmartItem
@@ -43,72 +42,109 @@
                 :key="`gen-${index}`"
                 :label="gen.name"
                 @click.native="
-                  requestType = gen.id
+                  codegenType = gen.id
                   $refs.options.tippy().hide()
                 "
               />
             </tippy>
           </span>
         </div>
-        <div class="flex justify-between flex-1">
-          <label
-            for="generatedCode"
-            class="px-4 pt-4 font-semibold pb-4 text-xs"
-          >
+        <div class="flex flex-1 justify-between">
+          <label for="generatedCode" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("generated_code") }}
           </label>
-          <ButtonSecondary
-            ref="copyRequestCode"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('copy_code')"
-            :icon="copyIcon"
-            @click.native="copyRequestCode"
-          />
         </div>
         <SmartAceEditor
-          v-if="requestType"
+          v-if="codegenType"
           ref="generatedCode"
           :value="requestCode"
-          :lang="codegens.find((x) => x.id === requestType).language"
+          :lang="codegens.find((x) => x.id === codegenType).language"
           :options="{
-            maxLines: '10',
-            minLines: '10',
-            fontSize: '14px',
+            maxLines: 16,
+            minLines: 8,
+            fontSize: '12px',
             autoScrollEditorIntoView: true,
             readOnly: true,
             showPrintMargin: false,
             useWorker: false,
           }"
-          styles="rounded-lg"
+          styles="rounded"
         />
       </div>
+    </template>
+    <template #footer>
+      <ButtonPrimary
+        ref="copyRequestCode"
+        :label="$t('action.copy')"
+        :icon="copyIcon"
+        @click.native="copyRequestCode"
+      />
+      <ButtonSecondary
+        :label="$t('action.dismiss')"
+        @click.native="hideModal"
+      />
     </template>
   </SmartModal>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import { codegens } from "~/helpers/codegen/codegen"
+import { getRESTRequest } from "~/newstore/RESTSession"
+import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
+import { getCurrentEnvironment } from "~/newstore/environments"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
-    requestCode: { type: String, default: null },
-    requestTypeProp: { type: String, default: "curl" },
   },
   data() {
     return {
       codegens,
       copyIcon: "content_copy",
+      request: getRESTRequest(),
+      codegenType: "curl",
     }
   },
   computed: {
-    requestType: {
-      get() {
-        return this.requestTypeProp
-      },
-      set(val) {
-        this.$emit("set-request-type", val)
-      },
+    requestCode(): string {
+      const effectiveRequest = getEffectiveRESTRequest(
+        this.request,
+        getCurrentEnvironment()
+      )
+
+      const urlObj = new URL(effectiveRequest.effectiveFinalURL)
+      const baseURL = urlObj.origin
+      const path = urlObj.pathname
+
+      // TODO: Solidify
+      return codegens
+        .find((x) => x.id === this.codegenType)!
+        .generator({
+          auth: "None",
+          httpUser: null,
+          httpPassword: null,
+          method: effectiveRequest.method,
+          url: baseURL,
+          pathName: path,
+          queryString: urlObj.searchParams.toString(),
+          bearerToken: null,
+          headers: effectiveRequest.effectiveFinalHeaders,
+          rawInput: null,
+          rawParams: null,
+          rawRequestBody: "",
+          contentType: effectiveRequest.effectiveFinalHeaders.find(
+            (x) => x.key === "content-type"
+          ),
+        })
+    },
+  },
+  watch: {
+    show(goingToShow) {
+      if (goingToShow) {
+        this.request = getRESTRequest()
+      }
     },
   },
   methods: {
@@ -119,15 +155,13 @@ export default {
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      this.$refs.generatedCode.editor.selectAll()
-      this.$refs.generatedCode.editor.focus()
-      document.execCommand("copy")
+      copyToClipboard(this.requestCode)
       this.copyIcon = "done"
-      this.$toast.success(this.$t("copied_to_clipboard"), {
+      this.$toast.success(this.$t("copied_to_clipboard").toString(), {
         icon: "done",
       })
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
-}
+})
 </script>

@@ -1,28 +1,19 @@
 <template>
-  <footer class="flex flex-col p-4">
-    <nav class="grid grid-cols-2 gap-4 md:grid-cols-4">
+  <footer class="flex flex-col p-6">
+    <nav class="grid gap-4 grid-cols-2 md:grid-cols-4">
       <div class="flex flex-col space-y-2">
-        <span>
-          <AppLogo class="h-8" />
-        </span>
-        <span class="font-bold"> Hoppscotch </span>
-        <SmartChangeLanguage />
-        <ul class="space-y-2">
+        <h4 class="font-semibold my-2">Hoppscotch</h4>
+        <ul class="space-y-4">
           <li>
-            <SmartAnchor label="Terms" to="/about/terms" class="footer-nav" />
+            <SmartChangeLanguage />
           </li>
           <li>
-            <SmartAnchor
-              label="Privacy"
-              to="/about/privacy"
-              class="footer-nav"
-            />
+            <SmartColorModePicker />
           </li>
         </ul>
-        <SmartColorModePicker />
       </div>
       <div class="flex flex-col space-y-2">
-        <h4 class="my-2 font-semibold">Solutions</h4>
+        <h4 class="font-semibold my-2">Solutions</h4>
         <ul class="space-y-2">
           <li
             v-for="(item, index) in navigation.solutions"
@@ -37,7 +28,7 @@
         </ul>
       </div>
       <div class="flex flex-col space-y-2">
-        <h4 class="my-2 font-semibold">Platform</h4>
+        <h4 class="font-semibold my-2">Platform</h4>
         <ul class="space-y-2">
           <li
             v-for="(item, index) in navigation.platform"
@@ -52,7 +43,7 @@
         </ul>
       </div>
       <div class="flex flex-col space-y-2">
-        <h4 class="my-2 font-semibold">Company</h4>
+        <h4 class="font-semibold my-2">Company</h4>
         <ul class="space-y-2">
           <li
             v-for="(item, index) in navigation.company"
@@ -77,72 +68,84 @@ export default {
       navigation: {
         solutions: [
           {
-            name: "SaaS",
-            link: "/settings",
+            name: "RESTful",
+            link: "/",
           },
           {
-            name: "Products",
-            link: "/settings",
+            name: "WebSocket",
+            link: "/realtime",
           },
           {
-            name: "Creators",
-            link: "/settings",
+            name: "SSE",
+            link: "/realtime",
           },
           {
-            name: "Developers",
-            link: "/settings",
+            name: "Socket.IO",
+            link: "/realtime",
           },
           {
-            name: "Finance",
-            link: "/settings",
+            name: "MQTT",
+            link: "/realtime",
           },
           {
-            name: "Enterprise",
-            link: "/settings",
+            name: "GraphQL",
+            link: "/graphql",
           },
         ],
         platform: [
           {
-            name: "Payments",
-            link: "/settings",
+            name: "API Designing",
+            link: "/",
           },
           {
-            name: "Subscriptions",
-            link: "/settings",
+            name: "API Development",
+            link: "/",
           },
           {
-            name: "API",
-            link: "https://docs.kooli.tech/api",
+            name: "API Testing",
+            link: "/",
           },
           {
-            name: "Guides",
-            link: "https://docs.kooli.tech/guides",
+            name: "API Deployment",
+            link: "/",
+          },
+          {
+            name: "API Documentation",
+            link: "/documentation",
+          },
+          {
+            name: "Integrations",
+            link: "/",
           },
         ],
         company: [
           {
             name: "About",
-            link: "/about",
+            link: "/",
           },
           {
-            name: "Jobs",
-            link: "/about/jobs",
-          },
-          {
-            name: "Integrations",
-            link: "/about/integrations",
+            name: "Careers",
+            link: "/careers",
           },
           {
             name: "Support",
-            link: "",
+            link: "/",
           },
           {
             name: "Contact",
-            link: "/about/contact",
+            link: "/",
           },
           {
             name: "Blog",
-            link: "https://blog.kooli.tech",
+            link: "https://blog.hoppscotch.io",
+          },
+          {
+            name: "Community",
+            link: "/",
+          },
+          {
+            name: "Open Source",
+            link: "https://github.com/hoppscotch",
           },
         ],
       },
@@ -151,11 +154,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .footer-nav {
-  &:hover,
-  &:focus {
-    @apply text-secondaryDark;
-  }
+  @apply px-2 py-1;
+  @apply -mx-2 -my-1;
+  @apply hover:text-secondaryDark;
+  @apply focus:text-secondaryDark;
 }
 </style>

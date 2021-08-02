@@ -2,28 +2,32 @@
   <AppSection label="history">
     <div
       class="
-        flex
-        sticky
-        z-10
         bg-primaryLight
-        top-10
         border-b border-dividerLight
+        flex
+        top-8
+        z-10
+        sticky
       "
     >
-      <input
-        v-model="filterText"
-        type="search"
-        class="
-          px-4
-          py-3
-          text-xs
-          flex flex-1
-          font-medium
-          bg-primaryLight
-          focus:outline-none
-        "
-        :placeholder="$t('search')"
-      />
+      <div class="search-wrapper">
+        <input
+          v-model="filterText"
+          type="search"
+          class="
+            bg-primaryLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-9
+            focus:outline-none
+            truncate
+          "
+          :placeholder="$t('search')"
+        />
+      </div>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         data-testid="clear_history"
@@ -56,25 +60,25 @@
     </div>
     <div
       v-if="!(filteredHistory.length !== 0 || history.length === 0)"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">manage_search</i>
-      <span class="text-xs text-center">
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <span class="text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <div
       v-if="history.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">schedule</i>
-      <span class="text-xs text-center">
-        {{ $t("history_empty") }}
+      <i class="opacity-75 pb-2 material-icons">schedule</i>
+      <span class="text-center">
+        {{ $t("empty.history") }}
       </span>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_history')"
+      :title="$t('confirm.remove_history')"
       @hide-modal="confirmRemove = false"
       @resolve="clearHistory"
     />

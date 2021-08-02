@@ -1,12 +1,12 @@
 <template>
   <!-- eslint-disable -->
   <div>
-    <Splitpanes vertical :dbl-click-splitter="false">
-      <Pane class="overflow-auto hide-scrollbar">
-        <Splitpanes horizontal :dbl-click-splitter="false">
-          <Pane class="overflow-auto hide-scrollbar">
+    <Splitpanes :dbl-click-splitter="false" vertical>
+      <Pane class="hide-scrollbar !overflow-auto">
+        <Splitpanes :dbl-click-splitter="false" horizontal>
+          <Pane class="hide-scrollbar !overflow-auto">
             <HttpRequest />
-            <SmartTabs styles="sticky top-70px z-10">
+            <SmartTabs styles="sticky top-16 z-10">
               <SmartTab
                 :id="'params'"
                 :label="$t('parameters')"
@@ -17,77 +17,7 @@
               </SmartTab>
 
               <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
-                <div class="flex flex-1 items-center justify-between py-2">
-                  <tippy
-                    interactive
-                    ref="contentTypeOptions"
-                    tabindex="-1"
-                    trigger="click"
-                    theme="popover"
-                    arrow
-                  >
-                    <template #trigger>
-                      <div class="flex">
-                        <span class="select-wrapper">
-                          <input
-                            id="contentType"
-                            class="
-                              flex
-                              w-full
-                              px-4
-                              py-2
-                              bg-primary
-                              truncate
-                              rounded-lg
-                              font-semibold font-mono
-                              text-xs
-                              transition
-                              focus:outline-none
-                            "
-                            v-model="contentType"
-                            readonly
-                          />
-                        </span>
-                      </div>
-                    </template>
-                    <SmartItem
-                      v-for="(contentTypeItem, index) in validContentTypes"
-                      :key="`contentTypeItem-${index}`"
-                      @click.native="
-                        contentType = contentTypeItem
-                        $refs.contentTypeOptions.tippy().hide()
-                      "
-                      :label="contentTypeItem"
-                    />
-                  </tippy>
-                  <SmartToggle
-                    v-if="canListParameters"
-                    :on="rawInput"
-                    @change="rawInput = !rawInput"
-                    class="px-4"
-                  >
-                    {{ $t("raw_input") }}
-                  </SmartToggle>
-                </div>
-                <HttpBodyParameters
-                  v-if="!rawInput"
-                  :bodyParams="bodyParams"
-                  @clear-content="clearContent"
-                  @set-route-query-state="setRouteQueryState"
-                  @remove-request-body-param="removeRequestBodyParam"
-                  @add-request-body-param="addRequestBodyParam"
-                />
-                <HttpRawBody
-                  v-else
-                  :rawParams="rawParams"
-                  :contentType="contentType"
-                  :rawInput="rawInput"
-                  @clear-content="clearContent"
-                  @update-raw-body="updateRawBody"
-                  @update-raw-input="
-                    updateRawInput = (value) => (rawInput = value)
-                  "
-                />
+                <HttpBody />
               </SmartTab>
 
               <SmartTab
@@ -213,8 +143,6 @@
                           />
                           <ButtonSecondary
                             @click.native="showTokenRequest = false"
-                            v-tippy="{ theme: 'tooltip' }"
-                            :title="$t('close')"
                             icon="close"
                           />
                         </div>
@@ -319,143 +247,27 @@
                 :id="'pre_request_script'"
                 :label="$t('pre_request_script')"
               >
-                <AppSection v-if="showPreRequestScript" label="preRequest">
-                  <div
-                    class="
-                      sticky
-                      top-110px
-                      z-10
-                      bg-primary
-                      flex flex-1
-                      items-center
-                      justify-between
-                      pl-4
-                      border-b border-dividerLight
-                    "
-                  >
-                    <label class="font-semibold text-xs">
-                      {{ $t("javascript_code") }}
-                    </label>
-                    <ButtonSecondary
-                      to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
-                      blank
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('wiki')"
-                      icon="help_outline"
-                    />
-                  </div>
-                  <SmartJsEditor
-                    v-model="preRequestScript"
-                    :options="{
-                      maxLines: '16',
-                      minLines: '8',
-                      fontSize: '14px',
-                      autoScrollEditorIntoView: true,
-                      showPrintMargin: false,
-                      useWorker: false,
-                    }"
-                    completeMode="pre"
-                  />
-                </AppSection>
+                <HttpPreRequestScript />
               </SmartTab>
 
               <SmartTab :id="'tests'" :label="$t('tests')">
-                <AppSection v-if="testsEnabled" label="postRequestTests">
-                  <div
-                    class="
-                      sticky
-                      top-110px
-                      z-10
-                      bg-primary
-                      flex flex-1
-                      items-center
-                      justify-between
-                      pl-4
-                      border-b border-dividerLight
-                    "
-                  >
-                    <label class="font-semibold text-xs">
-                      {{ $t("javascript_code") }}
-                    </label>
-                    <ButtonSecondary
-                      to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
-                      blank
-                      v-tippy="{ theme: 'tooltip' }"
-                      :title="$t('wiki')"
-                      icon="help_outline"
-                    />
-                  </div>
-                  <SmartJsEditor
-                    v-model="testScript"
-                    :options="{
-                      maxLines: '16',
-                      minLines: '8',
-                      fontSize: '14px',
-                      autoScrollEditorIntoView: true,
-                      showPrintMargin: false,
-                      useWorker: false,
-                    }"
-                    completeMode="test"
-                  />
-                  <div v-if="testReports.length !== 0">
-                    <div class="flex flex-1 items-center justify-between pl-4">
-                      <label class="font-semibold text-xs">
-                        Test Reports
-                      </label>
-                      <ButtonSecondary
-                        @click.native="clearContent('tests', $event)"
-                        v-tippy="{ theme: 'tooltip' }"
-                        :title="$t('clear')"
-                        icon="clear_all"
-                      />
-                    </div>
-                    <div
-                      v-for="(testReport, index) in testReports"
-                      :key="`testReport-${index}`"
-                      class="px-4"
-                    >
-                      <div v-if="testReport.startBlock">
-                        <hr />
-                        <h4 class="heading">
-                          {{ testReport.startBlock }}
-                        </h4>
-                      </div>
-                      <p
-                        v-else-if="testReport.result"
-                        class="flex flex-1 font-mono text-xs info"
-                      >
-                        <span
-                          :class="testReport.styles.class"
-                          class="flex items-center"
-                        >
-                          <i class="material-icons text-sm">
-                            {{ testReport.styles.icon }}
-                          </i>
-                          <span>&nbsp;{{ testReport.result }}</span>
-                          <span v-if="testReport.message">
-                            <label>: {{ testReport.message }}</label>
-                          </span>
-                        </span>
-                      </p>
-                      <div v-else-if="testReport.endBlock"><hr /></div>
-                    </div>
-                  </div>
-                </AppSection>
+                <HttpTests />
               </SmartTab>
             </SmartTabs>
           </Pane>
-          <Pane class="overflow-auto hide-scrollbar">
+          <Pane class="hide-scrollbar !overflow-auto">
             <HttpResponse ref="response" />
           </Pane>
         </Splitpanes>
       </Pane>
       <Pane
-        max-size="30"
+        v-if="RIGHT_SIDEBAR"
+        max-size="35"
         size="25"
         min-size="20"
-        class="overflow-auto hide-scrollbar"
+        class="hide-scrollbar !overflow-auto"
       >
-        <aside class="h-full">
+        <aside>
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'history'" :label="$t('history')" :selected="true">
               <History :page="'rest'" ref="historyComponent" />
@@ -472,27 +284,6 @@
         </aside>
       </Pane>
     </Splitpanes>
-
-    <CollectionsSaveRequest
-      mode="rest"
-      :show="showSaveRequestModal"
-      @hide-modal="hideRequestModal"
-      :editing-request="editRequest"
-    />
-
-    <HttpImportCurl
-      :show="showCurlImportModal"
-      @hide-modal="showCurlImportModal = false"
-      @handle-import="handleImport"
-    />
-
-    <HttpCodegenModal
-      :show="showCodegenModal"
-      :requestTypeProp="requestType"
-      :requestCode="requestCode"
-      @hide-modal="showCodegenModal = false"
-      @set-request-type="setRequestType"
-    />
 
     <HttpTokenList
       :show="showTokenListModal"
@@ -533,6 +324,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
               icon="delete"
+              color="red"
             />
           </div>
         </div>
@@ -557,7 +349,7 @@
             </span>
           </li>
         </ul>
-        <label for="token-req-name">{{ $t("token_req_name") }}</label>
+        <label for="token-req-name">{{ $t("request_name") }}</label>
         <input class="input" v-model="tokenReqName" />
         <label for="token-req-details">
           {{ $t("token_req_details") }}
@@ -583,12 +375,12 @@
 
 <script>
 /* eslint-disable */
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 
 import url from "url"
 import querystring from "querystring"
-import parseCurlCommand from "~/helpers/curlparser"
 import getEnvironmentVariablesFromScript from "~/helpers/preRequest"
 import runTestScriptWithVariables from "~/helpers/postwomanTesting"
 import parseTemplateString from "~/helpers/templating"
@@ -605,27 +397,33 @@ import {
   knownContentTypes,
   isJSONContentType,
 } from "~/helpers/utils/contenttypes"
-import { generateCodeWithGenerator } from "~/helpers/codegen/codegen"
-import { getSettingSubject, applySetting } from "~/newstore/settings"
+import {
+  getSettingSubject,
+  applySetting,
+  useSetting,
+} from "~/newstore/settings"
 import { addRESTHistoryEntry } from "~/newstore/history"
 import clone from "lodash/clone"
 import {
   restRequest$,
   restActiveParamsCount$,
   restActiveHeadersCount$,
+  usePreRequestScript,
 } from "~/newstore/RESTSession"
 import { map } from "rxjs/operators"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
-
+  setup() {
+    return {
+      preRequestScript: usePreRequestScript(),
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+    }
+  },
   data() {
     return {
       showCurlImportModal: false,
       showPreRequestScript: true,
-      testsEnabled: true,
-      testScript: "// pw.expect('variable').toBe('value');",
-      preRequestScript: "// pw.env.set('variable', 'value');",
       testReports: [],
       copyButton: '<i class="material-icons">content_copy</i>',
       downloadButton: '<i class="material-icons">save_alt</i>',
@@ -643,7 +441,6 @@ export default {
       showTokenListModal: false,
       showTokenRequest: false,
       showTokenRequestList: false,
-      showSaveRequestModal: false,
       editRequest: {},
       files: [],
       filenames: "",
@@ -679,18 +476,6 @@ export default {
     }
   },
   watch: {
-    canListParameters: {
-      immediate: true,
-      handler(canListParameters) {
-        if (canListParameters) {
-          this.$nextTick(() => {
-            this.rawInput = Boolean(this.rawParams && this.rawParams !== "{}")
-          })
-        } else {
-          this.rawInput = true
-        }
-      },
-    },
     contentType(contentType, oldContentType) {
       const getDefaultParams = (contentType) => {
         if (isJSONContentType(contentType)) return "{}"
@@ -740,7 +525,6 @@ export default {
         this.preRequestScript = newValue.preRequestScript
       }
       if (newValue.testScript) {
-        this.testsEnabled = true
         this.testScript = newValue.testScript
       }
       this.name = newValue.name
@@ -757,17 +541,6 @@ export default {
     },
   },
   computed: {
-    /**
-     * Check content types that can be automatically
-     * serialized by Hoppscotch.
-     */
-    canListParameters() {
-      return (
-        this.contentType === "application/x-www-form-urlencoded" ||
-        this.contentType === "multipart/form-data" ||
-        isJSONContentType(this.contentType)
-      )
-    },
     uri: {
       get() {
         return this.$store.state.request.uri
@@ -1097,41 +870,6 @@ export default {
         .join("&")
       return result === "" ? "" : `?${result}`
     },
-    requestCode() {
-      let headers = []
-      if (this.preRequestScript || hasPathParams(this.params)) {
-        let environmentVariables = getEnvironmentVariablesFromScript(
-          this.preRequestScript
-        )
-        environmentVariables = addPathParamsToVariables(
-          this.params,
-          environmentVariables
-        )
-        for (let k of this.headers.filter((item) =>
-          item.hasOwnProperty("active") ? item.active == true : true
-        )) {
-          const kParsed = parseTemplateString(k.key, environmentVariables)
-          const valParsed = parseTemplateString(k.value, environmentVariables)
-          headers.push({ key: kParsed, value: valParsed })
-        }
-      }
-
-      return generateCodeWithGenerator(this.requestType, {
-        auth: this.auth,
-        method: this.method,
-        url: this.url,
-        pathName: this.pathName,
-        queryString: this.queryString,
-        httpUser: this.httpUser,
-        httpPassword: this.httpPassword,
-        bearerToken: this.bearerToken,
-        headers,
-        rawInput: this.rawInput,
-        rawParams: this.rawParams,
-        rawRequestBody: this.rawRequestBody,
-        contentType: this.contentType,
-      })
-    },
     tokenReqDetails() {
       const details = {
         oidcDiscoveryUrl: this.oidcDiscoveryUrl,
@@ -1377,7 +1115,6 @@ export default {
               contentType: this.contentType,
               requestType: this.requestType,
               testScript: this.testScript,
-              usesPostScripts: this.testsEnabled,
             }
 
             if (
@@ -1421,10 +1158,11 @@ export default {
       // tests
       const syntheticResponse = {
         status: this.response.status,
-        body: this.response.body,
-        headers: this.response.headers,
+        body: this.response.body || new Uint8Array([]),
+        headers: this.response.headers || [],
       }
 
+      this.response.body = this.response.body || new Uint8Array([])
       // Parse JSON body
       if (
         syntheticResponse.headers["content-type"] &&
@@ -1545,35 +1283,6 @@ export default {
         },
       })
     },
-    copyRequest() {
-      if (navigator.share) {
-        const time = new Date().toLocaleTimeString()
-        const date = new Date().toLocaleDateString()
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-            url: window.location.href,
-          })
-          .then(() => {})
-          .catch(() => {})
-      } else {
-        const dummy = document.createElement("input")
-        document.body.appendChild(dummy)
-        dummy.value = window.location.href
-        dummy.select()
-        document.execCommand("copy")
-        document.body.removeChild(dummy)
-        this.$refs.copyRequest.innerHTML = this.doneButton
-        this.$toast.info(this.$t("copied_to_clipboard"), {
-          icon: "done",
-        })
-        setTimeout(
-          () => (this.$refs.copyRequest.innerHTML = this.copyButton),
-          1000
-        )
-      }
-    },
     setRouteQueryState() {
       const flat = (key) => (this[key] !== "" ? `${key}=${this[key]}&` : "")
       const deep = (key) => {
@@ -1623,48 +1332,6 @@ export default {
         } else if (typeof this[key] === "string") {
           this[key] = queries[key]
         }
-      }
-    },
-    handleImport() {
-      const { value: text } = document.getElementById("import-curl")
-      try {
-        const parsedCurl = parseCurlCommand(text)
-        const { origin, pathname } = new URL(
-          parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
-        )
-        this.url = origin
-        this.path = pathname
-        this.uri = this.url + this.path
-        this.headers = []
-        if (parsedCurl.query) {
-          for (const key of Object.keys(parsedCurl.query)) {
-            this.$store.commit("addParams", {
-              key,
-              value: parsedCurl.query[key],
-              type: "query",
-              active: true,
-            })
-          }
-        }
-        if (parsedCurl.headers) {
-          for (const key of Object.keys(parsedCurl.headers)) {
-            this.$store.commit("addHeaders", {
-              key,
-              value: parsedCurl.headers[key],
-            })
-          }
-        }
-        this.method = parsedCurl.method.toUpperCase()
-        if (parsedCurl["data"]) {
-          this.rawInput = true
-          this.rawParams = parsedCurl["data"]
-        }
-        this.showCurlImportModal = false
-      } catch (error) {
-        this.showCurlImportModal = false
-        this.$toast.error(this.$t("curl_invalid_format"), {
-          icon: "error",
-        })
       }
     },
     switchVisibility() {
@@ -1743,35 +1410,6 @@ export default {
         () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
         1000
       )
-    },
-    saveRequest() {
-      let urlAndPath = parseUrlAndPath(this.uri)
-      this.editRequest = {
-        url: decodeURI(urlAndPath.url),
-        path: decodeURI(urlAndPath.path),
-        method: this.method,
-        auth: this.auth,
-        httpUser: this.httpUser,
-        httpPassword: this.httpPassword,
-        passwordFieldType: this.passwordFieldType,
-        bearerToken: this.bearerToken,
-        headers: this.headers,
-        params: this.params,
-        bodyParams: this.bodyParams,
-        rawParams: this.rawParams,
-        rawInput: this.rawInput,
-        contentType: this.contentType,
-        requestType: this.requestType,
-        preRequestScript:
-          this.showPreRequestScript == true ? this.preRequestScript : null,
-        testScript: this.testsEnabled == true ? this.testScript : null,
-        name: this.requestName,
-      }
-      this.showSaveRequestModal = true
-    },
-    hideRequestModal() {
-      this.showSaveRequestModal = false
-      this.editRequest = {}
     },
     setExclude(excludedField, excluded) {
       const update = clone(this.URL_EXCLUDES)
@@ -1906,59 +1544,6 @@ export default {
   },
   async mounted() {
     restRequest$.subscribe((x) => console.log(x))
-    this._keyListener = function (e) {
-      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        if (!this.runningRequest) {
-          this.sendRequest()
-        } else {
-          this.cancelRequest()
-        }
-      }
-      if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        this.saveRequest()
-      }
-      if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        this.copyRequest()
-      }
-      if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault()
-        this.$refs.clearAll.click()
-      }
-      if ((e.key === "g" || e.key === "G") && e.altKey) {
-        this.method = "GET"
-      }
-      if ((e.key === "h" || e.key === "H") && e.altKey) {
-        this.method = "HEAD"
-      }
-      if ((e.key === "p" || e.key === "P") && e.altKey) {
-        this.method = "POST"
-      }
-      if ((e.key === "u" || e.key === "U") && e.altKey) {
-        this.method = "PUT"
-      }
-      if ((e.key === "x" || e.key === "X") && e.altKey) {
-        this.method = "DELETE"
-      }
-      if (e.key == "ArrowUp" && e.altKey && this.currentMethodIndex > 0) {
-        this.method =
-          this.methodMenuItems[
-            --this.currentMethodIndex % this.methodMenuItems.length
-          ]
-      } else if (
-        e.key == "ArrowDown" &&
-        e.altKey &&
-        this.currentMethodIndex < 9
-      ) {
-        this.method =
-          this.methodMenuItems[
-            ++this.currentMethodIndex % this.methodMenuItems.length
-          ]
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
     await this.oauthRedirectReq()
   },
   created() {
@@ -1985,8 +1570,5 @@ export default {
       }
     )
   },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
-}
+})
 </script>

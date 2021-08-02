@@ -1,20 +1,18 @@
 <template>
-  <div>
-    <SmartTabs>
-      <SmartTab :id="'websocket'" :label="$t('websocket')" :selected="true">
-        <RealtimeWebsocket />
-      </SmartTab>
-      <SmartTab :id="'sse'" :label="$t('sse')">
-        <RealtimeSse />
-      </SmartTab>
-      <SmartTab :id="'socketio'" :label="$t('socketio')">
-        <RealtimeSocketio />
-      </SmartTab>
-      <SmartTab :id="'mqtt'" :label="$t('mqtt')">
-        <RealtimeMqtt />
-      </SmartTab>
-    </SmartTabs>
-  </div>
+  <SmartTabs>
+    <SmartTab id="websocket" :label="$t('tab.websocket')" :selected="true">
+      <RealtimeWebsocket />
+    </SmartTab>
+    <SmartTab id="sse" :label="$t('sse')">
+      <RealtimeSse />
+    </SmartTab>
+    <SmartTab id="socketio" :label="$t('socketio')">
+      <RealtimeSocketio />
+    </SmartTab>
+    <SmartTab id="mqtt" :label="$t('tab.mqtt')">
+      <RealtimeMqtt />
+    </SmartTab>
+  </SmartTabs>
 </template>
 
 <script>

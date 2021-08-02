@@ -23,9 +23,7 @@
         </div>
       </div>
     </div>
-    <div>
-      <slot></slot>
-    </div>
+    <slot></slot>
   </div>
 </template>
 
@@ -62,7 +60,6 @@ export default {
 <style scoped lang="scss">
 .tabs {
   @apply flex;
-  @apply flex-1;
   @apply whitespace-nowrap;
   @apply overflow-auto;
   @apply bg-primary;
@@ -79,20 +76,18 @@ export default {
   }
 
   .tab {
+    @apply relative;
     @apply flex;
     @apply items-center;
     @apply justify-center;
-    @apply px-4;
-    @apply py-3;
+    @apply px-4 py-2;
     @apply text-secondary;
     @apply font-semibold;
-    @apply text-xs;
     @apply cursor-pointer;
     @apply transition;
     @apply hover:text-secondaryDark;
     @apply focus:text-secondaryDark;
     @apply focus:outline-none;
-    @apply relative;
 
     .tab-info {
       @apply inline-flex;

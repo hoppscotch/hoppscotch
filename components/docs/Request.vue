@@ -120,7 +120,7 @@ export default {
   @apply p-4;
   @apply mt-4;
   @apply border border-divider;
-  @apply rounded-lg;
+  @apply rounded;
 
   h4 {
     @apply mt-4;
@@ -137,7 +137,7 @@ export default {
   @apply p-4;
   @apply m-0;
   @apply text-secondaryLight;
-  @apply border-b border-dashed border-divider;
+  @apply border-b border-divider;
 
   &:last-child {
     @apply border-b-0;

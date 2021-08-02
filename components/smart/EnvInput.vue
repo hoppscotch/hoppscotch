@@ -5,14 +5,32 @@
 
 <template>
   <div class="url-field-container">
-    <div ref="editor" class="url-field" contenteditable="true"></div>
+    <div
+      ref="editor"
+      :placeholder="placeholder"
+      class="url-field"
+      :class="styles"
+      contenteditable="true"
+      @keydown.enter.prevent="$emit('enter', $event)"
+      @change="$emit('change', $event)"
+      @keyup="$emit('keyup', $event)"
+      @click="$emit('click', $event)"
+      @keydown="$emit('keydown', $event)"
+    ></div>
   </div>
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
+import { tippy } from "vue-tippy"
+import {
+  currentEnvironment$,
+  getCurrentEnvironment,
+} from "~/newstore/environments"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 const tagsToReplace = {
   "&": "&amp;",
@@ -20,12 +38,30 @@ const tagsToReplace = {
   ">": "&gt;",
 }
 
-export default {
+export default defineComponent({
   props: {
     value: {
       type: String,
       default: "",
     },
+    placeholder: {
+      type: String,
+      default: "",
+    },
+    styles: {
+      type: String,
+      default: "",
+    },
+  },
+  setup() {
+    const currentEnvironment = useReadonlyStream(
+      currentEnvironment$,
+      getCurrentEnvironment()
+    )
+
+    return {
+      currentEnvironment,
+    }
   },
   data() {
     return {
@@ -35,7 +71,8 @@ export default {
       highlight: [
         {
           text: /(<<\w+>>)/g,
-          style: "VAR",
+          style:
+            "text-white cursor-help rounded px-1 focus:outline-none mx-0.5",
         },
       ],
       highlightEnabled: true,
@@ -45,7 +82,11 @@ export default {
       fireOnEnabled: true,
     }
   },
+
   watch: {
+    currentEnvironment() {
+      this.processHighlights()
+    },
     highlightStyle() {
       this.processHighlights()
     },
@@ -70,6 +111,7 @@ export default {
       this.restoreSelection(this.$refs.editor, selection)
     },
   },
+
   mounted() {
     if (this.fireOnEnabled)
       this.$refs.editor.addEventListener(this.fireOn, this.handleChange)
@@ -155,14 +197,21 @@ export default {
         result += this.safe_tags_replace(
           this.internalValue.substring(startingPosition, position.start)
         )
-        result +=
-          "<span class='" +
-          highlightPositions[k].style +
-          "'>" +
-          this.safe_tags_replace(
-            this.internalValue.substring(position.start, position.end + 1)
-          ) +
-          "</span>"
+        const envVar = this.internalValue
+          .substring(position.start, position.end + 1)
+          .slice(2, -2)
+        result += `<span class="${highlightPositions[k].style} ${
+          this.currentEnvironment.variables.find((k) => k.key === envVar)
+            ?.value === undefined
+            ? "bg-red-500"
+            : "bg-accentDark"
+        }" v-tippy data-tippy-content="environment: ${
+          this.currentEnvironment.name
+        } • value: ${
+          this.currentEnvironment.variables.find((k) => k.key === envVar)?.value
+        }">${this.safe_tags_replace(
+          this.internalValue.substring(position.start, position.end + 1)
+        )}</span>`
         startingPosition = position.end + 1
       }
       if (startingPosition < this.internalValue.length)
@@ -177,7 +226,31 @@ export default {
         result += "&nbsp;"
       }
       this.htmlOutput = result
+
+      this.$nextTick(() => {
+        this.renderTippy()
+      })
+
       this.$emit("input", this.internalValue)
+    },
+    renderTippy() {
+      const tippable = document.querySelectorAll("[v-tippy]")
+      tippable.forEach((t) => {
+        tippy(t, {
+          content: t.dataset["tippy-content"],
+          theme: "tooltip",
+          popperOptions: {
+            modifiers: {
+              preventOverflow: {
+                enabled: false,
+              },
+              hide: {
+                enabled: false,
+              },
+            },
+          },
+        })
+      })
     },
     insertRange(start, end, highlightObj, intervalTree) {
       const overlap = intervalTree.search(start, end)
@@ -386,25 +459,37 @@ export default {
       }
     },
   },
-}
+})
 </script>
 
-<style lang="scss">
-.VAR {
-  @apply font-bold;
-  @apply text-accent;
+<style lang="scss" scoped>
+[contenteditable="true"] {
+  &:empty {
+    line-height: 1.9;
+
+    &::before {
+      @apply text-secondary;
+      @apply opacity-75;
+      @apply pointer-events-none;
+
+      content: attr(placeholder);
+    }
+  }
 }
 
 .url-field-container {
   @apply inline-grid;
+  @apply w-full;
 }
 
 .url-field {
-  @apply border-dashed border-divider;
+  @apply flex;
+  @apply items-center;
+  @apply justify-items-start;
   @apply whitespace-nowrap;
   @apply overflow-x-auto;
+  @apply overflow-y-hidden;
   @apply resize-none;
-  @apply md:border-l;
 }
 
 .url-field::-webkit-scrollbar {

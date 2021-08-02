@@ -1,8 +1,12 @@
 <template>
-  <div class="flex flex-col min-h-screen">
-    <span v-if="signingInWithEmail">{{ $t("loading") }}</span>
-    <span v-else>{{ $t("waiting_for_connection") }}</span>
-    <pre v-if="error">{{ error }}</pre>
+  <div class="flex flex-col min-h-screen items-center justify-center">
+    <span v-if="signingInWithEmail">
+      <SmartSpinner />
+    </span>
+    <span v-else class="text-secondaryLight">
+      {{ $t("waiting_for_connection") }}
+    </span>
+    <pre v-if="error" class="font-mono">{{ error }}</pre>
   </div>
 </template>
 
@@ -13,6 +17,7 @@ import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
 import { getLocalConfig, removeLocalConfig } from "~/newstore/localpersistence"
 
 export default Vue.extend({
+  layout: "empty",
   data() {
     return {
       signingInWithEmail: false,

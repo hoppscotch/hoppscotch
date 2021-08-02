@@ -10,33 +10,32 @@
     >
       <span
         class="
-          font-mono font-bold
+          cursor-pointer
           flex
+          font-mono font-bold
+          mx-2
+          w-12
           justify-center
           items-center
-          text-xs
-          w-12
-          mx-2
           truncate
-          cursor-pointer
         "
         @click="!doc ? selectRequest() : {}"
       >
-        <i class="material-icons" :class="{ 'text-green-400': isSelected }">
+        <i class="material-icons" :class="{ 'text-green-500': isSelected }">
           {{ isSelected ? "check_circle" : "description" }}
         </i>
       </span>
       <span
         class="
-          py-3
           cursor-pointer
-          pr-2
-          flex flex-1
-          min-w-0
-          text-xs
-          group-hover:text-secondaryDark
-          transition
+          flex
           font-semibold
+          flex-1
+          min-w-0
+          py-2
+          pr-2
+          transition
+          group-hover:text-secondaryDark
         "
         @click="!doc ? selectRequest() : {}"
       >
@@ -79,6 +78,7 @@
         />
         <SmartItem
           icon="delete"
+          color="red"
           :label="$t('delete')"
           @click.native="
             confirmRemove = true
@@ -89,7 +89,7 @@
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('are_you_sure_remove_request')"
+      :title="$t('confirm.remove_request')"
       @hide-modal="confirmRemove = false"
       @resolve="removeRequest"
     />

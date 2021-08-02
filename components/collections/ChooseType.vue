@@ -18,15 +18,15 @@
               type="text"
               autofocus
               class="
-                flex
-                w-full
-                px-4
-                text-xs
-                py-3
-                focus:outline-none
-                border-b border-dividerLight
-                font-medium
                 bg-primaryLight
+                border-b border-dividerLight
+                flex
+                font-medium
+                w-full
+                py-2
+                px-4
+                focus:outline-none
+                appearance-none
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >

@@ -1,12 +1,12 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("new_team") }}</h3>
+      <h3 class="heading">{{ $t("team.new") }}</h3>
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelTeamAdd" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="selectLabelTeamAdd" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -14,7 +14,7 @@
           v-model="name"
           class="input"
           type="text"
-          :placeholder="$t('my_new_team')"
+          :placeholder="$t('team.new_name')"
           @keyup.enter="addNewTeam"
         />
       </div>
@@ -47,7 +47,7 @@ export default {
       // We clear it early to give the UI a snappy feel
       this.name = ""
       if (name != null && name.replace(/\s/g, "").length < 6) {
-        this.$toast.error(this.$t("string_length_insufficient"), {
+        this.$toast.error(this.$t("team.name_length_insufficient"), {
           icon: "error",
         })
         return

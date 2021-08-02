@@ -7,11 +7,8 @@
       </div>
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label
-          for="selectLabelGqlAddFolder"
-          class="px-4 font-semibold pb-4 text-xs"
-        >
+      <div class="flex flex-col px-2">
+        <label for="selectLabelGqlAddFolder" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -19,7 +16,7 @@
           v-model="name"
           class="input"
           type="text"
-          :placeholder="$t('my_new_folder')"
+          :placeholder="$t('folder.new')"
           @keyup.enter="addFolder"
         />
       </div>

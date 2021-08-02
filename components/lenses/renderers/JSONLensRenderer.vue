@@ -2,22 +2,22 @@
   <div>
     <div
       class="
-        flex flex-1
-        sticky
-        top-23
-        z-10
         bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        top-20
+        z-10
+        sticky
         items-center
         justify-between
-        border-b border-dividerLight
       "
     >
-      <label for="body" class="px-4 font-semibold text-xs">
+      <label for="body" class="font-semibold px-4">
         {{ $t("response_body") }}
       </label>
       <div>
         <ButtonSecondary
-          v-if="response.body && canDownloadResponse"
+          v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('download_file')"
@@ -28,7 +28,7 @@
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('copy_response')"
+          :title="$t('action.copy')"
           :icon="copyIcon"
           @click.native="copyResponse"
         />
@@ -41,8 +41,8 @@
         :provide-j-s-o-n-outline="true"
         :options="{
           maxLines: Infinity,
-          minLines: '16',
-          fontSize: '14px',
+          minLines: 16,
+          fontSize: '12px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,
@@ -55,7 +55,7 @@
 
 <script>
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
-import { isJSONContentType } from "~/helpers/utils/contenttypes"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 export default {
   mixins: [TextContentRendererMixin],
@@ -82,19 +82,11 @@ export default {
         .split(";")[0]
         .toLowerCase()
     },
-    canDownloadResponse() {
-      return (
-        this.response &&
-        this.response.headers &&
-        this.response.headers["content-type"] &&
-        isJSONContentType(this.response.headers["content-type"])
-      )
-    },
   },
   methods: {
     downloadResponse() {
       const dataToWrite = this.responseBodyText
-      const file = new Blob([dataToWrite], { type: this.responseType })
+      const file = new Blob([dataToWrite], { type: "application/json" })
       const a = document.createElement("a")
       const url = URL.createObjectURL(file)
       a.href = url
@@ -108,18 +100,12 @@ export default {
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadIcon = "save_alt"
       }, 1000)
     },
     copyResponse() {
-      const aux = document.createElement("textarea")
-      const copy = this.responseBodyText
-      aux.innerText = copy
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
+      copyToClipboard(this.responseBodyText)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",

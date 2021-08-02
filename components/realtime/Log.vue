@@ -1,8 +1,22 @@
 <template>
   <div class="flex flex-col">
-    <label for="log">{{ title }}</label>
+    <div
+      class="
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        pl-4
+        top-0
+        z-10
+        sticky
+        items-center
+        justify-between
+      "
+    >
+      <label for="log" class="font-semibold py-2">{{ title }}</label>
+    </div>
     <div ref="log" name="log" class="realtime-log">
-      <span v-if="log">
+      <span v-if="log" class="space-y-2">
         <span
           v-for="(entry, index) in log"
           :key="`entry-${index}`"
@@ -51,7 +65,7 @@ export default {
 
   &,
   span {
-    @apply font-mono;
+    @apply font-mono font-semibold;
     @apply select-text;
   }
 

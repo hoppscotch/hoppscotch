@@ -1,21 +1,21 @@
 <template>
-  <div class="flex flex-col p-4 mx-4 bg-primaryLight rounded">
+  <div class="bg-primaryLight rounded flex flex-col mx-6 p-4">
     <div class="flex flex-col items-center">
-      <p class="my-4 font-semibold tracking-widest text-center">
+      <p class="font-semibold my-4 text-center tracking-widest">
         EMPOWERING DEVELOPERS FROM
       </p>
     </div>
-    <div class="grid grid-cols-3 gap-4 md:grid-cols-4 lg:grid-cols-6">
+    <div class="grid gap-4 grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       <div
         v-for="(user, index) in users"
         :key="`user-${index}`"
-        class="inline-flex flex-col items-center justify-center px-4"
+        class="flex-col px-4 inline-flex items-center justify-center"
       >
         <img
           :src="`/images/users/${user.image}`"
           alt="Profile picture"
           loading="lazy"
-          class="inline-flex flex-col object-contain object-center h-24 w-24"
+          class="flex-col object-contain object-center h-24 w-24 inline-flex"
         />
       </div>
     </div>

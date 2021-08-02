@@ -1,12 +1,16 @@
 import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
+import { Ref } from "@nuxtjs/composition-api"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
 } from "~/helpers/types/HoppRESTRequest"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { useStream } from "~/helpers/utils/composables"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
 function getParamsInURL(url: string): { key: string; value: string }[] {
   const result: { key: string; value: string }[] = []
@@ -112,23 +116,43 @@ function updateURLParam(
 type RESTSession = {
   request: HoppRESTRequest
   response: HoppRESTResponse | null
+  testResults: HoppTestResult | null
+}
+
+const defaultRESTRequest: HoppRESTRequest = {
+  v: RESTReqSchemaVersion,
+  endpoint: "https://httpbin.org/get",
+  name: "Untitled request",
+  params: [],
+  headers: [],
+  method: "GET",
+  preRequestScript: "// pw.env.set('variable', 'value');",
+  testScript: "// pw.expect('variable').toBe('value');",
+  body: {
+    contentType: "application/json",
+    body: "",
+    isRaw: false,
+  },
 }
 
 const defaultRESTSession: RESTSession = {
-  request: {
-    v: RESTReqSchemaVersion,
-    endpoint: "https://httpbin.org/get",
-    params: [],
-    headers: [],
-    method: "GET",
-  },
+  request: defaultRESTRequest,
   response: null,
+  testResults: null,
 }
 
 const dispatchers = defineDispatchers({
   setRequest(_: RESTSession, { req }: { req: HoppRESTRequest }) {
     return {
       request: req,
+    }
+  },
+  setRequestName(curr: RESTSession, { newName }: { newName: string }) {
+    return {
+      request: {
+        ...curr.request,
+        name: newName,
+      },
     }
   },
   setEndpoint(curr: RESTSession, { newEndpoint }: { newEndpoint: string }) {
@@ -287,6 +311,30 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setPreRequestScript(curr: RESTSession, { newScript }: { newScript: string }) {
+    return {
+      request: {
+        ...curr.request,
+        preRequestScript: newScript,
+      },
+    }
+  },
+  setTestScript(curr: RESTSession, { newScript }: { newScript: string }) {
+    return {
+      request: {
+        ...curr.request,
+        testScript: newScript,
+      },
+    }
+  },
+  setRequestBody(curr: RESTSession, { newBody }: { newBody: HoppRESTReqBody }) {
+    return {
+      request: {
+        ...curr.request,
+        body: newBody,
+      },
+    }
+  },
   updateResponse(
     _curr: RESTSession,
     { updatedRes }: { updatedRes: HoppRESTResponse | null }
@@ -300,9 +348,21 @@ const dispatchers = defineDispatchers({
       response: null,
     }
   },
+  setTestResults(
+    _curr: RESTSession,
+    { newResults }: { newResults: HoppTestResult | null }
+  ) {
+    return {
+      testResults: newResults,
+    }
+  },
 })
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
+
+export function getRESTRequest() {
+  return restSessionStore.subject$.value.request
+}
 
 export function setRESTRequest(req: HoppRESTRequest) {
   restSessionStore.dispatch({
@@ -313,11 +373,24 @@ export function setRESTRequest(req: HoppRESTRequest) {
   })
 }
 
+export function resetRESTRequest() {
+  setRESTRequest(defaultRESTRequest)
+}
+
 export function setRESTEndpoint(newEndpoint: string) {
   restSessionStore.dispatch({
     dispatcher: "setEndpoint",
     payload: {
       newEndpoint,
+    },
+  })
+}
+
+export function setRESTRequestName(newName: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setRequestName",
+    payload: {
+      newName,
     },
   })
 }
@@ -401,6 +474,33 @@ export function deleteAllRESTHeaders() {
   })
 }
 
+export function setRESTPreRequestScript(newScript: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setPreRequestScript",
+    payload: {
+      newScript,
+    },
+  })
+}
+
+export function setRESTTestScript(newScript: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setTestScript",
+    payload: {
+      newScript,
+    },
+  })
+}
+
+export function setRESTReqBody(newBody: HoppRESTReqBody | null) {
+  restSessionStore.dispatch({
+    dispatcher: "setRequestBody",
+    payload: {
+      newBody,
+    },
+  })
+}
+
 export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
   restSessionStore.dispatch({
     dispatcher: "updateResponse",
@@ -417,8 +517,22 @@ export function clearRESTResponse() {
   })
 }
 
+export function setRESTTestResults(newResults: HoppTestResult | null) {
+  restSessionStore.dispatch({
+    dispatcher: "setTestResults",
+    payload: {
+      newResults,
+    },
+  })
+}
+
 export const restRequest$ = restSessionStore.subject$.pipe(
   pluck("request"),
+  distinctUntilChanged()
+)
+
+export const restRequestName$ = restRequest$.pipe(
+  pluck("name"),
   distinctUntilChanged()
 )
 
@@ -450,6 +564,21 @@ export const restActiveHeadersCount$ = restHeaders$.pipe(
   map((params) => params.filter((x) => x.active).length)
 )
 
+export const restPreRequestScript$ = restSessionStore.subject$.pipe(
+  pluck("request", "preRequestScript"),
+  distinctUntilChanged()
+)
+
+export const restTestScript$ = restSessionStore.subject$.pipe(
+  pluck("request", "testScript"),
+  distinctUntilChanged()
+)
+
+export const restReqBody$ = restSessionStore.subject$.pipe(
+  pluck("request", "body"),
+  distinctUntilChanged()
+)
+
 export const restResponse$ = restSessionStore.subject$.pipe(
   pluck("response"),
   distinctUntilChanged()
@@ -461,3 +590,58 @@ export const completedRESTResponse$ = restResponse$.pipe(
       res !== null && res.type !== "loading" && res.type !== "network_fail"
   )
 )
+
+export const restTestResults$ = restSessionStore.subject$.pipe(
+  pluck("testResults"),
+  distinctUntilChanged()
+)
+
+/**
+ * A Vue 3 composable function that gives access to a ref
+ * which is updated to the preRequestScript value in the store.
+ * The ref value is kept in sync with the store and all writes
+ * to the ref are dispatched to the store as `setPreRequestScript`
+ * dispatches.
+ */
+export function usePreRequestScript(): Ref<string> {
+  return useStream(
+    restPreRequestScript$,
+    restSessionStore.value.request.preRequestScript,
+    (value) => {
+      setRESTPreRequestScript(value)
+    }
+  )
+}
+
+/**
+ * A Vue 3 composable function that gives access to a ref
+ * which is updated to the testScript value in the store.
+ * The ref value is kept in sync with the store and all writes
+ * to the ref are dispatched to the store as `setTestScript`
+ * dispatches.
+ */
+export function useTestScript(): Ref<string> {
+  return useStream(
+    restTestScript$,
+    restSessionStore.value.request.testScript,
+    (value) => {
+      setRESTTestScript(value)
+    }
+  )
+}
+
+export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
+  return useStream(
+    restReqBody$,
+    restSessionStore.value.request.body,
+    setRESTReqBody
+  )
+}
+
+export function useRESTRequestName(): Ref<string> {
+  return useStream(
+    restRequestName$,
+    restSessionStore.value.request.name,
+    setRESTRequestName
+  )
+}

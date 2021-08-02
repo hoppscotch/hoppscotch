@@ -1,21 +1,26 @@
 <template>
-  <div class="relative flex items-center justify-center h-5 w-5 cursor-pointer">
+  <div class="cursor-pointer flex h-5 w-5 relative items-center justify-center">
     <img
       class="
-        absolute
-        object-cover object-center
-        transition
+        bg-primaryDark bg-primaryLight
         rounded-full
-        bg-primaryDark
+        object-cover object-center
         h-5
+        transition
         w-5
-        bg-primaryLight
+        absolute
       "
       :src="url"
       :alt="alt"
       loading="lazy"
     />
-    <div class="absolute inset-0 rounded-lg shadow-inner"></div>
+    <div class="rounded-full shadow-inner inset-0 absolute"></div>
+    <span
+      :class="[
+        'border-primary rounded-full border-2 h-3 -top-1 -right-1 w-3 absolute',
+        indicator,
+      ]"
+    ></span>
   </div>
 </template>
 
@@ -31,6 +36,10 @@ export default {
     alt: {
       type: String,
       default: "Profile picture",
+    },
+    indicator: {
+      type: String,
+      default: "bg-green-500",
     },
   },
 }

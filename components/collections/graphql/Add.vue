@@ -1,12 +1,12 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("new_collection") }}</h3>
+      <h3 class="heading">{{ $t("collection.new") }}</h3>
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelGqlAdd" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="selectLabelGqlAdd" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -14,7 +14,7 @@
           v-model="name"
           class="input"
           type="text"
-          :placeholder="$t('my_new_collection')"
+          :placeholder="$t('collection.name')"
           @keyup.enter="addNewCollection"
         />
       </div>
@@ -44,7 +44,7 @@ export default Vue.extend({
   methods: {
     addNewCollection() {
       if (!this.name) {
-        this.$toast.info(this.$t("invalid_collection_name").toString())
+        this.$toast.info(this.$t("collection.invalid_name").toString())
         return
       }
 

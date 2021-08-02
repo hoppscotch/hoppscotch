@@ -1,54 +1,54 @@
 <template>
-  <div>
-    <Splitpanes horizontal :dbl-click-splitter="false">
-      <Pane class="overflow-auto">
-        <AppSection label="request">
-          <ul>
-            <li>
-              <label for="server">{{ $t("server") }}</label>
-              <input
-                id="server"
-                v-model="server"
-                type="url"
-                :class="{ error: !serverValid }"
-                class="input md:rounded-bl-lg"
-                :placeholder="$t('url')"
-                @keyup.enter="serverValid ? toggleSSEConnection() : null"
-              />
-            </li>
-            <div>
-              <li>
-                <ButtonSecondary
-                  id="start"
-                  :disabled="!serverValid"
-                  name="start"
-                  class="
-                    button
-                    rounded-b-lg
-                    md:rounded-bl-none md:rounded-br-lg
-                  "
-                  :icon="!connectionSSEState ? 'sync' : 'sync_disabled'"
-                  :label="!connectionSSEState ? $t('start') : $t('stop')"
-                  reverse
-                  @click.native="toggleSSEConnection"
-                />
-              </li>
-            </div>
-          </ul>
-        </AppSection>
-      </Pane>
-      <Pane class="overflow-auto">
-        <AppSection label="response">
-          <ul>
-            <li>
-              <RealtimeLog :title="$t('events')" :log="events.log" />
-              <div id="result"></div>
-            </li>
-          </ul>
-        </AppSection>
-      </Pane>
-    </Splitpanes>
-  </div>
+  <Splitpanes :dbl-click-splitter="false" horizontal>
+    <Pane class="hide-scrollbar !overflow-auto">
+      <AppSection label="request">
+        <div class="bg-primary flex p-4 top-0 z-10 sticky">
+          <div class="flex-1 inline-flex">
+            <input
+              id="server"
+              v-model="server"
+              type="url"
+              :class="{ error: !serverValid }"
+              class="
+                bg-primaryLight
+                border border-divider
+                rounded-l
+                font-semibold font-mono
+                text-secondaryDark
+                w-full
+                py-1
+                px-4
+                transition
+                truncate
+                focus:outline-none focus:border-accent
+              "
+              :placeholder="$t('url')"
+              @keyup.enter="serverValid ? toggleSSEConnection() : null"
+            />
+            <ButtonPrimary
+              id="start"
+              :disabled="!serverValid"
+              name="start"
+              class="rounded-l-none w-22"
+              :label="!connectionSSEState ? $t('start') : $t('stop')"
+              :loading="connectingState"
+              @click.native="toggleSSEConnection"
+            />
+          </div>
+        </div>
+      </AppSection>
+    </Pane>
+    <Pane class="hide-scrollbar !overflow-auto">
+      <AppSection label="response">
+        <ul>
+          <li>
+            <RealtimeLog :title="$t('events')" :log="events.log" />
+            <div id="result"></div>
+          </li>
+        </ul>
+      </AppSection>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script>
@@ -61,6 +61,7 @@ export default {
   data() {
     return {
       connectionSSEState: false,
+      connectingState: false,
       server: "https://express-eventsource.herokuapp.com/events",
       isUrlValid: true,
       sse: null,
@@ -103,6 +104,7 @@ export default {
       else return this.stop()
     },
     start() {
+      this.connectingState = true
       this.events.log = [
         {
           payload: this.$t("connecting_to", { name: this.server }),
@@ -114,6 +116,7 @@ export default {
         try {
           this.sse = new EventSource(this.server)
           this.sse.onopen = () => {
+            this.connectingState = false
             this.connectionSSEState = true
             this.events.log = [
               {

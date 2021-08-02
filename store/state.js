@@ -32,9 +32,6 @@ export default () => ({
     response: "",
     schemaIntrospection: "",
   },
-  theme: {
-    collapsedSections: [],
-  },
   oauth2: {
     tokens: [],
     tokenReqs: [],

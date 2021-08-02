@@ -24,13 +24,13 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .folder {
   @apply flex flex-col flex-1;
   @apply justify-center;
   @apply p-4;
-  @apply border-l border-divider;
   @apply mt-4;
+  @apply border-l border-divider;
 
   .material-icons {
     @apply mr-4;

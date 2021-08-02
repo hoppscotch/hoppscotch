@@ -1,20 +1,20 @@
 <template>
   <AppSection label="environments">
-    <div class="flex flex-col sticky z-10 top-10 bg-primary">
+    <div class="bg-primary rounded-t flex flex-col top-8 z-10 sticky">
       <div class="select-wrapper">
         <select
           v-model="selectedEnvironmentIndex"
           :disabled="environments.length == 0"
           class="
-            flex
-            w-full
-            px-4
-            text-xs
-            py-3
-            focus:outline-none
-            border-b border-dividerLight
-            font-medium
             bg-primaryLight
+            border-b border-dividerLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            px-4
+            focus:outline-none
+            appearance-none
           "
         >
           <option :value="-1">No environment</option>
@@ -30,7 +30,7 @@
           </option>
         </select>
       </div>
-      <div class="border-b flex justify-between flex-1 border-dividerLight">
+      <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"
           :label="$t('new')"
@@ -39,7 +39,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           icon="import_export"
-          :title="$t('import_export')"
+          :title="$t('modal.import_export')"
           @click.native="displayModalImportExport(true)"
         />
       </div>
@@ -60,12 +60,17 @@
     />
     <div
       v-if="environments.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">library_add</i>
-      <span class="text-xs text-center">
-        {{ $t("create_new_environment") }}
+      <i class="opacity-75 pb-2 material-icons">library_add</i>
+      <span class="text-center pb-4">
+        {{ $t("empty.environments") }}
       </span>
+      <ButtonSecondary
+        :label="$t('add.new')"
+        outline
+        @click.native="displayModalAdd(true)"
+      />
     </div>
     <div class="flex flex-col">
       <EnvironmentsEnvironment

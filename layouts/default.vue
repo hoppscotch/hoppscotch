@@ -1,70 +1,37 @@
 <template>
   <div class="flex h-screen w-screen">
-    <Splitpanes horizontal :dbl-click-splitter="false">
-      <Pane class="flex flex-1 overflow-auto">
-        <Splitpanes vertical :dbl-click-splitter="false">
+    <Splitpanes :dbl-click-splitter="false" horizontal>
+      <Pane class="flex flex-1 !overflow-auto">
+        <Splitpanes :dbl-click-splitter="false" vertical>
           <Pane
-            v-if="!hideNavigationPane"
+            v-if="LEFT_SIDEBAR"
             style="width: auto"
             class="hide-scrollbar overflow-auto"
           >
             <AppSidenav />
           </Pane>
-          <Pane class="flex flex-1 overflow-auto">
-            <Splitpanes horizontal :dbl-click-splitter="false">
-              <Pane v-if="!zenMode" style="height: auto">
+          <Pane class="flex flex-1 !overflow-auto">
+            <Splitpanes :dbl-click-splitter="false" horizontal>
+              <Pane v-if="!ZEN_MODE" style="height: auto">
                 <!-- <AppAnnouncement /> -->
                 <AppHeader />
               </Pane>
-              <Pane class="flex flex-1 overflow-auto">
-                <nuxt class="flex flex-1" :hide-right-pane="hideRightPane" />
+              <Pane class="flex flex-1 !overflow-auto">
+                <nuxt class="flex flex-1" />
               </Pane>
             </Splitpanes>
           </Pane>
         </Splitpanes>
       </Pane>
       <Pane style="height: auto">
-        <div class="flex justify-between">
-          <div>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="
-                hideNavigationPane ? $t('show_sidebar') : $t('hide_sidebar')
-              "
-              icon="menu_open"
-              :class="{ 'transform rotate-180': hideNavigationPane }"
-              @click.native="hideNavigationPane = !hideNavigationPane"
-            />
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="
-                zenMode
-                  ? `${$t('turn_off')} Zen mode`
-                  : `${$t('turn_on')} Zen mode`
-              "
-              :icon="zenMode ? 'fullscreen_exit' : 'fullscreen'"
-              :class="{
-                'text-accent focus:text-accent hover:text-accent': zenMode,
-              }"
-              @click.native="zenMode = !zenMode"
-            />
-          </div>
-          <div>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="hideRightPane ? $t('show_sidebar') : $t('hide_sidebar')"
-              icon="menu_open"
-              :class="['transform rotate-180', { ' rotate-0': hideRightPane }]"
-              @click.native="hideRightPane = !hideRightPane"
-            />
-          </div>
-        </div>
+        <AppFooter />
       </Pane>
     </Splitpanes>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
@@ -74,20 +41,26 @@ import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
+import { hookKeybindingsListener } from "~/helpers/keybindings"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
+  setup() {
+    hookKeybindingsListener()
+  },
   data() {
     return {
-      hideNavigationPane: false,
-      zenMode: false,
-      hideRightPane: false,
+      LEFT_SIDEBAR: null,
+      ZEN_MODE: null,
+    }
+  },
+  subscriptions() {
+    return {
+      LEFT_SIDEBAR: getSettingSubject("LEFT_SIDEBAR"),
+      ZEN_MODE: getSettingSubject("ZEN_MODE"),
     }
   },
   watch: {
-    zenMode(zenMode) {
-      this.hideNavigationPane = this.hideRightPane = zenMode
-    },
     $route(to) {
       logPageView(to.fullPath)
     },
@@ -102,7 +75,7 @@ export default {
     })
 
     this.$subscribeTo(getSettingSubject("BG_COLOR"), (color) => {
-      this.$colorMode.preference = color
+      ;(this as any).$colorMode.preference = color
     })
   },
   async mounted() {
@@ -116,11 +89,11 @@ export default {
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
 
-    const workbox = await window.$workbox
+    const workbox = await (window as any).$workbox
     if (workbox) {
-      workbox.addEventListener("installed", (event) => {
+      workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {
-          this.$toast.show(this.$t("new_version_found").toString(), {
+          this.$toast.show(this.$t("app.new_version_found").toString(), {
             icon: "info",
             duration: 0,
             theme: "toasted-primary",
@@ -143,17 +116,5 @@ export default {
 
     logPageView(this.$router.currentRoute.fullPath)
   },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
-}
+})
 </script>
-
-<style lang="scss" scoped>
-.splitpanes--vertical > .splitpanes__splitter {
-  display: none;
-}
-.splitpanes--horizontal > .splitpanes__splitter {
-  display: none;
-}
-</style>

@@ -1,32 +1,30 @@
 <template>
   <div>
-    <div class="space-y-8">
+    <div class="divide-y divide-dividerLight space-y-8">
       <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="md:col-span-1 p-8">
+        <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("account") }}
           </h3>
-          <p class="mt-1 text-xs text-secondaryLight">
+          <p class="mt-1 text-secondaryLight">
             Customize your account settings.
           </p>
         </div>
-        <div class="md:col-span-2 border border-divider p-8 rounded-lg">
+        <div class="p-8 md:col-span-2">
           <div v-if="currentUser === null">
             <ButtonPrimary label="Log in" @click.native="showLogin = true" />
-            <div class="mt-4 text-xs text-secondaryLight">
-              Log in to access.
-            </div>
+            <div class="mt-4 text-secondaryLight">Log in to access.</div>
           </div>
           <div v-else class="space-y-8">
             <fieldset>
               <legend class="font-bold text-secondaryDark">User</legend>
-              <div class="mt-4 space-y-4">
+              <div class="space-y-4 mt-4">
                 <div class="flex items-start">
                   <div class="flex items-center">
                     <img
                       v-if="currentUser.photoURL"
                       :src="currentUser.photoURL"
-                      class="w-5 h-5 rounded-full"
+                      class="rounded-full h-5 w-5"
                     />
                     <i v-else class="material-icons">account_circle</i>
                   </div>
@@ -34,7 +32,7 @@
                     <label>
                       {{ currentUser.displayName || $t("nothing_found") }}
                     </label>
-                    <p class="mt-1 text-xs text-secondaryLight">
+                    <p class="mt-1 text-secondaryLight">
                       This is your display name.
                     </p>
                   </div>
@@ -47,7 +45,7 @@
                     <label>
                       {{ currentUser.email || $t("nothing_found") }}
                     </label>
-                    <p class="mt-1 text-xs text-secondaryLight">
+                    <p class="mt-1 text-secondaryLight">
                       Your primary email address.
                     </p>
                   </div>
@@ -56,10 +54,10 @@
             </fieldset>
             <fieldset>
               <legend class="font-bold text-secondaryDark">Sync</legend>
-              <div class="mt-1 text-xs text-secondaryLight">
+              <div class="mt-1 text-secondaryLight">
                 These settings are synced to cloud.
               </div>
-              <div class="mt-4 space-y-4">
+              <div class="space-y-4 mt-4">
                 <div class="flex items-center">
                   <SmartToggle
                     :on="SYNC_COLLECTIONS"
@@ -90,27 +88,28 @@
                 </div>
               </div>
             </fieldset>
+            <fieldset v-if="currentBackendUser && currentBackendUser.eaInvited">
+              <Teams />
+            </fieldset>
           </div>
         </div>
       </div>
 
       <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="md:col-span-1 p-8">
+        <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("theme") }}
           </h3>
-          <p class="mt-1 text-xs text-secondaryLight">
+          <p class="mt-1 text-secondaryLight">
             Customize your application theme.
           </p>
         </div>
-        <div
-          class="md:col-span-2 border border-divider p-8 rounded-lg space-y-8"
-        >
+        <div class="space-y-8 p-8 md:col-span-2">
           <fieldset>
             <legend class="font-bold text-secondaryDark">
               {{ $t("background") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               <ColorScheme placeholder="..." tag="span">
                 {{
                   $colorMode.preference.charAt(0).toUpperCase() +
@@ -129,7 +128,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("color") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               {{ active.charAt(0).toUpperCase() + active.slice(1) }}
             </div>
             <div class="mt-4">
@@ -138,9 +137,17 @@
           </fieldset>
           <fieldset>
             <legend class="font-bold text-secondaryDark">
+              {{ $t("choose_language") }}
+            </legend>
+            <div class="mt-4">
+              <SmartChangeLanguage />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="font-bold text-secondaryDark">
               {{ $t("experiments") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               {{ $t("experiments_notice") }}
               <SmartLink
                 class="link"
@@ -150,7 +157,7 @@
                 {{ $t("contact_us") }} </SmartLink
               >.
             </div>
-            <div class="mt-4 space-y-4">
+            <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="SCROLL_INTO_ENABLED"
@@ -169,8 +176,32 @@
               </div>
               <div class="flex items-center">
                 <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
-                  {{ $t("telemetry") }}
+                  {{ $t("settings.telemetry") }}
                   {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
+                </SmartToggle>
+              </div>
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="SHORTCUT_INDICATOR"
+                  @change="toggleSetting('SHORTCUT_INDICATOR')"
+                >
+                  {{ $t("settings.shortcuts_indicator") }}
+                  {{ SHORTCUT_INDICATOR ? $t("enabled") : $t("disabled") }}
+                </SmartToggle>
+              </div>
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="LEFT_SIDEBAR"
+                  @change="toggleSetting('LEFT_SIDEBAR')"
+                >
+                  {{ $t("settings.navigation_sidebar") }}
+                  {{ LEFT_SIDEBAR ? $t("enabled") : $t("disabled") }}
+                </SmartToggle>
+              </div>
+              <div class="flex items-center">
+                <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
+                  {{ $t("layout.zen_mode") }}
+                  {{ ZEN_MODE ? $t("enabled") : $t("disabled") }}
                 </SmartToggle>
               </div>
             </div>
@@ -179,22 +210,20 @@
       </div>
 
       <div class="md:grid md:grid-cols-3 md:gap-4">
-        <div class="md:col-span-1 p-8">
+        <div class="p-8 md:col-span-1">
           <h3 class="heading">
-            {{ $t("interceptor") }}
+            {{ $t("settings.interceptor") }}
           </h3>
-          <p class="mt-1 text-xs text-secondaryLight">
+          <p class="mt-1 text-secondaryLight">
             Middleware between application and APIs.
           </p>
         </div>
-        <div
-          class="md:col-span-2 border border-divider p-8 rounded-lg space-y-8"
-        >
+        <div class="space-y-8 p-8 md:col-span-2">
           <fieldset>
             <legend class="font-bold text-secondaryDark">
               {{ $t("extensions") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               <span v-if="extensionVersion != null">
                 {{
                   `${$t("extension_version")}: v${extensionVersion.major}.${
@@ -207,7 +236,27 @@
                 {{ $t("extension_ver_not_reported") }}
               </span>
             </div>
-            <div class="mt-4 space-y-4">
+            <div class="flex flex-col space-y-2 py-4">
+              <span>
+                <SmartItem
+                  to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+                  blank
+                  svg="firefox"
+                  label="Firefox"
+                  :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
+                />
+              </span>
+              <span>
+                <SmartItem
+                  to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+                  blank
+                  svg="chrome"
+                  label="Chrome"
+                  :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
+                />
+              </span>
+            </div>
+            <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="EXTENSIONS_ENABLED"
@@ -222,7 +271,7 @@
             <legend class="font-bold text-secondaryDark">
               {{ $t("proxy") }}
             </legend>
-            <div class="mt-1 text-xs text-secondaryLight">
+            <div class="mt-1 text-secondaryLight">
               {{ `${$t("official_proxy_hosting")} ${$t("read_the")}` }}
               <SmartLink
                 class="link"
@@ -232,7 +281,7 @@
                 {{ $t("proxy_privacy_policy") }} </SmartLink
               >.
             </div>
-            <div class="mt-4 space-y-4">
+            <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="PROXY_ENABLED"
@@ -241,29 +290,32 @@
                 <label
                   for="url"
                   class="
+                    bg-primaryLight
+                    border border-divider
                     rounded-l
                     ml-2
-                    border
-                    px-2
-                    py-1
-                    bg-primaryLight
-                    border-divider
+                    py-2
+                    px-4
+                    truncate
                   "
-                  >{{ $t("url") }}</label
                 >
+                  {{ `${$t("proxy")} ${$t("url")}` }}
+                </label>
                 <input
                   id="url"
                   v-model="PROXY_URL"
                   class="
-                    flex-1
-                    block
-                    w-full
+                    bg-primaryLight
+                    border border-divider
                     rounded-r
-                    border
-                    px-2
-                    py-1
+                    flex
+                    font-semibold font-mono
+                    flex-1
                     mr-2
-                    border-divider
+                    py-2
+                    px-4
+                    block
+                    focus:outline-none focus:border-accent
                   "
                   type="url"
                   :disabled="!PROXY_ENABLED"
@@ -273,6 +325,7 @@
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('reset_default')"
                   :icon="clearIcon"
+                  outline
                   @click.native="resetProxy"
                 />
               </div>
@@ -284,9 +337,7 @@
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="`${$t('are_you_sure_remove_telemetry')} ${$t(
-        'telemetry_helps_us'
-      )}`"
+      :title="`${$t('confirm.remove_telemetry')} ${$t('telemetry_helps_us')}`"
       @hide-modal="confirmRemove = false"
       @resolve="
         toggleSetting('TELEMETRY_ENABLED')
@@ -297,70 +348,64 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
+import { defineComponent } from "@nuxtjs/composition-api"
+import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import {
-  getSettingSubject,
+  hasExtensionInstalled,
+  hasChromeExtensionInstalled,
+  hasFirefoxExtensionInstalled,
+} from "~/helpers/strategies/ExtensionStrategy"
+import {
   applySetting,
   toggleSetting,
   defaultSettings,
+  useSetting,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig } from "~/newstore/localpersistence"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 type SettingsType = typeof defaultSettings
 
-export default Vue.extend({
+export default defineComponent({
+  setup() {
+    return {
+      SCROLL_INTO_ENABLED: useSetting("SCROLL_INTO_ENABLED"),
+      PROXY_ENABLED: useSetting("PROXY_ENABLED"),
+      PROXY_URL: useSetting("PROXY_URL"),
+      PROXY_KEY: useSetting("PROXY_KEY"),
+      EXTENSIONS_ENABLED: useSetting("EXTENSIONS_ENABLED"),
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
+      SYNC_COLLECTIONS: useSetting("syncCollections"),
+      SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
+      SYNC_HISTORY: useSetting("syncHistory"),
+      TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
+      SHORTCUT_INDICATOR: useSetting("SHORTCUT_INDICATOR"),
+      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+      ZEN_MODE: useSetting("ZEN_MODE"),
+      currentUser: useReadonlyStream(currentUser$, currentUser$.value),
+      currentBackendUser: useReadonlyStream(
+        currentUserInfo$,
+        currentUserInfo$.value
+      ),
+    }
+  },
   data() {
     return {
       extensionVersion: hasExtensionInstalled()
         ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
         : null,
 
+      hasChromeExtInstalled: hasChromeExtensionInstalled(),
+      hasFirefoxExtInstalled: hasFirefoxExtensionInstalled(),
+
       clearIcon: "clear_all",
-
-      SYNC_COLLECTIONS: true,
-      SYNC_ENVIRONMENTS: true,
-      SYNC_HISTORY: true,
-
-      PROXY_URL: "",
-      PROXY_KEY: "",
-
-      EXTENSIONS_ENABLED: true,
-      PROXY_ENABLED: true,
-
-      currentUser: null,
 
       showLogin: false,
 
       active: getLocalConfig("THEME_COLOR") || "green",
       confirmRemove: false,
-
-      TELEMETRY_ENABLED: null,
-    }
-  },
-  subscriptions() {
-    return {
-      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
-
-      PROXY_ENABLED: getSettingSubject("PROXY_ENABLED"),
-      PROXY_URL: getSettingSubject("PROXY_URL"),
-      PROXY_KEY: getSettingSubject("PROXY_KEY"),
-
-      EXTENSIONS_ENABLED: getSettingSubject("EXTENSIONS_ENABLED"),
-
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
-        "EXPERIMENTAL_URL_BAR_ENABLED"
-      ),
-
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
-      SYNC_HISTORY: getSettingSubject("syncHistory"),
-
-      TELEMETRY_ENABLED: getSettingSubject("TELEMETRY_ENABLED"),
-
-      currentUser: currentUser$,
     }
   },
   head() {
@@ -377,6 +422,10 @@ export default Vue.extend({
     },
   },
   watch: {
+    ZEN_MODE(ZEN_MODE) {
+      this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
+      // this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
+    },
     proxySettings: {
       deep: true,
       handler({ url, key }) {
@@ -411,7 +460,7 @@ export default Vue.extend({
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
       this.clearIcon = "done"
-      this.$toast.info(this.$t("cleared"), {
+      this.$toast.info(this.$t("cleared").toString(), {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "clear_all"), 1000)

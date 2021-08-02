@@ -2,17 +2,17 @@
   <div>
     <div
       class="
-        flex flex-1
-        sticky
-        top-23
-        z-10
         bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        top-20
+        z-10
+        sticky
         items-center
         justify-between
-        border-b border-dividerLight
       "
     >
-      <label for="body" class="px-4 font-semibold text-xs">
+      <label for="body" class="font-semibold px-4">
         {{ $t("response_body") }}
       </label>
       <div>
@@ -28,7 +28,7 @@
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('copy_response')"
+          :title="$t('action.copy')"
           :icon="copyIcon"
           @click.native="copyResponse"
         />
@@ -40,8 +40,8 @@
         :lang="'xml'"
         :options="{
           maxLines: Infinity,
-          minLines: '16',
-          fontSize: '14px',
+          minLines: 16,
+          fontSize: '12px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,
@@ -54,6 +54,7 @@
 
 <script>
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 export default {
   mixins: [TextContentRendererMixin],
@@ -90,18 +91,12 @@ export default {
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadIcon = "save_alt"
       }, 1000)
     },
     copyResponse() {
-      const aux = document.createElement("textarea")
-      const copy = this.responseBodyText
-      aux.innerText = copy
-      document.body.appendChild(aux)
-      aux.select()
-      document.execCommand("copy")
-      document.body.removeChild(aux)
+      copyToClipboard(this.responseBodyText)
       this.copyIcon = "done"
       this.$toast.success(this.$t("copied_to_clipboard"), {
         icon: "done",

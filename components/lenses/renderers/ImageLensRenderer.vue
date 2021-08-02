@@ -2,17 +2,17 @@
   <div>
     <div
       class="
-        flex flex-1
-        sticky
-        top-23
-        z-10
         bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        top-20
+        z-10
+        sticky
         items-center
         justify-between
-        border-b border-dividerLight
       "
     >
-      <label for="body" class="px-4 font-semibold text-xs">
+      <label for="body" class="font-semibold px-4">
         {{ $t("response_body") }}
       </label>
       <div>
@@ -98,7 +98,7 @@ export default {
       })
       setTimeout(() => {
         document.body.removeChild(a)
-        window.URL.revokeObjectURL(url)
+        URL.revokeObjectURL(url)
         this.downloadIcon = "save_alt"
       }, 1000)
     },

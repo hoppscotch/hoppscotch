@@ -2,15 +2,14 @@
   <div class="flex items-center group">
     <span
       class="
-        font-mono font-bold
+        cursor-pointer
         flex
+        font-mono font-bold
+        mx-2
+        w-12
         justify-center
         items-center
-        text-xs
-        w-12
-        mx-2
         truncate
-        cursor-pointer
       "
       :class="entryStatus.className"
       data-testid="restore_history_entry"
@@ -21,15 +20,15 @@
     </span>
     <span
       class="
-        py-3
         cursor-pointer
-        pr-2
-        flex flex-1
-        min-w-0
-        text-xs
-        group-hover:text-secondaryDark
-        transition
+        flex
         font-semibold
+        flex-1
+        min-w-0
+        py-2
+        pr-2
+        transition
+        group-hover:text-secondaryDark
       "
       data-testid="restore_history_entry"
       :title="duration"
@@ -42,15 +41,15 @@
     <ButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
       icon="delete"
+      color="red"
       :title="$t('delete')"
       class="group-hover:inline-flex hidden"
-      color="red"
       data-testid="delete_history_entry"
       @click.native="$emit('delete-entry')"
     />
     <ButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
-      :title="!entry.star ? $t('add_star') : $t('remove_star')"
+      :title="!entry.star ? $t('add.star') : $t('remove.star')"
       :class="{ 'group-hover:inline-flex hidden': !entry.star }"
       :icon="entry.star ? 'star' : 'star_border'"
       color="yellow"

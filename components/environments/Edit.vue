@@ -7,8 +7,8 @@
       </div>
     </template>
     <template #body>
-      <div class="px-2 flex flex-col">
-        <label for="selectLabelEnvEdit" class="px-4 font-semibold pb-4 text-xs">
+      <div class="flex flex-col px-2">
+        <label for="selectLabelEnvEdit" class="font-semibold px-4 pb-4">
           {{ $t("label") }}
         </label>
         <input
@@ -19,11 +19,8 @@
           :placeholder="editingEnvironment.name"
           @keyup.enter="saveEnvironment"
         />
-        <div class="flex justify-between items-center flex-1">
-          <label
-            for="variableList"
-            class="px-4 pt-4 font-semibold pb-4 text-xs"
-          >
+        <div class="flex flex-1 justify-between items-center">
+          <label for="variableList" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("env_variable_list") }}
           </label>
           <div>
@@ -36,49 +33,48 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               icon="add"
-              :title="$t('add_new')"
+              :title="$t('add.new')"
               @click.native="addEnvironmentVariable"
             />
           </div>
         </div>
-        <div class="border-2 border-divider">
+        <div class="border-divider border rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
             class="
+              divide-x divide-dividerLight
+              border-b border-dividerLight
               flex
-              border-b
-              divide-x
-              border-divider
-              divide-dashed divide-divider
             "
+            :class="{ 'border-t': index == 0 }"
           >
             <input
               v-model="variable.key"
               class="
-                px-4
-                py-3
-                text-xs
-                flex flex-1
-                font-semibold
                 bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
                 focus:outline-none
               "
-              :placeholder="$t('variable_count', { count: index + 1 })"
+              :placeholder="$t('count.variable', { count: index + 1 })"
               :name="'param' + index"
             />
             <input
               v-model="variable.value"
               class="
-                px-4
-                py-3
-                text-xs
-                flex flex-1
-                font-semibold
                 bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
                 focus:outline-none
               "
-              :placeholder="$t('value_count', { count: index + 1 })"
+              :placeholder="$t('count.value', { count: index + 1 })"
               :name="'value' + index"
             />
             <div>
@@ -87,9 +83,30 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
                 icon="delete"
+                color="red"
                 @click.native="removeEnvironmentVariable(index)"
               />
             </div>
+          </div>
+          <div
+            v-if="vars.length === 0"
+            class="
+              flex flex-col
+              text-secondaryLight
+              p-4
+              items-center
+              justify-center
+            "
+          >
+            <i class="opacity-75 pb-2 material-icons">layers</i>
+            <span class="text-center pb-4">
+              {{ $t("empty.environments") }}
+            </span>
+            <ButtonSecondary
+              :label="$t('add.new')"
+              outline
+              @click.native="addEnvironmentVariable"
+            />
           </div>
         </div>
       </div>

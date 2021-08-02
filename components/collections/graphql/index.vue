@@ -1,29 +1,32 @@
 <template>
   <AppSection
     label="collections"
-    :class="{ 'rounded-lg border-2 border-divider': savingMode }"
+    :class="{ 'rounded border border-divider': savingMode }"
   >
     <div
-      class="flex flex-col sticky top-10 z-10"
+      class="flex flex-col top-8 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
     >
-      <input
-        v-if="showCollActions"
-        v-model="filterText"
-        type="search"
-        :placeholder="$t('search')"
-        class="
-          px-4
-          py-3
-          text-xs
-          border-b border-dividerLight
-          flex flex-1
-          font-medium
-          bg-primaryLight
-          focus:outline-none
-        "
-      />
-      <div class="border-b flex justify-between flex-1 border-dividerLight">
+      <div v-if="showCollActions" class="search-wrapper">
+        <input
+          v-model="filterText"
+          type="search"
+          :placeholder="$t('search')"
+          class="
+            bg-primaryLight
+            border-b border-dividerLight
+            flex
+            font-semibold font-mono
+            w-full
+            py-2
+            pr-2
+            pl-9
+            focus:outline-none
+            truncate
+          "
+        />
+      </div>
+      <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"
           :label="$t('new')"
@@ -32,7 +35,7 @@
         <ButtonSecondary
           v-if="showCollActions"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('import_export')"
+          :title="$t('modal.import_export')"
           icon="import_export"
           @click.native="displayModalImportExport(true)"
         />
@@ -59,19 +62,24 @@
     </div>
     <div
       v-if="collections.length === 0"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">create_new_folder</i>
-      <span class="text-xs text-center">
-        {{ $t("create_new_collection") }}
+      <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
+      <span class="text-center pb-4">
+        {{ $t("empty.collections") }}
       </span>
+      <ButtonSecondary
+        :label="$t('add.new')"
+        outline
+        @click.native="displayModalAdd(true)"
+      />
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="flex items-center text-secondaryLight flex-col p-4 justify-center"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons opacity-50 pb-2">manage_search</i>
-      <span class="text-xs text-center">
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <span class="text-center">
         {{ $t("nothing_found") }} "{{ filterText }}"
       </span>
     </div>

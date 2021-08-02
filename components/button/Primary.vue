@@ -4,27 +4,31 @@
     :exact="exact"
     :blank="blank"
     class="
+      font-bold
+      py-2
+      transition
       inline-flex
       items-center
       justify-center
-      py-2
-      font-semibold
-      transition
       focus:outline-none
     "
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:text-${color}-900 hover:bg-${color}-300 focus:text-${color}-900 focus:bg-${color}-300`
-        : `text-white dark:text-accentDark bg-accent hover:bg-accentDark focus:bg-accentDark`,
+        : `text-primary bg-accent hover:bg-accentDark focus:bg-accentDark`,
       label ? 'px-4' : 'px-2',
-      rounded ? 'rounded-full' : 'rounded-lg',
-      { 'opacity-50 cursor-not-allowed': disabled },
+      rounded ? 'rounded-full' : 'rounded',
+      { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
-      { 'px-4 py-4 text-lg': large },
+      { 'px-6 py-4 text-lg': large },
       { 'shadow-lg hover:shadow-xl': shadow },
       {
         'text-white bg-gradient-to-tr from-gradientFrom via-gradientVia to-gradientTo':
           gradient,
+      },
+      {
+        'border border-accent hover:border-accentDark focus:border-accentDark':
+          outline,
       },
     ]"
     :disabled="disabled"
@@ -37,27 +41,41 @@
     >
       <i
         v-if="icon"
-        :class="label ? (reverse ? 'ml-2' : 'mr-2') : ''"
-        class="material-icons"
+        :class="[
+          'material-icons',
+          { '!text-2xl': large },
+          label ? (reverse ? 'ml-2' : 'mr-2') : '',
+        ]"
       >
         {{ icon }}
       </i>
       <SmartIcon
         v-if="svg"
         :name="svg"
-        :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
-        class="svg-icons"
+        :class="[
+          'svg-icons',
+          { '!h-6 !w-6': large },
+          label ? (reverse ? 'ml-2' : 'mr-2') : '',
+        ]"
       />
       {{ label }}
-      <span v-if="shortkey" class="px-1 ml-2 rounded bg-accentLight">{{
-        shortkey
-      }}</span>
+      <div v-if="shortcut.length && SHORTCUT_INDICATOR" class="ml-2">
+        <kbd
+          v-for="(key, index) in shortcut"
+          :key="`key-${index}`"
+          class="bg-accentLight rounded ml-1 px-1 inline-flex"
+        >
+          {{ key }}
+        </kbd>
+      </div>
     </span>
     <SmartSpinner v-else />
   </SmartLink>
 </template>
 
 <script>
+import { getSettingSubject } from "~/newstore/settings"
+
 export default {
   props: {
     to: {
@@ -116,10 +134,24 @@ export default {
       type: Boolean,
       default: false,
     },
-    shortkey: {
-      type: String,
-      default: "",
+    outline: {
+      type: Boolean,
+      default: false,
     },
+    shortcut: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  data() {
+    return {
+      SHORTCUT_INDICATOR: null,
+    }
+  },
+  subscriptions() {
+    return {
+      SHORTCUT_INDICATOR: getSettingSubject("SHORTCUT_INDICATOR"),
+    }
   },
 }
 </script>

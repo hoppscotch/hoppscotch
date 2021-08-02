@@ -2,18 +2,19 @@
   <div class="show-if-initialized" :class="{ initialized }">
     <pre ref="editor" :class="styles"></pre>
     <div
-      v-if="lang == 'json'"
+      v-if="provideJSONOutline"
       class="
-        sticky
-        bottom-0
-        z-10
-        flex flex-nowrap flex-1
-        overflow-auto
-        font-mono
-        shadow-lg
-        px-4
         bg-primaryLight
         border-t border-divider
+        flex flex-nowrap
+        font-mono
+        flex-1
+        py-1
+        px-4
+        bottom-0
+        z-10
+        sticky
+        overflow-auto
         hide-scrollbar
       "
     >
@@ -21,20 +22,19 @@
         v-for="(p, index) in currentPath"
         :key="`p-${index}`"
         class="
-          inline-flex
-          items-center
-          flex-grow-0 flex-shrink-0
-          text-secondaryLight
-          hover:text-secondary
           cursor-pointer
           font-semibold
-          text-xs
+          flex-grow-0 flex-shrink-0
+          text-secondaryLight
+          inline-flex
+          items-center
+          hover:text-secondary
         "
       >
         <span @click="onBlockClick(index)">
           {{ p }}
         </span>
-        <i v-if="index + 1 !== currentPath.length" class="material-icons mx-2">
+        <i v-if="index + 1 !== currentPath.length" class="mx-2 material-icons">
           chevron_right
         </i>
         <tippy

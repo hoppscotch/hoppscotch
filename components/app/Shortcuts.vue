@@ -1,44 +1,76 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("shortcuts") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
+  <AppSlideOver :show="show" @close="close()">
+    <template #content>
+      <div
+        class="
+          bg-primary
+          border-b border-dividerLight
+          flex
+          p-2
+          top-0
+          z-10
+          items-center
+          sticky
+          justify-between
+        "
+      >
+        <h3 class="ml-4 heading">{{ $t("shortcuts") }}</h3>
+        <div>
+          <ButtonSecondary to="/settings" icon="tune" />
+          <ButtonSecondary icon="close" @click.native="close()" />
+        </div>
       </div>
-    </template>
-    <template #body>
-      <div class="px-2">
+      <!-- <div class="search-wrapper">
+        <input
+          v-model="filterText"
+          type="search"
+          class="bg-primaryLight border-b border-dividerLight flex font-semibold font-mono w-full py-2 pr-2 pl-8 focus:outline-none truncate"
+          :placeholder="$t('search')"
+        />
+      </div> -->
+      <div
+        class="
+          divide-y divide-dividerLight
+          flex flex-col flex-1
+          overflow-auto
+          hide-scrollbar
+        "
+      >
         <div
-          v-for="(shortcut, index) in shortcuts"
-          :key="`shortcut-${index}`"
-          class="flex items-center"
+          v-for="(map, mapIndex) in mappings"
+          :key="`map-${mapIndex}`"
+          class="space-y-4 py-4 px-6"
         >
-          <kbd
-            v-for="(key, keyIndex) in shortcut.keys"
-            :key="`shortcut-${index}-key-${keyIndex}`"
-            class="
-              py-2
-              px-4
-              m-1
-              text-xs
-              border border-divider
-              rounded-lg
-              font-bold
-            "
+          <h5 class="font-bold text-secondaryDark text-sm">
+            {{ map.section }}
+          </h5>
+          <div
+            v-for="(shortcut, shortcutIndex) in map.shortcuts"
+            :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
+            class="flex items-center"
           >
-            {{ key }}
-          </kbd>
-          <span class="flex text-xs ml-4">
-            {{ shortcut.label }}
-          </span>
+            <span class="flex flex-1 text-secondaryLight mr-4">
+              {{ shortcut.label }}
+            </span>
+            <span
+              v-for="(key, keyIndex) in shortcut.keys"
+              :key="`map-${mapIndex}-shortcut-${shortcutIndex}-key-${keyIndex}`"
+              class="shortcut-key"
+            >
+              {{ key }}
+            </span>
+          </div>
         </div>
       </div>
     </template>
-  </SmartModal>
+  </AppSlideOver>
 </template>
 
 <script>
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import {
+  getPlatformSpecialKey,
+  getPlatformAlternateKey,
+} from "~/helpers/platformutils"
 
 export default {
   props: {
@@ -46,59 +78,85 @@ export default {
   },
   data() {
     return {
-      shortcuts: [
+      filterText: "",
+      mappings: [
         {
-          keys: [this.getSpecialKey(), "G"],
-          label: this.$t("send_request"),
+          section: "General",
+          shortcuts: [
+            {
+              keys: [getPlatformSpecialKey(), "G"],
+              label: this.$t("shortcut.send_request"),
+            },
+            {
+              keys: [getPlatformSpecialKey(), "S"],
+              label: this.$t("shortcut.save_to_collections"),
+            },
+            {
+              keys: [getPlatformSpecialKey(), "K"],
+              label: this.$t("shortcut.copy_request_link"),
+            },
+            {
+              keys: [getPlatformSpecialKey(), "I"],
+              label: this.$t("shortcut.reset_request"),
+            },
+          ],
         },
         {
-          keys: [this.getSpecialKey(), "S"],
-          label: this.$t("save_to_collections"),
-        },
-        {
-          keys: [this.getSpecialKey(), "K"],
-          label: this.$t("copy_request_link"),
-        },
-        {
-          keys: [this.getSpecialKey(), "I"],
-          label: this.$t("reset_request"),
-        },
-        {
-          keys: ["Alt", "▲"],
-          label: this.$t("select_next_method"),
-        },
-        {
-          keys: ["Alt", "▼"],
-          label: this.$t("select_previous_method"),
-        },
-        {
-          keys: ["Alt", "G"],
-          label: this.$t("select_get_method"),
-        },
-        {
-          keys: ["Alt", "H"],
-          label: this.$t("select_head_method"),
-        },
-        {
-          keys: ["Alt", "P"],
-          label: this.$t("select_post_method"),
-        },
-        {
-          keys: ["Alt", "U"],
-          label: this.$t("select_put_method"),
-        },
-        {
-          keys: ["Alt", "X"],
-          label: this.$t("select_delete_method"),
+          section: "Request",
+          shortcuts: [
+            {
+              keys: [getPlatformAlternateKey(), "↑"],
+              label: this.$t("shortcut.next_method"),
+            },
+            {
+              keys: [getPlatformAlternateKey(), "↓"],
+              label: this.$t("shortcut.previous_method"),
+            },
+            {
+              keys: [getPlatformAlternateKey(), "G"],
+              label: this.$t("shortcut.get_method"),
+            },
+            {
+              keys: [getPlatformAlternateKey(), "H"],
+              label: this.$t("shortcut.head_method"),
+            },
+            {
+              keys: [getPlatformAlternateKey(), "P"],
+              label: this.$t("shortcut.post_method"),
+            },
+            {
+              keys: [getPlatformAlternateKey(), "U"],
+              label: this.$t("shortcut.put_method"),
+            },
+            {
+              keys: [getPlatformAlternateKey(), "X"],
+              label: this.$t("shortcut.delete_method"),
+            },
+          ],
         },
       ],
     }
   },
+  watch: {
+    $route() {
+      this.$emit("close")
+    },
+  },
   methods: {
-    getSpecialKey: getPlatformSpecialKey,
-    hideModal() {
-      this.$emit("hide-modal")
+    close() {
+      this.$emit("close")
     },
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.shortcut-key {
+  @apply bg-dividerLight;
+  @apply rounded;
+  @apply ml-2;
+  @apply py-1;
+  @apply px-2;
+  @apply inline-flex;
+}
+</style>

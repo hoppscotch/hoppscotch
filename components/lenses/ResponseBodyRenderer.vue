@@ -1,5 +1,5 @@
 <template>
-  <SmartTabs styles="sticky z-10 top-13">
+  <SmartTabs styles="sticky z-10 top-12">
     <SmartTab
       v-for="(lens, index) in validLenses"
       :id="lens.lensName"
@@ -10,10 +10,10 @@
       <component :is="lens.renderer" :response="response" />
     </SmartTab>
     <SmartTab
-      v-if="Object.keys(response.headers).length !== 0"
+      v-if="headerLength"
       id="headers"
       :label="$t('Headers')"
-      :info="Object.keys(response.headers).length.toString()"
+      :info="headerLength.toString()"
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>
@@ -32,7 +32,14 @@ export default {
     response: { type: Object, default: () => {} },
   },
   computed: {
+    headerLength() {
+      if (!this.response || !this.response.headers) return 0
+
+      return Object.keys(this.response.headers).length
+    },
     validLenses() {
+      if (!this.response) return []
+
       return getSuitableLenses(this.response)
     },
   },

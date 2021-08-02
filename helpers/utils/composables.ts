@@ -98,15 +98,15 @@ export function useStreamSubscriber() {
 
   const runAndSubscribe = <T>(
     stream: Observable<T>,
-    next: (value: T) => void,
-    error: (e: any) => void,
-    complete: () => void
+    next?: (value: T) => void,
+    error?: (e: any) => void,
+    complete?: () => void
   ) => {
     const sub = stream.subscribe({
       next,
       error,
       complete: () => {
-        complete()
+        if (complete) complete()
         subs.splice(subs.indexOf(sub), 1)
       },
     })

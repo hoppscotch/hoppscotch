@@ -129,8 +129,6 @@ export default defineComponent({
       this.debouncedHandler()
     },
     processHighlights() {
-      this.renderTippy()
-
       if (!this.highlightEnabled) {
         this.htmlOutput = this.internalValue
         this.$emit("input", this.internalValue)
@@ -202,14 +200,14 @@ export default defineComponent({
           .substring(position.start, position.end + 1)
           .slice(2, -2)
         result += `<span class="${highlightPositions[k].style} ${
-          getCurrentEnvironment().variables.find((k) => k.key === envVar)
+          this.currentEnvironment.variables.find((k) => k.key === envVar)
             ?.value === undefined
             ? "bg-red-500"
             : "bg-accentDark"
         }" v-tippy data-tippy-content="environment: ${
-          getCurrentEnvironment().name
+          this.currentEnvironment.name
         } • value: ${
-          getCurrentEnvironment().variables.find((k) => k.key === envVar)?.value
+          this.currentEnvironment.variables.find((k) => k.key === envVar)?.value
         }">${this.safe_tags_replace(
           this.internalValue.substring(position.start, position.end + 1)
         )}</span>`
@@ -227,6 +225,11 @@ export default defineComponent({
         result += "&nbsp;"
       }
       this.htmlOutput = result
+
+      this.$nextTick(() => {
+        this.renderTippy()
+      })
+
       this.$emit("input", this.internalValue)
     },
     renderTippy() {

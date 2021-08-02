@@ -171,6 +171,14 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setParams(curr: RESTSession, { entries }: { entries: HoppRESTParam[] }) {
+    return {
+      request: {
+        ...curr.request,
+        params: entries,
+      },
+    }
+  },
   addParam(curr: RESTSession, { newParam }: { newParam: HoppRESTParam }) {
     return {
       request: {
@@ -270,6 +278,14 @@ const dispatchers = defineDispatchers({
       request: {
         ...curr.request,
         method: newMethod,
+      },
+    }
+  },
+  setHeaders(curr: RESTSession, { entries }: { entries: HoppRESTHeader[] }) {
+    return {
+      request: {
+        ...curr.request,
+        headers: entries,
       },
     }
   },
@@ -395,6 +411,15 @@ export function setRESTRequestName(newName: string) {
   })
 }
 
+export function setRESTParams(entries: HoppRESTParam[]) {
+  restSessionStore.dispatch({
+    dispatcher: "setParams",
+    payload: {
+      entries,
+    },
+  })
+}
+
 export function addRESTParam(newParam: HoppRESTParam) {
   restSessionStore.dispatch({
     dispatcher: "addParam",
@@ -435,6 +460,15 @@ export function updateRESTMethod(newMethod: string) {
     dispatcher: "updateMethod",
     payload: {
       newMethod,
+    },
+  })
+}
+
+export function setRESTHeaders(entries: HoppRESTHeader[]) {
+  restSessionStore.dispatch({
+    dispatcher: "setHeaders",
+    payload: {
+      entries,
     },
   })
 }

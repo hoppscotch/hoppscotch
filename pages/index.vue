@@ -77,7 +77,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  useContext,
+  watch,
+} from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 
@@ -87,16 +93,82 @@ import {
   restRequest$,
   restActiveParamsCount$,
   restActiveHeadersCount$,
+  getRESTRequest,
+  setRESTRequest,
+  setRESTHeaders,
+  setRESTParams,
+  updateRESTMethod,
+  setRESTEndpoint,
 } from "~/newstore/RESTSession"
 import {
   useReadonlyStream,
+  useStream,
   useStreamSubscriber,
 } from "~/helpers/utils/composables"
+
+function bindRequestToURLParams() {
+  const {
+    route,
+    app: { router },
+  } = useContext()
+
+  const request = useStream(restRequest$, getRESTRequest(), setRESTRequest)
+
+  // Process headers and params to proper values
+  const headers = computed(() => {
+    const filtered = request.value.headers.filter((x) => x.key !== "")
+
+    return filtered.length > 0 ? JSON.stringify(filtered) : null
+  })
+
+  const params = computed(() => {
+    const filtered = request.value.params.filter((x) => x.key !== "")
+    return filtered.length > 0 ? JSON.stringify(filtered) : null
+  })
+
+  // Combine them together to a cleaner value
+  const urlParams = computed(() => ({
+    v: request.value.v,
+    method: request.value.method,
+    endpoint: request.value.endpoint,
+    headers: headers.value,
+    params: params.value,
+  }))
+
+  // Watch and update accordingly
+  watch(urlParams, () => {
+    history.replaceState(
+      window.location.href,
+      "",
+      `${router!.options.base}?${encodeURI(
+        Object.entries(urlParams.value)
+          .filter((x) => x[1] !== null)
+          .map((x) => `${x[0]}=${x[1]!}`)
+          .join("&")
+      )}`
+    )
+  })
+
+  // Now, we have to see the initial URL param and set that as the request
+  onMounted(() => {
+    const query = route.value.query
+    if (query.headers && typeof query.headers === "string")
+      setRESTHeaders(JSON.parse(query.headers))
+    if (query.params && typeof query.params === "string")
+      setRESTParams(JSON.parse(query.params))
+    if (query.method && typeof query.method === "string")
+      updateRESTMethod(query.method)
+    if (query.endpoint && typeof query.endpoint === "string")
+      setRESTEndpoint(query.endpoint)
+  })
+}
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     const { subscribeToStream } = useStreamSubscriber()
+
+    bindRequestToURLParams()
 
     subscribeToStream(restRequest$, (x) => {
       console.log(x)

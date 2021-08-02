@@ -89,6 +89,13 @@ export function pluckRef<T, K extends keyof T>(ref: Ref<T>, key: K): Ref<T[K]> {
   })
 }
 
+export function pluckMultipleFromRef<T, K extends Array<keyof T>>(
+  sourceRef: Ref<T>,
+  keys: K
+): { [key in K[number]]: Ref<T[key]> } {
+  return Object.fromEntries(keys.map((x) => [x, pluckRef(sourceRef, x)])) as any
+}
+
 /**
  * A composable that provides the ability to run streams
  * and subscribe to them and respect the component lifecycle.

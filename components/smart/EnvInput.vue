@@ -26,7 +26,11 @@ import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
 import { tippy } from "vue-tippy"
-import { getCurrentEnvironment } from "~/newstore/environments"
+import {
+  currentEnvironment$,
+  getCurrentEnvironment,
+} from "~/newstore/environments"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 const tagsToReplace = {
   "&": "&amp;",
@@ -49,7 +53,16 @@ export default defineComponent({
       default: "",
     },
   },
+  setup() {
+    const currentEnvironment = useReadonlyStream(
+      currentEnvironment$,
+      getCurrentEnvironment()
+    )
 
+    return {
+      currentEnvironment,
+    }
+  },
   data() {
     return {
       internalValue: "",
@@ -70,6 +83,9 @@ export default defineComponent({
   },
 
   watch: {
+    currentEnvironment() {
+      this.processHighlights()
+    },
     highlightStyle() {
       this.processHighlights()
     },

@@ -16,9 +16,10 @@
     />
     <div class="rounded-full shadow-inner inset-0 absolute"></div>
     <span
+      v-if="indicator"
       :class="[
         'border-primary rounded-full border-2 h-3 -top-1 -right-1 w-3 absolute',
-        indicator,
+        indicatorStyles,
       ]"
     ></span>
   </div>
@@ -38,6 +39,10 @@ export default {
       default: "Profile picture",
     },
     indicator: {
+      type: Boolean,
+      default: false,
+    },
+    indicatorStyles: {
       type: String,
       default: "bg-green-500",
     },

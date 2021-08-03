@@ -27,6 +27,8 @@
   --error-color: theme("colors.dark.800");
   // Tooltip color
   --tooltip-color: theme("colors.true-gray.100");
+  // Popover color
+  --popover-color: theme("colors.true-gray.800");
   // Editor theme
   --editor-theme: "merbivore_soft";
 }
@@ -54,6 +56,8 @@
   --error-color: theme("colors.blue-gray.700");
   // Tooltip color
   --tooltip-color: theme("colors.blue-gray.800");
+  // Popover color
+  --popover-color: theme("colors.white");
   // Editor theme
   --editor-theme: "textmate";
 }
@@ -81,6 +85,8 @@
   --error-color: theme("colors.dark.800");
   // Tooltip color
   --tooltip-color: theme("colors.true-gray.100");
+  // Popover color
+  --popover-color: theme("colors.dark.700");
   // Editor theme
   --editor-theme: "twilight";
 }

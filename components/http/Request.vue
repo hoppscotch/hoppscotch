@@ -27,10 +27,11 @@
                 transition
                 w-28
                 truncate
-                focus:outline-none focus:border-accent
+                focus:border-accent focus:outline-none
               "
               :value="newMethod"
-              readonly
+              :readonly="isCustomMethod()"
+              @input="onSelectMethod($event.target.value)"
             />
           </template>
           <SmartItem
@@ -78,7 +79,7 @@
           px-4
           transition
           truncate
-          focus:outline-none focus:border-accent
+          focus:border-accent focus:outline-none
         "
         name="url"
         type="text"
@@ -332,6 +333,7 @@ export default defineComponent({
         updateMethod(methods[currentIndex - 1])
       }
     }
+
     const cycleDownMethod = () => {
       const currentIndex = methods.indexOf(newMethod.value)
       if (currentIndex === -1) {
@@ -363,6 +365,12 @@ export default defineComponent({
     defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
     defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
+    const isCustomMethod = () => {
+      if (newMethod.value === "CUSTOM" || !methods.includes(newMethod.value))
+        return false
+      return true
+    }
+
     return {
       newEndpoint,
       newMethod,
@@ -386,6 +394,8 @@ export default defineComponent({
       methodOptions,
       sendOptions,
       saveOptions,
+
+      isCustomMethod,
     }
   },
 })

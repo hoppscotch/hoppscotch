@@ -1,22 +1,44 @@
 <template>
   <AppSection label="teams">
-    <div class="flex flex-col">
-      <legend class="font-bold text-secondaryDark">
-        {{ $t("team.title") }}
-      </legend>
-      <div v-if="currentUser"></div>
-      <div v-else>
-        <label>{{ $t("login_with") }}</label>
-        <p>
-          <ButtonPrimary
-            v-if="currentUser"
-            label="Get Started"
-            @click.native="showLogin = true"
-          />
-        </p>
+    <h4 class="font-bold text-secondaryDark">
+      {{ $t("team.title") }}
+    </h4>
+    <div class="mt-1 text-secondaryLight">
+      Join
+      <SmartAnchor label="beta" to="https://hoppscotch.io/beta" blank />
+      to access teams.
+    </div>
+    <div class="space-y-4 mt-4">
+      <ButtonSecondary
+        :label="$t('team.create_new')"
+        outline
+        @click.native="displayModalAdd(true)"
+      />
+      <p v-if="$apollo.queries.myTeams.loading">
+        {{ $t("loading") }}
+      </p>
+      <p v-if="myTeams.length === 0">
+        <i class="material-icons">help_outline</i> {{ $t("team.create_new") }}
+      </p>
+      <div
+        v-else
+        class="
+          divide-y divide-dividerLight
+          border border-divider
+          rounded
+          flex flex-col flex-1
+          md:w-64
+        "
+      >
+        <TeamsTeam
+          v-for="(team, index) in myTeams"
+          :key="`team-${index}`"
+          :team-i-d="team.id"
+          :team="team"
+          @edit-team="editTeam(team, team.id)"
+        />
       </div>
     </div>
-
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <TeamsEdit
       :team="myTeams[0]"
@@ -25,33 +47,6 @@
       :editingteam-i-d="editingteamID"
       @hide-modal="displayModalEdit(false)"
     />
-    <div class="flex flex-1">
-      <div>
-        <ButtonSecondary
-          icon="add"
-          :label="$t('new')"
-          @click.native="displayModalAdd(true)"
-        />
-      </div>
-    </div>
-    <p v-if="$apollo.queries.myTeams.loading">
-      {{ $t("loading") }}
-    </p>
-    <p v-if="myTeams.length === 0">
-      <i class="material-icons">help_outline</i> {{ $t("team.create_new") }}
-    </p>
-    <div v-else class="hide-scrollbar !overflow-auto">
-      <ul class="flex-col">
-        <li v-for="(team, index) in myTeams" :key="`team-${index}`">
-          <TeamsTeam
-            :team-i-d="team.id"
-            :team="team"
-            @edit-team="editTeam(team, team.id)"
-          />
-        </li>
-      </ul>
-    </div>
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </AppSection>
 </template>
 
@@ -68,7 +63,6 @@ export default {
       editingteamID: "",
       me: {},
       myTeams: [],
-      showLogin: false,
     }
   },
   subscriptions() {
@@ -98,6 +92,7 @@ export default {
             ownersCount
             members {
               user {
+                photoURL
                 displayName
                 email
                 uid

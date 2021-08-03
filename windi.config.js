@@ -22,6 +22,7 @@ export default defineConfig({
         dividerDark: "var(--divider-dark-color)",
         error: "var(--error-color)",
         tooltip: "var(--tooltip-color)",
+        popover: "var(--popover-color)",
         gradientFrom: "var(--gradient-from-color)",
         gradientVia: "var(--gradient-via-color)",
         gradientTo: "var(--gradient-to-color)",

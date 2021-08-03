@@ -41,7 +41,8 @@
                 '<br>' +
                 `<sub>${currentUser.email || 'Email not found'}</sub>`
               "
-              :indicator="isOnLine ? 'bg-green-500' : 'bg-red-500'"
+              indicator
+              :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
             />
             <TabPrimary
               v-else

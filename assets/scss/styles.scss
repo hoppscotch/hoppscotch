@@ -118,7 +118,7 @@ a {
   }
 
   .popover-theme {
-    @apply bg-primary;
+    @apply bg-popover;
     @apply text-secondary;
     @apply p-2;
     @apply shadow-lg;
@@ -126,19 +126,19 @@ a {
   }
 
   &[x-placement^="top"] .tippy-tooltip .tippy-arrow {
-    @apply border-t-primary;
+    @apply border-t-popover;
   }
 
   &[x-placement^="bottom"] .tippy-tooltip .tippy-arrow {
-    @apply border-b-primary;
+    @apply border-b-popover;
   }
 
   &[x-placement^="left"] .tippy-tooltip .tippy-arrow {
-    @apply border-l-primary;
+    @apply border-l-popover;
   }
 
   &[x-placement^="right"] .tippy-tooltip .tippy-arrow {
-    @apply border-r-primary;
+    @apply border-r-popover;
   }
 }
 

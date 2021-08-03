@@ -2,9 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("team.edit") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <div class="flex flex-col px-2">
@@ -58,7 +56,7 @@
             />
             <span class="select-wrapper">
               <tippy
-                ref="options"
+                ref="memberOptions"
                 interactive
                 tabindex="-1"
                 trigger="click"
@@ -89,22 +87,22 @@
                 <SmartItem
                   label="OWNER"
                   @click.native="
-                    updateRole(index, 'OWNER')
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
+                    updateMemberRole(index, 'OWNER')
                   "
                 />
                 <SmartItem
                   label="EDITOR"
                   @click.native="
-                    updateRole(index, 'EDITOR')
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
+                    updateMemberRole(index, 'EDITOR')
                   "
                 />
                 <SmartItem
                   label="VIEWER"
                   @click.native="
-                    updateRole(index, 'VIEWER')
-                    $refs.options.tippy().hide()
+                    $refs.memberOptions.tippy().hide()
+                    updateMemberRole(index, 'VIEWER')
                   "
                 />
               </tippy>
@@ -122,7 +120,7 @@
           </div>
           <div
             v-for="(member, index) in newMembers"
-            :key="`member-${index}`"
+            :key="`new-member-${index}`"
             class="
               divide-x divide-dividerLight
               border-b border-dividerLight
@@ -146,7 +144,7 @@
             />
             <span class="select-wrapper">
               <tippy
-                ref="memberOptions"
+                ref="newMemberOptions"
                 interactive
                 tabindex="-1"
                 trigger="click"
@@ -177,22 +175,22 @@
                 <SmartItem
                   label="OWNER"
                   @click.native="
-                    member.value = 'OWNER'
-                    $refs.memberOptions.tippy().hide()
+                    $refs.newMemberOptions.tippy().hide()
+                    updateNewMemberRole(index, 'OWNER')
                   "
                 />
                 <SmartItem
                   label="EDITOR"
                   @click.native="
-                    member.value = 'EDITOR'
-                    $refs.memberOptions.tippy().hide()
+                    $refs.newMemberOptions.tippy().hide()
+                    updateNewMemberRole(index, 'EDITOR')
                   "
                 />
                 <SmartItem
                   label="VIEWER"
                   @click.native="
-                    member.value = 'VIEWER'
-                    $refs.memberOptions.tippy().hide()
+                    $refs.newMemberOptions.tippy().hide()
+                    updateNewMemberRole(index, 'VIEWER')
                   "
                 />
               </tippy>
@@ -222,10 +220,11 @@
 
 <script>
 import cloneDeep from "lodash/cloneDeep"
+import { defineComponent } from "@nuxtjs/composition-api"
 import * as teamUtils from "~/helpers/teams/utils"
 import TeamMemberAdapter from "~/helpers/teams/TeamMemberAdapter"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
     editingTeam: { type: Object, default: () => {} },
@@ -263,12 +262,15 @@ export default {
     })
   },
   methods: {
-    updateRole(id, role) {
+    updateMemberRole(id, role) {
       this.members[id].role = role
     },
+    updateNewMemberRole(id, role) {
+      this.newMembers[id].value = role
+    },
     addTeamMember() {
-      const value = { key: "", value: "" }
-      this.newMembers.push(value)
+      const member = { key: "", value: "" }
+      this.newMembers.push(member)
     },
     removeExistingTeamMember(userID) {
       teamUtils
@@ -409,5 +411,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

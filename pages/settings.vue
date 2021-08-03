@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="divide-y divide-dividerLight space-y-8">
-      <div class="md:grid md:grid-cols-3 md:gap-4">
+      <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("account") }}
@@ -16,8 +16,8 @@
             <div class="mt-4 text-secondaryLight">Log in to access.</div>
           </div>
           <div v-else class="space-y-8">
-            <fieldset>
-              <legend class="font-bold text-secondaryDark">User</legend>
+            <section>
+              <h4 class="font-bold text-secondaryDark">User</h4>
               <div class="space-y-4 mt-4">
                 <div class="flex items-start">
                   <div class="flex items-center">
@@ -29,7 +29,7 @@
                     <i v-else class="material-icons">account_circle</i>
                   </div>
                   <div class="ml-4">
-                    <label>
+                    <label class="font-semibold">
                       {{ currentUser.displayName || $t("nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
@@ -42,7 +42,7 @@
                     <i class="material-icons">email</i>
                   </div>
                   <div class="ml-4">
-                    <label>
+                    <label class="font-semibold">
                       {{ currentUser.email || $t("nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
@@ -51,9 +51,10 @@
                   </div>
                 </div>
               </div>
-            </fieldset>
-            <fieldset>
-              <legend class="font-bold text-secondaryDark">Sync</legend>
+            </section>
+            <Teams v-if="currentBackendUser && currentBackendUser.eaInvited" />
+            <section>
+              <h4 class="font-bold text-secondaryDark">Sync</h4>
               <div class="mt-1 text-secondaryLight">
                 These settings are synced to cloud.
               </div>
@@ -87,15 +88,12 @@
                   </SmartToggle>
                 </div>
               </div>
-            </fieldset>
-            <fieldset v-if="currentBackendUser && currentBackendUser.eaInvited">
-              <Teams />
-            </fieldset>
+            </section>
           </div>
         </div>
       </div>
 
-      <div class="md:grid md:grid-cols-3 md:gap-4">
+      <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("theme") }}
@@ -105,10 +103,10 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <fieldset>
-            <legend class="font-bold text-secondaryDark">
+          <section>
+            <h4 class="font-bold text-secondaryDark">
               {{ $t("background") }}
-            </legend>
+            </h4>
             <div class="mt-1 text-secondaryLight">
               <ColorScheme placeholder="..." tag="span">
                 {{
@@ -123,30 +121,30 @@
             <div class="mt-4">
               <SmartColorModePicker />
             </div>
-          </fieldset>
-          <fieldset>
-            <legend class="font-bold text-secondaryDark">
+          </section>
+          <section>
+            <h4 class="font-bold text-secondaryDark">
               {{ $t("color") }}
-            </legend>
+            </h4>
             <div class="mt-1 text-secondaryLight">
               {{ active.charAt(0).toUpperCase() + active.slice(1) }}
             </div>
             <div class="mt-4">
               <SmartAccentModePicker />
             </div>
-          </fieldset>
-          <fieldset>
-            <legend class="font-bold text-secondaryDark">
+          </section>
+          <section>
+            <h4 class="font-bold text-secondaryDark">
               {{ $t("choose_language") }}
-            </legend>
+            </h4>
             <div class="mt-4">
               <SmartChangeLanguage />
             </div>
-          </fieldset>
-          <fieldset>
-            <legend class="font-bold text-secondaryDark">
+          </section>
+          <section>
+            <h4 class="font-bold text-secondaryDark">
               {{ $t("experiments") }}
-            </legend>
+            </h4>
             <div class="mt-1 text-secondaryLight">
               {{ $t("experiments_notice") }}
               <SmartLink
@@ -205,11 +203,11 @@
                 </SmartToggle>
               </div>
             </div>
-          </fieldset>
+          </section>
         </div>
       </div>
 
-      <div class="md:grid md:grid-cols-3 md:gap-4">
+      <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
             {{ $t("settings.interceptor") }}
@@ -219,10 +217,10 @@
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
-          <fieldset>
-            <legend class="font-bold text-secondaryDark">
+          <section>
+            <h4 class="font-bold text-secondaryDark">
               {{ $t("extensions") }}
-            </legend>
+            </h4>
             <div class="mt-1 text-secondaryLight">
               <span v-if="extensionVersion != null">
                 {{
@@ -266,11 +264,11 @@
                 </SmartToggle>
               </div>
             </div>
-          </fieldset>
-          <fieldset>
-            <legend class="font-bold text-secondaryDark">
+          </section>
+          <section>
+            <h4 class="font-bold text-secondaryDark">
               {{ $t("proxy") }}
-            </legend>
+            </h4>
             <div class="mt-1 text-secondaryLight">
               {{ `${$t("official_proxy_hosting")} ${$t("read_the")}` }}
               <SmartLink
@@ -315,7 +313,7 @@
                     py-2
                     px-4
                     block
-                    focus:outline-none focus:border-accent
+                    focus:border-accent focus:outline-none
                   "
                   type="url"
                   :disabled="!PROXY_ENABLED"
@@ -330,7 +328,7 @@
                 />
               </div>
             </div>
-          </fieldset>
+          </section>
         </div>
       </div>
     </div>

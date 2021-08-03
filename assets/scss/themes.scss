@@ -297,3 +297,36 @@
 :root[data-accent="yellow"] {
   @include yellowTheme;
 }
+
+@mixin fontSmall {
+  // Font size
+  --font-size: 0.75rem;
+  // Line height
+  --line-height: 1rem;
+}
+
+@mixin fontMedium {
+  // Font size
+  --font-size: 0.875rem;
+  // Line height
+  --line-height: 1.25rem;
+}
+
+@mixin fontLarge {
+  // Font size
+  --font-size: 1rem;
+  // Line height
+  --line-height: 1.5rem;
+}
+
+:root[data-font-size="xs"] {
+  @include fontSmall;
+}
+
+:root[data-font-size="sm"] {
+  @include fontMedium;
+}
+
+:root[data-font-size="base"] {
+  @include fontLarge;
+}

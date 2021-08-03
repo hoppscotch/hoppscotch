@@ -6,15 +6,13 @@
     class="
       rounded
       font-semibold
-      text-xs
       py-2
       px-4
       transition
       inline-flex
       items-center
-      focus:bg-primaryDark focus:text-secondaryDark
       hover:bg-primaryDark hover:text-secondaryDark
-      focus:outline-none
+      focus:bg-primaryDark focus:outline-none focus:text-secondaryDark
     "
     :class="[
       { 'opacity-75 cursor-not-allowed': disabled },

@@ -77,6 +77,10 @@ export default defineComponent({
     this.$subscribeTo(getSettingSubject("BG_COLOR"), (color) => {
       ;(this as any).$colorMode.preference = color
     })
+
+    this.$subscribeTo(getSettingSubject("FONT_SIZE"), (size) => {
+      document.documentElement.setAttribute("data-font-size", size.code)
+    })
   },
   async mounted() {
     performMigrations()

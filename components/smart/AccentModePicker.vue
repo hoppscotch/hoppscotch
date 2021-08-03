@@ -47,7 +47,6 @@ export default Vue.extend({
   methods: {
     setActiveColor(color: HoppAccentColor) {
       document.documentElement.setAttribute("data-accent", color)
-
       applySetting("THEME_COLOR", color)
     },
   },

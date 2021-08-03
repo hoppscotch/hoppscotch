@@ -124,7 +124,7 @@
           </section>
           <section>
             <h4 class="font-bold text-secondaryDark">
-              {{ $t("color") }}
+              {{ $t("settings.accent_color") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
               {{ active.charAt(0).toUpperCase() + active.slice(1) }}
@@ -135,7 +135,15 @@
           </section>
           <section>
             <h4 class="font-bold text-secondaryDark">
-              {{ $t("choose_language") }}
+              {{ $t("settings.font_size") }}
+            </h4>
+            <div class="mt-4">
+              <SmartFontSizePicker />
+            </div>
+          </section>
+          <section>
+            <h4 class="font-bold text-secondaryDark">
+              {{ $t("settings.language") }}
             </h4>
             <div class="mt-4">
               <SmartChangeLanguage />

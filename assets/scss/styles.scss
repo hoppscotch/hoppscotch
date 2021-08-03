@@ -41,11 +41,13 @@ html {
 
 body {
   @apply bg-primary;
-  @apply text-secondary text-xs;
+  @apply text-secondary;
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
 
+  font-size: var(--font-size);
+  line-height: var(--line-height);
   overflow: overlay;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -162,21 +164,28 @@ hr {
   @apply text-secondaryDark text-lg;
 }
 
-.textarea,
 .input,
-.select {
+.select,
+.textarea {
   @apply flex flex-1;
   @apply w-full;
   @apply px-4 py-2;
   @apply bg-primary;
   @apply truncate;
   @apply rounded;
-  @apply text-xs;
   @apply font-semibold;
   @apply border border-divider;
   @apply transition;
   @apply focus:(outline-none border-accent);
   @apply disabled:cursor-not-allowed;
+}
+
+input,
+select,
+textarea,
+button {
+  font-size: var(--font-size);
+  line-height: var(--line-height);
 }
 
 .input[type="file"],

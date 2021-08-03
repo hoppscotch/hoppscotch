@@ -152,7 +152,12 @@
     "shortcuts_indicator": "Shortcuts indicator",
     "telemetry": "Telemetry",
     "interceptor": "Interceptor",
-    "navigation_sidebar": "Navigation sidebar"
+    "navigation_sidebar": "Navigation sidebar",
+    "font_size": "Font size",
+    "change_font_size": "Change font size",
+    "language": "Language",
+    "choose_language": "Choose language",
+    "accent_color": "Accent color"
   },
   "layout": {
     "zen_mode": "Zen mode"
@@ -166,7 +171,6 @@
   "endpoint": "Endpoint",
   "schema": "Schema",
   "theme": "Theme",
-  "choose_language": "Choose Language",
   "shortcuts": "Shortcuts",
   "javascript_code": "JavaScript Code",
   "method": "Method",
@@ -217,7 +221,6 @@
   "types": "Types",
   "send": "Send",
   "background": "Background",
-  "color": "Color",
   "labels": "Labels",
   "enabled": "Enabled",
   "disabled": "Disabled",

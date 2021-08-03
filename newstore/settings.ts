@@ -24,6 +24,23 @@ export const HoppAccentColors = [
 
 export type HoppAccentColor = typeof HoppAccentColors[number]
 
+export const HoppFontSizes = [
+  {
+    name: "Small",
+    code: "xs",
+  },
+  {
+    name: "Medium",
+    code: "sm",
+  },
+  {
+    name: "Large",
+    code: "base",
+  },
+] as const
+
+export type HoppFontSize = typeof HoppFontSizes[number]
+
 export type SettingsType = {
   syncCollections: boolean
   syncHistory: boolean
@@ -48,6 +65,7 @@ export type SettingsType = {
   LEFT_SIDEBAR: boolean
   RIGHT_SIDEBAR: boolean
   ZEN_MODE: boolean
+  FONT_SIZE: HoppFontSize
 }
 
 export const defaultSettings: SettingsType = {
@@ -74,6 +92,7 @@ export const defaultSettings: SettingsType = {
   LEFT_SIDEBAR: true,
   RIGHT_SIDEBAR: true,
   ZEN_MODE: false,
+  FONT_SIZE: { name: "Small", code: "xs" },
 }
 
 const validKeys = Object.keys(defaultSettings)

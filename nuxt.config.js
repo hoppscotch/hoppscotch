@@ -367,18 +367,6 @@ export default {
     classSuffix: "",
   },
 
-  // Storybook configuration (https://github.com/nuxt-community/storybook)
-  storybook: {
-    webpackFinal(config, _options) {
-      config.node = {
-        fs: "empty",
-      }
-
-      // extend config here
-      return config
-    },
-  },
-
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     transpile: ["three"],
@@ -460,6 +448,7 @@ export default {
 
   // Router configuration (https://nuxtjs.org/api/configuration-router)
   router: {
-    linkExactActiveClass: "active",
+    linkActiveClass: "active-link",
+    linkExactActiveClass: "exact-active-link",
   },
 }

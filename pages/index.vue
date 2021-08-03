@@ -1,79 +1,76 @@
 <template>
-  <!-- eslint-disable -->
-  <div>
-    <Splitpanes :dbl-click-splitter="false" vertical>
-      <Pane class="hide-scrollbar !overflow-auto">
-        <Splitpanes :dbl-click-splitter="false" horizontal>
-          <Pane class="hide-scrollbar !overflow-auto">
-            <HttpRequest />
-            <SmartTabs styles="sticky top-16 z-10">
-              <SmartTab
-                :id="'params'"
-                :label="$t('parameters')"
-                :selected="true"
-                :info="newActiveParamsCount$"
-              >
-                <HttpParameters />
-              </SmartTab>
-
-              <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
-                <HttpBody />
-              </SmartTab>
-
-              <SmartTab
-                :id="'headers'"
-                :label="$t('headers')"
-                :info="newActiveHeadersCount$"
-              >
-                <HttpHeaders />
-              </SmartTab>
-
-              <SmartTab :id="'authentication'" :label="$t('authentication')">
-                <!-- TODO: Implement -->
-              </SmartTab>
-
-              <SmartTab
-                :id="'pre_request_script'"
-                :label="$t('pre_request_script')"
-              >
-                <HttpPreRequestScript />
-              </SmartTab>
-
-              <SmartTab :id="'tests'" :label="$t('tests')">
-                <HttpTests />
-              </SmartTab>
-            </SmartTabs>
-          </Pane>
-          <Pane class="hide-scrollbar !overflow-auto">
-            <HttpResponse ref="response" />
-          </Pane>
-        </Splitpanes>
-      </Pane>
-      <Pane
-        v-if="RIGHT_SIDEBAR"
-        max-size="35"
-        size="25"
-        min-size="20"
-        class="hide-scrollbar !overflow-auto"
-      >
-        <aside>
-          <SmartTabs styles="sticky z-10 top-0">
-            <SmartTab :id="'history'" :label="$t('history')" :selected="true">
-              <History :page="'rest'" ref="historyComponent" />
+  <Splitpanes :dbl-click-splitter="false" vertical>
+    <Pane class="hide-scrollbar !overflow-auto">
+      <Splitpanes :dbl-click-splitter="false" horizontal>
+        <Pane class="hide-scrollbar !overflow-auto">
+          <HttpRequest />
+          <SmartTabs styles="sticky top-16 z-10">
+            <SmartTab
+              :id="'params'"
+              :label="$t('parameters')"
+              :selected="true"
+              :info="newActiveParamsCount$"
+            >
+              <HttpParameters />
             </SmartTab>
 
-            <SmartTab :id="'collections'" :label="$t('collections')">
-              <Collections />
+            <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
+              <HttpBody />
             </SmartTab>
 
-            <SmartTab :id="'env'" :label="$t('environments')">
-              <Environments />
+            <SmartTab
+              :id="'headers'"
+              :label="$t('headers')"
+              :info="newActiveHeadersCount$"
+            >
+              <HttpHeaders />
+            </SmartTab>
+
+            <SmartTab :id="'authentication'" :label="$t('authentication')">
+              <!-- TODO: Implement -->
+            </SmartTab>
+
+            <SmartTab
+              :id="'pre_request_script'"
+              :label="$t('pre_request_script')"
+            >
+              <HttpPreRequestScript />
+            </SmartTab>
+
+            <SmartTab :id="'tests'" :label="$t('tests')">
+              <HttpTests />
             </SmartTab>
           </SmartTabs>
-        </aside>
-      </Pane>
-    </Splitpanes>
-  </div>
+        </Pane>
+        <Pane class="hide-scrollbar !overflow-auto">
+          <HttpResponse ref="response" />
+        </Pane>
+      </Splitpanes>
+    </Pane>
+    <Pane
+      v-if="RIGHT_SIDEBAR"
+      max-size="35"
+      size="25"
+      min-size="20"
+      class="hide-scrollbar !overflow-auto"
+    >
+      <aside>
+        <SmartTabs styles="sticky z-10 top-0">
+          <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+            <History ref="historyComponent" :page="'rest'" />
+          </SmartTab>
+
+          <SmartTab :id="'collections'" :label="$t('collections')">
+            <Collections />
+          </SmartTab>
+
+          <SmartTab :id="'env'" :label="$t('environments')">
+            <Environments />
+          </SmartTab>
+        </SmartTabs>
+      </aside>
+    </Pane>
+  </Splitpanes>
 </template>
 
 <script lang="ts">

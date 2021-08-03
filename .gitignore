@@ -104,7 +104,3 @@ tests/*/screenshots
 
 # Tests videos
 tests/*/videos
-
-# Storybook
-.nuxt-storybook
-storybook-static

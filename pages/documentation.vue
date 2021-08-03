@@ -13,7 +13,7 @@
                   bg-accentLight
                   rounded
                   font-semibold
-                  text-primary
+                  text-accentContrast
                   py-1
                   px-2
                   inline-flex

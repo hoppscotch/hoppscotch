@@ -75,7 +75,7 @@ export default {
     @apply font-semibold;
   }
 
-  &.active {
+  &.exact-active-link {
     @apply text-accent;
     @apply hover:text-accent;
 

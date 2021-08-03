@@ -16,6 +16,7 @@ export default defineConfig({
         accent: "var(--accent-color)",
         accentLight: "var(--accent-light-color)",
         accentDark: "var(--accent-dark-color)",
+        accentContrast: "var(--accent-contrast-color)",
         divider: "var(--divider-color)",
         dividerLight: "var(--divider-light-color)",
         dividerDark: "var(--divider-dark-color)",

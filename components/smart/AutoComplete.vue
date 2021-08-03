@@ -221,7 +221,7 @@ export default {
       &:hover,
       &.active {
         @apply bg-accent;
-        @apply text-primary;
+        @apply text-accentContrast;
         @apply cursor-pointer;
       }
     }

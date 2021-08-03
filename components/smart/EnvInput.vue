@@ -72,7 +72,7 @@ export default defineComponent({
         {
           text: /(<<\w+>>)/g,
           style:
-            "text-white cursor-help rounded px-1 focus:outline-none mx-0.5",
+            "cursor-help transition rounded px-1 focus:outline-none mx-0.5",
         },
       ],
       highlightEnabled: true,
@@ -203,8 +203,8 @@ export default defineComponent({
         result += `<span class="${highlightPositions[k].style} ${
           this.currentEnvironment.variables.find((k) => k.key === envVar)
             ?.value === undefined
-            ? "bg-red-500"
-            : "bg-accentDark"
+            ? "bg-red-400 text-red-50 hover:bg-red-600"
+            : "bg-accentDark text-accentContrast hover:bg-accent"
         }" v-tippy data-tippy-content="environment: ${
           this.currentEnvironment.name
         } • value: ${

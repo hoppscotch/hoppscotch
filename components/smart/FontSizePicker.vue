@@ -18,13 +18,9 @@
             :label="`${fontSizes.find(({ code }) => code == active.code).name}`"
           />
         </template>
-        <!-- text-xs -->
-        <!-- text-sm -->
-        <!-- text-base -->
         <SmartItem
           v-for="(size, index) in fontSizes"
           :key="`size-${index}`"
-          :class="`text-${size.code}`"
           :label="size.name"
           @click.native="
             setActiveFont(size)

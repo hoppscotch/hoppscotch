@@ -4,7 +4,7 @@
       <Splitpanes :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
           <HttpRequest />
-          <SmartTabs styles="sticky top-16 z-10">
+          <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">
             <SmartTab
               :id="'params'"
               :label="$t('parameters')"

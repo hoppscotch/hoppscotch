@@ -1,6 +1,15 @@
 <template>
   <AppSection label="environments">
-    <div class="bg-primary rounded-t flex flex-col top-8 z-10 sticky">
+    <div
+      class="
+        bg-primary
+        rounded-t
+        flex flex-col
+        top-sidebarPrimaryStickyFold
+        z-10
+        sticky
+      "
+    >
       <div class="select-wrapper">
         <select
           v-model="selectedEnvironmentIndex"

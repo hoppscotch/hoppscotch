@@ -5,8 +5,8 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
+        top-upperSecondaryStickyFold
         pl-4
-        top-24
         z-10
         sticky
         items-center

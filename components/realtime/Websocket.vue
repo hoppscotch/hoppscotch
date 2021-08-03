@@ -16,11 +16,11 @@
                     font-semibold font-mono
                     text-secondaryDark
                     w-full
-                    py-1
+                    py-2
                     px-4
                     transition
                     truncate
-                    focus:outline-none focus:border-accent
+                    focus:border-accent focus:outline-none
                   "
                   type="url"
                   spellcheck="false"
@@ -45,8 +45,8 @@
               bg-primary
               border-b border-dividerLight
               flex flex-1
+              top-upperPrimaryStickyFold
               pl-4
-              top-16
               z-10
               sticky
               items-center

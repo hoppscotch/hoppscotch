@@ -1,5 +1,5 @@
 <template>
-  <SmartTabs styles="sticky z-10 top-12">
+  <SmartTabs styles="sticky z-10 top-lowerPrimaryStickyFold">
     <SmartTab
       v-for="(lens, index) in validLenses"
       :id="lens.lensName"

@@ -72,7 +72,7 @@ body {
 }
 
 .material-icons {
-  font-size: 1rem !important;
+  font-size: 1rem;
 }
 
 .svg-icons {
@@ -142,6 +142,11 @@ a {
   &[x-placement^="right"] .tippy-tooltip .tippy-arrow {
     @apply border-r-popover;
   }
+}
+
+[interactive] > div {
+  @apply flex;
+  @apply h-full;
 }
 
 .tippy-content > div {
@@ -215,11 +220,13 @@ pre.ace_editor {
 
   &::after {
     @apply absolute;
-    @apply inline-block;
+    @apply flex;
+    @apply inset-y-0;
+    @apply items-center;
+    @apply justify-center;
     @apply pointer-events-none;
     @apply font-icon;
     @apply text-secondaryLight;
-    @apply top-2.5;
     @apply right-3;
 
     content: "\e313";

@@ -5,7 +5,7 @@
   >
     <div
       class="bg-primary rounded-t flex flex-col top-0 z-10 sticky"
-      :class="{ '!top-8': !saveRequest && !doc }"
+      :class="{ '!top-sidebarPrimaryStickyFold': !saveRequest && !doc }"
     >
       <div v-if="!saveRequest" class="search-wrapper">
         <input

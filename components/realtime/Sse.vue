@@ -16,7 +16,7 @@
                 font-semibold font-mono
                 text-secondaryDark
                 w-full
-                py-1
+                py-2
                 px-4
                 transition
                 truncate

@@ -4,7 +4,7 @@
     :class="{ 'rounded border border-divider': savingMode }"
   >
     <div
-      class="flex flex-col top-8 z-10 sticky"
+      class="flex flex-col top-sidebarPrimaryStickyFold z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
     >
       <div v-if="showCollActions" class="search-wrapper">

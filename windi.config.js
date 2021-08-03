@@ -6,6 +6,15 @@ export default defineConfig({
       center: true,
     },
     extend: {
+      inset: {
+        upperPrimaryStickyFold: "var(--upper-primary-sticky-fold)",
+        upperSecondaryStickyFold: "var(--upper-secondary-sticky-fold)",
+        upperTertiaryStickyFold: "var(--upper-tertiary-sticky-fold)",
+        lowerPrimaryStickyFold: "var(--lower-primary-sticky-fold)",
+        lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
+        sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
+        sidebarSecondaryStickyFold: "var(--sidebar-secondary-sticky-fold)",
+      },
       colors: {
         primary: "var(--primary-color)",
         primaryLight: "var(--primary-light-color)",

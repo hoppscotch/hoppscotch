@@ -18,11 +18,11 @@
                     font-semibold font-mono
                     text-secondaryDark
                     w-full
-                    py-1
+                    py-2
                     px-4
                     transition
                     truncate
-                    focus:outline-none focus:border-accent
+                    focus:border-accent focus:outline-none
                   "
                   :placeholder="$t('url')"
                   @keyup.enter="onPollSchemaClick()"
@@ -36,7 +36,7 @@
                 />
               </div>
             </div>
-            <SmartTabs styles="sticky top-16 z-10">
+            <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">
               <SmartTab :id="'query'" :label="$t('query')" :selected="true">
                 <AppSection label="query">
                   <div
@@ -44,8 +44,8 @@
                       bg-primary
                       border-b border-dividerLight
                       flex flex-1
+                      top-upperSecondaryStickyFold
                       pl-4
-                      top-24
                       z-10
                       sticky
                       items-center
@@ -111,8 +111,8 @@
                       bg-primary
                       border-b border-dividerLight
                       flex flex-1
+                      top-upperSecondaryStickyFold
                       pl-4
-                      top-24
                       z-10
                       sticky
                       items-center
@@ -162,8 +162,8 @@
                       bg-primary
                       border-b border-dividerLight
                       flex flex-1
+                      top-upperSecondaryStickyFold
                       pl-4
-                      top-24
                       z-10
                       sticky
                       items-center
@@ -209,7 +209,7 @@
                         flex
                         font-semibold font-mono
                         flex-1
-                        py-1
+                        py-2
                         px-4
                         focus:outline-none
                       "
@@ -226,7 +226,7 @@
                         flex
                         font-semibold font-mono
                         w-full
-                        py-1
+                        py-2
                         px-4
                         focus:outline-none
                       "
@@ -385,7 +385,15 @@
           <SmartTabs styles="sticky z-10 top-0">
             <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
               <AppSection label="docs">
-                <div class="bg-primaryLight flex flex-col top-8 z-10 sticky">
+                <div
+                  class="
+                    bg-primaryLight
+                    flex flex-col
+                    top-sidebarPrimaryStickyFold
+                    z-10
+                    sticky
+                  "
+                >
                   <div class="search-wrapper">
                     <input
                       v-model="graphqlFieldsFilterText"
@@ -399,8 +407,8 @@
                         py-2
                         pr-2
                         pl-9
-                        focus:outline-none
                         truncate
+                        focus:outline-none
                       "
                     />
                   </div>
@@ -408,7 +416,7 @@
                 <SmartTabs
                   ref="gqlTabs"
                   styles="
-                    border-t border-dividerLight sticky z-8 top-16"
+                    border-t border-dividerLight sticky z-8 top-sidebarSecondaryStickyFold"
                 >
                   <div class="gqlTabs">
                     <SmartTab
@@ -520,8 +528,8 @@
                     bg-primary
                     border-b border-dividerLight
                     flex flex-1
+                    top-sidebarPrimaryStickyFold
                     pl-4
-                    top-8
                     z-10
                     sticky
                     items-center

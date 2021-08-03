@@ -1,13 +1,13 @@
 <template>
-  <SmartTabs styles="sticky top-24 z-20">
+  <SmartTabs styles="sticky top-upperSecondaryStickyFold z-20">
     <SmartTab id="script" :label="$t('test.script')" :selected="true">
       <div
         class="
           bg-primary
           border-b border-dividerLight
           flex flex-1
+          top-upperTertiaryStickyFold
           pl-4
-          top-32
           z-10
           sticky
           items-center
@@ -54,8 +54,8 @@
             bg-primary
             border-b border-dividerLight
             flex flex-1
+            top-upperTertiaryStickyFold
             pl-4
-            top-32
             z-10
             sticky
             items-center

@@ -20,9 +20,8 @@
                 cursor-pointer
                 flex
                 font-semibold font-mono
-                h-8
                 text-secondaryDark
-                py-1
+                py-2
                 px-4
                 transition
                 w-28
@@ -75,7 +74,7 @@
           font-semibold font-mono
           flex-1
           text-secondaryDark
-          py-1
+          py-2
           px-4
           transition
           truncate
@@ -106,7 +105,11 @@
           arrow
         >
           <template #trigger>
-            <ButtonPrimary class="rounded-l-none" icon="keyboard_arrow_down" />
+            <ButtonPrimary
+              class="rounded-l-none"
+              outline
+              icon="keyboard_arrow_down"
+            />
           </template>
           <SmartItem
             :label="$t('import.curl')"
@@ -136,7 +139,7 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded-r-none h-8 ml-2"
+        class="rounded-r-none ml-2"
         :label="$t('request.save')"
         :shortcut="[getSpecialKey(), 'S']"
         outline
@@ -155,7 +158,7 @@
             <ButtonSecondary
               icon="keyboard_arrow_down"
               outline
-              class="rounded-l-none h-8"
+              class="rounded-l-none"
             />
           </template>
           <input

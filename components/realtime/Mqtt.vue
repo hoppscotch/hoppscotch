@@ -18,11 +18,11 @@
                     font-semibold font-mono
                     text-secondaryDark
                     w-full
-                    py-1
+                    py-2
                     px-4
                     transition
                     truncate
-                    focus:outline-none focus:border-accent
+                    focus:border-accent focus:outline-none
                   "
                   :placeholder="$t('url')"
                 />

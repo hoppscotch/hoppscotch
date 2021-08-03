@@ -303,6 +303,20 @@
   --font-size: 0.75rem;
   // Line height
   --line-height: 1rem;
+  // Upper primary sticky fold
+  --upper-primary-sticky-fold: 4.125rem;
+  // Upper secondary sticky fold
+  --upper-secondary-sticky-fold: 6.125rem;
+  // Upper tertiary sticky fold
+  --upper-tertiary-sticky-fold: 8.125rem;
+  // Lower primary sticky fold
+  --lower-primary-sticky-fold: 3rem;
+  // Lower secondary sticky fold
+  --lower-secondary-sticky-fold: 5rem;
+  // Sidebar primary sticky fold
+  --sidebar-primary-sticky-fold: 2rem;
+  // Sidebar secondary sticky fold
+  --sidebar-secondary-sticky-fold: 4rem;
 }
 
 @mixin fontMedium {
@@ -310,6 +324,20 @@
   --font-size: 0.875rem;
   // Line height
   --line-height: 1.25rem;
+  // Upper primary sticky fold
+  --upper-primary-sticky-fold: 4.375rem;
+  // Upper secondary sticky fold
+  --upper-secondary-sticky-fold: 6.625rem;
+  // Upper tertiary sticky fold
+  --upper-tertiary-sticky-fold: 8.875rem;
+  // Lower primary sticky fold
+  --lower-primary-sticky-fold: 3.25rem;
+  // Lower secondary sticky fold
+  --lower-secondary-sticky-fold: 5.5rem;
+  // Sidebar primary sticky fold
+  --sidebar-primary-sticky-fold: 2.25rem;
+  // Sidebar secondary sticky fold
+  --sidebar-secondary-sticky-fold: 4.5rem;
 }
 
 @mixin fontLarge {
@@ -317,6 +345,20 @@
   --font-size: 1rem;
   // Line height
   --line-height: 1.5rem;
+  // Upper primary sticky fold
+  --upper-primary-sticky-fold: 4.625rem;
+  // Upper secondary sticky fold
+  --upper-secondary-sticky-fold: 7.125rem;
+  // Upper tertiary sticky fold
+  --upper-tertiary-sticky-fold: 9.625rem;
+  // Lower primary sticky fold
+  --lower-primary-sticky-fold: 3.5rem;
+  // Lower secondary sticky fold
+  --lower-secondary-sticky-fold: 6rem;
+  // Sidebar primary sticky fold
+  --sidebar-primary-sticky-fold: 2.5rem;
+  // Sidebar secondary sticky fold
+  --sidebar-secondary-sticky-fold: 5rem;
 }
 
 :root[data-font-size="xs"] {

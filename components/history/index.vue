@@ -5,7 +5,7 @@
         bg-primaryLight
         border-b border-dividerLight
         flex
-        top-8
+        top-sidebarPrimaryStickyFold
         z-10
         sticky
       "

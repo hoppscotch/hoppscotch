@@ -66,11 +66,15 @@
   </transition>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
+import { useKeybindingDisabler } from "~/helpers/keybindings"
+
 const PORTAL_DOM_ID = "hoppscotch-modal-portal"
 
+// Why ?
 const stack = (() => {
-  const stack = []
+  const stack: number[] = []
   return {
     push: stack.push.bind(stack),
     pop: stack.pop.bind(stack),
@@ -78,12 +82,20 @@ const stack = (() => {
   }
 })()
 
-export default {
+export default defineComponent({
   props: {
     dialog: {
       type: Boolean,
       default: false,
     },
+  },
+  setup() {
+    const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
+
+    return {
+      disableKeybindings,
+      enableKeybindings,
+    }
   },
   data() {
     return {
@@ -94,20 +106,21 @@ export default {
     }
   },
   computed: {
-    hasFooterSlot() {
+    hasFooterSlot(): boolean {
       return !!this.$slots.footer
     },
   },
   mounted() {
     const $portal = this.$getPortal()
-    $portal.appendChild(this.$refs.modal)
+    $portal.appendChild(this.$refs.modal as any)
     stack.push(this.stackId)
     document.addEventListener("keydown", this.onKeyDown)
+    this.disableKeybindings()
   },
   beforeDestroy() {
     const $modal = this.$refs.modal
     if (this.shouldCleanupDomOnUnmount && $modal) {
-      this.$getPortal().removeChild($modal)
+      this.$getPortal().removeChild($modal as any)
     }
     stack.pop()
     document.removeEventListener("keydown", this.onKeyDown)
@@ -115,8 +128,9 @@ export default {
   methods: {
     close() {
       this.$emit("close")
+      this.enableKeybindings()
     },
-    onKeyDown(e) {
+    onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape" && this.stackId === stack.peek()) {
         e.preventDefault()
         this.close()
@@ -136,5 +150,5 @@ export default {
       return $el
     },
   },
-}
+})
 </script>

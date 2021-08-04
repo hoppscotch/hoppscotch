@@ -3,6 +3,13 @@ import { HoppAction, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
 
 /**
+ * This variable keeps track whether keybindings are being accepted
+ * true -> Keybindings are checked
+ * false -> Key presses are ignored (Keybindings are not checked)
+ */
+let keybindingsEnabled = true
+
+/**
  * Alt is also regarded as macOS OPTION (⌥) key
  * Ctrl is also regarded as macOS COMMAND (⌘) key (NOTE: this differs from HTML Keyboard spec where COMMAND is Meta key!)
  */
@@ -50,6 +57,9 @@ export function hookKeybindingsListener() {
 }
 
 function handleKeyDown(ev: KeyboardEvent) {
+  // Do not check keybinds if the mode is disabled
+  if (!keybindingsEnabled) return
+
   const binding = generateKeybindingString(ev)
   if (!binding) return
 
@@ -104,4 +114,25 @@ function getActiveModifier(ev: KeyboardEvent): ModifierKeys | null {
   if (ev.altKey) return "alt"
 
   return null
+}
+
+/**
+ * This composable allows for the UI component to be disabled if the component in question is mounted
+ */
+export function useKeybindingDisabler() {
+  // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
+  const disableKeybindings = () => {
+    keybindingsEnabled = false
+    console.log("Keybinds disabled by a component")
+  }
+
+  const enableKeybindings = () => {
+    keybindingsEnabled = true
+    console.log("Keybinds enabled by a component")
+  }
+
+  return {
+    disableKeybindings,
+    enableKeybindings,
+  }
 }

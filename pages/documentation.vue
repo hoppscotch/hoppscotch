@@ -175,6 +175,7 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
 import Mustache from "mustache"
 import { currentUser$ } from "~/helpers/fb/auth"
 import DocsTemplate from "~/assets/md/docs.md"

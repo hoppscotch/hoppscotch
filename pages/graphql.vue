@@ -604,6 +604,7 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
 import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"

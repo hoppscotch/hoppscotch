@@ -110,6 +110,7 @@
 <script>
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 import { setRESTRequest } from "~/newstore/RESTSession"
+
 export default {
   props: {
     request: { type: Object, default: () => {} },

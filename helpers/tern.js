@@ -1,5 +1,4 @@
 import tern from "tern"
-
 import { registerTernLinter } from "./ternlint"
 import ECMA_DEF from "~/helpers/terndoc/ecma.json"
 import PW_PRE_DEF from "~/helpers/terndoc/pw-pre.json"

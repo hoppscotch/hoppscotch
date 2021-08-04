@@ -93,7 +93,7 @@
             :disabled="!connectionState"
           />
         </div>
-        <div class="bg-primary flex flex-1 p-4 items-center justify-between">
+        <div class="flex flex-1 p-4 items-center justify-between">
           <label class="font-semibold">{{ $t("communication") }}</label>
           <div class="flex">
             <ButtonSecondary
@@ -149,6 +149,7 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
 import { io as Client } from "socket.io-client"
 import wildcard from "socketio-wildcard"
 import debounce from "~/helpers/utils/debounce"

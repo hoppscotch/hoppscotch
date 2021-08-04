@@ -165,7 +165,6 @@ import {
   deleteRESTHeader,
   deleteAllRESTHeaders,
 } from "~/newstore/RESTSession"
-
 import { commonHeaders } from "~/helpers/headers"
 import { getSettingSubject } from "~/newstore/settings"
 

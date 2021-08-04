@@ -22,8 +22,8 @@
             py-2
             pr-2
             pl-9
-            focus:outline-none
             truncate
+            focus:outline-none
           "
           :placeholder="$t('search')"
         />
@@ -138,7 +138,9 @@ export default {
       })
     },
     useHistory(entry) {
-      setRESTRequest(entry)
+      if (this.page === "rest") setRESTRequest(entry)
+      // TODO: restore gql entry to request section
+      else console.log("not implemented yet")
     },
     deleteHistory(entry) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)

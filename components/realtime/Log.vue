@@ -57,7 +57,7 @@ export default {
 <style scoped lang="scss">
 .realtime-log {
   @apply p-4;
-  @apply bg-primaryDark;
+  @apply bg-primaryLight;
   @apply text-secondary;
   @apply overflow-auto;
 

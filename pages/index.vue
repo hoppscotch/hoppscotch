@@ -83,7 +83,6 @@ import {
 } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
-
 import { map } from "rxjs/operators"
 import { useSetting } from "~/newstore/settings"
 import {

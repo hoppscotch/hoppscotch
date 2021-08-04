@@ -9,7 +9,6 @@ import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
-
 import * as gql from "graphql"
 import { getAutocompleteSuggestions } from "graphql-language-service-interface"
 import { defineGQLLanguageMode } from "~/helpers/syntax/gqlQueryLangMode"

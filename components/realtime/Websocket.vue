@@ -39,113 +39,113 @@
                 />
               </div>
             </div>
-          </AppSection>
-          <div
-            class="
-              bg-primary
-              border-b border-dividerLight
-              flex flex-1
-              top-upperPrimaryStickyFold
-              pl-4
-              z-10
-              sticky
-              items-center
-              justify-between
-            "
-          >
-            <label class="font-semibold">
-              {{ $t("websocket.protocols") }}
-            </label>
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('clear_all')"
-                icon="clear_all"
-                @click.native="clearContent"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('add.new')"
-                icon="add"
-                @click.native="addProtocol"
-              />
-            </div>
-          </div>
-          <div
-            v-for="(protocol, index) of protocols"
-            :key="`protocol-${index}`"
-            class="
-              divide-x divide-dividerLight
-              border-b border-dividerLight
-              flex
-            "
-            :class="{ 'border-t': index == 0 }"
-          >
-            <input
-              v-model="protocol.value"
+            <div
               class="
-                bg-primaryLight
-                flex
-                font-semibold font-mono
-                flex-1
-                py-2
-                px-4
-                focus:outline-none
+                bg-primary
+                border-b border-dividerLight
+                flex flex-1
+                top-upperPrimaryStickyFold
+                pl-4
+                z-10
+                sticky
+                items-center
+                justify-between
               "
-              :placeholder="$t('count.protocol', { count: index + 1 })"
-              name="message"
-              type="text"
-            />
-            <div>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  protocol.hasOwnProperty('active')
-                    ? protocol.active
-                      ? $t('action.turn_off')
-                      : $t('action.turn_on')
-                    : $t('action.turn_off')
-                "
-                :icon="
-                  protocol.hasOwnProperty('active')
-                    ? protocol.active
-                      ? 'check_box'
-                      : 'check_box_outline_blank'
-                    : 'check_box'
-                "
-                color="green"
-                @click.native="
-                  protocol.active = protocol.hasOwnProperty('active')
-                    ? !protocol.active
-                    : false
-                "
-              />
+            >
+              <label class="font-semibold">
+                {{ $t("websocket.protocols") }}
+              </label>
+              <div class="flex">
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('clear_all')"
+                  icon="clear_all"
+                  @click.native="clearContent"
+                />
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('add.new')"
+                  icon="add"
+                  @click.native="addProtocol"
+                />
+              </div>
             </div>
-            <div>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
-                icon="delete"
-                color="red"
-                @click.native="deleteProtocol({ index })"
+            <div
+              v-for="(protocol, index) of protocols"
+              :key="`protocol-${index}`"
+              class="
+                divide-x divide-dividerLight
+                border-b border-dividerLight
+                flex
+              "
+              :class="{ 'border-t': index == 0 }"
+            >
+              <input
+                v-model="protocol.value"
+                class="
+                  bg-primaryLight
+                  flex
+                  font-semibold font-mono
+                  flex-1
+                  py-2
+                  px-4
+                  focus:outline-none
+                "
+                :placeholder="$t('count.protocol', { count: index + 1 })"
+                name="message"
+                type="text"
               />
+              <div>
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="
+                    protocol.hasOwnProperty('active')
+                      ? protocol.active
+                        ? $t('action.turn_off')
+                        : $t('action.turn_on')
+                      : $t('action.turn_off')
+                  "
+                  :icon="
+                    protocol.hasOwnProperty('active')
+                      ? protocol.active
+                        ? 'check_box'
+                        : 'check_box_outline_blank'
+                      : 'check_box'
+                  "
+                  color="green"
+                  @click.native="
+                    protocol.active = protocol.hasOwnProperty('active')
+                      ? !protocol.active
+                      : false
+                  "
+                />
+              </div>
+              <div>
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('delete')"
+                  icon="delete"
+                  color="red"
+                  @click.native="deleteProtocol({ index })"
+                />
+              </div>
             </div>
-          </div>
-          <div
-            v-if="protocols.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
-          >
-            <i class="opacity-75 pb-2 material-icons">topic</i>
-            <span class="text-center">
-              {{ $t("empty.protocols") }}
-            </span>
-          </div>
+            <div
+              v-if="protocols.length === 0"
+              class="
+                flex flex-col
+                text-secondaryLight
+                p-4
+                items-center
+                justify-center
+              "
+            >
+              <i class="opacity-75 pb-2 material-icons">topic</i>
+              <span class="text-center">
+                {{ $t("empty.protocols") }}
+              </span>
+            </div>
+          </AppSection>
         </Pane>
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
@@ -197,10 +197,11 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
-import "splitpanes/dist/splitpanes.css"
 import { useSetting } from "~/newstore/settings"
+
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {

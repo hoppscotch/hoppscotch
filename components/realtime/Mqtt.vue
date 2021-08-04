@@ -68,7 +68,7 @@
             spellcheck="false"
           />
         </div>
-        <div class="bg-primary flex flex-1 p-4 items-center justify-between">
+        <div class="flex flex-1 p-4 items-center justify-between">
           <label for="mqtt-message" class="font-semibold">{{
             $t("communication")
           }}</label>
@@ -133,6 +133,7 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
+import "splitpanes/dist/splitpanes.css"
 import Paho from "paho-mqtt"
 import debounce from "~/helpers/utils/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"

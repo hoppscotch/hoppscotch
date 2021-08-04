@@ -1,13 +1,13 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("generate_code") }}</h3>
+      <h3 class="heading">{{ $t("request.generate_code") }}</h3>
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <div class="flex flex-col px-2">
         <label for="requestType" class="font-semibold px-4 pb-4">
-          {{ $t("choose_language") }}
+          {{ $t("request.choose_language") }}
         </label>
         <div class="flex flex-1">
           <span class="select-wrapper">
@@ -41,6 +41,7 @@
                 v-for="(gen, index) in codegens"
                 :key="`gen-${index}`"
                 :label="gen.name"
+                :info-icon="gen.id === codegenType ? 'done' : ''"
                 @click.native="
                   codegenType = gen.id
                   $refs.options.tippy().hide()
@@ -51,7 +52,7 @@
         </div>
         <div class="flex flex-1 justify-between">
           <label for="generatedCode" class="font-semibold px-4 pt-4 pb-4">
-            {{ $t("generated_code") }}
+            {{ $t("request.generated_code") }}
           </label>
         </div>
         <SmartAceEditor

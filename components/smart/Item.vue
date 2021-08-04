@@ -39,7 +39,10 @@
       />
     </span>
     <SmartSpinner v-else class="mr-4" />
-    <div class="inline-flex items-start" :class="{ 'flex-col': description }">
+    <div
+      class="flex-1 inline-flex items-start"
+      :class="{ 'flex-col': description }"
+    >
       <div class="font-semibold">
         {{ label }}
       </div>
@@ -47,7 +50,7 @@
         {{ description }}
       </p>
     </div>
-    <i v-if="infoIcon" class="text-accent ml-4 material-icons">
+    <i v-if="infoIcon" class="text-accent ml-6 self-end material-icons">
       {{ infoIcon }}
     </i>
   </SmartLink>

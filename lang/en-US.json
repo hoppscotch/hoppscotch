@@ -22,7 +22,8 @@
     "remove_folder": "Are you sure you want to permanently delete this folder?",
     "remove_request": "Are you sure you want to permanently delete this request?",
     "remove_environment": "Are you sure you want to permanently delete this environment?",
-    "remove_telemetry": "Are you sure you want to opt-out of Telemetry?"
+    "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
+    "remove_team": "Are you sure you want to delete this team?"
   },
   "empty": {
     "protocols": "Protocols are empty",
@@ -53,7 +54,7 @@
     "star": "Remove star"
   },
   "show": {
-    "code": "Show Code",
+    "code": "Show code",
     "more": "Show more",
     "sidebar": "Show sidebar"
   },
@@ -87,6 +88,7 @@
     "new": "New Team",
     "new_name": "My New Team",
     "edit": "Edit Team",
+    "deleted": "Team deleted",
     "members": "Members",
     "permissions": "Permissions",
     "invalid_member_permission": "Please provide a valid permission to the team member",
@@ -146,6 +148,9 @@
     "save": "Save",
     "save_as": "Save as",
     "name": "Request name",
+    "choose_language": "Choose language",
+    "generate_code": "Generate code",
+    "generated_code": "Generated code",
     "share": "Share"
   },
   "settings": {
@@ -198,9 +203,7 @@
   "edit_environment": "Edit Environment",
   "env_variable_list": "Variable List",
   "invalid_environment_name": "Please provide a valid name for the environment",
-  "generate_code": "Generate code",
   "request_type": "Request type",
-  "generated_code": "Generated code",
   "status": "Status",
   "headers": "Headers",
   "waiting_for_connection": "waiting for connection",
@@ -260,7 +263,7 @@
   "search": "Search",
   "history_deleted": "History deleted",
   "clear": "Clear",
-  "clear_all": "Clear All",
+  "clear_all": "Clear all",
   "cleared": "Cleared",
   "time": "Time",
   "duration": "Duration",

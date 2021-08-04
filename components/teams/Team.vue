@@ -19,7 +19,7 @@
             :key="`member-${index}`"
             :src="member.user.photoURL"
             :alt="member.user.displayName"
-            class="rounded-full h-4 ring-primary ring-2 w-4 inline-block"
+            class="rounded-full h-5 ring-primary ring-2 w-5 inline-block"
           />
         </div>
       </div>
@@ -55,7 +55,7 @@
           color="red"
           :label="$t('delete')"
           @click.native="
-            deleteTeam
+            deleteTeam()
             $refs.options.tippy().hide()
           "
         />
@@ -70,7 +70,7 @@
           icon="remove"
           :label="$t('team.exit')"
           @click.native="
-            exitTeam
+            exitTeam()
             $refs.options.tippy().hide()
           "
         />
@@ -89,13 +89,13 @@ export default {
   },
   methods: {
     deleteTeam() {
-      if (!confirm("Are you sure you want to remove this team?")) return
+      if (!confirm(this.$t("confirm.remove_team"))) return
       // Call to the graphql mutation
       teamUtils
         .deleteTeam(this.$apollo, this.teamID)
         .then(() => {
           // Result
-          this.$toast.success(this.$t("team.new_created"), {
+          this.$toast.success(this.$t("team.deleted"), {
             icon: "done",
           })
         })

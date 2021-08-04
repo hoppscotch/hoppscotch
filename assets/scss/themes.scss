@@ -300,9 +300,9 @@
 
 @mixin fontSmall {
   // Font size
-  --font-size: 0.75rem;
+  --body-font-size: 0.75rem;
   // Line height
-  --line-height: 1rem;
+  --body-line-height: 1rem;
   // Upper primary sticky fold
   --upper-primary-sticky-fold: 4.125rem;
   // Upper secondary sticky fold
@@ -321,9 +321,9 @@
 
 @mixin fontMedium {
   // Font size
-  --font-size: 0.875rem;
+  --body-font-size: 0.875rem;
   // Line height
-  --line-height: 1.25rem;
+  --body-line-height: 1.25rem;
   // Upper primary sticky fold
   --upper-primary-sticky-fold: 4.375rem;
   // Upper secondary sticky fold
@@ -342,9 +342,9 @@
 
 @mixin fontLarge {
   // Font size
-  --font-size: 1rem;
+  --body-font-size: 1rem;
   // Line height
-  --line-height: 1.5rem;
+  --body-line-height: 1.5rem;
   // Upper primary sticky fold
   --upper-primary-sticky-fold: 4.625rem;
   // Upper secondary sticky fold

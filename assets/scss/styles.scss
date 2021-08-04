@@ -46,8 +46,8 @@ body {
   @apply select-none;
   @apply overflow-x-hidden;
 
-  font-size: var(--font-size);
-  line-height: var(--line-height);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
   overflow: overlay;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -189,8 +189,8 @@ input,
 select,
 textarea,
 button {
-  font-size: var(--font-size);
-  line-height: var(--line-height);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
 }
 
 .input[type="file"],
@@ -259,16 +259,17 @@ input[type="checkbox"] {
     @apply cursor-pointer;
 
     &::before {
-      @apply border border-secondary;
+      @apply border-2 border-divider;
       @apply rounded;
       @apply inline-flex;
       @apply items-center;
       @apply justify-center;
       @apply text-transparent;
+      @apply h-4;
+      @apply w-4;
+      @apply font-icon;
 
-      content: "\2714";
-      height: 16px;
-      width: 16px;
+      content: "\e876";
       margin: 8px 8px 8px 0;
     }
   }

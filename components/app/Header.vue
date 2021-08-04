@@ -1,7 +1,7 @@
 <template>
   <header class="flex flex-1 py-2 px-4 items-center justify-between">
     <div
-      class="font-bold space-x-2 flex-shrink-0 text-sm inline-flex items-center"
+      class="font-bold space-x-4 flex-shrink-0 text-sm inline-flex items-center"
     >
       <AppLogo />
       <span>Hoppscotch</span>

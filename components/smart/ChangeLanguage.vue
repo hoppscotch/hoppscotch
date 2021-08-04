@@ -15,6 +15,7 @@
             :title="$t('settings.choose_language')"
             class="pr-8"
             outline
+            icon="language"
             :label="`${
               $i18n.locales.find(({ code }) => code == $i18n.locale).name
             }`"

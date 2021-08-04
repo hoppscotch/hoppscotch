@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-1 py-2 items-center justify-between">
+    <div class="flex flex-1 p-2 items-center justify-between">
       <tippy
         ref="contentTypeOptions"
         interactive
@@ -12,23 +12,7 @@
         <template #trigger>
           <div class="flex">
             <span class="select-wrapper">
-              <input
-                id="contentType"
-                v-model="contentType"
-                class="
-                  bg-primary
-                  rounded
-                  flex
-                  font-semibold font-mono
-                  w-full
-                  py-2
-                  px-4
-                  transition
-                  truncate
-                  focus:outline-none
-                "
-                readonly
-              />
+              <ButtonSecondary class="pr-8" :label="contentType" outline />
             </span>
           </div>
         </template>
@@ -36,13 +20,14 @@
           v-for="(contentTypeItem, index) in validContentTypes"
           :key="`contentTypeItem-${index}`"
           :label="contentTypeItem"
+          :info-icon="contentTypeItem === contentType ? 'done' : ''"
           @click.native="
             contentType = contentTypeItem
             $refs.contentTypeOptions.tippy().hide()
           "
         />
       </tippy>
-      <SmartToggle :on="rawInput" class="px-4" @change="rawInput = !rawInput">
+      <SmartToggle :on="rawInput" class="px-2" @change="rawInput = !rawInput">
         {{ $t("raw_input") }}
       </SmartToggle>
     </div>

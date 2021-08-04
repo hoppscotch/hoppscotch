@@ -14,6 +14,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('settings.change_font_size')"
             class="pr-8"
+            icon="format_size"
             outline
             :label="`${fontSizes.find(({ code }) => code == active.code).name}`"
           />
@@ -22,6 +23,7 @@
           v-for="(size, index) in fontSizes"
           :key="`size-${index}`"
           :label="size.name"
+          :info-icon="size.code === active.code ? 'done' : ''"
           @click.native="
             setActiveFont(size)
             $refs.fontSize.tippy().hide()

@@ -12,7 +12,9 @@
               bg-primaryLight
               border border-divider
               rounded-l
+              flex
               font-semibold font-mono
+              flex-1
               text-secondaryDark
               w-full
               py-2
@@ -23,6 +25,31 @@
             "
             :placeholder="$t('url')"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
+          />
+          <label
+            for="url"
+            class="bg-primaryLight border border-divider py-2 px-4 truncate"
+          >
+            {{ $t("event_type") }}
+          </label>
+          <input
+            id="event-type"
+            v-model="eventType"
+            class="
+              bg-primaryLight
+              border border-divider
+              flex
+              font-semibold font-mono
+              flex-1
+              text-secondaryDark
+              w-full
+              py-2
+              px-4
+              transition
+              truncate
+              focus:border-accent focus:outline-none
+            "
+            spellcheck="false"
           />
           <ButtonPrimary
             id="start"
@@ -68,6 +95,7 @@ export default {
         log: null,
         input: "",
       },
+      eventType: "data",
     }
   },
   computed: {
@@ -144,13 +172,13 @@ export default {
               icon: "sync_disabled",
             })
           }
-          this.sse.onmessage = ({ data }) => {
+          this.sse.addEventListener(this.eventType, ({ data }) => {
             this.events.log.push({
               payload: data,
               source: "server",
               ts: new Date().toLocaleTimeString(),
             })
-          }
+          })
         } catch (ex) {
           this.handleSSEError(ex)
           this.$toast.error(this.$t("something_went_wrong"), {
@@ -169,7 +197,7 @@ export default {
       }
 
       logHoppRequestRunToAnalytics({
-        platform: "mqtt",
+        platform: "sse",
       })
     },
     handleSSEError(error) {
@@ -190,8 +218,8 @@ export default {
         })
     },
     stop() {
-      this.sse.onclose()
       this.sse.close()
+      this.sse.onclose()
     },
   },
 }

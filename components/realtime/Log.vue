@@ -21,7 +21,7 @@
           v-for="(entry, index) in log"
           :key="`entry-${index}`"
           :style="{ color: entry.color }"
-          >@ {{ entry.ts }}{{ getSourcePrefix(entry.source)
+          >{{ entry.ts }}{{ getSourcePrefix(entry.source)
           }}{{ entry.payload }}</span
         >
       </span>

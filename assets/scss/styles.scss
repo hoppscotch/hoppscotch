@@ -89,6 +89,9 @@ a {
   @apply outline-none;
   @apply transition;
 
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+
   &.link {
     @apply items-center;
     @apply px-2 py-1;
@@ -151,7 +154,7 @@ a {
 
 .tippy-content > div {
   @apply flex flex-col;
-  @apply max-h-48;
+  @apply max-h-56;
   @apply items-stretch;
   @apply overflow-y-auto;
 
@@ -162,6 +165,7 @@ a {
 
 hr {
   @apply border-b border-dividerLight;
+  @apply my-2;
 }
 
 .heading {

@@ -7,17 +7,29 @@
       id="websocket"
       :label="$t('tab.websocket')"
       :selected="true"
-      class="h-full"
+      style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
     >
       <RealtimeWebsocket />
     </SmartTab>
-    <SmartTab id="sse" :label="$t('sse')" class="h-full">
+    <SmartTab
+      id="sse"
+      :label="$t('sse')"
+      style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
+    >
       <RealtimeSse />
     </SmartTab>
-    <SmartTab id="socketio" :label="$t('socketio')" class="h-full">
+    <SmartTab
+      id="socketio"
+      :label="$t('socketio')"
+      style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
+    >
       <RealtimeSocketio />
     </SmartTab>
-    <SmartTab id="mqtt" :label="$t('tab.mqtt')" class="h-full">
+    <SmartTab
+      id="mqtt"
+      :label="$t('tab.mqtt')"
+      style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
+    >
       <RealtimeMqtt />
     </SmartTab>
   </SmartTabs>

@@ -18,7 +18,7 @@
     <span
       v-if="indicator"
       :class="[
-        'border-primary rounded-full border-2 h-3 -top-1 -right-1 w-3 absolute',
+        'border-primary rounded-full border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute',
         indicatorStyles,
       ]"
     ></span>

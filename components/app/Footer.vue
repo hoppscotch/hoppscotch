@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex justify-between">
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="LEFT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
@@ -21,7 +21,64 @@
           @click.native="toggleSetting('ZEN_MODE')"
         />
       </div>
-      <div>
+      <div class="flex">
+        <span>
+          <tippy
+            ref="options"
+            interactive
+            tabindex="-1"
+            trigger="click"
+            theme="popover"
+            arrow
+          >
+            <template #trigger>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                icon="help_center"
+                :title="$t('app.help')"
+                :shortcut="['?']"
+              />
+            </template>
+            <div class="flex flex-col">
+              <SmartItem
+                :label="$t('app.documentation')"
+                to="https://github.com/hoppscotch/hoppscotch/wiki"
+                blank
+                @click.native="$refs.options.tippy().hide()"
+              />
+              <SmartItem
+                :label="$t('app.keyboard_shortcuts')"
+                @click.native="
+                  showShortcuts = true
+                  $refs.options.tippy().hide()
+                "
+              />
+              <SmartItem
+                :label="$t('app.whats_new')"
+                to="https://github.com/hoppscotch/hoppscotch/blob/main/CHANGELOG.md"
+                blank
+                @click.native="$refs.options.tippy().hide()"
+              />
+              <hr />
+              <SmartItem
+                :label="$t('app.twitter')"
+                to="https://twitter.com/hoppscotch_io"
+                blank
+                @click.native="$refs.options.tippy().hide()"
+              />
+              <SmartItem
+                :label="$t('app.terms_and_privacy')"
+                to="https://github.com/hoppscotch/hoppscotch/wiki/Privacy-Policy"
+                blank
+                @click.native="$refs.options.tippy().hide()"
+              />
+              <!-- <SmartItem :label="$t('app.status')" /> -->
+              <div class="flex text-xs opacity-50 py-2 px-4">
+                {{ `${$t("app.name")} ${$t("app.version")}` }}
+              </div>
+            </div>
+          </tippy>
+        </span>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           icon="keyboard"

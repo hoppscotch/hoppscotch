@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
-      <h3 class="heading">{{ $t("save_request_as") }}</h3>
+      <h3 class="heading">{{ $t("collection.save_as") }}</h3>
       <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
@@ -15,7 +15,9 @@
           class="input"
           type="text"
         />
-        <label class="font-semibold px-4 pt-4 pb-4"> Select Location </label>
+        <label class="font-semibold px-4 pt-4 pb-4">
+          {{ $t("collection.select_location") }}
+        </label>
         <CollectionsGraphql
           v-if="mode === 'graphql'"
           :doc="false"

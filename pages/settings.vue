@@ -151,10 +151,10 @@
           </section>
           <section>
             <h4 class="font-bold text-secondaryDark">
-              {{ $t("experiments") }}
+              {{ $t("settings.experiments") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
-              {{ $t("experiments_notice") }}
+              {{ $t("settings.experiments_notice") }}
               <SmartLink
                 class="link"
                 to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
@@ -177,7 +177,7 @@
                   :on="EXPERIMENTAL_URL_BAR_ENABLED"
                   @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
                 >
-                  {{ $t("use_experimental_url_bar") }}
+                  {{ $t("settings.use_experimental_url_bar") }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
@@ -343,7 +343,9 @@
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="`${$t('confirm.remove_telemetry')} ${$t('telemetry_helps_us')}`"
+      :title="`${$t('confirm.remove_telemetry')} ${$t(
+        'settings.telemetry_helps_us'
+      )}`"
       @hide-modal="confirmRemove = false"
       @resolve="
         toggleSetting('TELEMETRY_ENABLED')

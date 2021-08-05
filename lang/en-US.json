@@ -64,9 +64,20 @@
     "preview": "Hide Preview"
   },
   "app": {
-    "new_version_found": "New version found. Refresh to update."
+    "name": "Hoppscotch",
+    "version": "v2.0",
+    "documentation": "Documentation",
+    "whats_new": "What's new?",
+    "keyboard_shortcuts": "Keyboard shortcuts",
+    "new_version_found": "New version found. Refresh to update.",
+    "twitter": "Twitter",
+    "terms_and_privacy": "Terms and privacy",
+    "status": "Status",
+    "help": "Help, feedback and</br>documentation"
   },
   "collection": {
+    "save_as": "Save as",
+    "select_location": "Select location",
     "select": "Select a Collection",
     "invalid_name": "Please provide a valid name for the collection",
     "new": "New Collection",
@@ -162,7 +173,11 @@
     "change_font_size": "Change font size",
     "language": "Language",
     "choose_language": "Choose language",
-    "accent_color": "Accent color"
+    "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
+    "accent_color": "Accent color",
+    "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",
+    "experiments": "Experiments",
+    "experiments_notice": "This is a collection of experiments we're working on that might turn out to be useful, fun, both, or neither. They're not final and may not be stable, so if something overly weird happens, don't panic. Just turn the dang thing off. Jokes aside, "
   },
   "layout": {
     "zen_mode": "Zen mode"
@@ -170,6 +185,20 @@
   "test": {
     "script": "Script",
     "results": "Results"
+  },
+  "shortcut": {
+    "show_all": "Show all Shortcuts",
+    "send_request": "Send Request",
+    "save_to_collections": "Save to Collections",
+    "copy_request_link": "Copy Request Link",
+    "reset_request": "Reset Request",
+    "next_method": "Select Next method",
+    "previous_method": "Select Previous method",
+    "get_method": "Select GET method",
+    "head_method": "Select HEAD method",
+    "post_method": "Select POST method",
+    "put_method": "Select PUT method",
+    "delete_method": "Select DELETE method"
   },
   "options": "Options",
   "communication": "Communication",
@@ -212,6 +241,7 @@
   "server": "Server",
   "events": "Events",
   "url": "URL",
+  "event_type": "Event type",
   "variables": "Variables",
   "get_schema": "Get schema",
   "header_list": "Header list",
@@ -275,7 +305,6 @@
   "deleted": "Deleted",
   "undo": "Undo",
   "edit_request": "Edit Request",
-  "save_request_as": "Save Request As",
   "connecting_to": "Connecting to {name}...",
   "connected": "Connected",
   "connected_to": "Connected to {name}",
@@ -373,23 +402,5 @@
   "event_name": "Event Name",
   "pre_request_script": "Pre-request Script",
   "tests": "Tests",
-  "create_new_environment": "Create new environment",
-  "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",
-  "shortcut": {
-    "show_all": "Show all Shortcuts",
-    "send_request": "Send Request",
-    "save_to_collections": "Save to Collections",
-    "copy_request_link": "Copy Request Link",
-    "reset_request": "Reset Request",
-    "next_method": "Select Next method",
-    "previous_method": "Select Previous method",
-    "get_method": "Select GET method",
-    "head_method": "Select HEAD method",
-    "post_method": "Select POST method",
-    "put_method": "Select PUT method",
-    "delete_method": "Select DELETE method"
-  },
-  "experiments": "Experiments",
-  "experiments_notice": "This is a collection of experiments we're working on that might turn out to be useful, fun, both, or neither. They're not final and may not be stable, so if something overly weird happens, don't panic. Just turn the dang thing off. Jokes aside, ",
-  "use_experimental_url_bar": "Use experimental URL bar with environment highlighting"
+  "create_new_environment": "Create new environment"
 }

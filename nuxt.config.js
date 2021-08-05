@@ -369,7 +369,6 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    transpile: ["three"],
     // You can extend webpack config here
     extend(config, { isDev, isClient }) {
       // Sets webpack's mode to development if `isDev` is true.

@@ -67,7 +67,7 @@
       <AppSection label="response">
         <ul>
           <li>
-            <RealtimeLog :title="$t('events')" :log="events.log" />
+            <RealtimeLog :title="$t('log')" :log="events.log" />
             <div id="result"></div>
           </li>
         </ul>

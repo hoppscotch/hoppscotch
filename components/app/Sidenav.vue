@@ -1,6 +1,6 @@
 <template>
   <aside>
-    <nav class="flex flex-col flex-nowrap">
+    <nav class="flex flex-nowrap md:flex-col">
       <nuxt-link
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"

@@ -105,10 +105,13 @@ a {
 .tippy-popper {
   .tooltip-theme {
     @apply bg-tooltip;
-    @apply text-primary text-xs;
+    @apply text-primary;
     @apply font-semibold;
     @apply py-1 px-2;
     @apply shadow;
+
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
 
     kbd {
       @apply first:ml-2;
@@ -128,6 +131,9 @@ a {
     @apply p-2;
     @apply shadow-lg;
     @apply focus:outline-none;
+
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
   }
 
   &[x-placement^="top"] .tippy-tooltip .tippy-arrow {
@@ -330,10 +336,13 @@ input[type="checkbox"] {
   .toasted {
     &.toasted-primary {
       @apply bg-tooltip;
-      @apply text-primary text-xs;
+      @apply text-primary;
       @apply justify-start;
       @apply shadow;
       @apply font-semibold;
+
+      font-size: var(--body-font-size);
+      line-height: var(--body-line-height);
 
       .action {
         @apply ml-auto;

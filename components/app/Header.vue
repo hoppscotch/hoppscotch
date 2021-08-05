@@ -7,7 +7,7 @@
       <span>Hoppscotch</span>
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">
-      <AppGitHubStarButton class="mt-1 mr-2" />
+      <AppGitHubStarButton class="flex mx-2 mt-1" />
       <TabPrimary
         id="installPWA"
         v-tippy="{ theme: 'tooltip' }"

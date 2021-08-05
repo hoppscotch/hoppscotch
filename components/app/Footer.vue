@@ -73,7 +73,7 @@
                 @click.native="$refs.options.tippy().hide()"
               />
               <!-- <SmartItem :label="$t('app.status')" /> -->
-              <div class="flex text-xs opacity-50 py-2 px-4">
+              <div class="flex opacity-50 py-2 px-4">
                 {{ `${$t("app.name")} ${$t("app.version")}` }}
               </div>
             </div>

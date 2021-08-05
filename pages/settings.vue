@@ -250,6 +250,7 @@
                   svg="firefox"
                   label="Firefox"
                   :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
+                  outline
                 />
               </span>
               <span>
@@ -259,6 +260,7 @@
                   svg="chrome"
                   label="Chrome"
                   :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
+                  outline
                 />
               </span>
             </div>

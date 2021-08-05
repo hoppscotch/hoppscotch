@@ -19,6 +19,10 @@
       { 'pointer-events-none': loading },
       { 'flex-1': label },
       { 'flex-row-reverse justify-end': reverse },
+      {
+        'border border-divider hover:border-dividerDark focus:border-dividerDark':
+          outline,
+      },
     ]"
     :disabled="disabled"
     :tabindex="loading ? '-1' : '0'"
@@ -96,6 +100,10 @@ export default {
       default: false,
     },
     reverse: {
+      type: Boolean,
+      default: false,
+    },
+    outline: {
       type: Boolean,
       default: false,
     },

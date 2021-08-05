@@ -2,11 +2,14 @@
   <div class="flex h-screen w-screen">
     <Splitpanes :dbl-click-splitter="false" horizontal>
       <Pane class="flex flex-1 !overflow-auto">
-        <Splitpanes :dbl-click-splitter="false" vertical>
+        <Splitpanes
+          :dbl-click-splitter="false"
+          :horizontal="!(windowInnerWidth >= 768)"
+        >
           <Pane
             v-if="LEFT_SIDEBAR"
-            style="width: auto"
-            class="hide-scrollbar overflow-auto"
+            style="width: auto; height: auto"
+            class="hide-scrollbar !overflow-auto"
           >
             <AppSidenav />
           </Pane>
@@ -52,6 +55,7 @@ export default defineComponent({
     return {
       LEFT_SIDEBAR: null,
       ZEN_MODE: null,
+      windowInnerWidth: 0,
     }
   },
   subscriptions() {
@@ -83,6 +87,8 @@ export default defineComponent({
     })
   },
   async mounted() {
+    window.addEventListener("resize", this.handleResize)
+    this.handleResize()
     performMigrations()
     console.log(
       "%cWe ❤︎ open source!",
@@ -119,6 +125,14 @@ export default defineComponent({
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.handleResize)
+  },
+  methods: {
+    handleResize() {
+      this.windowInnerWidth = window.innerWidth
+    },
   },
 })
 </script>

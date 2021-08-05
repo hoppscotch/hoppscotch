@@ -86,8 +86,7 @@ export default {
     @apply cursor-pointer;
     @apply transition;
     @apply hover:text-secondaryDark;
-    @apply focus:text-secondaryDark;
-    @apply focus:outline-none;
+    @apply focus:(text-secondaryDark outline-none);
 
     .tab-info {
       @apply inline-flex;
@@ -116,6 +115,10 @@ export default {
 
     .material-icons {
       @apply mr-4;
+    }
+
+    &:focus::after {
+      @apply bg-divider;
     }
 
     &.active {

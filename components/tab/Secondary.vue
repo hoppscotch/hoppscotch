@@ -11,9 +11,9 @@
       transition
       inline-flex
       items-center
-      focus:outline-none
       hover:translate-x-2
-      focus:translate-x-2
+      focus:(outline-none
+      translate-x-2)
     "
     :class="[
       label ? 'px-3' : 'px-2',

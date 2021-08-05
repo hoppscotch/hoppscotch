@@ -62,8 +62,7 @@ export default {
   @apply items-center;
   @apply justify-center;
   @apply transition;
-  @apply hover:bg-primaryDark;
-  @apply hover:text-secondaryDark;
+  @apply hover:(bg-primaryDark text-secondaryDark);
 
   .material-icons,
   .svg-icons {

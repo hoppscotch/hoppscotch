@@ -21,7 +21,8 @@
               px-4
               transition
               truncate
-              focus:border-accent focus:outline-none
+              focus:(border-accent
+              outline-none)
             "
             :placeholder="$t('url')"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
@@ -47,7 +48,8 @@
               px-4
               transition
               truncate
-              focus:border-accent focus:outline-none
+              focus:(border-accent
+              outline-none)
             "
             spellcheck="false"
           />

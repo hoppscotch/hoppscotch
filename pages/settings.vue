@@ -323,7 +323,8 @@
                     py-2
                     px-4
                     block
-                    focus:border-accent focus:outline-none
+                    focus:(border-accent
+                    outline-none)
                   "
                   type="url"
                   :disabled="!PROXY_ENABLED"

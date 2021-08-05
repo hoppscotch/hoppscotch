@@ -11,8 +11,11 @@
       transition
       inline-flex
       items-center
-      hover:bg-primaryDark hover:text-secondaryDark
-      focus:bg-primaryDark focus:outline-none focus:text-secondaryDark
+      hover:(bg-primaryDark
+      text-secondaryDark)
+      focus:(bg-primaryDark
+      outline-none
+      text-secondaryDark)
     "
     :class="[
       { 'opacity-75 cursor-not-allowed': disabled },

@@ -36,11 +36,11 @@ export default defineConfig({
         gradientVia: "var(--gradient-via-color)",
         gradientTo: "var(--gradient-to-color)",
       },
-    },
-    fontFamily: {
-      sans: "var(--font-sans)",
-      mono: "var(--font-mono)",
-      icon: "var(--font-icon)",
+      fontFamily: {
+        sans: "var(--font-sans)",
+        mono: "var(--font-mono)",
+        icon: "var(--font-icon)",
+      },
     },
   },
 })

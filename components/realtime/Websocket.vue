@@ -20,7 +20,8 @@
                     px-4
                     transition
                     truncate
-                    focus:border-accent focus:outline-none
+                    focus:(border-accent
+                    outline-none)
                   "
                   type="url"
                   spellcheck="false"

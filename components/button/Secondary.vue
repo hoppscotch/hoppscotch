@@ -10,12 +10,12 @@
       inline-flex
       items-center
       justify-center
-      focus:outline-none
       hover:bg-primaryDark
+      focus:outline-none
     "
     :class="[
       color
-        ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`
+        ? `text-${color}-500 hover:(text-${color}-600 text-${color}-600)`
         : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
       label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',

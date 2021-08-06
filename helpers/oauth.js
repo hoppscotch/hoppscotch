@@ -183,9 +183,9 @@ const tokenRequest = async ({
       scope
     )}&redirect_uri=${encodeURIComponent(
       redirectUri
-    )}&codeChallenge=${encodeURIComponent(
+    )}&code_challenge=${encodeURIComponent(
       codeChallenge
-    )}&codeChallenge_method=S256`
+    )}&code_challenge_method=S256`
 
   // Redirect to the authorization server
   window.location = buildUrl()

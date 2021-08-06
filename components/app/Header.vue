@@ -15,21 +15,13 @@
         icon="offline_bolt"
         @click.native="showInstallPrompt()"
       />
-      <span tabindex="-1">
-        <ButtonPrimary
-          v-if="currentUser === null"
-          label="Login"
-          @click.native="showLogin = true"
-        />
-        <tippy
-          v-else
-          ref="user"
-          interactive
-          tabindex="-1"
-          trigger="click"
-          theme="popover"
-          arrow
-        >
+      <ButtonPrimary
+        v-if="currentUser === null"
+        label="Login"
+        @click.native="showLogin = true"
+      />
+      <span v-else>
+        <tippy ref="user" interactive trigger="click" theme="popover" arrow>
           <template #trigger>
             <ProfilePicture
               v-if="currentUser.photoURL"

@@ -39,7 +39,6 @@
         v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
         ref="options"
         interactive
-        tabindex="-1"
         trigger="click"
         theme="popover"
         arrow

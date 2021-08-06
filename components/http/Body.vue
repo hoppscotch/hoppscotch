@@ -4,7 +4,6 @@
       <tippy
         ref="contentTypeOptions"
         interactive
-        tabindex="-1"
         trigger="click"
         theme="popover"
         arrow

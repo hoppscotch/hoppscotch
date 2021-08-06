@@ -63,6 +63,7 @@ export default {
   @apply justify-center;
   @apply transition;
   @apply hover:(bg-primaryDark text-secondaryDark);
+  @apply focus-visible:(ring ring-inset ring-accent);
 
   .material-icons,
   .svg-icons {

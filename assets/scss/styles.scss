@@ -94,11 +94,12 @@ a {
 
   &.link {
     @apply items-center;
-    @apply px-2 py-1;
-    @apply -mx-2 -my-1;
+    @apply px-1 py-0.5;
+    @apply -mx-1 -my-0.5;
     @apply text-accent;
+    @apply rounded;
     @apply hover:text-accentDark;
-    @apply focus-visible:(ring ring-inset ring-accent);
+    @apply focus-visible:(ring ring-accent);
   }
 }
 
@@ -134,22 +135,10 @@ a {
 
     font-size: var(--body-font-size);
     line-height: var(--body-line-height);
-  }
 
-  &[x-placement^="top"] .tippy-tooltip .tippy-arrow {
-    @apply border-t-popover;
-  }
-
-  &[x-placement^="bottom"] .tippy-tooltip .tippy-arrow {
-    @apply border-b-popover;
-  }
-
-  &[x-placement^="left"] .tippy-tooltip .tippy-arrow {
-    @apply border-l-popover;
-  }
-
-  &[x-placement^="right"] .tippy-tooltip .tippy-arrow {
-    @apply border-r-popover;
+    .tippy-roundarrow svg {
+      @apply fill-popover;
+    }
   }
 }
 

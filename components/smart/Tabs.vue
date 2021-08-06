@@ -8,7 +8,7 @@
             :key="`tab-${index}`"
             class="tab"
             :class="{ active: tab.active }"
-            :tabindex="0"
+            tabindex="0"
             @keyup.enter="selectTab(tab)"
             @click="selectTab(tab)"
           >

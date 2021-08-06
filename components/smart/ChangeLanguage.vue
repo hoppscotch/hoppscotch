@@ -1,14 +1,7 @@
 <template>
   <span class="inline-flex">
     <span class="select-wrapper">
-      <tippy
-        ref="language"
-        interactive
-        tabindex="-1"
-        trigger="click"
-        theme="popover"
-        arrow
-      >
+      <tippy ref="language" interactive trigger="click" theme="popover" arrow>
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"

@@ -42,14 +42,7 @@
         class="group-hover:inline-flex hidden"
         @click.native="$emit('add-folder', { folder, path: folderPath })"
       />
-      <tippy
-        ref="options"
-        interactive
-        tabindex="-1"
-        trigger="click"
-        theme="popover"
-        arrow
-      >
+      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"

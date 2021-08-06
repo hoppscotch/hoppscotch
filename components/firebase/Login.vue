@@ -55,7 +55,6 @@
               : true
           "
           type="button"
-          tabindex="-1"
           :label="$t('auth.send_magic_link')"
           @click.native="signInWithEmail"
         />
@@ -79,9 +78,19 @@
     <template #footer>
       <p v-if="mode === 'sign-in'" class="text-secondaryLight">
         By signing in, you are agreeing to our
-        <SmartAnchor class="link" to="/index" label="Terms of Service" />
+        <SmartAnchor
+          class="link"
+          to="https://github.com/hoppscotch/hoppscotch/wiki/Terms-&-Conditions"
+          blank
+          label="Terms of Service"
+        />
         and
-        <SmartAnchor class="link" to="/index" label="Privacy Policy" />.
+        <SmartAnchor
+          class="link"
+          to="https://github.com/hoppscotch/hoppscotch/wiki/Privacy-Policy"
+          blank
+          label="Privacy Policy"
+        />.
       </p>
       <p v-if="mode === 'email'" class="text-secondaryLight">
         <SmartAnchor

@@ -58,7 +58,6 @@
               <tippy
                 ref="memberOptions"
                 interactive
-                tabindex="-1"
                 trigger="click"
                 theme="popover"
                 arrow
@@ -146,7 +145,6 @@
               <tippy
                 ref="newMemberOptions"
                 interactive
-                tabindex="-1"
                 trigger="click"
                 theme="popover"
                 arrow

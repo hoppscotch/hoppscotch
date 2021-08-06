@@ -31,8 +31,8 @@
   >
     <i
       v-if="icon"
+      class="material-icons"
       :class="[
-        'material-icons',
         { '!text-2xl': large },
         label ? (reverse ? 'ml-2' : 'mr-2') : '',
       ]"
@@ -42,8 +42,8 @@
     <SmartIcon
       v-if="svg"
       :name="svg"
+      class="svg-icons"
       :class="[
-        'svg-icons',
         { '!h-6 !w-6': large },
         label ? (reverse ? 'ml-2' : 'mr-2') : '',
       ]"

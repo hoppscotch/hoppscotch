@@ -17,10 +17,17 @@
     <div class="rounded-full shadow-inner inset-0 absolute"></div>
     <span
       v-if="indicator"
-      :class="[
-        'border-primary rounded-full border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute',
-        indicatorStyles,
-      ]"
+      class="
+        border-primary
+        rounded-full
+        border-2
+        h-2.5
+        -top-0.5
+        -right-0.5
+        w-2.5
+        absolute
+      "
+      :class="indicatorStyles"
     ></span>
   </div>
 </template>

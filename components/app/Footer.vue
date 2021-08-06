@@ -26,7 +26,6 @@
           <tippy
             ref="options"
             interactive
-            tabindex="-1"
             trigger="click"
             theme="popover"
             arrow
@@ -97,7 +96,8 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="RIGHT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           icon="menu_open"
-          :class="['transform rotate-180', { 'rotate-0': !RIGHT_SIDEBAR }]"
+          class="transform rotate-180"
+          :class="{ 'rotate-0': !RIGHT_SIDEBAR }"
           @click.native="toggleSetting('RIGHT_SIDEBAR')"
         />
       </div>

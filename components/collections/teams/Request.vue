@@ -7,7 +7,9 @@
           class="icon button"
           @click="!doc ? selectRequest() : {}"
         >
-          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+          <i
+            v-if="isSelected"
+            class="mx-3 text-green-400 material-icons notranslate"
             >check_circle</i
           >
 
@@ -23,7 +25,7 @@
           v-tooltip="$t('more')"
           class="tooltip-target icon button"
         >
-          <i class="material-icons">more_vert</i>
+          <i class="material-icons notranslate">more_vert</i>
         </button>
         <template #popover>
           <div>
@@ -40,7 +42,7 @@
                 })
               "
             >
-              <i class="material-icons">edit</i>
+              <i class="material-icons notranslate">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
@@ -50,7 +52,7 @@
               class="icon button"
               @click="confirmRemove = true"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
           </div>

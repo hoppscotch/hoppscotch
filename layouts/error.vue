@@ -5,14 +5,14 @@
     <p class="mt-4 border-t border-tooltip">
       <nuxt-link to="/">
         <button class="icon button">
-          <i class="material-icons">home</i>
+          <i class="material-icons notranslate">home</i>
           <span>
             {{ $t("go_home") }}
           </span>
         </button>
       </nuxt-link>
       <button class="icon button" @click="reloadApplication">
-        <i class="material-icons">refresh</i>
+        <i class="material-icons notranslate">refresh</i>
         <span>
           {{ $t("reload") }}
         </span>

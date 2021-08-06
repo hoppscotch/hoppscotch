@@ -40,7 +40,8 @@
       {{ $t("nothing_found") }} "{{ filterText }}"
     </p>
     <p v-if="history.length === 0" class="info">
-      <i class="material-icons">schedule</i> {{ $t("history_empty") }}
+      <i class="material-icons notranslate">schedule</i>
+      {{ $t("history_empty") }}
     </p>
     <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryDark">
       <div v-if="!isClearingHistory" class="row-wrapper">
@@ -50,7 +51,7 @@
           :disabled="history.length === 0"
           @click="enableHistoryClearing"
         >
-          <i class="material-icons">clear_all</i>
+          <i class="material-icons notranslate">clear_all</i>
           <span>{{ $t("clear_all") }}</span>
         </button>
         <button
@@ -58,14 +59,15 @@
           class="icon button"
           @click="toggleCollapse()"
         >
-          <i class="material-icons">
+          <i class="material-icons notranslate">
             {{ !showMore ? "unfold_more" : "unfold_less" }}
           </i>
         </button>
       </div>
       <div v-else class="row-wrapper">
         <p class="info">
-          <i class="material-icons">help_outline</i> {{ $t("are_you_sure") }}
+          <i class="material-icons notranslate">help_outline</i>
+          {{ $t("are_you_sure") }}
         </p>
         <div>
           <button
@@ -74,7 +76,7 @@
             class="icon button"
             @click="clearHistory"
           >
-            <i class="material-icons">done</i>
+            <i class="material-icons notranslate">done</i>
           </button>
           <button
             v-tooltip="$t('no')"
@@ -82,7 +84,7 @@
             class="icon button"
             @click="disableHistoryClearing"
           >
-            <i class="material-icons">close</i>
+            <i class="material-icons notranslate">close</i>
           </button>
         </div>
       </div>

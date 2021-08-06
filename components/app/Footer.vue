@@ -5,7 +5,7 @@
       <span class="flex text-xs font-mono" style="align-items: start">
         <a href="mailto:support@hoppscotch.io" target="_blank" rel="noopener">
           <button class="icon button">
-            <i class="material-icons text-xl">email</i>
+            <i class="material-icons notranslate text-xl">email</i>
             <span>
               {{ $t("contact_us") }}
             </span>
@@ -13,7 +13,7 @@
         </a>
         <v-popover>
           <button v-tooltip="$t('choose_language')" class="icon button">
-            <i class="material-icons text-xl">translate</i>
+            <i class="material-icons notranslate text-xl">translate</i>
             <span>
               {{ $i18n.locales.find(({ code }) => code === $i18n.locale).name }}
             </span>

@@ -15,7 +15,7 @@
                   class="icon button"
                   @click="$refs.collectionUpload.click()"
                 >
-                  <i class="material-icons">folder</i>
+                  <i class="material-icons notranslate">folder</i>
                   <span>{{ $t("import_collections") }}</span>
                 </button>
               </label>
@@ -32,7 +32,7 @@
                   class="icon button"
                   @click="collectionJSON = '[]'"
                 >
-                  <i class="material-icons">clear_all</i>
+                  <i class="material-icons notranslate">clear_all</i>
                 </button>
               </div>
             </div>
@@ -50,7 +50,7 @@
               }"
             />
             <button class="icon button" @click="getDoc">
-              <i class="material-icons">topic</i>
+              <i class="material-icons notranslate">topic</i>
               <span>{{ $t("generate_docs") }}</span>
             </button>
           </div>
@@ -83,7 +83,7 @@
                   class="icon button"
                   @click="createDocsGist"
                 >
-                  <i class="material-icons">assignment</i>
+                  <i class="material-icons notranslate">assignment</i>
                   <span>{{ $t("create_secret_gist") }}</span>
                 </button>
               </div>

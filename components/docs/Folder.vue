@@ -1,7 +1,7 @@
 <template>
   <div class="folder">
     <h3 class="heading">
-      <i class="material-icons">folder_open</i>
+      <i class="material-icons notranslate">folder_open</i>
       {{ folder.name || $t("none") }}
     </h3>
     <div v-for="(subFolder, index) in folder.folders" :key="index">

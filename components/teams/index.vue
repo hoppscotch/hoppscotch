@@ -22,7 +22,7 @@
     <div class="row-wrapper">
       <div>
         <button class="icon button" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
+          <i class="material-icons notranslate">add</i>
           <span>{{ $t("new") }}</span>
         </button>
       </div>
@@ -31,7 +31,8 @@
       {{ $t("loading") }}
     </p>
     <p v-if="myTeams.length === 0" class="info">
-      <i class="material-icons">help_outline</i> {{ $t("create_new_team") }}
+      <i class="material-icons notranslate">help_outline</i>
+      {{ $t("create_new_team") }}
     </p>
     <div v-else class="virtual-list">
       <ul class="flex-col">

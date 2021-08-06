@@ -4,7 +4,7 @@
       <h3 class="heading">{{ $t("edit_collection") }}</h3>
       <div>
         <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
+          <i class="material-icons notranslate">close</i>
         </button>
       </div>
     </template>

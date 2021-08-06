@@ -4,7 +4,7 @@
       <h3 class="heading">{{ $t("edit_environment") }}</h3>
       <div>
         <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
+          <i class="material-icons notranslate">close</i>
         </button>
       </div>
     </template>
@@ -26,7 +26,7 @@
             class="icon button"
             @click="clearContent($event)"
           >
-            <i class="material-icons">{{ clearIcon }}</i>
+            <i class="material-icons notranslate">{{ clearIcon }}</i>
           </button>
         </div>
       </div>
@@ -67,7 +67,7 @@
               class="icon button"
               @click="removeEnvironmentVariable(index)"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
             </button>
           </li>
         </div>
@@ -75,7 +75,7 @@
       <ul>
         <li>
           <button class="icon button" @click="addEnvironmentVariable">
-            <i class="material-icons">add</i>
+            <i class="material-icons notranslate">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
         </li>

@@ -26,7 +26,7 @@
             >
               {{ !connectionSSEState ? $t("start") : $t("stop") }}
               <span>
-                <i class="material-icons">
+                <i class="material-icons notranslate">
                   {{ !connectionSSEState ? "sync" : "sync_disabled" }}
                 </i>
               </span>

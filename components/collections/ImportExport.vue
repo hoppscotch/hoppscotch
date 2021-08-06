@@ -12,7 +12,7 @@
             mySelectedCollectionID = undefined
           "
         >
-          <i class="material-icons">arrow_back</i>
+          <i class="material-icons notranslate">arrow_back</i>
         </button>
         <v-popover
           v-if="
@@ -23,7 +23,7 @@
             v-tooltip.left="$t('more')"
             class="tooltip-target icon button"
           >
-            <i class="material-icons">more_vert</i>
+            <i class="material-icons notranslate">more_vert</i>
           </button>
           <template #popover>
             <div>
@@ -32,7 +32,7 @@
                 class="icon button"
                 @click="readCollectionGist"
               >
-                <i class="material-icons">assignment_returned</i>
+                <i class="material-icons notranslate">assignment_returned</i>
                 <span>{{ $t("import_from_gist") }}</span>
               </button>
             </div>
@@ -57,14 +57,14 @@
                 class="icon button"
                 @click="createCollectionGist"
               >
-                <i class="material-icons">assignment_turned_in</i>
+                <i class="material-icons notranslate">assignment_turned_in</i>
                 <span>{{ $t("create_secret_gist") }}</span>
               </button>
             </div>
           </template>
         </v-popover>
         <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
+          <i class="material-icons notranslate">close</i>
         </button>
       </div>
     </template>
@@ -75,7 +75,7 @@
           class="icon button"
           @click="openDialogChooseFileToReplaceWith"
         >
-          <i class="material-icons">folder_special</i>
+          <i class="material-icons notranslate">folder_special</i>
           <span>{{ $t("replace_json") }}</span>
           <input
             ref="inputChooseFileToReplaceWith"
@@ -91,7 +91,7 @@
           class="icon button"
           @click="openDialogChooseFileToImportFrom"
         >
-          <i class="material-icons">create_new_folder</i>
+          <i class="material-icons notranslate">create_new_folder</i>
           <span>{{ $t("import_json") }}</span>
           <input
             ref="inputChooseFileToImportFrom"
@@ -108,7 +108,7 @@
           class="icon button"
           @click="mode = 'import_from_my_collections'"
         >
-          <i class="material-icons">folder_shared</i>
+          <i class="material-icons notranslate">folder_shared</i>
           <span>{{ $t("import_from_my_collections") }}</span>
         </button>
         <button
@@ -116,7 +116,7 @@
           class="icon button"
           @click="exportJSON"
         >
-          <i class="material-icons">drive_file_move</i>
+          <i class="material-icons notranslate">drive_file_move</i>
           <span>
             {{ $t("export_as_json") }}
           </span>
@@ -163,7 +163,7 @@
             :disabled="mySelectedCollectionID == undefined"
             @click="importFromMyCollections"
           >
-            <i class="material-icons">create_new_folder</i>
+            <i class="material-icons notranslate">create_new_folder</i>
             <span>{{ $t("import") }}</span>
           </button>
         </span>

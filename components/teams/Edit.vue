@@ -3,7 +3,7 @@
     <template #header>
       <h3 class="heading">{{ $t("edit_team") }}</h3>
       <button class="icon button" @click="hideModal">
-        <i class="material-icons">close</i>
+        <i class="material-icons notranslate">close</i>
       </button>
     </template>
     <template #body>
@@ -109,7 +109,7 @@
               class="icon button"
               @click="removeExistingTeamMember(member.user.uid)"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
             </button>
           </li>
         </div>
@@ -189,7 +189,7 @@
               class="icon button"
               @click="removeTeamMember(index)"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
             </button>
           </li>
         </div>
@@ -197,7 +197,7 @@
       <ul>
         <li>
           <button class="icon button" @click="addTeamMember">
-            <i class="material-icons">add</i>
+            <i class="material-icons notranslate">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
         </li>
@@ -231,7 +231,7 @@ export default {
   data() {
     return {
       rename: null,
-      doneButton: '<i class="material-icons">done</i>',
+      doneButton: '<i class="material-icons notranslate">done</i>',
       members: [],
       newMembers: [],
       membersAdapter: new TeamMemberAdapter(null),

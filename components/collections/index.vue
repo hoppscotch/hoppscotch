@@ -64,13 +64,13 @@
         disabled
         @click="displayModalAdd(true)"
       >
-        <i class="material-icons">add</i>
+        <i class="material-icons notranslate">add</i>
         <div v-tooltip.left="$t('disable_new_collection')">
           <span>{{ $t("new") }}</span>
         </div>
       </button>
       <button v-else class="icon button" @click="displayModalAdd(true)">
-        <i class="material-icons">add</i>
+        <i class="material-icons notranslate">add</i>
         <span>{{ $t("new") }}</span>
       </button>
       <button
@@ -86,7 +86,7 @@
       </button>
     </div>
     <p v-if="collections.length === 0" class="info">
-      <i class="material-icons">help_outline</i>
+      <i class="material-icons notranslate">help_outline</i>
       {{ $t("create_new_collection") }}
     </p>
     <div class="virtual-list">
@@ -126,9 +126,8 @@
       </ul>
     </div>
     <p v-if="filterText && filteredCollections.length === 0" class="info">
-      <i class="material-icons">not_interested</i> {{ $t("nothing_found") }} "{{
-        filterText
-      }}"
+      <i class="material-icons notranslate">not_interested</i>
+      {{ $t("nothing_found") }} "{{ filterText }}"
     </p>
   </AppSection>
 </template>

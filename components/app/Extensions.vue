@@ -4,7 +4,7 @@
       <h3 class="heading">{{ $t("extensions") }}</h3>
       <div>
         <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
+          <i class="material-icons notranslate">close</i>
         </button>
       </div>
     </template>
@@ -20,7 +20,7 @@
         >
           <button class="icon button">
             <svg
-              class="material-icons"
+              class="material-icons notranslate"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -35,7 +35,7 @@
               v-tooltip="$t('installed')"
               class="icon button"
             >
-              <i class="material-icons">done</i>
+              <i class="material-icons notranslate">done</i>
             </span>
           </button>
         </a>
@@ -48,7 +48,7 @@
         >
           <button class="icon button">
             <svg
-              class="material-icons"
+              class="material-icons notranslate"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -63,7 +63,7 @@
               v-tooltip="$t('installed')"
               class="icon button"
             >
-              <i class="material-icons">done</i>
+              <i class="material-icons notranslate">done</i>
             </span>
           </button>
         </a>

@@ -13,18 +13,24 @@
       @dragend="dragging = false"
     >
       <button class="icon button" @click="toggleShowChildren">
-        <i v-show="!showChildren && !isFiltered" class="material-icons"
+        <i
+          v-show="!showChildren && !isFiltered"
+          class="material-icons notranslate"
           >arrow_right</i
         >
-        <i v-show="showChildren || isFiltered" class="material-icons"
+        <i
+          v-show="showChildren || isFiltered"
+          class="material-icons notranslate"
           >arrow_drop_down</i
         >
 
-        <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+        <i
+          v-if="isSelected"
+          class="mx-3 text-green-400 material-icons notranslate"
           >check_circle</i
         >
 
-        <i v-else class="material-icons">folder</i>
+        <i v-else class="material-icons notranslate">folder</i>
         <span>{{ collection.name }}</span>
       </button>
       <div>
@@ -34,14 +40,14 @@
           class="icon button"
           @click="$emit('select-collection')"
         >
-          <i class="material-icons">topic</i>
+          <i class="material-icons notranslate">topic</i>
         </button>
         <v-popover>
           <button
             v-tooltip.left="$t('more')"
             class="tooltip-target icon button"
           >
-            <i class="material-icons">more_vert</i>
+            <i class="material-icons notranslate">more_vert</i>
           </button>
           <template #popover>
             <div>
@@ -54,7 +60,7 @@
                   })
                 "
               >
-                <i class="material-icons">create_new_folder</i>
+                <i class="material-icons notranslate">create_new_folder</i>
                 <span>{{ $t("new_folder") }}</span>
               </button>
             </div>
@@ -64,7 +70,7 @@
                 class="icon button"
                 @click="$emit('edit-collection')"
               >
-                <i class="material-icons">create</i>
+                <i class="material-icons notranslate">create</i>
                 <span>{{ $t("edit") }}</span>
               </button>
             </div>
@@ -74,7 +80,7 @@
                 class="icon button"
                 @click="confirmRemove = true"
               >
-                <i class="material-icons">delete</i>
+                <i class="material-icons notranslate">delete</i>
                 <span>{{ $t("delete") }}</span>
               </button>
             </div>

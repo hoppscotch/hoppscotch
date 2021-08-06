@@ -10,7 +10,7 @@
               class="icon button"
               @click="clearContent('headers', $event)"
             >
-              <i class="material-icons">clear_all</i>
+              <i class="material-icons notranslate">clear_all</i>
             </button>
           </div>
         </div>
@@ -78,7 +78,7 @@
               })
             "
           >
-            <i class="material-icons">
+            <i class="material-icons notranslate">
               {{
                 header.hasOwnProperty("active")
                   ? header.active
@@ -97,7 +97,7 @@
             class="icon button"
             @click="removeRequestHeader(index)"
           >
-            <i class="material-icons">delete</i>
+            <i class="material-icons notranslate">delete</i>
           </button>
         </li>
       </div>
@@ -105,7 +105,7 @@
     <ul>
       <li>
         <button class="icon button" @click="addRequestHeader">
-          <i class="material-icons">add</i>
+          <i class="material-icons notranslate">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>
       </li>

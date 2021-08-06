@@ -27,7 +27,7 @@
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
               <span>
-                <i class="material-icons">
+                <i class="notranslate">
                   {{ !connectionState ? "sync" : "sync_disabled" }}
                 </i>
               </span>
@@ -81,7 +81,7 @@
                   : false
               "
             >
-              <i class="material-icons">
+              <i class="material-icons notranslate">
                 {{
                   protocol.hasOwnProperty("active")
                     ? protocol.active
@@ -100,7 +100,7 @@
               class="icon button"
               @click="deleteProtocol({ index })"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
             </button>
           </li>
         </div>
@@ -108,7 +108,7 @@
       <ul>
         <li>
           <button class="icon button" @click="addProtocol">
-            <i class="material-icons">add</i>
+            <i class="material-icons notranslate">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
         </li>
@@ -148,7 +148,7 @@
             >
               {{ $t("send") }}
               <span>
-                <i class="material-icons">send</i>
+                <i class="material-icons notranslate">send</i>
               </span>
             </button>
           </li>

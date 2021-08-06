@@ -31,7 +31,7 @@
                 >
                   {{ !isPollingSchema ? $t("connect") : $t("disconnect") }}
                   <span
-                    ><i class="material-icons">{{
+                    ><i class="material-icons notranslate">{{
                       !isPollingSchema ? "sync" : "sync_disabled"
                     }}</i></span
                   >
@@ -54,7 +54,7 @@
                       class="icon button"
                       @click="headers = []"
                     >
-                      <i class="material-icons">clear_all</i>
+                      <i class="material-icons notranslate">clear_all</i>
                     </button>
                   </div>
                 </div>
@@ -120,7 +120,7 @@
                       })
                     "
                   >
-                    <i class="material-icons">
+                    <i class="material-icons notranslate">
                       {{
                         header.hasOwnProperty("active")
                           ? header.active
@@ -139,7 +139,7 @@
                     class="icon button"
                     @click="removeRequestHeader(index)"
                   >
-                    <i class="material-icons">delete</i>
+                    <i class="material-icons notranslate">delete</i>
                   </button>
                 </li>
               </div>
@@ -147,7 +147,7 @@
             <ul>
               <li>
                 <button class="icon button" @click="addRequestHeader">
-                  <i class="material-icons">add</i>
+                  <i class="material-icons notranslate">add</i>
                   <span>{{ $t("add_new") }}</span>
                 </button>
               </li>
@@ -169,7 +169,7 @@
                 class="icon button"
                 @click="ToggleExpandResponse"
               >
-                <i class="material-icons">
+                <i class="material-icons notranslate">
                   {{ !expandResponse ? "unfold_more" : "unfold_less" }}
                 </i>
               </button>
@@ -179,7 +179,9 @@
                 class="icon button"
                 @click="downloadSchema"
               >
-                <i class="material-icons">{{ downloadSchemaIcon }}</i>
+                <i class="material-icons notranslate">{{
+                  downloadSchemaIcon
+                }}</i>
               </button>
               <button
                 ref="copySchemaCode"
@@ -187,7 +189,7 @@
                 class="icon button"
                 @click="copySchema"
               >
-                <i class="material-icons">{{ copySchemaIcon }}</i>
+                <i class="material-icons notranslate">{{ copySchemaIcon }}</i>
               </button>
             </div>
           </div>
@@ -228,7 +230,7 @@
                 class="button"
                 @click="runQuery()"
               >
-                <i class="material-icons">play_arrow</i>
+                <i class="material-icons notranslate">play_arrow</i>
               </button>
               <button
                 ref="copyQueryButton"
@@ -236,14 +238,14 @@
                 class="icon button"
                 @click="copyQuery"
               >
-                <i class="material-icons">{{ copyQueryIcon }}</i>
+                <i class="material-icons notranslate">{{ copyQueryIcon }}</i>
               </button>
               <button
                 v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
                 class="icon button"
                 @click="doPrettifyQuery"
               >
-                <i class="material-icons">{{ prettifyIcon }}</i>
+                <i class="material-icons notranslate">{{ prettifyIcon }}</i>
               </button>
               <button
                 ref="saveRequest"
@@ -251,7 +253,7 @@
                 class="icon button"
                 @click="saveRequest"
               >
-                <i class="material-icons">create_new_folder</i>
+                <i class="material-icons notranslate">create_new_folder</i>
               </button>
             </div>
           </div>
@@ -304,7 +306,9 @@
                   class="icon button"
                   @click="downloadResponse"
                 >
-                  <i class="material-icons">{{ downloadResponseIcon }}</i>
+                  <i class="material-icons notranslate">{{
+                    downloadResponseIcon
+                  }}</i>
                 </button>
                 <button
                   v-if="response"
@@ -313,7 +317,9 @@
                   class="icon button"
                   @click="copyResponse"
                 >
-                  <i class="material-icons">{{ copyResponseIcon }}</i>
+                  <i class="material-icons notranslate">{{
+                    copyResponseIcon
+                  }}</i>
                 </button>
               </div>
             </div>

@@ -26,6 +26,7 @@
         origin-center
         transform
         material-icons
+        notranslate
         pointer-events-none
       "
       :class="{ 'rotate-180': active }"

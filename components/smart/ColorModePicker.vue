@@ -35,7 +35,7 @@
         ]"
         @click="setBGMode(color)"
       >
-        <i class="material-icons">{{ getIcon(color) }}</i>
+        <i class="material-icons notranslate">{{ getIcon(color) }}</i>
       </span>
     </div>
   </div>

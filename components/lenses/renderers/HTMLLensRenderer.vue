@@ -14,7 +14,7 @@
           class="icon button"
           @click="ToggleExpandResponse"
         >
-          <i class="material-icons">
+          <i class="material-icons notranslate">
             {{ !expandResponse ? "unfold_more" : "unfold_less" }}
           </i>
         </button>
@@ -26,7 +26,7 @@
           class="icon button"
           @click.prevent="togglePreview"
         >
-          <i class="material-icons">
+          <i class="material-icons notranslate">
             {{ !previewEnabled ? "visibility" : "visibility_off" }}
           </i>
         </button>
@@ -37,7 +37,7 @@
           class="icon button"
           @click="downloadResponse"
         >
-          <i class="material-icons">{{ downloadIcon }}</i>
+          <i class="material-icons notranslate">{{ downloadIcon }}</i>
         </button>
         <button
           v-if="response.body"
@@ -46,7 +46,7 @@
           class="icon button"
           @click="copyResponse"
         >
-          <i class="material-icons">{{ copyIcon }}</i>
+          <i class="material-icons notranslate">{{ copyIcon }}</i>
         </button>
       </div>
     </div>

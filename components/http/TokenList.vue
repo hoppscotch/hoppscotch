@@ -4,7 +4,7 @@
       <h3 class="heading">{{ $t("manage_token") }}</h3>
       <div>
         <button class="icon button" @click="hideModal">
-          <i class="material-icons">close</i>
+          <i class="material-icons notranslate">close</i>
         </button>
       </div>
     </template>
@@ -17,7 +17,7 @@
             class="icon button"
             @click="clearContent('tokens', $event)"
           >
-            <i class="material-icons">clear_all</i>
+            <i class="material-icons notranslate">clear_all</i>
           </button>
         </div>
       </div>
@@ -45,7 +45,7 @@
               class="icon button"
               @click="useOAuthToken(token.value)"
             >
-              <i class="material-icons">input</i>
+              <i class="material-icons notranslate">input</i>
             </button>
           </li>
           <li>
@@ -54,7 +54,7 @@
               class="icon button"
               @click="removeOAuthToken(index)"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
             </button>
           </li>
         </div>

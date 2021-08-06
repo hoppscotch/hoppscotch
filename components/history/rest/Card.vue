@@ -30,7 +30,7 @@
           :class="{ stared: entry.star }"
           @click="$emit('toggle-star')"
         >
-          <i class="material-icons">
+          <i class="material-icons notranslate">
             {{ entry.star ? "star" : "star_border" }}
           </i>
         </button>
@@ -44,14 +44,14 @@
                   : 'Used pre-request script'
               }"
             >
-              <i class="material-icons">
+              <i class="material-icons notranslate">
                 {{ !entry.usesScripts ? "http" : "code" }}
               </i>
             </button>
           </li> -->
       <v-popover>
         <button v-tooltip="$t('options')" class="tooltip-target icon button">
-          <i class="material-icons">more_vert</i>
+          <i class="material-icons notranslate">more_vert</i>
         </button>
         <template #popover>
           <div>
@@ -62,7 +62,7 @@
               :aria-label="$t('edit')"
               @click="$emit('use-entry')"
             >
-              <i class="material-icons">restore</i>
+              <i class="material-icons notranslate">restore</i>
               <span>{{ $t("restore") }}</span>
             </button>
           </div>
@@ -74,7 +74,7 @@
               :aria-label="$t('delete')"
               @click="$emit('delete-entry')"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
           </div>

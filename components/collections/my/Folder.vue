@@ -14,22 +14,26 @@
     >
       <div>
         <button class="icon button" @click="toggleShowChildren">
-          <i v-show="!showChildren && !isFiltered" class="material-icons"
+          <i
+            v-show="!showChildren && !isFiltered"
+            class="material-icons notranslate"
             >arrow_right</i
           >
-          <i v-show="showChildren || isFiltered" class="material-icons"
+          <i
+            v-show="showChildren || isFiltered"
+            class="material-icons notranslate"
             >arrow_drop_down</i
           >
-          <i v-if="isSelected" class="text-green-400 material-icons"
+          <i v-if="isSelected" class="text-green-400 material-icons notranslate"
             >check_circle</i
           >
-          <i v-else class="material-icons">folder_open</i>
+          <i v-else class="material-icons notranslate">folder_open</i>
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
       <v-popover>
         <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
-          <i class="material-icons">more_vert</i>
+          <i class="material-icons notranslate">more_vert</i>
         </button>
         <template #popover>
           <div>
@@ -38,7 +42,7 @@
               class="icon button"
               @click="$emit('add-folder', { folder, path: folderPath })"
             >
-              <i class="material-icons">create_new_folder</i>
+              <i class="material-icons notranslate">create_new_folder</i>
               <span>{{ $t("new_folder") }}</span>
             </button>
           </div>
@@ -55,7 +59,7 @@
                 })
               "
             >
-              <i class="material-icons">edit</i>
+              <i class="material-icons notranslate">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
@@ -65,7 +69,7 @@
               class="icon button"
               @click="confirmRemove = true"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
           </div>
@@ -130,7 +134,7 @@
       >
         <li class="flex ml-8 border-l border-divider">
           <p class="info">
-            <i class="material-icons">not_interested</i>
+            <i class="material-icons notranslate">not_interested</i>
             {{ $t("folder_empty") }}
           </p>
         </li>

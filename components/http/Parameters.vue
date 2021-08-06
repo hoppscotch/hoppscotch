@@ -10,7 +10,7 @@
               class="icon button"
               @click="clearContent('parameters', $event)"
             >
-              <i class="material-icons">clear_all</i>
+              <i class="material-icons notranslate">clear_all</i>
             </button>
           </div>
         </div>
@@ -97,7 +97,7 @@
               })
             "
           >
-            <i class="material-icons">
+            <i class="material-icons notranslate">
               {{
                 param.hasOwnProperty("active")
                   ? param.active
@@ -116,7 +116,7 @@
             class="icon button"
             @click="removeRequestParam(index)"
           >
-            <i class="material-icons">delete</i>
+            <i class="material-icons notranslate">delete</i>
           </button>
         </li>
       </div>
@@ -124,7 +124,7 @@
     <ul>
       <li>
         <button class="icon button" @click="addRequestParam">
-          <i class="material-icons">add</i>
+          <i class="material-icons notranslate">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>
       </li>

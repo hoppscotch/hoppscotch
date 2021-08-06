@@ -32,7 +32,7 @@
         :class="[`text-${color}-400`, { 'bg-primary': color === active }]"
         @click="setActiveColor(color)"
       >
-        <i class="material-icons">lens</i>
+        <i class="material-icons notranslate">lens</i>
       </span>
     </div>
   </div>

@@ -10,7 +10,7 @@
               class="icon button"
               @click="clearContent('bodyParams', $event)"
             >
-              <i class="material-icons">clear_all</i>
+              <i class="material-icons notranslate">clear_all</i>
             </button>
           </div>
         </div>
@@ -78,7 +78,7 @@
             class="icon button"
             @click="toggleActive(index, param)"
           >
-            <i class="material-icons">
+            <i class="material-icons notranslate">
               {{
                 param.hasOwnProperty("active")
                   ? param.active
@@ -97,7 +97,7 @@
               class="w-full button icon"
               @click="$refs.attachment[index].click()"
             >
-              <i class="material-icons">attach_file</i>
+              <i class="material-icons notranslate">attach_file</i>
             </button>
           </label>
           <input
@@ -117,7 +117,7 @@
             class="icon button"
             @click="removeRequestBodyParam(index)"
           >
-            <i class="material-icons">delete</i>
+            <i class="material-icons notranslate">delete</i>
           </button>
         </li>
       </div>
@@ -129,7 +129,7 @@
           name="addrequest"
           @click="addRequestBodyParam"
         >
-          <i class="material-icons">add</i>
+          <i class="material-icons notranslate">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>
       </li>

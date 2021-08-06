@@ -12,14 +12,14 @@
           :class="linkActive('index')"
           :aria-label="$t('home')"
         >
-          <AppLogo alt class="material-icons" style="height: 24px" />
+          <AppLogo alt class="material-icons notranslate" style="height: 24px" />
         </nuxt-link>
         <nuxt-link
           v-tooltip.right="$t('realtime')"
           :to="localePath('realtime')"
           :class="linkActive('realtime')"
         >
-          <i class="material-icons">language</i>
+          <i class="material-icons notranslate">language</i>
         </nuxt-link>
         <nuxt-link
           v-tooltip.right="$t('graphql')"
@@ -54,7 +54,7 @@
           :class="linkActive('doc')"
           :aria-label="$t('documentation')"
         >
-          <i class="material-icons">topic</i>
+          <i class="material-icons notranslate">topic</i>
         </nuxt-link>
         <nuxt-link
           v-tooltip.right="$t('settings')"
@@ -62,7 +62,7 @@
           :class="linkActive('settings')"
           :aria-label="$t('settings')"
         >
-          <i class="material-icons">settings</i>
+          <i class="material-icons notranslate">settings</i>
         </nuxt-link>
       </nav>
       <nav
@@ -76,7 +76,7 @@
           v-tooltip.right="$t(item.tooltip)"
           :href="item.target"
         >
-          <i class="material-icons">{{ item.icon }}</i>
+          <i class="material-icons notranslate">{{ item.icon }}</i>
         </a>
       </nav>
     </aside>

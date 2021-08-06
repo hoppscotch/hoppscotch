@@ -38,7 +38,7 @@
     <div class="border-b row-wrapper border-divider">
       <div>
         <button class="icon button" @click="displayModalAdd(true)">
-          <i class="material-icons">add</i>
+          <i class="material-icons notranslate">add</i>
           <span>{{ $t("new") }}</span>
         </button>
       </div>
@@ -49,7 +49,7 @@
       </div>
     </div>
     <p v-if="environments.length === 0" class="info">
-      <i class="material-icons">help_outline</i>
+      <i class="material-icons notranslate">help_outline</i>
       {{ $t("create_new_environment") }}
     </p>
     <div class="virtual-list">

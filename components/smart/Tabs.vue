@@ -10,7 +10,7 @@
           @keyup.enter="selectTab(tab)"
         >
           <a :href="tab.href" @click="selectTab(tab)">
-            <i v-if="tab.icon" class="material-icons">
+            <i v-if="tab.icon" class="material-icons notranslate">
               {{ tab.icon }}
             </i>
             <span v-if="tab.label">{{ tab.label }}</span>

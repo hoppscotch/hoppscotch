@@ -6,13 +6,13 @@
         class="icon button"
         @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
       >
-        <i class="material-icons">group</i>
+        <i class="material-icons notranslate">group</i>
         <span>{{ team.name }}</span>
       </button>
     </div>
     <v-popover>
       <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
-        <i class="material-icons">more_vert</i>
+        <i class="material-icons notranslate">more_vert</i>
       </button>
       <template #popover>
         <div v-if="team.myRole === 'OWNER'">
@@ -21,13 +21,13 @@
             class="icon button"
             @click="$emit('edit-team')"
           >
-            <i class="material-icons">create</i>
+            <i class="material-icons notranslate">create</i>
             <span>{{ $t("edit") }}</span>
           </button>
         </div>
         <div v-if="team.myRole === 'OWNER'">
           <button v-close-popover class="icon button" @click="deleteTeam">
-            <i class="material-icons">delete</i>
+            <i class="material-icons notranslate">delete</i>
             <span>{{ $t("delete") }}</span>
           </button>
         </div>
@@ -38,7 +38,7 @@
             :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
             @click="exitTeam"
           >
-            <i class="material-icons">remove</i>
+            <i class="material-icons notranslate">remove</i>
             <div
               v-tooltip.left="{
                 content:

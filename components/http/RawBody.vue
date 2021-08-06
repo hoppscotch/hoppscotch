@@ -12,7 +12,7 @@
               class="icon button"
               @click="prettifyRequestBody"
             >
-              <i class="material-icons">{{ prettifyIcon }}</i>
+              <i class="material-icons notranslate">{{ prettifyIcon }}</i>
             </button>
             <label for="payload" class="p-0">
               <button
@@ -20,7 +20,7 @@
                 class="icon button"
                 @click="$refs.payload.click()"
               >
-                <i class="material-icons">post_add</i>
+                <i class="material-icons notranslate">post_add</i>
               </button>
             </label>
             <input
@@ -35,7 +35,7 @@
               class="icon button"
               @click="clearContent('rawParams', $event)"
             >
-              <i class="material-icons">clear_all</i>
+              <i class="material-icons notranslate">clear_all</i>
             </button>
           </div>
         </div>

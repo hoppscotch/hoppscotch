@@ -5,7 +5,9 @@
         <div class="label" @click="onBlockClick(index)">
           {{ p }}
         </div>
-        <i v-if="index + 1 !== currPath.length" class="material-icons"
+        <i
+          v-if="index + 1 !== currPath.length"
+          class="material-icons notranslate"
           >chevron_right</i
         >
         <div

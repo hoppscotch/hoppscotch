@@ -24,7 +24,7 @@
             >
               {{ connectionState ? $t("disconnect") : $t("connect") }}
               <span>
-                <i class="material-icons">{{
+                <i class="material-icons notranslate">{{
                   !connectionState ? "sync" : "sync_disabled"
                 }}</i>
               </span>
@@ -73,7 +73,7 @@
             >
               {{ $t("mqtt_publish") }}
               <span>
-                <i class="material-icons">send</i>
+                <i class="material-icons notranslate">send</i>
               </span>
             </button>
           </li>
@@ -106,7 +106,7 @@
                   : $t("mqtt_subscribe")
               }}
               <span>
-                <i class="material-icons">{{
+                <i class="material-icons notranslate">{{
                   subscriptionState ? "sync_disabled" : "sync"
                 }}</i>
               </span>

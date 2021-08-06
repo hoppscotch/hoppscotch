@@ -2,7 +2,7 @@
   <fieldset :id="label.toLowerCase()">
     <legend v-if="!noLegend" @click.prevent="collapse">
       <span>{{ label }}</span>
-      <i class="ml-2 align-middle material-icons">
+      <i class="ml-2 align-middle material-icons notranslate">
         {{ isCollapsed(label) ? "expand_more" : "expand_less" }}
       </i>
     </legend>

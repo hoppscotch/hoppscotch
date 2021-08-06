@@ -3,10 +3,10 @@
     <div class="flex items-center justify-between">
       <label>{{ $t("response") }}</label>
       <label v-if="active"
-        ><i class="animate-spin material-icons">refresh</i></label
+        ><i class="animate-spin material-icons notranslate">refresh</i></label
       >
       <label v-else :class="statusCategory ? statusCategory.className : ''">
-        <i class="material-icons">fiber_manual_record</i>
+        <i class="material-icons notranslate">fiber_manual_record</i>
       </label>
     </div>
     <div class="flex flex-col lg:flex-row">

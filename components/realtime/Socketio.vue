@@ -38,7 +38,7 @@
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
               <span>
-                <i class="material-icons">
+                <i class="material-icons notranslate">
                   {{ !connectionState ? "sync" : "sync_disabled" }}
                 </i>
               </span>
@@ -104,7 +104,7 @@
               class="icon button"
               @click="removeCommunicationInput({ index })"
             >
-              <i class="material-icons">delete</i>
+              <i class="material-icons notranslate">delete</i>
             </button>
           </li>
         </div>
@@ -119,7 +119,7 @@
             >
               {{ $t("send") }}
               <span>
-                <i class="material-icons">send</i>
+                <i class="material-icons notranslate">send</i>
               </span>
             </button>
           </li>
@@ -128,7 +128,7 @@
       <ul>
         <li>
           <button class="icon button" @click="addCommunicationInput">
-            <i class="material-icons">add</i>
+            <i class="material-icons notranslate">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
         </li>

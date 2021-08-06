@@ -10,7 +10,7 @@
           class="icon button"
           @click="downloadResponse"
         >
-          <i class="material-icons">{{ downloadIcon }}</i>
+          <i class="material-icons notranslate">{{ downloadIcon }}</i>
         </button>
       </div>
     </div>

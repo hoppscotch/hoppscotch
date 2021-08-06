@@ -2,7 +2,7 @@
   <span class="chip">
     <span><slot></slot></span>
     <button class="p-2 icon" @click="$emit('chip-delete')">
-      <i class="material-icons close-button"> close </i>
+      <i class="material-icons notranslate close-button"> close </i>
     </button>
   </span>
 </template>

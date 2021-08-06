@@ -1,7 +1,7 @@
 <template>
   <div class="collection">
     <h2 class="heading">
-      <i class="material-icons">folder</i>
+      <i class="material-icons notranslate">folder</i>
       {{ collection.name || $t("none") }}
     </h2>
     <span

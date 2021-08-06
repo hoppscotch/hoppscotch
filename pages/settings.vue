@@ -12,9 +12,9 @@
             <img
               v-if="currentUser.photoURL"
               :src="currentUser.photoURL"
-              class="w-6 h-6 rounded-full material-icons"
+              class="w-6 h-6 rounded-full material-icons notranslate"
             />
-            <i v-else class="material-icons">account_circle</i>
+            <i v-else class="material-icons notranslate">account_circle</i>
             <span>
               {{ currentUser.displayName || $t("nothing_found") }}
             </span>
@@ -125,7 +125,7 @@
             rel="noopener"
           >
             <button v-tooltip="$t('wiki')" class="icon button">
-              <i class="material-icons">help_outline</i>
+              <i class="material-icons notranslate">help_outline</i>
             </button>
           </a>
         </div>
@@ -136,7 +136,7 @@
             class="icon button"
             @click="resetProxy"
           >
-            <i class="material-icons">{{ clearIcon }}</i>
+            <i class="material-icons notranslate">{{ clearIcon }}</i>
           </button>
         </div>
         <input

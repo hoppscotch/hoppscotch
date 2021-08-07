@@ -198,6 +198,29 @@ button {
   @apply hidden;
 }
 
+.floating-input ~ label {
+  @apply font-semibold;
+  @apply py-0.5;
+  @apply px-2;
+  @apply m-2;
+  @apply rounded;
+  @apply transition;
+  @apply absolute;
+}
+
+.floating-input:focus-within ~ label,
+.floating-input:not(:placeholder-shown) ~ label {
+  @apply bg-primary;
+  @apply transform;
+  @apply origin-center;
+  @apply scale-75;
+  @apply -translate-y-6;
+}
+
+.floating-input:focus-within ~ label {
+  @apply text-accent;
+}
+
 pre.ace_editor {
   @apply font-mono;
   @apply resize-none;

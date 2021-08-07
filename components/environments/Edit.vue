@@ -6,17 +6,17 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelEnvEdit" class="font-semibold px-4 pb-4">
-          {{ $t("label") }}
-        </label>
         <input
           id="selectLabelEnvEdit"
           v-model="name"
-          class="input"
+          class="input floating-input"
+          placeholder=" "
           type="text"
-          :placeholder="editingEnvironment.name"
           @keyup.enter="saveEnvironment"
         />
+        <label for="selectLabelEnvEdit">
+          {{ $t("label") }}
+        </label>
         <div class="flex flex-1 justify-between items-center">
           <label for="variableList" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("env_variable_list") }}

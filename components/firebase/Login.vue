@@ -25,23 +25,23 @@
         />
       </div>
       <div v-if="mode === 'email'" class="flex flex-col space-y-2">
-        <div class="flex relative items-center">
-          <label for="email" class="flex px-4 absolute items-center">
-            <i class="opacity-75 material-icons">mail</i>
-          </label>
+        <div class="flex items-center relative">
           <input
             id="email"
             v-model="form.email"
-            class="input !pl-12"
+            class="input floating-input"
+            placeholder=" "
             type="email"
             name="email"
-            :placeholder="$t('email')"
             autocomplete="email"
             required
             spellcheck="false"
             autofocus
             @keyup.enter="signInWithEmail"
           />
+          <label for="email">
+            {{ $t("auth.email") }}
+          </label>
         </div>
         <ButtonPrimary
           :loading="signingInWithEmail"

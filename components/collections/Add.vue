@@ -6,17 +6,17 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelAdd" class="font-semibold px-4 pb-4">
-          {{ $t("label") }}
-        </label>
         <input
           id="selectLabelAdd"
           v-model="name"
-          class="input"
+          class="input floating-input"
+          placeholder=" "
           type="text"
-          :placeholder="$t('collection.name')"
           @keyup.enter="addNewCollection"
         />
+        <label for="selectLabelAdd">
+          {{ $t("label") }}
+        </label>
       </div>
     </template>
     <template #footer>

@@ -6,17 +6,17 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelEditReq" class="font-semibold px-4 pb-4">
-          {{ $t("label") }}
-        </label>
         <input
           id="selectLabelEditReq"
           v-model="requestUpdateData.name"
-          class="input"
+          class="input floating-input"
+          placeholder=" "
           type="text"
-          :placeholder="placeholderReqName"
           @keyup.enter="saveRequest"
         />
+        <label for="selectLabelEditReq">
+          {{ $t("label") }}
+        </label>
       </div>
     </template>
     <template #footer>

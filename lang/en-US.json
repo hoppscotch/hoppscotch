@@ -135,6 +135,7 @@
     "gist_created": "Gist created"
   },
   "auth": {
+    "email": "Email",
     "account_exists": "Account exists with different credential - Login to link both accounts",
     "send_magic_link": "Send a magic link",
     "we_sent_magic_link": "We sent you a magic link!",

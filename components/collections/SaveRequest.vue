@@ -6,15 +6,18 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelSaveReq" class="font-semibold px-4 pb-4">
-          {{ $t("request.name") }}
-        </label>
-        <input
-          id="selectLabelSaveReq"
-          v-model="requestName"
-          class="input"
-          type="text"
-        />
+        <div class="flex relative">
+          <input
+            id="selectLabelSaveReq"
+            v-model="requestName"
+            class="input floating-input"
+            placeholder=" "
+            type="text"
+          />
+          <label for="selectLabelSaveReq">
+            {{ $t("request.name") }}
+          </label>
+        </div>
         <label class="font-semibold px-4 pt-4 pb-4">
           {{ $t("collection.select_location") }}
         </label>

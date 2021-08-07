@@ -83,7 +83,7 @@ export const defaultSettings: SettingsType = {
     httpPassword: true,
     bearerToken: true,
   },
-  THEME_COLOR: "green",
+  THEME_COLOR: "blue",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
   SHORTCUT_INDICATOR: false,

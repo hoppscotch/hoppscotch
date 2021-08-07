@@ -6,17 +6,17 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelTeamAdd" class="font-semibold px-4 pb-4">
-          {{ $t("label") }}
-        </label>
         <input
           id="selectLabelTeamAdd"
           v-model="name"
-          class="input"
+          class="input floating-input"
+          placeholder=" "
           type="text"
-          :placeholder="$t('team.new_name')"
           @keyup.enter="addNewTeam"
         />
+        <label for="selectLabelTeamAdd">
+          {{ $t("label") }}
+        </label>
       </div>
     </template>
     <template #footer>

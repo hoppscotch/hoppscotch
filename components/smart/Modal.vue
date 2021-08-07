@@ -50,7 +50,7 @@
             <div class="flex pl-2 items-center justify-between">
               <slot name="header"></slot>
             </div>
-            <div class="flex flex-col my-4 overflow-auto">
+            <div class="flex flex-col my-4">
               <slot name="body"></slot>
             </div>
             <div

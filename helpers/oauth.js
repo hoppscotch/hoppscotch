@@ -154,9 +154,12 @@ const tokenRequest = async ({
 }) => {
   // Check oauth configuration
   if (oidcDiscoveryUrl !== "") {
+    // eslint-disable-next-line camelcase
     const { authorization_endpoint, token_endpoint } =
       await getTokenConfiguration(oidcDiscoveryUrl)
+    // eslint-disable-next-line camelcase
     authUrl = authorization_endpoint
+    // eslint-disable-next-line camelcase
     accessTokenUrl = token_endpoint
   }
 

@@ -6,17 +6,16 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelGqlEditFolder" class="font-semibold px-4 pb-4">
-          {{ $t("label") }}
-        </label>
         <input
           id="selectLabelGqlEditFolder"
           v-model="name"
-          class="input"
+          class="input floating-input"
+          placeholder=" "
           type="text"
-          :placeholder="folder.name"
-          @keyup.enter="editFolder"
         />
+        <label for="selectLabelGqlEditFolder">
+          {{ $t("label") }}
+        </label>
       </div>
     </template>
     <template #footer>

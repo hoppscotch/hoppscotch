@@ -282,46 +282,24 @@
               >.
             </div>
             <div class="space-y-4 mt-4">
-              <div class="flex items-center">
+              <div class="flex space-x-2 items-center">
                 <SmartToggle
                   :on="PROXY_ENABLED"
                   @change="toggleSetting('PROXY_ENABLED')"
                 />
-                <label
-                  for="url"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded-l
-                    ml-2
-                    py-2
-                    px-4
-                    truncate
-                  "
-                >
-                  {{ `${$t("proxy")} ${$t("url")}` }}
-                </label>
-                <input
-                  id="url"
-                  v-model="PROXY_URL"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded-r
-                    flex
-                    font-semibold font-mono
-                    flex-1
-                    mr-2
-                    py-2
-                    px-4
-                    block
-                    focus:(border-accent
-                    outline-none)
-                  "
-                  type="url"
-                  :disabled="!PROXY_ENABLED"
-                  :placeholder="$t('url')"
-                />
+                <div class="flex flex-1 items-center relative">
+                  <input
+                    id="url"
+                    v-model="PROXY_URL"
+                    class="input floating-input"
+                    placeholder=" "
+                    type="url"
+                    :disabled="!PROXY_ENABLED"
+                  />
+                  <label for="url">
+                    {{ `${$t("proxy")} ${$t("url")}` }}
+                  </label>
+                </div>
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('reset_default')"
@@ -406,7 +384,7 @@ export default defineComponent({
 
       showLogin: false,
 
-      active: getLocalConfig("THEME_COLOR") || "green",
+      active: getLocalConfig("THEME_COLOR") || "blue",
       confirmRemove: false,
     }
   },

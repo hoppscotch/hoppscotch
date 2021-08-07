@@ -61,7 +61,6 @@
           ref="inputChooseFileToReplaceWith"
           class="input"
           type="file"
-          style="display: none"
           accept="application/json"
           @change="replaceWithJSON"
         />
@@ -76,7 +75,6 @@
           ref="inputChooseFileToImportFrom"
           class="input"
           type="file"
-          style="display: none"
           accept="application/json"
           @change="importFromJSON"
         />

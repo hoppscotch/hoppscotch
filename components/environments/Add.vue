@@ -6,17 +6,17 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="selectLabelEnvAdd" class="font-semibold px-4 pb-4">
-          {{ $t("label") }}
-        </label>
         <input
           id="selectLabelEnvAdd"
           v-model="name"
-          class="input"
+          class="input floating-input"
+          placeholder=" "
           type="text"
-          :placeholder="$t('my_new_environment')"
           @keyup.enter="addNewEnvironment"
         />
+        <label for="selectLabelEnvAdd">
+          {{ $t("label") }}
+        </label>
       </div>
     </template>
     <template #footer>

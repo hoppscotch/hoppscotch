@@ -220,7 +220,7 @@ const oauthRedirect = () => {
           code: q.code,
           client_id: getLocalConfig("client_id"),
           redirect_uri: redirectUri,
-          codeVerifier: getLocalConfig("pkce_codeVerifier"),
+          code_verifier: getLocalConfig("pkce_codeVerifier"),
         })
       } catch (err) {
         console.log(`${error.error}\n\n${error.error_description}`)

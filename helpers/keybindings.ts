@@ -11,13 +11,6 @@ import { isDOMElement, isTypableElement } from "./utils/dom"
 let keybindingsEnabled = true
 
 /**
- * This variable keeps track whether the currently focused element on the document
- * is something that accepts a keyboard input
- * (this is to prevent single character shortcuts from firing while typing)
- */
-let focusNotTypable = true
-
-/**
  * Alt is also regarded as macOS OPTION (⌥) key
  * Ctrl is also regarded as macOS COMMAND (⌘) key (NOTE: this differs from HTML Keyboard spec where COMMAND is Meta key!)
  */
@@ -62,33 +55,11 @@ export const bindings: {
 export function hookKeybindingsListener() {
   onMounted(() => {
     document.addEventListener("keydown", handleKeyDown)
-    document.addEventListener("focusin", handleFocusUpdate)
-    document.addEventListener("focusout", handleFocusUpdate)
   })
 
   onBeforeUnmount(() => {
     document.removeEventListener("keydown", handleKeyDown)
-    document.removeEventListener("focusin", handleFocusUpdate)
-    document.removeEventListener("focusout", handleFocusUpdate)
   })
-}
-
-function handleFocusUpdate(ev: FocusEvent) {
-  const target = ev.target
-
-  if (isDOMElement(target) && isTypableElement(target)) {
-    if (focusNotTypable) {
-      console.log(
-        "Single Char keybindings are disabled because typable element is having focus"
-      )
-      focusNotTypable = false
-    }
-  } else if (!focusNotTypable) {
-    console.log(
-      "Single Char keybindings are restored because typable element is no longer focused"
-    )
-    focusNotTypable = true
-  }
 }
 
 function handleKeyDown(ev: KeyboardEvent) {
@@ -112,7 +83,6 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   const target = ev.target
   console.log(target)
 
-  debugger
   if (!modifierKey && !(isDOMElement(target) && isTypableElement(target))) {
     // Check if we are having singulars instead
     const key = getPressedKey(ev)

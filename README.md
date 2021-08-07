@@ -105,7 +105,7 @@
 
 - Choose theme: System (default), Light, Dark and Black
 - Choose accent color: Green (default), Teal, Blue, Indigo, Purple, Yellow, Orange, Red and Pink
-- Toggle auto-scroll to response
+- Distraction free Zen mode
 
 <p>
   <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_light.png" alt="Screenshot" width="100%"></a>

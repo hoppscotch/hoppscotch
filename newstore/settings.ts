@@ -46,7 +46,6 @@ export type SettingsType = {
   syncHistory: boolean
   syncEnvironments: boolean
 
-  SCROLL_INTO_ENABLED: boolean
   PROXY_ENABLED: boolean
   PROXY_URL: string
   PROXY_KEY: string
@@ -73,7 +72,6 @@ export const defaultSettings: SettingsType = {
   syncHistory: true,
   syncEnvironments: true,
 
-  SCROLL_INTO_ENABLED: true,
   PROXY_ENABLED: false,
   PROXY_URL: "https://proxy.hoppscotch.io/",
   PROXY_KEY: "",

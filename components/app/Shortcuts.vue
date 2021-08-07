@@ -15,7 +15,7 @@
         "
       >
         <h3 class="ml-4 heading">{{ $t("shortcuts") }}</h3>
-        <div>
+        <div class="flex">
           <ButtonSecondary to="/settings" icon="tune" />
           <ButtonSecondary icon="close" @click.native="close()" />
         </div>
@@ -24,7 +24,7 @@
         <input
           v-model="filterText"
           type="search"
-          class="bg-primaryLight border-b border-dividerLight flex font-semibold font-mono w-full py-2 pr-2 pl-8 focus:outline-none truncate"
+          class="bg-primaryLight border-b border-dividerLight flex font-semibold font-mono w-full py-2 pr-2 pl-8 truncate focus:outline-none"
           :placeholder="$t('search')"
         />
       </div> -->

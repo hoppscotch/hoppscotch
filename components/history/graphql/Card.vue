@@ -26,7 +26,7 @@
         icon="delete"
         color="red"
         :title="$t('delete')"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         data-testid="delete_history_entry"
         @click.native="$emit('delete-entry')"
       />
@@ -34,7 +34,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? $t('hide.more') : $t('show.more')"
         :icon="expand ? 'unfold_less' : 'unfold_more'"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         @click.native="expand = !expand"
       />
       <ButtonSecondary
@@ -51,12 +51,18 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="cursor-pointer font-mono text-secondaryLight px-4 truncate"
+        class="
+          cursor-pointer
+          font-mono
+          text-secondaryLight
+          px-4
+          whitespace-pre
+          truncate
+        "
         data-testid="restore_history_entry"
         @click="$emit('use-entry')"
+        >{{ line }}</span
       >
-        {{ line }}
-      </span>
     </div>
   </div>
 </template>

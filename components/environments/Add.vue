@@ -2,9 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("new_environment") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <div class="flex flex-col px-2">

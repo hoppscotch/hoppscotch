@@ -12,7 +12,6 @@ let analytics: firebase.analytics.Analytics | null
 type SettingsCustomDimensions = {
   usesProxy: boolean
   usesExtension: boolean
-  usesScrollInto: boolean
   syncCollections: boolean
   syncEnvironments: boolean
   syncHistory: boolean
@@ -61,7 +60,6 @@ function initSettingsListeners() {
     const conf: SettingsCustomDimensions = {
       usesProxy: settings.PROXY_ENABLED,
       usesExtension: settings.EXTENSIONS_ENABLED,
-      usesScrollInto: settings.SCROLL_INTO_ENABLED,
       syncCollections: settings.syncCollections,
       syncEnvironments: settings.syncEnvironments,
       syncHistory: settings.syncHistory,

@@ -1,10 +1,8 @@
 <template>
   <SmartModal v-if="show" @close="$emit('hide-modal')">
     <template #header>
-      <h3 class="heading">{{ $t("new_folder") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <h3 class="heading">{{ $t("folder.new") }}</h3>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <div class="flex flex-col px-2">

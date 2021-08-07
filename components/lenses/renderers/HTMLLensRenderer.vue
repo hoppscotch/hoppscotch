@@ -15,7 +15,7 @@
       <label for="body" class="font-semibold px-4">
         {{ $t("response_body") }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"

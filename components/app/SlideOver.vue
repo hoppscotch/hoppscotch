@@ -3,7 +3,7 @@
     <transition v-if="show" name="fade" appear>
       <div class="inset-0 transition-opacity z-20 fixed" @keydown.esc="close()">
         <div
-          class="bg-primaryDark opacity-75 inset-0 absolute"
+          class="bg-primaryDark opacity-90 inset-0 absolute"
           tabindex="0"
           @click="close()"
         ></div>

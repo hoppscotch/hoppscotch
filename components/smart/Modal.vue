@@ -9,7 +9,7 @@
       >
         <transition name="fade" appear>
           <div
-            class="bg-primaryDark opacity-100 inset-0 transition fixed"
+            class="bg-primaryDark opacity-90 inset-0 transition fixed"
             @touchstart="!dialog ? close() : null"
             @touchend="!dialog ? close() : null"
             @mouseup="!dialog ? close() : null"
@@ -17,7 +17,7 @@
           ></div>
         </transition>
         <span
-          class="hidden sm:inline-block sm:align-middle sm:h-screen"
+          class="hidden sm:h-screen sm:inline-block sm:align-middle"
           aria-hidden="true"
           >&#8203;</span
         >
@@ -44,7 +44,7 @@
               inline-block
               align-bottom
               overflow-hidden
-              sm:align-middle sm:max-w-md
+              sm:max-w-md sm:align-middle
             "
           >
             <div class="flex pl-2 items-center justify-between">

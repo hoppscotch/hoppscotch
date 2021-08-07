@@ -39,7 +39,7 @@
         v-tippy="{ theme: 'tooltip' }"
         icon="create_new_folder"
         :title="$t('folder.new')"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         @click.native="$emit('add-folder', { folder, path: folderPath })"
       />
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>

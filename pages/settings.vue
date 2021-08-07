@@ -166,14 +166,6 @@
             <div class="space-y-4 mt-4">
               <div class="flex items-center">
                 <SmartToggle
-                  :on="SCROLL_INTO_ENABLED"
-                  @change="toggleSetting('SCROLL_INTO_ENABLED')"
-                >
-                  {{ $t("scrollInto_use_toggle") }}
-                </SmartToggle>
-              </div>
-              <div class="flex items-center">
-                <SmartToggle
                   :on="EXPERIMENTAL_URL_BAR_ENABLED"
                   @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
                 >
@@ -382,7 +374,6 @@ type SettingsType = typeof defaultSettings
 export default defineComponent({
   setup() {
     return {
-      SCROLL_INTO_ENABLED: useSetting("SCROLL_INTO_ENABLED"),
       PROXY_ENABLED: useSetting("PROXY_ENABLED"),
       PROXY_URL: useSetting("PROXY_URL"),
       PROXY_KEY: useSetting("PROXY_KEY"),

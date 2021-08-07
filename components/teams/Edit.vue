@@ -21,13 +21,11 @@
           <label for="memberList" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("team.members") }}
           </label>
-          <div>
-            <ButtonSecondary
-              icon="add"
-              :label="$t('add.new')"
-              @click.native="addTeamMember"
-            />
-          </div>
+          <ButtonSecondary
+            icon="add"
+            :label="$t('add.new')"
+            @click.native="addTeamMember"
+          />
         </div>
         <div class="border-divider border rounded">
           <div
@@ -106,16 +104,14 @@
                 />
               </tippy>
             </span>
-            <div>
-              <ButtonSecondary
-                id="member"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
-                icon="delete"
-                color="red"
-                @click.native="removeExistingTeamMember(member.user.uid)"
-              />
-            </div>
+            <ButtonSecondary
+              id="member"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
+              icon="delete"
+              color="red"
+              @click.native="removeExistingTeamMember(member.user.uid)"
+            />
           </div>
           <div
             v-for="(member, index) in newMembers"
@@ -193,16 +189,14 @@
                 />
               </tippy>
             </span>
-            <div>
-              <ButtonSecondary
-                id="member"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
-                icon="delete"
-                color="red"
-                @click.native="removeTeamMember(index)"
-              />
-            </div>
+            <ButtonSecondary
+              id="member"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('delete')"
+              icon="delete"
+              color="red"
+              @click.native="removeTeamMember(index)"
+            />
           </div>
         </div>
       </div>

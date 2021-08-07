@@ -2,9 +2,7 @@
   <SmartModal v-if="show" @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("manage_token") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <div class="flex flex-1">

@@ -242,7 +242,7 @@
                         })
                       "
                     />
-                    <div>
+                    <span>
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
                         :title="
@@ -269,8 +269,8 @@
                           })
                         "
                       />
-                    </div>
-                    <div>
+                    </span>
+                    <span>
                       <ButtonSecondary
                         v-tippy="{ theme: 'tooltip' }"
                         :title="$t('delete')"
@@ -278,7 +278,7 @@
                         color="red"
                         @click.native="removeRequestHeader(index)"
                       />
-                    </div>
+                    </span>
                   </div>
                   <div
                     v-if="headers.length === 0"
@@ -637,7 +637,7 @@ import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { getCurrentStrategyID, sendNetworkRequest } from "~/helpers/network"
-import { getSettingSubject, useSetting } from "~/newstore/settings"
+import { useSetting } from "~/newstore/settings"
 import { addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -674,11 +674,6 @@ export default defineComponent({
       timeoutSubscription: null,
       editRequest: {},
       showSaveRequestModal: false,
-    }
-  },
-  subscriptions() {
-    return {
-      SCROLL_INTO_ENABLED: getSettingSubject("SCROLL_INTO_ENABLED"),
     }
   },
   head() {
@@ -898,7 +893,7 @@ export default defineComponent({
       const rootTypeName = this.resolveRootType(type).name
 
       const target = document.getElementById(`type_${rootTypeName}`)
-      if (target && this.SCROLL_INTO_ENABLED) {
+      if (target) {
         this.$refs.gqlTabs.$el
           .querySelector(".gqlTabs")
           .scrollTo({ top: target.offsetTop, behavior: "smooth" })
@@ -943,7 +938,6 @@ export default defineComponent({
       this.$nuxt.$loading.start()
 
       this.response = this.$t("loading")
-      if (this.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       try {
         const headers = {}
@@ -1176,7 +1170,6 @@ export default defineComponent({
       this.$nuxt.$loading.start()
 
       this.schema = this.$t("loading")
-      if (this.SCROLL_INTO_ENABLED) this.scrollInto("schema")
 
       try {
         const query = JSON.stringify({
@@ -1306,11 +1299,6 @@ export default defineComponent({
             toastObject.remove()
           },
         },
-      })
-    },
-    scrollInto(view) {
-      this.$refs[view].$el.scrollIntoView({
-        behavior: "smooth",
       })
     },
     updateQuery(updatedQuery) {

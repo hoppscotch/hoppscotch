@@ -96,7 +96,7 @@
                 name="message"
                 type="text"
               />
-              <div>
+              <div class="flex">
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="
@@ -121,7 +121,7 @@
                   "
                 />
               </div>
-              <div>
+              <div class="flex">
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('delete')"

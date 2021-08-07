@@ -46,7 +46,7 @@
         v-tippy="{ theme: 'tooltip' }"
         icon="replay"
         :title="$t('restore')"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         @click.native="!doc ? selectRequest() : {}"
       />
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>

@@ -2,9 +2,7 @@
   <SmartModal v-if="show" dialog @close="hideModal">
     <template #header>
       <h3 class="heading">{{ $t("login_to_hoppscotch") }}</h3>
-      <div>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      <ButtonSecondary icon="close" @click.native="hideModal" />
     </template>
     <template #body>
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">

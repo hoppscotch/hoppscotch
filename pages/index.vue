@@ -190,7 +190,6 @@ export default defineComponent({
         null
       ),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
-      SCROLL_INTO_ENABLED: useSetting("SCROLL_INTO_ENABLED"),
       PROXY_ENABLED: useSetting("PROXY_ENABLED"),
       URL_EXCLUDES: useSetting("URL_EXCLUDES"),
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),

@@ -21,8 +21,8 @@
             py-2
             pr-2
             pl-9
-            focus:outline-none
             truncate
+            focus:outline-none
           "
         />
       </div>

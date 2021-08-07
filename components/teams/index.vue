@@ -17,9 +17,10 @@
       <p v-if="$apollo.queries.myTeams.loading">
         {{ $t("loading") }}
       </p>
-      <p v-if="myTeams.length === 0">
-        <i class="material-icons">help_outline</i> {{ $t("team.create_new") }}
-      </p>
+      <div v-if="myTeams.length === 0" class="flex items-center">
+        <i class="mr-4 material-icons">help_outline</i>
+        {{ $t("empty.teams") }}
+      </div>
       <div
         v-else
         class="

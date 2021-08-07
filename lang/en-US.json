@@ -36,7 +36,8 @@
     "history": "History is empty",
     "headers": "Headers are empty",
     "tests": "Tests are empty",
-    "schema": "Connect to a GraphQL endpoint"
+    "schema": "Connect to a GraphQL endpoint",
+    "teams": "Teams are empty"
   },
   "count": {
     "message": "Message {count}",
@@ -393,7 +394,6 @@
   "login_success": "Successfully logged in",
   "logout": "Logout",
   "account": "Account",
-  "scrollInto_use_toggle": "Auto scroll",
   "sync": "Sync",
   "syncHistory": "History",
   "syncCollections": "Collections",

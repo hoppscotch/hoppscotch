@@ -7,7 +7,7 @@
           :title="LEFT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           icon="menu_open"
           :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
-          @click.native="toggleSetting('LEFT_SIDEBAR')"
+          @click.native="LEFT_SIDEBAR = !LEFT_SIDEBAR"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -18,7 +18,7 @@
           :class="{
             '!text-accent focus:text-accent hover:text-accent': ZEN_MODE,
           }"
-          @click.native="toggleSetting('ZEN_MODE')"
+          @click.native="ZEN_MODE = !ZEN_MODE"
         />
       </div>
       <div class="flex">
@@ -98,7 +98,7 @@
           icon="menu_open"
           class="transform rotate-180"
           :class="{ 'rotate-0': !RIGHT_SIDEBAR }"
-          @click.native="toggleSetting('RIGHT_SIDEBAR')"
+          @click.native="RIGHT_SIDEBAR = !RIGHT_SIDEBAR"
         />
       </div>
     </div>
@@ -107,47 +107,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-import {
-  defaultSettings,
-  getSettingSubject,
-  applySetting,
-  toggleSetting,
-} from "~/newstore/settings"
-import type { KeysMatching } from "~/types/ts-utils"
-
-type SettingsType = typeof defaultSettings
+import { defineComponent, ref } from "@nuxtjs/composition-api"
+import { defineActionHandler } from "~/helpers/actions"
+import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
-  data() {
+  setup() {
+    const showShortcuts = ref(false)
+
+    defineActionHandler("flyouts.keybinds.toggle", () => {
+      showShortcuts.value = !showShortcuts.value
+    })
+
     return {
-      LEFT_SIDEBAR: null,
-      RIGHT_SIDEBAR: null,
-      ZEN_MODE: null,
-      showShortcuts: false,
-      navigatorShare: navigator.share,
-    }
-  },
-  subscriptions() {
-    return {
-      LEFT_SIDEBAR: getSettingSubject("LEFT_SIDEBAR"),
-      RIGHT_SIDEBAR: getSettingSubject("RIGHT_SIDEBAR"),
-      ZEN_MODE: getSettingSubject("ZEN_MODE"),
+      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      ZEN_MODE: useSetting("ZEN_MODE"),
+
+      navigatorShare: !!navigator.share,
+
+      showShortcuts,
     }
   },
   watch: {
-    ZEN_MODE(ZEN_MODE) {
-      this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
-      // this.applySetting("RIGHT_SIDEBAR", !ZEN_MODE)
+    ZEN_MODE() {
+      this.LEFT_SIDEBAR = !this.ZEN_MODE
     },
   },
   methods: {
-    toggleSetting<K extends KeysMatching<SettingsType, boolean>>(key: K) {
-      toggleSetting(key)
-    },
-    applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
-      applySetting(key, value)
-    },
     nativeShare() {
       if (navigator.share) {
         navigator

@@ -1,6 +1,7 @@
 import { onBeforeUnmount, onMounted } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
+import { isDOMElement, isTypableElement } from "./utils/dom"
 
 /**
  * This variable keeps track whether keybindings are being accepted
@@ -8,6 +9,13 @@ import { isAppleDevice } from "./platformutils"
  * false -> Key presses are ignored (Keybindings are not checked)
  */
 let keybindingsEnabled = true
+
+/**
+ * This variable keeps track whether the currently focused element on the document
+ * is something that accepts a keyboard input
+ * (this is to prevent single character shortcuts from firing while typing)
+ */
+let focusNotTypable = true
 
 /**
  * Alt is also regarded as macOS OPTION (⌥) key
@@ -19,10 +27,14 @@ type ModifierKeys = "ctrl" | "alt"
 type Key = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k'
 | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' 
 | 'y' | 'z' | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-| "up" | "down" | "left" | "right"
+| "up" | "down" | "left" | "right" | "?"
 /* eslint-enable */
 
-type ShortcutKey = `${ModifierKeys}-${Key}`
+type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
+// Singular keybindings (these will be disabled when an input-ish area has been focused)
+type SingleCharacterShortcutKey = `${Key}`
+
+type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
 export const bindings: {
   // eslint-disable-next-line no-unused-vars
@@ -39,6 +51,7 @@ export const bindings: {
   "alt-p": "request.method.post",
   "alt-u": "request.method.put",
   "alt-x": "request.method.delete",
+  "?": "flyouts.keybinds.toggle",
 }
 
 /**
@@ -49,11 +62,33 @@ export const bindings: {
 export function hookKeybindingsListener() {
   onMounted(() => {
     document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("focusin", handleFocusUpdate)
+    document.addEventListener("focusout", handleFocusUpdate)
   })
 
   onBeforeUnmount(() => {
     document.removeEventListener("keydown", handleKeyDown)
+    document.removeEventListener("focusin", handleFocusUpdate)
+    document.removeEventListener("focusout", handleFocusUpdate)
   })
+}
+
+function handleFocusUpdate(ev: FocusEvent) {
+  const target = ev.target
+
+  if (isDOMElement(target) && isTypableElement(target)) {
+    if (focusNotTypable) {
+      console.log(
+        "Single Char keybindings are disabled because typable element is having focus"
+      )
+      focusNotTypable = false
+    }
+  } else if (!focusNotTypable) {
+    console.log(
+      "Single Char keybindings are restored because typable element is no longer focused"
+    )
+    focusNotTypable = true
+  }
 }
 
 function handleKeyDown(ev: KeyboardEvent) {
@@ -73,7 +108,18 @@ function handleKeyDown(ev: KeyboardEvent) {
 function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   // All our keybinds need to have one modifier pressed atleast
   const modifierKey = getActiveModifier(ev)
-  if (!modifierKey) return null
+
+  const target = ev.target
+  console.log(target)
+
+  debugger
+  if (!modifierKey && !(isDOMElement(target) && isTypableElement(target))) {
+    // Check if we are having singulars instead
+    const key = getPressedKey(ev)
+
+    if (!key) return null
+    else return `${key}` as ShortcutKey
+  }
 
   const key = getPressedKey(ev)
   if (!key) return null
@@ -96,6 +142,9 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check if number keys
   if (val.length === 1 && !isNaN(val as any)) return val as Key
+
+  // Check if question mark
+  if (val === "?") return "?"
 
   // If no other cases match, this is not a valid key
   return null

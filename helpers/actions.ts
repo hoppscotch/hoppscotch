@@ -16,6 +16,7 @@ export type HoppAction =
   | "request.method.post" // Select POST Method
   | "request.method.put" // Select PUT Method
   | "request.method.delete" // Select DELETE Method
+  | "flyouts.keybinds.toggle" // Shows the keybinds flyout
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

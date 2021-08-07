@@ -154,10 +154,10 @@ const tokenRequest = async ({
 }) => {
   // Check oauth configuration
   if (oidcDiscoveryUrl !== "") {
-    const { authorizationEndpoint, tokenEndpoint } =
+    const { authorization_endpoint, token_endpoint } =
       await getTokenConfiguration(oidcDiscoveryUrl)
-    authUrl = authorizationEndpoint
-    accessTokenUrl = tokenEndpoint
+    authUrl = authorization_endpoint
+    accessTokenUrl = token_endpoint
   }
 
   // Store oauth information

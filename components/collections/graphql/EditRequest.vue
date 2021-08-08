@@ -5,6 +5,7 @@
         <input
           id="selectLabelGqlEditReq"
           v-model="requestUpdateData.name"
+          v-focus
           class="input floating-input"
           placeholder=" "
           type="text"

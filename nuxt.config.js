@@ -94,6 +94,7 @@ export default {
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     "~/plugins/v-tippy",
+    "~/plugins/v-focus",
     "~/plugins/vuex-persist",
     "~/plugins/vue-rx",
     "~/plugins/vue-apollo",

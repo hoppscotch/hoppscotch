@@ -9,6 +9,7 @@
                 <input
                   id="socketio-url"
                   v-model="url"
+                  v-focus
                   type="url"
                   spellcheck="false"
                   :class="{ error: !urlValid }"

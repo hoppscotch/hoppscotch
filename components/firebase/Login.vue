@@ -30,6 +30,7 @@
           <input
             id="email"
             v-model="form.email"
+            v-focus
             class="input floating-input"
             placeholder=" "
             type="email"

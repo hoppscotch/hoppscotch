@@ -9,6 +9,7 @@
                 <input
                   id="websocket-url"
                   v-model="url"
+                  v-focus
                   class="
                     bg-primaryLight
                     border border-divider

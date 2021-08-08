@@ -6,6 +6,7 @@
           <input
             id="server"
             v-model="server"
+            v-focus
             type="url"
             :class="{ error: !serverValid }"
             class="

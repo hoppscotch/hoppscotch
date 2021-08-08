@@ -5,6 +5,7 @@
         <input
           id="selectLabelAdd"
           v-model="name"
+          v-focus
           class="input floating-input"
           placeholder=" "
           type="text"

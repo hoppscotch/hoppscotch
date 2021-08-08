@@ -6,6 +6,7 @@
           <input
             id="selectLabelSaveReq"
             v-model="requestName"
+            v-focus
             class="input floating-input"
             placeholder=" "
             type="text"

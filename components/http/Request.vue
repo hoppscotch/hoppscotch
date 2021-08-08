@@ -66,6 +66,7 @@
         v-else
         id="url"
         v-model="newEndpoint"
+        v-focus
         class="
           bg-primaryLight
           border border-divider

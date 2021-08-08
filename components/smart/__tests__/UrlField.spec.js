@@ -12,7 +12,7 @@ const factory = (props) =>
  * inputting values.
  */
 
-describe("url-field", () => {
+describe("env-input", () => {
   test("mounts properly", () => {
     const wrapper = factory({
       value: "test",

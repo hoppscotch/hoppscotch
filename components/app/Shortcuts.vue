@@ -23,6 +23,7 @@
       <!-- <div class="search-wrapper">
         <input
           v-model="filterText"
+          v-focus
           type="search"
           class="bg-primaryLight border-b border-dividerLight flex font-semibold font-mono w-full py-2 pr-2 pl-8 truncate focus:outline-none"
           :placeholder="$t('search')"

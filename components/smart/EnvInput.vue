@@ -4,11 +4,11 @@
 -->
 
 <template>
-  <div class="url-field-container">
+  <div class="env-input-container">
     <div
       ref="editor"
       :placeholder="placeholder"
-      class="url-field"
+      class="env-input"
       :class="styles"
       contenteditable="true"
       @keydown.enter.prevent="$emit('enter', $event)"
@@ -477,12 +477,12 @@ export default defineComponent({
   }
 }
 
-.url-field-container {
+.env-input-container {
   @apply inline-grid;
   @apply w-full;
 }
 
-.url-field {
+.env-input {
   @apply flex;
   @apply items-center;
   @apply justify-items-start;
@@ -492,7 +492,7 @@ export default defineComponent({
   @apply resize-none;
 }
 
-.url-field::-webkit-scrollbar {
+.env-input::-webkit-scrollbar {
   @apply hidden;
 }
 </style>

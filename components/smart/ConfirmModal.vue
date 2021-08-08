@@ -9,7 +9,7 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="yes" @click.native="resolve" />
+        <ButtonPrimary v-focus :label="yes" @click.native="resolve" />
         <ButtonSecondary :label="no" @click.native="hideModal" />
       </span>
     </template>

@@ -5,6 +5,7 @@
         <input
           id="selectLabelTeamEdit"
           v-model="name"
+          v-focus
           class="input floating-input"
           placeholder=" "
           type="text"

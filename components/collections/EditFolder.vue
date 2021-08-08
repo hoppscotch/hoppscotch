@@ -9,6 +9,7 @@
         <input
           id="selectLabelEditFolder"
           v-model="name"
+          v-focus
           class="input floating-input"
           placeholder=" "
           type="text"

@@ -81,7 +81,6 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   const modifierKey = getActiveModifier(ev)
 
   const target = ev.target
-  console.log(target)
 
   if (!modifierKey && !(isDOMElement(target) && isTypableElement(target))) {
     // Check if we are having singulars instead

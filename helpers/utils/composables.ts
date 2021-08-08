@@ -6,8 +6,11 @@ import {
   Ref,
   ref,
   watch,
+  wrapProperty,
 } from "@nuxtjs/composition-api"
 import { Observable, Subscription } from "rxjs"
+
+export const useNuxt = wrapProperty("$nuxt")
 
 export function useReadonlyStream<T>(
   stream$: Observable<T>,

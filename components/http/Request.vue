@@ -204,7 +204,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, useContext } from "@nuxtjs/composition-api"
+import {
+  defineComponent,
+  ref,
+  useContext,
+  watch,
+} from "@nuxtjs/composition-api"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -216,7 +221,11 @@ import {
 } from "~/newstore/RESTSession"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
-import { useStreamSubscriber, useStream } from "~/helpers/utils/composables"
+import {
+  useStreamSubscriber,
+  useStream,
+  useNuxt,
+} from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useSetting } from "~/newstore/settings"
@@ -240,6 +249,7 @@ export default defineComponent({
       $toast,
       app: { i18n },
     } = useContext()
+    const nuxt = useNuxt()
     const t = i18n.t.bind(i18n)
     const { subscribeToStream } = useStreamSubscriber()
 
@@ -255,10 +265,18 @@ export default defineComponent({
     const hasNavigatorShare = !!navigator.share
 
     // Template refs
-    //
     const methodOptions = ref<any | null>(null)
     const saveOptions = ref<any | null>(null)
     const sendOptions = ref<any | null>(null)
+
+    // Update Nuxt Loading bar
+    watch(loading, () => {
+      if (loading.value) {
+        nuxt.value.$loading.start()
+      } else {
+        nuxt.value.$loading.finish()
+      }
+    })
 
     const newSendRequest = () => {
       loading.value = true

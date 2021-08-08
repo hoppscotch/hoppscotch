@@ -141,7 +141,7 @@
               disabled
               selected
             >
-              Select Collection
+              {{ $t("select_collection") }}
             </option>
             <option
               v-for="(collection, index) in myCollections"

@@ -289,5 +289,6 @@
   "select_delete_method": "DELETE 메소드 선택",
   "team_text_owner": "OWNER",
   "team_text_editor": "EDITOR",
-  "team_text_viewer": "VIEWER"
+  "team_text_viewer": "VIEWER",
+  "select_team": "Select team"
 }

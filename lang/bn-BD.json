@@ -292,5 +292,6 @@
   "use_experimental_url_bar": "পরীক্ষামূলক ইউআরএল বারটি এনভায়রনমেন্ট হাইলাইটিং এর জন্য ব্যবহার করুন",
   "team_text_owner": "OWNER",
   "team_text_editor": "EDITOR",
-  "team_text_viewer": "VIEWER"
+  "team_text_viewer": "VIEWER",
+  "select_team": "Select team"
 }

@@ -33,7 +33,7 @@
                     disabled
                     selected
                   >
-                    Select team
+                    {{ $("select_team") }}
                   </option>
                   <option
                     v-for="(team, index) in myTeams"

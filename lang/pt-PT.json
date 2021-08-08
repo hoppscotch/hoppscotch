@@ -277,5 +277,6 @@
   "are_you_sure_remove_environment": "Tem a certeza de que pretende remover este ambiente?",
   "team_text_owner": "OWNER",
   "team_text_editor": "EDITOR",
-  "team_text_viewer": "VIEWER"
+  "team_text_viewer": "VIEWER",
+  "select_team": "Select team"
 }

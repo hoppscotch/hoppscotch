@@ -261,5 +261,6 @@
   "use_experimental_url_bar": "Utiliser la barre d'URL expérimentale avec mise en évidence de l'environnement",
   "team_text_owner": "OWNER",
   "team_text_editor": "EDITOR",
-  "team_text_viewer": "VIEWER"
+  "team_text_viewer": "VIEWER",
+  "select_team": "Select team"
 }

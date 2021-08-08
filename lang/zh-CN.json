@@ -307,5 +307,6 @@
   "size": "大小",
   "team_text_owner": "拥有者",
   "team_text_editor": "编辑",
-  "team_text_viewer": "仅查看"
+  "team_text_viewer": "仅查看",
+  "select_team": "选择团队"
 }

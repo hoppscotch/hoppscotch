@@ -299,5 +299,8 @@
   "account_exists": "Akun dengan kredensial yang berbeda telah ada - Masuk log untuk menautkan keduanya",
   "confirm": "Konfirmasi",
   "new_version_found": "Versi baru tersedia. Segarkan untuk memperbarui.",
-  "size": "Ukuran"
+  "size": "Ukuran",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

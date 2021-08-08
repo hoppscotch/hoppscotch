@@ -258,5 +258,8 @@
   "select_delete_method": "Sélectionner la méthode DELETE",
   "experiments": "Expérimentations",
   "experiments_notice": "Il s'agit d'une collection d'expérimations sur lesquelles nous travaillons et qui pourraient s'avérer utiles, amusantes, les deux ou aucune. Elles ne sont pas définitives et peuvent ne pas être stables, donc si quelque chose d'excessivement bizarre se produit, ne paniquez pas. Il suffit d'éteindre ce fichu truc. Blagues à part,",
-  "use_experimental_url_bar": "Utiliser la barre d'URL expérimentale avec mise en évidence de l'environnement"
+  "use_experimental_url_bar": "Utiliser la barre d'URL expérimentale avec mise en évidence de l'environnement",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

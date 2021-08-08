@@ -266,5 +266,8 @@
   "mqtt_topic_title": "Publish / Subscribe topic",
   "mqtt_publish": "發佈",
   "mqtt_subscribe": "訂閱",
-  "mqtt_unsubscribe": "取消訂閱"
+  "mqtt_unsubscribe": "取消訂閱",
+  "team_text_owner": "擁有者",
+  "team_text_editor": "編輯",
+  "team_text_viewer": "僅查看"
 }

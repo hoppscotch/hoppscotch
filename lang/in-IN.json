@@ -302,5 +302,8 @@
   "account_exists": "खाता अलग-अलग क्रेडेंशियल के साथ मौजूद है - दोनों खातों को जोड़ने के लिए लॉगिन करें",
   "confirm": "पुष्टि करें",
   "new_version_found": "नया संस्करण मिला। अद्यतन करने के लिए ताज़ा करें।",
-  "size": "आकार"
+  "size": "आकार",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

@@ -271,5 +271,8 @@
   "mqtt_subscribe": "Abone Ol",
   "mqtt_unsubscribe": "Abonelikten Çık",
   "pre_request_script": "Ön Talep Komut Dosyası",
-  "tests": "Testler"
+  "tests": "Testler",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

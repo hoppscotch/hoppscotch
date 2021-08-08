@@ -286,5 +286,8 @@
   "select_head_method": "HEAD 메소드 선택",
   "select_post_method": "POST 메소드 선택",
   "select_put_method": "PUT 메소드 선택",
-  "select_delete_method": "DELETE 메소드 선택"
+  "select_delete_method": "DELETE 메소드 선택",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

@@ -289,5 +289,8 @@
   "select_delete_method": "ডিলিট মেথড নির্বাচন করুন",
   "experiments": "পরীক্ষাসমূহ",
   "experiments_notice": "নিছক মজা ছলে অথবা পরীক্ষার জন্য এই এক্সপেরিমেন্টটি করা হচ্ছে। অপ্রীতিকর কিছু ঘটলে ঘাবড়ানোর দরকার নেই",
-  "use_experimental_url_bar": "পরীক্ষামূলক ইউআরএল বারটি এনভায়রনমেন্ট হাইলাইটিং এর জন্য ব্যবহার করুন"
+  "use_experimental_url_bar": "পরীক্ষামূলক ইউআরএল বারটি এনভায়রনমেন্ট হাইলাইটিং এর জন্য ব্যবহার করুন",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

@@ -302,5 +302,8 @@
   "account_exists": "Kontoen eksisterer allerede med andre akkreditiver - Logg inn for å koble begge kontoene sammen",
   "confirm": "Bekreft",
   "new_version_found": "Ny versjon funnet. Oppfrisk for å oppdatere.",
-  "size": "Størrelse"
+  "size": "Størrelse",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

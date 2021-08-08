@@ -122,5 +122,8 @@
   "import_from_gist": "Import von Gist",
   "enter_gist_url": "Gib Gist URL ein",
   "confirm": "Bestätige",
-  "size": "Größe"
+  "size": "Größe",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

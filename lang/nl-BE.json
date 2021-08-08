@@ -289,5 +289,8 @@
   "select_delete_method": "DELETE selecteren",
   "experiments": "Experiementen",
   "experiments_notice": "Dit zijn experimenten waar we aan werken die mogelijk nuttig, grappig, beide of niets worden. Ze zijn mogelijk niet stabiel dus als er iets vreemd gebeurt: blijf kalm en schakel ze terug uit.",
-  "use_experimental_url_bar": "Gebruik experimentele URL-balk met omgevingsmarkering"
+  "use_experimental_url_bar": "Gebruik experimentele URL-balk met omgevingsmarkering",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

@@ -304,5 +304,8 @@
   "account_exists": "Account exists with different credential - Login to link both accounts",
   "confirm": "确认",
   "new_version_found": "检测到新版本，刷新就会自动更新哟。",
-  "size": "大小"
+  "size": "大小",
+  "team_text_owner": "拥有者",
+  "team_text_editor": "编辑",
+  "team_text_viewer": "仅查看"
 }

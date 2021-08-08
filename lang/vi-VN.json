@@ -289,5 +289,8 @@
   "select_delete_method": "Chọn phương thức DELETE",
   "experiments": "Các thử nghiệm",
   "experiments_notice": "Đây là một bộ sưu tập các thử nghiệm mà chúng tôi đang thực hiện có thể hữu ích, thú vị, cả hai hoặc không. Chúng không phải là cuối cùng và có thể không ổn định, vì vậy nếu có điều gì đó quá kỳ lạ xảy ra, đừng hoảng sợ. Chỉ cần tắt thông báo này đi.",
-  "use_experimental_url_bar": "Sử dụng thanh URL thử nghiệm với môi trường đang đánh dấu"
+  "use_experimental_url_bar": "Sử dụng thanh URL thử nghiệm với môi trường đang đánh dấu",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

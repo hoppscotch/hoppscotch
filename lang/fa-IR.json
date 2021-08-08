@@ -87,5 +87,8 @@
   "stop": "Stop",
   "syncHistory": "History",
   "syncCollections": "Collections",
-  "syncEnvironments": "Environments"
+  "syncEnvironments": "Environments",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

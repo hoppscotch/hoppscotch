@@ -76,7 +76,7 @@
                     class="icon button"
                     @click="updateRole(index, 'OWNER')"
                   >
-                    OWNER
+                    {{ $t("team_text_owner") }}
                   </button>
                 </div>
                 <div>
@@ -85,7 +85,7 @@
                     class="icon button"
                     @click="updateRole(index, 'EDITOR')"
                   >
-                    EDITOR
+                    {{ $t("team_text_editor") }}
                   </button>
                 </div>
                 <div>
@@ -94,7 +94,7 @@
                     class="icon button"
                     @click="updateRole(index, 'VIEWER')"
                   >
-                    VIEWER
+                    {{ $t("team_text_viewer") }}
                   </button>
                 </div>
               </template>

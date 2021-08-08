@@ -291,5 +291,8 @@
   "select_delete_method": "Selecionar método DELETE",
   "experiments": "Experimentos",
   "experiments_notice": "Essa é uma coleção de experimentos que estamos trabalhando que pode se tornar útil, divertida, os dois, ou nenhum. Elas não são finais e podem não ser estáveis, então se algo estranho ocorrer, não entre em pânico. Só desligue a droga do experimento. Brincadeiras à parte, ",
-  "use_experimental_url_bar": "Usar barra de URL experimental com destaque de ambiente"
+  "use_experimental_url_bar": "Usar barra de URL experimental com destaque de ambiente",
+  "team_text_owner": "OWNER",
+  "team_text_editor": "EDITOR",
+  "team_text_viewer": "VIEWER"
 }

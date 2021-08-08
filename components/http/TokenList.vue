@@ -1,9 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("manage_token") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
-    </template>
+  <SmartModal v-if="show" :title="$t('manage_token')" @close="hideModal">
     <template #body>
       <div class="flex flex-1">
         <label>{{ $t("token_list") }}</label>

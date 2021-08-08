@@ -1,11 +1,14 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
-      <div class="flex">
+  <SmartModal
+    v-if="show"
+    :title="`${$t('modal.import_export')} ${$t('collections')}`"
+    @close="hideModal"
+  >
+    <template #actions>
+      <span>
         <tippy ref="options" interactive trigger="click" theme="popover" arrow>
           <template #trigger>
-            <TabPrimary
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
               icon="more_vert"
@@ -43,8 +46,7 @@
             "
           />
         </tippy>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      </span>
     </template>
     <template #body>
       <div class="flex flex-col space-y-2">

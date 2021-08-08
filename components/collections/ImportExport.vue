@@ -1,18 +1,21 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("import_export") }} {{ $t("collections") }}</h3>
-      <div class="flex">
-        <ButtonSecondary
-          v-if="mode == 'import_from_my_collections'"
-          v-tippy="{ theme: 'tooltip' }"
-          title="Back"
-          icon="arrow_back"
-          @click.native="
-            mode = 'import_export'
-            mySelectedCollectionID = undefined
-          "
-        />
+  <SmartModal
+    v-if="show"
+    :title="`${$t('modal.import_export')} ${$t('collections')}`"
+    @close="hideModal"
+  >
+    <template #actions>
+      <ButtonSecondary
+        v-if="mode == 'import_from_my_collections'"
+        v-tippy="{ theme: 'tooltip' }"
+        title="Back"
+        icon="arrow_back"
+        @click.native="
+          mode = 'import_export'
+          mySelectedCollectionID = undefined
+        "
+      />
+      <span>
         <tippy
           v-if="
             mode == 'import_export' && collectionsType.type == 'my-collections'
@@ -24,7 +27,7 @@
           arrow
         >
           <template #trigger>
-            <TabPrimary
+            <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
               icon="more_vert"
@@ -62,8 +65,7 @@
             "
           />
         </tippy>
-        <ButtonSecondary icon="close" @click.native="hideModal" />
-      </div>
+      </span>
     </template>
     <template #body>
       <div v-if="mode == 'import_export'" class="flex flex-col space-y-2">

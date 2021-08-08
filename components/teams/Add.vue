@@ -1,9 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("team.new") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
-    </template>
+  <SmartModal v-if="show" :title="$t('team.new')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -46,7 +42,11 @@ export default {
       const name = this.name
       // We clear it early to give the UI a snappy feel
       this.name = ""
-      if (name != null && name.replace(/\s/g, "").length < 6) {
+      if (!name) {
+        this.$toast.info(this.$t("empty.team_name"))
+        return
+      }
+      if (name !== null && name.replace(/\s/g, "").length < 6) {
         this.$toast.error(this.$t("team.name_length_insufficient"), {
           icon: "error",
         })

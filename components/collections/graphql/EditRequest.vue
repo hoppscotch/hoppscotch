@@ -1,9 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("edit_request") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
-    </template>
+  <SmartModal v-if="show" :title="$t('edit_request')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -48,6 +44,10 @@ export default Vue.extend({
   },
   methods: {
     saveRequest() {
+      if (!this.requestUpdateData.name) {
+        this.$toast.info(this.$t("collection.invalid_name").toString())
+        return
+      }
       const requestUpdated = {
         ...this.$props.request,
         name: this.$data.requestUpdateData.name || this.$props.request.name,

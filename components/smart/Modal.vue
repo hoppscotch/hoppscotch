@@ -48,7 +48,15 @@
             "
           >
             <div class="flex pl-2 items-center justify-between">
-              <slot name="header"></slot>
+              <h3 class="heading">{{ title }}</h3>
+              <span class="flex">
+                <slot name="actions"></slot>
+                <ButtonSecondary
+                  v-if="dimissible"
+                  icon="close"
+                  @click.native="close"
+                />
+              </span>
             </div>
             <div
               class="
@@ -96,6 +104,14 @@ export default defineComponent({
     dialog: {
       type: Boolean,
       default: false,
+    },
+    title: {
+      type: String,
+      default: "",
+    },
+    dimissible: {
+      type: Boolean,
+      default: true,
     },
   },
   setup() {

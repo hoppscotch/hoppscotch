@@ -5,7 +5,7 @@
     </div>
     <div class="space-x-2 flex-shrink-0 inline-flex items-center">
       <AppGitHubStarButton class="flex mx-2 mt-1" />
-      <TabPrimary
+      <ButtonSecondary
         id="installPWA"
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('header.install_pwa')"
@@ -33,7 +33,7 @@
               indicator
               :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
             />
-            <TabPrimary
+            <ButtonSecondary
               v-else
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('account')"

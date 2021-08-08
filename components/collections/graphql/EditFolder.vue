@@ -1,9 +1,9 @@
 <template>
-  <SmartModal v-if="show" @close="$emit('hide-modal')">
-    <template #header>
-      <h3 class="heading">{{ $t("folder.edit") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
-    </template>
+  <SmartModal
+    v-if="show"
+    :title="$t('folder.edit')"
+    @close="$emit('hide-modal')"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -44,6 +44,10 @@ export default Vue.extend({
   },
   methods: {
     editFolder() {
+      if (!this.name) {
+        this.$toast.info(this.$t("collection.invalid_name").toString())
+        return
+      }
       editGraphqlFolder(this.folderPath, { ...this.folder, name: this.name })
       this.hideModal()
     },

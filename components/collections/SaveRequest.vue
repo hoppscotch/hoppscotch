@@ -1,9 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="hideModal">
-    <template #header>
-      <h3 class="heading">{{ $t("collection.save_as") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
-    </template>
+  <SmartModal v-if="show" :title="$t('collection.save_as')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <div class="flex relative">

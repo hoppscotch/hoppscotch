@@ -1,9 +1,9 @@
 <template>
-  <SmartModal v-if="show" @close="$emit('hide-modal')">
-    <template #header>
-      <h3 class="heading">{{ $t("folder.edit") }}</h3>
-      <ButtonSecondary icon="close" @click.native="hideModal" />
-    </template>
+  <SmartModal
+    v-if="show"
+    :title="$t('folder.edit')"
+    @close="$emit('hide-modal')"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <input

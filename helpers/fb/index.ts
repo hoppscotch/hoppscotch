@@ -1,4 +1,4 @@
-import firebase from "firebase"
+import firebase from "firebase/app"
 import { initAnalytics } from "./analytics"
 import { initAuth } from "./auth"
 import { initCollections } from "./collections"

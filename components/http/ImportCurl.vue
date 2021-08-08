@@ -9,11 +9,14 @@
         <textarea
           id="import-curl"
           v-model="curl"
-          class="textarea"
+          class="font-mono textarea floating-input"
           autofocus
           rows="8"
-          :placeholder="$t('enter_curl')"
+          placeholder=" "
         ></textarea>
+        <label for="import-curl">
+          {{ $t("enter_curl") }}
+        </label>
       </div>
     </template>
     <template #footer>

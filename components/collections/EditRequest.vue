@@ -43,6 +43,10 @@ export default {
   },
   methods: {
     saveRequest() {
+      if (!this.requestUpdateData.name) {
+        this.$toast.info(this.$t("collection.invalid_name"))
+        return
+      }
       this.$emit("submit", this.requestUpdateData)
       this.hideModal()
     },

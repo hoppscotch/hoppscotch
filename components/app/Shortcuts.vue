@@ -41,7 +41,7 @@
           :key="`map-${mapIndex}`"
           class="space-y-4 py-4 px-6"
         >
-          <h5 class="font-bold text-secondaryDark text-sm">
+          <h5 class="font-bold text-secondaryDark">
             {{ map.section }}
           </h5>
           <div
@@ -84,6 +84,15 @@ export default {
           section: "General",
           shortcuts: [
             {
+              keys: ["?"],
+              label: this.$t("shortcut.show_all"),
+            },
+          ],
+        },
+        {
+          section: "Request",
+          shortcuts: [
+            {
               keys: [getPlatformSpecialKey(), "G"],
               label: this.$t("shortcut.send_request"),
             },
@@ -99,11 +108,6 @@ export default {
               keys: [getPlatformSpecialKey(), "I"],
               label: this.$t("shortcut.reset_request"),
             },
-          ],
-        },
-        {
-          section: "Request",
-          shortcuts: [
             {
               keys: [getPlatformAlternateKey(), "↑"],
               label: this.$t("shortcut.next_method"),

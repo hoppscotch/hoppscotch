@@ -10,7 +10,7 @@
               </label>
               <span
                 class="
-                  bg-accentLight
+                  bg-accentDark
                   rounded
                   font-semibold
                   text-accentContrast

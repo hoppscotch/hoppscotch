@@ -40,6 +40,10 @@ export default {
   },
   methods: {
     addNewCollection() {
+      if (!this.name) {
+        this.$toast.info(this.$t("collection.invalid_name"))
+        return
+      }
       this.$emit("submit", this.name)
       this.hideModal()
     },

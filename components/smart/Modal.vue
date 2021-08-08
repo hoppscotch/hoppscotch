@@ -34,7 +34,6 @@
             class="
               bg-primary
               rounded-lg
-              m-4
               shadow-lg
               text-left
               w-full
@@ -45,12 +44,22 @@
               align-bottom
               overflow-hidden
               sm:max-w-md sm:align-middle
+              md:m-4
             "
           >
             <div class="flex pl-2 items-center justify-between">
               <slot name="header"></slot>
             </div>
-            <div class="flex flex-col my-4">
+            <div
+              class="
+                flex flex-col
+                max-h-md
+                my-4
+                py-2
+                overflow-y-auto
+                hide-scrollbar
+              "
+            >
               <slot name="body"></slot>
             </div>
             <div

@@ -107,14 +107,14 @@ export default defineComponent({
       this.picked = picked
     },
     saveRequestAs() {
-      if (this.picked == null) {
-        this.$toast.error(this.$t("collection.select"), {
+      if (!this.requestName) {
+        this.$toast.error(this.$t("empty_req_name"), {
           icon: "error",
         })
         return
       }
-      if (this.$data.requestData.name.length === 0) {
-        this.$toast.error(this.$t("empty_req_name"), {
+      if (this.picked == null) {
+        this.$toast.error(this.$t("collection.select"), {
           icon: "error",
         })
         return

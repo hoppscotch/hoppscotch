@@ -18,7 +18,7 @@
           <div v-else class="space-y-8">
             <section>
               <h4 class="font-bold text-secondaryDark">User</h4>
-              <div class="space-y-4 mt-4">
+              <div class="space-y-4 py-4">
                 <div class="flex items-start">
                   <div class="flex items-center">
                     <img
@@ -58,7 +58,7 @@
               <div class="mt-1 text-secondaryLight">
                 These settings are synced to cloud.
               </div>
-              <div class="space-y-4 mt-4">
+              <div class="space-y-4 py-4">
                 <div class="flex items-center">
                   <SmartToggle
                     :on="SYNC_COLLECTIONS"
@@ -163,7 +163,7 @@
                 {{ $t("contact_us") }} </SmartLink
               >.
             </div>
-            <div class="space-y-4 mt-4">
+            <div class="space-y-4 py-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="EXPERIMENTAL_URL_BAR_ENABLED"
@@ -256,7 +256,7 @@
                 />
               </span>
             </div>
-            <div class="space-y-4 mt-4">
+            <div class="space-y-4 py-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="EXTENSIONS_ENABLED"
@@ -281,33 +281,37 @@
                 {{ $t("proxy_privacy_policy") }} </SmartLink
               >.
             </div>
-            <div class="space-y-4 mt-4">
-              <div class="flex space-x-2 items-center">
+            <div class="space-y-4 py-4">
+              <div class="flex items-center">
                 <SmartToggle
                   :on="PROXY_ENABLED"
                   @change="toggleSetting('PROXY_ENABLED')"
-                />
-                <div class="flex flex-1 items-center relative">
-                  <input
-                    id="url"
-                    v-model="PROXY_URL"
-                    class="input floating-input"
-                    placeholder=" "
-                    type="url"
-                    :disabled="!PROXY_ENABLED"
-                  />
-                  <label for="url">
-                    {{ `${$t("proxy")} ${$t("url")}` }}
-                  </label>
-                </div>
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="$t('reset_default')"
-                  :icon="clearIcon"
-                  outline
-                  @click.native="resetProxy"
-                />
+                >
+                  {{ $t("proxy_use_toggle") }}
+                </SmartToggle>
               </div>
+            </div>
+            <div class="flex space-x-2 py-4 items-center">
+              <div class="flex flex-1 items-center relative">
+                <input
+                  id="url"
+                  v-model="PROXY_URL"
+                  class="input floating-input"
+                  placeholder=" "
+                  type="url"
+                  :disabled="!PROXY_ENABLED"
+                />
+                <label for="url">
+                  {{ `${$t("proxy")} ${$t("url")}` }}
+                </label>
+              </div>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('reset_default')"
+                :icon="clearIcon"
+                outline
+                @click.native="resetProxy"
+              />
             </div>
           </section>
         </div>

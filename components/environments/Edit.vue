@@ -6,17 +6,19 @@
     </template>
     <template #body>
       <div class="flex flex-col px-2">
-        <input
-          id="selectLabelEnvEdit"
-          v-model="name"
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          @keyup.enter="saveEnvironment"
-        />
-        <label for="selectLabelEnvEdit">
-          {{ $t("label") }}
-        </label>
+        <div class="flex relative">
+          <input
+            id="selectLabelEnvEdit"
+            v-model="name"
+            class="input floating-input"
+            placeholder=" "
+            type="text"
+            @keyup.enter="saveEnvironment"
+          />
+          <label for="selectLabelEnvEdit">
+            {{ $t("label") }}
+          </label>
+        </div>
         <div class="flex flex-1 justify-between items-center">
           <label for="variableList" class="font-semibold px-4 pt-4 pb-4">
             {{ $t("env_variable_list") }}
@@ -26,7 +28,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
               :icon="clearIcon"
-              @click.native="clearContent($event)"
+              @click.native="clearContent()"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"

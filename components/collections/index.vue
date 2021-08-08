@@ -21,8 +21,8 @@
             py-2
             pr-2
             pl-9
-            focus:outline-none
             truncate
+            focus:outline-none
           "
         />
       </div>
@@ -312,10 +312,6 @@ export default {
     },
     // Intented to be called by the CollectionAdd modal submit event
     addNewRootCollection(name) {
-      if (!name) {
-        this.$toast.info(this.$t("collection.invalid_name"))
-        return
-      }
       if (this.collectionsType.type === "my-collections") {
         addRESTCollection({
           name,

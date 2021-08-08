@@ -383,6 +383,7 @@
   "enter_curl": "Enter cURL",
   "extensions": "Extensions",
   "extensions_use_toggle": "Use the browser extension to send requests (if present)",
+  "proxy_use_toggle": "Use the proxy middleware to send requests",
   "extension_version": "Extension Version",
   "extension_ver_not_reported": "Not Reported",
   "extensions_info1": "Browser extension simplifies access to Hoppscotch, fix CORS issues, etc.",

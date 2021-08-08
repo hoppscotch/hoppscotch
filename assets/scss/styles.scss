@@ -206,15 +206,17 @@ button {
   @apply rounded;
   @apply transition;
   @apply absolute;
+  @apply origin-top-left;
 }
 
 .floating-input:focus-within ~ label,
 .floating-input:not(:placeholder-shown) ~ label {
   @apply bg-primary;
   @apply transform;
-  @apply origin-center;
+  @apply origin-top-left;
   @apply scale-75;
-  @apply -translate-y-6;
+  @apply -translate-y-5;
+  @apply translate-x-1;
 }
 
 .floating-input:focus-within ~ label {

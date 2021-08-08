@@ -28,7 +28,7 @@
                 focus:border-accent focus:outline-none
               "
               :value="newMethod"
-              :readonly="isCustomMethod()"
+              :readonly="!isCustomMethod"
               @input="onSelectMethod($event.target.value)"
             />
           </template>
@@ -205,6 +205,7 @@
 
 <script lang="ts">
 import {
+  computed,
   defineComponent,
   ref,
   useContext,
@@ -383,11 +384,9 @@ export default defineComponent({
     defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
     defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
-    const isCustomMethod = () => {
-      if (newMethod.value === "CUSTOM" || !methods.includes(newMethod.value))
-        return false
-      return true
-    }
+    const isCustomMethod = computed(() => {
+      return newMethod.value === "CUSTOM" || !methods.includes(newMethod.value)
+    })
 
     return {
       newEndpoint,

@@ -402,6 +402,7 @@ export default defineComponent({
       showSaveRequestModal,
       hasNavigatorShare,
       updateMethod,
+      cancelRequest,
       clearContent,
       copyRequest,
       onSelectMethod,

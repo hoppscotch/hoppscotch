@@ -138,7 +138,7 @@ export default {
     // https://github.com/nuxt-community/modules/tree/master/packages/toast
     "@nuxtjs/toast",
     // https://github.com/nuxt-community/i18n-module
-    "nuxt-i18n",
+    "@nuxtjs/i18n",
     // https://github.com/nuxt-community/robots-module
     "@nuxtjs/robots",
     // https://github.com/nuxt-community/sitemap-module

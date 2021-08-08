@@ -13,7 +13,7 @@
         justify-between
       "
     >
-      <label for="reqParamList" class="font-semibold">
+      <label class="font-semibold">
         {{ $t("request_body") }}
       </label>
       <div class="flex">
@@ -21,7 +21,13 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
           icon="clear_all"
-          @click.native="clearContent('bodyParams', $event)"
+          @click.native="clearContent"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('add.new')"
+          icon="add"
+          @click.native="addBodyParam"
         />
       </div>
     </div>
@@ -31,7 +37,29 @@
       class="divide-x divide-dividerLight border-b border-dividerLight flex"
       :class="{ 'border-t': index == 0 }"
     >
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+        v-model="param.key"
+        :placeholder="$t('count.parameter', { count: index + 1 })"
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
+        @change="
+          updateBodyParam(index, {
+            key: $event.target.value,
+            value: param.value,
+            active: param.active,
+          })
+        "
+      />
       <input
+        v-else
         class="
           bg-primaryLight
           flex
@@ -45,11 +73,37 @@
         :name="'param' + index"
         :value="param.key"
         autofocus
-        @change="updateBodyParams($event, index, `setKeyBodyParams`)"
-        @keyup.prevent="setRouteQueryState"
+        @change="
+          updateBodyParam(index, {
+            key: $event.target.value,
+            value: param.value,
+            active: param.active,
+          })
+        "
+      />
+      <SmartEnvInput
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED && !requestBodyParamIsFile(index)"
+        v-model="param.value"
+        :placeholder="$t('count.value', { count: index + 1 })"
+        styles="
+          bg-primaryLight
+          flex
+          font-semibold font-mono
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
+        @change="
+          updateBodyParam(index, {
+            key: param.key,
+            value: $event.target.value,
+            active: param.active,
+          })
+        "
       />
       <input
-        v-if="!requestBodyParamIsFile(index)"
+        v-if="!EXPERIMENTAL_URL_BAR_ENABLED && !requestBodyParamIsFile(index)"
         class="
           bg-primaryLight
           flex
@@ -63,11 +117,12 @@
         :name="'value' + index"
         :value="param.value"
         @change="
-          // if input is form data, set value to be an array containing the value
-          // only
-          updateBodyParams($event, index, `setValueBodyParams`)
+          updateBodyParam(index, {
+            key: param.key,
+            value: $event.target.value,
+            active: param.active,
+          })
         "
-        @keyup.prevent="setRouteQueryState"
       />
       <div v-else class="file-chips-container">
         <div class="file-chips-wrapper">
@@ -80,27 +135,31 @@
           </SmartDeletableChip>
         </div>
       </div>
-      <div>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
-            param.hasOwnProperty('active')
-              ? param.active
-                ? $t('action.turn_off')
-                : $t('action.turn_on')
-              : $t('action.turn_off')
-          "
-          :icon="
-            param.hasOwnProperty('active')
-              ? param.active
-                ? 'check_box'
-                : 'check_box_outline_blank'
-              : 'check_box'
-          "
-          color="green"
-          @click.native="toggleActive(index, param)"
-        />
-      </div>
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="
+          param.hasOwnProperty('active')
+            ? param.active
+              ? $t('action.turn_off')
+              : $t('action.turn_on')
+            : $t('action.turn_off')
+        "
+        :icon="
+          param.hasOwnProperty('active')
+            ? param.active
+              ? 'check_box'
+              : 'check_box_outline_blank'
+            : 'check_box'
+        "
+        color="green"
+        @click.native="
+          updateBodyParam(index, {
+            key: param.key,
+            value: param.value,
+            active: param.hasOwnProperty('active') ? !param.active : false,
+          })
+        "
+      />
       <div>
         <label for="attachment" class="p-0">
           <ButtonSecondary
@@ -118,15 +177,27 @@
           @change="setRequestAttachment($event, index)"
         />
       </div>
-      <div>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('delete')"
-          icon="delete"
-          color="red"
-          @click.native="removeRequestBodyParam(index)"
-        />
-      </div>
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="$t('delete')"
+        icon="delete"
+        color="red"
+        @click.native="deleteBodyParam(index)"
+      />
+    </div>
+    <div
+      v-if="bodyParams.length === 0"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <i class="opacity-75 pb-2 material-icons">post_add</i>
+      <span class="text-center pb-4">
+        {{ $t("empty.parameters") }}
+      </span>
+      <ButtonSecondary
+        :label="$t('add.new')"
+        outline
+        @click.native="addBodyParam"
+      />
     </div>
   </AppSection>
 </template>
@@ -145,10 +216,11 @@ export default {
     bodyParams: {
       handler(newValue) {
         if (
-          newValue[newValue.length - 1]?.key !== "" ||
-          newValue[newValue.length - 1]?.value !== ""
+          (newValue[newValue.length - 1]?.key !== "" ||
+            newValue[newValue.length - 1]?.value !== "") &&
+          newValue.length
         )
-          this.addRequestBodyParam()
+          this.addBodyParam()
       },
       deep: true,
     },
@@ -159,11 +231,8 @@ export default {
     }
   },
   methods: {
-    clearContent(bodyParams, $event) {
-      this.$emit("clear-content", bodyParams, $event)
-    },
-    setRouteQueryState() {
-      this.$emit("set-route-query-state")
+    clearContent() {
+      this.$emit("clear-content")
     },
     removeRequestBodyParam(index) {
       const paramArr = this.$store.state.request.bodyParams.filter(

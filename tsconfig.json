@@ -17,7 +17,7 @@
     "types": [
       "@types/node",
       "@nuxt/types",
-      "nuxt-i18n",
+      "@nuxtjs/i18n",
       "@nuxtjs/toast",
       "vue-rx"
     ]

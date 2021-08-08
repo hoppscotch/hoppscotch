@@ -165,6 +165,7 @@
             name="request-name"
             type="text"
             class="mb-2 input"
+            @keyup.enter="saveOptions.tippy().hide()"
           />
           <SmartItem
             ref="copyRequest"

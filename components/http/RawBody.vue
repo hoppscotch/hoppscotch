@@ -5,8 +5,8 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
-        pl-4
         top-upperSecondaryStickyFold
+        pl-4
         z-10
         sticky
         items-center
@@ -53,8 +53,8 @@
         v-model="rawParamsBody"
         :lang="rawInputEditorLang"
         :options="{
-          maxLines: 16,
-          minLines: 8,
+          maxLines: Infinity,
+          minLines: 16,
           fontSize: '12px',
           autoScrollEditorIntoView: true,
           showPrintMargin: false,

@@ -9,6 +9,7 @@
             class="input floating-input"
             placeholder=" "
             type="text"
+            @keyup.enter="saveRequestAs"
           />
           <label for="selectLabelSaveReq">
             {{ $t("request.name") }}

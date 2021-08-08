@@ -12,6 +12,7 @@
           class="input floating-input"
           placeholder=" "
           type="text"
+          @keyup.enter="editFolder"
         />
         <label for="selectLabelGqlEditFolder">
           {{ $t("label") }}

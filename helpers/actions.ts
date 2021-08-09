@@ -17,6 +17,8 @@ export type HoppAction =
   | "request.method.put" // Select PUT Method
   | "request.method.delete" // Select DELETE Method
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
+  | "modals.support.toggle" // Shows the support modal
+  | "modals.share.toggle" // Shows the share modal
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

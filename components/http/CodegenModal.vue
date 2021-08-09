@@ -41,6 +41,7 @@
                 :key="`gen-${index}`"
                 :label="gen.name"
                 :info-icon="gen.id === codegenType ? 'done' : ''"
+                :active-info-icon="gen.id === codegenType"
                 @click.native="
                   codegenType = gen.id
                   $refs.options.tippy().hide()

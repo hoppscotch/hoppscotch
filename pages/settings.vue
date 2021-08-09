@@ -242,6 +242,7 @@
                   svg="firefox"
                   label="Firefox"
                   :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
+                  :active-info-icon="hasFirefoxExtInstalled"
                   outline
                 />
               </span>
@@ -252,6 +253,7 @@
                   svg="chrome"
                   label="Chrome"
                   :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
+                  :active-info-icon="hasChromeExtInstalled"
                   outline
                 />
               </span>

@@ -98,6 +98,7 @@ export default {
     "~/plugins/vuex-persist",
     "~/plugins/vue-rx",
     "~/plugins/vue-apollo",
+    "~/plugins/crisp",
     { src: "~/plugins/web-worker", ssr: false },
   ],
 

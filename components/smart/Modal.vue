@@ -162,6 +162,7 @@ export default defineComponent({
       }
     },
     onTransitionLeaveStart() {
+      this.close()
       this.shouldCleanupDomOnUnmount = false
     },
     $getPortal() {

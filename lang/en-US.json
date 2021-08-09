@@ -64,17 +64,33 @@
     "more": "Hide more",
     "preview": "Hide Preview"
   },
+  "support": {
+    "title": "Support",
+    "documentation": "Read more about Hoppscotch",
+    "changelog": "Read more about latest releases",
+    "twitter": "Follow us on Twitter",
+    "chat": "Questions? Chat with us!",
+    "forum": "Ask questions and get answers",
+    "team": "Get in touch with the team",
+    "shortcuts": "Become more efficient"
+  },
   "app": {
     "name": "Hoppscotch",
     "version": "v2.0",
     "documentation": "Documentation",
     "whats_new": "What's new?",
+    "chat_with_us": "Chat with us",
     "keyboard_shortcuts": "Keyboard shortcuts",
     "new_version_found": "New version found. Refresh to update.",
     "twitter": "Twitter",
     "terms_and_privacy": "Terms and privacy",
     "status": "Status",
-    "help": "Help, feedback and</br>documentation"
+    "help": "Help, feedback and</br>documentation",
+    "invite": "Invite",
+    "invite_your_friends": "Invite your friends",
+    "invite_description": "In Hoppscotch, we designed a simple and intuitive interface for creating and managing your APIs. Hoppscotch is a tool that helps you build, test, document and share your APIs.",
+    "share": "Share",
+    "copy": "Copy"
   },
   "collection": {
     "save_as": "Save as",
@@ -189,7 +205,12 @@
     "results": "Results"
   },
   "shortcut": {
-    "show_all": "Show all Shortcuts",
+    "general": {
+      "help_menu": "Help menu",
+      "show_all": "Keyboard shortcuts",
+      "command_menu": "Command menu",
+      "close_current_menu": "Close current menu"
+    },
     "send_request": "Send Request",
     "save_to_collections": "Save to Collections",
     "copy_request_link": "Copy Request Link",

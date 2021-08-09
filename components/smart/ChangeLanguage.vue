@@ -14,7 +14,7 @@
             }`"
           />
         </template>
-        <nuxt-link
+        <NuxtLink
           v-for="(locale, index) in $i18n.locales.filter(
             ({ code }) => code !== $i18n.locale
           )"
@@ -23,7 +23,7 @@
           @click="$refs.language.tippy().hide()"
         >
           <SmartItem :label="locale.name" />
-        </nuxt-link>
+        </NuxtLink>
       </tippy>
     </span>
   </span>

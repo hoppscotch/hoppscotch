@@ -18,7 +18,7 @@
             {{ $t("shortcut.reset_request") }}
           </span>
           <span class="flex flex-1 items-center">
-            {{ $t("shortcut.show_all") }}
+            {{ $t("shortcut.general.show_all") }}
           </span>
         </div>
         <div class="flex flex-col space-y-4">

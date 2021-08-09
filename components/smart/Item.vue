@@ -30,10 +30,17 @@
     :disabled="disabled"
     :tabindex="loading ? '-1' : '0'"
   >
-    <span v-if="!loading" class="inline-flex items-center">
+    <span
+      v-if="!loading"
+      class="inline-flex items-center"
+      :class="{ 'self-start': infoIcon }"
+    >
       <i
         v-if="icon"
-        :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
+        :class="[
+          label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : '',
+          { 'text-accent': active },
+        ]"
         class="material-icons"
       >
         {{ icon }}
@@ -41,7 +48,10 @@
       <SmartIcon
         v-if="svg"
         :name="svg"
-        :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
+        :class="[
+          label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : '',
+          { 'text-accent': active },
+        ]"
         class="svg-icons"
       />
     </span>
@@ -57,7 +67,11 @@
         {{ description }}
       </p>
     </div>
-    <i v-if="infoIcon" class="text-accent ml-6 self-end material-icons">
+    <i
+      v-if="infoIcon"
+      class="ml-6 self-center material-icons items-center"
+      :class="{ 'text-accent': activeInfoIcon }"
+    >
       {{ infoIcon }}
     </i>
   </SmartLink>
@@ -107,6 +121,14 @@ export default {
       default: false,
     },
     outline: {
+      type: Boolean,
+      default: false,
+    },
+    active: {
+      type: Boolean,
+      default: false,
+    },
+    activeInfoIcon: {
       type: Boolean,
       default: false,
     },

@@ -93,6 +93,7 @@
         id="send"
         class="rounded-none min-w-20"
         :label="!loading ? $t('send') : $t('cancel')"
+        :shortcut="[getSpecialKey(), 'G']"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="inline-flex">

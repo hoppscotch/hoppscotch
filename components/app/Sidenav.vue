@@ -1,7 +1,7 @@
 <template>
-  <aside>
+  <aside class="flex h-full justify-between md:flex-col">
     <nav class="flex flex-nowrap md:flex-col">
-      <nuxt-link
+      <NuxtLink
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"
         :to="localePath(navigation.target)"
@@ -14,13 +14,58 @@
           <SmartIcon :name="navigation.svg" class="svg-icons" />
         </div>
         <span>{{ navigation.title }}</span>
-      </nuxt-link>
+      </NuxtLink>
     </nav>
+    <nav
+      class="
+        flex flex-nowrap
+        p-4
+        items-center
+        justify-center
+        md:(flex-col
+        space-x-0 space-y-2)
+      "
+    >
+      <TabPrimary
+        v-tippy="{ theme: 'tooltip', placement: 'top' }"
+        :title="$t('app.invite')"
+        icon="person_add_alt"
+        @click.native="showShare = true"
+      />
+      <TabPrimary
+        v-tippy="{ theme: 'tooltip', placement: 'top' }"
+        :title="`${$t('support.title')} <kbd>?</kbd>`"
+        icon="support"
+        @click.native="showSupport = true"
+      />
+    </nav>
+    <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
+    <AppShare :show="showShare" @hide-modal="showShare = false" />
   </aside>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
+import { defineActionHandler } from "~/helpers/actions"
+
+export default defineComponent({
+  setup() {
+    const showSupport = ref(false)
+    const showShare = ref(false)
+
+    defineActionHandler("modals.support.toggle", () => {
+      showSupport.value = !showSupport.value
+    })
+
+    defineActionHandler("modals.share.toggle", () => {
+      showShare.value = !showShare.value
+    })
+
+    return {
+      showSupport,
+      showShare,
+    }
+  },
   data() {
     return {
       primaryNavigation: [
@@ -52,7 +97,7 @@ export default {
       ],
     }
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

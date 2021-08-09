@@ -111,16 +111,14 @@ a {
     @apply py-1 px-2;
     @apply shadow;
 
-    font-size: var(--body-font-size);
+    font-size: 88%;
     line-height: var(--body-line-height);
 
     kbd {
-      @apply first:ml-2;
-      @apply last:-mr-1;
       @apply font-sans;
       @apply bg-secondaryDark;
       @apply text-primaryDark;
-      @apply rounded;
+      @apply rounded-sm;
       @apply px-1;
       @apply ml-1;
     }

@@ -58,6 +58,13 @@
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
+              <SmartItem
+                :label="$t('app.chat_with_us')"
+                @click.native="
+                  chatWithUs()
+                  $refs.options.tippy().hide()
+                "
+              />
               <hr />
               <SmartItem
                 :label="$t('app.twitter')"
@@ -109,6 +116,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { defineActionHandler } from "~/helpers/actions"
+import { showChat } from "~/helpers/support"
 import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
@@ -148,6 +156,9 @@ export default defineComponent({
       } else {
         // fallback
       }
+    },
+    chatWithUs() {
+      showChat()
     },
   },
 })

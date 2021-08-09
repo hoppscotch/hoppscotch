@@ -20,6 +20,7 @@
           :key="`contentTypeItem-${index}`"
           :label="contentTypeItem"
           :info-icon="contentTypeItem === contentType ? 'done' : ''"
+          :active-info-icon="contentTypeItem === contentType"
           @click.native="
             contentType = contentTypeItem
             $refs.contentTypeOptions.tippy().hide()

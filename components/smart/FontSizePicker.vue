@@ -17,6 +17,7 @@
           :key="`size-${index}`"
           :label="size.name"
           :info-icon="size.code === active.code ? 'done' : ''"
+          :active-info-icon="size.code === active.code"
           @click.native="
             setActiveFont(size)
             $refs.fontSize.tippy().hide()

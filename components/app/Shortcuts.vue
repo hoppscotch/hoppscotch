@@ -86,7 +86,19 @@ export default {
           shortcuts: [
             {
               keys: ["?"],
-              label: this.$t("shortcut.show_all"),
+              label: this.$t("shortcut.general.help_menu"),
+            },
+            {
+              keys: ["/"],
+              label: this.$t("shortcut.general.show_all"),
+            },
+            {
+              keys: [getPlatformSpecialKey(), "K"],
+              label: this.$t("shortcut.general.command_menu"),
+            },
+            {
+              keys: ["Esc"],
+              label: this.$t("shortcut.general.close_current_menu"),
             },
           ],
         },

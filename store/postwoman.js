@@ -1,52 +1,6 @@
 import Vue from "vue"
 
-export const SETTINGS_KEYS = [
-  /**
-   * Whether or not to enable scrolling to a specified element, when certain
-   * actions are triggered.
-   */
-  "SCROLL_INTO_ENABLED",
-
-  /**
-   * Whether or not requests should be proxied.
-   */
-  "PROXY_ENABLED",
-
-  /**
-   * The URL of the proxy to connect to for requests.
-   */
-  "PROXY_URL",
-
-  /**
-   * The security key of the proxy.
-   */
-  "PROXY_KEY",
-
-  /**
-   * An array of properties to exclude from the URL.
-   * e.g. 'auth'
-   */
-  "URL_EXCLUDES",
-
-  /**
-   * A boolean value indicating whether to use the browser extensions
-   * to run the requests
-   */
-  "EXTENSIONS_ENABLED",
-
-  /**
-   * A boolean value indicating whether Telemetry is enabled.
-   */
-  "TELEMETRY_ENABLED",
-
-  /**
-   * A boolean value indicating whether to use the URL bar experiments
-   */
-  "EXPERIMENTAL_URL_BAR_ENABLED",
-]
-
 export const state = () => ({
-  settings: {},
   editingEnvironment: {},
   selectedRequest: {},
   selectedGraphqlRequest: {},
@@ -54,29 +8,6 @@ export const state = () => ({
 })
 
 export const mutations = {
-  applySetting({ settings }, setting) {
-    if (
-      setting === null ||
-      !(setting instanceof Array) ||
-      setting.length !== 2
-    ) {
-      throw new Error(
-        "You must provide a setting (array in the form [key, value])"
-      )
-    }
-
-    const [key, value] = setting
-    // Do not just remove this check.
-    // Add your settings key to the SETTINGS_KEYS array at the
-    // top of the file.
-    // This is to ensure that application settings remain documented.
-    if (!SETTINGS_KEYS.includes(key)) {
-      throw new Error(`The settings structure does not include the key ${key}`)
-    }
-
-    settings[key] = value
-  },
-
   removeVariables({ editingEnvironment }, value) {
     editingEnvironment.variables = value
   },

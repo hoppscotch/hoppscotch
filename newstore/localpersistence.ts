@@ -2,7 +2,7 @@
 
 import clone from "lodash/clone"
 import assign from "lodash/assign"
-import eq from "lodash/eq"
+import isEmpty from "lodash/isEmpty"
 import {
   settingsStore,
   bulkApplySettings,
@@ -27,39 +27,46 @@ import { replaceEnvironments, environments$ } from "./environments"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
-  if (eq(vuexData, {})) return
+  if (isEmpty(vuexData)) return
 
-  if (vuexData.postwoman && vuexData.postwoman.settings) {
-    const settingsData = clone(defaultSettings)
-    assign(settingsData, vuexData.postwoman.settings)
+  const { postwoman } = vuexData
+
+  if (!isEmpty(postwoman?.settings)) {
+    const settingsData = assign(clone(defaultSettings), postwoman.settings)
 
     window.localStorage.setItem("settings", JSON.stringify(settingsData))
 
-    delete vuexData.postwoman.settings
+    delete postwoman.settings
     window.localStorage.setItem("vuex", JSON.stringify(vuexData))
   }
 
-  if (vuexData.postwoman && vuexData.postwoman.collections) {
-    const restColls = vuexData.postwoman.collections
-    window.localStorage.setItem("collections", JSON.stringify(restColls))
+  if (postwoman?.collections) {
+    window.localStorage.setItem(
+      "collections",
+      JSON.stringify(postwoman.collections)
+    )
 
-    delete vuexData.postwoman.collections
+    delete postwoman.collections
     window.localStorage.setItem("vuex", JSON.stringify(vuexData))
   }
 
-  if (vuexData.postwoman && vuexData.postwoman.collectionsGraphql) {
-    const gqlColls = vuexData.postwoman.collectionsGraphql
-    window.localStorage.setItem("collectionsGraphql", JSON.stringify(gqlColls))
+  if (postwoman?.collectionsGraphql) {
+    window.localStorage.setItem(
+      "collectionsGraphql",
+      JSON.stringify(postwoman.collectionsGraphql)
+    )
 
-    delete vuexData.postwoman.collectionsGraphql
+    delete postwoman.collectionsGraphql
     window.localStorage.setItem("vuex", JSON.stringify(vuexData))
   }
 
-  if (vuexData.postwoman && vuexData.postwoman.environments) {
-    const envs = vuexData.postwoman.environments
-    window.localStorage.setItem("environments", JSON.stringify(envs))
+  if (postwoman?.environments) {
+    window.localStorage.setItem(
+      "environments",
+      JSON.stringify(postwoman.environments)
+    )
 
-    delete vuexData.postwoman.environments
+    delete postwoman.environments
     window.localStorage.setItem("vuex", JSON.stringify(vuexData))
   }
 

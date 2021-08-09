@@ -32,7 +32,7 @@
     "ace-builds": "^1.4.12",
     "acorn": "^8.4.1",
     "acorn-walk": "^8.1.1",
-    "core-js": "^3.16.0",
+    "core-js": "^3.16.1",
     "esprima": "^4.0.1",
     "firebase": "^8.9.0",
     "graphql": "^15.5.1",

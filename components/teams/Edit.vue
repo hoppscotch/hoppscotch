@@ -51,7 +51,7 @@
             />
             <span class="select-wrapper">
               <tippy
-                ref="memberOptions"
+                :ref="`memberOptions-${index}`"
                 interactive
                 trigger="click"
                 theme="popover"
@@ -80,24 +80,15 @@
                 </template>
                 <SmartItem
                   label="OWNER"
-                  @click.native="
-                    $refs.memberOptions.tippy().hide()
-                    updateMemberRole(index, 'OWNER')
-                  "
+                  @click.native="updateMemberRole(index, 'OWNER')"
                 />
                 <SmartItem
                   label="EDITOR"
-                  @click.native="
-                    $refs.memberOptions.tippy().hide()
-                    updateMemberRole(index, 'EDITOR')
-                  "
+                  @click.native="updateMemberRole(index, 'EDITOR')"
                 />
                 <SmartItem
                   label="VIEWER"
-                  @click.native="
-                    $refs.memberOptions.tippy().hide()
-                    updateMemberRole(index, 'VIEWER')
-                  "
+                  @click.native="updateMemberRole(index, 'VIEWER')"
                 />
               </tippy>
             </span>
@@ -136,7 +127,7 @@
             />
             <span class="select-wrapper">
               <tippy
-                ref="newMemberOptions"
+                :ref="`newMemberOptions-${index}`"
                 interactive
                 trigger="click"
                 theme="popover"
@@ -165,24 +156,15 @@
                 </template>
                 <SmartItem
                   label="OWNER"
-                  @click.native="
-                    $refs.newMemberOptions.tippy().hide()
-                    updateNewMemberRole(index, 'OWNER')
-                  "
+                  @click.native="updateNewMemberRole(index, 'OWNER')"
                 />
                 <SmartItem
                   label="EDITOR"
-                  @click.native="
-                    $refs.newMemberOptions.tippy().hide()
-                    updateNewMemberRole(index, 'EDITOR')
-                  "
+                  @click.native="updateNewMemberRole(index, 'EDITOR')"
                 />
                 <SmartItem
                   label="VIEWER"
-                  @click.native="
-                    $refs.newMemberOptions.tippy().hide()
-                    updateNewMemberRole(index, 'VIEWER')
-                  "
+                  @click.native="updateNewMemberRole(index, 'VIEWER')"
                 />
               </tippy>
             </span>
@@ -253,9 +235,11 @@ export default defineComponent({
   methods: {
     updateMemberRole(id, role) {
       this.members[id].role = role
+      this.$refs[`memberOptions-${id}`][0].tippy().hide()
     },
     updateNewMemberRole(id, role) {
       this.newMembers[id].value = role
+      this.$refs[`newMemberOptions-${id}`][0].tippy().hide()
     },
     addTeamMember() {
       const member = { key: "", value: "" }

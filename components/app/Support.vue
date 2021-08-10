@@ -5,7 +5,7 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col space-y-2 px-2">
+      <div class="flex flex-col space-y-2">
         <SmartItem
           icon="menu_book"
           :label="$t('app.documentation')"
@@ -47,6 +47,16 @@
             chatWithUs()
             hideModal()
           "
+        />
+        <SmartItem
+          svg="discord"
+          :label="$t('app.join_discord_community')"
+          to="https://hoppscotch.io/discord"
+          blank
+          :description="$t('support.community')"
+          info-icon="chevron_right"
+          active
+          @click.native="hideModal()"
         />
         <SmartItem
           svg="twitter"

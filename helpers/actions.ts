@@ -17,8 +17,14 @@ export type HoppAction =
   | "request.method.put" // Select PUT Method
   | "request.method.delete" // Select DELETE Method
   | "flyouts.keybinds.toggle" // Shows the keybinds flyout
+  | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
+  | "navigation.rest.jump" // Jump to REST page
+  | "navigation.graphql.jump" // Jump to GraphQL page
+  | "navigation.realtime.jump" // Jump to realtime page
+  | "navigation.documentation.jump" // Jump to documentation page
+  | "navigation.settings.jump" // Jump to settings page
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

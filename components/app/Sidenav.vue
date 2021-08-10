@@ -26,19 +26,26 @@
         space-x-0 space-y-2)
       "
     >
-      <TabPrimary
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip', placement: 'top' }"
+        :title="`${$t('app.search')} <kbd>/</kbd>`"
+        icon="search"
+        @click.native="showSearch = true"
+      />
+      <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="$t('app.invite')"
         icon="person_add_alt"
         @click.native="showShare = true"
       />
-      <TabPrimary
+      <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="`${$t('support.title')} <kbd>?</kbd>`"
         icon="support"
         @click.native="showSupport = true"
       />
     </nav>
+    <AppSearch :show="showSearch" @hide-modal="showSearch = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
     <AppShare :show="showShare" @hide-modal="showShare = false" />
   </aside>
@@ -50,8 +57,13 @@ import { defineActionHandler } from "~/helpers/actions"
 
 export default defineComponent({
   setup() {
+    const showSearch = ref(false)
     const showSupport = ref(false)
     const showShare = ref(false)
+
+    defineActionHandler("modals.search.toggle", () => {
+      showSearch.value = !showSearch.value
+    })
 
     defineActionHandler("modals.support.toggle", () => {
       showSupport.value = !showSupport.value
@@ -62,6 +74,7 @@ export default defineComponent({
     })
 
     return {
+      showSearch,
       showSupport,
       showShare,
     }

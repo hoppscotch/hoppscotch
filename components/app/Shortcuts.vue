@@ -16,7 +16,6 @@
       >
         <h3 class="ml-4 heading">{{ $t("shortcuts") }}</h3>
         <div class="flex">
-          <ButtonSecondary to="/settings" icon="tune" />
           <ButtonSecondary icon="close" @click.native="close()" />
         </div>
       </div>
@@ -50,8 +49,8 @@
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
             class="flex items-center"
           >
-            <span class="flex flex-1 text-secondaryLight mr-4">
-              {{ shortcut.label }}
+            <span class="flex flex-1 mr-4">
+              {{ $t(shortcut.label) }}
             </span>
             <span
               v-for="(key, keyIndex) in shortcut.keys"
@@ -68,10 +67,7 @@
 </template>
 
 <script>
-import {
-  getPlatformSpecialKey,
-  getPlatformAlternateKey,
-} from "~/helpers/platformutils"
+import shortcuts from "~/helpers/shortcuts"
 
 export default {
   props: {
@@ -80,78 +76,7 @@ export default {
   data() {
     return {
       filterText: "",
-      mappings: [
-        {
-          section: "General",
-          shortcuts: [
-            {
-              keys: ["?"],
-              label: this.$t("shortcut.general.help_menu"),
-            },
-            {
-              keys: ["/"],
-              label: this.$t("shortcut.general.show_all"),
-            },
-            {
-              keys: [getPlatformSpecialKey(), "K"],
-              label: this.$t("shortcut.general.command_menu"),
-            },
-            {
-              keys: ["Esc"],
-              label: this.$t("shortcut.general.close_current_menu"),
-            },
-          ],
-        },
-        {
-          section: "Request",
-          shortcuts: [
-            {
-              keys: [getPlatformSpecialKey(), "G"],
-              label: this.$t("shortcut.send_request"),
-            },
-            {
-              keys: [getPlatformSpecialKey(), "S"],
-              label: this.$t("shortcut.save_to_collections"),
-            },
-            {
-              keys: [getPlatformSpecialKey(), "K"],
-              label: this.$t("shortcut.copy_request_link"),
-            },
-            {
-              keys: [getPlatformSpecialKey(), "I"],
-              label: this.$t("shortcut.reset_request"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "↑"],
-              label: this.$t("shortcut.next_method"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "↓"],
-              label: this.$t("shortcut.previous_method"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "G"],
-              label: this.$t("shortcut.get_method"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "H"],
-              label: this.$t("shortcut.head_method"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "P"],
-              label: this.$t("shortcut.post_method"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "U"],
-              label: this.$t("shortcut.put_method"),
-            },
-            {
-              keys: [getPlatformAlternateKey(), "X"],
-              label: this.$t("shortcut.delete_method"),
-            },
-          ],
-        },
-      ],
+      mappings: shortcuts,
     }
   },
   watch: {

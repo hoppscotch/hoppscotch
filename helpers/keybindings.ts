@@ -74,7 +74,7 @@ export const bindings: {
 } = {
   "ctrl-g": "request.send-cancel",
   "ctrl-i": "request.reset",
-  "ctrl-k": "request.copy-link",
+  "ctrl-c": "request.copy-link",
   "ctrl-s": "request.save",
   "alt-up": "request.method.next",
   "alt-down": "request.method.prev",
@@ -83,9 +83,15 @@ export const bindings: {
   "alt-p": "request.method.post",
   "alt-u": "request.method.put",
   "alt-x": "request.method.delete",
-  "/": "flyouts.keybinds.toggle",
+  "ctrl-k": "flyouts.keybinds.toggle",
+  "/": "modals.search.toggle",
   "?": "modals.support.toggle",
   "ctrl-x": "modals.share.toggle",
+  "alt-r": "navigation.rest.jump",
+  "alt-q": "navigation.graphql.jump",
+  "alt-w": "navigation.realtime.jump",
+  "alt-d": "navigation.documentation.jump",
+  "alt-s": "navigation.settings.jump",
 }
 
 /**

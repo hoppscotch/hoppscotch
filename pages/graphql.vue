@@ -372,10 +372,13 @@
                       {{ $t("shortcut.send_request") }}
                     </span>
                     <span class="flex flex-1 items-center">
-                      {{ $t("shortcut.reset_request") }}
+                      {{ $t("shortcut.general.show_all") }}
                     </span>
                     <span class="flex flex-1 items-center">
-                      {{ $t("shortcut.general.show_all") }}
+                      {{ $t("shortcut.general.command_menu") }}
+                    </span>
+                    <span class="flex flex-1 items-center">
+                      {{ $t("shortcut.general.help_menu") }}
                     </span>
                   </div>
                   <div class="flex flex-col space-y-4">
@@ -385,7 +388,10 @@
                     </div>
                     <div class="flex">
                       <span class="shortcut-key">{{ getSpecialKey() }}</span>
-                      <span class="shortcut-key">I</span>
+                      <span class="shortcut-key">K</span>
+                    </div>
+                    <div class="flex">
+                      <span class="shortcut-key">/</span>
                     </div>
                     <div class="flex">
                       <span class="shortcut-key">?</span>

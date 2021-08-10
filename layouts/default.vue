@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, useRouter } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
@@ -47,11 +47,28 @@ import { initializeFirebase } from "~/helpers/fb"
 import { getSettingSubject } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
+import { defineActionHandler } from "~/helpers/actions"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     hookKeybindingsListener()
+    const router = useRouter()
+    defineActionHandler("navigation.rest.jump", () => {
+      router.push({ path: "/" })
+    })
+    defineActionHandler("navigation.graphql.jump", () => {
+      router.push({ path: "/graphql" })
+    })
+    defineActionHandler("navigation.realtime.jump", () => {
+      router.push({ path: "/realtime" })
+    })
+    defineActionHandler("navigation.documentation.jump", () => {
+      router.push({ path: "/documentation" })
+    })
+    defineActionHandler("navigation.settings.jump", () => {
+      router.push({ path: "/settings" })
+    })
   },
   data() {
     return {

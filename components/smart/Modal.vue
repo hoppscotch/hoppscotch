@@ -47,7 +47,10 @@
               md:m-4
             "
           >
-            <div class="flex pl-2 items-center justify-between">
+            <div
+              v-if="title"
+              class="flex mb-4 pl-2 items-center justify-between"
+            >
               <h3 class="heading">{{ title }}</h3>
               <span class="flex">
                 <slot name="actions"></slot>
@@ -59,20 +62,13 @@
               </span>
             </div>
             <div
-              class="
-                flex flex-col
-                max-h-md
-                my-4
-                py-2
-                overflow-y-auto
-                hide-scrollbar
-              "
+              class="flex flex-col max-h-md py-2 overflow-y-auto hide-scrollbar"
             >
               <slot name="body"></slot>
             </div>
             <div
               v-if="hasFooterSlot"
-              class="flex flex-1 p-2 items-center justify-between"
+              class="flex flex-1 mt-4 p-2 items-center justify-between"
             >
               <slot name="footer"></slot>
             </div>

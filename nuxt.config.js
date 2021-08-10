@@ -1,3 +1,5 @@
+import languages from "./languages"
+
 require("dotenv").config()
 
 // Common options
@@ -6,6 +8,8 @@ export const options = {
   shortDescription: "Open source API development ecosystem",
   description:
     "Helps you create requests faster, saving precious time on development.",
+  keywords:
+    "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
   loading: {
     color: "var(--accent-color)",
     background: "var(--primary-color)",
@@ -35,8 +39,7 @@ export default {
     meta: [
       {
         name: "keywords",
-        content:
-          "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
+        content: options.keywords,
       },
       {
         name: "X-UA-Compatible",
@@ -215,141 +218,7 @@ export default {
 
   // i18n module configuration (https://github.com/nuxt-community/i18n-module)
   i18n: {
-    locales: [
-      {
-        code: "en",
-        name: "English",
-        iso: "en-US",
-        file: "en-US.json",
-        country: "US",
-      },
-      {
-        code: "es",
-        name: "Español",
-        iso: "es-ES",
-        file: "es-ES.json",
-        country: "ES",
-      },
-      {
-        code: "fr",
-        name: "Français",
-        iso: "fr-FR",
-        file: "fr-FR.json",
-        country: "FR",
-      },
-      {
-        code: "fa",
-        name: "Farsi",
-        iso: "fa-IR",
-        file: "fa-IR.json",
-        country: "IR",
-      },
-      {
-        code: "pt",
-        name: "Português",
-        iso: "pt-PT",
-        file: "pt-PT.json",
-        country: "PT",
-      },
-      {
-        code: "pt-br",
-        name: "Português Brasileiro",
-        iso: "pt-BR",
-        file: "pt-BR.json",
-        country: "BR",
-      },
-      {
-        code: "cn",
-        name: "简体中文",
-        iso: "zh-CN",
-        file: "zh-CN.json",
-        country: "CN",
-      },
-      {
-        code: "tw",
-        name: "繁體中文",
-        iso: "zh-TW",
-        file: "zh-TW.json",
-        country: "TW",
-      },
-      {
-        code: "id",
-        name: "Bahasa Indonesia",
-        iso: "id-ID",
-        file: "id-ID.json",
-        country: "ID",
-      },
-      {
-        code: "tr",
-        name: "Türkçe",
-        iso: "tr-TR",
-        file: "tr-TR.json",
-        country: "TR",
-      },
-      {
-        code: "de",
-        name: "Deutsch",
-        iso: "de-DE",
-        file: "de-DE.json",
-        country: "DE",
-      },
-      {
-        code: "ja",
-        name: "日本語",
-        iso: "ja-JP",
-        file: "ja-JP.json",
-        country: "JP",
-      },
-      {
-        code: "ko",
-        name: "한국어",
-        iso: "ko-KR",
-        file: "ko-KR.json",
-        country: "KR",
-      },
-      {
-        code: "in",
-        name: "हिंदी",
-        iso: "in-IN",
-        file: "in-IN.json",
-        country: "IN",
-      },
-      {
-        code: "bn",
-        name: "Bengali",
-        iso: "bn-BD",
-        file: "bn-BD.json",
-        country: "BD",
-      },
-      {
-        code: "ml",
-        name: "മലയാളം",
-        iso: "ml-ML",
-        file: "ml-ML.json",
-        country: "ML",
-      },
-      {
-        code: "vi",
-        name: "Vietnamese",
-        iso: "vi-VN",
-        file: "vi-VN.json",
-        country: "VN",
-      },
-      {
-        code: "nl",
-        name: "Dutch",
-        iso: "nl-BE",
-        file: "nl-BE.json",
-        country: "BE",
-      },
-      {
-        code: "nb",
-        name: "Norwegian (Bokmål)",
-        iso: "nb-NO",
-        file: "nb-NO.json",
-        country: "NO",
-      },
-    ],
+    locales: languages,
     defaultLocale: "en",
     vueI18n: {
       fallbackLocale: "en",

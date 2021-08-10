@@ -76,10 +76,8 @@ body {
 }
 
 .svg-icons {
-  @apply inline-flex;
-  @apply flex-shrink-0;
-  @apply h-4;
-  @apply w-4;
+  height: var(--body-line-height);
+  width: var(--body-line-height);
 }
 
 a {

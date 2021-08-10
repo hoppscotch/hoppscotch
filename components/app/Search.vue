@@ -1,8 +1,9 @@
 <template>
-  <SmartModal v-if="show" @close="$emit('hide-modal')">
+  <SmartModal v-if="show" placement="top" @close="$emit('hide-modal')">
     <template #body>
       <input
         id="command"
+        v-model="search"
         v-focus
         type="text"
         name="command"
@@ -30,7 +31,10 @@
           hide-scrollbar
         "
       >
-        <div v-for="(map, mapIndex) in mappings" :key="`map-${mapIndex}`">
+        <div
+          v-for="(map, mapIndex) in filteredMappings"
+          :key="`map-${mapIndex}`"
+        >
           <h5 class="font-normal my-2 text-secondaryLight py-2 px-4">
             {{ map.section }}
           </h5>
@@ -83,8 +87,20 @@ export default {
   },
   data() {
     return {
+      search: "",
       mappings: spotlight,
     }
+  },
+  computed: {
+    filteredMappings() {
+      return this.mappings.filter((map) =>
+        map.shortcuts.find((shortcut) =>
+          shortcut.keywords.find((key) =>
+            key.includes(this.search.toLowerCase())
+          )
+        )
+      )
+    },
   },
   methods: {
     hideModal() {

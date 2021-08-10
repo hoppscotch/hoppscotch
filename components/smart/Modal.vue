@@ -17,6 +17,7 @@
           ></div>
         </transition>
         <span
+          v-if="placement === 'center'"
           class="hidden sm:h-screen sm:inline-block sm:align-middle"
           aria-hidden="true"
           >&#8203;</span
@@ -44,8 +45,8 @@
               align-bottom
               overflow-hidden
               sm:max-w-md sm:align-middle
-              md:m-4
             "
+            :class="{ 'mt-24': placement === 'top' }"
           >
             <div
               v-if="title"
@@ -108,6 +109,10 @@ export default defineComponent({
     dimissible: {
       type: Boolean,
       default: true,
+    },
+    placement: {
+      type: String,
+      default: "center",
     },
   },
   setup() {

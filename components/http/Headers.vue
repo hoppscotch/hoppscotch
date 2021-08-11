@@ -50,6 +50,7 @@
           flex-1
           py-1
           px-4
+          truncate
           focus:outline-none
         "
         @input="
@@ -90,6 +91,7 @@
           flex-1
           py-2
           px-4
+          truncate
           focus:outline-none
         "
         :placeholder="$t('count.value', { count: index + 1 })"

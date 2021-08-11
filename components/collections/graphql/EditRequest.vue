@@ -46,7 +46,9 @@ export default Vue.extend({
   methods: {
     saveRequest() {
       if (!this.requestUpdateData.name) {
-        this.$toast.info(this.$t("collection.invalid_name").toString())
+        this.$toast.info(this.$t("collection.invalid_name").toString(), {
+          icon: "info",
+        })
         return
       }
       const requestUpdated = {

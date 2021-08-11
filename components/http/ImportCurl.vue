@@ -118,8 +118,8 @@ export default defineComponent({
             },
           })
         )
-      } catch (error) {
-        this.showCurlImportModal = false
+      } catch (e) {
+        console.error(e)
         this.$toast.error(this.$t("curl_invalid_format").toString(), {
           icon: "error",
         })

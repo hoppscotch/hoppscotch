@@ -27,8 +27,7 @@ const defaultGQLSession: GQLSession = {
     id
     name
   }
-}
-  `,
+}`,
   variables: `{ "id": "1" }`,
   response: "",
 }

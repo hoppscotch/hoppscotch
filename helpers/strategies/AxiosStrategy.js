@@ -39,6 +39,7 @@ const axiosWithProxy = async (req) => {
       // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
+      console.error(e)
       throw e
     }
   }
@@ -58,6 +59,7 @@ const axiosWithoutProxy = async (req, _store) => {
       // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
+      console.error(e)
       throw e
     }
   }

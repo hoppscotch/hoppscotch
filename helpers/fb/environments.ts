@@ -38,7 +38,6 @@ async function writeEnvironments(environment: Environment[]) {
       .set(ev)
   } catch (e) {
     console.error("error updating", ev, e)
-
     throw e
   }
 }

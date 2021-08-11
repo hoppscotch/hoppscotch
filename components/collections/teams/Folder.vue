@@ -32,7 +32,7 @@
         v-tippy="{ theme: 'tooltip' }"
         icon="create_new_folder"
         :title="$t('folder.new')"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         @click.native="$emit('add-folder', { folder, path: folderPath })"
       />
       <tippy
@@ -219,18 +219,16 @@ export default {
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {
-            // Result
-            this.$toast.success(this.$t("deleted"), {
+            this.$toast.error(this.$t("deleted"), {
               icon: "delete",
             })
             this.$emit("update-team-collections")
           })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+          .catch((e) => {
+            this.$toast.error(this.$t("error.something_went_wrong"), {
+              icon: "error",
             })
-            console.error(error)
+            console.error(e)
           })
         this.$emit("update-team-collections")
       }

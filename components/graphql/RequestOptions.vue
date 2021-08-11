@@ -161,14 +161,15 @@
               :value="header.key"
               autofocus
               styles="
-                        bg-primaryLight
-                        flex
-                        font-semibold font-mono
-                        flex-1
-                        py-2
-                        px-4
-                        focus:outline-none
-                      "
+                bg-primaryLight
+                flex
+                font-semibold font-mono
+                flex-1
+                py-2
+                px-4
+                truncate
+                focus:outline-none
+              "
               @input="
                 updateGQLHeader(index, {
                   key: $event,
@@ -185,6 +186,7 @@
                 w-full
                 py-2
                 px-4
+                truncate
                 focus:outline-none
               "
               :placeholder="$t('count.value', { count: index + 1 })"
@@ -389,14 +391,14 @@ export default defineComponent({
         $toast.success(t("finished_in", { duration }).toString(), {
           icon: "done",
         })
-      } catch (error: any) {
-        response.value = `${error}. ${t("check_console_details")}`
+      } catch (e: any) {
+        response.value = `${e}. ${t("error.check_console_details")}`
         nuxt.value.$loading.finish()
 
-        $toast.error(`${error} ${t("f12_details").toString()}`, {
+        $toast.error(`${e} ${t("f12_details").toString()}`, {
           icon: "error",
         })
-        console.log("Error", error)
+        console.error(e)
       }
 
       logHoppRequestRunToAnalytics({

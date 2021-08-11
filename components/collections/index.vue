@@ -333,11 +333,11 @@ export default {
               icon: "done",
             })
           })
-          .catch((error) => {
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+          .catch((e) => {
+            this.$toast.error(this.$t("error.something_went_wrong"), {
+              icon: "error",
             })
-            console.error(error)
+            console.error(e)
           })
       }
       this.displayModalAdd(false)
@@ -345,7 +345,9 @@ export default {
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {
       if (!newName) {
-        this.$toast.info(this.$t("collection.invalid_name"))
+        this.$toast.info(this.$t("collection.invalid_name"), {
+          icon: "info",
+        })
         return
       }
       if (this.collectionsType.type === "my-collections") {
@@ -367,11 +369,11 @@ export default {
               icon: "done",
             })
           })
-          .catch((error) => {
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+          .catch((e) => {
+            this.$toast.error(this.$t("error.something_went_wrong"), {
+              icon: "error",
             })
-            console.error(error)
+            console.error(e)
           })
       }
       this.displayModalEdit(false)
@@ -387,17 +389,15 @@ export default {
         teamUtils
           .renameCollection(this.$apollo, name, this.editingFolder.id)
           .then(() => {
-            // Result
             this.$toast.success(this.$t("folder.renamed"), {
               icon: "done",
             })
           })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+          .catch((e) => {
+            this.$toast.error(this.$t("error.something_went_wrong"), {
+              icon: "error",
             })
-            console.error(error)
+            console.error(e)
           })
       }
 
@@ -434,11 +434,11 @@ export default {
             })
             this.$emit("update-team-collections")
           })
-          .catch((error) => {
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+          .catch((e) => {
+            this.$toast.error(this.$t("error.something_went_wrong"), {
+              icon: "error",
             })
-            console.error(error)
+            console.error(e)
           })
       }
 
@@ -502,18 +502,16 @@ export default {
               },
             })
             .then(() => {
-              // Result
               this.$toast.success(this.$t("folder.created"), {
                 icon: "done",
               })
               this.$emit("update-team-collections")
             })
-            .catch((error) => {
-              // Error
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
+            .catch((e) => {
+              this.$toast.error(this.$t("error.something_went_wrong"), {
+                icon: "error",
               })
-              console.error(error)
+              console.error(e)
             })
         }
       }
@@ -605,17 +603,15 @@ export default {
               },
             })
             .then(() => {
-              // Result
-              this.$toast.success(this.$t("deleted"), {
+              this.$toast.error(this.$t("deleted"), {
                 icon: "delete",
               })
             })
-            .catch((error) => {
-              // Error
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
+            .catch((e) => {
+              this.$toast.error(this.$t("error.something_went_wrong"), {
+                icon: "error",
               })
-              console.error(error)
+              console.error(e)
             })
         }
       }
@@ -649,17 +645,15 @@ export default {
         teamUtils
           .deleteRequest(this.$apollo, requestIndex)
           .then(() => {
-            // Result
-            this.$toast.success(this.$t("deleted"), {
+            this.$toast.error(this.$t("deleted"), {
               icon: "delete",
             })
           })
-          .catch((error) => {
-            // Error
-            this.$toast.error(this.$t("error_occurred"), {
-              icon: "done",
+          .catch((e) => {
+            this.$toast.error(this.$t("error.something_went_wrong"), {
+              icon: "error",
             })
-            console.error(error)
+            console.error(e)
           })
       }
     },

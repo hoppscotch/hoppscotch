@@ -44,9 +44,9 @@ export default Vue.extend({
           removeLocalConfig("emailForSignIn")
           this.$router.push({ path: "/" })
         })
-        .catch((error) => {
+        .catch((e) => {
           this.signingInWithEmail = false
-          this.error = error.message
+          this.error = e.message
         })
         .finally(() => {
           this.signingInWithEmail = false

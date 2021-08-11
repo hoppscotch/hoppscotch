@@ -182,9 +182,9 @@ export default {
               ts: new Date().toLocaleTimeString(),
             })
           })
-        } catch (ex) {
-          this.handleSSEError(ex)
-          this.$toast.error(this.$t("something_went_wrong"), {
+        } catch (e) {
+          this.handleSSEError(e)
+          this.$toast.error(this.$t("error.something_went_wrong"), {
             icon: "error",
           })
         }
@@ -207,7 +207,7 @@ export default {
       this.stop()
       this.connectionSSEState = false
       this.events.log.push({
-        payload: this.$t("error_occurred"),
+        payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),

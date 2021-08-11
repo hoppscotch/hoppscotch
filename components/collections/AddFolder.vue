@@ -45,7 +45,9 @@ export default {
   methods: {
     addFolder() {
       if (!this.name) {
-        this.$toast.info(this.$t("collection.invalid_name"))
+        this.$toast.info(this.$t("collection.invalid_name"), {
+          icon: "info",
+        })
         return
       }
       this.$emit("add-folder", {

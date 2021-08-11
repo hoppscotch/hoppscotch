@@ -118,6 +118,7 @@ export default defineComponent({
         this.prettifyIcon = "done"
         setTimeout(() => (this.prettifyIcon = "photo_filter"), 1000)
       } catch (e) {
+        console.error(e)
         this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
           icon: "error",
         })

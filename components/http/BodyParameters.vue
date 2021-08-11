@@ -67,6 +67,7 @@
           flex-1
           py-2
           px-4
+          truncate
           focus:outline-none
         "
         :placeholder="$t('count.parameter', { count: index + 1 })"
@@ -111,6 +112,7 @@
           flex-1
           py-2
           px-4
+          truncate
           focus:outline-none
         "
         :placeholder="$t('count.value', { count: index + 1 })"

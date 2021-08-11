@@ -138,11 +138,11 @@ export default {
           })
           window.open(res.html_url)
         })
-        .catch((error) => {
-          this.$toast.error(this.$t("something_went_wrong"), {
+        .catch((e) => {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
             icon: "error",
           })
-          console.log(error)
+          console.error(e)
         })
     },
     async readCollectionGist() {
@@ -159,9 +159,9 @@ export default {
           setGraphqlCollections(collections)
           this.fileImported()
         })
-        .catch((error) => {
+        .catch((e) => {
           this.failedImport()
-          console.log(error)
+          console.error(e)
         })
     },
     hideModal() {

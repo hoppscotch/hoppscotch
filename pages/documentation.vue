@@ -233,11 +233,11 @@ export default defineComponent({
           })
           window.open(res.html_url)
         })
-        .catch((error) => {
-          this.$toast.error(this.$t("something_went_wrong"), {
+        .catch((e) => {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
             icon: "error",
           })
-          console.log(error)
+          console.error(e)
         })
     },
 
@@ -328,8 +328,9 @@ export default defineComponent({
         )
         this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n\n")
       } catch (e) {
-        this.$toast.error(e, {
-          icon: "code",
+        console.error(e)
+        this.$toast.error(this.$t("error.something_went_wrong"), {
+          icon: "error",
         })
       }
     },

@@ -30,7 +30,7 @@ export default {
       return (this.error && this.error.statusCode) || 500
     },
     message() {
-      return this.error.message || this.$t("something_went_wrong")
+      return this.error.message || this.$t("error.something_went_wrong")
     },
   },
 

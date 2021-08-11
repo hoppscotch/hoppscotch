@@ -17,7 +17,7 @@
           </label>
         </div>
         <div class="flex flex-1 justify-between items-center">
-          <label for="variableList" class="font-semibold px-4 pt-4 pb-4">
+          <label for="variableList" class="font-semibold p-4">
             {{ $t("env_variable_list") }}
           </label>
           <div class="flex">
@@ -35,16 +35,11 @@
             />
           </div>
         </div>
-        <div class="border-divider border rounded">
+        <div class="divide-y divide-dividerLight border-divider border rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
-            class="
-              divide-x divide-dividerLight
-              border-b border-dividerLight
-              flex
-            "
-            :class="{ 'border-t': index == 0 }"
+            class="divide-x divide-dividerLight flex"
           >
             <input
               v-model="variable.key"
@@ -55,6 +50,7 @@
                 flex-1
                 py-2
                 px-4
+                truncate
                 focus:outline-none
               "
               :placeholder="$t('count.variable', { count: index + 1 })"
@@ -69,6 +65,7 @@
                 flex-1
                 py-2
                 px-4
+                truncate
                 focus:outline-none
               "
               :placeholder="$t('count.value', { count: index + 1 })"
@@ -169,7 +166,9 @@ export default Vue.extend({
     },
     saveEnvironment() {
       if (!this.name) {
-        this.$toast.info(this.$t("invalid_environment_name").toString())
+        this.$toast.info(this.$t("invalid_environment_name").toString(), {
+          icon: "info",
+        })
         return
       }
 

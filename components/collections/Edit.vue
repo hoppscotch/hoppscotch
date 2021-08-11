@@ -39,7 +39,9 @@ export default {
   methods: {
     saveCollection() {
       if (!this.name) {
-        this.$toast.info(this.$t("collection.invalid_name"))
+        this.$toast.info(this.$t("collection.invalid_name"), {
+          icon: "info",
+        })
         return
       }
       this.$emit("submit", this.name)

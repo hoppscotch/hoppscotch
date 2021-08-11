@@ -631,8 +631,8 @@ export function validateFile(server, query, file) {
     var visitors = makeVisitors(server, query, file, messages)
     walk.simple(ast, visitors, infer.searchVisitor, state)
     return { messages: messages }
-  } catch (err) {
-    console.error(err.stack)
+  } catch (e) {
+    console.error(e.stack)
     return { messages: [] }
   }
 }
@@ -680,8 +680,8 @@ export function validateFiles(server, query) {
         messages.push({ file: file.name, messages: messagesFile })
     }
     return { messages: messages }
-  } catch (err) {
-    console.error(err.stack)
+  } catch (e) {
+    console.error(e.stack)
     return { messages: [] }
   }
 }

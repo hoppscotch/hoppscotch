@@ -11,8 +11,8 @@ exports.handler = (event) => {
           },
           body: JSON.stringify({ message: `Hello ${name}` }),
         }
-      } catch (err) {
-        return { statusCode: 500, body: err.toString() }
+      } catch (e) {
+        return { statusCode: 500, body: e.toString() }
       }
 
     default:

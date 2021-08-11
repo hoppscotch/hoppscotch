@@ -58,8 +58,8 @@ export const JavascriptFetchCodegen = {
     requestString.push("  response.headers\n")
     requestString.push("  response.url\n\n")
     requestString.push("  return response.text()\n")
-    requestString.push("}).catch(function(error) {\n")
-    requestString.push("  error.message\n")
+    requestString.push("}).catch(function(e) {\n")
+    requestString.push("  console.error(e)\n")
     requestString.push("})")
     return requestString.join("")
   },

@@ -47,7 +47,9 @@ export default Vue.extend({
   methods: {
     editFolder() {
       if (!this.name) {
-        this.$toast.info(this.$t("collection.invalid_name").toString())
+        this.$toast.info(this.$t("collection.invalid_name").toString(), {
+          icon: "info",
+        })
         return
       }
       editGraphqlFolder(this.folderPath, { ...this.folder, name: this.name })

@@ -25,11 +25,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :url="currentUser.photoURL"
               :alt="currentUser.displayName"
-              :title="
-                `${currentUser.displayName || 'Name not found'}` +
-                '<br>' +
-                `<sub>${currentUser.email || 'Email not found'}</sub>`
-              "
+              :title="currentUser.displayName"
               indicator
               :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
             />

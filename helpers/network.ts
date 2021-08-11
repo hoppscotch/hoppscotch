@@ -97,27 +97,27 @@ export function createRESTNetworkRequestStream(
 
       response.complete()
     })
-    .catch((err) => {
-      if (err.response) {
+    .catch((e) => {
+      if (e.response) {
         const timeEnd = Date.now()
 
-        const contentLength = err.response.headers["content-length"]
-          ? parseInt(err.response.headers["content-length"])
-          : (err.response.data as ArrayBuffer).byteLength
+        const contentLength = e.response.headers["content-length"]
+          ? parseInt(e.response.headers["content-length"])
+          : (e.response.data as ArrayBuffer).byteLength
 
         const resObj: HoppRESTResponse = {
           type: "fail",
-          body: err.response.data,
-          headers: Object.keys(err.response.headers).map((x) => ({
+          body: e.response.data,
+          headers: Object.keys(e.response.headers).map((x) => ({
             key: x,
-            value: err.response.headers[x],
+            value: e.response.headers[x],
           })),
           meta: {
             responseDuration: timeEnd - timeStart,
             responseSize: contentLength,
           },
           req,
-          statusCode: err.response.status,
+          statusCode: e.response.status,
         }
 
         response.next(resObj)
@@ -126,7 +126,7 @@ export function createRESTNetworkRequestStream(
       } else {
         const resObj: HoppRESTResponse = {
           type: "network_fail",
-          error: err,
+          error: e,
           req,
         }
 

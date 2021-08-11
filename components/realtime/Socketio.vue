@@ -283,9 +283,9 @@ export default defineComponent({
             icon: "sync_disabled",
           })
         })
-      } catch (ex) {
-        this.handleError(ex)
-        this.$toast.error(this.$t("something_went_wrong"), {
+      } catch (e) {
+        this.handleError(e)
+        this.$toast.error(this.$t("error.something_went_wrong"), {
           icon: "error",
         })
       }
@@ -302,7 +302,7 @@ export default defineComponent({
       this.connectingState = false
       this.connectionState = false
       this.communication.log.push({
-        payload: this.$t("error_occurred"),
+        payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
@@ -321,7 +321,7 @@ export default defineComponent({
         .map((input) => {
           try {
             return JSON.parse(input)
-          } catch (err) {
+          } catch (e) {
             return input
           }
         })

@@ -227,7 +227,7 @@ export default defineComponent({
       this.connectingState = false
       this.connectionState = false
       this.log.push({
-        payload: this.$t("error_occurred"),
+        payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
@@ -279,7 +279,7 @@ export default defineComponent({
           icon: "sync_disabled",
         })
       } else {
-        this.$toast.error(this.$t("something_went_wrong"), {
+        this.$toast.error(this.$t("error.something_went_wrong"), {
           icon: "error",
         })
       }
@@ -298,7 +298,7 @@ export default defineComponent({
       } catch (e) {
         this.log.push({
           payload:
-            this.$t("error_occurred") +
+            this.$t("error.something_went_wrong") +
             `while publishing msg: ${this.msg} to topic:  ${this.pub_topic}`,
           source: "info",
           color: "#ff5555",
@@ -322,7 +322,7 @@ export default defineComponent({
       } catch (e) {
         this.log.push({
           payload:
-            this.$t("error_occurred") +
+            this.$t("error.something_went_wrong") +
             `while subscribing to topic:  ${this.sub_topic}`,
           source: "info",
           color: "#ff5555",

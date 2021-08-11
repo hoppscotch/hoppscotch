@@ -17,7 +17,6 @@
           pt-2
           pb-6
           truncate
-          appearance-none
           focus:outline-none
         "
       />

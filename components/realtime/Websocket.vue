@@ -91,6 +91,7 @@
                   flex-1
                   py-2
                   px-4
+                  truncate
                   focus:outline-none
                 "
                 :placeholder="$t('count.protocol', { count: index + 1 })"
@@ -322,9 +323,9 @@ export default defineComponent({
             ts: new Date().toLocaleTimeString(),
           })
         }
-      } catch (ex) {
-        this.handleError(ex)
-        this.$toast.error(this.$t("something_went_wrong"), {
+      } catch (e) {
+        this.handleError(e)
+        this.$toast.error(this.$t("error.something_went_wrong"), {
           icon: "error",
         })
       }
@@ -344,7 +345,7 @@ export default defineComponent({
       this.disconnect()
       this.connectionState = false
       this.communication.log.push({
-        payload: this.$t("error_occurred"),
+        payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),

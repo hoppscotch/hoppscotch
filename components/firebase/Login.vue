@@ -183,16 +183,16 @@ export default {
         }
 
         this.showLoginSuccess()
-      } catch (err) {
-        console.log(err)
+      } catch (e) {
+        console.error(e)
         // An error happened.
-        if (err.code === "auth/account-exists-with-different-credential") {
+        if (e.code === "auth/account-exists-with-different-credential") {
           // Step 2.
           // User's email already exists.
           // The pending Google credential.
-          const pendingCred = err.credential
+          const pendingCred = e.credential
           // The provider account's email address.
-          const email = err.email
+          const email = e.email
           // Get sign-in methods for this email.
           const methods = await getSignInMethodsForEmail(email)
 
@@ -259,16 +259,16 @@ export default {
         }
 
         this.showLoginSuccess()
-      } catch (err) {
-        console.log(err)
+      } catch (e) {
+        console.error(e)
         // An error happened.
-        if (err.code === "auth/account-exists-with-different-credential") {
+        if (e.code === "auth/account-exists-with-different-credential") {
           // Step 2.
           // User's email already exists.
           // The pending Google credential.
-          const pendingCred = err.credential
+          const pendingCred = e.credential
           // The provider account's email address.
-          const email = err.email
+          const email = e.email
           // Get sign-in methods for this email.
           const methods = await getSignInMethodsForEmail(email)
 
@@ -322,7 +322,8 @@ export default {
           this.mode = "email-sent"
           setLocalConfig("emailForSignIn", this.form.email)
         })
-        .catch((error) => {
+        .catch((e) => {
+          console.error(e)
           this.$toast.error(error.message, {
             icon: "error",
           })

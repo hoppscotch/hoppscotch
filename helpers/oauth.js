@@ -31,9 +31,8 @@ const sendPostRequest = async (url, params) => {
     const response = await fetch(url, options)
     const data = await response.json()
     return data
-  } catch (err) {
-    console.error("Request failed", err)
-    throw err
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -73,9 +72,8 @@ const getTokenConfiguration = async (endpoint) => {
     const response = await fetch(endpoint, options)
     const config = await response.json()
     return config
-  } catch (err) {
-    console.error("Request failed", err)
-    throw err
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -225,8 +223,8 @@ const oauthRedirect = () => {
           redirect_uri: redirectUri,
           code_verifier: getLocalConfig("pkce_codeVerifier"),
         })
-      } catch (err) {
-        console.log(`${error.error}\n\n${error.error_description}`)
+      } catch (e) {
+        console.error(e)
       }
     }
     // Clean these up since we don't need them anymore

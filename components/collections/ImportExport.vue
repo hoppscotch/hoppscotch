@@ -219,11 +219,11 @@ export default {
           })
           window.open(res.html_url)
         })
-        .catch((error) => {
-          this.$toast.error(this.$t("something_went_wrong"), {
+        .catch((e) => {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
             icon: "error",
           })
-          console.log(error)
+          console.error(e)
         })
     },
     async readCollectionGist() {
@@ -240,9 +240,9 @@ export default {
           setRESTCollections(collections)
           this.fileImported()
         })
-        .catch((error) => {
+        .catch((e) => {
           this.failedImport()
-          console.log(error)
+          console.error(e)
         })
     },
     hideModal() {
@@ -292,8 +292,8 @@ export default {
                 this.failedImport()
               }
             })
-            .catch((error) => {
-              console.log(error)
+            .catch((e) => {
+              console.error(e)
               this.failedImport()
             })
         } else {
@@ -346,8 +346,8 @@ export default {
                 this.failedImport()
               }
             })
-            .catch((error) => {
-              console.log(error)
+            .catch((e) => {
+              console.error(e)
               this.failedImport()
             })
         } else {
@@ -373,8 +373,8 @@ export default {
             this.failedImport()
           }
         })
-        .catch((error) => {
-          console.log(error)
+        .catch((e) => {
+          console.error(e)
           this.failedImport()
         })
     },
@@ -409,7 +409,7 @@ export default {
       }, 1000)
     },
     fileImported() {
-      this.$toast.info(this.$t("file_imported"), {
+      this.$toast.success(this.$t("file_imported"), {
         icon: "folder_shared",
       })
     },

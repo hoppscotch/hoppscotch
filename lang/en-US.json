@@ -37,7 +37,8 @@
     "headers": "Headers are empty",
     "tests": "Tests are empty",
     "schema": "Connect to a GraphQL endpoint",
-    "teams": "Teams are empty"
+    "teams": "Teams are empty",
+    "members": "Team is empty"
   },
   "count": {
     "message": "Message {count}",
@@ -131,7 +132,7 @@
     "no_access": "You do not have edit access to these collections",
     "left": "You left the team",
     "exit_disabled": "Only owner cannot exit the team",
-    "member_role_updated": "User role(s) updated",
+    "member_role_updated": "User roles updated",
     "member_removed": "User removed"
   },
   "modal": {
@@ -238,6 +239,10 @@
     "post_method": "Select POST method",
     "put_method": "Select PUT method",
     "delete_method": "Select DELETE method"
+  },
+  "error": {
+    "something_went_wrong": "Something went wrong",
+    "check_console_details": "Check console log for details."
   },
   "options": "Options",
   "communication": "Communication",
@@ -349,8 +354,6 @@
   "connected_to": "Connected to {name}",
   "disconnected": "Disconnected",
   "disconnected_from": "Disconnected from {name}",
-  "something_went_wrong": "Something went wrong!",
-  "error_occurred": "An error has occurred.",
   "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",
   "log": "Log",
   "no_url": "No URL",
@@ -399,7 +402,6 @@
   "we_use_cookies": "We use cookies",
   "copied_to_clipboard": "Copied to clipboard",
   "finished_in": "Finished in {duration}ms",
-  "check_console_details": "Check console for details.",
   "check_graphql_valid": "Check the URL to see if it is a valid GraphQL endpoint",
   "graphql_introspect_failed": "Failed fetching schema details.",
   "download_started": "Download started",
@@ -414,7 +416,6 @@
   "one_time": "One-time",
   "recurring": "Recurring",
   "wiki": "Wiki",
-  "error": "Error",
   "home": "Home",
   "reload": "Reload",
   "enter_curl": "Enter cURL",

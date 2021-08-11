@@ -44,7 +44,9 @@ export default {
       // We clear it early to give the UI a snappy feel
       this.name = ""
       if (!name) {
-        this.$toast.info(this.$t("empty.team_name"))
+        this.$toast.info(this.$t("empty.team_name"), {
+          icon: "info",
+        })
         return
       }
       if (name !== null && name.replace(/\s/g, "").length < 6) {
@@ -57,12 +59,10 @@ export default {
       teamUtils
         .createTeam(this.$apollo, name)
         .then(() => {
-          // Result
           this.hideModal()
         })
-        .catch((error) => {
-          // Error
-          console.error(error)
+        .catch((e) => {
+          console.error(e)
           // We restore the initial user input
           this.name = name
         })

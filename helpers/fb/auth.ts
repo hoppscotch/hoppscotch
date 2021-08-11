@@ -216,7 +216,6 @@ export async function setProviderInfo(id: string, token: string) {
       .catch((e) => console.error("error updating", us, e))
   } catch (e) {
     console.error("error updating", e)
-
     throw e
   }
 }

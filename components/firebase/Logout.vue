@@ -35,8 +35,9 @@ export default Vue.extend({
         this.$toast.info(this.$t("logged_out").toString(), {
           icon: "vpn_key",
         })
-      } catch (err) {
-        this.$toast.show(err.message || err, {
+      } catch (e) {
+        console.error(e)
+        this.$toast.error(this.$t("error.something_went_wrong").toString(), {
           icon: "error",
         })
       }

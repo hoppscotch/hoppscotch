@@ -16,8 +16,8 @@ import { GQLHeader } from "~/newstore/GQLSession"
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
 /**
-  GQLConnection deals with all the operations (like polling, schema extraction) that runs 
-  when a connection is made to a GraphQL server. 
+  GQLConnection deals with all the operations (like polling, schema extraction) that runs
+  when a connection is made to a GraphQL server.
 */
 export class GQLConnection {
   public isLoading$ = new BehaviorSubject<boolean>(false)
@@ -172,7 +172,8 @@ export class GQLConnection {
       this.schema$.next(schema)
 
       this.isLoading$.next(false)
-    } catch (error: any) {
+    } catch (e: any) {
+      console.error(e)
       this.disconnect()
     }
   }

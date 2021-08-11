@@ -41,7 +41,9 @@ export default Vue.extend({
   methods: {
     addNewCollection() {
       if (!this.name) {
-        this.$toast.info(this.$t("collection.invalid_name").toString())
+        this.$toast.info(this.$t("collection.invalid_name").toString(), {
+          icon: "info",
+        })
         return
       }
 

@@ -2,37 +2,37 @@
   <SmartModal v-if="show" :title="$t('team.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
-        <input
-          id="selectLabelTeamEdit"
-          v-model="name"
-          v-focus
-          class="input floating-input"
-          placeholder=" "
-          type="text"
-          @keyup.enter="saveTeam"
-        />
-        <label for="selectLabelTeamEdit">
-          {{ $t("label") }}
-        </label>
+        <div class="flex relative">
+          <input
+            id="selectLabelTeamEdit"
+            v-model="name"
+            v-focus
+            class="input floating-input"
+            placeholder=" "
+            type="text"
+            @keyup.enter="saveTeam"
+          />
+          <label for="selectLabelTeamEdit">
+            {{ $t("label") }}
+          </label>
+        </div>
         <div class="flex flex-1 justify-between items-center">
-          <label for="memberList" class="font-semibold px-4 pt-4 pb-4">
+          <label for="memberList" class="font-semibold p-4">
             {{ $t("team.members") }}
           </label>
-          <ButtonSecondary
-            icon="add"
-            :label="$t('add.new')"
-            @click.native="addTeamMember"
-          />
+          <div class="flex">
+            <ButtonSecondary
+              icon="add"
+              :label="$t('add.new')"
+              @click.native="addTeamMember"
+            />
+          </div>
         </div>
-        <div class="border-divider border rounded">
+        <div class="divide-y divide-dividerLight border-divider border rounded">
           <div
             v-for="(member, index) in members"
             :key="`member-${index}`"
-            class="
-              divide-x divide-dividerLight
-              border-b border-dividerLight
-              flex
-            "
+            class="divide-x divide-dividerLight flex"
           >
             <input
               class="
@@ -42,6 +42,7 @@
                 flex-1
                 py-2
                 px-4
+                truncate
                 focus:outline-none
               "
               :placeholder="$t('team.email')"
@@ -66,6 +67,7 @@
                       flex-1
                       py-2
                       px-4
+                      truncate
                       focus:outline-none
                     "
                     :placeholder="$t('team.permissions')"
@@ -92,23 +94,21 @@
                 />
               </tippy>
             </span>
-            <ButtonSecondary
-              id="member"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
-              icon="delete"
-              color="red"
-              @click.native="removeExistingTeamMember(member.user.uid)"
-            />
+            <div class="flex">
+              <ButtonSecondary
+                id="member"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                color="red"
+                @click.native="removeExistingTeamMember(member.user.uid)"
+              />
+            </div>
           </div>
           <div
             v-for="(member, index) in newMembers"
             :key="`new-member-${index}`"
-            class="
-              divide-x divide-dividerLight
-              border-b border-dividerLight
-              flex
-            "
+            class="divide-x divide-dividerLight flex"
           >
             <input
               v-model="member.key"
@@ -119,6 +119,7 @@
                 flex-1
                 py-2
                 px-4
+                truncate
                 focus:outline-none
               "
               :placeholder="$t('team.email')"
@@ -142,6 +143,7 @@
                       flex-1
                       py-2
                       px-4
+                      truncate
                       focus:outline-none
                     "
                     :placeholder="$t('team.permissions')"
@@ -168,13 +170,35 @@
                 />
               </tippy>
             </span>
+            <div class="flex">
+              <ButtonSecondary
+                id="member"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('delete')"
+                icon="delete"
+                color="red"
+                @click.native="removeTeamMember(index)"
+              />
+            </div>
+          </div>
+          <div
+            v-if="members.length === 0 && newMembers.length === 0"
+            class="
+              flex flex-col
+              text-secondaryLight
+              p-4
+              items-center
+              justify-center
+            "
+          >
+            <i class="opacity-75 pb-2 material-icons">layers</i>
+            <span class="text-center pb-4">
+              {{ $t("empty.members") }}
+            </span>
             <ButtonSecondary
-              id="member"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
-              icon="delete"
-              color="red"
-              @click.native="removeTeamMember(index)"
+              :label="$t('add.new')"
+              outline
+              @click.native="addTeamMember"
             />
           </div>
         </div>
@@ -249,18 +273,16 @@ export default defineComponent({
       teamUtils
         .removeTeamMember(this.$apollo, userID, this.editingteamID)
         .then(() => {
-          // Result
           this.$toast.success(this.$t("team.member_removed"), {
             icon: "done",
           })
           this.hideModal()
         })
-        .catch((error) => {
-          // Error
-          this.$toast.error(this.$t("error_occurred"), {
-            icon: "done",
+        .catch((e) => {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
+            icon: "error",
           })
-          console.error(error)
+          console.error(e)
         })
     },
     removeTeamMember(index) {
@@ -316,17 +338,15 @@ export default defineComponent({
             this.editingteamID
           )
           .then(() => {
-            // Result
             this.$toast.success(this.$t("team.saved"), {
               icon: "done",
             })
           })
-          .catch((error) => {
-            // Error
+          .catch((e) => {
             this.$toast.error(error, {
               icon: "done",
             })
-            console.error(error)
+            console.error(e)
           })
       })
       this.members.forEach((element) => {
@@ -338,17 +358,15 @@ export default defineComponent({
             this.editingteamID
           )
           .then(() => {
-            // Result
             this.$toast.success(this.$t("team.member_role_updated"), {
               icon: "done",
             })
           })
-          .catch((error) => {
-            // Error
+          .catch((e) => {
             this.$toast.error(error, {
               icon: "done",
             })
-            console.error(error)
+            console.error(e)
           })
       })
       if (this.$data.rename !== null) {
@@ -363,17 +381,15 @@ export default defineComponent({
           teamUtils
             .renameTeam(this.$apollo, newName, this.editingteamID)
             .then(() => {
-              // Result
               this.$toast.success(this.$t("team.saved"), {
                 icon: "done",
               })
             })
-            .catch((error) => {
-              // Error
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
+            .catch((e) => {
+              this.$toast.error(this.$t("error.something_went_wrong"), {
+                icon: "error",
               })
-              console.error(error)
+              console.error(e)
             })
       }
       this.hideModal()

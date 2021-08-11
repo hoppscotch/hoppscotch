@@ -133,12 +133,7 @@ export default Vue.extend({
     selectRequest() {
       if (this.savingMode) {
         this.pick()
-        return
       }
-
-      this.$store.commit("postwoman/selectGraphqlRequest", {
-        request: this.request,
-      })
     },
     dragStart({ dataTransfer }: any) {
       this.dragging = !this.dragging

@@ -51,8 +51,8 @@ export const NodejsAxiosCodegen = {
     requestString.push(".then(response => {\n")
     requestString.push("    console.log(response);\n")
     requestString.push("})")
-    requestString.push(".catch(error => {\n")
-    requestString.push("    console.log(error);\n")
+    requestString.push(".catch(e => {\n")
+    requestString.push("    console.error(e);\n")
     requestString.push("})\n")
     return requestString.join("")
   },

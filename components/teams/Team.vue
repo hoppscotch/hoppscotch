@@ -87,17 +87,15 @@ export default {
       teamUtils
         .deleteTeam(this.$apollo, this.teamID)
         .then(() => {
-          // Result
           this.$toast.success(this.$t("team.deleted"), {
             icon: "done",
           })
         })
-        .catch((error) => {
-          // Error
-          this.$toast.error(this.$t("error_occurred"), {
-            icon: "done",
+        .catch((e) => {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
+            icon: "error",
           })
-          console.error(error)
+          console.error(e)
         })
     },
     exitTeam() {
@@ -105,17 +103,15 @@ export default {
       teamUtils
         .exitTeam(this.$apollo, this.teamID)
         .then(() => {
-          // Result
           this.$toast.success(this.$t("team.left"), {
             icon: "done",
           })
         })
-        .catch((error) => {
-          // Error
-          this.$toast.error(this.$t("error_occurred"), {
+        .catch((e) => {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
             icon: "error",
           })
-          console.error(error)
+          console.error(e)
         })
     },
   },

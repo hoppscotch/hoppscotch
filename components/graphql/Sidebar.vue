@@ -214,11 +214,11 @@ import {
   ref,
   useContext,
 } from "@nuxtjs/composition-api"
-import { GraphQLField, GraphQLType } from 'graphql'
-import { map } from 'rxjs/operators'
-import { GQLConnection } from '~/helpers/GQLConnection'
+import { GraphQLField, GraphQLType } from "graphql"
+import { map } from "rxjs/operators"
+import { GQLConnection } from "~/helpers/GQLConnection"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { useReadonlyStream } from '~/helpers/utils/composables'
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   GQLHeader,
   setGQLHeaders,

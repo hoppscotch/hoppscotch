@@ -401,7 +401,7 @@ export default defineComponent({
 
       logHoppRequestRunToAnalytics({
         platform: "graphql-query",
-        strategy: getCurrentStrategyID()
+        strategy: getCurrentStrategyID(),
       })
     }
 

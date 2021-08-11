@@ -46,7 +46,7 @@
               overflow-hidden
               sm:max-w-md sm:align-middle
             "
-            :class="{ 'mt-24': placement === 'top' }"
+            :class="{ 'mt-24 md:mb-8': placement === 'top' }"
           >
             <div
               v-if="title"

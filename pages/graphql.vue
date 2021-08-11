@@ -4,11 +4,11 @@
       <Pane class="hide-scrollbar !overflow-auto">
         <Splitpanes :dbl-click-splitter="false" horizontal>
           <Pane class="hide-scrollbar !overflow-auto">
-            <GraphqlURLBar :conn="gqlConn" />
-            <GraphqlContentArea :conn="gqlConn" />
+            <GraphqlRequest :conn="gqlConn" />
+            <GraphqlRequestOptions :conn="gqlConn" />
           </Pane>
           <Pane class="hide-scrollbar !overflow-auto">
-            <GraphqlResponseSection :conn="gqlConn" />
+            <GraphqlResponse :conn="gqlConn" />
           </Pane>
         </Splitpanes>
       </Pane>
@@ -65,14 +65,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style lang="scss" scoped>
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
-}
-</style>

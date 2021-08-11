@@ -114,8 +114,9 @@ a {
 
     kbd {
       @apply font-sans;
-      @apply bg-secondaryDark;
-      @apply text-primaryDark;
+      @apply bg-gray-500;
+      @apply bg-opacity-45;
+      @apply text-primaryLight;
       @apply rounded-sm;
       @apply px-1;
       @apply ml-1;

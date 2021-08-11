@@ -6,7 +6,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="LEFT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           icon="menu_open"
-          :class="{ 'transform rotate-180': !LEFT_SIDEBAR }"
+          :class="{ 'transform -rotate-180': !LEFT_SIDEBAR }"
           @click.native="LEFT_SIDEBAR = !LEFT_SIDEBAR"
         />
         <ButtonSecondary
@@ -104,7 +104,7 @@
           :title="RIGHT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           icon="menu_open"
           class="transform rotate-180"
-          :class="{ 'rotate-0': !RIGHT_SIDEBAR }"
+          :class="{ 'rotate-360': !RIGHT_SIDEBAR }"
           @click.native="RIGHT_SIDEBAR = !RIGHT_SIDEBAR"
         />
       </div>

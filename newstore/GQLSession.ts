@@ -86,7 +86,7 @@ const dispatchers = defineDispatchers({
     return {
       response: newResponse,
     }
-  }
+  },
 })
 
 export const gqlSessionStore = new DispatchingStore(
@@ -136,7 +136,7 @@ export function updateGQLHeader(headerIndex: number, updatedHeader: GQLHeader) {
     payload: {
       headerIndex,
       updatedHeader,
-    }
+    },
   })
 }
 

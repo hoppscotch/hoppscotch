@@ -3,6 +3,7 @@
  */
 
 import { onBeforeUnmount, onMounted } from "@nuxtjs/composition-api"
+import { BehaviorSubject } from "rxjs"
 
 export type HoppAction =
   | "request.send-cancel" // Send/Cancel a Hoppscotch Request
@@ -35,12 +36,16 @@ type BoundActionList = {
 
 const boundActions: BoundActionList = {}
 
+export const activeActions$ = new BehaviorSubject<HoppAction[]>([])
+
 export function bindAction(action: HoppAction, handler: () => void) {
   if (boundActions[action]) {
     boundActions[action]?.push(handler)
   } else {
     boundActions[action] = [handler]
   }
+
+  activeActions$.next(Object.keys(boundActions) as HoppAction[])
 }
 
 export function invokeAction(action: HoppAction) {
@@ -49,6 +54,12 @@ export function invokeAction(action: HoppAction) {
 
 export function unbindAction(action: HoppAction, handler: () => void) {
   boundActions[action] = boundActions[action]?.filter((x) => x !== handler)
+
+  if (boundActions[action]?.length === 0) {
+    delete boundActions[action]
+  }
+
+  activeActions$.next(Object.keys(boundActions) as HoppAction[])
 }
 
 export function defineActionHandler(action: HoppAction, handler: () => void) {

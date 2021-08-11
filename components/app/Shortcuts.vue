@@ -3,7 +3,6 @@
     <template #content>
       <div
         class="
-          bg-primary
           border-b border-dividerLight
           flex
           p-2
@@ -19,15 +18,29 @@
           <ButtonSecondary icon="close" @click.native="close()" />
         </div>
       </div>
-      <!-- <div class="search-wrapper">
-        <input
-          v-model="filterText"
-          v-focus
-          type="search"
-          class="bg-primaryLight border-b border-dividerLight flex font-semibold font-mono w-full py-2 pr-2 pl-8 truncate focus:outline-none"
-          :placeholder="$t('search')"
-        />
-      </div> -->
+      <div class="border-b border-dividerLight">
+        <div class="flex flex-col my-4 mx-6 search-wrapper">
+          <input
+            v-model="filterText"
+            type="search"
+            class="
+              bg-primaryLight
+              border border-dividerLight
+              rounded
+              flex
+              font-semibold font-mono
+              w-full
+              py-2
+              pr-2
+              pl-8
+              transition
+              truncate
+              focus:border-divider focus:outline-none
+            "
+            :placeholder="$t('search')"
+          />
+        </div>
+      </div>
       <div
         class="
           divide-y divide-dividerLight

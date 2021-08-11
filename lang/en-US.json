@@ -216,11 +216,16 @@
       "close_current_menu": "Close current menu"
     },
     "navigation": {
-      "rest": "Go to REST",
-      "graphql": "Go to GraphQL",
-      "realtime": "Go to realtime",
-      "documentation": "Go to documentation",
-      "settings": "Go to settings"
+      "rest": "Go to REST page",
+      "graphql": "Go to GraphQL page",
+      "realtime": "Go to Realtime page",
+      "documentation": "Go to Documentation page",
+      "settings": "Go to Settings page",
+      "back": "Go back to previous page",
+      "forward": "Go forward to next page"
+    },
+    "miscellaneous": {
+      "invite": "Invite people to Hoppscotch"
     },
     "send_request": "Send Request",
     "save_to_collections": "Save to Collections",

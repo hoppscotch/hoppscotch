@@ -71,6 +71,48 @@ export default [
       },
     ],
   },
+  {
+    section: "Navigation",
+    shortcuts: [
+      {
+        keys: [getPlatformSpecialKey(), "←"],
+        label: "shortcut.navigation.back",
+      },
+      {
+        keys: [getPlatformSpecialKey(), "→"],
+        label: "shortcut.navigation.forward",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "R"],
+        label: "shortcut.navigation.rest",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "Q"],
+        label: "shortcut.navigation.graphql",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "W"],
+        label: "shortcut.navigation.realtime",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "D"],
+        label: "shortcut.navigation.documentation",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "S"],
+        label: "shortcut.navigation.settings",
+      },
+    ],
+  },
+  {
+    section: "Miscellaneous",
+    shortcuts: [
+      {
+        keys: [getPlatformSpecialKey(), "M"],
+        label: "shortcut.miscellaneous.invite",
+      },
+    ],
+  },
 ]
 
 export const spotlight = [
@@ -109,23 +151,37 @@ export const spotlight = [
     section: "Navigation",
     shortcuts: [
       {
+        keys: [getPlatformSpecialKey(), "←"],
+        label: "shortcut.navigation.back",
+        action: "navigation.jump.back",
+        icon: "arrow_forward",
+        keywords: ["back", "jump", "page", "navigation"],
+      },
+      {
+        keys: [getPlatformSpecialKey(), "→"],
+        label: "shortcut.navigation.forward",
+        action: "navigation.jump.forward",
+        icon: "arrow_forward",
+        keywords: ["forward", "jump", "page", "navigation"],
+      },
+      {
         keys: [getPlatformAlternateKey(), "R"],
         label: "shortcut.navigation.rest",
-        action: "navigation.rest.jump",
+        action: "navigation.jump.rest",
         icon: "arrow_forward",
         keywords: ["rest", "jump", "page", "navigation"],
       },
       {
         keys: [getPlatformAlternateKey(), "Q"],
         label: "shortcut.navigation.graphql",
-        action: "navigation.graphql.jump",
+        action: "navigation.jump.graphql",
         icon: "arrow_forward",
         keywords: ["graphql", "jump", "page", "navigation"],
       },
       {
         keys: [getPlatformAlternateKey(), "W"],
         label: "shortcut.navigation.realtime",
-        action: "navigation.realtime.jump",
+        action: "navigation.jump.realtime",
         icon: "arrow_forward",
         keywords: [
           "realtime",
@@ -141,14 +197,14 @@ export const spotlight = [
       {
         keys: [getPlatformAlternateKey(), "D"],
         label: "shortcut.navigation.documentation",
-        action: "navigation.documentation.jump",
+        action: "navigation.jump.documentation",
         icon: "arrow_forward",
         keywords: ["documentation", "jump", "page", "navigation"],
       },
       {
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
-        action: "navigation.settings.jump",
+        action: "navigation.jump.settings",
         icon: "arrow_forward",
         keywords: [
           "settings",
@@ -158,6 +214,18 @@ export const spotlight = [
           "account",
           "theme",
         ],
+      },
+    ],
+  },
+  {
+    section: "Miscellaneous",
+    shortcuts: [
+      {
+        keys: [getPlatformSpecialKey(), "M"],
+        label: "shortcut.miscellaneous.invite",
+        action: "modals.share.toggle",
+        icon: "person_add_alt",
+        keywords: ["invite", "share", "app", "social"],
       },
     ],
   },

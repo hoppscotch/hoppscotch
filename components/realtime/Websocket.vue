@@ -97,7 +97,7 @@
                 name="message"
                 type="text"
               />
-              <div class="flex">
+              <span>
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="
@@ -121,8 +121,8 @@
                       : false
                   "
                 />
-              </div>
-              <div class="flex">
+              </span>
+              <span>
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   :title="$t('delete')"
@@ -130,7 +130,7 @@
                   color="red"
                   @click.native="deleteProtocol({ index })"
                 />
-              </div>
+              </span>
             </div>
             <div
               v-if="protocols.length === 0"

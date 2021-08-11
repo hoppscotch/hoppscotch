@@ -235,8 +235,8 @@ pre.ace_editor {
 }
 
 .select-wrapper {
+  @apply flex flex-1;
   @apply relative;
-  @apply w-full;
   @apply cursor-pointer;
 
   &::after {
@@ -255,16 +255,18 @@ pre.ace_editor {
 }
 
 .search-wrapper {
+  @apply flex flex-1;
   @apply relative;
-  @apply w-full;
 
   &::after {
     @apply absolute;
-    @apply inline-block;
+    @apply flex;
+    @apply inset-y-0;
+    @apply items-center;
+    @apply justify-center;
     @apply pointer-events-none;
     @apply font-icon;
     @apply text-secondaryLight;
-    @apply top-2;
     @apply left-3;
 
     content: "\e8b6";

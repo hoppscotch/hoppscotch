@@ -103,38 +103,42 @@
           })
         "
       />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="
-          header.hasOwnProperty('active')
-            ? header.active
-              ? $t('action.turn_off')
-              : $t('action.turn_on')
-            : $t('action.turn_off')
-        "
-        :icon="
-          header.hasOwnProperty('active')
-            ? header.active
-              ? 'check_box'
-              : 'check_box_outline_blank'
-            : 'check_box'
-        "
-        color="green"
-        @click.native="
-          updateHeader(index, {
-            key: header.key,
-            value: header.value,
-            active: header.hasOwnProperty('active') ? !header.active : false,
-          })
-        "
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('delete')"
-        icon="delete"
-        color="red"
-        @click.native="deleteHeader(index)"
-      />
+      <span>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="
+            header.hasOwnProperty('active')
+              ? header.active
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
+          "
+          :icon="
+            header.hasOwnProperty('active')
+              ? header.active
+                ? 'check_box'
+                : 'check_box_outline_blank'
+              : 'check_box'
+          "
+          color="green"
+          @click.native="
+            updateHeader(index, {
+              key: header.key,
+              value: header.value,
+              active: header.hasOwnProperty('active') ? !header.active : false,
+            })
+          "
+        />
+      </span>
+      <span>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('delete')"
+          icon="delete"
+          color="red"
+          @click.native="deleteHeader(index)"
+        />
+      </span>
     </div>
     <div
       v-if="headers$.length === 0"

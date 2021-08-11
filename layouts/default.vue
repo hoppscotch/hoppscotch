@@ -54,20 +54,26 @@ export default defineComponent({
   setup() {
     hookKeybindingsListener()
     const router = useRouter()
-    defineActionHandler("navigation.rest.jump", () => {
+    defineActionHandler("navigation.jump.rest", () => {
       router.push({ path: "/" })
     })
-    defineActionHandler("navigation.graphql.jump", () => {
+    defineActionHandler("navigation.jump.graphql", () => {
       router.push({ path: "/graphql" })
     })
-    defineActionHandler("navigation.realtime.jump", () => {
+    defineActionHandler("navigation.jump.realtime", () => {
       router.push({ path: "/realtime" })
     })
-    defineActionHandler("navigation.documentation.jump", () => {
+    defineActionHandler("navigation.jump.documentation", () => {
       router.push({ path: "/documentation" })
     })
-    defineActionHandler("navigation.settings.jump", () => {
+    defineActionHandler("navigation.jump.settings", () => {
       router.push({ path: "/settings" })
+    })
+    defineActionHandler("navigation.jump.back", () => {
+      router.go(-1)
+    })
+    defineActionHandler("navigation.jump.forward", () => {
+      router.go(1)
     })
   },
   data() {

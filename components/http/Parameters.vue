@@ -124,38 +124,42 @@
           })
         "
       />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="
-          param.hasOwnProperty('active')
-            ? param.active
-              ? $t('action.turn_off')
-              : $t('action.turn_on')
-            : $t('action.turn_off')
-        "
-        :icon="
-          param.hasOwnProperty('active')
-            ? param.active
-              ? 'check_box'
-              : 'check_box_outline_blank'
-            : 'check_box'
-        "
-        color="green"
-        @click.native="
-          updateParam(index, {
-            key: param.key,
-            value: param.value,
-            active: param.hasOwnProperty('active') ? !param.active : false,
-          })
-        "
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('delete')"
-        icon="delete"
-        color="red"
-        @click.native="deleteParam(index)"
-      />
+      <span>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="
+            param.hasOwnProperty('active')
+              ? param.active
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
+          "
+          :icon="
+            param.hasOwnProperty('active')
+              ? param.active
+                ? 'check_box'
+                : 'check_box_outline_blank'
+              : 'check_box'
+          "
+          color="green"
+          @click.native="
+            updateParam(index, {
+              key: param.key,
+              value: param.value,
+              active: param.hasOwnProperty('active') ? !param.active : false,
+            })
+          "
+        />
+      </span>
+      <span>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('delete')"
+          icon="delete"
+          color="red"
+          @click.native="deleteParam(index)"
+        />
+      </span>
     </div>
     <div
       v-if="params$.length === 0"

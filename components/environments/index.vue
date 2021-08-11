@@ -18,12 +18,12 @@
             bg-primaryLight
             border-b border-dividerLight
             flex
-            font-semibold font-mono
+            font-semibold
             w-full
             py-2
             px-4
-            focus:outline-none
             appearance-none
+            focus:outline-none
           "
         >
           <option :value="-1">No environment</option>

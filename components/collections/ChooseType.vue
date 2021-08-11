@@ -21,12 +21,12 @@
                 bg-primaryLight
                 border-b border-dividerLight
                 flex
-                font-medium
+                font-semibold
                 w-full
                 py-2
                 px-4
-                focus:outline-none
                 appearance-none
+                focus:outline-none
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >

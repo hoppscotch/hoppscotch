@@ -20,11 +20,13 @@ export type HoppAction =
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
-  | "navigation.rest.jump" // Jump to REST page
-  | "navigation.graphql.jump" // Jump to GraphQL page
-  | "navigation.realtime.jump" // Jump to realtime page
-  | "navigation.documentation.jump" // Jump to documentation page
-  | "navigation.settings.jump" // Jump to settings page
+  | "navigation.jump.rest" // Jump to REST page
+  | "navigation.jump.graphql" // Jump to GraphQL page
+  | "navigation.jump.realtime" // Jump to realtime page
+  | "navigation.jump.documentation" // Jump to documentation page
+  | "navigation.jump.settings" // Jump to settings page
+  | "navigation.jump.back" // Jump to previous page
+  | "navigation.jump.forward" // Jump to next page
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

@@ -135,32 +135,34 @@
           </SmartDeletableChip>
         </div>
       </div>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="
-          param.hasOwnProperty('active')
-            ? param.active
-              ? $t('action.turn_off')
-              : $t('action.turn_on')
-            : $t('action.turn_off')
-        "
-        :icon="
-          param.hasOwnProperty('active')
-            ? param.active
-              ? 'check_box'
-              : 'check_box_outline_blank'
-            : 'check_box'
-        "
-        color="green"
-        @click.native="
-          updateBodyParam(index, {
-            key: param.key,
-            value: param.value,
-            active: param.hasOwnProperty('active') ? !param.active : false,
-          })
-        "
-      />
-      <div>
+      <span>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="
+            param.hasOwnProperty('active')
+              ? param.active
+                ? $t('action.turn_off')
+                : $t('action.turn_on')
+              : $t('action.turn_off')
+          "
+          :icon="
+            param.hasOwnProperty('active')
+              ? param.active
+                ? 'check_box'
+                : 'check_box_outline_blank'
+              : 'check_box'
+          "
+          color="green"
+          @click.native="
+            updateBodyParam(index, {
+              key: param.key,
+              value: param.value,
+              active: param.hasOwnProperty('active') ? !param.active : false,
+            })
+          "
+        />
+      </span>
+      <span>
         <label for="attachment" class="p-0">
           <ButtonSecondary
             class="w-full"
@@ -176,14 +178,16 @@
           multiple
           @change="setRequestAttachment($event, index)"
         />
-      </div>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('delete')"
-        icon="delete"
-        color="red"
-        @click.native="deleteBodyParam(index)"
-      />
+      </span>
+      <span>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('delete')"
+          icon="delete"
+          color="red"
+          @click.native="deleteBodyParam(index)"
+        />
+      </span>
     </div>
     <div
       v-if="bodyParams.length === 0"

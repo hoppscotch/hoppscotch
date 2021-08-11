@@ -86,12 +86,14 @@ export const bindings: {
   "ctrl-k": "flyouts.keybinds.toggle",
   "/": "modals.search.toggle",
   "?": "modals.support.toggle",
-  "ctrl-x": "modals.share.toggle",
-  "alt-r": "navigation.rest.jump",
-  "alt-q": "navigation.graphql.jump",
-  "alt-w": "navigation.realtime.jump",
-  "alt-d": "navigation.documentation.jump",
-  "alt-s": "navigation.settings.jump",
+  "ctrl-m": "modals.share.toggle",
+  "alt-r": "navigation.jump.rest",
+  "alt-q": "navigation.jump.graphql",
+  "alt-w": "navigation.jump.realtime",
+  "alt-d": "navigation.jump.documentation",
+  "alt-s": "navigation.jump.settings",
+  "ctrl-left": "navigation.jump.back",
+  "ctrl-right": "navigation.jump.forward",
 }
 
 /**

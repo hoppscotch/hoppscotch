@@ -207,7 +207,7 @@
   },
   "test": {
     "script": "Script",
-    "results": "Results"
+    "results": "Test Results"
   },
   "shortcut": {
     "general": {

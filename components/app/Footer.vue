@@ -35,7 +35,6 @@
                 v-tippy="{ theme: 'tooltip' }"
                 icon="help_center"
                 :title="$t('app.help')"
-                :shortcut="['?']"
               />
             </template>
             <div class="flex flex-col">
@@ -89,7 +88,6 @@
           v-tippy="{ theme: 'tooltip' }"
           icon="keyboard"
           :title="$t('shortcuts')"
-          :shortcut="['?']"
           @click.native="showShortcuts = true"
         />
         <ButtonSecondary

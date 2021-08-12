@@ -17,6 +17,9 @@
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>
+    <SmartTab id="results" :label="$t('test.results')">
+      <HttpTestResult />
+    </SmartTab>
   </SmartTabs>
 </template>
 

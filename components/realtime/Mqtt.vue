@@ -34,6 +34,33 @@
       </ul>
     </AppSection>
 
+    <AppSection label="request">
+      <ul>
+        <li>
+          <label for="mqtt-username">{{ $t("username") }} (optional)</label>
+          <input
+            id="mqtt-username"
+            v-model="username"
+            type="text"
+            spellcheck="false"
+            class="input md:rounded-bl-lg"
+            :placeholder="$t('username')"
+          />
+        </li>
+        <li>
+          <label for="mqtt-password">{{ $t("password") }} (optional)</label>
+          <input
+            id="mqtt-password"
+            v-model="password"
+            type="password"
+            spellcheck="false"
+            class="input md:rounded-bl-lg"
+            :placeholder="$t('password')"
+          />
+        </li>
+      </ul>
+    </AppSection>
+
     <AppSection label="response">
       <ul>
         <li>
@@ -127,6 +154,8 @@ export default {
   data() {
     return {
       url: "wss://test.mosquitto.org:8081",
+      username: "",
+      password: "",
       isUrlValid: true,
       client: null,
       pub_topic: "",
@@ -185,11 +214,18 @@ export default {
         parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
         "postwoman"
       )
-      this.client.connect({
+      const opts = {
         onSuccess: this.onConnectionSuccess,
         onFailure: this.onConnectionFailure,
-        useSSL: true,
-      })
+        useSSL: parseUrl.protocol !== "ws:",
+      }
+      if (this.username !== "") {
+        opts.userName = this.username
+      }
+      if (this.password !== "") {
+        opts.password = this.password
+      }
+      this.client.connect(opts)
       this.client.onConnectionLost = this.onConnectionLost
       this.client.onMessageArrived = this.onMessageArrived
 

@@ -92,10 +92,10 @@ export default {
   },
   computed: {
     filteredMappings() {
-      return this.mappings.filter((map) =>
-        map.shortcuts.find((shortcut) =>
-          shortcut.keywords.find((key) =>
-            key.includes(this.search.toLowerCase())
+      return this.mappings.filter((mapping) =>
+        mapping.shortcuts.some((shortcut) =>
+          shortcut.keywords.some((keyword) =>
+            keyword.toLowerCase().includes(this.search.toLowerCase())
           )
         )
       )

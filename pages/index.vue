@@ -26,7 +26,7 @@
               <HttpHeaders />
             </SmartTab>
 
-            <SmartTab :id="'authentication'" :label="$t('authentication')">
+            <SmartTab :id="'authorization'" :label="$t('authorization')">
               <HttpAuth />
             </SmartTab>
 

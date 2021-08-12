@@ -1,32 +1,52 @@
 <template>
   <div>
     <div class="flex flex-1 p-2 items-center justify-between">
-      <tippy
-        ref="contentTypeOptions"
-        interactive
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <div class="flex">
-            <span class="select-wrapper">
-              <ButtonSecondary class="pr-8" :label="contentType" outline />
-            </span>
-          </div>
-        </template>
-        <SmartItem
-          v-for="(contentTypeItem, index) in validContentTypes"
-          :key="`contentTypeItem-${index}`"
-          :label="contentTypeItem"
-          :info-icon="contentTypeItem === contentType ? 'done' : ''"
-          :active-info-icon="contentTypeItem === contentType"
-          @click.native="
-            contentType = contentTypeItem
-            $refs.contentTypeOptions.tippy().hide()
+      <span class="flex">
+        <span
+          class="
+            border
+            rounded-r-none rounded
+            border-divider border-r-0
+            font-semibold
+            text-secondaryLight
+            py-2
+            px-4
+            py-2
           "
-        />
-      </tippy>
+        >
+          {{ $t("content_type") }}
+        </span>
+        <tippy
+          ref="contentTypeOptions"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+        >
+          <template #trigger>
+            <div class="flex">
+              <span class="select-wrapper">
+                <ButtonSecondary
+                  :label="contentType"
+                  outline
+                  class="rounded-l-none pr-8"
+                />
+              </span>
+            </div>
+          </template>
+          <SmartItem
+            v-for="(contentTypeItem, index) in validContentTypes"
+            :key="`contentTypeItem-${index}`"
+            :label="contentTypeItem"
+            :info-icon="contentTypeItem === contentType ? 'done' : ''"
+            :active-info-icon="contentTypeItem === contentType"
+            @click.native="
+              contentType = contentTypeItem
+              $refs.contentTypeOptions.tippy().hide()
+            "
+          />
+        </tippy>
+      </span>
       <SmartToggle :on="rawInput" class="px-2" @change="rawInput = !rawInput">
         {{ $t("raw_input") }}
       </SmartToggle>

@@ -113,6 +113,7 @@ export default defineComponent({
             testScript: "",
             auth: {
               authType: "none",
+              authActive: true,
             },
             body: {
               contentType: "application/json",

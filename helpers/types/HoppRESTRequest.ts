@@ -115,11 +115,13 @@ export function parseOldAuth(x: any): HoppRESTAuth {
   if (!x.auth || x.auth === "None")
     return {
       authType: "none",
+      authActive: true,
     }
 
   if (x.auth === "Basic Auth")
     return {
       authType: "basic",
+      authActive: true,
       username: x.httpUser,
       password: x.httpPassword,
     }
@@ -127,8 +129,9 @@ export function parseOldAuth(x: any): HoppRESTAuth {
   if (x.auth === "Bearer Token")
     return {
       authType: "bearer",
+      authActive: true,
       token: x.bearerToken,
     }
 
-  return { authType: "none" }
+  return { authType: "none", authActive: true }
 }

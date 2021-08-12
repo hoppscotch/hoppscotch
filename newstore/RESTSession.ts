@@ -129,6 +129,7 @@ const defaultRESTRequest: HoppRESTRequest = {
   method: "GET",
   auth: {
     authType: "none",
+    authActive: true,
   },
   preRequestScript: "// pw.env.set('variable', 'value');",
   testScript: "// pw.expect('variable').toBe('value');",

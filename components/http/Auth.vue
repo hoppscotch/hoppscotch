@@ -1,52 +1,77 @@
 <template>
   <div>
     <div class="flex flex-1 p-2 items-center justify-between">
-      <tippy
-        ref="authTypeOptions"
-        interactive
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <div class="flex">
-            <span class="select-wrapper">
-              <ButtonSecondary
-                class="pr-8"
-                :label="`${$t('authentication')}: ${authType}`"
-                outline
-              />
-            </span>
-          </div>
-        </template>
-        <SmartItem
-          label="None"
-          @click.native="
-            authType = 'none'
-            $refs.authTypeOptions.tippy().hide()
+      <span class="flex">
+        <span
+          class="
+            border
+            rounded-r-none rounded
+            border-divider border-r-0
+            font-semibold
+            text-secondaryLight
+            py-2
+            px-4
+            py-2
           "
+        >
+          {{ $t("authorization_type") }}
+        </span>
+        <tippy
+          ref="authTypeOptions"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+        >
+          <template #trigger>
+            <div class="flex">
+              <span class="select-wrapper">
+                <ButtonSecondary
+                  class="rounded-l-none pr-8"
+                  :label="authType.charAt(0).toUpperCase() + authType.slice(1)"
+                  outline
+                />
+              </span>
+            </div>
+          </template>
+          <SmartItem
+            label="None"
+            @click.native="
+              authType = 'none'
+              $refs.authTypeOptions.tippy().hide()
+            "
+          />
+          <SmartItem
+            label="Basic"
+            @click.native="
+              authType = 'basic'
+              $refs.authTypeOptions.tippy().hide()
+            "
+          />
+          <SmartItem
+            label="Bearer"
+            @click.native="
+              authType = 'bearer'
+              $refs.authTypeOptions.tippy().hide()
+            "
+          />
+        </tippy>
+      </span>
+      <div class="flex">
+        <SmartToggle
+          :on="authActive"
+          class="mr-2 px-2"
+          @change="authActive = !authActive"
+        >
+          {{ authActive ? $t("enabled") : $t("disabled") }}
+        </SmartToggle>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent"
         />
-        <SmartItem
-          label="Basic"
-          @click.native="
-            authType = 'basic'
-            $refs.authTypeOptions.tippy().hide()
-          "
-        />
-        <SmartItem
-          label="Bearer"
-          @click.native="
-            authType = 'bearer'
-            $refs.authTypeOptions.tippy().hide()
-          "
-        />
-      </tippy>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('clear')"
-        icon="clear_all"
-        @click.native="clearContent"
-      />
+      </div>
     </div>
     <div v-if="authType === 'basic'" class="space-y-2 p-2">
       <div class="flex relative">
@@ -130,9 +155,14 @@ import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
   setup() {
-    const auth = useStream(restAuth$, { authType: "none" }, setRESTAuth)
+    const auth = useStream(
+      restAuth$,
+      { authType: "none", authActive: true },
+      setRESTAuth
+    )
 
     const authType = pluckRef(auth, "authType")
+    const authActive = pluckRef(auth, "authActive")
 
     const basicUsername = pluckRef(auth as Ref<HoppRESTAuthBasic>, "username")
     const basicPassword = pluckRef(auth as Ref<HoppRESTAuthBasic>, "password")
@@ -141,11 +171,12 @@ export default defineComponent({
 
     const URLExcludes = useSetting("URL_EXCLUDES")
 
-    const passwordFieldType = ref("text")
+    const passwordFieldType = ref("password")
 
     const clearContent = () => {
       auth.value = {
         authType: "none",
+        authActive: true,
       }
     }
 
@@ -158,6 +189,7 @@ export default defineComponent({
     return {
       auth,
       authType,
+      authActive,
       basicUsername,
       basicPassword,
       bearerToken,

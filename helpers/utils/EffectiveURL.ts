@@ -41,21 +41,23 @@ export function getEffectiveRESTRequest(
     }))
 
   // Authentication
-  // TODO: Support a better b64 implementation than btoa ?
-  if (request.auth.authType === "basic") {
-    effectiveFinalHeaders.push({
-      active: true,
-      key: "Authorization",
-      value: `Basic ${btoa(
-        `${request.auth.username}:${request.auth.password}`
-      )}`,
-    })
-  } else if (request.auth.authType === "bearer") {
-    effectiveFinalHeaders.push({
-      active: true,
-      key: "Authorization",
-      value: `Bearer ${request.auth.token}`,
-    })
+  if (request.auth.authActive) {
+    // TODO: Support a better b64 implementation than btoa ?
+    if (request.auth.authType === "basic") {
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: `Basic ${btoa(
+          `${request.auth.username}:${request.auth.password}`
+        )}`,
+      })
+    } else if (request.auth.authType === "bearer") {
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: `Bearer ${request.auth.token}`,
+      })
+    }
   }
 
   return {

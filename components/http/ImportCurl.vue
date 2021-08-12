@@ -111,6 +111,9 @@ export default defineComponent({
             headers,
             preRequestScript: "",
             testScript: "",
+            auth: {
+              authType: "none",
+            },
             body: {
               contentType: "application/json",
               body: "",

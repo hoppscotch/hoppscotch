@@ -10,45 +10,34 @@
           {{ $t("request.choose_language") }}
         </label>
         <div class="flex flex-1">
-          <span class="select-wrapper">
-            <tippy
-              ref="options"
-              interactive
-              trigger="click"
-              theme="popover"
-              arrow
-            >
-              <template #trigger>
-                <span
-                  class="
-                    bg-primaryLight
-                    border border-dividerLight
-                    rounded
-                    cursor-pointer
-                    flex
-                    font-semibold
-                    w-full
-                    py-2
-                    px-4
-                    focus:outline-none
-                  "
-                >
-                  {{ codegens.find((x) => x.id === codegenType).name }}
-                </span>
-              </template>
-              <SmartItem
-                v-for="(gen, index) in codegens"
-                :key="`gen-${index}`"
-                :label="gen.name"
-                :info-icon="gen.id === codegenType ? 'done' : ''"
-                :active-info-icon="gen.id === codegenType"
-                @click.native="
-                  codegenType = gen.id
-                  $refs.options.tippy().hide()
-                "
-              />
-            </tippy>
-          </span>
+          <tippy
+            ref="options"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+          >
+            <template #trigger>
+              <span class="select-wrapper">
+                <ButtonSecondary
+                  :label="codegens.find((x) => x.id === codegenType).name"
+                  outline
+                  class="w-full"
+                />
+              </span>
+            </template>
+            <SmartItem
+              v-for="(gen, index) in codegens"
+              :key="`gen-${index}`"
+              :label="gen.name"
+              :info-icon="gen.id === codegenType ? 'done' : ''"
+              :active-info-icon="gen.id === codegenType"
+              @click.native="
+                codegenType = gen.id
+                $refs.options.tippy().hide()
+              "
+            />
+          </tippy>
         </div>
         <div class="flex flex-1 justify-between">
           <label for="generatedCode" class="font-semibold px-4 pt-4 pb-4">
@@ -120,6 +109,7 @@ export default defineComponent({
       const path = urlObj.pathname
 
       // TODO: Solidify
+      // TODO: Implement updated auth stuff
       return codegens
         .find((x) => x.id === this.codegenType)!
         .generator({

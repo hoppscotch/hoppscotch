@@ -1,4 +1,5 @@
 import { ValidContentTypes } from "../utils/contenttypes"
+import { HoppRESTAuth } from "./HoppRESTAuth"
 
 export const RESTReqSchemaVersion = "1"
 
@@ -30,6 +31,8 @@ export interface HoppRESTRequest {
   headers: HoppRESTHeader[]
   preRequestScript: string
   testScript: string
+
+  auth: HoppRESTAuth
 
   body: HoppRESTReqBody
 }
@@ -89,6 +92,8 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
 
     const body = parseRequestBody(x)
 
+    const auth = parseOldAuth(x)
+
     const result: HoppRESTRequest = {
       name,
       endpoint,
@@ -98,9 +103,32 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       preRequestScript,
       testScript,
       body,
+      auth,
       v: RESTReqSchemaVersion,
     }
 
     return result
   }
+}
+
+export function parseOldAuth(x: any): HoppRESTAuth {
+  if (!x.auth || x.auth === "None")
+    return {
+      authType: "none",
+    }
+
+  if (x.auth === "Basic Auth")
+    return {
+      authType: "basic",
+      username: x.httpUser,
+      password: x.httpPassword,
+    }
+
+  if (x.auth === "Bearer Token")
+    return {
+      authType: "bearer",
+      token: x.bearerToken,
+    }
+
+  return { authType: "none" }
 }

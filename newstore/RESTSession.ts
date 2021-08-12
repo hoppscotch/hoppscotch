@@ -11,6 +11,7 @@ import {
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useStream } from "~/helpers/utils/composables"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { HoppRESTAuth } from "~/helpers/types/HoppRESTAuth"
 
 function getParamsInURL(url: string): { key: string; value: string }[] {
   const result: { key: string; value: string }[] = []
@@ -126,6 +127,9 @@ const defaultRESTRequest: HoppRESTRequest = {
   params: [],
   headers: [],
   method: "GET",
+  auth: {
+    authType: "none",
+  },
   preRequestScript: "// pw.env.set('variable', 'value');",
   testScript: "// pw.expect('variable').toBe('value');",
   body: {
@@ -327,6 +331,14 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setAuth(curr: RESTSession, { newAuth }: { newAuth: HoppRESTAuth }) {
+    return {
+      request: {
+        ...curr.request,
+        auth: newAuth,
+      },
+    }
+  },
   setPreRequestScript(curr: RESTSession, { newScript }: { newScript: string }) {
     return {
       request: {
@@ -508,6 +520,15 @@ export function deleteAllRESTHeaders() {
   })
 }
 
+export function setRESTAuth(newAuth: HoppRESTAuth) {
+  restSessionStore.dispatch({
+    dispatcher: "setAuth",
+    payload: {
+      newAuth,
+    },
+  })
+}
+
 export function setRESTPreRequestScript(newScript: string) {
   restSessionStore.dispatch({
     dispatcher: "setPreRequestScript",
@@ -597,6 +618,8 @@ export const restHeaders$ = restSessionStore.subject$.pipe(
 export const restActiveHeadersCount$ = restHeaders$.pipe(
   map((params) => params.filter((x) => x.active).length)
 )
+
+export const restAuth$ = restRequest$.pipe(pluck("auth"))
 
 export const restPreRequestScript$ = restSessionStore.subject$.pipe(
   pluck("request", "preRequestScript"),

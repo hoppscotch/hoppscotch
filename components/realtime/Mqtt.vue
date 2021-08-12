@@ -34,7 +34,7 @@
       </ul>
     </AppSection>
 
-    <AppSection label="request">
+    <AppSection label="auth">
       <ul>
         <li>
           <label for="mqtt-username">{{ $t("username") }} (optional)</label>

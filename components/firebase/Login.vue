@@ -130,10 +130,18 @@ import {
   signInWithEmail,
 } from "~/helpers/fb/auth"
 import { setLocalConfig } from "~/newstore/localpersistence"
+import { useStreamSubscriber } from "~/helpers/utils/composables"
 
 export default {
   props: {
     show: Boolean,
+  },
+  setup() {
+    const { subscribeToStream } = useStreamSubscriber()
+
+    return {
+      subscribeToStream,
+    }
   },
   data() {
     return {
@@ -149,7 +157,7 @@ export default {
     }
   },
   mounted() {
-    this.$subscribeTo(currentUser$, (user) => {
+    this.subscribeToStream(currentUser$, (user) => {
       if (user) this.hideModal()
     })
   },

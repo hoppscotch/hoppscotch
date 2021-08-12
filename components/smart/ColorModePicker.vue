@@ -15,23 +15,19 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   applySetting,
-  getSettingSubject,
   HoppBgColor,
   HoppBgColors,
+  useSetting,
 } from "~/newstore/settings"
 
-export default Vue.extend({
-  data() {
+export default defineComponent({
+  setup() {
     return {
       colors: HoppBgColors,
-    }
-  },
-  subscriptions() {
-    return {
-      active: getSettingSubject("BG_COLOR"),
+      active: useSetting("BG_COLOR"),
     }
   },
   methods: {

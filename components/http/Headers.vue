@@ -159,7 +159,8 @@
   </AppSection>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   restHeaders$,
   addRESTHeader,
@@ -168,21 +169,20 @@ import {
   deleteAllRESTHeaders,
 } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
-import { getSettingSubject } from "~/newstore/settings"
+import { useSetting } from "~/newstore/settings"
+import { useReadonlyStream } from "~/helpers/utils/composables"
+import { HoppRESTHeader } from "~/helpers/types/HoppRESTRequest"
 
-export default {
+export default defineComponent({
+  setup() {
+    return {
+      headers$: useReadonlyStream(restHeaders$, []),
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
+    }
+  },
   data() {
     return {
       commonHeaders,
-      headers$: [],
-    }
-  },
-  subscriptions() {
-    return {
-      headers$: restHeaders$,
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
-        "EXPERIMENTAL_URL_BAR_ENABLED"
-      ),
     }
   },
   watch: {
@@ -208,16 +208,16 @@ export default {
     addHeader() {
       addRESTHeader({ key: "", value: "", active: true })
     },
-    updateHeader(index, item) {
+    updateHeader(index: number, item: HoppRESTHeader) {
       console.log(index, item)
       updateRESTHeader(index, item)
     },
-    deleteHeader(index) {
+    deleteHeader(index: number) {
       deleteRESTHeader(index)
     },
     clearContent() {
       deleteAllRESTHeaders()
     },
   },
-}
+})
 </script>

@@ -180,7 +180,10 @@
   </AppSection>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
+import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restParams$,
   addRESTParam,
@@ -188,20 +191,13 @@ import {
   deleteRESTParam,
   deleteAllRESTParams,
 } from "~/newstore/RESTSession"
-import { getSettingSubject } from "~/newstore/settings"
+import { useSetting } from "~/newstore/settings"
 
-export default {
-  data() {
+export default defineComponent({
+  setup() {
     return {
-      params$: [],
-    }
-  },
-  subscriptions() {
-    return {
-      params$: restParams$,
-      EXPERIMENTAL_URL_BAR_ENABLED: getSettingSubject(
-        "EXPERIMENTAL_URL_BAR_ENABLED"
-      ),
+      params$: useReadonlyStream(restParams$, []),
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
     }
   },
   watch: {
@@ -226,15 +222,15 @@ export default {
     addParam() {
       addRESTParam({ key: "", value: "", active: true })
     },
-    updateParam(index, item) {
+    updateParam(index: number, item: HoppRESTParam) {
       updateRESTParam(index, item)
     },
-    deleteParam(index) {
+    deleteParam(index: number) {
       deleteRESTParam(index)
     },
     clearContent() {
       deleteAllRESTParams()
     },
   },
-}
+})
 </script>

@@ -36,7 +36,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useRouter } from "@nuxtjs/composition-api"
+import {
+  defineComponent,
+  useContext,
+  useRouter,
+  watch,
+} from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
@@ -44,7 +49,7 @@ import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { initializeFirebase } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+import { useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
@@ -52,8 +57,12 @@ import { defineActionHandler } from "~/helpers/actions"
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
+    const { $colorMode } = useContext() as any
+
     hookKeybindingsListener()
+
     const router = useRouter()
+
     defineActionHandler("navigation.jump.rest", () => {
       router.push({ path: "/" })
     })
@@ -75,18 +84,31 @@ export default defineComponent({
     defineActionHandler("navigation.jump.forward", () => {
       router.go(1)
     })
+
+    // Apply theme updates
+    const themeColor = useSetting("THEME_COLOR")
+    const bgColor = useSetting("BG_COLOR")
+    const fontSize = useSetting("FONT_SIZE")
+
+    watch(themeColor, () =>
+      document.documentElement.setAttribute("data-accent", themeColor.value)
+    )
+    watch(bgColor, () => ($colorMode.preference = bgColor.value))
+    watch(fontSize, () =>
+      document.documentElement.setAttribute(
+        "data-font-size",
+        fontSize.value.code
+      )
+    )
+
+    return {
+      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+      ZEN_MODE: useSetting("ZEN_MODE"),
+    }
   },
   data() {
     return {
-      LEFT_SIDEBAR: null,
-      ZEN_MODE: null,
       windowInnerWidth: 0,
-    }
-  },
-  subscriptions() {
-    return {
-      LEFT_SIDEBAR: getSettingSubject("LEFT_SIDEBAR"),
-      ZEN_MODE: getSettingSubject("ZEN_MODE"),
     }
   },
   watch: {
@@ -98,18 +120,6 @@ export default defineComponent({
     setupLocalPersistence()
 
     registerApolloAuthUpdate()
-
-    this.$subscribeTo(getSettingSubject("THEME_COLOR"), (color) => {
-      document.documentElement.setAttribute("data-accent", color)
-    })
-
-    this.$subscribeTo(getSettingSubject("BG_COLOR"), (color) => {
-      ;(this as any).$colorMode.preference = color
-    })
-
-    this.$subscribeTo(getSettingSubject("FONT_SIZE"), (size) => {
-      document.documentElement.setAttribute("data-font-size", size.code)
-    })
   },
   async mounted() {
     window.addEventListener("resize", this.handleResize)

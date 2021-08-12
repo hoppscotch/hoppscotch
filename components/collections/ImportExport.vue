@@ -166,18 +166,26 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restCollections$,
   setRESTCollections,
   appendRESTCollections,
 } from "~/newstore/collections"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
     collectionsType: { type: Object, default: () => {} },
+  },
+  setup() {
+    return {
+      myCollections: useReadonlyStream(restCollections$, []),
+      currentUser: useReadonlyStream(currentUser$, null),
+    }
   },
   data() {
     return {
@@ -185,12 +193,6 @@ export default {
       mode: "import_export",
       mySelectedCollectionID: undefined,
       collectionJson: "",
-    }
-  },
-  subscriptions() {
-    return {
-      myCollections: restCollections$,
-      currentUser: currentUser$,
     }
   },
   methods: {
@@ -547,5 +549,5 @@ export default {
       return Object.prototype.hasOwnProperty.call(item, "item")
     },
   },
-}
+})
 </script>

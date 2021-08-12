@@ -5,19 +5,23 @@
   </AppSection>
 </template>
 
-<script>
+<script lang="ts">
+import { computed, defineComponent } from "@nuxtjs/composition-api"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import { restResponse$ } from "~/newstore/RESTSession"
 
-export default {
-  subscriptions() {
+export default defineComponent({
+  setup() {
+    const response = useReadonlyStream(restResponse$, null)
+
+    const loading = computed(
+      () => response.value === null || response.value.type === "loading"
+    )
+
     return {
-      response: restResponse$,
+      response,
+      loading,
     }
   },
-  computed: {
-    loading() {
-      return this.response === null || this.response.type === "loading"
-    },
-  },
-}
+})
 </script>

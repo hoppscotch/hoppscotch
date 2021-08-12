@@ -85,7 +85,9 @@
   </AppSection>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restHistory$,
   graphqlHistory$,
@@ -98,9 +100,17 @@ import {
 } from "~/newstore/history"
 import { setRESTRequest } from "~/newstore/RESTSession"
 
-export default {
+export default defineComponent({
   props: {
     page: { type: String, default: null },
+  },
+  setup(props) {
+    return {
+      history: useReadonlyStream(
+        props.page === "rest" ? restHistory$ : graphqlHistory$,
+        []
+      ),
+    }
   },
   data() {
     return {
@@ -109,13 +119,8 @@ export default {
       confirmRemove: false,
     }
   },
-  subscriptions() {
-    return {
-      history: this.page === "rest" ? restHistory$ : graphqlHistory$,
-    }
-  },
   computed: {
-    filteredHistory() {
+    filteredHistory(): any[] {
       const filteringHistory = this.history
 
       return filteringHistory.filter((entry) => {
@@ -133,27 +138,27 @@ export default {
       if (this.page === "rest") clearRESTHistory()
       else clearGraphqlHistory()
 
-      this.$toast.error(this.$t("history_deleted"), {
+      this.$toast.error(this.$t("history_deleted").toString(), {
         icon: "delete",
       })
     },
-    useHistory(entry) {
+    useHistory(entry: any) {
       if (this.page === "rest") setRESTRequest(entry)
       // TODO: restore gql entry to request section
       else console.log("not implemented yet")
     },
-    deleteHistory(entry) {
+    deleteHistory(entry: any) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)
       else deleteGraphqlHistoryEntry(entry)
 
-      this.$toast.error(this.$t("deleted"), {
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
     },
-    toggleStar(entry) {
+    toggleStar(entry: any) {
       if (this.page === "rest") toggleRESTHistoryEntryStar(entry)
       else toggleGraphqlHistoryEntryStar(entry)
     },
   },
-}
+})
 </script>

@@ -92,6 +92,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { removeGraphqlRequest } from "~/newstore/collections"
+import { setGQLSession } from "~/newstore/GQLSession"
 
 export default Vue.extend({
   props: {
@@ -133,6 +134,16 @@ export default Vue.extend({
     selectRequest() {
       if (this.savingMode) {
         this.pick()
+      } else {
+        setGQLSession({
+          name: this.$props.request.name,
+          url: this.$props.request.url,
+          query: this.$props.request.query,
+          headers: this.$props.request.headers,
+          variables: this.$props.request.variables,
+          schema: "",
+          response: "",
+        })
       }
     },
     dragStart({ dataTransfer }: any) {

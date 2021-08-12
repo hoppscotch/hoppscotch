@@ -265,7 +265,6 @@
     <CollectionsSaveRequest
       mode="graphql"
       :show="showSaveRequestModal"
-      :editing-request="editRequest"
       @hide-modal="hideRequestModal"
     />
   </div>
@@ -333,7 +332,6 @@ export default defineComponent({
     const prettifyQueryIcon = ref("photo_filter")
     const copyVariablesIcon = ref("content_copy")
 
-    const editRequest = ref({})
     const showSaveRequestModal = ref(false)
 
     const schema = useReadonlyStream(props.conn.schemaString$, "")
@@ -408,7 +406,6 @@ export default defineComponent({
     }
 
     const hideRequestModal = () => {
-      editRequest.value = {}
       showSaveRequestModal.value = false
     }
 
@@ -419,14 +416,6 @@ export default defineComponent({
     }
 
     const saveRequest = () => {
-      // TODO: Make the modal get the data from the session state
-      editRequest.value = {
-        url: url.value,
-        query: gqlQueryString.value,
-        headers: headers.value,
-        variables: variableString.value,
-      }
-
       showSaveRequestModal.value = true
     }
 
@@ -463,7 +452,6 @@ export default defineComponent({
 
       queryEditor,
 
-      editRequest,
       showSaveRequestModal,
       hideRequestModal,
 

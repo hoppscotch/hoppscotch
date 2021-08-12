@@ -55,6 +55,7 @@ import {
   editGraphqlRequest,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
+import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
 import { getRESTRequest, useRESTRequestName } from "~/newstore/RESTSession"
 
 export default defineComponent({
@@ -63,9 +64,10 @@ export default defineComponent({
     mode: { type: String, default: "rest" },
     show: Boolean,
   },
-  setup() {
+  setup(props) {
     return {
-      requestName: useRESTRequestName(),
+      requestName:
+        props.mode === "rest" ? useRESTRequestName() : useGQLRequestName(),
     }
   },
   data() {
@@ -118,7 +120,8 @@ export default defineComponent({
         return
       }
 
-      const requestUpdated = getRESTRequest()
+      const requestUpdated =
+        this.mode === "rest" ? getRESTRequest() : getGQLSession()
 
       // Filter out all REST file inputs
       if (this.mode === "rest" && requestUpdated.bodyParams) {

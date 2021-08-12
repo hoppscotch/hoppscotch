@@ -1,5 +1,6 @@
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { useStream } from "~/helpers/utils/composables"
 
 export type GQLHeader = {
   key: string
@@ -8,8 +9,8 @@ export type GQLHeader = {
 }
 
 type GQLSession = {
+  name: string
   url: string
-  connected: boolean
   headers: GQLHeader[]
   schema: string
   query: string
@@ -17,9 +18,9 @@ type GQLSession = {
   response: string
 }
 
-const defaultGQLSession: GQLSession = {
+export const defaultGQLSession: GQLSession = {
+  name: "",
   url: "https://rickandmortyapi.com/graphql",
-  connected: false,
   headers: [],
   schema: "",
   query: `query GetCharacter($id: ID!) {
@@ -33,14 +34,17 @@ const defaultGQLSession: GQLSession = {
 }
 
 const dispatchers = defineDispatchers({
+  setSession(_: GQLSession, { session }: { session: GQLSession }) {
+    return session
+  },
+  setName(_: GQLSession, { newName }: { newName: string }) {
+    return {
+      name: newName,
+    }
+  },
   setURL(_: GQLSession, { newURL }: { newURL: string }) {
     return {
       url: newURL,
-    }
-  },
-  setConnected(_: GQLSession, { newStatus }: { newStatus: boolean }) {
-    return {
-      connected: newStatus,
     }
   },
   setHeaders(_, { headers }: { headers: GQLHeader[] }) {
@@ -98,15 +102,6 @@ export function setGQLURL(newURL: string) {
     dispatcher: "setURL",
     payload: {
       newURL,
-    },
-  })
-}
-
-export function setGQLConnected(newStatus: boolean) {
-  gqlSessionStore.dispatch({
-    dispatcher: "setConnected",
-    payload: {
-      newStatus,
     },
   })
 }
@@ -184,12 +179,36 @@ export function setGQLResponse(newResponse: string) {
   })
 }
 
-export const gqlURL$ = gqlSessionStore.subject$.pipe(
-  pluck("url"),
+export function getGQLSession() {
+  return gqlSessionStore.value
+}
+
+export function setGQLSession(session: GQLSession) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setSession",
+    payload: {
+      session,
+    },
+  })
+}
+
+export function useGQLRequestName() {
+  return useStream(gqlName$, gqlSessionStore.value.name, (val) => {
+    gqlSessionStore.dispatch({
+      dispatcher: "setName",
+      payload: {
+        newName: val,
+      },
+    })
+  })
+}
+
+export const gqlName$ = gqlSessionStore.subject$.pipe(
+  pluck("name"),
   distinctUntilChanged()
 )
-export const gqlConnected$ = gqlSessionStore.subject$.pipe(
-  pluck("connected"),
+export const gqlURL$ = gqlSessionStore.subject$.pipe(
+  pluck("url"),
   distinctUntilChanged()
 )
 export const gqlQuery$ = gqlSessionStore.subject$.pipe(

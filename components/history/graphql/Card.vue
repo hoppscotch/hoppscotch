@@ -15,7 +15,7 @@
           group-hover:text-secondaryDark
         "
         data-testid="restore_history_entry"
-        @click="$emit('use-entry')"
+        @click="useEntry"
       >
         <span class="truncate">
           {{ entry.url }}
@@ -60,30 +60,53 @@
           truncate
         "
         data-testid="restore_history_entry"
-        @click="$emit('use-entry')"
+        @click="useEntry"
         >{{ line }}</span
       >
     </div>
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { computed, defineComponent, ref } from "@nuxtjs/composition-api"
+import { setGQLSession } from "~/newstore/GQLSession"
+
+// TODO: Concrete entry data type
+
+export default defineComponent({
   props: {
     entry: { type: Object, default: () => {} },
     showMore: Boolean,
   },
-  data() {
+  setup(props) {
+    const expand = ref(false)
+
+    const query = computed(() =>
+      expand
+        ? (props.entry.query.split("\n") as string[])
+        : (props.entry.query
+            .split("\n")
+            .slice(0, 2)
+            .concat(["..."]) as string[])
+    )
+
+    const useEntry = () => {
+      setGQLSession({
+        name: "",
+        url: props.entry.url,
+        headers: props.entry.headers,
+        response: props.entry.response,
+        schema: "",
+        query: props.entry.query,
+        variables: props.entry.variables,
+      })
+    }
+
     return {
-      expand: false,
+      expand,
+      query,
+      useEntry,
     }
   },
-  computed: {
-    query() {
-      return this.expand
-        ? this.entry.query.split("\n")
-        : this.entry.query.split("\n").slice(0, 2).concat(["..."])
-    },
-  },
-}
+})
 </script>

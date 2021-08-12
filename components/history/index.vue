@@ -144,8 +144,6 @@ export default defineComponent({
     },
     useHistory(entry: any) {
       if (this.page === "rest") setRESTRequest(entry)
-      // TODO: restore gql entry to request section
-      else console.log("not implemented yet")
     },
     deleteHistory(entry: any) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)

@@ -122,9 +122,12 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
+import clone from "lodash/clone"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import { graphqlCollections$, addGraphqlFolder } from "~/newstore/collections"
 
-export default {
+export default defineComponent({
   props: {
     // Whether to activate the ability to pick items (activates 'select' events)
     savingMode: { type: Boolean, default: false },
@@ -132,6 +135,11 @@ export default {
     picked: { type: Object, default: null },
     // Whether to show the 'New' and 'Import/Export' actions
     showCollActions: { type: Boolean, default: true },
+  },
+  setup() {
+    return {
+      collections: useReadonlyStream(graphqlCollections$, []),
+    }
   },
   data() {
     return {
@@ -152,14 +160,9 @@ export default {
       filterText: "",
     }
   },
-  subscriptions() {
-    return {
-      collections: graphqlCollections$,
-    }
-  },
   computed: {
     filteredCollections() {
-      const collections = this.collections
+      const collections = clone(this.collections)
 
       if (!this.filterText) return collections
 
@@ -270,5 +273,5 @@ export default {
       this.$data.editingRequestIndex = undefined
     },
   },
-}
+})
 </script>

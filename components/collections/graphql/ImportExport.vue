@@ -91,21 +91,23 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   graphqlCollections$,
   setGraphqlCollections,
   appendGraphqlCollections,
 } from "~/newstore/collections"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
-  subscriptions() {
+  setup() {
     return {
-      collections: graphqlCollections$,
-      currentUser: currentUser$,
+      collections: useReadonlyStream(graphqlCollections$, []),
+      currentUser: useReadonlyStream(currentUser$, null),
     }
   },
   computed: {
@@ -388,5 +390,5 @@ export default {
       return Object.prototype.hasOwnProperty.call(item, "item")
     },
   },
-}
+})
 </script>

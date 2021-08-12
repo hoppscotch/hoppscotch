@@ -93,48 +93,49 @@
   </AppSection>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
+import { useReadonlyStream, useStream } from "~/helpers/utils/composables"
 import {
   environments$,
   setCurrentEnvironment,
   selectedEnvIndex$,
+  Environment,
 } from "~/newstore/environments"
 
-export default {
+export default defineComponent({
+  setup() {
+    return {
+      environments: useReadonlyStream(environments$, []),
+      selectedEnvironmentIndex: useStream(
+        selectedEnvIndex$,
+        -1,
+        setCurrentEnvironment
+      ),
+    }
+  },
   data() {
     return {
       showModalImportExport: false,
       showModalAdd: false,
       showModalEdit: false,
-      editingEnvironment: undefined,
-      editingEnvironmentIndex: undefined,
-      selectedEnvironmentIndex: -1,
+      editingEnvironment: undefined as Environment | undefined,
+      editingEnvironmentIndex: undefined as number | undefined,
     }
-  },
-  subscriptions() {
-    return {
-      environments: environments$,
-      selectedEnvironmentIndex: selectedEnvIndex$,
-    }
-  },
-  watch: {
-    selectedEnvironmentIndex(val) {
-      setCurrentEnvironment(val)
-    },
   },
   methods: {
-    displayModalAdd(shouldDisplay) {
+    displayModalAdd(shouldDisplay: boolean) {
       this.showModalAdd = shouldDisplay
     },
-    displayModalEdit(shouldDisplay) {
+    displayModalEdit(shouldDisplay: boolean) {
       this.showModalEdit = shouldDisplay
 
       if (!shouldDisplay) this.resetSelectedData()
     },
-    displayModalImportExport(shouldDisplay) {
+    displayModalImportExport(shouldDisplay: boolean) {
       this.showModalImportExport = shouldDisplay
     },
-    editEnvironment(environment, environmentIndex) {
+    editEnvironment(environment: Environment, environmentIndex: number) {
       this.$data.editingEnvironment = environment
       this.$data.editingEnvironmentIndex = environmentIndex
       this.displayModalEdit(true)
@@ -144,5 +145,5 @@ export default {
       this.$data.editingEnvironmentIndex = undefined
     },
   },
-}
+})
 </script>

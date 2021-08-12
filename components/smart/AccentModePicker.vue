@@ -23,25 +23,19 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   HoppAccentColors,
   HoppAccentColor,
-  getSettingSubject,
-  settingsStore,
   applySetting,
+  useSetting,
 } from "~/newstore/settings"
 
-export default Vue.extend({
-  data() {
+export default defineComponent({
+  setup() {
     return {
       accentColors: HoppAccentColors,
-      active: settingsStore.value.THEME_COLOR,
-    }
-  },
-  subscriptions() {
-    return {
-      active: getSettingSubject("THEME_COLOR"),
+      active: useSetting("THEME_COLOR"),
     }
   },
   methods: {

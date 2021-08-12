@@ -173,6 +173,7 @@
 <script>
 import gql from "graphql-tag"
 import cloneDeep from "lodash/cloneDeep"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import * as teamUtils from "~/helpers/teams/utils"
@@ -186,13 +187,27 @@ import {
   removeRESTRequest,
   editRESTRequest,
 } from "~/newstore/collections"
+import {
+  useReadonlyStream,
+  useStreamSubscriber,
+} from "~/helpers/utils/composables"
 
-export default {
+export default defineComponent({
   props: {
     doc: Boolean,
     selected: { type: Array, default: () => [] },
     saveRequest: Boolean,
     picked: { type: Object, default: () => {} },
+  },
+  setup() {
+    const { subscribeToStream } = useStreamSubscriber()
+
+    return {
+      subscribeTo: subscribeToStream,
+
+      collections: useReadonlyStream(restCollections$, []),
+      currentUser: useReadonlyStream(currentUser$, null),
+    }
   },
   data() {
     return {
@@ -217,12 +232,6 @@ export default {
       },
       teamCollectionAdapter: new TeamCollectionAdapter(null),
       teamCollectionsNew: [],
-    }
-  },
-  subscriptions() {
-    return {
-      collections: restCollections$,
-      currentUser: currentUser$,
     }
   },
   computed: {
@@ -294,7 +303,7 @@ export default {
     },
   },
   mounted() {
-    this.$subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
+    this.subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
       this.teamCollectionsNew = cloneDeep(colls)
     })
   },
@@ -658,5 +667,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

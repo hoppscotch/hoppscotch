@@ -54,23 +54,25 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import gql from "graphql-tag"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
-export default {
+export default defineComponent({
   props: {
     doc: Boolean,
     show: Boolean,
   },
+  setup() {
+    return {
+      currentUser: useReadonlyStream(currentUserInfo$, null),
+    }
+  },
   data() {
     return {
       skipTeamsFetching: true,
-    }
-  },
-  subscriptions() {
-    return {
-      currentUser: currentUserInfo$,
     }
   },
   apollo: {
@@ -96,12 +98,12 @@ export default {
       this.$apollo.queries.myTeams.refetch()
       this.skipTeamsFetching = false
     },
-    updateCollectionsType(tabID) {
+    updateCollectionsType(tabID: string) {
       this.$emit("update-collection-type", tabID)
     },
-    updateSelectedTeam(team) {
+    updateSelectedTeam(team: any) {
       this.$emit("update-selected-team", team)
     },
   },
-}
+})
 </script>

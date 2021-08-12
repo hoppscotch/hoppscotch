@@ -51,11 +51,18 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import intializePwa from "~/helpers/pwa"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
-export default {
+export default defineComponent({
+  setup() {
+    return {
+      currentUser: useReadonlyStream(currentUser$, null),
+    }
+  },
   data() {
     return {
       // Once the PWA code is initialized, this holds a method
@@ -64,11 +71,6 @@ export default {
       showInstallPrompt: null,
       showLogin: false,
       isOnLine: navigator.onLine,
-    }
-  },
-  subscriptions() {
-    return {
-      currentUser: currentUser$,
     }
   },
   async mounted() {
@@ -82,15 +84,16 @@ export default {
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()
+
     const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
     if (!cookiesAllowed) {
-      this.$toast.show(this.$t("we_use_cookies"), {
+      this.$toast.show(this.$t("we_use_cookies").toString(), {
         icon: "info",
         duration: 5000,
         theme: "toasted-primary",
         action: [
           {
-            text: this.$t("action.dismiss"),
+            text: this.$t("action.dismiss").toString(),
             onClick: (_, toastObject) => {
               setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)
@@ -100,5 +103,5 @@ export default {
       })
     }
   },
-}
+})
 </script>

@@ -52,10 +52,17 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import gql from "graphql-tag"
 import { currentUser$ } from "~/helpers/fb/auth"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
-export default {
+export default defineComponent({
+  setup() {
+    return {
+      currentUser: useReadonlyStream(currentUser$, null),
+    }
+  },
   data() {
     return {
       showModalAdd: false,
@@ -64,11 +71,6 @@ export default {
       editingteamID: "",
       me: {},
       myTeams: [],
-    }
-  },
-  subscriptions() {
-    return {
-      currentUser: currentUser$,
     }
   },
   apollo: {
@@ -128,5 +130,5 @@ export default {
       this.$data.editingteamID = undefined
     },
   },
-}
+})
 </script>

@@ -91,21 +91,23 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   environments$,
   replaceEnvironments,
   appendEnvironments,
 } from "~/newstore/environments"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
-  subscriptions() {
+  setup() {
     return {
-      environments: environments$,
-      currentUser: currentUser$,
+      environments: useReadonlyStream(environments$, []),
+      currentUser: useReadonlyStream(currentUser$, null),
     }
   },
   computed: {
@@ -237,5 +239,5 @@ export default {
       })
     },
   },
-}
+})
 </script>

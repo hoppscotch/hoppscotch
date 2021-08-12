@@ -29,25 +29,19 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   HoppFontSizes,
-  getSettingSubject,
   HoppFontSize,
-  settingsStore,
   applySetting,
+  useSetting,
 } from "~/newstore/settings"
 
-export default Vue.extend({
-  data() {
+export default defineComponent({
+  setup() {
     return {
       fontSizes: HoppFontSizes,
-      active: settingsStore.value.FONT_SIZE,
-    }
-  },
-  subscriptions() {
-    return {
-      active: getSettingSubject("FONT_SIZE"),
+      active: useSetting("FONT_SIZE"),
     }
   },
   methods: {

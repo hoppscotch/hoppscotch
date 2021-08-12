@@ -73,10 +73,11 @@
   </SmartLink>
 </template>
 
-<script>
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
+import { useSetting } from "~/newstore/settings"
 
-export default {
+export default defineComponent({
   props: {
     to: {
       type: String,
@@ -143,15 +144,10 @@ export default {
       default: () => [],
     },
   },
-  data() {
+  setup() {
     return {
-      SHORTCUT_INDICATOR: null,
+      SHORTCUT_INDICATOR: useSetting("SHORTCUT_INDICATOR"),
     }
   },
-  subscriptions() {
-    return {
-      SHORTCUT_INDICATOR: getSettingSubject("SHORTCUT_INDICATOR"),
-    }
-  },
-}
+})
 </script>

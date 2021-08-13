@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" placement="top" @close="$emit('hide-modal')">
+  <SmartModal v-if="show" @close="$emit('hide-modal')">
     <template #body>
       <input
         id="command"

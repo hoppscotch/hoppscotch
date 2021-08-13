@@ -19,7 +19,9 @@
           justify-between
         "
       >
-        <label> Test Report </label>
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("test.report") }}
+        </label>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
@@ -100,10 +102,20 @@
       v-else
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-75 pb-2 material-icons">bug_report</i>
-      <span class="text-center">
+      <span class="text-center pb-2">
         {{ $t("empty.tests") }}
       </span>
+      <span class="text-center pb-4">
+        {{ $t("helpers.tests") }}
+      </span>
+      <ButtonSecondary
+        outline
+        :label="$t('action.learn_more')"
+        to="https://docs.hoppscotch.io"
+        blank
+        icon="open_in_new"
+        reverse
+      />
     </div>
   </AppSection>
 </template>

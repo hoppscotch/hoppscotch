@@ -8,7 +8,8 @@
       <ButtonSecondary
         v-if="mode == 'import_from_my_collections'"
         v-tippy="{ theme: 'tooltip' }"
-        title="Back"
+        :title="$t('action.go_back')"
+        class="rounded"
         icon="arrow_back"
         @click.native="
           mode = 'import_export'
@@ -30,6 +31,7 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
+              class="rounded"
               icon="more_vert"
             />
           </template>

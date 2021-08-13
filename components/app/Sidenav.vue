@@ -30,18 +30,21 @@
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="`${$t('app.search')} <kbd>/</kbd>`"
         icon="search"
+        class="rounded"
         @click.native="showSearch = true"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="$t('app.invite')"
         icon="person_add_alt"
+        class="rounded"
         @click.native="showShare = true"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="`${$t('support.title')} <kbd>?</kbd>`"
         icon="support"
+        class="rounded"
         @click.native="showSupport = true"
       />
     </nav>

@@ -113,7 +113,7 @@ export default defineComponent({
     },
     placement: {
       type: String,
-      default: "center",
+      default: "top",
     },
   },
   setup() {

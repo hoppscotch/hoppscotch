@@ -38,7 +38,8 @@
               pl-8
               transition
               truncate
-              focus:border-divider focus:outline-none
+              focus:(border-divider
+              outline-none)
             "
             :placeholder="$t('search')"
           />

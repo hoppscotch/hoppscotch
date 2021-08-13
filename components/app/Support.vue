@@ -2,7 +2,6 @@
   <SmartModal
     v-if="show"
     :title="$t('support.title')"
-    placement="top"
     @close="$emit('hide-modal')"
   >
     <template #body>

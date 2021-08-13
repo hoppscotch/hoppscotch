@@ -5,15 +5,15 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
-        pl-4
         top-upperSecondaryStickyFold
+        pl-4
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label>
+      <label class="font-semibold text-secondaryLight">
         {{ $t("javascript_code") }}
       </label>
       <ButtonSecondary
@@ -42,9 +42,9 @@
       <div
         class="
           h-full
-          max-w-1/3
           top-upperTertiaryStickyFold
           min-w-46
+          max-w-1/3
           p-4
           z-9
           sticky

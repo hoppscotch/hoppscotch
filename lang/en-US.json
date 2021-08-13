@@ -14,7 +14,8 @@
     "turn_off": "Turn off",
     "dismiss": "Dismiss",
     "copy": "Copy",
-    "learn_more": "Learn more"
+    "learn_more": "Learn more",
+    "go_back": "Go back"
   },
   "confirm": {
     "logout": "Are you sure you want to logout?",
@@ -36,7 +37,7 @@
     "parameters": "This request does not have any parameters",
     "history": "History is empty",
     "headers": "This request does not have any headers",
-    "tests": "Tests are empty",
+    "tests": "There are no tests for this request",
     "schema": "Connect to a GraphQL endpoint",
     "teams": "Teams are empty",
     "members": "Team is empty",
@@ -210,7 +211,8 @@
   },
   "test": {
     "script": "Script",
-    "results": "Test Results"
+    "results": "Test Results",
+    "report": "Test Report"
   },
   "shortcut": {
     "general": {
@@ -252,7 +254,8 @@
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "offline_short": "You seem to be offline.",
-    "offline": "You seem to be offline. Data in this workspace might not be up to date."
+    "offline": "You seem to be offline. Data in this workspace might not be up to date.",
+    "tests": "Write a test script to automate debugging"
   },
   "options": "Options",
   "communication": "Communication",

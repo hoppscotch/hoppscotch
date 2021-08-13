@@ -11,6 +11,7 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('more')"
+              class="rounded"
               icon="more_vert"
             />
           </template>

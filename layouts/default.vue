@@ -38,6 +38,7 @@
 <script lang="ts">
 import {
   defineComponent,
+  onBeforeMount,
   useContext,
   useRouter,
   watch,
@@ -54,52 +55,65 @@ import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
 
+function updateThemes() {
+  const { $colorMode } = useContext() as any
+
+  // Apply theme updates
+  const themeColor = useSetting("THEME_COLOR")
+  const bgColor = useSetting("BG_COLOR")
+  const fontSize = useSetting("FONT_SIZE")
+
+  // Initially apply
+  onBeforeMount(() => {
+    document.documentElement.setAttribute("data-accent", themeColor.value)
+    $colorMode.preference = bgColor.value
+    document.documentElement.setAttribute("data-font-size", fontSize.value.code)
+  })
+
+  // Listen for updates
+  watch(themeColor, () =>
+    document.documentElement.setAttribute("data-accent", themeColor.value)
+  )
+  watch(bgColor, () => ($colorMode.preference = bgColor.value))
+  watch(fontSize, () =>
+    document.documentElement.setAttribute("data-font-size", fontSize.value.code)
+  )
+}
+
+function defineJumpActions() {
+  const router = useRouter()
+
+  defineActionHandler("navigation.jump.rest", () => {
+    router.push({ path: "/" })
+  })
+  defineActionHandler("navigation.jump.graphql", () => {
+    router.push({ path: "/graphql" })
+  })
+  defineActionHandler("navigation.jump.realtime", () => {
+    router.push({ path: "/realtime" })
+  })
+  defineActionHandler("navigation.jump.documentation", () => {
+    router.push({ path: "/documentation" })
+  })
+  defineActionHandler("navigation.jump.settings", () => {
+    router.push({ path: "/settings" })
+  })
+  defineActionHandler("navigation.jump.back", () => {
+    router.go(-1)
+  })
+  defineActionHandler("navigation.jump.forward", () => {
+    router.go(1)
+  })
+}
+
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
-    const { $colorMode } = useContext() as any
-
     hookKeybindingsListener()
 
-    const router = useRouter()
+    defineJumpActions()
 
-    defineActionHandler("navigation.jump.rest", () => {
-      router.push({ path: "/" })
-    })
-    defineActionHandler("navigation.jump.graphql", () => {
-      router.push({ path: "/graphql" })
-    })
-    defineActionHandler("navigation.jump.realtime", () => {
-      router.push({ path: "/realtime" })
-    })
-    defineActionHandler("navigation.jump.documentation", () => {
-      router.push({ path: "/documentation" })
-    })
-    defineActionHandler("navigation.jump.settings", () => {
-      router.push({ path: "/settings" })
-    })
-    defineActionHandler("navigation.jump.back", () => {
-      router.go(-1)
-    })
-    defineActionHandler("navigation.jump.forward", () => {
-      router.go(1)
-    })
-
-    // Apply theme updates
-    const themeColor = useSetting("THEME_COLOR")
-    const bgColor = useSetting("BG_COLOR")
-    const fontSize = useSetting("FONT_SIZE")
-
-    watch(themeColor, () =>
-      document.documentElement.setAttribute("data-accent", themeColor.value)
-    )
-    watch(bgColor, () => ($colorMode.preference = bgColor.value))
-    watch(fontSize, () =>
-      document.documentElement.setAttribute(
-        "data-font-size",
-        fontSize.value.code
-      )
-    )
+    updateThemes()
 
     return {
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),

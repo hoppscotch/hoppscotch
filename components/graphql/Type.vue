@@ -1,9 +1,6 @@
 <template>
   <div :id="`type_${gqlType.name}`" class="p-4">
-    <div
-      class="font-semibold type-title"
-      :class="{ 'text-accent': isHighlighted }"
-    >
+    <div class="type-title" :class="{ 'text-accent': isHighlighted }">
       <span v-if="isInput" class="text-accent">input </span>
       <span v-else-if="isInterface" class="text-accent">interface </span>
       <span v-else-if="isEnum" class="text-accent">enum </span>

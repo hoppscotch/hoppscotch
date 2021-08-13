@@ -16,7 +16,7 @@
             {{ $t("request.name") }}
           </label>
         </div>
-        <label class="font-semibold px-4 pt-4 pb-4">
+        <label class="px-4 pt-4 pb-4">
           {{ $t("collection.select_location") }}
         </label>
         <CollectionsGraphql

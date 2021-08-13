@@ -19,7 +19,7 @@
           justify-between
         "
       >
-        <label class="font-semibold"> Test Report </label>
+        <label> Test Report </label>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
@@ -35,13 +35,13 @@
           :progress="(failedTests / totalTests) * 100"
         />
         <div class="ml-2">
-          <span v-if="failedTests" class="font-semibold text-red-500">
+          <span v-if="failedTests" class="text-red-500">
             {{ failedTests }} failing,
           </span>
-          <span v-if="passedTests" class="font-semibold text-green-500">
+          <span v-if="passedTests" class="text-green-500">
             {{ passedTests }} successful,
           </span>
-          <span class="font-semibold"> out of {{ totalTests }} tests. </span>
+          <span> out of {{ totalTests }} tests. </span>
         </div>
       </div>
       <div class="divide-y divide-dividerLight">
@@ -57,7 +57,6 @@
           class="
             border-b border-dividerLight
             flex
-            font-semibold
             text-secondaryDark
             py-2
             px-4
@@ -83,10 +82,7 @@
             >
               {{ result.status === "pass" ? "check" : "close" }}
             </i>
-            <span
-              v-if="result.message"
-              class="font-semibold text-secondaryDark"
-            >
+            <span v-if="result.message" class="text-secondaryDark">
               {{ result.message }}
             </span>
             <span class="text-secondaryLight">

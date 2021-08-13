@@ -4,7 +4,7 @@
     :exact="exact"
     :blank="blank"
     class="
-      font-semibold
+      font-medium
       py-2
       transition
       inline-flex
@@ -12,13 +12,14 @@
       justify-center
       hover:bg-primaryDark
       focus:outline-none
+      focus-visible:bg-primaryDark
     "
     :class="[
       color
         ? `text-${color}-500 hover:(text-${color}-600 text-${color}-600)`
         : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
-      label ? 'px-4' : 'px-2',
-      rounded ? 'rounded-full' : 'rounded',
+      label ? 'rounded px-4' : 'px-2',
+      { 'rounded-full': rounded },
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
       { 'px-6 py-4 text-lg': large },
@@ -53,14 +54,7 @@
       <kbd
         v-for="(key, index) in shortcut"
         :key="`key-${index}`"
-        class="
-          bg-dividerLight
-          rounded
-          text-secondaryLight
-          ml-1
-          px-1
-          inline-flex
-        "
+        class="bg-dividerLight text-secondaryLight ml-1 px-1 inline-flex"
       >
         {{ key }}
       </kbd>

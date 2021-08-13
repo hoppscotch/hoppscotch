@@ -15,6 +15,7 @@
       v-tippy="{ theme: 'tooltip' }"
       :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
       :class="[{ 'bg-primaryLight': color === active }]"
+      class="rounded"
       icon="lens"
       :color="color"
       @click.native="setActiveColor(color)"

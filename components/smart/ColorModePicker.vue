@@ -8,6 +8,7 @@
       :class="{
         'bg-primaryLight !text-accent hover:text-accent': color === active,
       }"
+      class="rounded"
       :icon="getIcon(color)"
       @click.native="setBGMode(color)"
     />

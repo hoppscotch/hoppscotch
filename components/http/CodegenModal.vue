@@ -6,7 +6,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <label for="requestType" class="font-semibold px-4 pb-4">
+        <label for="requestType" class="px-4 pb-4">
           {{ $t("request.choose_language") }}
         </label>
         <div class="flex flex-1">
@@ -22,7 +22,7 @@
                 <ButtonSecondary
                   :label="codegens.find((x) => x.id === codegenType).name"
                   outline
-                  class="w-full"
+                  class="pr-8"
                 />
               </span>
             </template>
@@ -40,7 +40,7 @@
           </tippy>
         </div>
         <div class="flex flex-1 justify-between">
-          <label for="generatedCode" class="font-semibold px-4 pt-4 pb-4">
+          <label for="generatedCode" class="px-4 pt-4 pb-4">
             {{ $t("request.generated_code") }}
           </label>
         </div>

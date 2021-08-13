@@ -13,10 +13,17 @@
         justify-between
       "
     >
-      <label class="font-semibold">
+      <label>
         {{ $t("request_body") }}
       </label>
       <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
+        />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
@@ -44,7 +51,7 @@
         styles="
           bg-primaryLight
           flex
-          font-semibold font-mono
+
           flex-1
           py-1
           px-4
@@ -62,9 +69,7 @@
         v-else
         class="
           bg-primaryLight
-          flex
-          font-semibold font-mono
-          flex-1
+          flex flex-1
           py-2
           px-4
           truncate
@@ -89,7 +94,7 @@
         styles="
           bg-primaryLight
           flex
-          font-semibold font-mono
+
           flex-1
           py-1
           px-4
@@ -107,9 +112,7 @@
         v-if="!EXPERIMENTAL_URL_BAR_ENABLED && !requestBodyParamIsFile(index)"
         class="
           bg-primaryLight
-          flex
-          font-semibold font-mono
-          flex-1
+          flex flex-1
           py-2
           px-4
           truncate
@@ -195,13 +198,13 @@
       v-if="bodyParams.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-75 pb-2 material-icons">post_add</i>
       <span class="text-center pb-4">
-        {{ $t("empty.parameters") }}
+        {{ $t("empty.body") }}
       </span>
       <ButtonSecondary
         :label="$t('add.new')"
         outline
+        icon="add"
         @click.native="addBodyParam"
       />
     </div>

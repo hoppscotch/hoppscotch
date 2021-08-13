@@ -35,6 +35,16 @@
   @apply text-accentContrast;
 }
 
+input::placeholder {
+  @apply text-secondaryDark;
+  @apply opacity-25;
+}
+
+input {
+  @apply text-secondaryDark;
+  @apply font-medium;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -141,7 +151,7 @@ a {
 
 [interactive] > div {
   @apply flex;
-  @apply h-full;
+  @apply flex-1;
 }
 
 .tippy-content > div {
@@ -174,7 +184,7 @@ hr {
   @apply bg-primary;
   @apply truncate;
   @apply rounded;
-  @apply font-semibold;
+  @apply text-secondaryDark;
   @apply border border-divider;
   @apply transition;
   @apply focus:(outline-none border-accent);
@@ -196,7 +206,7 @@ button {
 }
 
 .floating-input ~ label {
-  @apply font-semibold;
+  @apply font-medium;
   @apply py-0.5;
   @apply px-2;
   @apply m-2;
@@ -352,7 +362,7 @@ input[type="checkbox"] {
       @apply text-primary;
       @apply justify-start;
       @apply shadow;
-      @apply font-semibold;
+      @apply font-medium;
 
       font-size: var(--body-font-size);
       line-height: var(--body-line-height);

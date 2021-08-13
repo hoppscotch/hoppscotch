@@ -14,7 +14,6 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
-                    font-semibold font-mono
                     text-secondaryDark
                     w-full
                     py-2
@@ -54,7 +53,7 @@
                 justify-between
               "
             >
-              <label class="font-semibold">
+              <label class="font-semibold text-secondaryLight">
                 {{ $t("websocket.protocols") }}
               </label>
               <div class="flex">
@@ -86,9 +85,7 @@
                 v-model="protocol.value"
                 class="
                   bg-primaryLight
-                  flex
-                  font-semibold font-mono
-                  flex-1
+                  flex flex-1
                   py-2
                   px-4
                   truncate
@@ -166,7 +163,10 @@
     >
       <AppSection label="messages">
         <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label for="websocket-message" class="font-semibold">
+          <label
+            for="websocket-message"
+            class="font-semibold text-secondaryLight"
+          >
             {{ $t("communication") }}
           </label>
         </div>

@@ -21,7 +21,6 @@
                 bg-primaryLight
                 border-b border-dividerLight
                 flex
-                font-semibold
                 w-full
                 py-2
                 px-4

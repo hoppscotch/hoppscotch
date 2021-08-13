@@ -1,9 +1,7 @@
 <template>
   <div class="bg-primaryLight rounded flex flex-col mx-6 p-4">
     <div class="flex flex-col items-center">
-      <p class="font-semibold my-4 text-center tracking-widest">
-        EMPOWERING DEVELOPERS FROM
-      </p>
+      <p class="my-4 text-center tracking-widest">EMPOWERING DEVELOPERS FROM</p>
     </div>
     <div class="grid gap-4 grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       <div

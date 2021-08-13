@@ -13,9 +13,7 @@
               bg-primaryLight
               border border-divider
               rounded-l
-              flex
-              font-semibold font-mono
-              flex-1
+              flex flex-1
               text-secondaryDark
               w-full
               py-2
@@ -30,7 +28,15 @@
           />
           <label
             for="url"
-            class="bg-primaryLight border border-divider py-2 px-4 truncate"
+            class="
+              bg-primaryLight
+              border-t border-b border-divider
+              font-semibold
+              text-secondaryLight
+              py-2
+              px-4
+              truncate
+            "
           >
             {{ $t("event_type") }}
           </label>
@@ -40,9 +46,7 @@
             class="
               bg-primaryLight
               border border-divider
-              flex
-              font-semibold font-mono
-              flex-1
+              flex flex-1
               text-secondaryDark
               w-full
               py-2

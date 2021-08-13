@@ -1,21 +1,19 @@
 <template>
   <div>
-    <div class="flex flex-1 p-2 items-center justify-between">
-      <span class="flex">
-        <span
-          class="
-            border
-            rounded-r-none rounded
-            border-divider border-r-0
-            font-semibold
-            text-secondaryLight
-            py-2
-            px-4
-            py-2
-          "
-        >
+    <div
+      class="
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        pl-4 pl-4
+        items-center
+        justify-between
+      "
+    >
+      <span class="flex items-center">
+        <label class="font-semibold text-secondaryLight">
           {{ $t("content_type") }}
-        </span>
+        </label>
         <tippy
           ref="contentTypeOptions"
           interactive
@@ -28,8 +26,7 @@
               <span class="select-wrapper">
                 <ButtonSecondary
                   :label="contentType"
-                  outline
-                  class="rounded-l-none pr-8"
+                  class="rounded-none ml-2 pr-8"
                 />
               </span>
             </div>

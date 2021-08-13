@@ -186,9 +186,7 @@ export default {
 
 <style scoped lang="scss">
 .autocomplete-wrapper {
-  @apply relative;
-  @apply flex;
-  @apply w-full;
+  @apply contents;
 
   input:focus + ul.suggestions,
   ul.suggestions:hover {
@@ -211,8 +209,7 @@ export default {
       @apply w-full;
       @apply block;
       @apply py-2 px-4;
-      @apply text-secondaryLight;
-      @apply font-semibold font-mono;
+      @apply text-secondary;
 
       &:last-child {
         border-radius: 0 0 8px 8px;

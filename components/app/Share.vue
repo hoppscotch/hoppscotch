@@ -24,7 +24,7 @@
           </a>
           <button class="share-link" @click="copyAppLink">
             <span class="font-icon h-6 text-xl w-6">{{ copyIcon }}</span>
-            <span class="font-medium mt-3">
+            <span class="mt-3">
               {{ $t("app.copy") }}
             </span>
           </button>

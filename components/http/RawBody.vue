@@ -13,10 +13,23 @@
         justify-between
       "
     >
-      <label for="rawBody" class="font-semibold">
+      <label for="rawBody">
         {{ $t("raw_request_body") }}
       </label>
       <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent('rawParams', $event)"
+        />
         <ButtonSecondary
           v-if="contentType.endsWith('json')"
           ref="prettifyRequest"
@@ -39,12 +52,6 @@
           name="payload"
           type="file"
           @change="uploadPayload"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('clear')"
-          icon="clear_all"
-          @click.native="clearContent('rawParams', $event)"
         />
       </div>
     </div>

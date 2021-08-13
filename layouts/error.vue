@@ -1,7 +1,7 @@
 <template>
   <div class="page page-error">
-    <h1 class="font-mono mb-4 text-4xl heading">{{ statusCode }}</h1>
-    <h3 class="font-mono font-semibold select-text">{{ message }}</h3>
+    <h1 class="mb-4 text-4xl heading">{{ statusCode }}</h1>
+    <h3 class="select-text">{{ message }}</h3>
     <p class="mt-4">
       <ButtonSecondary to="/" icon="home" outline :label="$t('home')" />
       <ButtonSecondary

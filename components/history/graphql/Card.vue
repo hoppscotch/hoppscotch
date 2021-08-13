@@ -4,9 +4,7 @@
       <span
         class="
           cursor-pointer
-          flex
-          font-semibold
-          flex-1
+          flex flex-1
           min-w-0
           py-2
           pr-2
@@ -51,14 +49,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="
-          cursor-pointer
-          font-mono
-          text-secondaryLight
-          px-4
-          whitespace-pre
-          truncate
-        "
+        class="cursor-pointer text-secondaryLight px-4 whitespace-pre truncate"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span

@@ -20,7 +20,6 @@
                 class="
                   bg-primaryLight
                   flex
-                  font-semibold font-mono
                   w-full
                   py-2
                   pr-2
@@ -150,7 +149,7 @@
               justify-between
             "
           >
-            <label class="font-semibold">
+            <label class="font-semibold text-secondaryLight">
               {{ $t("schema") }}
             </label>
             <div class="flex">

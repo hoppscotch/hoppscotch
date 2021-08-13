@@ -1,7 +1,7 @@
 <template>
-  <div class="flex font-mono space-x-16 p-6">
+  <div class="flex space-x-16 p-6">
     <div v-for="(stat, index) in stats" :key="`stat-${index}`">
-      <span class="font-bold text-xl">
+      <span class="text-xl">
         {{ stat.count }}<span class="text-secondaryLight">+</span>
       </span>
       <br />

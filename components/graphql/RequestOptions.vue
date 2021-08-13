@@ -17,7 +17,7 @@
               gqlRunQuery
             "
           >
-            <label for="gqlQuery" class="font-semibold">
+            <label class="font-semibold text-secondaryLight">
               {{ $t("query") }}
             </label>
             <div class="flex">
@@ -25,7 +25,7 @@
                 :label="$t('run')"
                 :shortcut="[getSpecialKey(), 'Enter']"
                 icon="play_arrow"
-                class="!text-accent"
+                class="rounded-none !text-accent"
                 @click.native="runQuery()"
               />
               <ButtonSecondary
@@ -83,7 +83,7 @@
               justify-between
             "
           >
-            <label class="font-semibold">
+            <label class="font-semibold text-secondaryLight">
               {{ $t("variables") }}
             </label>
             <div class="flex">
@@ -126,7 +126,7 @@
               justify-between
             "
           >
-            <label class="font-semibold">
+            <label class="font-semibold text-secondaryLight">
               {{ $t("headers") }}
             </label>
             <div class="flex">
@@ -163,9 +163,8 @@
               styles="
                 bg-primaryLight
                 flex
-                font-semibold font-mono
                 flex-1
-                py-2
+          py-1
                 px-4
                 truncate
                 focus:outline-none
@@ -181,9 +180,7 @@
             <input
               class="
                 bg-primaryLight
-                flex
-                font-semibold font-mono
-                w-full
+                flex flex-1
                 py-2
                 px-4
                 truncate
@@ -248,13 +245,13 @@
               justify-center
             "
           >
-            <i class="opacity-75 pb-2 material-icons">post_add</i>
             <span class="text-center pb-4">
               {{ $t("empty.headers") }}
             </span>
             <ButtonSecondary
               :label="$t('add.new')"
               outline
+              icon="add"
               @click.native="addRequestHeader"
             />
           </div>
@@ -273,6 +270,7 @@
 <script lang="ts">
 import {
   defineComponent,
+  onMounted,
   PropType,
   ref,
   useContext,
@@ -335,8 +333,24 @@ export default defineComponent({
     const showSaveRequestModal = ref(false)
 
     const schema = useReadonlyStream(props.conn.schemaString$, "")
-    watch(schema, () => {
-      console.log(schema.value)
+    watch(
+      headers,
+      () => {
+        console.log("changed")
+        if (
+          (headers.value[headers.value.length - 1]?.key !== "" ||
+            headers.value[headers.value.length - 1]?.value !== "") &&
+          headers.value.length
+        )
+          addRequestHeader()
+      },
+      { deep: true }
+    )
+
+    onMounted(() => {
+      if (!headers.value?.length) {
+        addRequestHeader()
+      }
     })
 
     const copyQuery = () => {

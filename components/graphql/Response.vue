@@ -14,7 +14,7 @@
         justify-between
       "
     >
-      <label class="font-semibold" for="responseField">
+      <label class="font-semibold text-secondaryLight">
         {{ $t("response") }}
       </label>
       <div class="flex">
@@ -59,7 +59,7 @@
         justify-center
       "
     >
-      <div class="flex space-x-2 pb-8">
+      <div class="flex space-x-2 pb-4">
         <div class="flex flex-col space-y-4 items-end">
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.send_request") }}
@@ -94,8 +94,10 @@
       <ButtonSecondary
         :label="$t('documentation')"
         to="https://docs.hoppscotch.io"
+        icon="open_in_new"
         blank
         outline
+        reverse
       />
     </div>
   </AppSection>

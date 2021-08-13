@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      class="font-semibold field-title"
-      :class="{ 'field-highlighted': isHighlighted }"
-    >
+    <div class="field-title" :class="{ 'field-highlighted': isHighlighted }">
       {{ fieldName }}
       <span v-if="fieldArgs.length > 0">
         (
@@ -32,7 +29,6 @@
       v-if="gqlField.isDeprecated"
       class="
         rounded
-        font-semibold
         bg-yellow-200
         my-1
         text-black
@@ -48,7 +44,7 @@
       <h5 class="my-2">Arguments:</h5>
       <div class="border-divider border-l-2 pl-4">
         <div v-for="(field, index) in fieldArgs" :key="`field-${index}`">
-          <span class="font-semibold">
+          <span>
             {{ field.name }}:
             <GraphqlTypeLink
               :gql-type="field.type"

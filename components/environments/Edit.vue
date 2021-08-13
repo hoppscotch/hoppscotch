@@ -17,7 +17,7 @@
           </label>
         </div>
         <div class="flex flex-1 justify-between items-center">
-          <label for="variableList" class="font-semibold p-4">
+          <label for="variableList" class="p-4">
             {{ $t("env_variable_list") }}
           </label>
           <div class="flex">
@@ -25,12 +25,14 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('clear')"
               :icon="clearIcon"
+              class="rounded"
               @click.native="clearContent()"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               icon="add"
               :title="$t('add.new')"
+              class="rounded"
               @click.native="addEnvironmentVariable"
             />
           </div>
@@ -45,9 +47,7 @@
               v-model="variable.key"
               class="
                 bg-primaryLight
-                flex
-                font-semibold font-mono
-                flex-1
+                flex flex-1
                 py-2
                 px-4
                 truncate
@@ -60,9 +60,7 @@
               v-model="variable.value"
               class="
                 bg-primaryLight
-                flex
-                font-semibold font-mono
-                flex-1
+                flex flex-1
                 py-2
                 px-4
                 truncate

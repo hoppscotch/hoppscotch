@@ -5,7 +5,7 @@
         <textarea
           id="import-curl"
           v-model="curl"
-          class="font-mono textarea floating-input"
+          class="textarea floating-input"
           autofocus
           rows="8"
           placeholder=" "
@@ -113,6 +113,7 @@ export default defineComponent({
             testScript: "",
             auth: {
               authType: "none",
+              authName: "None",
               authActive: true,
             },
             body: {

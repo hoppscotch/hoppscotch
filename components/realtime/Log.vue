@@ -13,7 +13,9 @@
         justify-between
       "
     >
-      <label for="log" class="font-semibold py-2">{{ title }}</label>
+      <label for="log" class="font-semibold text-secondaryLight py-2">
+        {{ title }}
+      </label>
     </div>
     <div ref="log" name="log" class="realtime-log">
       <span v-if="log" class="space-y-2">
@@ -65,7 +67,6 @@ export default {
 
   &,
   span {
-    @apply font-mono font-semibold;
     @apply select-text;
   }
 

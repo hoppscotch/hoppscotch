@@ -13,10 +13,17 @@
         justify-between
       "
     >
-      <label for="headerList" class="font-semibold">
+      <label class="font-semibold text-secondaryLight">
         {{ $t("header_list") }}
       </label>
       <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
+        />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
@@ -46,13 +53,13 @@
         styles="
           bg-primaryLight
           flex
-          font-semibold font-mono
           flex-1
           py-1
           px-4
           truncate
           focus:outline-none
         "
+        :class="{ '!flex flex-1': EXPERIMENTAL_URL_BAR_ENABLED }"
         @input="
           updateHeader(index, {
             key: $event,
@@ -68,7 +75,6 @@
         styles="
           bg-primaryLight
           flex
-          font-semibold font-mono
           flex-1
           py-1
           px-4
@@ -86,9 +92,7 @@
         v-else
         class="
           bg-primaryLight
-          flex
-          font-semibold font-mono
-          flex-1
+          flex flex-1
           py-2
           px-4
           truncate
@@ -146,13 +150,13 @@
       v-if="headers$.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-75 pb-2 material-icons">post_add</i>
       <span class="text-center pb-4">
         {{ $t("empty.headers") }}
       </span>
       <ButtonSecondary
         outline
         :label="$t('add.new')"
+        icon="add"
         @click.native="addHeader"
       />
     </div>

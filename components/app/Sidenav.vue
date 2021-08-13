@@ -130,7 +130,7 @@ export default defineComponent({
 
   span {
     @apply mt-2;
-    @apply font-semibold;
+    @apply font-font-medium;
   }
 
   &.exact-active-link {

@@ -9,7 +9,7 @@
         justify-center
       "
     >
-      <div class="flex space-x-2 pb-8">
+      <div class="flex space-x-2 pb-4">
         <div class="flex flex-col space-y-4 items-end">
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.send_request") }}
@@ -44,8 +44,10 @@
       <ButtonSecondary
         :label="$t('documentation')"
         to="https://docs.hoppscotch.io"
+        icon="open_in_new"
         blank
         outline
+        reverse
       />
     </div>
     <div v-else>
@@ -55,18 +57,18 @@
       <div
         v-else
         :class="statusCategory.className"
-        class="font-mono font-semibold space-x-4"
+        class="font-semibold space-x-4"
       >
         <span v-if="response.statusCode">
-          <span class="text-secondaryDark"> Status: </span>
+          <span class="text-secondary"> Status: </span>
           {{ response.statusCode || $t("waiting_send_req") }}
         </span>
         <span v-if="response.meta && response.meta.responseDuration">
-          <span class="text-secondaryDark"> Time: </span>
+          <span class="text-secondary"> Time: </span>
           {{ `${response.meta.responseDuration} ms` }}
         </span>
         <span v-if="response.meta && response.meta.responseSize">
-          <span class="text-secondaryDark"> Size: </span>
+          <span class="text-secondary"> Size: </span>
           {{ `${response.meta.responseSize} B` }}
         </span>
       </div>

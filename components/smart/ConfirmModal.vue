@@ -2,7 +2,7 @@
   <SmartModal v-if="show" :title="$t('modal.confirm')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
-        <label class="font-semibold">
+        <label>
           {{ title }}
         </label>
       </div>

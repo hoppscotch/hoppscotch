@@ -5,7 +5,6 @@
     :blank="blank"
     class="
       rounded
-      font-semibold
       py-2
       px-4
       transition

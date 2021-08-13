@@ -97,7 +97,7 @@ export default {
       @apply ml-2;
       @apply text-8px;
       @apply border border-divider;
-      @apply font-mono;
+
       @apply rounded;
       @apply text-secondaryLight;
     }

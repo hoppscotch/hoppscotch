@@ -18,13 +18,14 @@
                 rounded-l
                 cursor-pointer
                 flex
-                font-semibold font-mono
+                font-semibold
                 text-secondaryDark
                 py-2
                 px-4
                 transition
                 w-28
                 truncate
+                hover:border-dividerDark
                 focus:border-accent focus:outline-none
               "
               :value="newMethod"
@@ -36,7 +37,6 @@
             v-for="(method, index) in methods"
             :key="`method-${index}`"
             :label="method"
-            class="font-mono"
             @click.native="onSelectMethod(method)"
           />
         </tippy>
@@ -51,13 +51,13 @@
           bg-primaryLight
           border border-divider
           flex
-          font-semibold font-mono
           flex-1
           text-secondaryDark
           py-1
           px-4
           transition
           truncate
+          hover:border-dividerDark
           focus:outline-none focus:border-accent
         "
         @enter="newSendRequest()"
@@ -70,9 +70,7 @@
         class="
           bg-primaryLight
           border border-divider
-          flex
-          font-semibold font-mono
-          flex-1
+          flex flex-1
           text-secondaryDark
           py-2
           px-4
@@ -157,7 +155,7 @@
             <ButtonSecondary
               icon="keyboard_arrow_down"
               outline
-              class="rounded-l-none"
+              class="rounded-r"
             />
           </template>
           <input
@@ -236,14 +234,14 @@ import { useSetting } from "~/newstore/settings"
 
 const methods = [
   "GET",
-  "HEAD",
   "POST",
   "PUT",
+  "PATCH",
   "DELETE",
+  "HEAD",
   "CONNECT",
   "OPTIONS",
   "TRACE",
-  "PATCH",
   "CUSTOM",
 ]
 

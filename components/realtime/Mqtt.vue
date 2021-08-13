@@ -16,7 +16,6 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
-                    font-semibold font-mono
                     text-secondaryDark
                     w-full
                     py-2
@@ -56,7 +55,7 @@
     >
       <AppSection label="messages">
         <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label for="pub_topic" class="font-semibold">
+          <label for="pub_topic" class="font-semibold text-secondaryLight">
             {{ $t("mqtt.topic") }}
           </label>
         </div>
@@ -71,7 +70,7 @@
           />
         </div>
         <div class="flex flex-1 p-4 items-center justify-between">
-          <label for="mqtt-message" class="font-semibold">{{
+          <label for="mqtt-message" class="font-semibold text-secondaryLight">{{
             $t("communication")
           }}</label>
         </div>
@@ -102,7 +101,7 @@
             inline-flex
           "
         >
-          <label for="sub_topic" class="font-semibold">{{
+          <label for="sub_topic" class="font-semibold text-secondaryLight">{{
             $t("mqtt.topic")
           }}</label>
         </div>

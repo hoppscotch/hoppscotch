@@ -17,7 +17,7 @@
           </label>
         </div>
         <div class="flex flex-1 justify-between items-center">
-          <label for="memberList" class="font-semibold p-4">
+          <label for="memberList" class="p-4">
             {{ $t("team.members") }}
           </label>
           <div class="flex">
@@ -37,9 +37,7 @@
             <input
               class="
                 bg-primaryLight
-                flex
-                font-semibold font-mono
-                flex-1
+                flex flex-1
                 py-2
                 px-4
                 truncate
@@ -62,9 +60,7 @@
                   <input
                     class="
                       bg-primaryLight
-                      flex
-                      font-semibold font-mono
-                      flex-1
+                      flex flex-1
                       py-2
                       px-4
                       truncate
@@ -114,9 +110,7 @@
               v-model="member.key"
               class="
                 bg-primaryLight
-                flex
-                font-semibold font-mono
-                flex-1
+                flex flex-1
                 py-2
                 px-4
                 truncate
@@ -138,9 +132,7 @@
                   <input
                     class="
                       bg-primaryLight
-                      flex
-                      font-semibold font-mono
-                      flex-1
+                      flex flex-1
                       py-2
                       px-4
                       truncate

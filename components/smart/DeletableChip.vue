@@ -2,7 +2,7 @@
   <span class="chip">
     <span><slot></slot></span>
     <ButtonSecondary
-      class="p-2 close-button icon"
+      class="rounded p-2 close-button icon"
       icon="close"
       @click.native="$emit('chip-delete')"
     />
@@ -19,7 +19,7 @@
   @apply pl-4;
   @apply bg-primaryDark;
   @apply text-secondary;
-  @apply font-mono font-semibold;
+
   @apply border border-divider;
 }
 

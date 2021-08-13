@@ -11,6 +11,7 @@
       items-center
       justify-center
       focus:outline-none
+      focus-visible:bg-accentDark
     "
     :class="[
       color

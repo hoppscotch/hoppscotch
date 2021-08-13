@@ -9,9 +9,7 @@
     <span
       class="
         cursor-pointer
-        flex
-        font-semibold
-        flex-1
+        flex flex-1
         min-w-0
         py-2
         pr-2

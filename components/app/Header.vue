@@ -1,53 +1,56 @@
 <template>
-  <header class="flex flex-1 py-2 px-4 items-center justify-between">
-    <div class="font-bold flex-shrink-0 inline-flex items-center">
-      <AppLogo />
-    </div>
-    <div class="space-x-2 flex-shrink-0 inline-flex items-center">
-      <AppGitHubStarButton class="flex mx-2 mt-1" />
-      <ButtonSecondary
-        id="installPWA"
-        v-tippy="{ theme: 'tooltip' }"
-        :title="$t('header.install_pwa')"
-        icon="offline_bolt"
-        @click.native="showInstallPrompt()"
-      />
-      <ButtonPrimary
-        v-if="currentUser === null"
-        label="Login"
-        @click.native="showLogin = true"
-      />
-      <span v-else>
-        <tippy ref="user" interactive trigger="click" theme="popover" arrow>
-          <template #trigger>
-            <ProfilePicture
-              v-if="currentUser.photoURL"
-              v-tippy="{ theme: 'tooltip' }"
-              :url="currentUser.photoURL"
-              :alt="currentUser.displayName"
-              :title="currentUser.displayName"
-              indicator
-              :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
+  <div>
+    <header class="flex flex-1 py-2 px-4 items-center justify-between">
+      <div class="font-bold flex-shrink-0 inline-flex items-center">
+        Hoppscotch
+      </div>
+      <div class="space-x-2 flex-shrink-0 inline-flex items-center">
+        <AppGitHubStarButton class="flex mx-2 mt-1" />
+        <ButtonSecondary
+          id="installPWA"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('header.install_pwa')"
+          icon="offline_bolt"
+          @click.native="showInstallPrompt()"
+        />
+        <ButtonPrimary
+          v-if="currentUser === null"
+          label="Login"
+          @click.native="showLogin = true"
+        />
+        <span v-else>
+          <tippy ref="user" interactive trigger="click" theme="popover" arrow>
+            <template #trigger>
+              <ProfilePicture
+                v-if="currentUser.photoURL"
+                v-tippy="{ theme: 'tooltip' }"
+                :url="currentUser.photoURL"
+                :alt="currentUser.displayName"
+                :title="currentUser.displayName"
+                indicator
+                :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
+              />
+              <ButtonSecondary
+                v-else
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('account')"
+                icon="account_circle"
+              />
+            </template>
+            <SmartItem
+              to="/settings"
+              icon="settings"
+              :label="$t('navigation.settings')"
+              @click.native="$refs.user.tippy().hide()"
             />
-            <ButtonSecondary
-              v-else
-              v-tippy="{ theme: 'tooltip' }"
-              :title="$t('account')"
-              icon="account_circle"
-            />
-          </template>
-          <SmartItem
-            to="/settings"
-            icon="settings"
-            :label="$t('navigation.settings')"
-            @click.native="$refs.user.tippy().hide()"
-          />
-          <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
-        </tippy>
-      </span>
-    </div>
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
-  </header>
+            <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
+          </tippy>
+        </span>
+      </div>
+      <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
+    </header>
+    <AppAnnouncement v-if="!isOnLine" />
+  </div>
 </template>
 
 <script>

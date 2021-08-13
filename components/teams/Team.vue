@@ -3,12 +3,7 @@
     <div class="flex flex-1 items-start">
       <div class="p-4">
         <label
-          class="
-            cursor-pointer
-            font-semibold
-            transition
-            hover:text-secondaryDark
-          "
+          class="cursor-pointer transition hover:text-secondaryDark"
           @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
         >
           {{ team.name || $t("nothing_found") }}

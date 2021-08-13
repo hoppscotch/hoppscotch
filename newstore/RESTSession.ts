@@ -28,6 +28,7 @@ const defaultRESTRequest: HoppRESTRequest = {
   method: "GET",
   auth: {
     authType: "none",
+    authName: "None",
     authActive: true,
   },
   preRequestScript: "// pw.env.set('variable', 'value');",

@@ -18,7 +18,6 @@
             bg-primaryLight
             border-b border-dividerLight
             flex
-            font-semibold
             w-full
             py-2
             px-4
@@ -43,6 +42,7 @@
         <ButtonSecondary
           icon="add"
           :label="$t('new')"
+          class="rounded-none"
           @click.native="displayModalAdd(true)"
         />
         <ButtonSecondary

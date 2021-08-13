@@ -16,7 +16,6 @@
           <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
             <Splitpanes :dbl-click-splitter="false" horizontal>
               <Pane v-if="!ZEN_MODE" style="height: auto">
-                <!-- <AppAnnouncement /> -->
                 <AppHeader />
               </Pane>
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">

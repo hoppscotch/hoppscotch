@@ -1,6 +1,6 @@
 <template>
   <AppSection label="teams">
-    <h4 class="font-bold text-secondaryDark">
+    <h4 class="text-secondaryDark">
       {{ $t("team.title") }}
     </h4>
     <div class="mt-1 text-secondaryLight">

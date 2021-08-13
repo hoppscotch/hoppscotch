@@ -27,7 +27,7 @@
             </SmartTab>
 
             <SmartTab :id="'authorization'" :label="$t('authorization')">
-              <HttpAuth />
+              <HttpAuthorization />
             </SmartTab>
 
             <SmartTab

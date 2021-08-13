@@ -34,7 +34,7 @@
           v-for="(map, mapIndex) in filteredMappings"
           :key="`map-${mapIndex}`"
         >
-          <h5 class="font-normal my-2 text-secondaryLight py-2 px-4">
+          <h5 class="my-2 text-secondaryLight py-2 px-4">
             {{ map.section }}
           </h5>
           <div

@@ -57,6 +57,7 @@
                 <slot name="actions"></slot>
                 <ButtonSecondary
                   v-if="dimissible"
+                  class="rounded"
                   icon="close"
                   @click.native="close"
                 />

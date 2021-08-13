@@ -16,7 +16,6 @@
             bg-primaryLight
             border-b border-dividerLight
             flex
-            font-semibold font-mono
             w-full
             py-2
             pr-2
@@ -42,6 +41,7 @@
           "
           v-tippy="{ theme: 'tooltip' }"
           disabled
+          class="rounded-none"
           icon="add"
           :title="$t('team.no_access')"
           :label="$t('new')"
@@ -50,19 +50,29 @@
           v-else
           icon="add"
           :label="$t('new')"
+          class="rounded-none"
           @click.native="displayModalAdd(true)"
         />
-        <ButtonSecondary
-          v-if="!saveRequest"
-          v-tippy="{ theme: 'tooltip' }"
-          :disabled="
-            collectionsType.type == 'team-collections' &&
-            collectionsType.selectedTeam == undefined
-          "
-          icon="import_export"
-          :title="$t('modal.import_export')"
-          @click.native="displayModalImportExport(true)"
-        />
+        <span class="flex">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            to="https://docs.hoppscotch.io/"
+            blank
+            :title="$t('wiki')"
+            icon="help_outline"
+          />
+          <ButtonSecondary
+            v-if="!saveRequest"
+            v-tippy="{ theme: 'tooltip' }"
+            :disabled="
+              collectionsType.type == 'team-collections' &&
+              collectionsType.selectedTeam == undefined
+            "
+            icon="import_export"
+            :title="$t('modal.import_export')"
+            @click.native="displayModalImportExport(true)"
+          />
+        </span>
       </div>
     </div>
     <div class="flex flex-col">
@@ -99,7 +109,6 @@
       v-if="collections.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
       <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>

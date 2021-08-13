@@ -3,7 +3,6 @@
     <div class="flex flex-col mt-16 items-center justify-center">
       <h2
         class="
-          font-extrabold
           text-accent text-center
           leading-none
           tracking-tighter
@@ -16,7 +15,6 @@
       </h2>
       <h3
         class="
-          font-extrabold
           my-4
           text-center text-secondaryDark
           leading-none

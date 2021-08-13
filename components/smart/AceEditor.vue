@@ -6,9 +6,7 @@
       class="
         bg-primaryLight
         border-t border-divider
-        flex flex-nowrap
-        font-mono
-        flex-1
+        flex flex-nowrap flex-1
         py-1
         px-4
         bottom-0
@@ -23,7 +21,6 @@
         :key="`p-${index}`"
         class="
           cursor-pointer
-          font-semibold
           flex-grow-0 flex-shrink-0
           text-secondaryLight
           inline-flex
@@ -48,7 +45,6 @@
           <SmartItem
             v-for="(sibling, siblingIndex) in currentSibling"
             :key="`p-${index}-sibling-${siblingIndex}`"
-            class="font-mono"
             :label="sibling.key ? sibling.key.value : i"
             @click.native="goToSibling(sibling)"
           />

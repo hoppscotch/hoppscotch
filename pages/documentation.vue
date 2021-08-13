@@ -5,14 +5,13 @@
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="import">
             <div class="flex p-4 items-start justify-between">
-              <label class="font-semibold">
+              <label>
                 {{ $t("generate_docs_message") }}
               </label>
               <span
                 class="
                   bg-accentDark
                   rounded
-                  font-semibold
                   text-accentContrast
                   py-1
                   px-2
@@ -34,11 +33,12 @@
                 sticky
               "
             >
-              <label for="collectionUpload" class="font-semibold">
+              <label for="collectionUpload">
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   title="JSON"
                   icon="folder"
+                  class="rounded-none"
                   :label="$t('import.collections')"
                   @click.native="$refs.collectionUpload.click()"
                 />

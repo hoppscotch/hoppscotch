@@ -15,7 +15,11 @@
       >
         <h3 class="ml-4 heading">{{ $t("shortcuts") }}</h3>
         <div class="flex">
-          <ButtonSecondary icon="close" @click.native="close()" />
+          <ButtonSecondary
+            icon="close"
+            class="rounded"
+            @click.native="close()"
+          />
         </div>
       </div>
       <div class="border-b border-dividerLight">
@@ -28,7 +32,6 @@
               border border-dividerLight
               rounded
               flex
-              font-semibold font-mono
               w-full
               py-2
               pr-2
@@ -54,7 +57,7 @@
           :key="`map-${mapIndex}`"
           class="space-y-4 py-4 px-6"
         >
-          <h5 class="font-bold text-secondaryDark">
+          <h5 class="font-semibold text-secondaryDark">
             {{ map.section }}
           </h5>
           <div

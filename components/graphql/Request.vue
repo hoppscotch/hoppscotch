@@ -11,7 +11,6 @@
           bg-primaryLight
           border border-divider
           rounded-l
-          font-semibold font-mono
           text-secondaryDark
           w-full
           py-2

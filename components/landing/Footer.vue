@@ -2,7 +2,7 @@
   <footer class="flex flex-col p-6">
     <nav class="grid gap-4 grid-cols-2 md:grid-cols-4">
       <div class="flex flex-col space-y-2">
-        <h4 class="font-semibold my-2">Hoppscotch</h4>
+        <h4 class="my-2">Hoppscotch</h4>
         <ul class="space-y-4">
           <li>
             <SmartChangeLanguage />
@@ -13,7 +13,7 @@
         </ul>
       </div>
       <div class="flex flex-col space-y-2">
-        <h4 class="font-semibold my-2">Solutions</h4>
+        <h4 class="my-2">Solutions</h4>
         <ul class="space-y-2">
           <li
             v-for="(item, index) in navigation.solutions"
@@ -28,7 +28,7 @@
         </ul>
       </div>
       <div class="flex flex-col space-y-2">
-        <h4 class="font-semibold my-2">Platform</h4>
+        <h4 class="my-2">Platform</h4>
         <ul class="space-y-2">
           <li
             v-for="(item, index) in navigation.platform"
@@ -43,7 +43,7 @@
         </ul>
       </div>
       <div class="flex flex-col space-y-2">
-        <h4 class="font-semibold my-2">Company</h4>
+        <h4 class="my-2">Company</h4>
         <ul class="space-y-2">
           <li
             v-for="(item, index) in navigation.company"

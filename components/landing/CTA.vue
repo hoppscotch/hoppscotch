@@ -19,9 +19,7 @@
     >
       <i class="text-accent text-3xl material-icons">{{ cta.icon }}</i>
       <div class="flex-grow">
-        <h2
-          class="font-semibold mt-4 text-lg text-secondaryDark mb-2 transition"
-        >
+        <h2 class="mt-4 text-lg text-secondaryDark mb-2 transition">
           {{ cta.title }}
         </h2>
         <p>

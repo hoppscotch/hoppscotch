@@ -6,7 +6,7 @@
     <span v-else class="text-secondaryLight">
       {{ $t("waiting_for_connection") }}
     </span>
-    <pre v-if="error" class="font-mono">{{ error }}</pre>
+    <pre v-if="error">{{ error }}</pre>
   </div>
 </template>
 

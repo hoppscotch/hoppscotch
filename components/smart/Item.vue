@@ -5,7 +5,7 @@
     :blank="blank"
     class="
       rounded
-      font-semibold
+      font-medium
       py-2
       px-4
       transition
@@ -60,7 +60,7 @@
       class="flex-1 inline-flex items-start"
       :class="{ 'flex-col': description }"
     >
-      <div class="font-semibold">
+      <div>
         {{ label }}
       </div>
       <p v-if="description" class="my-2 text-left text-secondaryLight">

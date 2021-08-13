@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col p-4">
     <div class="flex flex-col items-center">
-      <p class="font-semibold my-4 text-center text-accent tracking-widest">
-        FEATURES
-      </p>
+      <p class="my-4 text-center text-accent tracking-widest">FEATURES</p>
     </div>
     <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       <div
@@ -13,15 +11,7 @@
       >
         <i class="text-accent text-4xl material-icons">{{ feature.icon }}</i>
         <div class="flex-grow">
-          <h2
-            class="
-              font-semibold
-              mt-4
-              text-lg text-secondaryDark
-              mb-2
-              transition
-            "
-          >
+          <h2 class="mt-4 text-lg text-secondaryDark mb-2 transition">
             {{ feature.title }}
           </h2>
           <p>

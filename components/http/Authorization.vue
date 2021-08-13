@@ -1,21 +1,22 @@
 <template>
   <div>
-    <div class="flex flex-1 p-2 items-center justify-between">
-      <span class="flex">
-        <span
-          class="
-            border
-            rounded-r-none rounded
-            border-divider border-r-0
-            font-semibold
-            text-secondaryLight
-            py-2
-            px-4
-            py-2
-          "
-        >
+    <div
+      class="
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        top-upperSecondaryStickyFold
+        pl-4
+        z-10
+        sticky
+        items-center
+        justify-between
+      "
+    >
+      <span class="flex items-center">
+        <label class="font-semibold text-secondaryLight">
           {{ $t("authorization_type") }}
-        </span>
+        </label>
         <tippy
           ref="authTypeOptions"
           interactive
@@ -27,9 +28,8 @@
             <div class="flex">
               <span class="select-wrapper">
                 <ButtonSecondary
-                  class="rounded-l-none pr-8"
-                  :label="authType.charAt(0).toUpperCase() + authType.slice(1)"
-                  outline
+                  class="rounded-none ml-2 pr-8"
+                  :label="authName"
                 />
               </span>
             </div>
@@ -38,20 +38,23 @@
             label="None"
             @click.native="
               authType = 'none'
+              authName = 'None'
               $refs.authTypeOptions.tippy().hide()
             "
           />
           <SmartItem
-            label="Basic"
+            label="Basic Auth"
             @click.native="
               authType = 'basic'
+              authName = 'Basic Auth'
               $refs.authTypeOptions.tippy().hide()
             "
           />
           <SmartItem
-            label="Bearer"
+            label="Bearer Token"
             @click.native="
               authType = 'bearer'
+              authName = 'Bearer Token'
               $refs.authTypeOptions.tippy().hide()
             "
           />
@@ -60,11 +63,18 @@
       <div class="flex">
         <SmartToggle
           :on="authActive"
-          class="mr-2 px-2"
+          class="px-2"
           @change="authActive = !authActive"
         >
           {{ authActive ? $t("enabled") : $t("disabled") }}
         </SmartToggle>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
+        />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('clear')"
@@ -72,6 +82,22 @@
           @click.native="clearContent"
         />
       </div>
+    </div>
+    <div
+      v-if="authType === 'none'"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <span class="text-center pb-4">
+        {{ $t("empty.authorization") }}
+      </span>
+      <ButtonSecondary
+        outline
+        :label="$t('action.learn_more')"
+        to="https://docs.hoppscotch.io"
+        blank
+        icon="open_in_new"
+        reverse
+      />
     </div>
     <div v-if="authType === 'basic'" class="space-y-2 p-2">
       <div class="flex relative">
@@ -101,8 +127,19 @@
         <ButtonSecondary
           :icon="passwordFieldType === 'text' ? 'visibility' : 'visibility_off'"
           outline
-          class="ml-2"
+          class="rounded ml-2"
           @click.native="switchVisibility"
+        />
+      </div>
+      <div class="p-2">
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
+        </div>
+        <SmartAnchor
+          class="link"
+          :label="$t('action.learn_more')"
+          to="https://docs.hoppscotch.io/"
+          blank
         />
       </div>
     </div>
@@ -116,6 +153,17 @@
           name="bearer_token"
         />
         <label for="bearer_token"> Token </label>
+      </div>
+      <div class="p-2">
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
+        </div>
+        <SmartAnchor
+          class="link"
+          :label="$t('action.learn_more')"
+          to="https://docs.hoppscotch.io/"
+          blank
+        />
       </div>
     </div>
     <!-- <button
@@ -157,11 +205,12 @@ export default defineComponent({
   setup() {
     const auth = useStream(
       restAuth$,
-      { authType: "none", authActive: true },
+      { authType: "none", authName: "None", authActive: true },
       setRESTAuth
     )
 
     const authType = pluckRef(auth, "authType")
+    const authName = pluckRef(auth, "authName")
     const authActive = pluckRef(auth, "authActive")
 
     const basicUsername = pluckRef(auth as Ref<HoppRESTAuthBasic>, "username")
@@ -176,6 +225,7 @@ export default defineComponent({
     const clearContent = () => {
       auth.value = {
         authType: "none",
+        authName: "None",
         authActive: true,
       }
     }
@@ -189,6 +239,7 @@ export default defineComponent({
     return {
       auth,
       authType,
+      authName,
       authActive,
       basicUsername,
       basicPassword,

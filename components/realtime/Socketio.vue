@@ -17,9 +17,7 @@
                     bg-primaryLight
                     border border-divider
                     rounded-l
-                    flex
-                    font-semibold font-mono
-                    flex-1
+                    flex flex-1
                     text-secondaryDark
                     w-full
                     py-2
@@ -38,9 +36,7 @@
                   class="
                     bg-primaryLight
                     border border-divider
-                    flex
-                    font-semibold font-mono
-                    flex-1
+                    flex flex-1
                     text-secondaryDark
                     w-full
                     py-2
@@ -81,7 +77,7 @@
     >
       <AppSection label="messages">
         <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label for="events" class="font-semibold">
+          <label for="events" class="font-semibold text-secondaryLight">
             {{ $t("events") }}
           </label>
         </div>
@@ -97,7 +93,9 @@
           />
         </div>
         <div class="flex flex-1 p-4 items-center justify-between">
-          <label class="font-semibold">{{ $t("communication") }}</label>
+          <label class="font-semibold text-secondaryLight">{{
+            $t("communication")
+          }}</label>
           <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"

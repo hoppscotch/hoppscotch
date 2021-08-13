@@ -17,7 +17,7 @@
           </div>
           <div v-else class="space-y-8">
             <section>
-              <h4 class="font-bold text-secondaryDark">User</h4>
+              <h4 class="font-semibold text-secondaryDark">User</h4>
               <div class="space-y-4 py-4">
                 <div class="flex items-start">
                   <div class="flex items-center">
@@ -29,7 +29,7 @@
                     <i v-else class="material-icons">account_circle</i>
                   </div>
                   <div class="ml-4">
-                    <label class="font-semibold">
+                    <label>
                       {{ currentUser.displayName || $t("nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
@@ -42,7 +42,7 @@
                     <i class="material-icons">email</i>
                   </div>
                   <div class="ml-4">
-                    <label class="font-semibold">
+                    <label>
                       {{ currentUser.email || $t("nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
@@ -54,7 +54,7 @@
             </section>
             <Teams v-if="currentBackendUser && currentBackendUser.eaInvited" />
             <section>
-              <h4 class="font-bold text-secondaryDark">Sync</h4>
+              <h4 class="font-semibold text-secondaryDark">Sync</h4>
               <div class="mt-1 text-secondaryLight">
                 These settings are synced to cloud.
               </div>
@@ -104,7 +104,7 @@
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("background") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
@@ -123,7 +123,7 @@
             </div>
           </section>
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.accent_color") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
@@ -134,7 +134,7 @@
             </div>
           </section>
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.font_size") }}
             </h4>
             <div class="mt-4">
@@ -142,7 +142,7 @@
             </div>
           </section>
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.language") }}
             </h4>
             <div class="mt-4">
@@ -150,7 +150,7 @@
             </div>
           </section>
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.experiments") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
@@ -218,7 +218,7 @@
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("extensions") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
@@ -270,7 +270,7 @@
             </div>
           </section>
           <section>
-            <h4 class="font-bold text-secondaryDark">
+            <h4 class="font-semibold text-secondaryDark">
               {{ $t("proxy") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
@@ -312,6 +312,7 @@
                 :title="$t('reset_default')"
                 :icon="clearIcon"
                 outline
+                class="rounded"
                 @click.native="resetProxy"
               />
             </div>

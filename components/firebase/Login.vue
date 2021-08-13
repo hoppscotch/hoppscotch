@@ -64,7 +64,7 @@
           <i class="text-accent material-icons !text-4xl">
             mark_email_unread
           </i>
-          <h3 class="font-bold my-2 text-center text-lg">
+          <h3 class="my-2 text-center text-lg">
             {{ $t("auth.we_sent_magic_link") }}
           </h3>
           <p class="text-center">

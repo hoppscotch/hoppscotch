@@ -13,7 +13,8 @@
     "turn_on": "Turn on",
     "turn_off": "Turn off",
     "dismiss": "Dismiss",
-    "copy": "Copy"
+    "copy": "Copy",
+    "learn_more": "Learn more"
   },
   "confirm": {
     "logout": "Are you sure you want to logout?",
@@ -32,13 +33,15 @@
     "team_name": "Team name empty",
     "collection": "Collection is empty",
     "folder": "Folder is empty",
-    "parameters": "Parameters are empty",
+    "parameters": "This request does not have any parameters",
     "history": "History is empty",
-    "headers": "Headers are empty",
+    "headers": "This request does not have any headers",
     "tests": "Tests are empty",
     "schema": "Connect to a GraphQL endpoint",
     "teams": "Teams are empty",
-    "members": "Team is empty"
+    "members": "Team is empty",
+    "body": "This request does not have a body",
+    "authorization": "This request does not use any authorization"
   },
   "count": {
     "message": "Message {count}",
@@ -244,6 +247,13 @@
     "something_went_wrong": "Something went wrong",
     "check_console_details": "Check console log for details."
   },
+  "helpers": {
+    "authorization": "The authorization header will be automatically generated when you send the request.",
+    "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
+    "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
+    "offline_short": "You seem to be offline.",
+    "offline": "You seem to be offline. Data in this workspace might not be up to date."
+  },
   "options": "Options",
   "communication": "Communication",
   "endpoint": "Endpoint",
@@ -288,7 +298,7 @@
   "event_type": "Event type",
   "variables": "Variables",
   "get_schema": "Get schema",
-  "header_list": "Header list",
+  "header_list": "Header List",
   "response": "Response",
   "query": "Query",
   "queries": "Queries",

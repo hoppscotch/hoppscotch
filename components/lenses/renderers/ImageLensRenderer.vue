@@ -6,13 +6,14 @@
         border-b border-dividerLight
         flex flex-1
         top-lowerSecondaryStickyFold
+        pl-4
         z-10
         sticky
         items-center
         justify-between
       "
     >
-      <label for="body" class="font-semibold px-4">
+      <label class="font-semibold text-secondaryLight">
         {{ $t("response_body") }}
       </label>
       <div class="flex">

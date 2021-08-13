@@ -464,12 +464,15 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 [contenteditable="true"] {
+  @apply text-secondaryDark;
+  @apply font-medium;
+
   &:empty {
     line-height: 1.9;
 
     &::before {
-      @apply text-secondary;
-      @apply opacity-75;
+      @apply text-secondaryDark;
+      @apply opacity-25;
       @apply pointer-events-none;
 
       content: attr(placeholder);
@@ -479,7 +482,7 @@ export default defineComponent({
 
 .env-input-container {
   @apply inline-grid;
-  @apply w-full;
+  @apply flex-1;
 }
 
 .env-input {

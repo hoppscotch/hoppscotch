@@ -5,7 +5,7 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
-        pl-4 pl-4
+        pl-4
         items-center
         justify-between
       "
@@ -44,11 +44,11 @@
           />
         </tippy>
       </span>
-      <SmartToggle :on="rawInput" class="px-2" @change="rawInput = !rawInput">
-        {{ $t("raw_input") }}
-      </SmartToggle>
     </div>
-    <HttpBodyParameters v-if="!rawInput" :content-type="contentType" />
+    <HttpBodyParameters
+      v-if="contentType == 'multipart/form-data'"
+      :content-type="contentType"
+    />
     <HttpRawBody v-else :content-type="contentType" />
   </div>
 </template>
@@ -63,7 +63,6 @@ export default defineComponent({
   setup() {
     return {
       contentType: pluckRef(useRESTRequestBody(), "contentType"),
-      rawInput: pluckRef(useRESTRequestBody(), "isRaw"),
     }
   },
   data() {

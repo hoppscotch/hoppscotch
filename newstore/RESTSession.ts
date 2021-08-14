@@ -2,6 +2,7 @@ import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
 import { Ref } from "@nuxtjs/composition-api"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
+  FormDataKeyValue,
   HoppRESTHeader,
   HoppRESTParam,
   HoppRESTReqBody,
@@ -12,6 +13,7 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useStream } from "~/helpers/utils/composables"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppRESTAuth } from "~/helpers/types/HoppRESTAuth"
+import { ValidContentTypes } from "~/helpers/utils/contenttypes"
 
 type RESTSession = {
   request: HoppRESTRequest
@@ -36,7 +38,6 @@ const defaultRESTRequest: HoppRESTRequest = {
   body: {
     contentType: "application/json",
     body: "",
-    isRaw: false,
   },
 }
 
@@ -193,6 +194,112 @@ const dispatchers = defineDispatchers({
       request: {
         ...curr.request,
         testScript: newScript,
+      },
+    }
+  },
+  setContentType(
+    curr: RESTSession,
+    { newContentType }: { newContentType: ValidContentTypes }
+  ) {
+    // TODO: persist body evenafter switching content typees
+    if (curr.request.body.contentType !== "multipart/form-data") {
+      if (newContentType === "multipart/form-data") {
+        // Going from non-formdata to form-data, discard contents and set empty array as body
+        return {
+          request: {
+            ...curr.request,
+            body: <HoppRESTReqBody>{
+              contentType: "multipart/form-data",
+              body: [],
+            },
+          },
+        }
+      } else {
+        // non-formdata to non-formdata, keep body and set content type
+        return {
+          request: {
+            ...curr.request,
+            body: <HoppRESTReqBody>{
+              contentType: newContentType,
+              body: curr.request.body.body,
+            },
+          },
+        }
+      }
+    } else if (newContentType !== "multipart/form-data") {
+      // Going from formdata to non-formdata, discard contents and set empty string
+      return {
+        ...curr.request,
+        body: <HoppRESTReqBody>{
+          contentType: newContentType,
+          body: "",
+        },
+      }
+    } else {
+      // form-data to form-data ? just set the content type ¯\_(ツ)_/¯
+      return {
+        ...curr.request,
+        body: <HoppRESTReqBody>{
+          contentType: newContentType,
+          body: curr.request.body.body,
+        },
+      }
+    }
+  },
+  addFormDataEntry(curr: RESTSession, { entry }: { entry: FormDataKeyValue }) {
+    // Only perform update if the current content-type is formdata
+    if (curr.request.body.contentType !== "multipart/form-data") return {}
+
+    return {
+      request: {
+        ...curr.request,
+        body: <HoppRESTReqBody>{
+          contentType: "multipart/form-data",
+          body: [...curr.request.body.body, entry],
+        },
+      },
+    }
+  },
+  removeFormDataEntry(curr: RESTSession, { index }: { index: number }) {
+    // Only perform update if the current content-type is formdata
+    if (curr.request.body.contentType !== "multipart/form-data") return {}
+
+    return {
+      request: {
+        ...curr.request,
+        body: <HoppRESTReqBody>{
+          contentType: "multipart/form-data",
+          body: curr.request.body.body.filter((_, i) => i !== index),
+        },
+      },
+    }
+  },
+  updateFormDataEntry(
+    curr: RESTSession,
+    { index, entry }: { index: number; entry: FormDataKeyValue }
+  ) {
+    // Only perform update if the current content-type is formdata
+    if (curr.request.body.contentType !== "multipart/form-data") return {}
+
+    return {
+      request: {
+        ...curr.request,
+        body: <HoppRESTReqBody>{
+          contentType: "multipart/form-data",
+          body: curr.request.body.body.map((x, i) => (i !== index ? x : entry)),
+        },
+      },
+    }
+  },
+  clearAllFormDataEntries(curr: RESTSession) {
+    // Only perform update if the current content-type is formdata
+    if (curr.request.body.contentType !== "multipart/form-data") return {}
+
+    return {
+      ...curr.request,
+      body: <HoppRESTReqBody>{
+        contentType: "multipart/form-data",
+        body: [],
       },
     }
   },
@@ -419,6 +526,41 @@ export function setRESTTestResults(newResults: HoppTestResult | null) {
     payload: {
       newResults,
     },
+  })
+}
+
+export function addFormDataEntry(entry: FormDataKeyValue) {
+  restSessionStore.dispatch({
+    dispatcher: "addFormDataEntry",
+    payload: {
+      entry,
+    },
+  })
+}
+
+export function removeFormDataEntry(index: number) {
+  restSessionStore.dispatch({
+    dispatcher: "removeFormDataEntry",
+    payload: {
+      index,
+    },
+  })
+}
+
+export function updateFormDataEntry(index: number, entry: FormDataKeyValue) {
+  restSessionStore.dispatch({
+    dispatcher: "updateFormDataEntry",
+    payload: {
+      index,
+      entry,
+    },
+  })
+}
+
+export function clearAllFormDataEntries() {
+  restSessionStore.dispatch({
+    dispatcher: "clearAllFormDataEntries",
+    payload: {},
   })
 }
 

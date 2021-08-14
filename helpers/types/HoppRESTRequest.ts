@@ -15,11 +15,22 @@ export type HoppRESTHeader = {
   active: boolean
 }
 
-export type HoppRESTReqBody = {
-  contentType: ValidContentTypes
-  body: string
-  isRaw: boolean
+export type FormDataKeyValue = {
+  key: string
+  active: boolean
+} & ({ isFile: true; value: Blob } | { isFile: false; value: string })
+
+export type HoppRESTReqBodyFormData = {
+  contentType: "multipart/form-data"
+  body: FormDataKeyValue[]
 }
+
+export type HoppRESTReqBody =
+  | {
+      contentType: Exclude<ValidContentTypes, "multipart/form-data">
+      body: string
+    }
+  | HoppRESTReqBodyFormData
 
 export interface HoppRESTRequest {
   v: string
@@ -55,14 +66,12 @@ function parseRequestBody(x: any): HoppRESTReqBody {
     return {
       contentType: "application/json",
       body: x.rawParams,
-      isRaw: x.rawInput,
     }
   }
 
   return {
     contentType: "application/json",
     body: "",
-    isRaw: x.rawInput,
   }
 }
 

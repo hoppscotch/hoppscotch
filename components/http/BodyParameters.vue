@@ -13,7 +13,7 @@
         justify-between
       "
     >
-      <label>
+      <label class="font-semibold text-secondaryLight">
         {{ $t("request_body") }}
       </label>
       <div class="flex">
@@ -38,11 +38,11 @@
         />
       </div>
     </div>
+    <!-- <div v-if="typeof bodyParams !== 'string'"> -->
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
       class="divide-x divide-dividerLight border-b border-dividerLight flex"
-      :class="{ 'border-t': index == 0 }"
     >
       <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"
@@ -88,13 +88,12 @@
         "
       />
       <SmartEnvInput
-        v-if="EXPERIMENTAL_URL_BAR_ENABLED && !requestBodyParamIsFile(index)"
+        v-if="EXPERIMENTAL_URL_BAR_ENABLED && !param.isFile"
         v-model="param.value"
         :placeholder="$t('count.value', { count: index + 1 })"
         styles="
           bg-primaryLight
           flex
-
           flex-1
           py-1
           px-4
@@ -109,7 +108,7 @@
         "
       />
       <input
-        v-if="!EXPERIMENTAL_URL_BAR_ENABLED && !requestBodyParamIsFile(index)"
+        v-if="!EXPERIMENTAL_URL_BAR_ENABLED && !param.isFile"
         class="
           bg-primaryLight
           flex flex-1
@@ -208,124 +207,35 @@
         @click.native="addBodyParam"
       />
     </div>
+    <!-- </div> -->
   </AppSection>
 </template>
 
-<script>
-export default {
-  props: {
-    bodyParams: { type: Array, default: () => [] },
-  },
-  computed: {
-    contentType() {
-      return this.$store.state.request.contentType
-    },
-  },
-  watch: {
-    bodyParams: {
-      handler(newValue) {
-        if (
-          (newValue[newValue.length - 1]?.key !== "" ||
-            newValue[newValue.length - 1]?.value !== "") &&
-          newValue.length
-        )
-          this.addBodyParam()
-      },
-      deep: true,
-    },
-  },
-  mounted() {
-    if (!this.bodyParams?.length) {
-      this.addRequestBodyParam()
+<script lang="ts">
+import { defineComponent, onMounted } from "@nuxtjs/composition-api"
+import { pluckRef } from "~/helpers/utils/composables"
+import { addFormDataEntry, useRESTRequestBody } from "~/newstore/RESTSession"
+import { useSetting } from "~/newstore/settings"
+
+export default defineComponent({
+  setup() {
+    const bodyParams = pluckRef(useRESTRequestBody(), "body")
+
+    onMounted(() => {
+      console.log(bodyParams.value)
+    })
+    return {
+      bodyParams,
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
     }
   },
   methods: {
-    clearContent() {
-      this.$emit("clear-content")
+    addBodyParam() {
+      addFormDataEntry({ key: "", value: "", active: true, isFile: false })
     },
-    removeRequestBodyParam(index) {
-      const paramArr = this.$store.state.request.bodyParams.filter(
-        (item, itemIndex) =>
-          itemIndex !== index &&
-          (Object.prototype.hasOwnProperty.call(item, "active")
-            ? item.active === true
-            : true)
-      )
-      this.setRawParams(paramArr)
-      this.$emit("remove-request-body-param", index)
-    },
-    addRequestBodyParam() {
-      this.$emit("add-request-body-param")
-    },
-    setRequestAttachment(event, index) {
-      const { files } = event.target
-      this.$store.commit("setFilesBodyParams", {
-        index,
-        value: Array.from(files),
-      })
-    },
-    requestBodyParamIsFile(index) {
-      const bodyParamValue = this.bodyParams?.[index]?.value
-      const isFile = bodyParamValue?.[0] instanceof File
-      return isFile
-    },
-    chipDelete(paramIndex, fileIndex) {
-      this.$store.commit("removeFile", {
-        index: paramIndex,
-        fileIndex,
-      })
-    },
-    updateBodyParams(event, index, type) {
-      this.$store.commit(type, {
-        index,
-        value: event.target.value,
-      })
-      const paramArr = this.$store.state.request.bodyParams.filter((item) =>
-        Object.prototype.hasOwnProperty.call(item, "active")
-          ? item.active === true
-          : true
-      )
-
-      this.setRawParams(paramArr)
-    },
-    toggleActive(index, param) {
-      const paramArr = this.$store.state.request.bodyParams.filter(
-        (item, itemIndex) => {
-          if (index === itemIndex) {
-            return !param.active
-          } else {
-            return Object.prototype.hasOwnProperty.call(item, "active")
-              ? item.active === true
-              : true
-          }
-        }
-      )
-
-      this.setRawParams(paramArr)
-
-      this.$store.commit("setActiveBodyParams", {
-        index,
-        value: Object.prototype.hasOwnProperty.call(param, "active")
-          ? !param.active
-          : false,
-      })
-    },
-    setRawParams(filteredParamArr) {
-      let rawParams = {}
-      filteredParamArr.forEach((_param) => {
-        rawParams = {
-          ...rawParams,
-          [_param.key]: _param.value,
-        }
-      })
-      const rawParamsStr = JSON.stringify(rawParams, null, 2)
-      this.$store.commit("setState", {
-        value: rawParamsStr,
-        attribute: "rawParams",
-      })
-    },
+    updateBodyParam() {},
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

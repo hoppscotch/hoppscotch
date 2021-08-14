@@ -62,6 +62,7 @@
               showPrintMargin: false,
               useWorker: false,
             }"
+            styles="border-b border-dividerLight"
             @update-query="updateQuery"
           />
         </AppSection>
@@ -105,6 +106,7 @@
               showPrintMargin: false,
               useWorker: false,
             }"
+            styles="border-b border-dividerLight"
           />
         </AppSection>
       </SmartTab>

@@ -27,8 +27,11 @@
         />
       </div>
     </div>
-    <div id="response-details-wrapper">
-      <img class="max-w-full" :src="imageSource" />
+    <div class="flex relative">
+      <img
+        class="border-b border-dividerLight flex max-w-full flex-1"
+        :src="imageSource"
+      />
     </div>
   </div>
 </template>
@@ -46,7 +49,11 @@ export default {
   },
   computed: {
     responseType() {
-      return (this.response.headers["content-type"] || "")
+      return (
+        this.response.headers.find(
+          (h) => h.key.toLowerCase() === "content-type"
+        ).value || ""
+      )
         .split(";")[0]
         .toLowerCase()
     },

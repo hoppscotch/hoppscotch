@@ -47,6 +47,7 @@
         showPrintMargin: false,
         useWorker: false,
       }"
+      styles="border-b border-dividerLight"
     />
     <div
       v-else

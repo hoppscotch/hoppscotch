@@ -42,7 +42,7 @@
         />
       </div>
     </div>
-    <div id="response-details-wrapper">
+    <div class="relative">
       <SmartAceEditor
         :value="responseBodyText"
         :lang="'html'"
@@ -54,6 +54,7 @@
           showPrintMargin: false,
           useWorker: false,
         }"
+        styles="border-b border-dividerLight"
       />
       <iframe
         ref="previewFrame"
@@ -135,3 +136,15 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.covers-response {
+  @apply absolute;
+  @apply inset-0;
+  @apply bg-primary;
+  @apply h-full;
+  @apply w-full;
+  @apply border;
+  @apply border-dividerLight;
+}
+</style>

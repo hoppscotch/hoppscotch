@@ -57,10 +57,10 @@
     </span>
     <SmartSpinner v-else class="mr-4" />
     <div
-      class="flex-1 inline-flex items-start"
+      class="flex-1 inline-flex truncate items-start"
       :class="{ 'flex-col': description }"
     >
-      <div>
+      <div class="truncate">
         {{ label }}
       </div>
       <p v-if="description" class="my-2 text-left text-secondaryLight">

@@ -14,7 +14,7 @@
               <HttpParameters />
             </SmartTab>
 
-            <SmartTab :id="'bodyParams'" :label="$t('body')" info="0">
+            <SmartTab :id="'bodyParams'" :label="$t('body')">
               <HttpBody />
             </SmartTab>
 

@@ -1,7 +1,7 @@
 <template>
   <span class="chip">
     <i class="opacity-75 material-icons">attachment</i>
-    <span class="px-2"><slot></slot></span>
+    <span class="max-w-64 px-2 truncate"><slot></slot></span>
     <ButtonSecondary
       class="rounded close-button"
       icon="close"

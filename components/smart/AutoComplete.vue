@@ -186,6 +186,7 @@ export default {
 
 <style scoped lang="scss">
 .autocomplete-wrapper {
+  @apply relative;
   @apply contents;
 
   input:focus + ul.suggestions,

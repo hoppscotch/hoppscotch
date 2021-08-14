@@ -57,7 +57,7 @@
             showPrintMargin: false,
             useWorker: false,
           }"
-          styles="rounded"
+          styles="border rounded border-dividerLight"
         />
       </div>
     </template>

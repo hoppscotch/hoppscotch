@@ -73,7 +73,6 @@
       v-if="collections.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-75 pb-2 material-icons">create_new_folder</i>
       <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>

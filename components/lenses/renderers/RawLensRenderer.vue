@@ -35,7 +35,7 @@
         />
       </div>
     </div>
-    <div id="response-details-wrapper">
+    <div class="relative">
       <SmartAceEditor
         :value="responseBodyText"
         :lang="'plain_text'"
@@ -47,6 +47,7 @@
           showPrintMargin: false,
           useWorker: false,
         }"
+        styles="border-b border-dividerLight"
       />
     </div>
   </div>
@@ -69,13 +70,18 @@ export default {
   },
   computed: {
     responseType() {
-      return (this.response.headers["content-type"] || "")
+      return (
+        this.response.headers.find(
+          (h) => h.key.toLowerCase() === "content-type"
+        ).value || ""
+      )
         .split(";")[0]
         .toLowerCase()
     },
   },
   methods: {
     downloadResponse() {
+      console.log(this.responseType)
       const dataToWrite = this.responseBodyText
       const file = new Blob([dataToWrite], { type: this.responseType })
       const a = document.createElement("a")

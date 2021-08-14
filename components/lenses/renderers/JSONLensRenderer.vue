@@ -35,7 +35,7 @@
         />
       </div>
     </div>
-    <div id="response-details-wrapper">
+    <div class="relative">
       <SmartAceEditor
         :value="jsonBodyText"
         :lang="'json'"
@@ -48,6 +48,7 @@
           showPrintMargin: false,
           useWorker: false,
         }"
+        styles="border-b border-dividerLight"
       />
     </div>
   </div>
@@ -78,7 +79,11 @@ export default {
       }
     },
     responseType() {
-      return (this.response.headers["content-type"] || "")
+      return (
+        this.response.headers.find(
+          (h) => h.key.toLowerCase() === "content-type"
+        ).value || ""
+      )
         .split(";")[0]
         .toLowerCase()
     },

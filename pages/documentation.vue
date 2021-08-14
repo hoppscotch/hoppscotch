@@ -72,6 +72,7 @@
             <div
               class="
                 bg-primary
+                border-t border-b border-dividerLight
                 flex
                 p-4
                 bottom-0

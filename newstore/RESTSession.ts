@@ -587,7 +587,10 @@ export const restParams$ = restSessionStore.subject$.pipe(
 )
 
 export const restActiveParamsCount$ = restParams$.pipe(
-  map((params) => params.filter((x) => x.active).length)
+  map(
+    (params) =>
+      params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
+  )
 )
 
 export const restMethod$ = restSessionStore.subject$.pipe(
@@ -601,7 +604,10 @@ export const restHeaders$ = restSessionStore.subject$.pipe(
 )
 
 export const restActiveHeadersCount$ = restHeaders$.pipe(
-  map((params) => params.filter((x) => x.active).length)
+  map(
+    (params) =>
+      params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
+  )
 )
 
 export const restAuth$ = restRequest$.pipe(pluck("auth"))

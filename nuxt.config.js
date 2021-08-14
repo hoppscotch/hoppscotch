@@ -98,7 +98,6 @@ export default {
   plugins: [
     "~/plugins/v-tippy",
     "~/plugins/v-focus",
-    "~/plugins/vuex-persist",
     "~/plugins/vue-apollo",
     "~/plugins/crisp",
     { src: "~/plugins/web-worker", ssr: false },

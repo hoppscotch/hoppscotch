@@ -79,7 +79,6 @@
                 border-b border-dividerLight
                 flex
               "
-              :class="{ 'border-t': index == 0 }"
             >
               <input
                 v-model="protocol.value"

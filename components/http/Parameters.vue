@@ -42,7 +42,6 @@
       v-for="(param, index) in params$"
       :key="`param-${index}`"
       class="divide-x divide-dividerLight border-b border-dividerLight flex"
-      :class="{ 'border-t': index == 0 }"
     >
       <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"

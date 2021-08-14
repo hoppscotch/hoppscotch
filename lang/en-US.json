@@ -268,7 +268,7 @@
   "path": "Path",
   "label": "Label",
   "content_type": "Content Type",
-  "raw_input": "Raw input",
+  "raw": "Raw",
   "parameter_list": "Query Parameters",
   "body": "Body",
   "request_body": "Request Body",

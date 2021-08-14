@@ -45,10 +45,7 @@
         </tippy>
       </span>
     </div>
-    <HttpBodyParameters
-      v-if="contentType == 'multipart/form-data'"
-      :content-type="contentType"
-    />
+    <HttpBodyParameters v-if="contentType == 'multipart/form-data'" />
     <HttpRawBody v-else :content-type="contentType" />
   </div>
 </template>

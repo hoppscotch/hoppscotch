@@ -66,7 +66,7 @@
           class="px-2"
           @change="authActive = !authActive"
         >
-          {{ authActive ? $t("enabled") : $t("disabled") }}
+          {{ $t("enabled") }}
         </SmartToggle>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"

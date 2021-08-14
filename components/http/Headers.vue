@@ -42,7 +42,6 @@
       v-for="(header, index) in headers$"
       :key="`header-${index}`"
       class="divide-x divide-dividerLight border-b border-dividerLight flex"
-      :class="{ 'border-t': index == 0 }"
     >
       <SmartAutoComplete
         :placeholder="$t('count.header', { count: index + 1 })"

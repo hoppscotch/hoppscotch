@@ -27,14 +27,23 @@
           :placeholder="$t('search')"
         />
       </div>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        data-testid="clear_history"
-        :disabled="history.length === 0"
-        icon="clear_all"
-        :title="$t('clear_all')"
-        @click.native="confirmRemove = true"
-      />
+      <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          data-testid="clear_history"
+          :disabled="history.length === 0"
+          icon="clear_all"
+          :title="$t('clear_all')"
+          @click.native="confirmRemove = true"
+        />
+      </div>
     </div>
     <div class="flex flex-col">
       <div v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">

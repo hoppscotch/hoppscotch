@@ -6,7 +6,7 @@
           <div
             class="
               bg-primaryLight
-              flex flex-col
+              flex
               top-sidebarPrimaryStickyFold
               z-10
               sticky
@@ -29,11 +29,19 @@
                 "
               />
             </div>
+            <div class="flex">
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                to="https://docs.hoppscotch.io/"
+                blank
+                :title="$t('wiki')"
+                icon="help_outline"
+              />
+            </div>
           </div>
           <SmartTabs
             ref="gqlTabs"
-            styles="
-                    border-t border-dividerLight sticky z-8 top-sidebarSecondaryStickyFold"
+            styles="border-t border-dividerLight sticky z-10 top-sidebarSecondaryStickyFold"
           >
             <div class="gqlTabs">
               <SmartTab
@@ -153,6 +161,13 @@
               {{ $t("schema") }}
             </label>
             <div class="flex">
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                to="https://docs.hoppscotch.io/"
+                blank
+                :title="$t('wiki')"
+                icon="help_outline"
+              />
               <ButtonSecondary
                 ref="downloadSchema"
                 v-tippy="{ theme: 'tooltip' }"

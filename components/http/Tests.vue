@@ -24,7 +24,7 @@
         icon="help_outline"
       />
     </div>
-    <div class="flex">
+    <div class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
         <SmartJsEditor
           v-model="testScript"

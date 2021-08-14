@@ -152,7 +152,6 @@
               border-b border-dividerLight
               flex
             "
-            :class="{ 'border-t': index == 0 }"
           >
             <SmartAutoComplete
               :placeholder="$t('count.header', { count: index + 1 })"
@@ -333,6 +332,7 @@ export default defineComponent({
     const showSaveRequestModal = ref(false)
 
     const schema = useReadonlyStream(props.conn.schemaString$, "")
+
     watch(
       headers,
       () => {

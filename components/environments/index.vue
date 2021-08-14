@@ -45,12 +45,21 @@
           class="rounded-none"
           @click.native="displayModalAdd(true)"
         />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          icon="import_export"
-          :title="$t('modal.import_export')"
-          @click.native="displayModalImportExport(true)"
-        />
+        <div class="flex">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            to="https://docs.hoppscotch.io/"
+            blank
+            :title="$t('wiki')"
+            icon="help_outline"
+          />
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            icon="import_export"
+            :title="$t('modal.import_export')"
+            @click.native="displayModalImportExport(true)"
+          />
+        </div>
       </div>
     </div>
     <EnvironmentsAdd

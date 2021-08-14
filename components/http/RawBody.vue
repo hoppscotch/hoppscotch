@@ -13,7 +13,7 @@
         justify-between
       "
     >
-      <label for="rawBody">
+      <label class="font-semibold text-secondaryLight">
         {{ $t("raw_request_body") }}
       </label>
       <div class="flex">

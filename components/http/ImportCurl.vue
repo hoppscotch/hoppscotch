@@ -119,7 +119,6 @@ export default defineComponent({
             body: {
               contentType: "application/json",
               body: "",
-              isRaw: false,
             },
           })
         )

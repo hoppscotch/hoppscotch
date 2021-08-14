@@ -91,9 +91,8 @@ export default defineComponent({
     const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
     if (!cookiesAllowed) {
       this.$toast.show(this.$t("we_use_cookies").toString(), {
-        icon: "info",
-        duration: 5000,
-        theme: "toasted-primary",
+        icon: "cookie",
+        duration: 0,
         action: [
           {
             text: this.$t("action.dismiss").toString(),

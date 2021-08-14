@@ -66,7 +66,7 @@ function updateThemes() {
   onBeforeMount(() => {
     document.documentElement.setAttribute("data-accent", themeColor.value)
     $colorMode.preference = bgColor.value
-    document.documentElement.setAttribute("data-font-size", fontSize.value.code)
+    document.documentElement.setAttribute("data-font-size", fontSize.value)
   })
 
   // Listen for updates
@@ -75,7 +75,7 @@ function updateThemes() {
   )
   watch(bgColor, () => ($colorMode.preference = bgColor.value))
   watch(fontSize, () =>
-    document.documentElement.setAttribute("data-font-size", fontSize.value.code)
+    document.documentElement.setAttribute("data-font-size", fontSize.value)
   )
 }
 
@@ -154,7 +154,6 @@ export default defineComponent({
           this.$toast.show(this.$t("app.new_version_found").toString(), {
             icon: "info",
             duration: 0,
-            theme: "toasted-primary",
             action: [
               {
                 text: this.$t("reload").toString(),

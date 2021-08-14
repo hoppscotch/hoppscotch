@@ -64,7 +64,6 @@
               :options="{
                 maxLines: Infinity,
                 minLines: 16,
-                fontSize: '12px',
                 autoScrollEditorIntoView: true,
                 showPrintMargin: false,
                 useWorker: false,

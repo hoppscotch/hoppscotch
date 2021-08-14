@@ -52,6 +52,14 @@ export default {
     }
   },
 
+  computed: {
+    appFontSize() {
+      return getComputedStyle(document.documentElement).getPropertyValue(
+        "--body-font-size"
+      )
+    },
+  },
+
   watch: {
     value(value) {
       if (value !== this.cacheValue) {
@@ -99,6 +107,8 @@ export default {
           this.initalized = true
         })
     })
+
+    editor.setFontSize(this.appFontSize)
 
     const completer = {
       getCompletions: (

@@ -9,15 +9,15 @@
             class="pr-8"
             icon="format_size"
             outline
-            :label="`${fontSizes.find(({ code }) => code == active.code).name}`"
+            :label="getFontSizeName(fontSizes.find((size) => size == active))"
           />
         </template>
         <SmartItem
           v-for="(size, index) in fontSizes"
           :key="`size-${index}`"
-          :label="size.name"
-          :info-icon="size.code === active.code ? 'done' : ''"
-          :active-info-icon="size.code === active.code"
+          :label="getFontSizeName(size)"
+          :info-icon="size === active ? 'done' : ''"
+          :active-info-icon="size === active"
           @click.native="
             setActiveFont(size)
             $refs.fontSize.tippy().hide()
@@ -45,8 +45,11 @@ export default defineComponent({
     }
   },
   methods: {
+    getFontSizeName(size: HoppFontSize) {
+      return this.$t(`settings.font_size_${size}`)
+    },
     setActiveFont(size: HoppFontSize) {
-      document.documentElement.setAttribute("data-font-size", size.code)
+      document.documentElement.setAttribute("data-font-size", size)
       applySetting("FONT_SIZE", size)
     },
   },

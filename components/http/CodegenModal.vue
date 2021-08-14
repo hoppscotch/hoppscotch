@@ -52,7 +52,6 @@
           :options="{
             maxLines: 16,
             minLines: 8,
-            fontSize: '12px',
             autoScrollEditorIntoView: true,
             readOnly: true,
             showPrintMargin: false,

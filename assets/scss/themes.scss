@@ -361,14 +361,14 @@
   --sidebar-secondary-sticky-fold: 5rem;
 }
 
-:root[data-font-size="xs"] {
+:root[data-font-size="small"] {
   @include fontSmall;
 }
 
-:root[data-font-size="sm"] {
+:root[data-font-size="medium"] {
   @include fontMedium;
 }
 
-:root[data-font-size="base"] {
+:root[data-font-size="large"] {
   @include fontLarge;
 }

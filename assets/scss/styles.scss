@@ -368,10 +368,19 @@ input[type="checkbox"] {
       line-height: var(--body-line-height);
 
       .action {
+        @apply bg-gray-500;
+        @apply px-4;
+        @apply bg-opacity-10;
         @apply ml-auto;
+        @apply sm:ml-8;
         @apply transition;
         @apply text-current;
-        @apply hover:(opacity-75 no-underline);
+        @apply normal-case;
+        @apply hover:(bg-opacity-20 no-underline);
+        @apply font-medium;
+
+        font-size: var(--body-font-size);
+        line-height: var(--body-line-height);
       }
     }
 

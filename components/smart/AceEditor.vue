@@ -108,6 +108,14 @@ export default {
     }
   },
 
+  computed: {
+    appFontSize() {
+      return getComputedStyle(document.documentElement).getPropertyValue(
+        "--body-font-size"
+      )
+    },
+  },
+
   watch: {
     value(value) {
       if (value !== this.cacheValue) {
@@ -144,6 +152,8 @@ export default {
         this.initialized = true
       })
     })
+
+    editor.setFontSize(this.appFontSize)
 
     if (this.value) editor.setValue(this.value, 1)
 

@@ -260,7 +260,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  removeFormDataEntry(curr: RESTSession, { index }: { index: number }) {
+  deleteFormDataEntry(curr: RESTSession, { index }: { index: number }) {
     // Only perform update if the current content-type is formdata
     if (curr.request.body.contentType !== "multipart/form-data") return {}
 
@@ -291,15 +291,17 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  clearAllFormDataEntries(curr: RESTSession) {
+  deleteAllFormDataEntries(curr: RESTSession) {
     // Only perform update if the current content-type is formdata
     if (curr.request.body.contentType !== "multipart/form-data") return {}
 
     return {
-      ...curr.request,
-      body: <HoppRESTReqBody>{
-        contentType: "multipart/form-data",
-        body: [],
+      request: {
+        ...curr.request,
+        body: <HoppRESTReqBody>{
+          contentType: "multipart/form-data",
+          body: [],
+        },
       },
     }
   },
@@ -538,9 +540,9 @@ export function addFormDataEntry(entry: FormDataKeyValue) {
   })
 }
 
-export function removeFormDataEntry(index: number) {
+export function deleteFormDataEntry(index: number) {
   restSessionStore.dispatch({
-    dispatcher: "removeFormDataEntry",
+    dispatcher: "deleteFormDataEntry",
     payload: {
       index,
     },
@@ -557,9 +559,9 @@ export function updateFormDataEntry(index: number, entry: FormDataKeyValue) {
   })
 }
 
-export function clearAllFormDataEntries() {
+export function deleteAllFormDataEntries() {
   restSessionStore.dispatch({
-    dispatcher: "clearAllFormDataEntries",
+    dispatcher: "deleteAllFormDataEntries",
     payload: {},
   })
 }

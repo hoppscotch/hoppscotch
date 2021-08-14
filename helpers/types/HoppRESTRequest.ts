@@ -18,7 +18,7 @@ export type HoppRESTHeader = {
 export type FormDataKeyValue = {
   key: string
   active: boolean
-} & ({ isFile: true; value: Blob } | { isFile: false; value: string })
+} & ({ isFile: true; value: Blob[] } | { isFile: false; value: string })
 
 export type HoppRESTReqBodyFormData = {
   contentType: "multipart/form-data"

@@ -38,7 +38,6 @@
         />
       </div>
     </div>
-    <!-- <div v-if="typeof bodyParams !== 'string'"> -->
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
@@ -51,7 +50,6 @@
         styles="
           bg-primaryLight
           flex
-
           flex-1
           py-1
           px-4
@@ -59,9 +57,10 @@
         "
         @change="
           updateBodyParam(index, {
-            key: $event.target.value,
+            key: $event,
             value: param.value,
             active: param.active,
+            isFile: param.isFile,
           })
         "
       />
@@ -84,54 +83,14 @@
             key: $event.target.value,
             value: param.value,
             active: param.active,
+            isFile: param.isFile,
           })
         "
       />
-      <SmartEnvInput
-        v-if="EXPERIMENTAL_URL_BAR_ENABLED && !param.isFile"
-        v-model="param.value"
-        :placeholder="$t('count.value', { count: index + 1 })"
-        styles="
-          bg-primaryLight
-          flex
-          flex-1
-          py-1
-          px-4
-          focus:outline-none
-        "
-        @change="
-          updateBodyParam(index, {
-            key: param.key,
-            value: $event.target.value,
-            active: param.active,
-          })
-        "
-      />
-      <input
-        v-if="!EXPERIMENTAL_URL_BAR_ENABLED && !param.isFile"
-        class="
-          bg-primaryLight
-          flex flex-1
-          py-2
-          px-4
-          truncate
-          focus:outline-none
-        "
-        :placeholder="$t('count.value', { count: index + 1 })"
-        :name="'value' + index"
-        :value="param.value"
-        @change="
-          updateBodyParam(index, {
-            key: param.key,
-            value: $event.target.value,
-            active: param.active,
-          })
-        "
-      />
-      <div v-else class="file-chips-container">
-        <div class="file-chips-wrapper">
+      <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
+        <div class="space-x-2 file-chips-wrapper">
           <SmartDeletableChip
-            v-for="(file, fileIndex) in Array.from(bodyParams[index].value)"
+            v-for="(file, fileIndex) in param.value"
             :key="`param-${index}-file-${fileIndex}`"
             @chip-delete="chipDelete(index, fileIndex)"
           >
@@ -139,6 +98,68 @@
           </SmartDeletableChip>
         </div>
       </div>
+      <span v-else class="flex flex-1">
+        <SmartEnvInput
+          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+          v-model="param.value"
+          :placeholder="$t('count.value', { count: index + 1 })"
+          styles="
+          bg-primaryLight
+          flex
+          flex-1
+          py-1
+          px-4
+          focus:outline-none
+        "
+          @change="
+            updateBodyParam(index, {
+              key: param.key,
+              value: $event,
+              active: param.active,
+              isFile: param.isFile,
+            })
+          "
+        />
+        <input
+          v-else
+          class="
+            bg-primaryLight
+            flex flex-1
+            py-2
+            px-4
+            truncate
+            focus:outline-none
+          "
+          :placeholder="$t('count.value', { count: index + 1 })"
+          :name="'value' + index"
+          :value="param.value"
+          @change="
+            updateBodyParam(index, {
+              key: param.key,
+              value: $event.target.value,
+              active: param.active,
+              isFile: param.isFile,
+            })
+          "
+        />
+      </span>
+      <span>
+        <label for="attachment" class="p-0">
+          <ButtonSecondary
+            class="w-full"
+            icon="attach_file"
+            @click.native="$refs.attachment[index].click()"
+          />
+        </label>
+        <input
+          ref="attachment"
+          class="input"
+          name="attachment"
+          type="file"
+          multiple
+          @change="setRequestAttachment(index, param, $event)"
+        />
+      </span>
       <span>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -162,25 +183,9 @@
               key: param.key,
               value: param.value,
               active: param.hasOwnProperty('active') ? !param.active : false,
+              isFile: param.isFile,
             })
           "
-        />
-      </span>
-      <span>
-        <label for="attachment" class="p-0">
-          <ButtonSecondary
-            class="w-full"
-            icon="attach_file"
-            @click.native="$refs.attachment[index].click()"
-          />
-        </label>
-        <input
-          ref="attachment"
-          class="input"
-          name="attachment"
-          type="file"
-          multiple
-          @change="setRequestAttachment($event, index)"
         />
       </span>
       <span>
@@ -207,33 +212,105 @@
         @click.native="addBodyParam"
       />
     </div>
-    <!-- </div> -->
   </AppSection>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from "@nuxtjs/composition-api"
+import { defineComponent, onMounted, Ref, watch } from "@nuxtjs/composition-api"
+import { FormDataKeyValue } from "~/helpers/types/HoppRESTRequest"
 import { pluckRef } from "~/helpers/utils/composables"
-import { addFormDataEntry, useRESTRequestBody } from "~/newstore/RESTSession"
+import {
+  addFormDataEntry,
+  deleteAllFormDataEntries,
+  deleteFormDataEntry,
+  updateFormDataEntry,
+  useRESTRequestBody,
+} from "~/newstore/RESTSession"
 import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
   setup() {
-    const bodyParams = pluckRef(useRESTRequestBody(), "body")
+    const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body") as Ref<
+      FormDataKeyValue[]
+    >
+
+    const addBodyParam = () => {
+      addFormDataEntry({ key: "", value: "", active: true, isFile: false })
+    }
+
+    const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
+      updateFormDataEntry(index, entry)
+    }
+
+    const deleteBodyParam = (index: number) => {
+      deleteFormDataEntry(index)
+    }
+
+    const clearContent = () => {
+      deleteAllFormDataEntries()
+    }
+
+    const chipDelete = (paramIndex: number, fileIndex: number) => {
+      const entry = bodyParams.value[paramIndex]
+      if (entry.isFile) {
+        entry.value.splice(fileIndex, 1)
+        if (entry.value.length === 0) {
+          updateFormDataEntry(paramIndex, {
+            ...entry,
+            isFile: false,
+            value: "",
+          })
+          return
+        }
+      }
+
+      updateFormDataEntry(paramIndex, entry)
+    }
+
+    const setRequestAttachment = (
+      index: number,
+      entry: FormDataKeyValue,
+      event: InputEvent
+    ) => {
+      console.log(index, event)
+
+      const fileEntry: FormDataKeyValue = {
+        ...entry,
+        isFile: true,
+        value: Array.from((event.target as HTMLInputElement).files!),
+      }
+      updateFormDataEntry(index, fileEntry)
+    }
+
+    watch(
+      bodyParams,
+      () => {
+        if (
+          bodyParams.value.length > 0 &&
+          (bodyParams.value[bodyParams.value.length - 1].key !== "" ||
+            bodyParams.value[bodyParams.value.length - 1].value !== "")
+        )
+          addBodyParam()
+      },
+      { deep: true }
+    )
 
     onMounted(() => {
-      console.log(bodyParams.value)
+      if (!bodyParams.value?.length) {
+        addBodyParam()
+      }
     })
+
     return {
       bodyParams,
+      addBodyParam,
+      updateBodyParam,
+      deleteBodyParam,
+      clearContent,
+      setRequestAttachment,
+      chipDelete,
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
     }
-  },
-  methods: {
-    addBodyParam() {
-      addFormDataEntry({ key: "", value: "", active: true, isFile: false })
-    },
-    updateBodyParam() {},
   },
 })
 </script>
@@ -243,10 +320,12 @@ export default defineComponent({
   @apply flex flex-1;
   @apply whitespace-nowrap;
   @apply overflow-auto;
-  @apply bg-primaryDark;
+  @apply bg-primaryLight;
 
   .file-chips-wrapper {
     @apply flex;
+    @apply px-4;
+    @apply py-1;
     @apply w-0;
   }
 }

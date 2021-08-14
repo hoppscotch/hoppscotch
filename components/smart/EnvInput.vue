@@ -12,7 +12,6 @@
       :class="styles"
       contenteditable="true"
       @keydown.enter.prevent="$emit('enter', $event)"
-      @change="$emit('change', $event)"
       @keyup="$emit('keyup', $event)"
       @click="$emit('click', $event)"
       @keydown="$emit('keydown', $event)"
@@ -133,6 +132,7 @@ export default defineComponent({
       if (!this.highlightEnabled) {
         this.htmlOutput = this.internalValue
         this.$emit("input", this.internalValue)
+        this.$emit("change", this.internalValue)
         return
       }
 
@@ -232,6 +232,7 @@ export default defineComponent({
       })
 
       this.$emit("input", this.internalValue)
+      this.$emit("change", this.internalValue)
     },
     renderTippy() {
       const tippable = document.querySelectorAll("[v-tippy]")

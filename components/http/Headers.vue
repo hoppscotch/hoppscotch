@@ -82,7 +82,7 @@
         @change="
           updateHeader(index, {
             key: header.key,
-            value: $event.target.value,
+            value: $event,
             active: header.active,
           })
         "

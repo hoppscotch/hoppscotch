@@ -1,8 +1,9 @@
 <template>
   <span class="chip">
-    <span><slot></slot></span>
+    <i class="opacity-75 material-icons">attachment</i>
+    <span class="px-2"><slot></slot></span>
     <ButtonSecondary
-      class="rounded p-2 close-button icon"
+      class="rounded close-button"
       icon="close"
       @click.native="$emit('chip-delete')"
     />
@@ -15,15 +16,13 @@
   @apply items-center;
   @apply justify-center;
   @apply rounded;
-  @apply m-1;
-  @apply pl-4;
-  @apply bg-primaryDark;
-  @apply text-secondary;
-
+  @apply pl-2;
+  @apply pr-0.5;
+  @apply bg-primary;
   @apply border border-divider;
 }
 
 .close-button {
-  @apply text-base;
+  @apply p-0.5;
 }
 </style>

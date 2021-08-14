@@ -57,7 +57,7 @@
         "
         @change="
           updateParam(index, {
-            key: $event.target.value,
+            key: $event,
             value: param.value,
             active: param.active,
           })
@@ -100,7 +100,7 @@
         @change="
           updateParam(index, {
             key: param.key,
-            value: $event.target.value,
+            value: $event,
             active: param.active,
           })
         "

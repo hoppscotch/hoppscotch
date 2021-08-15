@@ -7,7 +7,9 @@
     "settings": "Settings"
   },
   "header": {
-    "install_pwa": "Install app"
+    "install_pwa": "Install app",
+    "save_workspace": "Save My Workspace",
+    "login": "Login"
   },
   "action": {
     "turn_on": "Turn on",
@@ -444,9 +446,6 @@
   "extension_ver_not_reported": "Not Reported",
   "extensions_info1": "Browser extension simplifies access to Hoppscotch, fix CORS issues, etc.",
   "extensions_info2": "Get Hoppscotch browser extension!",
-  "installed": "Installed",
-  "login_with": "Login with",
-  "login": "Login",
   "login_to_hoppscotch": "Login to Hoppscotch",
   "logged_out": "Logged out",
   "login_success": "Successfully logged in",

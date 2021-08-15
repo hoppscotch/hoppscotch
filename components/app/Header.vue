@@ -1,11 +1,29 @@
 <template>
   <div>
-    <header class="flex flex-1 py-2 px-4 items-center justify-between">
-      <div class="font-bold flex-shrink-0 inline-flex items-center">
-        <AppLogo />
+    <header
+      class="
+        flex
+        space-x-2
+        flex-1
+        py-2
+        px-2
+        hide-scrollbar
+        items-center
+        justify-between
+      "
+      :class="{ 'overflow-x-auto': !currentUser }"
+    >
+      <div class="space-x-2 group inline-flex items-center">
+        <ButtonSecondary
+          class="tracking-wide !font-bold"
+          label="HOPPSCOTCH"
+          to="/"
+        />
+        <AppGitHubStarButton
+          class="mt-1.5 transition hidden group-hover:flex"
+        />
       </div>
-      <div class="space-x-2 flex-shrink-0 inline-flex items-center">
-        <AppGitHubStarButton class="flex mx-2 mt-1" />
+      <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
           id="installPWA"
           v-tippy="{ theme: 'tooltip' }"
@@ -13,17 +31,28 @@
           icon="offline_bolt"
           @click.native="showInstallPrompt()"
         />
-        <ButtonPrimary
+        <ButtonSecondary
           v-if="currentUser === null"
-          label="Login"
+          icon="filter_drama"
+          :label="$t('header.save_workspace')"
+          outline
+          class="hidden !text-secondaryDark md:flex"
           @click.native="showLogin = true"
         />
-        <span v-else>
+        <ButtonPrimary
+          v-if="currentUser === null"
+          :label="$t('header.login')"
+          outline
+          @click.native="showLogin = true"
+        />
+        <span v-else class="pr-2">
           <tippy ref="user" interactive trigger="click" theme="popover" arrow>
             <template #trigger>
               <ProfilePicture
                 v-if="currentUser.photoURL"
-                v-tippy="{ theme: 'tooltip' }"
+                v-tippy="{
+                  theme: 'tooltip',
+                }"
                 :url="currentUser.photoURL"
                 :alt="currentUser.displayName"
                 :title="currentUser.displayName"
@@ -47,9 +76,9 @@
           </tippy>
         </span>
       </div>
-      <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     </header>
     <AppAnnouncement v-if="!isOnLine" />
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 

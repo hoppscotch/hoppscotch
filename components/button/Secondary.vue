@@ -10,6 +10,7 @@
       inline-flex
       items-center
       justify-center
+      whitespace-nowrap
       hover:bg-primaryDark
       focus:outline-none
       focus-visible:bg-primaryDark

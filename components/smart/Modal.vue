@@ -34,7 +34,6 @@
           <div
             class="
               bg-primary
-              rounded-lg
               shadow-lg
               text-left
               w-full
@@ -45,6 +44,7 @@
               align-bottom
               overflow-hidden
               sm:max-w-md sm:align-middle
+              md:rounded-lg
             "
             :class="{ 'mt-24 md:mb-8': placement === 'top' }"
           >

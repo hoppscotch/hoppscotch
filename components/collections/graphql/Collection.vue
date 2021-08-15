@@ -31,53 +31,63 @@
       >
         <span class="truncate"> {{ collection.name }} </span>
       </span>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        icon="create_new_folder"
-        :title="$t('folder.new')"
-        class="hidden group-hover:inline-flex"
-        @click.native="
-          $emit('add-folder', {
-            path: `${collectionIndex}`,
-          })
-        "
-      />
-      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
-        <template #trigger>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
-            icon="more_vert"
-          />
-        </template>
-        <SmartItem
+      <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           icon="create_new_folder"
-          :label="$t('folder.new')"
+          :title="$t('folder.new')"
+          class="hidden group-hover:inline-flex"
           @click.native="
             $emit('add-folder', {
               path: `${collectionIndex}`,
             })
-            $refs.options.tippy().hide()
           "
         />
-        <SmartItem
-          icon="create"
-          :label="$t('edit')"
-          @click.native="
-            $emit('edit-collection')
-            $refs.options.tippy().hide()
-          "
-        />
-        <SmartItem
-          icon="delete"
-          color="red"
-          :label="$t('delete')"
-          @click.native="
-            confirmRemove = true
-            $refs.options.tippy().hide()
-          "
-        />
-      </tippy>
+        <span>
+          <tippy
+            ref="options"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+          >
+            <template #trigger>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('more')"
+                icon="more_vert"
+              />
+            </template>
+            <SmartItem
+              icon="create_new_folder"
+              :label="$t('folder.new')"
+              @click.native="
+                $emit('add-folder', {
+                  path: `${collectionIndex}`,
+                })
+                $refs.options.tippy().hide()
+              "
+            />
+            <SmartItem
+              icon="create"
+              :label="$t('edit')"
+              @click.native="
+                $emit('edit-collection')
+                $refs.options.tippy().hide()
+              "
+            />
+            <SmartItem
+              icon="delete"
+              color="red"
+              :label="$t('delete')"
+              @click.native="
+                confirmRemove = true
+                $refs.options.tippy().hide()
+              "
+            />
+          </tippy>
+        </span>
+      </div>
     </div>
     <div v-if="showChildren || isFiltered">
       <CollectionsGraphqlFolder

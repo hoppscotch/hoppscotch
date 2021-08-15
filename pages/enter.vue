@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col min-h-screen items-center justify-center">
-    <span v-if="signingInWithEmail">
+    <div v-if="signingInWithEmail">
       <SmartSpinner />
-    </span>
-    <span v-else class="text-secondaryLight">
-      {{ $t("waiting_for_connection") }}
-    </span>
+    </div>
+    <div v-else class="text-sm text-secondaryLight animate-pulse">
+      <AppLogo class="h-8 w-8" />
+    </div>
     <pre v-if="error">{{ error }}</pre>
   </div>
 </template>

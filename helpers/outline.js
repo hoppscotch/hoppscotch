@@ -106,7 +106,7 @@ export default () => {
   }
 
   const getSiblings = (index) => {
-    const parent = path[index].obj.parent
+    const parent = path[index]?.obj?.parent
     if (!parent) return []
     else if (parent.kind === "Object") {
       return parent.members

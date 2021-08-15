@@ -39,7 +39,7 @@
       <SmartAceEditor
         :value="jsonBodyText"
         :lang="'json'"
-        :provide-j-s-o-n-outline="true"
+        :provide-outline="true"
         :options="{
           maxLines: Infinity,
           minLines: 16,

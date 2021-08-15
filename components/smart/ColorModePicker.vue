@@ -38,15 +38,15 @@ export default defineComponent({
     getIcon(color: HoppBgColor) {
       switch (color) {
         case "system":
-          return "desktop_windows"
+          return "devices"
         case "light":
-          return "wb_sunny"
+          return "light_mode"
         case "dark":
           return "nights_stay"
         case "black":
-          return "bedtime"
+          return "dark_mode"
         default:
-          return "desktop_windows"
+          return "devices"
       }
     },
   },

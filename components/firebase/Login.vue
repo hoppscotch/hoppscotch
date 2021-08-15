@@ -6,7 +6,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
+      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2 px-2">
         <SmartItem
           :loading="signingInWithGoogle"
           svg="google"

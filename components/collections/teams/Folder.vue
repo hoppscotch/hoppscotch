@@ -25,63 +25,67 @@
           {{ folder.name ? folder.name : folder.title }}
         </span>
       </span>
-      <ButtonSecondary
-        v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-        v-tippy="{ theme: 'tooltip' }"
-        icon="create_new_folder"
-        :title="$t('folder.new')"
-        class="hidden group-hover:inline-flex"
-        @click.native="$emit('add-folder', { folder, path: folderPath })"
-      />
-      <tippy
-        v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-        ref="options"
-        interactive
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
-            icon="more_vert"
-          />
-        </template>
-        <SmartItem
+      <div class="flex">
+        <ButtonSecondary
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+          v-tippy="{ theme: 'tooltip' }"
           icon="create_new_folder"
-          :label="$t('folder.new')"
-          @click.native="
-            $emit('add-folder', { folder, path: folderPath })
-            $refs.options.tippy().hide()
-          "
+          :title="$t('folder.new')"
+          class="hidden group-hover:inline-flex"
+          @click.native="$emit('add-folder', { folder, path: folderPath })"
         />
-        <SmartItem
-          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-          icon="edit"
-          :label="$t('edit')"
-          @click.native="
-            $emit('edit-folder', {
-              folder,
-              folderIndex,
-              collectionIndex,
-              folderPath: '',
-            })
-            $refs.options.tippy().hide()
-          "
-        />
-        <SmartItem
-          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-          icon="delete"
-          color="red"
-          :label="$t('delete')"
-          @click.native="
-            confirmRemove = true
-            $refs.options.tippy().hide()
-          "
-        />
-      </tippy>
+        <span>
+          <tippy
+            v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+            ref="options"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+          >
+            <template #trigger>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('more')"
+                icon="more_vert"
+              />
+            </template>
+            <SmartItem
+              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              icon="create_new_folder"
+              :label="$t('folder.new')"
+              @click.native="
+                $emit('add-folder', { folder, path: folderPath })
+                $refs.options.tippy().hide()
+              "
+            />
+            <SmartItem
+              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              icon="edit"
+              :label="$t('edit')"
+              @click.native="
+                $emit('edit-folder', {
+                  folder,
+                  folderIndex,
+                  collectionIndex,
+                  folderPath: '',
+                })
+                $refs.options.tippy().hide()
+              "
+            />
+            <SmartItem
+              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+              icon="delete"
+              color="red"
+              :label="$t('delete')"
+              @click.native="
+                confirmRemove = true
+                $refs.options.tippy().hide()
+              "
+            />
+          </tippy>
+        </span>
+      </div>
     </div>
     <div v-if="showChildren || isFiltered">
       <CollectionsTeamsFolder

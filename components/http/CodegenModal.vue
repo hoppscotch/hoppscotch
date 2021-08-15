@@ -9,7 +9,7 @@
         <label for="requestType" class="px-4 pb-4">
           {{ $t("request.choose_language") }}
         </label>
-        <div class="flex flex-1">
+        <div class="flex">
           <tippy
             ref="options"
             interactive

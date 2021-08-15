@@ -2,7 +2,7 @@
   <div class="show-if-initialized" :class="{ initialized }">
     <pre ref="editor" :class="styles"></pre>
     <div
-      v-if="provideJSONOutline"
+      v-if="provideOutline"
       class="
         bg-primaryLight
         border-t border-divider
@@ -63,7 +63,7 @@ import outline from "~/helpers/outline"
 
 export default {
   props: {
-    provideJSONOutline: {
+    provideOutline: {
       type: Boolean,
       default: false,
       required: false,
@@ -160,7 +160,7 @@ export default {
     this.editor = editor
     this.cacheValue = this.value
 
-    if (this.lang === "json" && this.provideJSONOutline)
+    if (this.lang === "json" && this.provideOutline)
       this.initOutline(this.value)
 
     editor.on("change", () => {
@@ -168,12 +168,12 @@ export default {
       this.$emit("input", content)
       this.cacheValue = content
 
-      if (this.provideJSONOutline) debounce(this.initOutline(content), 500)
+      if (this.provideOutline) debounce(this.initOutline(content), 500)
 
       if (this.lint) this.provideLinting(content)
     })
 
-    if (this.lang === "json" && this.provideJSONOutline) {
+    if (this.lang === "json" && this.provideOutline) {
       editor.session.selection.on("changeCursor", () => {
         const index = editor.session.doc.positionToIndex(
           editor.selection.getCursor(),

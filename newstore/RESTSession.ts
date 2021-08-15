@@ -229,19 +229,23 @@ const dispatchers = defineDispatchers({
     } else if (newContentType !== "multipart/form-data") {
       // Going from formdata to non-formdata, discard contents and set empty string
       return {
-        ...curr.request,
-        body: <HoppRESTReqBody>{
-          contentType: newContentType,
-          body: "",
+        request: {
+          ...curr.request,
+          body: <HoppRESTReqBody>{
+            contentType: newContentType,
+            body: "",
+          },
         },
       }
     } else {
       // form-data to form-data ? just set the content type ¯\_(ツ)_/¯
       return {
-        ...curr.request,
-        body: <HoppRESTReqBody>{
-          contentType: newContentType,
-          body: curr.request.body.body,
+        request: {
+          ...curr.request,
+          body: <HoppRESTReqBody>{
+            contentType: newContentType,
+            body: curr.request.body.body,
+          },
         },
       }
     }
@@ -559,6 +563,15 @@ export function updateFormDataEntry(index: number, entry: FormDataKeyValue) {
   })
 }
 
+export function setRESTContentType(newContentType: ValidContentTypes) {
+  restSessionStore.dispatch({
+    dispatcher: "setContentType",
+    payload: {
+      newContentType,
+    },
+  })
+}
+
 export function deleteAllFormDataEntries() {
   restSessionStore.dispatch({
     dispatcher: "deleteAllFormDataEntries",
@@ -614,6 +627,11 @@ export const restAuth$ = restRequest$.pipe(pluck("auth"))
 
 export const restPreRequestScript$ = restSessionStore.subject$.pipe(
   pluck("request", "preRequestScript"),
+  distinctUntilChanged()
+)
+
+export const restContentType$ = restRequest$.pipe(
+  pluck("body", "contentType"),
   distinctUntilChanged()
 )
 

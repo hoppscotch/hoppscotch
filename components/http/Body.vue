@@ -45,26 +45,27 @@
         </tippy>
       </span>
     </div>
-    <HttpBodyParameters v-if="contentType == 'multipart/form-data'" />
+    <HttpBodyParameters v-if="contentType === 'multipart/form-data'" />
     <HttpRawBody v-else :content-type="contentType" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { pluckRef } from "~/helpers/utils/composables"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
+import { useStream } from "~/helpers/utils/composables"
+import { restContentType$, setRESTContentType } from "~/newstore/RESTSession"
 import { knownContentTypes } from "~/helpers/utils/contenttypes"
 
 export default defineComponent({
   setup() {
     return {
-      contentType: pluckRef(useRESTRequestBody(), "contentType"),
-    }
-  },
-  data() {
-    return {
       validContentTypes: Object.keys(knownContentTypes),
+
+      contentType: useStream(
+        restContentType$,
+        "application/json",
+        setRESTContentType
+      ),
     }
   },
 })

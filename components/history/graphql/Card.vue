@@ -73,7 +73,7 @@ export default defineComponent({
     const expand = ref(false)
 
     const query = computed(() =>
-      expand
+      expand.value
         ? (props.entry.query.split("\n") as string[])
         : (props.entry.query
             .split("\n")

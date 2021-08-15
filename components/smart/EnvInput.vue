@@ -464,7 +464,14 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-[contenteditable="true"] {
+.env-input-container {
+  @apply relative;
+  @apply inline-grid;
+  @apply flex-1;
+}
+
+[contenteditable] {
+  @apply select-text;
   @apply text-secondaryDark;
   @apply font-medium;
 
@@ -479,11 +486,6 @@ export default defineComponent({
       content: attr(placeholder);
     }
   }
-}
-
-.env-input-container {
-  @apply inline-grid;
-  @apply flex-1;
 }
 
 .env-input {

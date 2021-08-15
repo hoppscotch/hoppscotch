@@ -50,12 +50,38 @@
         reverse
       />
     </div>
-    <div v-else>
-      <i v-if="response.type === 'loading'" class="animate-spin material-icons">
-        refresh
-      </i>
+    <div v-else class="flex flex-col flex-1">
+      <div v-if="response.type === 'loading'">
+        <i class="animate-spin material-icons"> refresh </i>
+      </div>
       <div
-        v-else
+        v-if="response.type === 'network_fail'"
+        class="
+          flex flex-col flex-1
+          text-secondaryLight
+          p-4
+          items-center
+          justify-center
+        "
+      >
+        <i class="opacity-75 pb-2 material-icons">cloud_off</i>
+        <span class="text-center pb-2">
+          {{ $t("error.network_fail") }}
+        </span>
+        <span class="text-center pb-4">
+          {{ $t("helpers.network_fail") }}
+        </span>
+        <ButtonSecondary
+          outline
+          :label="$t('action.learn_more')"
+          to="https://docs.hoppscotch.io"
+          blank
+          icon="open_in_new"
+          reverse
+        />
+      </div>
+      <div
+        v-if="response.type === 'success' || 'fail'"
         :class="statusCategory.className"
         class="font-semibold space-x-4"
       >
@@ -84,7 +110,7 @@ export default {
   props: {
     response: {
       type: Object,
-      default: () => {},
+      default: () => null,
     },
   },
   computed: {

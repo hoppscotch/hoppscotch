@@ -141,7 +141,7 @@ export default {
 .covers-response {
   @apply absolute;
   @apply inset-0;
-  @apply bg-primary;
+  @apply bg-white;
   @apply h-full;
   @apply w-full;
   @apply border;

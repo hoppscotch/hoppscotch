@@ -250,7 +250,8 @@
   },
   "error": {
     "something_went_wrong": "Something went wrong",
-    "check_console_details": "Check console log for details."
+    "check_console_details": "Check console log for details.",
+    "network_fail": "Could not send request"
   },
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",
@@ -258,7 +259,8 @@
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "offline_short": "You seem to be offline.",
     "offline": "You seem to be offline. Data in this workspace might not be up to date.",
-    "tests": "Write a test script to automate debugging"
+    "tests": "Write a test script to automate debugging.",
+    "network_fail": "Unable to reach the API endpoint. Check your network connection and try again."
   },
   "options": "Options",
   "communication": "Communication",

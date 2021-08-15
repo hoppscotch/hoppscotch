@@ -77,6 +77,7 @@
 import {
   computed,
   defineComponent,
+  onBeforeUnmount,
   onMounted,
   useContext,
   watch,
@@ -84,6 +85,7 @@ import {
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { map } from "rxjs/operators"
+import { Subscription } from "rxjs"
 import { useSetting } from "~/newstore/settings"
 import {
   restRequest$,
@@ -101,6 +103,8 @@ import {
   useStream,
   useStreamSubscriber,
 } from "~/helpers/utils/composables"
+import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
+import { onLoggedIn } from "~/helpers/fb/auth"
 
 function bindRequestToURLParams() {
   const {
@@ -159,11 +163,34 @@ function bindRequestToURLParams() {
   })
 }
 
+function setupRequestSync() {
+  const { route } = useContext()
+
+  // Subscription to request sync
+  let sub: Subscription | null = null
+
+  // Load request on login resolve and start sync
+  onLoggedIn(async () => {
+    if (Object.keys(route.value.query).length === 0) {
+      const request = await loadRequestFromSync()
+      if (request) setRESTRequest(request)
+    }
+
+    sub = startRequestSync()
+  })
+
+  // Stop subscripton to stop syncing
+  onBeforeUnmount(() => {
+    sub?.unsubscribe()
+  })
+}
+
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     const { subscribeToStream } = useStreamSubscriber()
 
+    setupRequestSync()
     bindRequestToURLParams()
 
     subscribeToStream(restRequest$, (x) => {

@@ -106,7 +106,7 @@
       />
     </div>
     <div
-      v-if="collections.length === 0"
+      v-if="filteredCollections.length === 0 && filterText.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <span class="text-center pb-4">
@@ -132,7 +132,7 @@
       />
     </div>
     <div
-      v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
+      v-if="filterText.length !== 0 && filteredCollections.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>

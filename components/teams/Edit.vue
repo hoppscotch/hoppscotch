@@ -335,7 +335,7 @@ export default defineComponent({
             })
           })
           .catch((e) => {
-            this.$toast.error(error, {
+            this.$toast.error(e, {
               icon: "done",
             })
             console.error(e)
@@ -355,7 +355,7 @@ export default defineComponent({
             })
           })
           .catch((e) => {
-            this.$toast.error(error, {
+            this.$toast.error(e, {
               icon: "done",
             })
             console.error(e)

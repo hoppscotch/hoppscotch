@@ -29,6 +29,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('header.install_pwa')"
           icon="offline_bolt"
+          class="rounded"
           @click.native="showInstallPrompt()"
         />
         <ButtonSecondary
@@ -63,6 +64,7 @@
                 v-else
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('account')"
+                class="rounded"
                 icon="account_circle"
               />
             </template>

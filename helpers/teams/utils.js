@@ -227,7 +227,7 @@ export async function deleteTeam(apollo, teamID) {
 }
 
 export function exitTeam(apollo, teamID) {
-  apollo.mutate({
+  return apollo.mutate({
     mutation: gql`
       mutation ($teamID: String!) {
         leaveTeam(teamID: $teamID)

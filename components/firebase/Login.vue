@@ -332,7 +332,7 @@ export default {
         })
         .catch((e) => {
           console.error(e)
-          this.$toast.error(error.message, {
+          this.$toast.error(e.message, {
             icon: "error",
           })
           this.signingInWithEmail = false

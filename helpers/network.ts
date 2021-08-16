@@ -71,6 +71,7 @@ export function createRESTNetworkRequestStream(
     url: req.effectiveFinalURL,
     headers,
     params,
+    data: req.effectiveFinalBody,
   })
     .then((res: any) => {
       const timeEnd = Date.now()

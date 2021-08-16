@@ -1,6 +1,6 @@
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
-import { HoppRESTRequest } from "../types/HoppRESTRequest"
+import { FormDataKeyValue, HoppRESTRequest } from "../types/HoppRESTRequest"
 import parseTemplateString from "../templating"
 import { Environment } from "~/newstore/environments"
 
@@ -13,6 +13,36 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalURL: string
   effectiveFinalHeaders: { key: string; value: string }[]
   effectiveFinalParams: { key: string; value: string }[]
+  effectiveFinalBody: FormData | string
+}
+
+function getFinalBodyFromRequest(
+  request: HoppRESTRequest,
+  env: Environment
+): FormData | string {
+  if (request.body.contentType === "multipart/form-data") {
+    const formData = new FormData()
+
+    request.body.body
+      .filter((x) => x.key !== "" && x.active) // Remove empty keys
+      .map(
+        (x) =>
+          <FormDataKeyValue>{
+            active: x.active,
+            isFile: x.isFile,
+            key: parseTemplateString(x.key, env.variables),
+            value: x.isFile
+              ? x.value
+              : parseTemplateString(x.value, env.variables),
+          }
+      )
+      .forEach((entry) => {
+        if (!entry.isFile) formData.append(entry.key, entry.value)
+        else entry.value.forEach((blob) => formData.append(entry.key, blob))
+      })
+
+    return formData
+  } else return request.body.body
 }
 
 /**
@@ -60,6 +90,13 @@ export function getEffectiveRESTRequest(
     }
   }
 
+  const effectiveFinalBody = getFinalBodyFromRequest(request, environment)
+  effectiveFinalHeaders.push({
+    active: true,
+    key: "content-type",
+    value: request.body.contentType,
+  })
+
   return {
     ...request,
     effectiveFinalURL: parseTemplateString(
@@ -78,6 +115,7 @@ export function getEffectiveRESTRequest(
         key: parseTemplateString(x.key, environment.variables),
         value: parseTemplateString(x.value, environment.variables),
       })),
+    effectiveFinalBody,
   }
 }
 

@@ -64,7 +64,7 @@
             <Collections />
           </SmartTab>
 
-          <SmartTab :id="'env'" :label="$t('environments')">
+          <SmartTab :id="'env'" :label="$t('environment.title')">
             <Environments />
           </SmartTab>
         </SmartTabs>

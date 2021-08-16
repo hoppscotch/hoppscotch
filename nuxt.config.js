@@ -193,7 +193,7 @@ export default {
 
   // Sitemap module configuration (https://github.com/nuxt-community/sitemap-module)
   sitemap: {
-    hostname: process.env.BASE_URL || "https://hoppscotch.io",
+    hostname: process.env.BASE_URL,
   },
 
   // Robots module configuration (https://github.com/nuxt-community/robots-module)
@@ -222,11 +222,12 @@ export default {
       fallbackLocale: "en",
     },
     lazy: true,
-    langDir: "lang/",
+    langDir: "locales/",
     detectBrowserLanguage: {
       alwaysRedirect: true,
       fallbackLocale: "en",
     },
+    baseUrl: process.env.BASE_URL,
   },
 
   // Color mode configuration (https://github.com/nuxt-community/color-mode-module)

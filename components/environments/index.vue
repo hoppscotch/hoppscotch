@@ -1,5 +1,5 @@
 <template>
-  <AppSection label="environments">
+  <AppSection :label="$t('environment.title')">
     <div
       class="
         bg-primary
@@ -25,9 +25,9 @@
             focus:outline-none
           "
         >
-          <option :value="-1">No environment</option>
+          <option :value="-1">{{ $t("environment.no_environment") }}</option>
           <option v-if="environments.length === 0" value="0">
-            {{ $t("create_new_environment") }}
+            {{ $t("environment.create_new") }}
           </option>
           <option
             v-for="(environment, index) in environments"

@@ -124,6 +124,9 @@ export default defineComponent({
       windowInnerWidth: 0,
     }
   },
+  head() {
+    return this.$nuxtI18nHead({ addSeoAttributes: true })
+  },
   watch: {
     $route(to) {
       logPageView(to.fullPath)

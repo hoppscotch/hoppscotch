@@ -4,7 +4,7 @@
       v-for="(color, index) of colors"
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"
-      :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+      :title="$t(getColorModeName(color))"
       :class="{
         'bg-primaryLight !text-accent hover:text-accent': color === active,
       }"
@@ -47,6 +47,20 @@ export default defineComponent({
           return "dark_mode"
         default:
           return "devices"
+      }
+    },
+    getColorModeName(colorMode: string) {
+      switch (colorMode) {
+        case "system":
+          return "settings.system_mode"
+        case "light":
+          return "settings.light_mode"
+        case "dark":
+          return "settings.dark_mode"
+        case "black":
+          return "settings.black_mode"
+        default:
+          return "settings.system_mode"
       }
     },
   },

@@ -59,7 +59,7 @@
           class="space-y-4 py-4 px-6"
         >
           <h5 class="font-semibold text-secondaryDark">
-            {{ map.section }}
+            {{ $t(map.section) }}
           </h5>
           <div
             v-for="(shortcut, shortcutIndex) in map.shortcuts"

@@ -101,9 +101,13 @@
     "share": "Share",
     "copy": "Copy",
     "search": "Search",
-    "type_a_command_search": "Type a command or search…"
+    "type_a_command_search": "Type a command or search…",
+    "spotlight": "Spotlight"
   },
   "collection": {
+    "my_collections": "My Collections",
+    "team_collections": "Team Collections",
+    "select_team": "Select a team",
     "save_as": "Save as",
     "select_location": "Select location",
     "select": "Select a Collection",
@@ -121,6 +125,7 @@
   },
   "team": {
     "title": "Teams",
+    "join_beta": "Join the beta program to access teams.",
     "exit": "Exit Team",
     "name_length_insufficient": "Team name should be atleast 6 characters long",
     "invalid_email_format": "Email format is invalid",
@@ -162,7 +167,13 @@
     "gist_created": "Gist created"
   },
   "auth": {
+    "login": "Login",
+    "continue_with_google": "Continue with Google",
+    "continue_with_github": "Continue with GitHub",
+    "continue_with_email": "Continue with Email",
     "email": "Email",
+    "all_sign_in_options": "All sign in options",
+    "re_enter_email": "Re-enter email",
     "account_exists": "Account exists with different credential - Login to link both accounts",
     "send_magic_link": "Send a magic link",
     "we_sent_magic_link": "We sent you a magic link!",
@@ -184,6 +195,7 @@
     "unsubscribe": "Unsubscribe"
   },
   "request": {
+    "title": "Request",
     "copy_link": "Copy link",
     "save": "Save",
     "save_as": "Save as",
@@ -194,9 +206,21 @@
     "share": "Share"
   },
   "settings": {
+    "account_description": "Customize your account settings.",
+    "theme_description": "Customize your application theme.",
+    "user": "User",
+    "account_name_description": "This is your display name.",
+    "account_email_description": "Your primary email address.",
+    "interceptor_description": "Middleware between application and APIs.",
+    "sync_description": "These settings are synced to cloud.",
+    "sync": "Synchronise",
     "shortcuts_indicator": "Shortcuts indicator",
     "telemetry": "Telemetry",
     "interceptor": "Interceptor",
+    "system_mode": "System",
+    "light_mode": "Light",
+    "dark_mode": "Dark",
+    "black_mode": "Black",
     "navigation_sidebar": "Navigation sidebar",
     "font_size": "Font size",
     "font_size_small": "Small",
@@ -226,12 +250,14 @@
   },
   "shortcut": {
     "general": {
+      "title": "General",
       "help_menu": "Help menu",
       "show_all": "Keyboard shortcuts",
       "command_menu": "Search & command menu",
       "close_current_menu": "Close current menu"
     },
     "navigation": {
+      "title": "Navigation",
       "rest": "Go to REST page",
       "graphql": "Go to GraphQL page",
       "realtime": "Go to Realtime page",
@@ -241,19 +267,23 @@
       "forward": "Go forward to next page"
     },
     "miscellaneous": {
+      "title": "Miscellaneous",
       "invite": "Invite people to Hoppscotch"
     },
-    "send_request": "Send Request",
-    "save_to_collections": "Save to Collections",
-    "copy_request_link": "Copy Request Link",
-    "reset_request": "Reset Request",
-    "next_method": "Select Next method",
-    "previous_method": "Select Previous method",
-    "get_method": "Select GET method",
-    "head_method": "Select HEAD method",
-    "post_method": "Select POST method",
-    "put_method": "Select PUT method",
-    "delete_method": "Select DELETE method"
+    "request": {
+      "title": "Request",
+      "send_request": "Send Request",
+      "save_to_collections": "Save to Collections",
+      "copy_request_link": "Copy Request Link",
+      "reset_request": "Reset Request",
+      "next_method": "Select Next method",
+      "previous_method": "Select Previous method",
+      "get_method": "Select GET method",
+      "head_method": "Select HEAD method",
+      "post_method": "Select POST method",
+      "put_method": "Select PUT method",
+      "delete_method": "Select DELETE method"
+    }
   },
   "error": {
     "something_went_wrong": "Something went wrong",
@@ -268,6 +298,15 @@
     "offline": "You seem to be offline. Data in this workspace might not be up to date.",
     "tests": "Write a test script to automate debugging.",
     "network_fail": "Unable to reach the API endpoint. Check your network connection and try again."
+  },
+  "environment": {
+    "title": "Environments",
+    "no_environment": "No environment",
+    "new": "New Environment",
+    "create_new": "Create new environment",
+    "edit": "Edit Environment",
+    "variable_list": "Variable List",
+    "invalid_name": "Please provide a valid name for the environment"
   },
   "options": "Options",
   "communication": "Communication",
@@ -295,12 +334,6 @@
   "preview_html": "Preview HTML",
   "history": "History",
   "collections": "Collections",
-  "environments": "Environments",
-  "new_environment": "New Environment",
-  "my_new_environment": "My New Environment",
-  "edit_environment": "Edit Environment",
-  "env_variable_list": "Variable List",
-  "invalid_environment_name": "Please provide a valid name for the environment",
   "request_type": "Request type",
   "status": "Status",
   "headers": "Headers",
@@ -461,6 +494,5 @@
   "socketio": "Socket.IO",
   "event_name": "Event Name",
   "pre_request_script": "Pre-request Script",
-  "tests": "Tests",
-  "create_new_environment": "Create new environment"
+  "tests": "Tests"
 }

@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="$t('new_environment')" @close="hideModal">
+  <SmartModal v-if="show" :title="$t('environment.new')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -41,7 +41,7 @@ export default Vue.extend({
   methods: {
     addNewEnvironment() {
       if (!this.name) {
-        this.$toast.info(this.$t("invalid_environment_name").toString(), {
+        this.$toast.info(this.$t("environment.invalid_name").toString(), {
           icon: "info",
         })
         return

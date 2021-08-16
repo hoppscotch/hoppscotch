@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="$t('edit_environment')" @close="hideModal">
+  <SmartModal v-if="show" :title="$t('environment.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <div class="flex relative">
@@ -18,7 +18,7 @@
         </div>
         <div class="flex flex-1 justify-between items-center">
           <label for="variableList" class="p-4">
-            {{ $t("env_variable_list") }}
+            {{ $t("environment.variable_list") }}
           </label>
           <div class="flex">
             <ButtonSecondary
@@ -164,7 +164,7 @@ export default defineComponent({
     },
     saveEnvironment() {
       if (!this.name) {
-        this.$toast.info(this.$t("invalid_environment_name").toString(), {
+        this.$toast.info(this.$t("environment.invalid_name").toString(), {
           icon: "info",
         })
         return

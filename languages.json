@@ -3,210 +3,181 @@
     "code": "af",
     "name": "Afrikaans",
     "iso": "af-AF",
-    "file": "af.json",
-    "country": "AF"
+    "file": "af.json"
   },
   {
     "code": "ar",
     "name": "عربى",
     "iso": "ar-AR",
     "file": "ar.json",
-    "country": "AR"
+    "dir": "rtl"
   },
   {
     "code": "ca",
     "name": "Català",
     "iso": "ca-CA",
-    "file": "ca.json",
-    "country": "CA"
+    "file": "ca.json"
   },
   {
     "code": "cs",
     "name": "Čeština",
     "iso": "cs-CS",
-    "file": "cs.json",
-    "country": "CS"
+    "file": "cs.json"
   },
   {
     "code": "da",
     "name": "Dansk",
     "iso": "da-DA",
-    "file": "da.json",
-    "country": "DA"
+    "file": "da.json"
   },
   {
     "code": "de",
     "name": "Deutsch",
     "iso": "de-DE",
-    "file": "de.json",
-    "country": "DE"
+    "file": "de.json"
   },
   {
     "code": "el",
     "name": "Ελληνικά",
     "iso": "el-EL",
-    "file": "el.json",
-    "country": "EL"
+    "file": "el.json"
   },
   {
     "code": "en",
     "name": "English",
     "iso": "en-US",
-    "file": "en.json",
-    "country": "US"
+    "file": "en.json"
   },
   {
     "code": "es",
     "name": "Español",
     "iso": "es-ES",
-    "file": "es.json",
-    "country": "ES"
+    "file": "es.json"
   },
   {
     "code": "fi",
     "name": "Suomalainen",
     "iso": "fi-FI",
-    "file": "fi.json",
-    "country": "FI"
+    "file": "fi.json"
   },
   {
     "code": "fr",
     "name": "Français",
     "iso": "fr-FR",
-    "file": "fr.json",
-    "country": "FR"
+    "file": "fr.json"
   },
   {
     "code": "he",
     "name": "עִברִית",
     "iso": "he-HE",
-    "file": "he.json",
-    "country": "HE"
+    "file": "he.json"
   },
   {
     "code": "hu",
     "name": "Magyar",
     "iso": "hu-HU",
-    "file": "hu.json",
-    "country": "HU"
+    "file": "hu.json"
   },
   {
     "code": "it",
     "name": "Italiano",
     "iso": "it",
-    "file": "it.json",
-    "country": "IT"
+    "file": "it.json"
   },
   {
     "code": "ja",
     "name": "日本人",
     "iso": "ja-JA",
-    "file": "ja.json",
-    "country": "JA"
+    "file": "ja.json"
   },
   {
     "code": "ko",
     "name": "한국어",
     "iso": "ko-KO",
-    "file": "ko.json",
-    "country": "KO"
+    "file": "ko.json"
   },
   {
     "code": "nl",
     "name": "Nederlands",
     "iso": "nl-NL",
-    "file": "nl.json",
-    "country": "NL"
+    "file": "nl.json"
   },
   {
     "code": "no",
     "name": "Norsk",
     "iso": "no-NO",
-    "file": "no.json",
-    "country": "NO"
+    "file": "no.json"
   },
   {
     "code": "pl",
     "name": "Polskie",
     "iso": "pl-PL",
-    "file": "pl.json",
-    "country": "PL"
+    "file": "pl.json"
   },
   {
     "code": "pt-br",
     "name": "Português Brasileiro",
     "iso": "pt-BR",
-    "file": "pt-br.json",
-    "country": "BR"
+    "file": "pt-br.json"
   },
   {
     "code": "pt",
     "name": "Português",
     "iso": "pt-PT",
-    "file": "pt.json",
-    "country": "PT"
+    "file": "pt.json"
   },
   {
     "code": "ro",
     "name": "Română",
     "iso": "ro-RO",
-    "file": "ro.json",
-    "country": "RO"
+    "file": "ro.json"
   },
   {
     "code": "ru",
     "name": "Pусский",
     "iso": "ru-RU",
-    "file": "ru.json",
-    "country": "RU"
+    "file": "ru.json"
   },
   {
     "code": "sr",
     "name": "Српски",
     "iso": "sr-SR",
-    "file": "sr.json",
-    "country": "SR"
+    "file": "sr.json"
   },
   {
     "code": "sv",
     "name": "Svenska",
     "iso": "sv-SV",
-    "file": "sv.json",
-    "country": "SV"
+    "file": "sv.json"
   },
   {
     "code": "tr",
     "name": "Türk",
     "iso": "tr-TR",
-    "file": "tr.json",
-    "country": "TR"
+    "file": "tr.json"
   },
   {
     "code": "uk",
     "name": "Українська",
     "iso": "uk-UK",
-    "file": "uk.json",
-    "country": "UK"
+    "file": "uk.json"
   },
   {
     "code": "vi",
     "name": "Tiếng Việt",
     "iso": "vi-VI",
-    "file": "vi.json",
-    "country": "VI"
+    "file": "vi.json"
   },
   {
-    "code": "zh-tw",
+    "code": "tw",
     "name": "中國傳統的",
     "iso": "zh-TW",
-    "file": "zh-tw.json",
-    "country": "TW"
+    "file": "tw.json"
   },
   {
-    "code": "zh",
+    "code": "cn",
     "name": "简体中文",
     "iso": "zh-CN",
-    "file": "zh.json",
-    "country": "CN"
+    "file": "cn.json"
   }
 ]

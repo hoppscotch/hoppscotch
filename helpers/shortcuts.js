@@ -2,7 +2,7 @@ import { getPlatformAlternateKey, getPlatformSpecialKey } from "./platformutils"
 
 export default [
   {
-    section: "General",
+    section: "shortcut.general.title",
     shortcuts: [
       {
         keys: ["?"],
@@ -23,56 +23,56 @@ export default [
     ],
   },
   {
-    section: "Request",
+    section: "shortcut.request.title",
     shortcuts: [
       {
         keys: [getPlatformSpecialKey(), "G"],
-        label: "shortcut.send_request",
+        label: "shortcut.request.send_request",
       },
       {
         keys: [getPlatformSpecialKey(), "S"],
-        label: "shortcut.save_to_collections",
+        label: "shortcut.request.save_to_collections",
       },
       {
         keys: [getPlatformSpecialKey(), "C"],
-        label: "shortcut.copy_request_link",
+        label: "shortcut.request.copy_request_link",
       },
       {
         keys: [getPlatformSpecialKey(), "I"],
-        label: "shortcut.reset_request",
+        label: "shortcut.request.reset_request",
       },
       {
         keys: [getPlatformAlternateKey(), "↑"],
-        label: "shortcut.next_method",
+        label: "shortcut.request.next_method",
       },
       {
         keys: [getPlatformAlternateKey(), "↓"],
-        label: "shortcut.previous_method",
+        label: "shortcut.request.previous_method",
       },
       {
         keys: [getPlatformAlternateKey(), "G"],
-        label: "shortcut.get_method",
+        label: "shortcut.request.get_method",
       },
       {
         keys: [getPlatformAlternateKey(), "H"],
-        label: "shortcut.head_method",
+        label: "shortcut.request.head_method",
       },
       {
         keys: [getPlatformAlternateKey(), "P"],
-        label: "shortcut.post_method",
+        label: "shortcut.request.post_method",
       },
       {
         keys: [getPlatformAlternateKey(), "U"],
-        label: "shortcut.put_method",
+        label: "shortcut.request.put_method",
       },
       {
         keys: [getPlatformAlternateKey(), "X"],
-        label: "shortcut.delete_method",
+        label: "shortcut.request.delete_method",
       },
     ],
   },
   {
-    section: "Navigation",
+    section: "shortcut.navigation.title",
     shortcuts: [
       {
         keys: [getPlatformSpecialKey(), "←"],
@@ -105,7 +105,7 @@ export default [
     ],
   },
   {
-    section: "Miscellaneous",
+    section: "shortcut.miscellaneous.title",
     shortcuts: [
       {
         keys: [getPlatformSpecialKey(), "M"],
@@ -117,7 +117,7 @@ export default [
 
 export const spotlight = [
   {
-    section: "Spotlight",
+    section: "app.spotlight",
     shortcuts: [
       {
         keys: ["?"],
@@ -148,7 +148,7 @@ export const spotlight = [
     ],
   },
   {
-    section: "Navigation",
+    section: "shortcut.navigation.title",
     shortcuts: [
       {
         keys: [getPlatformSpecialKey(), "←"],
@@ -220,7 +220,7 @@ export const spotlight = [
     ],
   },
   {
-    section: "Miscellaneous",
+    section: "shortcut.miscellaneous.title",
     shortcuts: [
       {
         keys: [getPlatformSpecialKey(), "M"],

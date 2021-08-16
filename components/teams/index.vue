@@ -4,9 +4,12 @@
       {{ $t("team.title") }}
     </h4>
     <div class="mt-1 text-secondaryLight">
-      Join
-      <SmartAnchor label="beta" to="https://hoppscotch.io/beta" blank />
-      to access teams.
+      <SmartAnchor
+        :label="$t('team.join_beta')"
+        to="https://hoppscotch.io/beta"
+        blank
+        class="link"
+      />
     </div>
     <div class="space-y-4 mt-4">
       <ButtonSecondary

@@ -60,7 +60,7 @@ export default defineComponent({
   },
   head() {
     return {
-      title: `GraphQL • Hoppscotch`,
+      title: `${this.$t("navigation.graphql")} • Hoppscotch`,
     }
   },
 })

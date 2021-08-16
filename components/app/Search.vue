@@ -35,7 +35,7 @@
           :key="`map-${mapIndex}`"
         >
           <h5 class="my-2 text-secondaryLight py-2 px-4">
-            {{ map.section }}
+            {{ $t(map.section) }}
           </h5>
           <div
             v-for="(shortcut, shortcutIndex) in map.shortcuts"

@@ -10,18 +10,18 @@
         <SmartItem
           :loading="signingInWithGoogle"
           svg="google"
-          label="Continue with Google"
+          :label="$t('auth.continue_with_google')"
           @click.native="signInWithGoogle"
         />
         <SmartItem
           :loading="signingInWithGitHub"
           svg="github"
-          label="Continue with GitHub"
+          :label="$t('auth.continue_with_github')"
           @click.native="signInWithGithub"
         />
         <SmartItem
           icon="mail"
-          label="Continue with Email"
+          :label="$t('auth.continue_with_email')"
           @click.native="mode = 'email'"
         />
       </div>
@@ -95,7 +95,7 @@
       <p v-if="mode === 'email'" class="text-secondaryLight">
         <SmartAnchor
           class="link"
-          label="← All sign in options"
+          :label="`← ${$t('auth.all_sign_in_options')}`"
           @click.native="mode = 'sign-in'"
         />
       </p>
@@ -105,7 +105,7 @@
       >
         <SmartAnchor
           class="link"
-          label="← Re-enter email"
+          :label="`← ${$t('auth.re_enter_email')}`"
           @click.native="mode = 'email'"
         />
         <SmartAnchor

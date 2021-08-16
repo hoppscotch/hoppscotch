@@ -205,7 +205,7 @@ export default defineComponent({
   },
   head() {
     return {
-      title: `Documentation • Hoppscotch`,
+      title: `${this.$t("navigation.doc")} • Hoppscotch`,
     }
   },
   methods: {

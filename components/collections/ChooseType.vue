@@ -3,13 +3,13 @@
     <SmartTabs :id="'collections_tab'" @tab-changed="updateCollectionsType">
       <SmartTab
         :id="'my-collections'"
-        :label="'My Collections'"
+        :label="$t('collection.my_collections')"
         :selected="true"
       />
       <SmartTab
         v-if="currentUser && currentUser.eaInvited && !doc"
         :id="'team-collections'"
-        :label="'Team Collections'"
+        :label="$t('collection.team_collections')"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <div class="select-wrapper">
@@ -36,7 +36,7 @@
                 disabled
                 selected
               >
-                Select team
+                {{ $t("collection.select_team") }}
               </option>
               <option
                 v-for="(team, index) in myTeams"

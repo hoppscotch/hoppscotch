@@ -7,17 +7,21 @@
             {{ $t("account") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
-            Customize your account settings.
+            {{ $t("settings.account_description") }}
           </p>
         </div>
         <div class="p-8 md:col-span-2">
           <div v-if="currentUser === null">
-            <ButtonPrimary label="Log in" @click.native="showLogin = true" />
-            <div class="mt-4 text-secondaryLight">Log in to access.</div>
+            <ButtonPrimary
+              :label="$t('auth.login')"
+              @click.native="showLogin = true"
+            />
           </div>
           <div v-else class="space-y-8">
             <section>
-              <h4 class="font-semibold text-secondaryDark">User</h4>
+              <h4 class="font-semibold text-secondaryDark">
+                {{ $t("settings.user") }}
+              </h4>
               <div class="space-y-4 py-4">
                 <div class="flex items-start">
                   <div class="flex items-center">
@@ -33,7 +37,7 @@
                       {{ currentUser.displayName || $t("nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
-                      This is your display name.
+                      {{ $t("settings.account_name_description") }}
                     </p>
                   </div>
                 </div>
@@ -46,7 +50,7 @@
                       {{ currentUser.email || $t("nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
-                      Your primary email address.
+                      {{ $t("settings.account_email_description") }}
                     </p>
                   </div>
                 </div>
@@ -54,9 +58,11 @@
             </section>
             <Teams v-if="currentBackendUser && currentBackendUser.eaInvited" />
             <section>
-              <h4 class="font-semibold text-secondaryDark">Sync</h4>
+              <h4 class="font-semibold text-secondaryDark">
+                {{ $t("settings.sync") }}
+              </h4>
               <div class="mt-1 text-secondaryLight">
-                These settings are synced to cloud.
+                {{ $t("settings.sync_description") }}
               </div>
               <div class="space-y-4 py-4">
                 <div class="flex items-center">
@@ -99,7 +105,7 @@
             {{ $t("theme") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
-            Customize your application theme.
+            {{ $t("settings.theme_description") }}
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
@@ -109,12 +115,9 @@
             </h4>
             <div class="mt-1 text-secondaryLight">
               <ColorScheme placeholder="..." tag="span">
-                {{
-                  $colorMode.preference.charAt(0).toUpperCase() +
-                  $colorMode.preference.slice(1)
-                }}
+                {{ $t(getColorModeName($colorMode.preference)) }}
                 <span v-if="$colorMode.preference === 'system'">
-                  ({{ $colorMode.value }} mode detected)
+                  ({{ $t(getColorModeName($colorMode.value)) }})
                 </span>
               </ColorScheme>
             </div>
@@ -213,7 +216,7 @@
             {{ $t("settings.interceptor") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
-            Middleware between application and APIs.
+            {{ $t("settings.interceptor_description") }}
           </p>
         </div>
         <div class="space-y-8 p-8 md:col-span-2">
@@ -397,7 +400,7 @@ export default defineComponent({
   },
   head() {
     return {
-      title: `Settings • Hoppscotch`,
+      title: `${this.$t("navigation.settings")} • Hoppscotch`,
     }
   },
   computed: {
@@ -451,6 +454,20 @@ export default defineComponent({
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "clear_all"), 1000)
+    },
+    getColorModeName(colorMode: string) {
+      switch (colorMode) {
+        case "system":
+          return "settings.system_mode"
+        case "light":
+          return "settings.light_mode"
+        case "dark":
+          return "settings.dark_mode"
+        case "black":
+          return "settings.black_mode"
+        default:
+          return "settings.system_mode"
+      }
     },
   },
 })

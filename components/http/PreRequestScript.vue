@@ -1,5 +1,5 @@
 <template>
-  <AppSection label="preRequest">
+  <AppSection id="script" :label="$t('preRequest.script')">
     <div
       class="
         bg-primary
@@ -59,6 +59,17 @@
           to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
           blank
         />
+        <h4 class="font-bold text-secondaryLight pt-6">
+          {{ $t("preRequest.snippets") }}
+        </h4>
+        <div class="flex flex-col pt-4">
+          <SmartItem
+            v-for="(snippet, index) in snippets"
+            :key="`snippet-${index}`"
+            :label="snippet.name"
+            @click.native="useSnippet(snippet.script)"
+          />
+        </div>
       </div>
     </div>
   </AppSection>
@@ -67,12 +78,23 @@
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
 import { usePreRequestScript } from "~/newstore/RESTSession"
+import preRequestScriptSnippets from "~/helpers/preRequestScriptSnippets"
 
 export default defineComponent({
   setup() {
     return {
       preRequestScript: usePreRequestScript(),
     }
+  },
+  data() {
+    return {
+      snippets: preRequestScriptSnippets,
+    }
+  },
+  methods: {
+    useSnippet(script: string) {
+      this.preRequestScript += script
+    },
   },
 })
 </script>

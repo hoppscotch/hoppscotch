@@ -59,6 +59,17 @@
           to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
           blank
         />
+        <h4 class="font-bold text-secondaryLight pt-6">
+          {{ $t("test.snippets") }}
+        </h4>
+        <div class="flex flex-col pt-4">
+          <SmartItem
+            v-for="(snippet, index) in snippets"
+            :key="`snippet-${index}`"
+            :label="snippet.name"
+            @click.native="useSnippet(snippet.script)"
+          />
+        </div>
       </div>
     </div>
   </AppSection>
@@ -67,12 +78,23 @@
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
 import { useTestScript } from "~/newstore/RESTSession"
+import testSnippets from "~/helpers/testSnippets"
 
 export default defineComponent({
   setup() {
     return {
       testScript: useTestScript(),
     }
+  },
+  data() {
+    return {
+      snippets: testSnippets,
+    }
+  },
+  methods: {
+    useSnippet(script: string) {
+      this.testScript += script
+    },
   },
 })
 </script>

@@ -113,12 +113,12 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from "vue"
 import clone from "lodash/clone"
+import { defineComponent, PropType } from "@nuxtjs/composition-api"
 import type { Environment } from "~/newstore/environments"
 import { updateEnvironment } from "~/newstore/environments"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     show: Boolean,
     editingEnvironment: {

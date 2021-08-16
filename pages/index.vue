@@ -31,7 +31,7 @@
             </SmartTab>
 
             <SmartTab
-              :id="'pre_request_script'"
+              :id="'preRequestScript'"
               :label="$t('pre_request_script')"
             >
               <HttpPreRequestScript />

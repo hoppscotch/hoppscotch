@@ -1,7 +1,10 @@
 <template>
   <AppSection label="response">
     <HttpResponseMeta :response="response" />
-    <LensesResponseBodyRenderer v-if="!loading" :response="response" />
+    <LensesResponseBodyRenderer
+      v-if="!loading && hasResponse"
+      :response="response"
+    />
   </AppSection>
 </template>
 
@@ -14,11 +17,17 @@ export default defineComponent({
   setup() {
     const response = useReadonlyStream(restResponse$, null)
 
+    const hasResponse = computed(
+      () =>
+        response.value?.type === "success" || response.value?.type === "fail"
+    )
+
     const loading = computed(
       () => response.value === null || response.value.type === "loading"
     )
 
     return {
+      hasResponse,
       response,
       loading,
     }

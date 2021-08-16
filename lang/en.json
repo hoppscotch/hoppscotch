@@ -214,10 +214,15 @@
   "layout": {
     "zen_mode": "Zen mode"
   },
+  "preRequest": {
+    "script": "Pre-Request Script",
+    "snippets": "Snippets"
+  },
   "test": {
     "script": "Script",
     "results": "Test Results",
-    "report": "Test Report"
+    "report": "Test Report",
+    "snippets": "Snippets"
   },
   "shortcut": {
     "general": {
@@ -352,8 +357,6 @@
   "token_req_list": "Token Request List",
   "no_path": "No path",
   "no_label": "No label",
-  "prerequest_script": "Pre-Request Script",
-  "no_prerequest_script": "No pre-request script",
   "search": "Search",
   "history_deleted": "History deleted",
   "clear": "Clear",

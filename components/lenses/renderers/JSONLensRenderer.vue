@@ -14,7 +14,7 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("response_body") }}
+        {{ $t("response.body") }}
       </label>
       <div class="flex">
         <ButtonSecondary

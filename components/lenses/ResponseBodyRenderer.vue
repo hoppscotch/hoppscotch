@@ -2,9 +2,9 @@
   <SmartTabs styles="sticky z-10 top-lowerPrimaryStickyFold">
     <SmartTab
       v-for="(lens, index) in validLenses"
-      :id="lens.lensName"
+      :id="lens.renderer"
       :key="`lens-${index}`"
-      :label="lens.lensName"
+      :label="$t(lens.lensName)"
       :selected="index === 0"
     >
       <component :is="lens.renderer" :response="response" />
@@ -12,7 +12,7 @@
     <SmartTab
       v-if="headerLength"
       id="headers"
-      :label="$t('Headers')"
+      :label="$t('response.headers')"
       :info="headerLength.toString()"
     >
       <LensesHeadersRenderer :headers="response.headers" />

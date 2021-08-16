@@ -1,5 +1,5 @@
 const htmlLens = {
-  lensName: "HTML",
+  lensName: "response.html",
   isSupportedContentType: (contentType) =>
     /\btext\/html|application\/xhtml\+xml\b/i.test(contentType),
   renderer: "htmlres",

@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="$t('test.result')">
+  <AppSection :label="$t('test.results')">
     <div
       v-if="
         testResults &&

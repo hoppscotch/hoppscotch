@@ -1,5 +1,5 @@
 const imageLens = {
-  lensName: "Image",
+  lensName: "response.image",
   isSupportedContentType: (contentType) =>
     /\bimage\/(?:gif|jpeg|png|bmp|svg\+xml|x-icon|vnd\.microsoft\.icon)\b/i.test(
       contentType

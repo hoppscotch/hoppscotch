@@ -20,7 +20,7 @@
 
             <SmartTab
               :id="'headers'"
-              :label="$t('headers')"
+              :label="$t('tab.headers')"
               :info="newActiveHeadersCount$"
             >
               <HttpHeaders />

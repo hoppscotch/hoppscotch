@@ -12,7 +12,7 @@
       <div class="flex space-x-2 pb-4">
         <div class="flex flex-col space-y-4 items-end">
           <span class="flex flex-1 items-center">
-            {{ $t("shortcut.send_request") }}
+            {{ $t("shortcut.request.send_request") }}
           </span>
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.show_all") }}
@@ -86,15 +86,15 @@
         class="font-semibold space-x-4"
       >
         <span v-if="response.statusCode">
-          <span class="text-secondary"> Status: </span>
+          <span class="text-secondary"> {{ $t("response.status") }}: </span>
           {{ response.statusCode || $t("waiting_send_req") }}
         </span>
         <span v-if="response.meta && response.meta.responseDuration">
-          <span class="text-secondary"> Time: </span>
+          <span class="text-secondary"> {{ $t("response.time") }}: </span>
           {{ `${response.meta.responseDuration} ms` }}
         </span>
         <span v-if="response.meta && response.meta.responseSize">
-          <span class="text-secondary"> Size: </span>
+          <span class="text-secondary"> {{ $t("response.size") }}: </span>
           {{ `${response.meta.responseSize} B` }}
         </span>
       </div>

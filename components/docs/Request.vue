@@ -45,7 +45,7 @@
         <code>{{ request.bearerToken || $t("none") }}</code>
       </span>
     </p>
-    <h4 v-if="request.headers" class="heading">{{ $t("headers") }}</h4>
+    <h4 v-if="request.headers" class="heading">{{ $t("tab.headers") }}</h4>
     <span v-if="request.headers">
       <p
         v-for="(header, index) in request.headers"

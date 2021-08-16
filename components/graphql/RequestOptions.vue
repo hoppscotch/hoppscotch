@@ -111,7 +111,7 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'headers'" :label="$t('headers')">
+      <SmartTab :id="'headers'" :label="$t('tab.headers')">
         <AppSection label="headers">
           <div
             class="
@@ -127,7 +127,7 @@
             "
           >
             <label class="font-semibold text-secondaryLight">
-              {{ $t("headers") }}
+              {{ $t("tab.headers") }}
             </label>
             <div class="flex">
               <ButtonSecondary

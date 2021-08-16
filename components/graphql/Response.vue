@@ -15,7 +15,7 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("response") }}
+        {{ $t("response.title") }}
       </label>
       <div class="flex">
         <ButtonSecondary
@@ -62,7 +62,7 @@
       <div class="flex space-x-2 pb-4">
         <div class="flex flex-col space-y-4 items-end">
           <span class="flex flex-1 items-center">
-            {{ $t("shortcut.send_request") }}
+            {{ $t("shortcut.request.send_request") }}
           </span>
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.show_all") }}

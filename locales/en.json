@@ -181,7 +181,8 @@
   },
   "tab": {
     "websocket": "WebSocket",
-    "mqtt": "MQTT"
+    "mqtt": "MQTT",
+    "headers": "Headers"
   },
   "websocket": {
     "protocols": "Protocols"
@@ -308,6 +309,19 @@
     "variable_list": "Variable List",
     "invalid_name": "Please provide a valid name for the environment"
   },
+  "response": {
+    "title": "Response",
+    "body": "Response Body",
+    "headers": "Headers",
+    "status": "Status",
+    "time": "Time",
+    "size": "Size",
+    "html": "HTML",
+    "xml": "XML",
+    "json": "JSON",
+    "raw": "Raw",
+    "image": "Image"
+  },
   "options": "Options",
   "communication": "Communication",
   "endpoint": "Endpoint",
@@ -324,19 +338,15 @@
   "body": "Body",
   "request_body": "Request Body",
   "raw_request_body": "Raw Request Body",
-  "response_body": "Response Body",
   "authorization": "Authorization",
   "authorization_type": "Authorization Type",
   "include_in_url": "Include in URL",
   "parameters": "Parameters",
-  "expand_response": "Expand response",
-  "collapse_response": "Collapse response",
   "preview_html": "Preview HTML",
   "history": "History",
   "collections": "Collections",
   "request_type": "Request type",
   "status": "Status",
-  "headers": "Headers",
   "waiting_for_connection": "waiting for connection",
   "message": "Message",
   "sse": "SSE",
@@ -347,7 +357,6 @@
   "variables": "Variables",
   "get_schema": "Get schema",
   "header_list": "Header List",
-  "response": "Response",
   "query": "Query",
   "queries": "Queries",
   "query_variables": "Variables",

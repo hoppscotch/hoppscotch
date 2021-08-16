@@ -1,7 +1,7 @@
 import { isJSONContentType } from "../utils/contenttypes"
 
 const jsonLens = {
-  lensName: "JSON",
+  lensName: "response.json",
   isSupportedContentType: isJSONContentType,
   renderer: "json",
   rendererImport: () =>

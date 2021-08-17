@@ -1,29 +1,51 @@
-export const PASS = "PASS"
-export const FAIL = "FAIL"
-export const ERROR = "ERROR"
+import { HoppRESTResponse } from "./types/HoppRESTResponse"
 
 const styles = {
-  [PASS]: { icon: "check", class: "success-response" },
-  [FAIL]: { icon: "close", class: "cl-error-response" },
-  [ERROR]: { icon: "close", class: "cl-error-response" },
-  none: { icon: "", class: "" },
+  PASS: { icon: "check", class: "success-response" },
+  FAIL: { icon: "close", class: "cl-error-response" },
+  ERROR: { icon: "close", class: "cl-error-response" },
 }
 
-// TODO: probably have to use a more global state for `test`
+type TestScriptVariables = {
+  response: HoppRESTResponse
+}
 
-export default function runTestScriptWithVariables(script, variables) {
+type TestReportStartBlock = {
+  startBlock: string
+}
+
+type TestReportEndBlock = {
+  endBlock: true
+}
+
+type TestReportEntry = {
+  styles: {
+    icon: string
+  }
+} & ({ result: "PASS" } | { result: "FAIL" | "ERROR"; message: string })
+type TestReport = TestReportStartBlock | TestReportEntry | TestReportEndBlock
+
+export default function runTestScriptWithVariables(
+  script: string,
+  variables: TestScriptVariables
+) {
   const pw = {
     _errors: [],
-    _testReports: [],
+    _testReports: [] as TestReport[],
     _report: "",
-    expect(value) {
+    expect(value: any) {
       try {
         return expect(value, this._testReports)
       } catch (e) {
-        pw._testReports.push({ result: ERROR, message: e })
+        pw._testReports.push({
+          result: "ERROR",
+          message: e.toString(),
+          styles: styles.ERROR,
+        })
       }
     },
-    test: (descriptor, func) => test(descriptor, func, pw._testReports),
+    test: (descriptor: string, func: () => void) =>
+      test(descriptor, func, pw._testReports),
     // globals that the script is allowed to have access to.
   }
   Object.assign(pw, variables)
@@ -31,24 +53,24 @@ export default function runTestScriptWithVariables(script, variables) {
   // run pre-request script within this function so that it has access to the pw object.
   // eslint-disable-next-line no-new-func
   new Function("pw", script)(pw)
-  //
-  const testReports = pw._testReports.map((item) => {
-    if (item.result) {
-      item.styles = styles[item.result]
-    } else {
-      item.styles = styles.none
-    }
-    return item
-  })
-  return { report: pw._report, errors: pw._errors, testResults: testReports }
+
+  return {
+    report: pw._report,
+    errors: pw._errors,
+    testResults: pw._testReports,
+  }
 }
 
-function test(descriptor, func, _testReports) {
+function test(
+  descriptor: string,
+  func: () => void,
+  _testReports: TestReport[]
+) {
   _testReports.push({ startBlock: descriptor })
   try {
     func()
   } catch (e) {
-    _testReports.push({ result: ERROR, message: e })
+    _testReports.push({ result: "ERROR", message: e, styles: styles.ERROR })
   }
   _testReports.push({ endBlock: true })
 
@@ -56,33 +78,42 @@ function test(descriptor, func, _testReports) {
   // add checkmark or x depending on if each testReport is pass=true or pass=false
 }
 
-function expect(expectValue, _testReports) {
+function expect(expectValue: any, _testReports: TestReport[]) {
   return new Expectation(expectValue, null, _testReports)
 }
 
 class Expectation {
-  constructor(expectValue, _not, _testReports) {
+  private expectValue: any
+  private not: true | Expectation
+  private _testReports: TestReport[]
+
+  constructor(
+    expectValue: any,
+    _not: boolean | null,
+    _testReports: TestReport[]
+  ) {
     this.expectValue = expectValue
     this.not = _not || new Expectation(this.expectValue, true, _testReports)
     this._testReports = _testReports // this values is used within Test.it, which wraps Expectation and passes _testReports value.
-    this._satisfies = function (expectValue, targetValue) {
-      // Used for testing if two values match the expectation, which could be === OR !==, depending on if not
-      // was used. Expectation#_satisfies prevents the need to have an if(this.not) branch in every test method.
-      // Signature is _satisfies([expectValue,] targetValue): if only one argument is given, it is assumed the targetValue, and expectValue is set to this.expectValue
-      if (!targetValue) {
-        targetValue = expectValue
-        expectValue = this.expectValue
-      }
-      if (this.not === true) {
-        // test the inverse. this.not is always truthly, but an Expectation that is inverted will always be strictly `true`
-        return expectValue !== targetValue
-      } else {
-        return expectValue === targetValue
-      }
+  }
+
+  private _satisfies(expectValue: any, targetValue?: any): boolean {
+    // Used for testing if two values match the expectation, which could be === OR !==, depending on if not
+    // was used. Expectation#_satisfies prevents the need to have an if(this.not) branch in every test method.
+    // Signature is _satisfies([expectValue,] targetValue): if only one argument is given, it is assumed the targetValue, and expectValue is set to this.expectValue
+    if (!targetValue) {
+      targetValue = expectValue
+      expectValue = this.expectValue
+    }
+    if (this.not === true) {
+      // test the inverse. this.not is always truthly, but an Expectation that is inverted will always be strictly `true`
+      return expectValue !== targetValue
+    } else {
+      return expectValue === targetValue
     }
   }
 
-  _fmtNot(message) {
+  _fmtNot(message: string) {
     // given a string with "(not)" in it, replaces with "not" or "", depending if the expectation is expecting the positive or inverse (this._not)
     if (this.not === true) {
       return message.replace("(not)", "not ")
@@ -91,17 +122,21 @@ class Expectation {
     }
   }
 
-  _fail(message) {
-    return this._testReports.push({ result: FAIL, message })
+  _fail(message: string) {
+    return this._testReports.push({
+      result: "FAIL",
+      message,
+      styles: styles.FAIL,
+    })
   }
 
   _pass() {
-    return this._testReports.push({ result: PASS })
+    return this._testReports.push({ result: "PASS", styles: styles.PASS })
   }
 
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)
-  toBe(value) {
+  toBe(value: any) {
     return this._satisfies(value)
       ? this._pass()
       : this._fail(
@@ -109,7 +144,7 @@ class Expectation {
         )
   }
 
-  toHaveProperty(value) {
+  toHaveProperty(value: string) {
     return this._satisfies(
       Object.prototype.hasOwnProperty.call(this.expectValue, value),
       true
@@ -186,7 +221,7 @@ class Expectation {
         )
   }
 
-  toHaveLength(expectedLength) {
+  toHaveLength(expectedLength: number) {
     const actualLength = this.expectValue.length
     return this._satisfies(actualLength, expectedLength)
       ? this._pass()
@@ -197,7 +232,7 @@ class Expectation {
         )
   }
 
-  toBeType(expectedType) {
+  toBeType(expectedType: string) {
     const actualType = typeof this.expectValue
     if (
       ![
